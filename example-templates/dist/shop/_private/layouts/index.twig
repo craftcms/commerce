@@ -14,14 +14,13 @@ Common, top-level layout template.
   <title>{{ siteName ~ ' Shop' }}</title>
 
   <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-<script src="https://unpkg.com/htmx.org@^1"></script>
 
   {% if extraHead is defined %}
     {{ extraHead }}
   {% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-<div id="body" hx-boost="true">
+<div id="body" >
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
@@ -61,7 +60,7 @@ Common, top-level layout template.
     </div>
   {% endif %}
 
-  {% if cart.hasNotices() %}
+  {% if cart and cart.hasNotices() %}
     <div class="bg-blue-400 text-white">
       <div class="container mx-auto px-6 py-4 relative">
         <span>{{ 'Cart Notices'|t }}</span>
@@ -92,7 +91,7 @@ Common, top-level layout template.
     </div>
   {% endif %}
 
-  {% if cart.errors|length %}
+  {% if cart and cart.errors|length %}
     <div class="bg-red-500 text-white">
       <div class="container mx-auto px-6 py-4">
         {% for attribute, errors in cart.errors %}

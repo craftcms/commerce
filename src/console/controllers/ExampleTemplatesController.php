@@ -86,7 +86,6 @@ class ExampleTemplatesController extends Controller
     /**
      * Generates and copies the example templates.
      *
-     * @return int
      * @throws ErrorException
      * @throws Exception
      */
@@ -96,7 +95,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->useHtmx = true;
+            $this->useHtmx = false;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -263,6 +262,7 @@ class ExampleTemplatesController extends Controller
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[resourceTags]]' => implode("\n", $resourceTags),
             '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
+            '[[hx-disable]]' => $this->useHtmx ? 'hx-disable' : '',
         ]);
     }
 
@@ -270,7 +270,6 @@ class ExampleTemplatesController extends Controller
      * Formats and outputs errors and exits.
      *
      * @param string[] $errors Error strings to be shown to the user
-     * @return int
      */
     private function _returnErrors(array $errors): int
     {

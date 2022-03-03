@@ -443,8 +443,6 @@ class ProductTypes extends Component
     /**
      * Handle a product type change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleChangedProductType(ConfigEvent $event): void
@@ -689,9 +687,6 @@ class ProductTypes extends Component
 
     /**
      * Returns all product types by a tax category id.
-     *
-     * @param int $taxCategoryId
-     * @return array
      */
     public function getProductTypesByTaxCategoryId(int $taxCategoryId): array
     {
@@ -711,9 +706,6 @@ class ProductTypes extends Component
 
     /**
      * Returns all product types by a shipping category id.
-     *
-     * @param int $shippingCategoryId
-     * @return array
      */
     public function getProductTypesByShippingCategoryId(int $shippingCategoryId): array
     {
@@ -748,8 +740,6 @@ class ProductTypes extends Component
     /**
      * Handle a product type getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleDeletedProductType(ConfigEvent $event): void
@@ -804,8 +794,6 @@ class ProductTypes extends Component
 
     /**
      * Prune a deleted site from category group site settings.
-     *
-     * @param DeleteSiteEvent $event
      */
     public function pruneDeletedSite(DeleteSiteEvent $event): void
     {
@@ -824,8 +812,6 @@ class ProductTypes extends Component
 
     /**
      * Prune a deleted field from category group layouts.
-     *
-     * @param FieldEvent $event
      */
     public function pruneDeletedField(FieldEvent $event): void
     {
@@ -1002,9 +988,6 @@ class ProductTypes extends Component
 
     /**
      * Gets a product type's record by uid.
-     *
-     * @param string $uid
-     * @return ProductTypeRecord
      */
     private function _getProductTypeRecord(string $uid): ProductTypeRecord
     {

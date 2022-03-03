@@ -77,9 +77,6 @@ class ShippingCategory extends Model
         return (string)$this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/shipping/shippingcategories/' . $this->id);
@@ -117,9 +114,6 @@ class ShippingCategory extends Model
         return ArrayHelper::getColumn($this->getProductTypes(), 'id', false);
     }
 
-    /**
-     * @return array
-     */
     protected function defineRules(): array
     {
         return [

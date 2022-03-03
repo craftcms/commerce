@@ -380,7 +380,7 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
 
     .order-meta-container {
         position: relative;

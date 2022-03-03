@@ -84,9 +84,9 @@ class Settings extends Model
     public bool $allowCheckoutWithoutPayment = false;
 
     /**
-     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     * @var bool Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
      *
-     * The default `false` does not allow partial payments on the front end.
+     * The `false` default does not allow partial payments on the front end.
      *
      * @group Payments
      */
@@ -186,7 +186,7 @@ class Settings extends Model
      *   <p>Redirecting to payment page...</p>
      *   <p>
      *     {{ inputs|raw }}
-     *     <input type="submit" value="Continue">
+     *     <button type="submit">Continue</button>
      *   </p>
      * </form>
      * </body>
@@ -205,16 +205,7 @@ class Settings extends Model
     public string $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var array Payment gateway settings indexed by each gateway’s handle.
-     *
-     * Check each gateway’s documentation for settings that may be stored.
-     *
-     * @group Payments
-     */
-    public array $gatewaySettings = [];
-
-    /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
      *
@@ -239,7 +230,7 @@ class Settings extends Model
     /**
      * @var string Human-friendly reference number format for orders. Result must be unique.
      *
-     * See [Order Numbers](orders.md#order-numbers).
+     * See [Order Numbers](orders-carts.md#order-numbers).
      *
      * @group Orders
      */
@@ -328,7 +319,7 @@ class Settings extends Model
      * @var string URL for a user to resolve billing issues with their subscription.
      *
      * ::: tip
-     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/master/example-templates/shop/plans/update-billing-details.twig).
+     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/main/example-templates/dist/shop/plans/update-billing-details.twig).
      * :::
      *
      * @group Orders
@@ -423,8 +414,6 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of weight unit options and labels.
-     *
-     * @return array
      */
     public function getWeightUnitsOptions(): array
     {
@@ -437,8 +426,6 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of dimension unit options and labels.
-     *
-     * @return array
      */
     public function getDimensionUnits(): array
     {
@@ -453,8 +440,6 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
-     *
-     * @return array
      */
     public function getMinimumTotalPriceStrategyOptions(): array
     {
@@ -467,8 +452,6 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
-     *
-     * @return array
      */
     public function getFreeOrderPaymentStrategyOptions(): array
     {
@@ -482,7 +465,6 @@ class Settings extends Model
      * Returns the ISO payment currency for a given site, or the default site if no handle is provided.
      *
      * @param string|null $siteHandle
-     * @return string|null
      * @throws InvalidConfigException if the currency in the config file is not set up
      * @throws CurrencyException
      */
@@ -502,7 +484,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of default control panel view options and labels.
      *
-     * @return array
      * @since 2.2
      */
     public function getDefaultViewOptions(): array

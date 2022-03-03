@@ -89,23 +89,11 @@ class TopPurchasables extends Widget
             'revenue' => Craft::t('commerce', 'Revenue'),
         ];
 
-        switch ($this->type) {
-            case 'revenue':
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables by Revenue');
-                break;
-            }
-            case 'qty':
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables by Qty Sold');
-                break;
-            }
-            default:
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables');
-                break;
-            }
-        }
+        $this->_title = match ($this->type) {
+            'revenue' => Craft::t('commerce', 'Top Purchasables by Revenue'),
+            'qty' => Craft::t('commerce', 'Top Purchasables by Qty Sold'),
+            default => Craft::t('commerce', 'Top Purchasables'),
+        };
 
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopPurchasablesStat::DATE_RANGE_TODAY : $this->dateRange;
 

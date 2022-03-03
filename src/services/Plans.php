@@ -117,7 +117,6 @@ class Plans extends Component
     /**
      * Return all subscription plans for a gateway.
      *
-     * @param int $gatewayId
      * @return Plan[]
      */
     public function getPlansByGatewayId(int $gatewayId): array
@@ -128,7 +127,6 @@ class Plans extends Component
     /**
      * Return all subscription plans for a gateway.
      *
-     * @param int $gatewayId
      * @return Plan[]
      * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
      */
@@ -141,7 +139,6 @@ class Plans extends Component
      * Returns a subscription plan by its id.
      *
      * @param int $planId The plan id.
-     * @return Plan|null
      */
     public function getPlanById(int $planId): ?Plan
     {
@@ -152,7 +149,6 @@ class Plans extends Component
      * Returns a subscription plan by its uid.
      *
      * @param string $planUid The plan uid.
-     * @return Plan|null
      */
     public function getPlanByUid(string $planUid): ?Plan
     {
@@ -163,7 +159,6 @@ class Plans extends Component
      * Returns a subscription plan by its handle.
      *
      * @param string $handle the plan handle
-     * @return Plan|null
      * @noinspection PhpUnused
      */
     public function getPlanByHandle(string $handle): ?Plan
@@ -175,7 +170,6 @@ class Plans extends Component
      * Returns a subscription plan by its reference.
      *
      * @param string $reference the plan reference
-     * @return Plan|null
      */
     public function getPlanByReference(string $reference): ?Plan
     {
@@ -261,7 +255,6 @@ class Plans extends Component
      * Archive a subscription plan by its id.
      *
      * @param int $id The id
-     * @return bool
      * @throws InvalidConfigException
      */
     public function archivePlanById(int $id): bool
@@ -338,7 +331,6 @@ class Plans extends Component
     /**
      * Populate an array of plans from their database table rows
      *
-     * @param array $results
      * @return Plan[]
      */
     private function _populatePlans(array $results): array
@@ -359,8 +351,6 @@ class Plans extends Component
     /**
      * Populate a payment plan model from database table row.
      *
-     * @param array $result
-     * @return Plan
      * @throws InvalidConfigException if the gateway does not support subscriptions
      */
     private function _populatePlan(array $result): Plan

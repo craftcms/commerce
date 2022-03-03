@@ -27,7 +27,6 @@ use yii\web\Response;
 class DownloadsController extends BaseFrontEndController
 {
     /**
-     * @return Response
      * @throws HttpException
      * @throws Throwable
      * @throws Exception

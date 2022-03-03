@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -31,9 +32,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -51,7 +49,6 @@ class TaxRatesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxRate|null $taxRate
-     * @return Response
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws LoaderError
@@ -66,6 +63,7 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $variables = compact('id', 'taxRate');
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 
@@ -119,6 +117,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Get the HTML and JS for the new tax zone/category modals
         $view = $this->getView();
+        $oldNamespace = $view->getNamespace();
         $view->setNamespace('new');
 
         $view->startJsBuffer();
@@ -144,8 +143,6 @@ class TaxRatesController extends BaseTaxSettingsController
             $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
-
-        $view->setNamespace();
 
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
@@ -176,15 +173,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        $rate = Craft::$app->getRequest()->getBodyParam('rate');
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $taxRate->rate = (float)$rate / 100;
-        } else {
-            $taxRate->rate = (float)$rate;
-        }
+        $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
@@ -201,7 +190,6 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -217,6 +205,6 @@ class TaxRatesController extends BaseTaxSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

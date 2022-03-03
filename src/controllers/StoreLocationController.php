@@ -16,9 +16,6 @@ use yii\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionEditLocation(): Response
     {
         $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
@@ -38,7 +35,6 @@ class StoreLocationController extends BaseStoreSettingsController
     /**
      * Saves the store location setting
      *
-     * @return Response
      * @throws Exception
      * @throws BadRequestHttpException
      */

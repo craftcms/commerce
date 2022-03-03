@@ -61,9 +61,6 @@ interface StatInterface
         self::DATE_RANGE_ALL => 'month',
     ];
 
-    /**
-     * @return string
-     */
     public function getHandle(): string;
 
     /**
@@ -86,14 +83,8 @@ interface StatInterface
      */
     public function getEndDate();
 
-    /**
-     * @param DateTime|null $date
-     */
     public function setStartDate(?DateTime $date): void;
 
-    /**
-     * @param DateTime|null $date
-     */
     public function setEndDate(?DateTime $date): void;
 
     /**
@@ -102,8 +93,5 @@ interface StatInterface
      */
     public function prepareData($data);
 
-    /**
-     * @return string
-     */
     public function getDateRangeWording(): string;
 }

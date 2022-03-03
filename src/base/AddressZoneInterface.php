@@ -20,8 +20,6 @@ interface AddressZoneInterface
 {
     /**
      * Whether this zone is based on countries only.
-     *
-     * @return bool
      */
     public function getIsCountryBased(): bool;
 
@@ -56,7 +54,6 @@ interface AddressZoneInterface
     /**
      * Return the zip code match
      *
-     * @return string|null
      * @since 2.2
      */
     public function getZipCodeConditionFormula(): ?string;

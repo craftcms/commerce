@@ -26,9 +26,6 @@ use yii\web\Response;
  */
 class GatewaysController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
@@ -41,7 +38,6 @@ class GatewaysController extends BaseAdminController
     /**
      * @param int|null $id
      * @param GatewayInterface|null $gateway
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
@@ -97,7 +93,6 @@ class GatewaysController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */
@@ -163,12 +158,12 @@ class GatewaysController extends BaseAdminController
 
         if ($id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
             if (Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
-                return $this->asJson(['success' => true]);
+                return $this->asSuccess();
             }
         }
 
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not archive gateway.'));
+        return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
     }
 
     /**
@@ -181,9 +176,9 @@ class GatewaysController extends BaseAdminController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder gateways.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));
     }
 }

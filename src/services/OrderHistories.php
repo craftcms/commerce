@@ -61,9 +61,6 @@ class OrderHistories extends Component
 
     /**
      * Get order history by its ID.
-     *
-     * @param int $id
-     * @return OrderHistory|null
      */
     public function getOrderHistoryById(int $id): ?OrderHistory
     {
@@ -99,9 +96,6 @@ class OrderHistories extends Component
     /**
      * Create an order history from an order.
      *
-     * @param Order $order
-     * @param int|null $oldStatusId
-     * @return bool
      * @throws Exception
      * @throws InvalidConfigException
      * @throws MissingComponentException
@@ -146,9 +140,7 @@ class OrderHistories extends Component
     /**
      * Save an order history.
      *
-     * @param OrderHistory $model
      * @param bool $runValidation Whether the Order Adjustment should be validated
-     * @return bool
      * @throws Exception
      */
     public function saveOrderHistory(OrderHistory $model, bool $runValidation = true): bool
@@ -189,8 +181,6 @@ class OrderHistories extends Component
     /**
      * Delete an order history by its ID.
      *
-     * @param int $id
-     * @return bool
      * @throws \Throwable
      * @throws StaleObjectException
      * @noinspection PhpUnused

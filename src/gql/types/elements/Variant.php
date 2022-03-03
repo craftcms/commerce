@@ -40,15 +40,11 @@ class Variant extends ElementType
         /** @var VariantElement $source */
         $fieldName = $resolveInfo->fieldName;
         $product = $source->getProduct();
-
-        switch ($fieldName) {
-            case 'productTitle':
-                return $product->title ?? '';
-            case 'productTypeId':
-                return $product->typeId ?? null;
-        }
-
-        return parent::resolve($source, $arguments, $context, $resolveInfo);
+        return match ($fieldName) {
+            'productTitle' => $product->title ?? '',
+            'productTypeId' => $product->typeId ?? null,
+            default => parent::resolve($source, $arguments, $context, $resolveInfo),
+        };
     }
 
 }

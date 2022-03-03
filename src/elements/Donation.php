@@ -40,9 +40,6 @@ class Donation extends Purchasable
      */
     private string $_sku;
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -68,9 +65,6 @@ class Donation extends Purchasable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function fields(): array
     {
         $fields = parent::fields();
@@ -83,6 +77,26 @@ class Donation extends Purchasable
         return $fields;
     }
 
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['sku'], 'trim'];
+        $rules[] = [['sku'], 'required', 'when' => function($model) {
+            /** @var self $model */
+            return $model->availableForPurchase && $model->enabled;
+        }];
+
+        return $rules;
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
@@ -151,8 +165,6 @@ class Donation extends Purchasable
 
     /**
      * Returns the product title and variants title together for variable products.
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -183,9 +195,6 @@ class Donation extends Purchasable
         return $this->_sku;
     }
 
-    /**
-     * @param string|null $value
-     */
     public function setSku(?string $value): void
     {
         $this->_sku = $value;
@@ -268,7 +277,6 @@ class Donation extends Purchasable
     }
 
     /**
-     * @param bool $isNew
      * @throws Exception
      */
     public function afterSave(bool $isNew): void

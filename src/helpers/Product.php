@@ -28,17 +28,15 @@ class Product
     /**
      * Populates all Variant Models from HUD or POST data
      *
-     * @param ProductModel $product
      * @param               $variant
      * @param               $key
-     * @return Variant
      * @throws InvalidConfigException
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {
         $productId = $product->id;
 
-        $newVariant = 0 === strpos($key, 'new');
+        $newVariant = str_starts_with($key, 'new');
         if ($productId && !$newVariant) {
             $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
         } else {
@@ -51,7 +49,7 @@ class Product
         $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
-        $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
+        $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
         $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
         $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
         $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
@@ -76,7 +74,6 @@ class Product
      * Instantiates the product specified by the post data.
      *
      * @param Request|null $request
-     * @return ProductModel
      * @throws NotFoundHttpException
      * @since 3.1.3
      */
@@ -109,7 +106,6 @@ class Product
      *
      * @param ProductModel|null $product
      * @param Request|null $request
-     * @return ProductModel
      * @throws NotFoundHttpException
      */
     public static function populateProductFromPost(ProductModel $product = null, Request $request = null): ProductModel

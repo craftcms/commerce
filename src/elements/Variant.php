@@ -29,6 +29,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\models\FieldLayout;
+use craft\helpers\Html;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -256,7 +257,6 @@ class Variant extends Purchasable
     private string $_sku = '';
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -283,9 +283,6 @@ class Variant extends Purchasable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function fields(): array
     {
         $fields = parent::fields();
@@ -455,7 +452,6 @@ class Variant extends Purchasable
     /**
      * Returns the product title and variants title together for variable products.
      *
-     * @return string
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
@@ -477,7 +473,6 @@ class Variant extends Purchasable
     /**
      * Updates the title based on titleFormat, or sets it to the same title as the product.
      *
-     * @param Product $product
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
@@ -504,7 +499,6 @@ class Variant extends Purchasable
 
 
     /**
-     * @param Product $product
      * @throws Throwable
      */
     public function updateSku(Product $product): void
@@ -543,7 +537,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
      * @throws InvalidConfigException
      */
     protected function isEditable(): bool
@@ -585,7 +578,6 @@ class Variant extends Purchasable
 
     /**
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getSnapshot(): array
@@ -693,8 +685,6 @@ class Variant extends Purchasable
 
     /**
      * Returns the SKU as text but returns a blank string if it’s a temp SKU.
-     *
-     * @return string
      */
     public function getSkuAsText(): string
     {
@@ -709,7 +699,6 @@ class Variant extends Purchasable
 
     /**
      * @param string|null $sku
-     * @return void
      */
     public function setSku(string $sku = null): void
     {
@@ -734,8 +723,6 @@ class Variant extends Purchasable
 
     /**
      * Returns whether this variant has stock.
-     *
-     * @return bool
      */
     public function hasStock(): bool
     {
@@ -896,8 +883,6 @@ class Variant extends Purchasable
 
     /**
      * Returns a promotion category related to this element if the category is related to the product OR the variant.
-     *
-     * @return array
      */
     public function getPromotionRelationSource(): array
     {
@@ -913,7 +898,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
      * @throws InvalidConfigException
      * @since 3.1
      */
@@ -930,7 +914,6 @@ class Variant extends Purchasable
 
     /**
      * @param mixed $context
-     * @return string
      * @since 3.1
      */
     public static function gqlTypeNameByContext($context): string
@@ -940,7 +923,6 @@ class Variant extends Purchasable
 
     /**
      * @param mixed $context
-     * @return array
      * @since 3.1
      */
     public static function gqlScopesByContext($context): array
@@ -1141,8 +1123,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param bool $isNew
-     * @return bool
      * @throws InvalidConfigException
      */
     public function beforeSave(bool $isNew): bool
@@ -1232,8 +1212,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param string $attribute
-     * @return string
      * @throws InvalidConfigException
      * @since 2.2
      */
@@ -1329,11 +1307,16 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->getSkuAsText();
+                return Html::encode($this->getSkuAsText());
             }
             case 'product':
             {
-                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
+                $product = $this->getProduct();
+                if (!$product) {
+                    return '';
+                }
+
+                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
             }
             case 'price':
             {

@@ -41,7 +41,6 @@ class OrderStatus extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getEmails(): ActiveQueryInterface

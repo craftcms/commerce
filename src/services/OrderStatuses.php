@@ -88,7 +88,6 @@ class OrderStatuses extends Component
     /**
      * Returns all Order Statuses
      *
-     * @param bool $withTrashed
      * @return OrderStatus[]
      * @since 2.2
      */
@@ -128,9 +127,6 @@ class OrderStatuses extends Component
 
     /**
      * Get an order status by ID
-     *
-     * @param int $id
-     * @return OrderStatus|null
      */
     public function getOrderStatusById(int $id): ?OrderStatus
     {
@@ -139,9 +135,6 @@ class OrderStatuses extends Component
 
     /**
      * Get order status by its handle.
-     *
-     * @param string $handle
-     * @return OrderStatus|null
      */
     public function getOrderStatusByHandle(string $handle): ?OrderStatus
     {
@@ -150,8 +143,6 @@ class OrderStatuses extends Component
 
     /**
      * Get default order status from the DB
-     *
-     * @return OrderStatus|null
      */
     public function getDefaultOrderStatus(): ?OrderStatus
     {
@@ -161,7 +152,6 @@ class OrderStatuses extends Component
     /**
      * Get default order status ID from the DB
      *
-     * @return int|null
      * @noinspection PhpUnused
      */
     public function getDefaultOrderStatusId(): ?int
@@ -174,9 +164,6 @@ class OrderStatuses extends Component
 
     /**
      * Get the default order status for a particular order. Defaults to the CP configured default order status.
-     *
-     * @param Order $order
-     * @return OrderStatus|null
      */
     public function getDefaultOrderStatusForOrder(Order $order): ?OrderStatus
     {
@@ -195,7 +182,6 @@ class OrderStatuses extends Component
     }
 
     /**
-     * @return array
      * @since 3.0.11
      */
     public function getOrderCountByStatus(): array
@@ -230,10 +216,7 @@ class OrderStatuses extends Component
     /**
      * Save the order status.
      *
-     * @param OrderStatus $orderStatus
-     * @param array $emailIds
      * @param bool $runValidation should we validate this order status before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true): bool
@@ -293,7 +276,6 @@ class OrderStatuses extends Component
     /**
      * Handle order status change.
      *
-     * @param ConfigEvent $event
      * @return void
      * @throws Throwable if reasons
      */
@@ -352,8 +334,6 @@ class OrderStatuses extends Component
     /**
      * Delete an order status by it's id.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      */
     public function deleteOrderStatusById(int $id): bool
@@ -374,7 +354,6 @@ class OrderStatuses extends Component
     /**
      * Handle order status being deleted
      *
-     * @param ConfigEvent $event
      * @return void
      * @throws Throwable if reasons
      */
@@ -402,8 +381,6 @@ class OrderStatuses extends Component
 
     /**
      * Prune a deleted email from order statuses.
-     *
-     * @param EmailEvent $event
      */
     public function pruneDeletedEmail(EmailEvent $event)
     {
@@ -460,8 +437,6 @@ class OrderStatuses extends Component
     /**
      * Reorders the order statuses.
      *
-     * @param array $ids
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -488,7 +463,6 @@ class OrderStatuses extends Component
      * Returns a Query object prepped for retrieving order statuses
      *
      * @param bool $withTrashed
-     * @return Query
      */
     private function _createOrderStatusesQuery($withTrashed = false): Query
     {
@@ -516,9 +490,6 @@ class OrderStatuses extends Component
 
     /**
      * Gets an order status' record by uid.
-     *
-     * @param string $uid
-     * @return OrderStatusRecord
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {

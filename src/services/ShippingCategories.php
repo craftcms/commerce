@@ -59,8 +59,6 @@ class ShippingCategories extends Component
 
     /**
      * Returns all Shipping category names, by ID.
-     *
-     * @return array
      */
     public function getAllShippingCategoriesAsList(): array
     {
@@ -71,9 +69,6 @@ class ShippingCategories extends Component
 
     /**
      * Get a shipping category by its ID.
-     *
-     * @param int $shippingCategoryId
-     * @return ShippingCategory|null
      */
     public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
     {
@@ -85,8 +80,6 @@ class ShippingCategories extends Component
     /**
      * Get a shipping category by its handle.
      *
-     * @param string $shippingCategoryHandle
-     * @return ShippingCategory|null
      * @noinspection PhpUnused
      */
     public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
@@ -99,7 +92,6 @@ class ShippingCategories extends Component
     /**
      * Returns the default shipping category.
      *
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getDefaultShippingCategory(): ShippingCategory
@@ -120,9 +112,7 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param ShippingCategory $shippingCategory
      * @param bool $runValidation should we validate this before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -205,8 +195,6 @@ class ShippingCategories extends Component
 
     /**
      * Re-save products by product type id
-     *
-     * @param int $productTypeId
      */
     private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
@@ -222,8 +210,6 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -248,7 +234,6 @@ class ShippingCategories extends Component
 
     /**
      * @param $productTypeId
-     * @return array
      * @throws InvalidConfigException
      */
     public function getShippingCategoriesByProductTypeId($productTypeId): array
@@ -283,8 +268,6 @@ class ShippingCategories extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping categories.
-     *
-     * @return Query
      */
     private function _createShippingCategoryQuery(): Query
     {

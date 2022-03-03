@@ -93,9 +93,6 @@ class Tax extends Component implements AdjusterInterface
         return $this->_adjustInternal();
     }
 
-    /**
-     * @return array
-     */
     private function _adjustInternal(): array
     {
         $adjustments = [];
@@ -116,7 +113,6 @@ class Tax extends Component implements AdjusterInterface
 
 
     /**
-     * @param TaxRate $taxRate
      * @return OrderAdjustment[]
      */
     private function _getAdjustments(TaxRate $taxRate): array
@@ -280,7 +276,6 @@ class Tax extends Component implements AdjusterInterface
      * @param $taxableAmount
      * @param $rate
      * @param $included
-     * @return float
      * @since 3.1
      */
     private function _getTaxAmount($taxableAmount, $rate, $included): float
@@ -298,10 +293,6 @@ class Tax extends Component implements AdjusterInterface
         return $tax;
     }
 
-    /**
-     * @param TaxAddressZone $zone
-     * @return bool
-     */
     private function _matchAddress(TaxAddressZone $zone): bool
     {
         //when having no address check default tax zones only
@@ -312,9 +303,6 @@ class Tax extends Component implements AdjusterInterface
         return Plugin::getInstance()->getAddresses()->addressWithinZone($this->_address, $zone);
     }
 
-    /**
-     * @return bool
-     */
     private function _validateEuBusinessTaxId(): bool
     {
 
@@ -345,10 +333,6 @@ class Tax extends Component implements AdjusterInterface
         return false;
     }
 
-    /**
-     * @param string $businessVatId
-     * @return bool
-     */
     protected function validateVatNumber(string $businessVatId): bool
     {
         try {
@@ -360,9 +344,6 @@ class Tax extends Component implements AdjusterInterface
         }
     }
 
-    /**
-     * @return Validator
-     */
     private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
@@ -373,10 +354,6 @@ class Tax extends Component implements AdjusterInterface
         return $this->_vatValidator;
     }
 
-    /**
-     * @param TaxRate $rate
-     * @return OrderAdjustment
-     */
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
     {
         $adjustment = new OrderAdjustment;
@@ -392,8 +369,6 @@ class Tax extends Component implements AdjusterInterface
 
     /**
      * Returns the total price of the order, minus any tax adjustments.
-     *
-     * @return float
      */
     private function _getOrderTotalTaxablePrice(Order $order): float
     {
@@ -406,9 +381,6 @@ class Tax extends Component implements AdjusterInterface
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
     }
 
-    /**
-     * @return Address|null
-     */
     private function _getTaxAddress(): ?Address
     {
         $this->_isEstimated = false;

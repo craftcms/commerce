@@ -251,7 +251,7 @@ Outputs cart.
                     <div class="{{ labelClasses }}">{{ 'Total Tax (inc)'|t }}:</div>
                     <div class="{{ valueClasses }}">{{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}</div>
                   </div>
-                  {% if cart.getTotalDiscount() > 0 %}
+                  {% if cart.getTotalDiscount() != 0 %}
                     <div class="flex items-center w-full justify-end" title="{{ cart.getTotalDiscount() }}">
                       <div class="{{ labelClasses }}">{{ 'Total Discount'|t }}:</div>
                       <div class="{{ valueClasses }}">{{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}</div>

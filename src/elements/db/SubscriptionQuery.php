@@ -317,7 +317,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function gatewayId($value): SubscriptionQuery
+    public function gatewayId(array|int $value): SubscriptionQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -338,7 +338,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function orderId($value): SubscriptionQuery
+    public function orderId(array|int $value): SubscriptionQuery
     {
         $this->orderId = $value;
         return $this;
@@ -350,7 +350,7 @@ class SubscriptionQuery extends ElementQuery
      * @param string|string[] $value The property value
      * @return static self reference
      */
-    public function reference($value): SubscriptionQuery
+    public function reference(array|string $value): SubscriptionQuery
     {
         $this->reference = $value;
         return $this;
@@ -375,7 +375,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch trialed subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .onTrial()
      *   .all() %}
      * ```
@@ -443,7 +443,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch canceled subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCanceled()
      *   .all() %}
      * ```
@@ -511,7 +511,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch started subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasStarted()
      *   .all() %}
      * ```
@@ -539,7 +539,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch suspended subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isSuspended()
      *   .all() %}
      * ```
@@ -606,7 +606,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isExpired()
      *   .all() %}
      * ```
@@ -683,7 +683,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('expired')
      *   .all() %}
      * ```
@@ -802,18 +802,15 @@ class SubscriptionQuery extends ElementQuery
      */
     protected function statusCondition(string $status)
     {
-        switch ($status) {
-            case Subscription::STATUS_ACTIVE:
-                return [
-                    'commerce_subscriptions.isExpired' => '0',
-                ];
-            case Subscription::STATUS_EXPIRED:
-                return [
-                    'commerce_subscriptions.isExpired' => '1',
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Subscription::STATUS_ACTIVE => [
+                'commerce_subscriptions.isExpired' => '0',
+            ],
+            Subscription::STATUS_EXPIRED => [
+                'commerce_subscriptions.isExpired' => '1',
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
@@ -829,7 +826,6 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Returns the SQL condition to use for trial status.
      *
-     * @param bool $onTrial
      * @return mixed
      */
     private function _getTrialCondition(bool $onTrial)

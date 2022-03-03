@@ -188,7 +188,6 @@ class TopProducts extends Stat
     /**
      * Create select statement for a stat type `custom` based on the options chosen.
      *
-     * @return Expression
      * @since 3.4
      */
     protected function getAdjustmentsSelect(): Expression
@@ -221,14 +220,13 @@ class TopProducts extends Stat
     /**
      * Create the adjustments sub query for use with revenue calculation.
      *
-     * @return Query
      * @since 3.4
      */
     protected function createAdjustmentsSubQuery(): Query
     {
         $types = [];
         foreach ($this->revenueOptions as $revenueOption) {
-            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax' : $revenueOption;
+            $types[] = str_starts_with($revenueOption, 'tax') ? 'tax' : $revenueOption;
         }
         $types = array_unique($types);
 
@@ -252,7 +250,6 @@ class TopProducts extends Stat
     /**
      * Return the order by clause for the data query.
      *
-     * @return Expression
      * @since 3.4
      */
     protected function getOrderBy(): Expression
@@ -272,7 +269,6 @@ class TopProducts extends Stat
     /**
      * Return group by statement based on state type.
      *
-     * @return string
      * @since 3.4
      */
     protected function getGroupBy(): string

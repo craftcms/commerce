@@ -50,7 +50,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -62,7 +61,6 @@ class SalesController extends BaseCpController
     /**
      * @param int|null $id
      * @param Sale|null $sale
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -85,6 +83,9 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
+                $variables['sale']->allCategories = true;
+                $variables['sale']->allPurchasables = true;
+                $variables['sale']->allGroups = true;
             }
         }
 
@@ -148,30 +149,42 @@ class SalesController extends BaseCpController
             $sale->applyAmount = (float)$applyAmount * -1;
         }
 
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+        // Set purchasable conditions
+        if ($sale->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+            $sale->setPurchasableIds([]);
+        } else {
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
-        }
-        $sale->setPurchasableIds(array_unique($purchasables));
-
-        $categories = $request->getBodyParam('categories', []);
-
-        if (!$categories) {
-            $categories = [];
+            $sale->setPurchasableIds($purchasables);
         }
 
-        $sale->setCategoryIds(array_unique($categories));
-
-        $groups = $request->getBodyParam('groups', []);
-
-        if (!$groups) {
-            $groups = [];
+        // Set category conditions
+        if ($sale->allCategories = (bool)$request->getBodyParam('allCategories')) {
+            $sale->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $sale->setCategoryIds($categories);
         }
 
-        $sale->setUserGroupIds(array_unique($groups));
+        // Set user group conditions
+        // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
+        if ($sale->allGroups = (bool)$request->getBodyParam('allGroups', true)) {
+            $sale->setUserGroupIds([]);
+        } else {
+            $groups = $request->getBodyParam('groups', []);
+            if (!$groups) {
+                $groups = [];
+            }
+            $sale->setUserGroupIds($groups);
+        }
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
@@ -199,14 +212,13 @@ class SalesController extends BaseCpController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder sales.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
     }
 
     /**
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws StaleObjectException
@@ -234,7 +246,7 @@ class SalesController extends BaseCpController
         }
 
         if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Sales deleted.'));
@@ -243,7 +255,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetAllSales(): Response
@@ -255,7 +266,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -267,13 +277,13 @@ class SalesController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Product ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Product ID is required.'));
         }
 
         $product = Plugin::getInstance()->getProducts()->getProductById($id);
 
         if (!$product) {
-            return $this->asErrorJson(Craft::t('commerce', 'No product available.'));
+            return $this->asFailure(Craft::t('commerce', 'No product available.'));
         }
 
         $sales = [];
@@ -289,14 +299,12 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
-            'sales' => $sales,
-        ]);
+        return $this->asSuccess(
+            data: ['sales' => $sales],
+        );
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -308,13 +316,13 @@ class SalesController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
         }
 
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
 
         if (!$purchasable) {
-            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+            return $this->asFailure(Craft::t('commerce', 'No purchasable available.'));
         }
 
         $sales = [];
@@ -328,14 +336,12 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'sales' => $sales,
         ]);
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
@@ -349,7 +355,7 @@ class SalesController extends BaseCpController
         $saleId = $request->getParam('saleId', null);
 
         if (empty($ids) || !$saleId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));
         }
 
         $purchasables = [];
@@ -360,7 +366,7 @@ class SalesController extends BaseCpController
         $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
 
         if (empty($purchasables) || count($purchasables) != count($ids) || !$sale) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve Sale and Purchasable.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve Sale and Purchasable.'));
         }
 
         $salePurchasableIds = $sale->getPurchasableIds();
@@ -369,10 +375,10 @@ class SalesController extends BaseCpController
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
         if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Couldn’t save sale.'));
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -429,10 +435,9 @@ class SalesController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localeData = Craft::$app->getLocale();
-        $variables['percentSymbol'] = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $variables['currencySymbol'] = $localeData->getCurrencySymbol($primaryCurrencyIso);
+        $variables['currencySymbol'] = Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {

@@ -81,25 +81,16 @@ class Customer extends Model
         return Craft::t('commerce', 'Customer');
     }
 
-    /**
-     * @return string
-     */
     public static function lowerDisplayName(): string
     {
         return Craft::t('commerce', 'customer');
     }
 
-    /**
-     * @return string
-     */
     public static function pluralDisplayName(): string
     {
         return Craft::t('commerce', 'Customers');
     }
 
-    /**
-     * @return string
-     */
     public static function pluralLowerDisplayName(): string
     {
         return Craft::t('commerce', 'customers');
@@ -107,8 +98,6 @@ class Customer extends Model
 
     /**
      * Returns the email address of the customer as the string output.
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -133,8 +122,6 @@ class Customer extends Model
 
     /**
      * Returns the user element associated with this customer.
-     *
-     * @return User|null
      */
     public function getUser(): ?User
     {
@@ -153,8 +140,6 @@ class Customer extends Model
 
     /**
      * Sets the user this customer is related to.
-     *
-     * @param User $user
      */
     public function setUser(User $user): void
     {
@@ -164,8 +149,6 @@ class Customer extends Model
 
     /**
      * Returns the customers email address if it is related to a user.
-     *
-     * @return string
      */
     public function getEmail(): string
     {
@@ -192,7 +175,6 @@ class Customer extends Model
      * Returns an address for the customer.
      *
      * @param int|null $id the ID of the address to return, if known
-     * @return Address|null
      */
     public function getAddressById(int $id = null): ?Address
     {
@@ -200,7 +182,6 @@ class Customer extends Model
     }
 
     /**
-     * @return string
      * @since 3.0
      */
     public function getCpEditUrl(): string
@@ -225,7 +206,6 @@ class Customer extends Model
     }
 
     /**
-     * @return array
      * @throws Exception
      * @since 2.2
      */
@@ -236,7 +216,6 @@ class Customer extends Model
     }
 
     /**
-     * @return array
      * @throws Exception
      * @since 2.2
      */
@@ -264,8 +243,6 @@ class Customer extends Model
 
     /**
      * Returns the  customer's primary billing address if it exists.
-     *
-     * @return Address|null
      */
     public function getPrimaryBillingAddress(): ?Address
     {
@@ -281,8 +258,6 @@ class Customer extends Model
 
     /**
      * Returns the customer's primary shipping address if it exists.
-     *
-     * @return Address|null
      */
     public function getPrimaryShippingAddress(): ?Address
     {

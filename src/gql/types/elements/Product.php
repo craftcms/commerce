@@ -39,14 +39,10 @@ class Product extends ElementType
     {
         /** @var ProductElement $source */
         $fieldName = $resolveInfo->fieldName;
-
-        switch ($fieldName) {
-            case 'productTypeHandle':
-                return $source->getType()->handle;
-            case 'productTypeId':
-                return $source->getType()->id;
-        }
-
-        return parent::resolve($source, $arguments, $context, $resolveInfo);
+        return match ($fieldName) {
+            'productTypeHandle' => $source->getType()->handle,
+            'productTypeId' => $source->getType()->id,
+            default => parent::resolve($source, $arguments, $context, $resolveInfo),
+        };
     }
 }

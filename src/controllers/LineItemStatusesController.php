@@ -29,9 +29,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
@@ -42,7 +39,6 @@ class LineItemStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param LineItemStatus|null $lineItemStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, LineItemStatus $lineItemStatus = null): Response
@@ -104,7 +100,6 @@ class LineItemStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -118,14 +113,13 @@ class LineItemStatusesController extends BaseAdminController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Throwable
      */
@@ -136,9 +130,9 @@ class LineItemStatusesController extends BaseAdminController
         $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
         if (Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Line Item Status.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
     }
 }

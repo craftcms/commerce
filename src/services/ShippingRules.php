@@ -60,7 +60,6 @@ class ShippingRules extends Component
     /**
      * Get all shipping rules by a shipping method ID.
      *
-     * @param int $id
      * @return ShippingRule[]
      */
     public function getAllShippingRulesByShippingMethodId(int $id): array
@@ -70,9 +69,6 @@ class ShippingRules extends Component
 
     /**
      * Get a shipping rule by its ID.
-     *
-     * @param int $id
-     * @return ShippingRule|null
      */
     public function getShippingRuleById(int $id): ?ShippingRule
     {
@@ -82,9 +78,7 @@ class ShippingRules extends Component
     /**
      * Save a shipping rule.
      *
-     * @param ShippingRule $model
      * @param bool $runValidation should we validate this rule before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveShippingRule(ShippingRule $model, bool $runValidation = true): bool
@@ -180,9 +174,7 @@ class ShippingRules extends Component
     /**
      * Save a shipping rule.
      *
-     * @param ShippingRule $model
      * @param bool $runValidation should we validate this rule before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
@@ -201,8 +193,6 @@ class ShippingRules extends Component
 
     /**
      * Gets the lite shipping rule or returns a new one.
-     *
-     * @return ShippingRule
      */
     public function getLiteShippingRule(): ShippingRule
     {
@@ -226,8 +216,6 @@ class ShippingRules extends Component
     /**
      * Reorders shipping rules by the given array of IDs.
      *
-     * @param array $ids
-     * @return bool
      * @throws \yii\db\Exception
      */
     public function reorderShippingRules(array $ids): bool
@@ -243,8 +231,6 @@ class ShippingRules extends Component
     /**
      * Deletes a shipping rule by an ID.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -263,8 +249,6 @@ class ShippingRules extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping rules.
-     *
-     * @return Query
      */
     private function _createShippingRulesQuery(): Query
     {

@@ -17,9 +17,6 @@ use craft\commerce\models\PaymentSource;
  */
 class DummyPaymentForm extends CreditCardPaymentForm
 {
-    /**
-     * @param PaymentSource $paymentSource
-     */
     public function populateFromPaymentSource(PaymentSource $paymentSource): void
     {
         $this->token = $paymentSource->id;

@@ -15,6 +15,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
@@ -216,7 +217,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
@@ -228,9 +228,6 @@ class LineItem extends Model
         return $this->_order;
     }
 
-    /**
-     * @param Order $order
-     */
     public function setOrder(Order $order): void
     {
         $this->orderId = $order->id;
@@ -238,7 +235,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return LineItemStatus|null
      * @throws InvalidConfigException
      */
     public function getLineItemStatus(): ?LineItemStatus
@@ -268,8 +264,6 @@ class LineItem extends Model
 
     /**
      * Returns the options for the line item.
-     *
-     * @return array
      */
     public function getOptions(): array
     {
@@ -278,10 +272,8 @@ class LineItem extends Model
 
     /**
      * Set the options array on the line item.
-     *
-     * @param array|string $options
      */
-    public function setOptions($options): void
+    public function setOptions(array|string $options): void
     {
         $options = Json::decodeIfJson($options);
 
@@ -311,9 +303,6 @@ class LineItem extends Model
         }
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         if (!$this->_description) {
@@ -324,17 +313,11 @@ class LineItem extends Model
         return $this->_description;
     }
 
-    /**
-     * @param string $description
-     */
     public function setDescription(string $description): void
     {
         $this->_description = $description;
     }
 
-    /**
-     * @return string
-     */
     public function getSku(): string
     {
         if (!$this->_sku) {
@@ -345,9 +328,6 @@ class LineItem extends Model
         return $this->_sku;
     }
 
-    /**
-     * @param string $sku
-     */
     public function setSku(string $sku): void
     {
         $this->_sku = $sku;
@@ -362,7 +342,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return float
      * @since 3.1.1
      */
     public function getPrice(): float
@@ -371,10 +350,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param float|int $price
      * @since 3.1.1
      */
-    public function setPrice($price): void
+    public function setPrice(float|int $price): void
     {
         $this->_price = $price;
     }
@@ -388,25 +366,23 @@ class LineItem extends Model
     }
 
     /**
-     * @param float|int $salePrice
      * @since 3.1.1
      */
-    public function setSalePrice($salePrice): void
+    public function setSalePrice(float|int $salePrice): void
     {
         $this->_salePrice = $salePrice;
     }
 
     /**
-     * @return float
      * @since 3.1.1
      */
     public function getSaleAmount(): float
     {
-        return $this->price - $this->salePrice;
+        return Currency::round($this->price - $this->salePrice);
     }
 
     /**
-     * @return array
+     * @inerhitdoc 
      */
     protected function defineRules(): array
     {
@@ -449,7 +425,6 @@ class LineItem extends Model
      * Normalizes a purchasable’s validation rule.
      *
      * @param mixed $rule
-     * @param PurchasableInterface $purchasable
      * @return mixed
      */
     private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
@@ -519,8 +494,6 @@ class LineItem extends Model
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -539,9 +512,6 @@ class LineItem extends Model
         return $attributes;
     }
 
-    /**
-     * @return float
-     */
     public function getSubtotal(): float
     {
         // Even though we validate salePrice as numeric, we still need to
@@ -558,7 +528,6 @@ class LineItem extends Model
     /**
      * Returns the Purchasable’s sale price multiplied by the quantity of the line item, plus any adjustment belonging to this lineitem.
      *
-     * @return float
      * @throws InvalidConfigException
      */
     public function getTotal(): float
@@ -566,25 +535,14 @@ class LineItem extends Model
         return $this->getSubtotal() + $this->getAdjustmentsTotal();
     }
 
-    /**
-     * @param string $taxable
-     * @return float
-     */
     public function getTaxableSubtotal(string $taxable): float
     {
-        switch ($taxable) {
-            case TaxRateRecord::TAXABLE_PRICE:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
-                break;
-            case TaxRateRecord::TAXABLE_SHIPPING:
-                $taxableSubtotal = $this->getShippingCost();
-                break;
-            case TaxRateRecord::TAXABLE_PRICE_SHIPPING:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost();
-                break;
-            default:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
-        }
+        $taxableSubtotal = match ($taxable) {
+            TaxRateRecord::TAXABLE_PRICE => $this->getSubtotal() + $this->getDiscount(),
+            TaxRateRecord::TAXABLE_SHIPPING => $this->getShippingCost(),
+            TaxRateRecord::TAXABLE_PRICE_SHIPPING => $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost(),
+            default => $this->getSubtotal() + $this->getDiscount(),
+        };
 
         return $taxableSubtotal;
     }
@@ -610,9 +568,6 @@ class LineItem extends Model
         return true;
     }
 
-    /**
-     * @return PurchasableInterface|null
-     */
     public function getPurchasable(): ?PurchasableInterface
     {
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
@@ -622,9 +577,6 @@ class LineItem extends Model
         return $this->_purchasable;
     }
 
-    /**
-     * @param PurchasableInterface $purchasable
-     */
     public function setPurchasable(PurchasableInterface $purchasable): void
     {
         $this->purchasableId = $purchasable->getId();
@@ -632,7 +584,6 @@ class LineItem extends Model
     }
 
     /**
-     * @param PurchasableInterface $purchasable
      * @throws InvalidConfigException
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
@@ -686,16 +637,12 @@ class LineItem extends Model
         }
     }
 
-    /**
-     * @return bool
-     */
     public function getOnSale(): bool
     {
         return $this->getSaleAmount() > 0;
     }
 
     /**
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getTaxCategory(): TaxCategory
@@ -704,7 +651,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
@@ -737,8 +683,6 @@ class LineItem extends Model
     }
 
     /**
-     * @param bool $included
-     * @return float
      * @throws InvalidConfigException
      */
     public function getAdjustmentsTotal(bool $included = false): float
@@ -754,12 +698,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param string $type
-     * @param bool $included
-     * @return float|int
      * @throws InvalidConfigException
      */
-    private function _getAdjustmentsTotalByType(string $type, bool $included = false)
+    private function _getAdjustmentsTotalByType(string $type, bool $included = false): float|int
     {
         $amount = 0;
 
@@ -773,7 +714,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return bool
      * @since 3.3.4
      */
     public function getIsTaxable(): bool
@@ -786,7 +726,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return bool
      * @since 3.4
      */
     public function getIsShippable(): bool
@@ -799,7 +738,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return float
      * @throws InvalidConfigException
      */
     public function getTax(): float
@@ -808,7 +746,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return float
      * @throws InvalidConfigException
      */
     public function getTaxIncluded(): float
@@ -817,7 +754,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return float
      * @throws InvalidConfigException
      */
     public function getShippingCost(): float
@@ -826,7 +762,6 @@ class LineItem extends Model
     }
 
     /**
-     * @return float
      * @throws InvalidConfigException
      */
     public function getDiscount(): float

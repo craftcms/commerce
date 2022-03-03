@@ -279,7 +279,7 @@ class VariantQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch default variants #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isDefault()
      *   .all() %}
      * ```
@@ -411,7 +411,7 @@ class VariantQuery extends ElementQuery
      * @param ProductQuery|array $value The property value
      * @return static self reference
      */
-    public function hasProduct($value): VariantQuery
+    public function hasProduct(array|\craft\commerce\elements\db\ProductQuery $value): VariantQuery
     {
         $this->hasProduct = $value;
         return $this;

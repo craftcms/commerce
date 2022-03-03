@@ -26,9 +26,7 @@ class Products extends Component
     /**
      * Get a product by ID.
      *
-     * @param int $id
      * @param int|null $siteId
-     * @return Product|null
      */
     public function getProductById(int $id, int $siteId = null): ?Product
     {
@@ -40,8 +38,6 @@ class Products extends Component
 
     /**
      * Handle a Site being saved.
-     *
-     * @param SiteEvent $event
      */
     public function afterSaveSiteHandler(SiteEvent $event): void
     {

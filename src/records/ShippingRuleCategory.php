@@ -41,7 +41,6 @@ class ShippingRuleCategory extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getShippingRule(): ActiveQueryInterface
@@ -49,9 +48,6 @@ class ShippingRuleCategory extends ActiveRecord
         return $this->hasOne(ShippingRule::class, ['id' => 'shippingRuleId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);

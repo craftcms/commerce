@@ -73,10 +73,6 @@ class OrderNotice extends Model
         ];
     }
 
-    /**
-     * @param Order $order
-     * @return void
-     */
     public function setOrder(Order $order): void
     {
         $this->_order = $order;
@@ -84,7 +80,6 @@ class OrderNotice extends Model
     }
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order

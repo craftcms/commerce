@@ -30,46 +30,33 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      * Returns the cancel subscription form HTML
      *
      * @param Subscription $subscription the subscription to cancel
-     *
-     * @return string
      */
     abstract public function getCancelSubscriptionFormHtml(Subscription $subscription): string;
 
     /**
      * Returns the cancel subscription form model
-     *
-     * @return CancelSubscriptionForm
      */
     abstract public function getCancelSubscriptionFormModel(): CancelSubscriptionForm;
 
     /**
      * Returns the subscription plan settings HTML
      *
-     * @param array $params
      * @return string|null
      */
     abstract public function getPlanSettingsHtml(array $params = []);
 
     /**
      * Returns the subscription plan model.
-     *
-     * @return Plan
      */
     abstract public function getPlanModel(): Plan;
 
     /**
      * Returns the subscription form model
-     *
-     * @return SubscriptionForm
      */
     abstract public function getSubscriptionFormModel(): SubscriptionForm;
 
     /**
      * Returns the html form to use when switching between two plans
-     *
-     * @param PlanInterface $originalPlan
-     * @param PlanInterface $targetPlan
-     * @return string
      */
     public function getSwitchPlansFormHtml(PlanInterface $originalPlan, PlanInterface $targetPlan): string
     {
@@ -78,8 +65,6 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
 
     /**
      * Returns the form model used for switching plans.
-     *
-     * @return SwitchPlansForm
      */
     abstract public function getSwitchPlansFormModel(): SwitchPlansForm;
 

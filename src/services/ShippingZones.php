@@ -63,9 +63,6 @@ class ShippingZones extends Component
 
     /**
      * Get a shipping zone by its ID.
-     *
-     * @param int $id
-     * @return ShippingAddressZone|null
      */
     public function getShippingZoneById(int $id): ?ShippingAddressZone
     {
@@ -91,9 +88,7 @@ class ShippingZones extends Component
     /**
      * Save a shipping zone.
      *
-     * @param ShippingAddressZone $model
      * @param bool $runValidation should we validate this rule before saving.
-     * @return bool
      * @throws \Exception
      * @throws Exception
      */
@@ -188,8 +183,6 @@ class ShippingZones extends Component
     }
 
     /**
-     * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -211,8 +204,6 @@ class ShippingZones extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping zones.
-     *
-     * @return Query
      */
     private function _createShippingZonesQuery(): Query
     {

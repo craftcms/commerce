@@ -69,32 +69,31 @@
                             data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
                         }
 
-                        Craft.postActionRequest('{{ action|e("js") }}', data, function(response, textStatus) {
+                        Craft.sendActionRequest('POST', '{{ action|e("js") }}', {data})
+                        .then((response) => {
                             $form.find('.spinner').addClass('hidden');
+                            Craft.cp.displayNotice('{{ successText|e("js") }}');
 
-                            if (textStatus == 'success') {
-                                if (response.success) {
-                                    Craft.cp.displayNotice('{{ successText|e("js") }}');
+                            selectize.addOption({
+                                value: response.data.id,
+                                text: response.data.name,
+                                $order: selectize.order - 1
+                            });
 
-                                    selectize.addOption({
-                                        value: response.id,
-                                        text: response.name,
-                                        $order: selectize.order - 1
-                                    });
+                            selectize.setValue(response.data.id);
+                            modal.hide();
 
-                                    selectize.setValue(response.id);
-                                    modal.hide();
-                                } else {
-                                    Craft.ui.clearErrorsFromField($form.find('.field'));
+                        })
+                        .catch(({response}) => {
+                            $form.find('.spinner').addClass('hidden');
+                            Craft.ui.clearErrorsFromField($form.find('.field'));
 
-                                    for (var attribute in response.errors) {
-                                        Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.errors[attribute]);
-                                    }
-
-                                    modal.updateSizeAndPosition();
-                                    Garnish.shake($form);
-                                }
+                            for (var attribute in response.data.errors) {
+                                Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.data.errors[attribute]);
                             }
+
+                            modal.updateSizeAndPosition();
+                            Garnish.shake($form);
                         });
                     });
 
@@ -202,17 +201,19 @@
     ) }}
 
     {% set rateInput %}
-    <div class="flex">
+    <div>
         <div>
             {{ forms.text({
                 name: 'rate',
-                value: taxRate.rateAsPercent,
+                value: ((taxRate.rate ?? 0) * 100)|number,
+                class: 'code ltr',
+                size: 5,
                 errors: taxRate.getErrors('rate'),
                 required: true,
+                unit: percentSymbol,
             }) }}
         </div>
         <div>
-
             {{ forms.checkboxField({
                 label: "Included in price?"|t('commerce'),
                 name: 'include',
@@ -227,7 +228,10 @@
 
     {{ forms.field({
         label: "Rate"|t('commerce'),
-        instructions: "Enter a percentage like `5%` or `10.5%`."|t('commerce'),
+        instructions: "Enter a percentage like {ex1} or {ex2}."|t('commerce', {
+            ex1: "`5`",
+            ex2: "`#{10.5|number}`",
+        }),
     }, rateInput) }}
 
 <div id="removeIncludedContainer">
