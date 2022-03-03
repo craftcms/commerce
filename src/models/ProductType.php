@@ -374,6 +374,26 @@ class ProductType extends Model
     }
 
     /**
+     * @return string
+     * @deprecated 4.0.0
+     */
+    public function getTitleFormat(): string
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Getting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        return $this->variantTitleFormat;
+    }
+
+    /**
+     * @return void
+     * @deprecated 4.0.0
+     */
+    public function setTitleFormat(string $titleFormat): void
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Setting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        $this->variantTitleFormat = $titleFormat;
+    }
+
+    /**
      * @inheritdoc
      */
     public function behaviors(): array
