@@ -295,46 +295,6 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function canView(User $user): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canSave(User $user): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canDuplicate(User $user): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canDelete(User $user): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canDeleteForSite(User $user): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function canCreateDrafts(User $user): bool
     {
         return true;
@@ -1160,7 +1120,7 @@ class Product extends Element
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,

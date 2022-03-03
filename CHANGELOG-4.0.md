@@ -79,6 +79,11 @@
 - Removed `json_encode_filtered` twig filter.
 - Removed the `orderPdfFilenameFormat` setting.
 - Removed the `orderPdfPath` setting.
+- Removed `craft\commerce\elements\Product::canView()`.
+- Removed `craft\commerce\elements\Product::canSave()`.
+- Removed `craft\commerce\elements\Product::canDuplicate()`.
+- Removed `craft\commerce\elements\Product::canDelete()`.
+- Removed `craft\commerce\elements\Product::canDeleteForSite()`.
 
 ### Fixed
 
