@@ -38,8 +38,8 @@ class m220301_022054_user_addresses extends Migration
          * Orders
          */
         // Move the customerId to a temporary column, and relate the new customerId FK to the user element
-        $this->dropIndexIfExists(Table::ORDERS, ['customerId']);
         $this->dropForeignKeyIfExists(Table::ORDERS, ['customerId']);
+        $this->dropIndexIfExists(Table::ORDERS, ['customerId']);
         $this->renameColumn(Table::ORDERS, 'customerId', 'v3customerId'); // move the data
         $this->addColumn(Table::ORDERS, 'customerId', $this->integer()->after('v3customerId'));
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
@@ -77,7 +77,6 @@ class m220301_022054_user_addresses extends Migration
          * Customers
          */
         // Move the userId and ID to a temporary column, add the customerId column.
-        $this->dropAllForeignKeysToTable(Table::CUSTOMERS);
         $this->dropIndexIfExists(Table::CUSTOMERS, ['id']);
         $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['id']);
         $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['primaryShippingAddressId']);
@@ -98,13 +97,17 @@ class m220301_022054_user_addresses extends Migration
         /**
          * Customer Discount Uses
          */
-        $this->dropIndexIfExists(Table::CUSTOMER_DISCOUNTUSES, ['customerId']);
+        $this->dropAllForeignKeysToTable(Table::CUSTOMER_DISCOUNTUSES);
+        $this->dropIndexIfExists(Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId']);
         $this->dropForeignKeyIfExists(Table::CUSTOMER_DISCOUNTUSES, ['customerId']);
         $this->renameColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', 'v3customerId'); // move the data
-        $this->alterColumn(Table::ORDERHISTORIES, 'v3customerId', $this->integer()->null());
+        $this->alterColumn(Table::CUSTOMER_DISCOUNTUSES, 'v3customerId', $this->integer()->null());
         $this->addColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', $this->integer()->notNull());
-        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'customerId', false);
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
 
         /**
          * Payment Sources
