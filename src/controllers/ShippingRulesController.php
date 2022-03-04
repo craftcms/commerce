@@ -18,6 +18,7 @@ use craft\helpers\Localization;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Shipping Rules Controller
@@ -235,16 +236,18 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
 
-        if ($request->getAcceptsJson()) {
-            if ($deleted) {
-                return $this->asJson(['success' => true]);
-            } else {
+        if (!$deleted) {
+            if ($request->getAcceptsJson()) {
                 return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
             }
+
+            throw new ServerErrorHttpException(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        if ($deleted) {
-            return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
+        if ($request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
         }
+
+        return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
     }
 }

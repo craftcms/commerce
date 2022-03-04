@@ -18,6 +18,8 @@
     "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "craftcms/cms": "^3.7.25",
     "dompdf/dompdf": "^1.0.2",
@@ -33,7 +35,9 @@
     "codeception/module-asserts": "^1.0.0",
     "codeception/module-rest": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0"
+    "codeception/module-yii2": "^1.0.0",
+    "craftcms/phpstan": "dev-main",
+    "craftcms/redactor": "*"
   },
   "autoload": {
     "psr-4": {
@@ -50,6 +54,7 @@
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "scripts": {
+    "phpstan": "phpstan --memory-limit=1G",
     "testunit": [
       "Composer\\Config::disableProcessTimeout",
       "codecept run unit"
@@ -59,6 +64,10 @@
     "sort-packages": true,
     "platform": {
       "php": "7.2.5"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
     }
   }
 }
