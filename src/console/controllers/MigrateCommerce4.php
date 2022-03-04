@@ -169,7 +169,7 @@ class MigrateCommerce4 extends Controller
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
-        $this->stdout("Migrating Tax Zones...\n");
+        $this->stdout("Migrating Shipping Zones...\n");
         $this->_migrateShippingZones();
         $this->stdout("Done.\n");
         $this->stdout("\n");
@@ -178,6 +178,8 @@ class MigrateCommerce4 extends Controller
         $this->_migrateTaxZones();
         $this->stdout("Done.\n");
         $this->stdout("\n");
+
+        // TODO decide whether to drop the old unused tables, and all v3* columns
 
         return 0;
     }
@@ -373,7 +375,8 @@ class MigrateCommerce4 extends Controller
                 }
 
                 $field = Craft::$app->getFields()->saveField($currentField);
-                // TODO putting field into layout.
+
+                // TODO put populated field into layout.
             }
         }
     }
