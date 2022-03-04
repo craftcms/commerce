@@ -976,13 +976,9 @@ class Discounts extends Component
     }
 
     /**
-<<<<<<< HEAD
      * @param Discount $discount
      * @param User|null $user
      * @return bool
-=======
-     * @param $user
->>>>>>> 4.0
      * @throws InvalidConfigException
      */
     public function isDiscountUserGroupValid(Discount $discount, ?User $user): bool
@@ -1029,14 +1025,9 @@ class Discounts extends Component
     }
 
     /**
-<<<<<<< HEAD
      * @param Discount $discount
      * @param User|null $user
      * @return bool
-=======
-     * @param $user
-     * @param $customer
->>>>>>> 4.0
      */
     private function _isDiscountPerUserUsageValid(Discount $discount, ?User $user): bool
     {
