@@ -8,12 +8,11 @@
 namespace craft\commerce\models;
 
 use Craft;
-use craft\base\conditions\ConditionInterface;
 use craft\commerce\base\Model;
-use craft\commerce\conditions\discounts\DiscountOrderCondition;
-use craft\commerce\conditions\discounts\DiscountOrderConditionInterface;
+use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
+use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\db\Table;
-use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
@@ -23,7 +22,6 @@ use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Discount model
@@ -32,8 +30,10 @@ use yii\base\InvalidConfigException;
  * @property-read string $percentDiscountAsPercent
  * @property array $categoryIds
  * @property array $purchasableIds
- * @property-read array $userGroupsConditions
- * @property array $userGroupIds
+ * @property string|array|ElementConditionInterface $orderCondition
+ * @property string|array|ElementConditionInterface $shippingAddressCondition
+ * @property string|array|ElementConditionInterface $billingAddressCondition
+ * @property string|array|ElementConditionInterface $customerCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -60,11 +60,32 @@ class Discount extends Model
     public ?string $code = null;
 
     /**
-     * @var ElementConditionInterface|array|null
-     * @see getOrderMatchCondition()
-     * @see setOrderMatchCondition()
+     * @var ElementConditionInterface|null
+     * @see getOrderCondition()
+     * @see setOrderCondition()
      */
-    public $_orderMatchCondition = null;
+    public null|ElementConditionInterface $_orderCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getCustomerCondition()
+     * @see setCustomerCondition()
+     */
+    public null|ElementConditionInterface $_customerCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getShippingAddressCondition()
+     * @see setShippingAddressCondition()
+     */
+    public null|ElementConditionInterface $_shippingAddressCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getBillingAddressCondition()
+     * @see setBillingAddressCondition()
+     */
+    public null|ElementConditionInterface $_billingAddressCondition = null;
 
     /**
      * @var int Per user coupon use limit
@@ -159,12 +180,6 @@ class Discount extends Model
     public bool $hasFreeShippingForOrder = false;
 
     /**
-     * @var string Type of user group condition that should match the discount.
-     * @see getUserConditions()
-     */
-    public ?string $userGroupsCondition = null;
-
-    /**
      * @var bool Match all products
      */
     public bool $allPurchasables = false;
@@ -225,21 +240,11 @@ class Discount extends Model
     private array $_categoryIds;
 
     /**
-     * @var int[] Group IDs
-     */
-    private array $_userGroupIds;
-
-    /**
      * @inheritdoc
      */
     public function init(): void
     {
         parent::init();
-
-        if ($this->_orderMatchCondition === null) {
-            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition()
-            $this->_orderMatchCondition->id = 'order-match-condition';
-        }
     }
 
     /**
@@ -260,41 +265,129 @@ class Discount extends Model
     }
 
     /**
-     * @return ?ElementConditionInterface
+     * @return ElementConditionInterface
      */
-    public function getOrderMatchCondition(): ?ElementConditionInterface
+    public function getOrderCondition(): ElementConditionInterface
     {
-        if ($this->_orderMatchCondition !== null && !$this->_orderMatchCondition instanceof ElementConditionInterface) {
-            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition($this->_orderMatchCondition);
-        }
+        $condition = $this->_orderCondition ?? new DiscountOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
 
-        return $this->_orderMatchCondition;
+        return $condition;
     }
 
     /**
-     * @param $condition
-     * @return ElementConditionInterface|array|null
-     * @throws InvalidConfigException
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
      */
-    public function setOrderMatchCondition($condition)
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
     {
         if (is_string($condition)) {
-            $condition = Json::decodeIfJson($condition, true);
+            $condition = Json::decodeIfJson($condition);
         }
 
-        if ($condition instanceof ElementConditionInterface) {
-            $this->_orderMatchCondition = $condition;
-        } elseif (is_array($condition)) {
-            /** @var ElementConditionInterface $orderCondition */
-            $orderCondition = Craft::$app->getConditions()->createCondition($condition);
-            $this->_orderMatchCondition = $orderCondition;
-        } elseif ($condition === null) {
-            $this->_orderMatchCondition = null;
-        } else {
-            throw new InvalidConfigException('Not a condition object or config');
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountOrderCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getCustomerCondition(): ElementConditionInterface
+    {
+        $condition = $this->_customerCondition ?? new DiscountCustomerCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
         }
 
-        return $this->_orderMatchCondition;
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountCustomerCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getShippingAddressCondition(): ElementConditionInterface
+    {
+        $condition = $this->_shippingAddressCondition ?? new DiscountAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->id = 'shippingAddressCondition';
+        $condition->name = 'shippingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountAddressCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_shippingAddressCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getBillingAddressCondition(): ElementConditionInterface
+    {
+        $condition = $this->_shippingAddressCondition ?? new DiscountAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->id = 'billingAddressCondition';
+        $condition->name = 'billingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountAddressCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_billingAddressCondition = $condition;
     }
 
     /**
@@ -322,18 +415,6 @@ class Discount extends Model
     }
 
     /**
-     * @return int[]
-     */
-    public function getUserGroupIds(): array
-    {
-        if (!isset($this->_userGroupIds)) {
-            $this->_loadUserGroupRelations();
-        }
-
-        return $this->_userGroupIds;
-    }
-
-    /**
      * Sets the related product type ids
      *
      * @param int[] $categoryIds
@@ -353,16 +434,6 @@ class Discount extends Model
         $this->_purchasableIds = array_unique($purchasableIds);
     }
 
-    /**
-     * Sets the related user group ids
-     *
-     * @param int[] $userGroupIds
-     */
-    public function setUserGroupIds(array $userGroupIds): void
-    {
-        $this->_userGroupIds = array_unique($userGroupIds);
-    }
-
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
@@ -376,16 +447,6 @@ class Discount extends Model
     public function getPercentDiscountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
-    }
-
-    public function getUserGroupsConditions(): array
-    {
-        return [
-            DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
-            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
-            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
-            DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:'),
-        ];
     }
 
     /**
@@ -479,19 +540,5 @@ class Discount extends Model
             ->column();
 
         $this->setCategoryIds($categoryIds);
-    }
-
-    /**
-     * Loads the related user group IDs into this discount
-     */
-    private function _loadUserGroupRelations(): void
-    {
-        $userGroupIds = (new Query())->select(['dug.userGroupId'])
-            ->from(Table::DISCOUNTS . ' discounts')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-            ->where(['discounts.id' => $this->id])
-            ->column();
-
-        $this->setUserGroupIds($userGroupIds);
     }
 }

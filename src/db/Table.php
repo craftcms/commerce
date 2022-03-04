@@ -20,7 +20,6 @@ abstract class Table
     public const CUSTOMERS = '{{%commerce_customers}}';
     public const DISCOUNT_CATEGORIES = '{{%commerce_discount_categories}}';
     public const DISCOUNT_PURCHASABLES = '{{%commerce_discount_purchasables}}';
-    public const DISCOUNT_USERGROUPS = '{{%commerce_discount_usergroups}}';
     public const DISCOUNTS = '{{%commerce_discounts}}';
     public const DONATIONS = '{{%commerce_donations}}';
     public const EMAIL_DISCOUNTUSES = '{{%commerce_email_discountuses}}';

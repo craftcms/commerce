@@ -89,7 +89,7 @@ class ResetDataController extends Controller
                 // Discount usage
                 $this->stdout('Resetting discount usage data ...' . PHP_EOL, Console::FG_GREEN);
                 Craft::$app->getDb()->createCommand()
-                    ->delete(Table::USER_DISCOUNTUSES)
+                    ->delete(Table::CUSTOMER_DISCOUNTUSES)
                     ->execute();
                 Craft::$app->getDb()->createCommand()
                     ->delete(Table::EMAIL_DISCOUNTUSES)

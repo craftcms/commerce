@@ -42,82 +42,82 @@ class UserGroupConditionDiscountTest extends Unit
         parent::_before();
     }
 
-    public function testIsUserGroupsConditionAnyOrNoneValid(): void
-    {
-        $this->_mockCustomers();
-
-        $mockDiscount = $this->_getMockDiscount([3, 4]);
-
-        $discountAdjuster = new Discounts();
-
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertTrue($isValid);
-    }
-
-    public function testIsUserGroupsConditionIncludeAllValid(): void
-    {
-        $discountAdjuster = new Discounts();
-        $this->_mockCustomers();
-
-        $mockDiscount = $this->_getMockDiscount([3, 4]);
-
-
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);
-
-        $mockDiscount = $this->_getMockDiscount([2, 3]);
-
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);
-
-        $this->_mockCustomers([2]);
-        $mockDiscount = $this->_getMockDiscount([2, 1]);
-
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);
-    }
-
-    public function testUserGroupsConditionIncludeAnyValid(): void
-    {
-        $this->_mockCustomers();
-
-        $mockDiscount = $this->_getMockDiscount([2, 3]);
-
-        $discountAdjuster = new Discounts();
-
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY;
-
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertTrue($isValid);
-
-        $mockDiscount = $this->_getMockDiscount([3, 4]);
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);
-    }
-
-    public function testIsUserGroupsConditionExcludeValid(): void
-    {
-        $discountAdjuster = new Discounts();
-        $this->_mockCustomers();
-
-        $mockDiscount = $this->_getMockDiscount([3, 4]);
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE;
-
-
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertTrue($isValid);
-
-        $mockDiscount = $this->_getMockDiscount([2, 4]);
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE;
-        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);
-
-    }
+//    public function testIsUserGroupsConditionAnyOrNoneValid(): void
+//    {
+//        $this->_mockCustomers();
+//
+//        $mockDiscount = $this->_getMockDiscount([3, 4]);
+//
+//        $discountAdjuster = new Discounts();
+//
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertTrue($isValid);
+//    }
+//
+//    public function testIsUserGroupsConditionIncludeAllValid(): void
+//    {
+//        $discountAdjuster = new Discounts();
+//        $this->_mockCustomers();
+//
+//        $mockDiscount = $this->_getMockDiscount([3, 4]);
+//
+//
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertFalse($isValid);
+//
+//        $mockDiscount = $this->_getMockDiscount([2, 3]);
+//
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertFalse($isValid);
+//
+//        $this->_mockCustomers([2]);
+//        $mockDiscount = $this->_getMockDiscount([2, 1]);
+//
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertFalse($isValid);
+//    }
+//
+//    public function testUserGroupsConditionIncludeAnyValid(): void
+//    {
+//        $this->_mockCustomers();
+//
+//        $mockDiscount = $this->_getMockDiscount([2, 3]);
+//
+//        $discountAdjuster = new Discounts();
+//
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY;
+//
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertTrue($isValid);
+//
+//        $mockDiscount = $this->_getMockDiscount([3, 4]);
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertFalse($isValid);
+//    }
+//
+//    public function testIsUserGroupsConditionExcludeValid(): void
+//    {
+//        $discountAdjuster = new Discounts();
+//        $this->_mockCustomers();
+//
+//        $mockDiscount = $this->_getMockDiscount([3, 4]);
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE;
+//
+//
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertTrue($isValid);
+//
+//        $mockDiscount = $this->_getMockDiscount([2, 4]);
+//        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE;
+//        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+//        self::assertFalse($isValid);
+//
+//    }
 
     /**
      * @param array $ids

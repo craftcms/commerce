@@ -1,6 +1,6 @@
 <?php
 
-namespace  craft\commerce\elements\conditions\orders;
+namespace craft\commerce\elements\conditions\orders;
 
 use Craft;
 use craft\base\conditions\BaseNumberConditionRule;
@@ -23,17 +23,17 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
     /**
      * @inheritdoc
      */
-    public function getLabel(): string
+    public function getExclusiveQueryParams(): array
     {
-        return Craft::t('commerce', 'Order Value');
+        return [];
     }
 
     /**
      * @inheritdoc
      */
-    public function getExclusiveQueryParams(): array
+    public function getLabel(): string
     {
-        return [$this->orderAttribute];
+        return Craft::t('commerce', 'Order Value');
     }
 
     /**

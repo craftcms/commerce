@@ -110,7 +110,10 @@ class DiscountsController extends BaseCpController
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
-        $discount->setOrderMatchCondition($request->getBodyParam('orderCondition'));
+        $discount->setOrderCondition($request->getBodyParam('orderCondition'));
+        $discount->setCustomerCondition($request->getBodyParam('customerCondition'));
+        $discount->setShippingAddressCondition($request->getBodyParam('shippingAddressCondition'));
+        $discount->setBillingAddressCondition($request->getBodyParam('billingAddressCondition'));
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
@@ -128,7 +131,6 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
-        $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
 
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
@@ -177,14 +179,6 @@ class DiscountsController extends BaseCpController
             }
             $discount->setCategoryIds($categories);
         }
-
-        $groups = $request->getBodyParam('groups', []);
-
-        if ($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-            $groups = [];
-        }
-
-        $discount->setUserGroupIds($groups);
 
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
@@ -397,10 +391,10 @@ class DiscountsController extends BaseCpController
 
         if ($variables['discount']->id) {
             $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
-            $variables['userUsage'] = Plugin::getInstance()->getDiscounts()->getUserUsageStatsById($variables['discount']->id);
+            $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($variables['discount']->id);
         } else {
             $variables['emailUsage'] = 0;
-            $variables['userUsage'] = 0;
+            $variables['customerUsage'] = 0;
         }
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();

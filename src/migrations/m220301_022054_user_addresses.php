@@ -80,11 +80,15 @@ class m220301_022054_user_addresses extends Migration
         $this->dropAllForeignKeysToTable(Table::CUSTOMERS);
         $this->dropIndexIfExists(Table::CUSTOMERS, ['id']);
         $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['id']);
+        $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['primaryShippingAddressId']);
+        $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['primaryBillingAddressId']);
         $this->renameColumn(Table::CUSTOMERS, 'id', 'v3id'); // move the data
         $this->dropIndexIfExists(Table::CUSTOMERS, ['userId']);
         $this->dropForeignKeyIfExists(Table::CUSTOMERS, ['userId']);
         $this->dropIndexIfExists(Table::CUSTOMERS, ['userId']);
         $this->renameColumn(Table::CUSTOMERS, 'userId', 'v3userId'); // move the data
+        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
 
         // Add the new primary customerId column with will share the same ID the user element ID
         $this->addColumn(Table::CUSTOMERS, 'customerId', $this->integer());
@@ -97,7 +101,8 @@ class m220301_022054_user_addresses extends Migration
         $this->dropIndexIfExists(Table::CUSTOMER_DISCOUNTUSES, ['customerId']);
         $this->dropForeignKeyIfExists(Table::CUSTOMER_DISCOUNTUSES, ['customerId']);
         $this->renameColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', 'v3customerId'); // move the data
-        $this->addColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', $this->integer());
+        $this->alterColumn(Table::ORDERHISTORIES, 'v3customerId', $this->integer()->null());
+        $this->addColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', $this->integer()->notNull());
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'customerId', false);
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
 
@@ -106,7 +111,7 @@ class m220301_022054_user_addresses extends Migration
          */
         $this->dropIndexIfExists(Table::PAYMENTSOURCES, ['userId']);
         $this->dropForeignKeyIfExists(Table::PAYMENTSOURCES, ['userId']);
-        $this->renameColumn(Table::PAYMENTSOURCES, 'userId', 'customerId');
+        $this->renameColumn(Table::PAYMENTSOURCES, 'userId', 'customerId'); // was already a user ID
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
 
         /**
@@ -115,7 +120,8 @@ class m220301_022054_user_addresses extends Migration
         $this->dropIndexIfExists(Table::ORDERHISTORIES, ['customerId']);
         $this->dropForeignKeyIfExists(Table::ORDERHISTORIES, ['customerId']);
         $this->renameColumn(Table::ORDERHISTORIES, 'customerId', 'v3customerId'); // move the data
-        $this->addColumn(Table::ORDERHISTORIES, 'userId', $this->integer());
+        $this->alterColumn(Table::ORDERHISTORIES, 'v3customerId', $this->integer()->null());
+        $this->addColumn(Table::ORDERHISTORIES, 'userId', $this->integer()->null());
         $this->createIndex(null, Table::ORDERHISTORIES, 'userId', false);
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
 

@@ -536,7 +536,7 @@ class MigrateCommerce4 extends Controller
     public function _createUserIfNoneExists(): void
     {
         $allCustomers = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['email', '[[customers.userId]] as userId', 'v3customerId as v3CustomerId'])
+            ->select(['email', '[[customers.userId]] as v3userId', 'v3customerId as v3CustomerId'])
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['not', ['email' => null]])
             ->andWhere(['not', ['email' => '']])
@@ -553,8 +553,8 @@ class MigrateCommerce4 extends Controller
             Console::updateProgress($done++, count($allCustomers));
 
             // Do they have a user ID already? If so, we're good.
-            if ($customer['userId']) {
-                $this->userIdsByEmail[$customer['email']] = $customer['userId'];
+            if ($customer['v3userId']) {
+                $this->userIdsByEmail[$customer['v3userId']] = $customer['v3userId'];
                 $this->userIdsByv3CustomerId[$v3CustomerId] = $customer['userId'];
                 continue;
             }
