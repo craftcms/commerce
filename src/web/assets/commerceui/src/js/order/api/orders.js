@@ -14,12 +14,8 @@ export default {
         }
     },
 
-    recalculate(draft) {
-        return axios.post(Craft.getActionUrl('commerce/orders/refresh'), draft, {
-            headers: {
-                'X-CSRF-Token':  Craft.csrfTokenValue,
-            }
-        })
+    recalculate(data) {
+        return Craft.sendActionRequest('POST', 'commerce/orders/refresh', {data})
     },
 
     customerSearch(options) {

@@ -15,7 +15,7 @@ export default {
         const data = {
             address: address
         };
-        return axios.post(Craft.getActionUrl('commerce/addresses/validate'), data, {
+        return axios.post(Craft.getActionUrl('commerce/orders/validate-address'), data, {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }

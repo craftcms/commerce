@@ -34,13 +34,7 @@
                 <template v-else-if="slotProps.option.id">
                     <div>
                         <customer
-                            :customer="{
-                                photo: slotProps.option.photo,
-                                email: slotProps.option.email,
-                                fullName: slotProps.option.billingFullName,
-                                firstName: slotProps.option.billingFirstName,
-                                lastName: slotProps.option.billingLastName,
-                            }"
+                            :customer="slotProps.option"
                         ></customer>
                     </div>
                 </template>
@@ -110,10 +104,31 @@
                         this.$refs.vSelect.$children[0].search = searchText
                     })
 
-                    return {customerId: this.customerId, email: this.order.customer ? this.order.customer.email : null}
+                    return {id: this.customerId, email: this.order.customer ? this.order.customer.email : null}
                 }
 
-                return {customerId: null, email: searchText, totalOrders: 0, firstName: null, lastName: null}
+                this.$store.commit('updateRecalculateLoading', true);
+
+                const data = {email: searchText};
+                // Create a new customer if there is a valid email and no customer found
+                Craft.sendActionRequest('POST', 'commerce/orders/create-customer', {data})
+                    .then(response => {
+                        this.selectedCustomer = response.data.user;
+
+                        this.onChange();
+                        return this.selectedCustomer;
+                    })
+                    .catch(error => {
+                        this.$store.dispatch('displayError', error.response.data.message)
+                        this.$nextTick(() => {
+                            this.$refs.vSelect.$children[0].search = searchText
+                        })
+
+                        return {id: this.customerId, email: this.order.customer ? this.order.customer.email : null}
+                    })
+                    .finally(() => {
+                        this.$store.commit('updateRecalculateLoading', false);
+                    });
             },
 
             onSearch({searchText, loading}) {
@@ -142,17 +157,16 @@
             }, 500),
 
             onChange() {
-                if (this.selectedCustomer && this.selectedCustomer.email) {
+                if (this.selectedCustomer) {
                     this.$emit('update', this.selectedCustomer);
                 }
             }
         },
 
         mounted() {
-            if (this.order.customer) {
+            if (this.order.customerId) {
                 let customer = {customerId: this.order.customer.id};
 
-                customer.email = this.order.isCompleted ? this.order.email : this.order.customer.email;
                 this.$store.commit('updateCustomers', [customer])
                 this.selectedCustomer = customer
             }
