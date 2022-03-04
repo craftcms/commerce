@@ -81,9 +81,6 @@ class m220304_094835_discount_conditions extends Migration
                 'customerCondition' => Json::encode($customerCondition->getConfig()),
             ], ['id' => $id]);
 
-            $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
-            $this->dropColumn('{{%commerce_discounts}}', 'userGroupsCondition');
-
             /**
              * Shipping Address condition
              */
@@ -99,6 +96,9 @@ class m220304_094835_discount_conditions extends Migration
             ], ['id' => $id]);
         }
 
+        $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
+        $this->dropColumn('{{%commerce_discounts}}', 'userGroupsCondition');
+        
         return true;
     }
 
