@@ -11,6 +11,10 @@
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
+- Added `craft\commerce\controllers\OrdersController::actionCreateCustomer()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetCustomerAddresses()`.
+- Added `craft\commerce\controllers\OrdersController::actionGetOrderAddress()`.
+- Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
@@ -59,6 +63,7 @@
 - Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
+- Removed `craft\commerce\controllers\OrdersController::_prepCustomersArray()`. Use `_customerToArray()` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 - Removed `craft\commerce\controllers\StatesController`.
 - Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
