@@ -10,6 +10,7 @@ use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
 use craft\db\Migration;
 use craft\db\Query;
+use craft\helpers\Json;
 
 /**
  * m220304_094835_discount_conditions migration.
@@ -41,7 +42,7 @@ class m220304_094835_discount_conditions extends Migration
              * Order condition
              */
             $this->update('{{%commerce_discounts}}', [
-                'orderCondition' => $orderCondition->getConfig(),
+                'orderCondition' => Json::encode($orderCondition->getConfig()),
             ], ['id' => $id]);
 
 
@@ -49,15 +50,15 @@ class m220304_094835_discount_conditions extends Migration
              * User condition
              */
             $discountsUserGroupIds = (new Query())->select(['dug.userGroupId'])
-                ->from(Table::DISCOUNTS . '{{%commerce_discounts}} discounts')
-                ->leftJoin('{{%commerce_discount_usergroups}}' . ' dug', '[[dug.discountId]]=[[discounts.id]]')
+                ->from('{{%commerce_discounts}} discounts')
+                ->leftJoin('{{%commerce_discount_usergroups}} dug', '[[dug.discountId]] = [[discounts.id]]')
                 ->where(['discounts.id' => $id])
                 ->column();
+
             $userRules = [];
             if ($discount['userGroupsCondition'] == 'userGroupsAnyOrNone') {
                 // do nothing
             } elseif ($discount['userGroupsCondition'] == 'userGroupsIncludeAll') {
-
                 foreach ($discountsUserGroupIds as $userGroupId) {
                     $conditionRule = new DiscountGroupConditionRule();
                     $conditionRule->setValues($userGroupId);
@@ -77,7 +78,7 @@ class m220304_094835_discount_conditions extends Migration
             }
             $customerCondition->setConditionRules($userRules);
             $this->update('{{%commerce_discounts}}', [
-                'customerCondition' => $customerCondition->getConfig(),
+                'customerCondition' => Json::encode($customerCondition->getConfig()),
             ], ['id' => $id]);
 
             $this->dropTableIfExists('{{%commerce_discount_usergroups}}');
@@ -87,14 +88,14 @@ class m220304_094835_discount_conditions extends Migration
              * Shipping Address condition
              */
             $this->update('{{%commerce_discounts}}', [
-                'shippingAddressCondition' => $shippingAddressCondition->getConfig(),
+                'shippingAddressCondition' => Json::encode($shippingAddressCondition->getConfig()),
             ], ['id' => $id]);
 
             /**
              * Billing Address condition
              */
             $this->update('{{%commerce_discounts}}', [
-                'billingAddressCondition' => $billingAddressCondition->getConfig(),
+                'billingAddressCondition' => Json::encode($billingAddressCondition->getConfig()),
             ], ['id' => $id]);
         }
 
