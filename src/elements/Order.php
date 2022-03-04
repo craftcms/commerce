@@ -1992,6 +1992,7 @@ class Order extends Element
         $this->_saveLineItems();
         $this->_saveNotices();
         $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
+        $this->_deleteOrphanedOrderAddresses();
 
         parent::afterSave($isNew);
     }
@@ -2699,7 +2700,7 @@ class Order extends Element
      *
      * @param AddressElement|array|null $address
      */
-    public function setShippingAddress(mixed $address): void
+    public function setShippingAddress(AddressElement|array|null $address): void
     {
         if ($address === null) {
             $this->shippingAddressId = null;
@@ -2751,8 +2752,14 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function setEstimatedShippingAddress(AddressElement|array $address): void
+    public function setEstimatedShippingAddress(AddressElement|array|null $address): void
     {
+        if ($address === null) {
+            $this->estimatedShippingAddressId = null;
+            $this->_estimatedShippingAddress = null;
+            return;
+        }
+
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
@@ -2780,7 +2787,7 @@ class Order extends Element
      *
      * @param AddressElement|array|null $address
      */
-    public function setBillingAddress(mixed $address): void
+    public function setBillingAddress(AddressElement|array|null $address): void
     {
         if ($address === null) {
             $this->billingAddressId = null;
@@ -2833,8 +2840,14 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function setEstimatedBillingAddress(AddressElement|array $address): void
+    public function setEstimatedBillingAddress(AddressElement|array|null $address): void
     {
+        if ($address === null) {
+            $this->estimatedBillingAddressId = null;
+            $this->_estimatedBillingAddress = null;
+            return;
+        }
+
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
@@ -3089,8 +3102,7 @@ class Order extends Element
      * @throws Throwable
      * @throws StaleObjectException
      */
-    private
-    function _saveAdjustments(): void
+    private function _saveAdjustments(): void
     {
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
@@ -3117,8 +3129,7 @@ class Order extends Element
      * @throws StaleObjectException
      * @throws Throwable
      */
-    private
-    function _saveNotices(): void
+    private function _saveNotices(): void
     {
         $previousNoticeIds = (new Query())
             ->select(['id'])
@@ -3155,8 +3166,7 @@ class Order extends Element
      *
      * @throws Throwable
      */
-    private
-    function _saveLineItems(): void
+    private function _saveLineItems(): void
     {
         // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
@@ -3218,5 +3228,32 @@ class Order extends Element
                 }
             }
         }
+    }
+
+    /**
+     * Delete all addresses that are owned by the order but are not in use.
+     *
+     * @return void
+     * @throws Throwable
+     */
+    private function _deleteOrphanedOrderAddresses(): void
+    {
+        if (!$this->id) {
+            return;
+        }
+
+        $safeIds = array_filter([$this->getBillingAddress()?->id, $this->getShippingAddress()?->id]);
+
+        $orphanedAddresses = AddressElement::find()
+            ->ownerId($this->id);
+
+        if (!empty($safeIds)) {
+            ArrayHelper::prependOrAppend($safeIds, 'not', true);
+            $orphanedAddresses->id($safeIds);
+        }
+
+        ($orphanedAddresses->collect())->each(function (AddressElement $address) {
+            Craft::$app->getElements()->deleteElement($address, true);
+        });
     }
 }
