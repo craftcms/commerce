@@ -1216,6 +1216,26 @@ class Order extends Element
         return $this->reference ?: $this->getShortNumber();
     }
 
+    public function canSave(User $user): bool
+    {
+        return parent::canSave($user) || $user->can('commerce-editOrders');
+    }
+
+    public function canView(User $user): bool
+    {
+        return parent::canView($user) || $user->can('commerce-manageOrders');
+    }
+
+    public function canDuplicate(User $user): bool
+    {
+        return parent::canDuplicate($user) || $user->can('commerce-editOrders');
+    }
+
+    public function canDelete(User $user): bool
+    {
+        return parent::canDelete($user) || $user->can('commerce-deleteOrders');
+    }
+
     /**
      * @inheritdoc
      */
