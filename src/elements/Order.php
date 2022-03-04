@@ -1289,6 +1289,8 @@ class Order extends Element
         $names = parent::attributes();
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
+        $names[] = 'customer';
+        $names[] = 'customerId';
         $names[] = 'paymentCurrency';
         $names[] = 'paymentAmount';
         $names[] = 'email';
