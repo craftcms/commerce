@@ -296,6 +296,70 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function canView(User $user): bool
+    {
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSave(User $user): bool
+    {
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return Craft::$app->getUser()->checkPermission('commerce-deleteProducts:' . $uid);
+        }
+
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDeleteForSite(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function canCreateDrafts(User $user): bool
     {
         return true;
@@ -326,41 +390,6 @@ class Product extends Element
                 'url' => "commerce/products/$type->name",
             ]
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsEditable(): bool
-    {
-        $event = new DefineValueEvent([
-            'value' => $this->isEditable(),
-        ]);
-        $this->trigger(self::EVENT_DEFINE_IS_EDITABLE, $event);
-        return $event->value;
-    }
-
-    /**
-     * Returns whether the current user can edit the element.
-     *
-     * @return bool
-     * @since 3.7.0
-     */
-    protected function isEditable(): bool
-    {
-        return false;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsDeletable(): bool
-    {
-        $event = new DefineValueEvent([
-            'value' => $this->isDeletable(),
-        ]);
-        $this->trigger(self::EVENT_DEFINE_IS_DELETABLE, $event);
-        return $event->value;
     }
 
     /**

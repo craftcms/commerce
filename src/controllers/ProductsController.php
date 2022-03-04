@@ -115,7 +115,17 @@ class ProductsController extends BaseController
         /** @var Product $product */
         $product = $variables['product'];
 
+        $user = Craft::$app->getUser()->getIdentity();
+
+        $this->enforceEditProductPermissions($product);
+
+        $variables['canCreateProduct'] = Plugin::getInstance()->getProductTypes()->hasPermission($user, $product->getType(), 'commerce-createProducts');
+
         if ($product->id === null) {
+            if ($variables['canCreateProduct'] === false ) {
+                throw new ForbiddenHttpException('User not permitted to create a product for the product type.');
+            }
+
             $variables['title'] = Craft::t('commerce', 'Create a new product');
         } else {
             $variables['title'] = $product->title;
@@ -372,7 +382,7 @@ class ProductsController extends BaseController
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->getIsEditable()){
+        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }
@@ -384,7 +394,8 @@ class ProductsController extends BaseController
      */
     protected function enforceDeleteProductPermissions(Product $product): void
     {
-        if (!$product->getIsDeletable()) {
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!$product->canDelete($user)) {
             throw new ForbiddenHttpException('User is not permitted to delete this product');
         }
     }

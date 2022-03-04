@@ -43,6 +43,12 @@
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed direct `moneyphp/money` dependency.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
+- Removed `\craft\commerce\elements\Product::getIsEditable()`.
+- Removed `\craft\commerce\elements\Product::getIsDeletable()`.
+- Removed `\craft\commerce\elements\Product::isEditable()`.
+- Removed `\craft\commerce\elements\Product::isDeletable()`.
+- Removed `\craft\commerce\elements\Variant::isEditable()`.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
@@ -79,11 +85,6 @@
 - Removed `json_encode_filtered` twig filter.
 - Removed the `orderPdfFilenameFormat` setting.
 - Removed the `orderPdfPath` setting.
-- Removed `craft\commerce\elements\Product::canView()`.
-- Removed `craft\commerce\elements\Product::canSave()`.
-- Removed `craft\commerce\elements\Product::canDuplicate()`.
-- Removed `craft\commerce\elements\Product::canDelete()`.
-- Removed `craft\commerce\elements\Product::canDeleteForSite()`.
 
 ### Fixed
 

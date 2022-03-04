@@ -127,8 +127,6 @@ class ProductsPreviewController extends Controller
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
         $product = ProductHelper::populateProductFromPost();
 
         $this->enforceEditProductPermissions($product);
@@ -166,18 +164,9 @@ class ProductsPreviewController extends Controller
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->getIsEditable()) {
+        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
-    }
-
-    /**
-     * @throws ForbiddenHttpException
-     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
-     */
-    protected function enforceProductPermissions(Product $product): void
-    {
-        $this->enforceEditProductPermissions($product);
     }
 
     /**
