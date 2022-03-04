@@ -1,6 +1,5 @@
 <template>
     <div>
-        <hr>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">

@@ -1027,14 +1027,9 @@ class Discounts extends Component
     }
 
     /**
-     * <<<<<<< HEAD
      * @param Discount $discount
      * @param User|null $user
-     * @param $user
-     * @param $customer
-     * >>>>>>> 4.0
      * @return bool
-     * =======
      */
     private function _isDiscountPerUserUsageValid(Discount $discount, ?User $user): bool
     {

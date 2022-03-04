@@ -1,6 +1,6 @@
 <template>
     <div v-if="draft">
-        <div class="order-details" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
+        <div class="order-details pt" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
             <template v-if="!draft">
                 <div class="spinner"></div>
             </template>

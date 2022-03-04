@@ -90,11 +90,7 @@ class OrderHistory extends Model
     }
 
     /**
-<<<<<<< HEAD
      * @return User|null
-=======
-     * @throws InvalidConfigException
->>>>>>> 4.0
      */
     public function getUser(): ?User
     {

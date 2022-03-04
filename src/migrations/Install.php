@@ -82,6 +82,7 @@ class Install extends Migration
     public function createTables(): void
     {
         $this->createTable(Table::CUSTOMERS, [
+            'id' => $this->primaryKey(),
             'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
             'primaryShippingAddressId' => $this->integer(),

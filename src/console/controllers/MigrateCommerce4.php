@@ -159,6 +159,8 @@ class MigrateCommerce4 extends Controller
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
+        // TODO Migrate primary shipping and billing on customer table
+
         $this->stdout("Migrating Order Addresses...\n");
         $this->_migrateOrderAddresses();
         $this->stdout("Done.\n");

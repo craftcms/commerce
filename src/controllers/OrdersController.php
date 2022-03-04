@@ -38,6 +38,7 @@ use craft\elements\Address;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -446,7 +447,22 @@ class OrdersController extends Controller
             $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
         }
 
+        $billingAddress = $order->getBillingAddress();
+        $shippingAddress = $order->getShippingAddress();
+
         $orderArray = $order->toArray($orderFields, $extraFields);
+
+        if ($orderArray['customer'] && $orderArray['customer']['id'] && $customer = Craft::$app->getUsers()->getUserById($orderArray['customer']['id'])) {
+            $orderArray['customer'] = $this->_customerToArray($customer);
+        }
+
+        if ($billingAddress) {
+            $orderArray['billingAddressHtml'] = Cp::addressCardHtml(address: $billingAddress);
+        }
+
+        if ($shippingAddress) {
+            $orderArray['shippingAddressHtml'] = Cp::addressCardHtml(address: $shippingAddress);
+        }
 
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
@@ -527,11 +543,16 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param null $query
-     * @throws InvalidConfigException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
      */
-    public function actionCustomerSearch($query = null): Response
+    public function actionCustomerSearch(): Response
     {
+        $this->requireAcceptsJson();
+
+        $query = Craft::$app->getRequest()->getQueryParam('query', null);
+
         $limit = 30;
         $customers = [];
 
@@ -542,10 +563,130 @@ class OrdersController extends Controller
         $userQuery = User::find()->status(null)->limit($limit);
 
         if ($query) {
-            $userQuery->search($query);
+            $userQuery->search(urldecode($query));
         }
 
-        return $this->asJson($userQuery->all());
+        $customers = $userQuery->collect()->map(function(User $user) {
+            return $this->_customerToArray($user);
+        });
+
+        return $this->asSuccess(data: compact('customers'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
+     */
+    public function actionGetCustomerAddresses(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $id = $request->getRequiredParam('id');
+        $page = $request->getParam('page', 1);
+        $limit = $request->getParam('per_page', 10);
+        $offset = ($page - 1) * $limit;
+
+        $user = Craft::$app->getUsers()->getUserById($id);
+
+        if (!$user) {
+            return $this->asFailure(message: Craft::t('commerce', 'User not found.'));
+        }
+
+        $addressElements = Address::find()
+            ->ownerId($user->id)
+            ->limit($limit)
+            ->offset($offset)
+            ->collect();
+
+        $total = $addressElements->count();
+
+        $addresses = $addressElements->map(function (Address $address) {
+            return $address->toArray() + [
+                'html' => Cp::addressCardHtml(address: $address),
+            ];
+        });
+
+        return $this->asSuccess(data: compact('addresses', 'total'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
+     */
+    public function actionGetOrderAddress(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $orderId = $request->getRequiredParam('orderId');
+        $addressId = $request->getRequiredParam('addressId');
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
+        }
+
+        $address = Address::find()
+            ->id($addressId)
+            ->ownerId($order->id)
+            ->one();
+
+        if (!$address) {
+            return $this->asFailure(message: Craft::t('commerce', 'Address not found.'));
+        }
+
+        return $this->asSuccess(data: [
+            'address' => $address->toArray() + [
+                'html' => Cp::addressCardHtml(address: $address),
+            ]
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
+    public function actionValidateAddress(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $requestAddress = Craft::$app->getRequest()->getRequiredParam('address');
+
+        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+
+        if (!$address->validate()) {
+            return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
+        }
+
+        return $this->asSuccess();
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionCreateCustomer(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $email = Craft::$app->getRequest()->getRequiredParam('email');
+
+        try {
+            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+            $user = $this->_customerToArray($user);
+        } catch(\Exception $e) {
+            return $this->asFailure(message: $e->getMessage());
+        }
+
+        return $this->asSuccess(data: compact('user'));
     }
 
     /**
@@ -1019,8 +1160,12 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $user = $variables['order']->customerId ? User::findOne($variables['order']->customerId) : null;
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
+        $customer = $variables['order']->customerId ? $variables['order']->getCustomer() : null;
+        if ($customer) {
+            $customer = $this->_customerToArray($customer);
+        }
+
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         $pdfUrls = [];
@@ -1052,15 +1197,18 @@ class OrdersController extends Controller
     }
 
     /**
+     * @param Order $order
      * @param $orderRequestData
-     * @throws Exception
      * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws \craft\errors\InvalidElementException
+     * @throws \craft\errors\UnsupportedSiteException
      */
     private function _updateOrder(Order $order, $orderRequestData): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
-        $order->email = $orderRequestData['order']['email'] ?? '';
+
         $customerId = $orderRequestData['order']['customerId'] ?? null;
         if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
             $order->setCustomer($customer);
@@ -1073,6 +1221,33 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        $getAddress = static function($address, $orderId, $title) {
+            if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+                if (isset($address['_copy'])) {
+                    unset($address['_copy']);
+                }
+                $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
+                $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+            } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                $address = Address::find()->id($address['id'])->ownerId($address['ownerId'])->one();
+            }
+
+            return $address;
+        };
+        $billingAddress = $getAddress($orderRequestData['order']['billingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+        $order->setBillingAddress($billingAddress);
+
+        $shippingAddress = $getAddress($orderRequestData['order']['shippingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+        $order->setShippingAddress($shippingAddress);
+
+        if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+            $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
+        }
+
+        if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+            $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+        }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
         $order->shippingMethodName = $shippingMethod->name ?? null;
@@ -1106,13 +1281,6 @@ class OrdersController extends Controller
 
         if ($dateOrdered === null && $order->isCompleted) {
             $order->dateOrdered = null;
-        }
-
-        // Only email set on the order
-        if ($order->getCustomer() == null && $order->email) {
-            // Ensure user created for that email
-            $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
-            $order->setCustomer($user);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
@@ -1343,30 +1511,17 @@ class OrdersController extends Controller
         return $purchasables;
     }
 
+
     /**
-     * @param User[] $customers
+     * @param User $customer
      * @return array
-     * @since 3.1.4
+     * @since 4.0
      */
-    private function _prepCustomersArray(array $customers): array
+    private function _customerToArray(User $customer): array
     {
-        if (empty($customers)) {
-            return [];
-        }
-
-        foreach ($customers as &$customer) {
-            $addresses = $customer->getAddresses();
-            $primaryBillingAddressId = $customer->getPrimaryBillingAddressId();
-            $primaryShippingAddressId = $customer->getPrimaryShippingAddressId();
-            $photo = $customer->photoId ? $customer->getThumbUrl(30) : null;
-
-            $customer = $customer->toArray();
-            $customer['addresses'] = $addresses;
-            $customer['primaryBillingAddressId'] = $primaryBillingAddressId;
-            $customer['primaryShippingAddressId'] = $primaryShippingAddressId;
-            $customer['photo'] = $photo;
-        }
-
-        return $customers;
+        return $customer->toArray() + [
+            'cpEditUrl' => $customer->getCpEditUrl(),
+            'totalAddresses' => count($customer->getAddresses()),
+        ];
     }
 }
