@@ -2743,15 +2743,6 @@ class Order extends Element
     }
 
     /**
-     * @since 3.1
-     */
-    public function removeEstimatedShippingAddress(): void
-    {
-        $this->estimatedShippingAddressId = null;
-        $this->_estimatedShippingAddress = null;
-    }
-
-    /**
      * Get the billing address on the order.
      */
     public function getBillingAddress(): ?AddressElement
@@ -2830,15 +2821,6 @@ class Order extends Element
 
         $this->estimatedBillingAddressId = $address->id;
         $this->_estimatedBillingAddress = $address;
-    }
-
-    /**
-     * @since 3.1
-     */
-    public function removeEstimatedBillingAddress(): void
-    {
-        $this->estimatedBillingAddressId = null;
-        $this->_estimatedBillingAddress = null;
     }
 
     public function getShippingMethod(): ?ShippingMethod

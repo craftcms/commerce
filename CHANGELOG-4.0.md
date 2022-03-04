@@ -61,6 +61,8 @@
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 - Removed `craft\commerce\controllers\StatesController`.
+- Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
+- Removed `craft\commerce\elements\Order::removeEstimatedShippingAddress()`. Used `setEstimatedShippingAddress(null)` instead.
 - Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\models\Country`.
