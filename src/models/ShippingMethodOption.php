@@ -67,6 +67,10 @@ class ShippingMethodOption extends ShippingMethod
 
     protected function getCurrency(): string
     {
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
         return $this->_order->currency;
     }
 
