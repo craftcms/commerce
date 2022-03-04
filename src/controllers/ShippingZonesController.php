@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -58,6 +59,15 @@ class ShippingZonesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
 
+        $condition = $variables['shippingZone']->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }
 
@@ -75,14 +85,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingZone->isCountryBased = (bool)Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $shippingZone->countryCode = (bool)Craft::$app->getRequest()->getBodyParam('countryCode', 'US');
-        $shippingZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
-        $shippingZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $countries = Craft::$app->getRequest()->getBodyParam('countries',[]) ?: [];
-        $shippingZone->setCountries($countries);
-        $administrativeAreas = Craft::$app->getRequest()->getBodyParam('administrativeAreas',[]) ?: [];
-        $shippingZone->setAdministrativeAreas($administrativeAreas);
+        $shippingZone->setCondition(Craft::$app->getRequest()->getBodyParam('condition'));
 
         if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
             return $this->asModelSuccess(

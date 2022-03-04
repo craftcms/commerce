@@ -4,13 +4,8 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-  'Countries/States',
-  'Has Zip Condition?',
   'Name',
-  'Description',
-  'Type',
-  'Countries/Administrative Areas',
-  'Has Zip Condition?',
+  'Description'
 ]) %}
 
 {% block actionButton %}
@@ -28,8 +23,6 @@
         title: shippingZone.name|t('site'),
         url: url('commerce/shipping/shippingzones/'~shippingZone.id),
         description: shippingZone.description|t('site')|e,
-        type: shippingZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
-        zipCondition: shippingZone.zipCodeConditionFormula ? true : false,
     }]) %}
 {% endfor %}
 
@@ -37,16 +30,6 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: 'description', title: Craft.t('commerce', 'Description') },
-        { name: 'type', title: Craft.t('commerce', 'Type') },
-        {
-            name: 'zipCondition',
-            title: Craft.t('commerce', 'Has Zip Condition?'),
-            callback: function(value) {
-                if (value) {
-                    return '<div data-icon="check"></div>';
-                }
-            }
-        },
     ];
 
     new Craft.VueAdminTable({

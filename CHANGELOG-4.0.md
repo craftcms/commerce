@@ -3,26 +3,29 @@
 ## Unreleased
 
 ### Added
-- Added `\craft\commerce\elements\Order::$sourceBillingAddressId`
-- Added `\craft\commerce\elements\Order::$sourceShippingAddressId`
-- Added `craft\commerce\helpers\AddressZone`.
+- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
+- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
 - Added `craft\commerce\base\AddressZoneInterface::getCountryCode()`.
+- Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
 - Added `craft\commerce\controllers\OrdersController::actionCreateCustomer()`.
 - Added `craft\commerce\controllers\OrdersController::actionGetCustomerAddresses()`.
+- Added `craft\commerce\elements\Order::$sourceBillingAddressId`
+- Added `craft\commerce\elements\Order::$sourceShippingAddressId`
 - Added `craft\commerce\controllers\OrdersController::actionGetOrderAddress()`.
 - Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
+- Added `craft\commerce\models\Store`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
-- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
-- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
+- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -59,6 +62,8 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed `craft\commerce\events\DefineAddressLinesEvent`. Use the new `\craft\services\Addresses::formatAddress()` instead.
+- Removed `craft\commerce\base\AddressZoneInterface`.
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
 - Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.
@@ -109,12 +114,12 @@
 - Removed direct `moneyphp/money` dependency.
 
 ### Removed (Previously Deprecated)
+- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
-- Removed `craft\commerce\base\OrderDeprecatedTrait`.
+- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\base\CustomersController`.
-- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
-- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\base\OrderDeprecatedTrait`.
 - Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
 - Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions()` instead.
 - Removed `craft\commerce\elements\Order::getOrderLocale()` has been deprecated. Use `Order::orderLanguage` instead.
@@ -122,13 +127,14 @@
 - Removed `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\Order::getTotalTaxablePrice()`. Taxable price is now calculated within the tax adjuster.
 - Removed `craft\commerce\elements\Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
+- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\traits\OrderDeprecatedTrait`.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Email::getPdfTemplatePath()`. Use `craft\commerce\models\Email::getPdf()->getTemplatePath()` instead.
 - Removed `craft\commerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
-- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders`.
 - Removed `craft\commerce\services\Customers::consolidateOrdersToUser()`.
 - Removed `craft\commerce\services\Customers::getCustomer()`.
@@ -145,7 +151,8 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `json_encode_filtered` twig filter.
-- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed the `orderPdfFilenameFormat` setting.
+- Removed the `orderPdfPath` setting.
 
 ### Fixed
 

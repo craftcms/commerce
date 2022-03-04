@@ -10,17 +10,11 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
-use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
-use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
-use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
-use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
-use craft\helpers\Json;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\caching\TagDependency;
 use yii\db\StaleObjectException;
 
 /**
@@ -33,14 +27,9 @@ use yii\db\StaleObjectException;
 class TaxZones extends Component
 {
     /**
-     * @var bool
-     */
-    private bool $_fetchedAllTaxZones = false;
-
-    /**
      * @var TaxAddressZone[]
      */
-    private array $_allTaxZones = [];
+    private array $_allZones = [];
 
     /**
      * Get all tax zones.
@@ -49,17 +38,13 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (!$this->_fetchedAllTaxZones) {
-            $rows = $this->_createTaxZonesQuery()->all();
+        $rows = $this->_createQuery()->all();
 
-            foreach ($rows as $row) {
-                $this->_allTaxZones[$row['id']] = new TaxAddressZone($row);
-            }
-
-            $this->_fetchedAllTaxZones = true;
+        foreach ($rows as $row) {
+            $this->_allZones[$row['id']] = new TaxAddressZone($row);
         }
 
-        return $this->_allTaxZones;
+        return $this->_allZones;
     }
 
     /**
@@ -67,15 +52,11 @@ class TaxZones extends Component
      */
     public function getTaxZoneById(int $id): ?TaxAddressZone
     {
-        if (isset($this->_allTaxZones[$id])) {
-            return $this->_allTaxZones[$id];
+        if (isset($this->_allZones[$id])) {
+            return $this->_allZones[$id];
         }
 
-        if ($this->_fetchedAllTaxZones) {
-            return null;
-        }
-
-        $result = $this->_createTaxZonesQuery()
+        $result = $this->_createQuery()
             ->where(['id' => $id])
             ->one();
 
@@ -83,13 +64,13 @@ class TaxZones extends Component
             return null;
         }
 
-        return $this->_allTaxZones[$id] = new TaxAddressZone($result);
+        return $this->_allZones[$id] = new TaxAddressZone($result);
     }
 
     /**
      * Save a tax zone.
      *
-     * @param bool $runValidation should we validate this rule before saving.
+     * @param bool $runValidation should we validate this zone before saving
      * @throws \Exception
      * @throws Exception
      */
@@ -106,7 +87,7 @@ class TaxZones extends Component
         }
 
         if ($runValidation && !$model->validate()) {
-            Craft::info('Tax rule not saved due to validation error.', __METHOD__);
+            Craft::info('Tax zone not saved due to validation error.', __METHOD__);
 
             return false;
         }
@@ -114,20 +95,17 @@ class TaxZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
-
-        // If the condition formula changes, clear the cache for this zone.
-        if (($record->zipCodeConditionFormula != $model->getZipCodeConditionFormula()) && $record->id) {
-            TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
-        }
-
-        $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
-        $record->isCountryBased = $model->isCountryBased;
-        $record->countryCode = $model->countryCode;
-        $record->countries = Json::encode($model->getCountries());
-        $record->administrativeAreas = Json::encode($model->getAdministrativeAreas());
+        $record->default = $model->default;
+        $record->condition = $model->getCondition();
 
         $record->save();
+
         $model->id = $record->id;
+
+        // If this was the default make all others not the default.
+        if ($model->default) {
+            TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $model->id]]);
+        }
 
         return true;
     }
@@ -155,23 +133,20 @@ class TaxZones extends Component
     /**
      * Returns a Query object prepped for retrieving tax zones.
      */
-    private function _createTaxZonesQuery(): Query
+    private function _createQuery(): Query
     {
         return (new Query())
             ->select([
-                'administrativeAreas',
-                'countries',
-                'countryCode',
+                'condition',
                 'dateCreated',
                 'dateUpdated',
+                'default',
                 'description',
                 'id',
-                'isCountryBased',
-                'name',
-                'zipCodeConditionFormula',
+                'name'
             ])
             ->orderBy('name')
-            ->from([Table::SHIPPINGZONES]);
+            ->from([Table::TAXZONES]);
     }
 
     /**
@@ -181,7 +156,6 @@ class TaxZones extends Component
      */
     private function _clearCaches(): void
     {
-        $this->_fetchedAllTaxZones = false;
-        $this->_allTaxZones = [];
+        $this->_allZones = [];
     }
 }

@@ -8,8 +8,11 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
+use craft\db\Query;
 use craft\elements\Address;
 use craft\commerce\records\Store as StoreRecord;
+use craft\commerce\models\Store as StoreModel;
 use craft\elements\Address as AddressElement;
 use yii\base\Component;
 
@@ -23,25 +26,44 @@ use yii\base\Component;
 class Store extends Component
 {
     /**
-     * @var ?StoreRecord
+     * @var ?StoreModel
      */
-    private ?StoreRecord $_store = null;
+    private ?StoreModel $_store = null;
 
-    public function init()
-    {
-        $this->_store = StoreRecord::find()->one();
-
-        if ($this->_store === null) {
-            $this->_store = new StoreRecord();
-            $this->_store->save();
-        }
-
-        return true;
-    }
     /**
      * @var ?Address
      */
     private ?Address $_storeLocationAddress = null;
+
+    public function init()
+    {
+        parent::init();
+
+        // Always ensure we have a store record.
+        if ($this->_store == null) {
+            $store = $this->_createStoreQuery()->one();
+
+            if ($store === null) {
+                $store = new StoreRecord();
+                $store->save();
+            }
+            $this->_store = new StoreModel();
+            $this->_store->setAttributes($store, false);
+            $this->_store->locationAddressId = $this->getStoreLocationAddress()->id; // ensure it is created if not.
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the store record.
+     *
+     * @return StoreModel
+     */
+    public function getStore(): StoreModel
+    {
+        return $this->_store;
+    }
 
     /**
      * Returns the store location address
@@ -63,5 +85,41 @@ class Store extends Component
         }
 
         return $this->_storeLocationAddress;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getAllEnabledCountriesAsList()
+    {
+        $enabledCountries = $this->_store->countries;
+        // TODO merge in the custom countries and filter out the disabled countries
+        return Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function getAllEnabledAdministrativeAreasAsList($countryCode)
+    {
+        $enabledAdministrativeAreas = $this->_store->administrativeAreas;
+        // TODO merge in the custom states and filter out the disabled states
+        $countries = Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
+        return Craft::$app->getAddresses()->getSubdivisionRepository()->getList([$countryCode], Craft::$app->language);
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving the store.
+     */
+    private function _createStoreQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'locationAddressId',
+                'enabledCountries',
+                'enabledAdministrativeAreas',
+            ])
+            ->from([Table::STORES]);
     }
 }

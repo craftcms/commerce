@@ -16,6 +16,8 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property int $locationAddressId
+ * @property array $countries
+ * @property array $administrativeAreas
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */

@@ -98,13 +98,13 @@ trait OrderElementTrait
             {
                 return $this->getBillingAddress() ? $this->getBillingAddress()->lastName ?? '' : '';
             }
-            case 'shippingBusinessName':
+            case 'shippingOrganizationName':
             {
-                return $this->getShippingAddress()->businessName ?? '';
+                return $this->getShippingAddress()->organization ?? '';
             }
-            case 'billingBusinessName':
+            case 'billingOrganizationName':
             {
-                return $this->getBillingAddress()->businessName ?? '';
+                return $this->getBillingAddress()->organization ?? '';
             }
             case 'shippingMethodName':
             {
@@ -223,14 +223,12 @@ trait OrderElementTrait
             'billingFirstName',
             'billingLastName',
             'billingFullName',
-            'billingPhone',
             'billingAddressLines',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
-            'shippingPhone',
             'shippingAddressLines',
             'shortNumber',
             'transactionReference',
@@ -254,48 +252,18 @@ trait OrderElementTrait
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
                 return $this->billingAddress->fullName ?? '';
-            case 'billingPhone':
-                return $this->billingAddress->phone ?? '';
-            case 'billingAddressLines':
+            case 'billingAddress':
                 $address = $this->getBillingAddress();
-                // TODO have this as a centralised list to avoid code duplication
-                $addressLines = $address ? $address->toArray([
-                    'countryCode',
-                    'administrativeArea',
-                    'locality',
-                    'dependentLocality',
-                    'postalCode',
-                    'sortingCode',
-                    'addressLine1',
-                    'addressLine2',
-                    'organization',
-                    'fullName',
-                ]) : [];
-                return implode(' ', array_filter($addressLines));
+                return $address ? Craft::$app->getAddresses()->formatAddress($address) : '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
                 return $this->shippingAddress->fullName ?? '';
-            case 'shippingPhone':
-                return $this->shippingAddress->phone ?? '';
-            case 'shippingAddressLines':
+            case 'shippingAddress':
                 $address = $this->getShippingAddress();
-                // TODO have this as a centralised list to avoid code duplication
-                $addressLines = $address ? $address->toArray([
-                    'countryCode',
-                    'administrativeArea',
-                    'locality',
-                    'dependentLocality',
-                    'postalCode',
-                    'sortingCode',
-                    'addressLine1',
-                    'addressLine2',
-                    'organization',
-                    'fullName',
-                ]) : [];
-                return implode(' ', array_filter($addressLines));
+                return $address ? Craft::$app->getAddresses()->formatAddress($address) : '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -499,8 +467,8 @@ trait OrderElementTrait
             'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
             'billingFirstName' => ['label' => Craft::t('commerce', 'Billing First Name')],
             'billingLastName' => ['label' => Craft::t('commerce', 'Billing Last Name')],
-            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
-            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
+            'shippingOrganizationName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
+            'billingOrganizationName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
             'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
             'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
@@ -563,8 +531,8 @@ trait OrderElementTrait
             case 'billingFullName':
             case 'billingFirstName':
             case 'billingLastName':
-            case 'shippingBusinessName':
-            case 'billingBusinessName':
+            case 'shippingOrganizationName':
+            case 'billingOrganizationName':
             case 'shippingMethodName':
                 $elementQuery->withAddresses();
                 break;

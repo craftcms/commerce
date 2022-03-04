@@ -15,15 +15,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Tax zone record.
  *
- * @property string[] $countries
- * @property bool $isCountryBased
- * @property string $countryCode
  * @property bool $default
- * @property string $description
- * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
- * @property string[] $administrativeAreas
+ * @property string $description
+ * @property array $condition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

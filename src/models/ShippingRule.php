@@ -12,7 +12,6 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\AddressZone as AddressZoneHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
@@ -317,7 +316,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         /** @var ShippingAddressZone $shippingZone */
-        if ($shippingZone && !AddressZoneHelper::addressWithinZone($shippingAddress, $shippingZone)) {
+        if ($shippingZone && !$shippingZone->getCondition()->matchElement($shippingAddress)) {
             return false;
         }
 
