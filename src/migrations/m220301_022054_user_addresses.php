@@ -108,7 +108,7 @@ class m220301_022054_user_addresses extends Migration
         $this->dropIndexIfExists('{{%commerce_customer_discountuses}}', ['customerId', 'discountId']);
         $this->renameColumn('{{%commerce_customer_discountuses}}', 'customerId', 'v3customerId'); // move the data
         $this->alterColumn('{{%commerce_customer_discountuses}}', 'v3customerId', $this->integer());
-        $this->addColumn('{{%commerce_customer_discountuses}}', 'customerId', $this->integer()); tow
+        $this->addColumn('{{%commerce_customer_discountuses}}', 'customerId', $this->integer());
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         $this->createIndex(null, '{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
