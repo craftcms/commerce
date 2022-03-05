@@ -369,7 +369,7 @@ class ProductsController extends BaseController
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->getIsEditable()){
+        if (!$product->getIsEditable()) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }
@@ -427,7 +427,7 @@ class ProductsController extends BaseController
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
+        } elseif (!empty($variables['productTypeId'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
         }
 

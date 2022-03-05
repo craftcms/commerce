@@ -93,7 +93,7 @@ class LineItemTest extends Unit
         $options = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => '❌'
+            'emoji' => '❌',
         ];
         $jsonOptions = Json::encode($options);
         $lineItem = new LineItem();
@@ -101,7 +101,7 @@ class LineItemTest extends Unit
         $output = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => ':x:'
+            'emoji' => ':x:',
         ];
 
         // TODO change this when set options for emojis is refactored

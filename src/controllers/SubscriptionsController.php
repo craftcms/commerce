@@ -51,7 +51,7 @@ class SubscriptionsController extends BaseController
      */
     protected function enforceEditSubscriptionPermissions(Subscription $subscription): void
     {
-        if (!$subscription->getIsEditable()){
+        if (!$subscription->getIsEditable()) {
             throw new ForbiddenHttpException('User is not permitted to edit this subscription');
         }
     }

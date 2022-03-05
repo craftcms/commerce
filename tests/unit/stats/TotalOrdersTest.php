@@ -87,7 +87,7 @@ class TotalOrdersTest extends Unit
                 2,
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
                     ->diff((new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
-                    ->days
+                    ->days,
             ],
             [
                 TotalOrders::DATE_RANGE_CUSTOM,
@@ -96,7 +96,7 @@ class TotalOrdersTest extends Unit
                 0,
                 (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
                     ->diff((new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
-                    ->days
+                    ->days,
             ],
         ];
     }

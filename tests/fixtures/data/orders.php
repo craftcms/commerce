@@ -38,7 +38,7 @@ return [
         'shippingAddressId' => '1002',
         'orderStatusId' => $orderStatuses['new'] ?? null,
         '_lineItems' => array_filter([$hctWhiteLineItem, $hctBlueLineItem]),
-        '_markAsComplete' => true
+        '_markAsComplete' => true,
     ],
     'completed-new-past' => [
         'customerId' => '1000',
@@ -59,6 +59,6 @@ return [
         'shippingAddressId' => '1002',
         'orderStatusId' => $orderStatuses['shipped'] ?? null,
         '_lineItems' => array_filter([$hctWhiteLineItem]),
-        '_markAsComplete' => true
+        '_markAsComplete' => true,
     ],
 ];

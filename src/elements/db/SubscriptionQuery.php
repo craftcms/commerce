@@ -185,7 +185,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->userId = (new Query())
                 ->select(['id'])
                 ->from(['{{%users}}'])
@@ -232,7 +232,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
                 ->from([Table::PLANS])
@@ -790,7 +790,7 @@ class SubscriptionQuery extends ElementQuery
 
         if ($this->onTrial === true) {
             $this->subQuery->andWhere($this->_getTrialCondition(true));
-        } else if ($this->onTrial === false) {
+        } elseif ($this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 

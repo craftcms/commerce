@@ -19,7 +19,6 @@ use craft\commerce\base\TaxEngineInterface;
  */
 class Tax extends Component implements TaxEngineInterface
 {
-
     /**
      * @inheritDoc
      */

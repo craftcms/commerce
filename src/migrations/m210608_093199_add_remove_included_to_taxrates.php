@@ -20,7 +20,7 @@ class m210608_093199_add_remove_included_to_taxrates extends Migration
         }
 
         // Wherever we were currently doing an included tax, turn on removeIncluded
-        $columns = ['removeIncluded' => true,];
+        $columns = ['removeIncluded' => true, ];
         $condition = ['include' => true];
         $this->update($table, $columns, $condition, [], false);
 

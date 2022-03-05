@@ -272,7 +272,7 @@ class Payments extends Component
             if (!$gateway->supportsAuthorize()) {
                 throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support authorize'));
             }
-        } else if (!$gateway->supportsPurchase()) {
+        } elseif (!$gateway->supportsPurchase()) {
             throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support purchase'));
         }
 
@@ -681,9 +681,9 @@ class Payments extends Component
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } else if ($response->isProcessing()) {
+        } elseif ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
-        } else if ($response->isRedirect()) {
+        } elseif ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
         } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;

@@ -90,7 +90,7 @@ class m200801_233755_pdfs extends Migration
             'isDefault' => true,
             'enabled' => true,
             'sortOrder' => $sortOrder++,
-            'uid' => $defaultUid// Doesnt need to be related to anything like the email ones below
+            'uid' => $defaultUid,// Doesnt need to be related to anything like the email ones below
         ];
 
         // set the default pdf from setting in project config

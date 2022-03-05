@@ -251,7 +251,7 @@ class ProductType extends Model
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
-            } else if ($category instanceof ShippingCategory) {
+            } elseif ($category instanceof ShippingCategory) {
                 // Make sure it exists
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category->id)) {
                     $categories[$category->id] = $category;

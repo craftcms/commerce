@@ -115,7 +115,7 @@ class OrderPaymentAmountTest extends Unit
     {
         foreach ($lineItems as &$item) {
             $item = Craft::createObject(LineItem::class, [
-                'config' => ['attributes' => $item]
+                'config' => ['attributes' => $item],
             ]);
         }
         unset($item);
@@ -151,19 +151,19 @@ class OrderPaymentAmountTest extends Unit
                 $lineItems,
                 10,
                 'AUD',
-                true
+                true,
             ],
             'full-payment-specified' => [
                 array_merge($lineItems, ['second' => ['salePrice' => 7.75, 'qty' => 1]]),
                 23.08,
                 'AUD',
-                false
+                false,
             ],
             'currency-specified-but-no-amount' => [
                 $lineItems,
                 null,
                 'AUD',
-                false
+                false,
             ],
         ];
     }

@@ -167,7 +167,6 @@ class ExampleTemplatesController extends Controller
 
         // If this is not a dev build, copy them to the templates folder
         if (!$this->devBuild) {
-
             if (!$templatesPath) {
                 $errors[] = 'Can not determine the site template path.';
             }
@@ -242,7 +241,7 @@ class ExampleTemplatesController extends Controller
     private function _addResourceAssetsToReplacementData(): void
     {
         $resourceTags = [
-            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css'),
         ];
 
         if ($this->useHtmx) {

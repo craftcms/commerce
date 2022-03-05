@@ -72,7 +72,7 @@ class CountriesController extends BaseStoreSettingsController
 
         if ($variables['id'] && $variables['country']->id == $variables['id'] && $variables['country']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['countryId' => $variables['id']])
                 ->count();
@@ -81,7 +81,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::SHIPPINGZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();
@@ -91,7 +91,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::TAXZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();

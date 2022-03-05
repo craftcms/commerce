@@ -47,4 +47,3 @@ class Order
         return $lineItems > $lineItemsByKey;
     }
 }
-

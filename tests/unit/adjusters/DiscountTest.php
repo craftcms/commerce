@@ -27,8 +27,6 @@ use craft\helpers\ArrayHelper;
  */
 class DiscountTest extends Unit
 {
-
-
     /**
      * @var Plugin|null
      */
@@ -80,7 +78,7 @@ class DiscountTest extends Unit
             },
             'matchOrder' => function($o, $d) {
                 return true;
-            }
+            },
         ]));
 
         $order = new Order();
@@ -92,7 +90,7 @@ class DiscountTest extends Unit
                 'salePrice' => $item['salePrice'],
                 'getPurchasable' => function() use ($item) {
                     return $item['purchasable'];
-                }
+                },
             ]);
             $lineItems[] = $lineItem;
         }
@@ -131,13 +129,13 @@ class DiscountTest extends Unit
             'stopProcessing' => false,
             'baseDiscount' => -10,
             'baseDiscountType' => DiscountRecord::BASE_DISCOUNT_TYPE_VALUE,
-            'userGroupsCondition' => DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE
+            'userGroupsCondition' => DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE,
         ];
 
         $lineItemPromotable = [
             'salePrice' => 100,
             'qty' => 1,
-            'purchasable' => new class extends Purchasable {
+            'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float
                 {
                     return 100;
@@ -152,13 +150,13 @@ class DiscountTest extends Unit
                 {
                     return true;
                 }
-            }
+            },
         ];
 
         $lineItemNonPromotable = [
             'salePrice' => 100,
             'qty' => 1,
-            'purchasable' => new class extends Purchasable {
+            'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float
                 {
                     return 100;
@@ -173,14 +171,14 @@ class DiscountTest extends Unit
                 {
                     return false;
                 }
-            }
+            },
         ];
 
         return [
             // Example 1) 10 base discount (order level) with promotable line item
             [
                 [ // Line Items
-                    $lineItemPromotable
+                    $lineItemPromotable,
                 ],
                 $orderLevelDiscount,
                 [
@@ -188,17 +186,17 @@ class DiscountTest extends Unit
                         [
                             'type' => 'discount',
                             'amount' => $orderLevelDiscount['baseDiscount'],
-                            'description' => $orderLevelDiscount['description']
-                        ]
+                            'description' => $orderLevelDiscount['description'],
+                        ],
                     ],
                     'orderTotalPrice' => 90,
                     'orderTotalDiscount' => $orderLevelDiscount['baseDiscount'],
-                ]
+                ],
             ],
             // Example 2) 10 base discount (order level) with non-promotable line item
             [
                 [ // Line Items
-                    $lineItemNonPromotable
+                    $lineItemNonPromotable,
                 ],
                 $orderLevelDiscount,
                 [
@@ -206,13 +204,13 @@ class DiscountTest extends Unit
                     ],
                     'orderTotalPrice' => 100,
                     'orderTotalDiscount' => 0,
-                ]
+                ],
             ],
             // Example 3) 10 base discount (order level) with both promotable and non-promotable line items
             [
                 [ // Line Items
                     $lineItemNonPromotable,
-                    $lineItemPromotable
+                    $lineItemPromotable,
                 ],
                 array_merge($orderLevelDiscount, ['baseDiscount' => -110]),
                 [
@@ -220,12 +218,12 @@ class DiscountTest extends Unit
                         [
                             'type' => 'discount',
                             'amount' => -100,
-                            'description' => $orderLevelDiscount['description']
-                        ]
+                            'description' => $orderLevelDiscount['description'],
+                        ],
                     ],
                     'orderTotalPrice' => 100,
                     'orderTotalDiscount' => -100,
-                ]
+                ],
             ],
         ];
     }
