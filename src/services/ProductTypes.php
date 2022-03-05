@@ -73,7 +73,7 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
+    public const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
     /**
      * @event ProductTypeEvent The event that is triggered after a product type has been saved.
@@ -97,9 +97,9 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
+    public const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
 
-    const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
+    public const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
     /**
      * @var bool
