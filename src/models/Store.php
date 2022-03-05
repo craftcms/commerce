@@ -28,9 +28,9 @@ class Store extends Model
     public int $id;
 
     /**
-     * @var int
+     * @var int|null
      */
-    public int $locationAddressId;
+    public ?int $locationAddressId = null;
 
     /**
      * @var array
