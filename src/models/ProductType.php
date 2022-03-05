@@ -398,17 +398,19 @@ class ProductType extends Model
      */
     public function behaviors(): array
     {
-        return array_merge(parent::behaviors(), [
-            'productFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId',
-            ],
-            'variantFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId',
-            ],
-        ]);
+        $behaviors = parent::behaviors();
+        $behaviors['productFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Product::class,
+            'idAttribute' => 'fieldLayoutId',
+        ];
+
+        $behaviors['variantFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Variant::class,
+            'idAttribute' => 'variantFieldLayoutId',
+        ];
+
+        return $behaviors;
     }
 }

@@ -18,12 +18,26 @@
     "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": "^8.0.2",
     "craftcms/cms": "^4.0.0-alpha",
     "dompdf/dompdf": "^1.0.2",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
+  },
+  "require-dev": {
+    "codeception/codeception": "^4.0.0",
+    "codeception/module-asserts": "^1.0.0",
+    "codeception/module-datafactory": "^1.0.0",
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-rest": "^1.0.0",
+    "codeception/module-yii2": "^1.0.0",
+    "craftcms/phpstan": "dev-main",
+    "craftcms/rector": "dev-main",
+    "craftcms/redactor": "*",
+    "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {
     "psr-4": {
@@ -39,18 +53,8 @@
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
-  "require-dev": {
-    "codeception/codeception": "^4.0.0",
-    "codeception/module-asserts": "^1.0.0",
-    "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-phpbrowser": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0",
-    "craftcms/rector": "dev-main",
-    "rector/rector": "dev-main",
-    "vlucas/phpdotenv": "^3.4"
-  },
   "scripts": {
+    "phpstan": "phpstan --memory-limit=1G",
     "testunit": [
       "Composer\\Config::disableProcessTimeout",
       "codecept run unit"
@@ -65,7 +69,5 @@
       "yiisoft/yii2-composer": true,
       "craftcms/plugin-installer": true
     }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+  }
 }
