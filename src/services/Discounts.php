@@ -744,7 +744,7 @@ class Discounts extends Component
         $db = Craft::$app->getDb();
 
         $db->createCommand()
-            ->delete(Table::USER_DISCOUNTUSES, ['discountId' => $id])
+            ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
 
         // Reset internal cache
@@ -884,7 +884,7 @@ class Discounts extends Component
                     $userDiscountUseRecord->save();
                 } else {
                     Craft::$app->getDb()->createCommand()
-                        ->update(Table::USER_DISCOUNTUSES, [
+                        ->update(Table::CUSTOMER_DISCOUNTUSES, [
                             'uses' => new Expression('[[uses]] + 1'),
                         ], [
                             'userId' => $order->customerId,
@@ -1035,7 +1035,7 @@ class Discounts extends Component
 
             $usage = (new Query())
                 ->select(['uses'])
-                ->from([Table::USER_DISCOUNTUSES])
+                ->from([Table::CUSTOMER_DISCOUNTUSES])
                 ->where(['[[userId]]' => $user->id, 'discountId' => $discount->id])
                 ->scalar();
 

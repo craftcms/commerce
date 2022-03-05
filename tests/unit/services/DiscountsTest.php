@@ -186,7 +186,7 @@ class DiscountsTest extends Unit
         ]);
 
         Craft::$app->getDb()->createCommand()
-            ->insert(Table::USER_DISCOUNTUSES, [
+            ->insert(Table::CUSTOMER_DISCOUNTUSES, [
                 'userId' => $this->_user->id,
                 'discountId' => '1000',
                 'uses' => '1',
@@ -198,7 +198,7 @@ class DiscountsTest extends Unit
             'This coupon is for registered users and limited to 1 uses.'
         );
 
-        Craft::$app->getDb()->createCommand()->truncateTable(TABLE::USER_DISCOUNTUSES)->execute();
+        Craft::$app->getDb()->createCommand()->truncateTable(Table::CUSTOMER_DISCOUNTUSES)->execute();
     }
 
     /**
@@ -231,7 +231,7 @@ class DiscountsTest extends Unit
         self::assertFalse($result);
         self::assertSame('This coupon is limited to 1 uses.', $explanation);
 
-        Craft::$app->getDb()->createCommand()->truncateTable(TABLE::USER_DISCOUNTUSES)->execute();
+        Craft::$app->getDb()->createCommand()->truncateTable(Table::CUSTOMER_DISCOUNTUSES)->execute();
     }
 
     /**
@@ -317,7 +317,7 @@ class DiscountsTest extends Unit
         // Get the Customer Discount Uses
         $customerUses = (new Query())
             ->select('*')
-            ->from(Table::USER_DISCOUNTUSES)
+            ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['userId' => $this->_user->id, 'discountId' => '1000', 'uses' => '1'])
             ->one();
 
