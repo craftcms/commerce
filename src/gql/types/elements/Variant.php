@@ -46,5 +46,4 @@ class Variant extends ElementType
             default => parent::resolve($source, $arguments, $context, $resolveInfo),
         };
     }
-
 }

@@ -130,7 +130,7 @@ class ShippingRules extends Component
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
             $record->priority = $model->priority = $count + 1;
-        } else if ($model->priority) {
+        } elseif ($model->priority) {
             $record->priority = $model->priority;
         } else {
             $model->priority = $record->priority;

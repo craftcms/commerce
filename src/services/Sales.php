@@ -550,7 +550,7 @@ class Sales extends Component
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord;
+                $relation = new SaleCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();

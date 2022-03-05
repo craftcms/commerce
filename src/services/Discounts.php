@@ -450,7 +450,6 @@ class Discounts extends Component
         }
 
         if (!$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
-
             $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
@@ -461,7 +460,7 @@ class Discounts extends Component
                     return $this->_matchingLineItemCategoryCondition[$key] = false;
                 }
                 $this->_matchingLineItemCategoryCondition[$key] = true;
-            } else if ($this->_matchingLineItemCategoryCondition[$key] === false) {
+            } elseif ($this->_matchingLineItemCategoryCondition[$key] === false) {
                 return false;
             }
         }
@@ -657,7 +656,7 @@ class Discounts extends Component
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
             foreach ($model->getUserGroupIds() as $groupId) {
-                $relation = new DiscountUserGroupRecord;
+                $relation = new DiscountUserGroupRecord();
                 $relation->userGroupId = $groupId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
@@ -984,7 +983,6 @@ class Discounts extends Component
 
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-
             if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY &&
                 (count(array_intersect($groupIds, $discountGroupIds)) === 0)
             ) {

@@ -363,7 +363,7 @@ class Product extends Element
             [
                 'label' => Craft::t('site', $type->name),
                 'url' => "commerce/products/$type->name",
-            ]
+            ],
         ];
     }
 
@@ -1191,7 +1191,7 @@ class Product extends Element
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {

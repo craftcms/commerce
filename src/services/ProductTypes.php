@@ -473,7 +473,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['productFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->fieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->fieldLayoutId) {
+            } elseif ($productTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->fieldLayoutId);
                 $productTypeRecord->fieldLayoutId = null;
@@ -487,7 +487,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['variantFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->variantFieldLayoutId) {
+            } elseif ($productTypeRecord->variantFieldLayoutId) {
                 // Delete the variant field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
@@ -586,7 +586,7 @@ class ProductTypes extends Component
                                     'siteId' => $sitesNowWithoutUrls,
                                 ])
                             ->execute();
-                    } else if (!empty($sitesWithNewUriFormats)) {
+                    } elseif (!empty($sitesWithNewUriFormats)) {
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
@@ -948,7 +948,7 @@ class ProductTypes extends Component
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
         if (version_compare($schemaVersion, '4.0.0', '>=')) {
             $query->addSelect('productTypes.variantTitleFormat');
-        }else{
+        } else {
             $query->addSelect('productTypes.variantTitleFormat');
         }
 

@@ -10,5 +10,5 @@ return [
         'iso' => 'AUD',
         'rate' => 1.3,
         'primary' => false,
-    ]
+    ],
 ];

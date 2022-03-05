@@ -171,7 +171,6 @@ class Customers extends Component
         $isNew = false;
 
         if ($this->_customer === null) {
-
             $user = Craft::$app->getUser()->getIdentity();
 
             // Can we get the current customer from the current user?
@@ -601,7 +600,7 @@ class Customers extends Component
                     // Don't create two addresses in the address book if they are the same
                     $customer->primaryShippingAddressId = $customer->primaryBillingAddressId;
                     $addressesUpdated = true;
-                } else if ($shippingAddress) {
+                } elseif ($shippingAddress) {
                     $shippingAddress->id = null;
                     if ($this->saveAddress($shippingAddress, $customer, false)) {
                         $customer->primaryShippingAddressId = $shippingAddress->id;

@@ -558,7 +558,7 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
@@ -878,7 +878,7 @@ class OrderQuery extends ElementQuery
         if ($value instanceof User) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);
             $this->customerId = $customer->id ?? null;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value);
             $this->customerId = $customer->id ?? null;
         } else {
@@ -1334,7 +1334,7 @@ class OrderQuery extends ElementQuery
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
                     $purchasableIds[] = $purchasable->getId();
-                } else if (is_numeric($purchasable)) {
+                } elseif (is_numeric($purchasable)) {
                     $purchasableIds[] = $purchasable;
                 }
             }

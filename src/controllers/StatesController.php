@@ -69,7 +69,7 @@ class StatesController extends BaseStoreSettingsController
 
         if ($variables['id'] && $variables['state']->id == $variables['id'] && $variables['state']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['stateId' => $variables['id']])
                 ->count();
@@ -78,7 +78,7 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
@@ -88,7 +88,7 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::TAXZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
@@ -106,7 +106,7 @@ class StatesController extends BaseStoreSettingsController
         $url = null;
         if ($variables['countryId']) {
             $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['countryId']);
-        } else if ($variables['state']->countryId) {
+        } elseif ($variables['state']->countryId) {
             $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['state']->countryId);
         }
 

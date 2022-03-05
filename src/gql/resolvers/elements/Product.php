@@ -29,7 +29,7 @@ class Product extends ElementResolver
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
             $query = ProductElement::find();
-            // If not, get the prepared element query
+        // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
         }
@@ -42,7 +42,7 @@ class Product extends ElementResolver
         foreach ($arguments as $key => $value) {
             if (method_exists($query, $key)) {
                 $query->$key($value);
-            } else if (property_exists($query, $key)) {
+            } elseif (property_exists($query, $key)) {
                 $query->$key = $value;
             } else {
                 // Catch custom field queries

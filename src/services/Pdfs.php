@@ -47,7 +47,6 @@ use yii\web\ServerErrorHttpException;
  */
 class Pdfs extends Component
 {
-
     /**
      * @var Pdf[]|null
      */

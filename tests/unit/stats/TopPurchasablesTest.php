@@ -99,7 +99,7 @@ class TopPurchasablesTest extends Unit
                         'qty' => 2,
                         'revenue' => 43.98,
                     ];
-                }
+                },
             ],
             'date-custom' => [
                 TopPurchasables::DATE_RANGE_CUSTOM,
@@ -107,7 +107,7 @@ class TopPurchasablesTest extends Unit
                 (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                null
+                null,
             ],
         ];
     }

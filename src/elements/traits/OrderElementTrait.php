@@ -236,7 +236,7 @@ trait OrderElementTrait
             'username',
             'reference',
             'skus',
-            'lineItemDescriptions'
+            'lineItemDescriptions',
         ];
     }
 
