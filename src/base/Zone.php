@@ -2,7 +2,6 @@
 
 namespace craft\commerce\base;
 
-
 use Craft;
 use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
@@ -67,11 +66,11 @@ abstract class Zone extends BaseModel
      */
     public function setCondition(ElementConditionInterface|string|array $condition): void
     {
-        if(is_string($condition)){
+        if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
 
-        if(!$condition instanceof ElementConditionInterface){
+        if (!$condition instanceof ElementConditionInterface) {
             $condition['class'] = AddressCondition::class;
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }

@@ -33,8 +33,8 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\User;
 use craft\elements\Address;
+use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
@@ -309,13 +309,13 @@ class OrdersController extends Controller
                 Craft::t('commerce', 'The order is not valid.'),
                 'order',
                 [
-                    'order' => $this->_orderToArray($order)
+                    'order' => $this->_orderToArray($order),
                 ]
             );
         }
 
         return $this->asSuccess(data: [
-            'order' => $this->_orderToArray($order)
+            'order' => $this->_orderToArray($order),
         ]);
     }
 
@@ -602,7 +602,7 @@ class OrdersController extends Controller
 
         $total = $addressElements->count();
 
-        $addresses = $addressElements->map(function (Address $address) {
+        $addresses = $addressElements->map(function(Address $address) {
             return $address->toArray() + [
                 'html' => Cp::addressCardHtml(address: $address),
             ];
@@ -642,7 +642,7 @@ class OrdersController extends Controller
         return $this->asSuccess(data: [
             'address' => $address->toArray() + [
                 'html' => Cp::addressCardHtml(address: $address),
-            ]
+            ],
         ]);
     }
 
@@ -682,7 +682,7 @@ class OrdersController extends Controller
         try {
             $user = Craft::$app->getUsers()->ensureUserByEmail($email);
             $user = $this->_customerToArray($user);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return $this->asFailure(message: $e->getMessage());
         }
 
@@ -1266,7 +1266,6 @@ class OrdersController extends Controller
 
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
-
             if ($orderRequestData['order']['dateOrdered']['time'] == '') {
                 $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
                 $dateOrdered['time'] = $dateTime->format('H:i');
@@ -1421,7 +1420,7 @@ class OrdersController extends Controller
                             'transaction' => $transaction,
                         ]
                     );
-                } else if ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
+                } elseif ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
                     $refundCapture = Craft::$app->getView()->renderTemplate(
                         'commerce/orders/includes/_refund',
                         [

@@ -99,7 +99,7 @@ class TopProductsTest extends Unit
                         'qty' => 4,
                         'revenue' => 83.96,
                     ];
-                }
+                },
             ],
             [
                 TopProducts::DATE_RANGE_CUSTOM,
@@ -109,7 +109,7 @@ class TopProductsTest extends Unit
                 0,
                 function() {
                     return [];
-                }
+                },
             ],
         ];
     }

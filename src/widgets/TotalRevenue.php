@@ -28,7 +28,6 @@ use craft\helpers\StringHelper;
  */
 class TotalRevenue extends Widget
 {
-
     /**
      * @var int|\DateTime|null
      */
@@ -141,7 +140,7 @@ class TotalRevenue extends Widget
                 $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);
-        } else if ($this->_stat->getDateRangeInterval() == 'week') {
+        } elseif ($this->_stat->getDateRangeInterval() == 'week') {
             $labels = array_map(static function($label) {
                 $year = substr($label, 0, 4);
                 $week = substr($label, -2);

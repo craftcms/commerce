@@ -13,7 +13,7 @@ return [
                 'fields' => [
                     [
                         'layout-link' => [
-                            'required' => true
+                            'required' => true,
                         ],
                         'field' => [
                             'uid' => 'field-1001-----------------------uid',
@@ -21,12 +21,12 @@ return [
                             'handle' => 'commerceProductVariants',
                             'fieldType' => Variants::class,
                             // TODO figure out why not having this set breaks tests using this fixture
-                            'context' => 'foo'
-                        ]
+                            'context' => 'foo',
+                        ],
                     ],
-                ]
-            ]
-        ]
+                ],
+            ],
+        ],
     ],
     [
         // Because User elements fetch layout by type
@@ -41,8 +41,8 @@ return [
                         'type' => PlainText::class,
                         'required' => false,
                     ],
-                ]
-            ]
-        ]
+                ],
+            ],
+        ],
     ],
 ];

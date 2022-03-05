@@ -407,7 +407,7 @@ class ProductsController extends BaseController
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
+        } elseif (!empty($variables['productTypeId'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
         }
 

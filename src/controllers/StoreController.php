@@ -10,8 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\behaviors\StoreLocationBehavior;
 use craft\commerce\Plugin;
-use craft\elements\Address as AddressElement;
 use craft\commerce\records\Store;
+use craft\elements\Address as AddressElement;
 use craft\helpers\Cp;
 use Illuminate\Support\Collection;
 use yii\web\Response;
@@ -27,7 +27,7 @@ class StoreController extends BaseStoreSettingsController
             addresses: [$storeLocation],
             config: [
                 'name' => 'storeLocation',
-                'maxAddresses' => 1
+                'maxAddresses' => 1,
             ]
         );
 
@@ -90,7 +90,7 @@ class StoreController extends BaseStoreSettingsController
         ]);
 
         $variables = [
-            'countryMarketsTableHtml' => $countryMarketsTableHtml
+            'countryMarketsTableHtml' => $countryMarketsTableHtml,
         ];
 
         return $this->renderTemplate('commerce/store-settings/markets/index', $variables);

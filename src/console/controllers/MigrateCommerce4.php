@@ -191,7 +191,6 @@ class MigrateCommerce4 extends Controller
      */
     private function _migrateShippingZones(): void
     {
-
         $shippingZones = (new Query())
             ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
             ->from(['{{%commerce_shippingzones}}'])
@@ -262,7 +261,6 @@ class MigrateCommerce4 extends Controller
      */
     private function _migrateTaxZones(): void
     {
-
         $taxZones = (new Query())
             ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
             ->from(['{{%commerce_taxzones}}'])
@@ -409,7 +407,6 @@ class MigrateCommerce4 extends Controller
 
     private function _migrateOrderAddresses()
     {
-
         $addressesQuery = (new Query())
             ->select([
                 'addresses.id',
@@ -588,7 +585,7 @@ class MigrateCommerce4 extends Controller
             $cases .= '';
 
             $this->update($table, [
-                $updateColumn => new Expression('CASE ' . $cases . ' END')
+                $updateColumn => new Expression('CASE ' . $cases . ' END'),
             ], ['customerId' => array_keys($batch)]);
         }
     }
@@ -608,7 +605,6 @@ class MigrateCommerce4 extends Controller
             $address = new Address();
             Craft::$app->getElement()->saveElement($address, false);
         } else {
-
         }
     }
 

@@ -9,10 +9,10 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\models\Store as StoreModel;
+use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\elements\Address;
-use craft\commerce\records\Store as StoreRecord;
-use craft\commerce\models\Store as StoreModel;
 use craft\elements\Address as AddressElement;
 use yii\base\Component;
 

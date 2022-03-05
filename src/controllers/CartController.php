@@ -524,7 +524,7 @@ class CartController extends BaseFrontEndController
                     $this->_cart->setBillingAddress($userShippingAddress);
                 }
             }
-        } else if ($shippingAddress && !$shippingIsBilling) {
+        } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->setShippingAddress($shippingAddress);
         }
 
@@ -547,7 +547,7 @@ class CartController extends BaseFrontEndController
                     $this->_cart->setBillingAddress($userBillingAddress);
                 }
             }
-        } else if ($billingAddress && !$billingIsShipping) {
+        } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->setBillingAddress($billingAddress);
         }
 

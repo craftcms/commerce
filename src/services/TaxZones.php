@@ -143,7 +143,7 @@ class TaxZones extends Component
                 'default',
                 'description',
                 'id',
-                'name'
+                'name',
             ])
             ->orderBy('name')
             ->from([Table::TAXZONES]);

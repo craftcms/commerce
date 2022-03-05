@@ -57,7 +57,7 @@ class OrderHistories extends Component
      * );
      * ```
      */
-    const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
+    public const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
     /**
      * Get order history by its ID.

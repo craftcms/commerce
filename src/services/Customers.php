@@ -17,8 +17,8 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\elements\User;
 use craft\events\ModelEvent;
-use yii\web\UserEvent;
 use craft\helpers\ArrayHelper;
+use yii\web\UserEvent;
 
 /**
  * Customer service.
@@ -95,7 +95,7 @@ class Customers extends Component
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         return Craft::$app->getView()->renderTemplate('commerce/_includes/users/_editUserTab', [
-            'user' => $context['user']
+            'user' => $context['user'],
         ]);
     }
 
@@ -148,8 +148,8 @@ class Customers extends Component
 
         $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
 
-        if(!$user->getIsCredentialed()) {
-            if(!$user->fullName) {
+        if (!$user->getIsCredentialed()) {
+            if (!$user->fullName) {
                 $user->fullName = $order->getBillingAddress()?->fullName ?? $order->getShippingAddress()?->fullName ?? '';
             }
             $user->pending = true;

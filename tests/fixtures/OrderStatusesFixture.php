@@ -24,7 +24,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/order-statuses.php';
+    public $dataFile = __DIR__ . '/data/order-statuses.php';
 
     /**
      * @inheritdoc

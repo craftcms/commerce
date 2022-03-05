@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "da3fbd047fad1e253eb8ba4f5be24a9a",
+    "content-hash": "c962cb61fd6de7e9f8358c934d9dce4d",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -3902,16 +3902,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.0.5",
+            "version": "v6.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "6646c13f787057d64701a3a0235cf9567c6ccbbd"
+                "reference": "52b888523545b0b4049ab9ce48766802484d7046"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/6646c13f787057d64701a3a0235cf9567c6ccbbd",
-                "reference": "6646c13f787057d64701a3a0235cf9567c6ccbbd",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/52b888523545b0b4049ab9ce48766802484d7046",
+                "reference": "52b888523545b0b4049ab9ce48766802484d7046",
                 "shasum": ""
             },
             "require": {
@@ -3945,7 +3945,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.0.5"
+                "source": "https://github.com/symfony/filesystem/tree/v6.0.6"
             },
             "funding": [
                 {
@@ -3961,7 +3961,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-28T07:42:30+00:00"
+            "time": "2022-03-02T12:58:14+00:00"
         },
         {
             "name": "symfony/finder",
@@ -5312,16 +5312,16 @@
         },
         {
             "name": "symfony/var-dumper",
-            "version": "v6.0.5",
+            "version": "v6.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-dumper.git",
-                "reference": "60d6a756d5f485df5e6e40b337334848f79f61ce"
+                "reference": "38358405ae948963c50a3aae3dfea598223ba15e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/60d6a756d5f485df5e6e40b337334848f79f61ce",
-                "reference": "60d6a756d5f485df5e6e40b337334848f79f61ce",
+                "url": "https://api.github.com/repos/symfony/var-dumper/zipball/38358405ae948963c50a3aae3dfea598223ba15e",
+                "reference": "38358405ae948963c50a3aae3dfea598223ba15e",
                 "shasum": ""
             },
             "require": {
@@ -5380,7 +5380,7 @@
                 "dump"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-dumper/tree/v6.0.5"
+                "source": "https://github.com/symfony/var-dumper/tree/v6.0.6"
             },
             "funding": [
                 {
@@ -5396,7 +5396,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-21T17:15:17+00:00"
+            "time": "2022-03-02T12:58:14+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -7018,16 +7018,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "4.1.29",
+            "version": "4.1.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "f8dec8f2bf5347cc596aaf141753f4fb2504c17c"
+                "reference": "a035d77d070fa57fad438e07a65447aeca248c45"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/f8dec8f2bf5347cc596aaf141753f4fb2504c17c",
-                "reference": "f8dec8f2bf5347cc596aaf141753f4fb2504c17c",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/a035d77d070fa57fad438e07a65447aeca248c45",
+                "reference": "a035d77d070fa57fad438e07a65447aeca248c45",
                 "shasum": ""
             },
             "require": {
@@ -7104,7 +7104,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/4.1.29"
+                "source": "https://github.com/Codeception/Codeception/tree/4.1.30"
             },
             "funding": [
                 {
@@ -7112,7 +7112,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2022-01-29T16:56:03+00:00"
+            "time": "2022-03-05T18:12:30+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -7593,17 +7593,50 @@
             "time": "2022-01-31T19:25:15+00:00"
         },
         {
-            "name": "craftcms/html-field",
-            "version": "2.0.0-alpha.2",
+            "name": "craftcms/ecs",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/craftcms/html-field.git",
-                "reference": "f3c6798c5f248f57a09d7b1316295b77e19f715c"
+                "url": "https://github.com/craftcms/ecs.git",
+                "reference": "3c3a418d7fd2175629730043fe4dfe37accbfdbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/html-field/zipball/f3c6798c5f248f57a09d7b1316295b77e19f715c",
-                "reference": "f3c6798c5f248f57a09d7b1316295b77e19f715c",
+                "url": "https://api.github.com/repos/craftcms/ecs/zipball/3c3a418d7fd2175629730043fe4dfe37accbfdbf",
+                "reference": "3c3a418d7fd2175629730043fe4dfe37accbfdbf",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2.5|^8.0.2",
+                "symplify/easy-coding-standard": "^10.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "craft\\ecs\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Easy Coding Standard configurations for Craft CMS projects",
+            "support": {
+                "issues": "https://github.com/craftcms/ecs/issues",
+                "source": "https://github.com/craftcms/ecs/tree/main"
+            },
+            "time": "2022-03-05T21:14:46+00:00"
+        },
+        {
+            "name": "craftcms/html-field",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/craftcms/html-field.git",
+                "reference": "60174b111d7c180d91bca59af7d86f3ccac1a1a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/craftcms/html-field/zipball/60174b111d7c180d91bca59af7d86f3ccac1a1a4",
+                "reference": "60174b111d7c180d91bca59af7d86f3ccac1a1a4",
                 "shasum": ""
             },
             "require": {
@@ -7611,8 +7644,8 @@
                 "php": "^8.0.2"
             },
             "require-dev": {
-                "craftcms/rector": "dev-main",
-                "phpstan/phpstan": "^1.4.6"
+                "craftcms/phpstan": "dev-main",
+                "craftcms/rector": "dev-main"
             },
             "type": "library",
             "autoload": {
@@ -7638,7 +7671,7 @@
                 "rss": "https://github.com/craftcms/html-field/commits/main.atom",
                 "source": "https://github.com/craftcms/html-field"
             },
-            "time": "2022-03-02T00:57:09+00:00"
+            "time": "2022-03-04T20:53:05+00:00"
         },
         {
             "name": "craftcms/phpstan",
@@ -7646,12 +7679,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/phpstan.git",
-                "reference": "42247313449c866efacbcdb56afbd7c34331d979"
+                "reference": "8bffa2fd3f55d65747573bd6fdf4f2f9bdad520b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/phpstan/zipball/42247313449c866efacbcdb56afbd7c34331d979",
-                "reference": "42247313449c866efacbcdb56afbd7c34331d979",
+                "url": "https://api.github.com/repos/craftcms/phpstan/zipball/8bffa2fd3f55d65747573bd6fdf4f2f9bdad520b",
+                "reference": "8bffa2fd3f55d65747573bd6fdf4f2f9bdad520b",
                 "shasum": ""
             },
             "require": {
@@ -7665,7 +7698,7 @@
                 "issues": "https://github.com/craftcms/phpstan/issues",
                 "source": "https://github.com/craftcms/phpstan/tree/main"
             },
-            "time": "2022-03-04T13:20:09+00:00"
+            "time": "2022-03-04T21:21:54+00:00"
         },
         {
             "name": "craftcms/rector",
@@ -7673,12 +7706,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/rector.git",
-                "reference": "28838d29a5a19978843dc4e82be75a956f09902c"
+                "reference": "3c19f3ab8c50de8b853603880649f4b4ed70534a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/rector/zipball/28838d29a5a19978843dc4e82be75a956f09902c",
-                "reference": "28838d29a5a19978843dc4e82be75a956f09902c",
+                "url": "https://api.github.com/repos/craftcms/rector/zipball/3c19f3ab8c50de8b853603880649f4b4ed70534a",
+                "reference": "3c19f3ab8c50de8b853603880649f4b4ed70534a",
                 "shasum": ""
             },
             "require": {
@@ -7706,25 +7739,25 @@
                 "issues": "https://github.com/craftcms/rector/issues",
                 "source": "https://github.com/craftcms/rector/tree/main"
             },
-            "time": "2022-03-04T01:08:38+00:00"
+            "time": "2022-03-04T20:41:50+00:00"
         },
         {
             "name": "craftcms/redactor",
-            "version": "3.0.x-dev",
+            "version": "3.0.0-beta.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/redactor.git",
-                "reference": "49f4e45b0d3b666b7284b7bfb785419d249d88e1"
+                "reference": "845256a9d10f8d8d2a6eddab04ebd97c4bb92cf7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/redactor/zipball/49f4e45b0d3b666b7284b7bfb785419d249d88e1",
-                "reference": "49f4e45b0d3b666b7284b7bfb785419d249d88e1",
+                "url": "https://api.github.com/repos/craftcms/redactor/zipball/845256a9d10f8d8d2a6eddab04ebd97c4bb92cf7",
+                "reference": "845256a9d10f8d8d2a6eddab04ebd97c4bb92cf7",
                 "shasum": ""
             },
             "require": {
                 "craftcms/cms": "^4.0.0-alpha.1",
-                "craftcms/html-field": "^2.0.0-alpha.2",
+                "craftcms/html-field": "^2.0.0",
                 "php": "^8.0.2"
             },
             "require-dev": {
@@ -7767,7 +7800,7 @@
                 "rss": "https://github.com/craftcms/redactor/commits/v2.atom",
                 "source": "https://github.com/craftcms/redactor"
             },
-            "time": "2022-03-04T13:35:20+00:00"
+            "time": "2022-03-04T21:47:44+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -8568,16 +8601,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.4.8",
+            "version": "1.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "2a6d6704b17c4db6190cc3104056c0aad740cb15"
+                "reference": "15087679960d72ae56bfcbf0d728d19941d3f7c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/2a6d6704b17c4db6190cc3104056c0aad740cb15",
-                "reference": "2a6d6704b17c4db6190cc3104056c0aad740cb15",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/15087679960d72ae56bfcbf0d728d19941d3f7c2",
+                "reference": "15087679960d72ae56bfcbf0d728d19941d3f7c2",
                 "shasum": ""
             },
             "require": {
@@ -8608,7 +8641,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.4.8"
+                "source": "https://github.com/phpstan/phpstan/tree/1.4.7"
             },
             "funding": [
                 {
@@ -8628,7 +8661,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-04T13:03:56+00:00"
+            "time": "2022-03-02T16:04:01+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -8950,16 +8983,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.16",
+            "version": "9.5.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "5ff8c545a50226c569310a35f4fa89d79f1ddfdc"
+                "reference": "5c5abcfaa2cbd44b2203995d7a339ef910fe0c8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5ff8c545a50226c569310a35f4fa89d79f1ddfdc",
-                "reference": "5ff8c545a50226c569310a35f4fa89d79f1ddfdc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/5c5abcfaa2cbd44b2203995d7a339ef910fe0c8f",
+                "reference": "5c5abcfaa2cbd44b2203995d7a339ef910fe0c8f",
                 "shasum": ""
             },
             "require": {
@@ -9037,7 +9070,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.16"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.17"
             },
             "funding": [
                 {
@@ -9049,7 +9082,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-02-23T17:10:58+00:00"
+            "time": "2022-03-05T16:54:31+00:00"
         },
         {
             "name": "rector/rector",
@@ -9057,17 +9090,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "4659b9e98361c419dc3aa7f70645b901317efecf"
+                "reference": "41d47ce22b919eba9c1c90569d1d421167d49fe6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/4659b9e98361c419dc3aa7f70645b901317efecf",
-                "reference": "4659b9e98361c419dc3aa7f70645b901317efecf",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/41d47ce22b919eba9c1c90569d1d421167d49fe6",
+                "reference": "41d47ce22b919eba9c1c90569d1d421167d49fe6",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1|^8.0",
-                "phpstan/phpstan": "^1.4.6"
+                "phpstan/phpstan": "1.4.7"
             },
             "conflict": {
                 "phpstan/phpdoc-parser": "<1.2",
@@ -9110,7 +9143,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-04T11:22:36+00:00"
+            "time": "2022-03-05T11:39:32+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -10359,16 +10392,16 @@
         },
         {
             "name": "symfony/dependency-injection",
-            "version": "v6.0.5",
+            "version": "v6.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dependency-injection.git",
-                "reference": "481846cbd2441cf3444340ee53486fc24da525bd"
+                "reference": "a296611f599d0b28e7af88798f830f9cb4d1e8e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/481846cbd2441cf3444340ee53486fc24da525bd",
-                "reference": "481846cbd2441cf3444340ee53486fc24da525bd",
+                "url": "https://api.github.com/repos/symfony/dependency-injection/zipball/a296611f599d0b28e7af88798f830f9cb4d1e8e6",
+                "reference": "a296611f599d0b28e7af88798f830f9cb4d1e8e6",
                 "shasum": ""
             },
             "require": {
@@ -10427,7 +10460,7 @@
             "description": "Allows you to standardize and centralize the way objects are constructed in your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/dependency-injection/tree/v6.0.5"
+                "source": "https://github.com/symfony/dependency-injection/tree/v6.0.6"
             },
             "funding": [
                 {
@@ -10443,20 +10476,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-24T10:01:27+00:00"
+            "time": "2022-03-02T12:58:14+00:00"
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v5.4.5",
+            "version": "v5.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
-                "reference": "50777f44e7dc37e16959ca65041df2acd6a65775"
+                "reference": "c0bda97480d96337bd3866026159a8b358665457"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/50777f44e7dc37e16959ca65041df2acd6a65775",
-                "reference": "50777f44e7dc37e16959ca65041df2acd6a65775",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/c0bda97480d96337bd3866026159a8b358665457",
+                "reference": "c0bda97480d96337bd3866026159a8b358665457",
                 "shasum": ""
             },
             "require": {
@@ -10502,7 +10535,7 @@
             "description": "Eases DOM navigation for HTML and XML documents",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/dom-crawler/tree/v5.4.5"
+                "source": "https://github.com/symfony/dom-crawler/tree/v5.4.6"
             },
             "funding": [
                 {
@@ -10518,7 +10551,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-31T16:08:03+00:00"
+            "time": "2022-03-02T12:42:23+00:00"
         },
         {
             "name": "symfony/polyfill-php81",
@@ -10763,6 +10796,61 @@
                 }
             ],
             "time": "2022-03-03T17:21:31+00:00"
+        },
+        {
+            "name": "symplify/easy-coding-standard",
+            "version": "10.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symplify/easy-coding-standard.git",
+                "reference": "b1411f67beb52560c8300d8e007ccd8ca40007aa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/b1411f67beb52560c8300d8e007ccd8ca40007aa",
+                "reference": "b1411f67beb52560c8300d8e007ccd8ca40007aa",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1"
+            },
+            "conflict": {
+                "friendsofphp/php-cs-fixer": "<3.0",
+                "squizlabs/php_codesniffer": "<3.6"
+            },
+            "bin": [
+                "bin/ecs"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "9.5-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Prefixed scoped version of ECS package",
+            "support": {
+                "source": "https://github.com/symplify/easy-coding-standard/tree/10.1.1"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.me/rectorphp",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/tomasvotruba",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-03-03T17:24:37+00:00"
         },
         {
             "name": "symplify/easy-testing",
@@ -11222,6 +11310,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "craftcms/ecs": 20,
         "craftcms/phpstan": 20,
         "craftcms/rector": 20
     },

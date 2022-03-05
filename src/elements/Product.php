@@ -61,9 +61,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class Product extends Element
 {
-    const STATUS_LIVE = 'live';
-    const STATUS_PENDING = 'pending';
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_LIVE = 'live';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var DateTime|null Post date
@@ -363,7 +363,7 @@ class Product extends Element
             [
                 'label' => Craft::t('site', $type->name),
                 'url' => "commerce/products/$type->name",
-            ]
+            ],
         ];
     }
 
@@ -1191,7 +1191,7 @@ class Product extends Element
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {

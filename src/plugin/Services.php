@@ -7,6 +7,7 @@
 
 namespace craft\commerce\plugin;
 
+use craft\commerce\services\AdministrativeAreas;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
 use craft\commerce\services\Currencies;
@@ -36,7 +37,6 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
-use craft\commerce\services\AdministrativeAreas;
 use craft\commerce\services\Store;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;

@@ -29,7 +29,7 @@ use yii\base\Exception;
  */
 class Orders extends Component
 {
-    const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
+    public const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
 
     /**
      * Handle field layout change
@@ -158,7 +158,6 @@ class Orders extends Component
         $addresses = Address::find()->id($ids)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {
-
             if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
                 $order->setShippingAddress($addresses[$order['shippingAddressId']]);
             }

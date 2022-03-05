@@ -103,8 +103,8 @@ use yii\web\User;
 class Plugin extends BasePlugin
 {
     // Edition constants
-    const EDITION_LITE = 'lite';
-    const EDITION_PRO = 'pro';
+    public const EDITION_LITE = 'lite';
+    public const EDITION_PRO = 'pro';
 
     public static function editions(): array
     {
@@ -165,7 +165,7 @@ class Plugin extends BasePlugin
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
-        } else if ($request->getIsCpRequest()) {
+        } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
             $this->_registerElementExports();
@@ -288,7 +288,7 @@ class Plugin extends BasePlugin
      */
     private function _addTwigExtensions(): void
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension());
     }
 
     /**

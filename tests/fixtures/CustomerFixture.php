@@ -25,7 +25,7 @@ class CustomerFixture extends UserFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/customers.php';
+    public $dataFile = __DIR__ . '/data/customers.php';
 
     /**
      * @var array

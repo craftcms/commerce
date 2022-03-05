@@ -74,7 +74,7 @@ class Donation extends Purchasable
             ['sku'], 'required', 'when' => function($model) {
                 /** @var self $model */
                 return $model->availableForPurchase && $model->enabled;
-            }
+            },
         ];
 
         return $rules;

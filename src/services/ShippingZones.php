@@ -136,7 +136,7 @@ class ShippingZones extends Component
                 'dateUpdated',
                 'description',
                 'id',
-                'name'
+                'name',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);

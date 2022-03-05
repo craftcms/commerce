@@ -34,6 +34,7 @@
     "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-rest": "^1.0.0",
     "codeception/module-yii2": "^1.0.0",
+    "craftcms/ecs": "dev-main",
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",
@@ -54,6 +55,8 @@
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "scripts": {
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix",
     "phpstan": "phpstan --memory-limit=1G",
     "testunit": [
       "Composer\\Config::disableProcessTimeout",

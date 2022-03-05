@@ -99,7 +99,7 @@ class TopCustomersTest extends Unit
                         'email' => $user->email,
                         'count' => 2,
                     ];
-                }
+                },
             ],
             [
                 TopCustomers::DATE_RANGE_CUSTOM,

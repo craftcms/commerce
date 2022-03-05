@@ -559,7 +559,7 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
@@ -837,7 +837,7 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->customerId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $user = Craft::$app->getUser()->getUserById($value);
             $this->customerId = $user->id ?? null;
         } else {
@@ -1327,7 +1327,7 @@ class OrderQuery extends ElementQuery
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
                     $purchasableIds[] = $purchasable->getId();
-                } else if (is_numeric($purchasable)) {
+                } elseif (is_numeric($purchasable)) {
                     $purchasableIds[] = $purchasable;
                 }
             }

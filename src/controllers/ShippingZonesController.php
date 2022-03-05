@@ -140,7 +140,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $params = ['zipCode' => $testZipCode];
 
         if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-        return $this->asFailure('failed');
+            return $this->asFailure('failed');
         }
 
         return $this->asSuccess();
