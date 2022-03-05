@@ -14,6 +14,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
+use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
@@ -170,5 +171,21 @@ class Orders extends Component
         }
 
         return $orders;
+    }
+
+    /**
+     * Prevent deleting a user if they have any orders.
+     *
+     * @param ModelEvent $event the event.
+     */
+    public function beforeDeleteUserHandler(ModelEvent $event): void
+    {
+        /** @var User $user */
+        $user = $event->sender;
+
+        // If there are any orders, make sure that this is not allowed.
+        if (Order::find()->customerId($user->id)->status(null)->exists()) {
+            $event->isValid = false;
+        }
     }
 }
