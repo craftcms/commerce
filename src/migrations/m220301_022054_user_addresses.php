@@ -128,7 +128,7 @@ class m220301_022054_user_addresses extends Migration
         $this->dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['customerId']);
         $this->dropIndexIfExists('{{%commerce_orderhistories}}', ['customerId']);
         $this->renameColumn('{{%commerce_orderhistories}}', 'customerId', 'v3customerId'); // move the data
-        //TODO check postgres altcolumn
+        // TODO check postgres altcolumn
         $this->alterColumn('{{%commerce_orderhistories}}', 'v3customerId', $this->integer()->null());
         $this->addColumn('{{%commerce_orderhistories}}', 'userId', $this->integer()->null());
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');

@@ -395,8 +395,8 @@ class Settings extends Model
 
         // We only want to mass set or retrieve these prior to 3.2 #COM-60
         if ($commerce && version_compare($commerce['version'], '3.2.0', '<')) {
-            $names[] = 'orderPdfFilenameFormat'; // @todo remove in 4.0
-            $names[] = 'orderPdfPath'; // @todo remove in 4.0
+            $names[] = 'orderPdfFilenameFormat'; // TODO remove in 4.0
+            $names[] = 'orderPdfPath'; // TODO remove in 4.0
         }
 
         return $names;
