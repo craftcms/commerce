@@ -129,7 +129,7 @@ export default new Vuex.Store({
                 return false
             }
 
-            return (state.draft.order.customerId && state.draft.order.email)
+            return state.draft.order.customerId
         },
 
         lineItemStatuses() {
@@ -311,7 +311,7 @@ export default new Vuex.Store({
         customerSearch({commit}, query) {
             return ordersApi.customerSearch(query)
                 .then((response) => {
-                    commit('updateCustomers', response.data)
+                    commit('updateCustomers', response.data.customers)
                 })
         },
 

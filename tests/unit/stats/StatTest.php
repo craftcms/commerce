@@ -116,7 +116,7 @@ class StatTest extends Unit
      */
     public function instantiateDatesDataProvider(): array
     {
-        // @TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
+        // TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
         $tz = new DateTimeZone('America/Los_Angeles');
 
         return [
@@ -137,7 +137,7 @@ class StatTest extends Unit
     public function predefinedDateRangesDataProvider(): array
     {
 
-        // @TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
+        // TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
         // Put `tz` into class variable before running the test?
 
         $tz = new DateTimeZone('America/Los_Angeles');

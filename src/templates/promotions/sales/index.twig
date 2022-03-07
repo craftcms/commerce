@@ -26,7 +26,6 @@
 {% endblock %}
 
 {% block content %}
-    <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
     <div id="sales-vue-admin-table"></div>
 
     {% hook "cp.commerce.sales.index" %}
@@ -117,6 +116,7 @@ new Craft.VueAdminTable({
   actions: actions,
   checkboxes: true,
   columns: columns,
+  fullPane: false,
   container: '#sales-vue-admin-table',
   deleteAction: {{ currentUser.can('commerce-deleteSales')? '"commerce/sales/delete"' : 'null' }},
   emptyMessage: Craft.t('commerce', 'No sales exist yet.'),

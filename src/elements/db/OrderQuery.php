@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
@@ -107,7 +108,7 @@ class OrderQuery extends ElementQuery
     public ?string $origin = null;
 
     /**
-     * @var int|null The customer ID that the resulting orders must have.
+     * @var int|null The user ID that the resulting orders must have.
      */
     public ?int $customerId = null;
 
@@ -142,7 +143,7 @@ class OrderQuery extends ElementQuery
     public bool $hasLineItems;
 
     /**
-     * @var bool Eager loads all relational data (addresses, adjustments, customers, line items, transactions) for the resulting orders.
+     * @var bool Eager loads all relational data (addresses, adjustments, users, line items, transactions) for the resulting orders.
      */
     public bool $withAll = false;
 
@@ -157,7 +158,7 @@ class OrderQuery extends ElementQuery
     public bool $withAdjustments = false;
 
     /**
-     * @var bool Eager load the customer (and related user) on to the order.
+     * @var bool Eager load the user on to the order.
      */
     public bool $withCustomer = false;
 
@@ -699,8 +700,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *   .origin('web')
-     *   .all() %}
+     *     .origin('web')
+     *     .all() %}
      * ```
      *
      * ```php
@@ -717,84 +718,6 @@ class OrderQuery extends ElementQuery
     {
         $this->origin = $value;
 
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the customer.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | a [[Customer|Customer]] object | with a customer represented by the object.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch the current user's orders #}
-     * {% set {elements-var} = {twig-method}
-     *   .customer(currentUser.customerFieldHandle)
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch the current user's orders
-     * $user = Craft::$app->user->getIdentity();
-     * ${elements-var} = {php-method}
-     *     ->customer($user->customerFieldHandle)
-     *     ->all();
-     * ```
-     *
-     * @param Customer|null $value The property value
-     * @return static self reference
-     */
-    public function customer(Customer $value = null): OrderQuery
-    {
-        if ($value) {
-            $this->customerId = $value->id;
-        } else {
-            $this->customerId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the customer, per their ID.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `1` | with a customer with an ID of 1.
-     * | `'not 1'` | not with a customer with an ID of 1.
-     * | `[1, 2]` | with a customer with an ID of 1 or 2.
-     * | `['not', 1, 2]` | not with a customer with an ID of 1 or 2.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch the current user's orders #}
-     * {% set {elements-var} = {twig-method}
-     *   .customerId(currentUser.customerFieldHandle.id)
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch the current user's orders
-     * $user = Craft::$app->user->getIdentity();
-     * ${elements-var} = {php-method}
-     *     ->customerId($user->customerFieldHandle->id)
-     *     ->all();
-     * ```
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function customerId($value): OrderQuery
-    {
-        $this->customerId = $value;
         return $this;
     }
 
@@ -872,19 +795,93 @@ class OrderQuery extends ElementQuery
      *
      * @param User|int $value The property value
      * @return static self reference
+     * @deprecated 4.0.0 in favor of [[customer()]]
      */
-    public function user(int|\craft\elements\User $value): OrderQuery
+    public function user(int|User $value): OrderQuery
+    {
+        Craft::$app->getDeprecator()->log('OrderQuery::user()', 'The `OrderQuery::user()` method is deprecated, use the `OrderQuery::customer()` method instead.');
+        return $this->customer($value);
+    }
+
+    /**
+     * Narrows the query results based on the customer’s user account.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a customer with a user account ID of 1.
+     * | a [[User|User]] object | with a customer with a user account represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *   .customer(currentUser)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customer($user)
+     *     ->all();
+     * ```
+     *
+     * @param User|int $value The property value
+     * @return static self reference
+     */
+    public function customer(int|User $value): OrderQuery
     {
         if ($value instanceof User) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);
-            $this->customerId = $customer->id ?? null;
+            $this->customerId = $value->id;
         } elseif ($value !== null) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value);
-            $this->customerId = $customer->id ?? null;
+            $user = Craft::$app->getUser()->getUserById($value);
+            $this->customerId = $user->id ?? null;
         } else {
             $this->customerId = null;
         }
 
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the customer, per their user ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a user with an ID of 1.
+     * | `'not 1'` | not with a user with an ID of 1.
+     * | `[1, 2]` | with a user with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a user with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *     .customerId(currentUser.id)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customerId($user->id)
+     *     ->all();
+     * ```
+     *
+     * @param int|null $value The property value
+     * @return static self reference
+     */
+    public function customerId(?int $value): OrderQuery
+    {
+        $this->customerId = $value;
         return $this;
     }
 
@@ -1084,7 +1081,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads the customer (and related user) on the resulting orders.
+     * Eager loads the user on the resulting orders.
      *
      * Possible values include:
      *
@@ -1109,7 +1106,7 @@ class OrderQuery extends ElementQuery
      *
      * Possible values include:
      *
-     * | Value | Fetches line items…
+     * | Value | Fetches line items
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
@@ -1171,14 +1168,14 @@ class OrderQuery extends ElementQuery
                 $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
             }
 
-            // Eager-load customers?
+            // Eager-load users?
             if ($this->withCustomer === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
             }
 
             // Eager-load addresses?
             if ($this->withAddresses === true || $this->withAll) {
-                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+                $orders = Plugin::getInstance()->getOrders()->eagerLoadAddressesForOrders($orders);
             }
 
             $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
@@ -1215,6 +1212,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingAddressId',
             'commerce_orders.estimatedBillingAddressId',
             'commerce_orders.estimatedShippingAddressId',
+            'commerce_orders.sourceBillingAddressId',
+            'commerce_orders.sourceShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
@@ -1236,12 +1235,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.orderSiteId',
             'commerce_orders.orderLanguage',
         ]);
-
-        // Join shipping and billing address
-        $this->query->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
 
         if (isset($this->number)) {
             // If it's set to anything besides a non-empty string, abort the query

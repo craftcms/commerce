@@ -10,16 +10,11 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
-use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
-use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
-use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\caching\TagDependency;
 use yii\db\StaleObjectException;
 
 /**
@@ -32,14 +27,9 @@ use yii\db\StaleObjectException;
 class ShippingZones extends Component
 {
     /**
-     * @var bool
-     */
-    private bool $_fetchedAllShippingZones = false;
-
-    /**
      * @var ShippingAddressZone[]
      */
-    private array $_allShippingZones = [];
+    private array $_allZones = [];
 
     /**
      * Get all shipping zones.
@@ -48,17 +38,13 @@ class ShippingZones extends Component
      */
     public function getAllShippingZones(): array
     {
-        if (!$this->_fetchedAllShippingZones) {
-            $rows = $this->_createShippingZonesQuery()->all();
+        $rows = $this->_createQuery()->all();
 
-            foreach ($rows as $row) {
-                $this->_allShippingZones[$row['id']] = new ShippingAddressZone($row);
-            }
-
-            $this->_fetchedAllShippingZones = true;
+        foreach ($rows as $row) {
+            $this->_allZones[$row['id']] = new ShippingAddressZone($row);
         }
 
-        return $this->_allShippingZones;
+        return $this->_allZones;
     }
 
     /**
@@ -66,15 +52,11 @@ class ShippingZones extends Component
      */
     public function getShippingZoneById(int $id): ?ShippingAddressZone
     {
-        if (isset($this->_allShippingZones[$id])) {
-            return $this->_allShippingZones[$id];
+        if (isset($this->_allZones[$id])) {
+            return $this->_allZones[$id];
         }
 
-        if ($this->_fetchedAllShippingZones) {
-            return null;
-        }
-
-        $result = $this->_createShippingZonesQuery()
+        $result = $this->_createQuery()
             ->where(['id' => $id])
             ->one();
 
@@ -82,13 +64,13 @@ class ShippingZones extends Component
             return null;
         }
 
-        return $this->_allShippingZones[$id] = new ShippingAddressZone($result);
+        return $this->_allZones[$id] = new ShippingAddressZone($result);
     }
 
     /**
      * Save a shipping zone.
      *
-     * @param bool $runValidation should we validate this rule before saving.
+     * @param bool $runValidation should we validate this zone before saving
      * @throws \Exception
      * @throws Exception
      */
@@ -105,7 +87,7 @@ class ShippingZones extends Component
         }
 
         if ($runValidation && !$model->validate()) {
-            Craft::info('Shipping rule not saved due to validation error.', __METHOD__);
+            Craft::info('Shipping zone not saved due to validation error.', __METHOD__);
 
             return false;
         }
@@ -113,71 +95,11 @@ class ShippingZones extends Component
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
+        $record->condition = $model->getCondition()->getConfig();
+        $this->_clearCaches();
 
-        // If the condition formula changes, clear the cache for this zone.
-        if (($record->zipCodeConditionFormula != $model->getZipCodeConditionFormula()) && $record->id) {
-            TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
-        }
-
-        $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
-        $record->isCountryBased = $model->isCountryBased;
-
-        $countryIds = $model->getCountryIds();
-        $stateIds = $model->getStateIds();
-
-        //validating given ids
-        if ($record->isCountryBased) {
-            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
-
-            if (!$exist) {
-                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
-            }
-        } else {
-            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
-
-            if (!$exist) {
-                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
-            }
-        }
-
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            //deleting old links
-            ShippingZoneCountryRecord::deleteAll(['shippingZoneId' => $record->id]);
-            ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
-
-            //saving new links
-            if ($model->isCountryBased) {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $countryIds);
-                $cols = ['countryId', 'shippingZoneId'];
-                $table = Table::SHIPPINGZONE_COUNTRIES;
-            } else {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $stateIds);
-                $cols = ['stateId', 'shippingZoneId'];
-                $table = Table::SHIPPINGZONE_STATES;
-            }
-            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-            $transaction->commit();
-
-            $this->_clearCaches();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            throw $e;
-        }
+        $record->save();
+        $model->id = $record->id;
 
         return true;
     }
@@ -205,17 +127,16 @@ class ShippingZones extends Component
     /**
      * Returns a Query object prepped for retrieving shipping zones.
      */
-    private function _createShippingZonesQuery(): Query
+    private function _createQuery(): Query
     {
         return (new Query())
             ->select([
+                'condition',
                 'dateCreated',
                 'dateUpdated',
                 'description',
                 'id',
-                'isCountryBased',
                 'name',
-                'zipCodeConditionFormula',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);
@@ -228,7 +149,6 @@ class ShippingZones extends Component
      */
     private function _clearCaches(): void
     {
-        $this->_fetchedAllShippingZones = false;
-        $this->_allShippingZones = [];
+        $this->_allZones = [];
     }
 }

@@ -41,7 +41,7 @@ class DiscountsController extends BaseCpController
 {
     public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    public const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+    public const DISCOUNT_COUNTER_TYPE_USER = 'user';
 
     /**
      * @inheritdoc
@@ -126,6 +126,10 @@ class DiscountsController extends BaseCpController
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
+        $discount->setOrderCondition($request->getBodyParam('orderCondition'));
+        $discount->setCustomerCondition($request->getBodyParam('customerCondition'));
+        $discount->setShippingAddressCondition($request->getBodyParam('shippingAddressCondition'));
+        $discount->setBillingAddressCondition($request->getBodyParam('billingAddressCondition'));
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
@@ -143,7 +147,6 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
-        $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
 
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
@@ -152,8 +155,6 @@ class DiscountsController extends BaseCpController
         $perItemDiscount = $request->getBodyParam('perItemDiscount') ?: 0;
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
-
-        $discount->purchaseTotal = Localization::normalizeNumber($request->getBodyParam('purchaseTotal'));
 
         $date = $request->getBodyParam('dateFrom');
         if ($date) {
@@ -194,14 +195,6 @@ class DiscountsController extends BaseCpController
             }
             $discount->setCategoryIds($categories);
         }
-
-        $groups = $request->getBodyParam('groups', []);
-
-        if ($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-            $groups = [];
-        }
-
-        $discount->setUserGroupIds($groups);
 
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
@@ -286,18 +279,18 @@ class DiscountsController extends BaseCpController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
-        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
+        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_USER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
         switch ($type) {
-            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
-                break;
             case self::DISCOUNT_COUNTER_TYPE_EMAIL:
                 Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
+                break;
+            case self::DISCOUNT_COUNTER_TYPE_USER:
+                Plugin::getInstance()->getDiscounts()->clearUserUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_TOTAL:
                 Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
@@ -390,7 +383,7 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         foreach ($localizedNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
@@ -410,8 +403,8 @@ class DiscountsController extends BaseCpController
         }
 
         $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;
-        $variables['counterTypeCustomer'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
         $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
+        $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_USER;
 
         if ($variables['discount']->id) {
             $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
@@ -488,7 +481,7 @@ class DiscountsController extends BaseCpController
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
+                if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
                     $purchasableIds[] = $purchasableId;

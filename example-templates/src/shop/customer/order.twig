@@ -67,30 +67,12 @@
       {% endif %}
 
       {# Address information #}
-      {% if order.shippingAddress and order.billingAddress and order.shippingAddress.sameAs(order.billingAddress) %}
-        <div class="mt-6">
-          <h2 class="font-semibold">
-            {{- 'Shipping & Billing Address'|t -}}
-          </h2>
-          {{ include('[[folderName]]/_private/address/address', {
-            address: order.shippingAddress,
-            asLines: false,
-            ignoreKeys: ['label'],
-            boldKeys: []
-          }) }}
-        </div>
-      {% else %}
         <div class="mt-6">
           <h2 class="font-semibold">
             {{- 'Shipping Address'|t -}}
           </h2>
           {% if order.shippingAddress %}
-            {{ include('[[folderName]]/_private/address/address', {
-              address: order.shippingAddress,
-              asLines: false,
-              ignoreKeys: ['label'],
-              boldKeys: []
-            }) }}
+            {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}
@@ -100,17 +82,11 @@
             {{- 'Billing Address'|t -}}
           </h2>
           {% if order.billingAddress %}
-            {{ include('[[folderName]]/_private/address/address', {
-              address: order.billingAddress,
-              asLines: false,
-              ignoreKeys: ['label'],
-              boldKeys: []
-            }) }}
+            {{ craft.app.addresses.formatAddress(order.billingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}
         </div>
-      {% endif %}
     </div>
     <div class="mt-10 lg:w-2/3 lg:mx-6 lg:mt-0">
       {# Order item and adjustment detail #}

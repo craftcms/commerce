@@ -32,9 +32,9 @@ class PaymentSource extends Model
     public ?int $id = null;
 
     /**
-     * @var int The user ID
+     * @var int The customer element ID
      */
-    public int $userId;
+    public int $customerId;
 
     /**
      * @var int The gateway ID.
@@ -59,7 +59,7 @@ class PaymentSource extends Model
     /**
      * @var User|null $_user
      */
-    private ?User $_user = null;
+    private ?User $_customer = null;
 
     /**
      * @var GatewayInterface|null $_gateway
@@ -82,13 +82,22 @@ class PaymentSource extends Model
      *
      * @return User|null
      */
-    public function getUser()
+    public function getCustomer()
     {
-        if (!isset($this->_user)) {
-            $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
+        if (!isset($this->_customer)) {
+            $this->_customer = Craft::$app->getUsers()->getUserById($this->customerId);
         }
 
-        return $this->_user;
+        return $this->_customer;
+    }
+
+    /**
+     * @deprecated in 4.0.0. Use [[getCustomer()]] instead.
+     */
+    public function getUser(): ?User
+    {
+        Craft::$app->getDeprecator()->log('PaymentSource::getUser()', 'The `PaymentSource::getUser()` is deprecated, use the `PaymentSource::getCustomer()` instead.');
+        return $this->getCustomer();
     }
 
     /**
@@ -113,7 +122,7 @@ class PaymentSource extends Model
     {
         return [
             [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
-            [['gatewayId', 'userId', 'token', 'description'], 'required'],
+            [['gatewayId', 'customerId', 'token', 'description'], 'required'],
         ];
     }
 }

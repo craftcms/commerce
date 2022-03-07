@@ -28,7 +28,6 @@
 
 
 {% block content %}
-    <p>{{ 'Discounts are rules that modify the price of items within a cart.'|t('commerce') }}</p>
     <div id="discounts-vue-admin-table"></div>
 
     {% hook "cp.commerce.discounts.index" %}
@@ -114,6 +113,7 @@
         actions: actions,
         checkboxes: true,
         columns: columns,
+        fullPane: false,
         container: '#discounts-vue-admin-table',
         deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
