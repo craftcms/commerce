@@ -10,6 +10,7 @@ namespace craft\commerce\plugin;
 use craft\commerce\services\AdministrativeAreas;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
+use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Discounts;
@@ -76,7 +77,6 @@ use yii\base\InvalidConfigException;
  * @property ShippingRuleCategories $shippingRuleCategories the shipping rule categories service
  * @property ShippingCategories $shippingCategories the shipping categories service
  * @property ShippingZones $shippingZones the shipping zones service
- * @property AdministrativeAreas $states the states service
  * @property Subscriptions $subscriptions the subscriptions service
  * @property TaxCategories $taxCategories the taxCategories service
  * @property TaxRates $taxRates the taxRates service
@@ -98,6 +98,17 @@ trait Services
     public function getCarts(): Carts
     {
         return $this->get('carts');
+    }
+
+    /**
+     * Returns the coupons service
+     *
+     * @return Coupons The countries service
+     * @throws InvalidConfigException
+     */
+    public function getCoupons(): Coupons
+    {
+        return $this->get('coupons');
     }
 
     /**
@@ -507,6 +518,9 @@ trait Services
         $this->setComponents([
             'carts' => [
                 'class' => Carts::class,
+            ],
+            'coupons' => [
+                'class' => Coupons::class,
             ],
             'currencies' => [
                 'class' => Currencies::class,

@@ -37,11 +37,37 @@
 
 {% set tabs = {
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
-    1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
+    1: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
     2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
     3: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
     4: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
     5: {'label':'Actions'|t('commerce'),'url':'#actions'}
+} %}
+
+{% set couponsTable = {
+    name: 'coupons',
+    id: 'coupons-table',
+    cols: {
+        id: {
+            type: 'singleline',
+            heading: 'id'|t('app'),
+            class: 'hidden',
+        },
+        code: {
+            type: 'singleline',
+            heading: 'Code'|t('commerce'),
+        },
+        uses: {
+            type: 'singleline',
+            heading: 'Uses'|t('commerce'),
+        },
+        maxUses: {
+            type: 'singleline',
+            heading: 'Max Uses'|t('commerce'),
+            info: 'Leave blank for unlimited uses.'|t('commerce'),
+        },
+    },
+    defaultValues: { uses: 0 }
 } %}
 
 {% hook "cp.commerce.discounts.edit" %}
@@ -209,15 +235,39 @@
 
     </div>
 
-    <div id="coupon" class="hidden">
-        {{ forms.textField({
-            label: "Coupon Code"|t('commerce'),
-            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
-            id: 'code',
-            name: 'code',
-            value: discount.code,
-            errors: discount.getErrors('code'),
-        }) }}
+    <div id="coupons" class="hidden">
+        <div id="commerce-coupons">
+            {% set tableField %}
+                <div>
+                    {{ forms.editableTable({
+                        id: 'commerce-coupons-table',
+                        name: couponsTable.name,
+                        cols: couponsTable.cols,
+                        rows: discount.coupons,
+                        addRowLabel: 'Add a coupon'|t('commerce'),
+                        allowAdd: true,
+                        allowDelete: true,
+                        initJs: false
+                    }) }}
+                </div>
+            {% endset %}
+            {{ forms.field({
+                label: 'Coupons'|t('commerce'),
+                errors: discount.getErrors('coupons'),
+                headingSuffix: forms.button({
+                    id: 'commerce-coupons-generate',
+                    label: 'Generate'|t('commerce'),
+                    spinner: true,
+                }),
+            }, tableField) }}
+
+            {# This field is update from the generate hud when generating new coupons #}
+            {{ forms.hidden({
+                id: 'commerce-coupon-format',
+                name: 'couponFormat',
+                value: discount.couponFormat,
+            }) }}
+        </div>
     </div>
 
     <div id="condition-rules" class="hidden">
@@ -266,16 +316,14 @@
 
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),
-            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t('commerce'),
-            id: 'dateFrom',
+            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t('commerce'),            id: 'dateFrom',
             name: 'dateFrom',
             value: discount.dateFrom,
             errors: discount.getErrors('dateFrom'),
         }) }}
 
         {{ forms.dateTimeField({
-            label: "End Date"|t('commerce'),
-            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t('commerce'),
+            label: "End Date"|t('commerce'),            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t('commerce'),
             id: 'dateTo',
             name: 'dateTo',
             value: discount.dateTo,
@@ -634,21 +682,30 @@ $(function() {
                 dataType: 'json',
                 headers: {
                     "X-CSRF-Token": '{{ craft.app.request.csrfToken }}',
-                        },
-                        url: '',
-                        data: {
-                            'action' : 'commerce/discounts/clear-discount-uses',
-                            'id': '{{ discount.id ?? '' }}',
-                            'type': type
-                        },
-                        success: function(data){
-                            $spinner.toggleClass('hidden');
-                            $field.val('');
-                            Craft.cp.displayNotice(Craft.t('commerce', 'Counter has been cleared.'));
-                            $this.attr('disabled', 'disabled').prop('disabled', 'disabled');
-                        }
-                    });
+                },
+                url: '',
+                data: {
+                    'action' : 'commerce/discounts/clear-discount-uses',
+                    'id': '{{ discount.id ?? '' }}',
+                    'type': type
+                },
+                success: function(data){
+                    $spinner.toggleClass('hidden');
+                    $field.val('');
+                    Craft.cp.displayNotice(Craft.t('commerce', 'Counter has been cleared.'));
+                    $this.attr('disabled', 'disabled').prop('disabled', 'disabled');
                 }
             });
-        });
+        }
+    });
+
+    new Craft.Commerce.Coupons('#commerce-coupons', {
+        couponFormat: "{{ discount.couponFormat|e('js') }}",
+        table: {
+            name: "{{ couponsTable.name|namespaceInputName|e('js') }}",
+            cols: {{ couponsTable.cols|json_encode|raw }},
+            defaultValues: {{ couponsTable.defaultValues|json_encode|raw }}
+        },
+    });
+});
 {% endjs %}

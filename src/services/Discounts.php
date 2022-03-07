@@ -15,16 +15,16 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\events\MatchOrderEvent;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
+use craft\commerce\records\Coupon as CouponRecord;
 use craft\commerce\records\CustomerDiscountUse;
-use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
-use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
@@ -284,23 +284,31 @@ class Discounts extends Component
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
         if ($order && $order->couponCode) {
+            $couponSubQuery = (new Query())
+                ->from(Table::COUPONS)
+                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
+            $codeWhere = ['code' => $order->couponCode];
             if (Craft::$app->getDb()->getIsPgsql()) {
-                $discountQuery->andWhere(
-                    [
-                        'or',
-                        ['code' => null],
-                        ['ilike', 'code', $order->couponCode],
-                    ]
-                );
-            } else {
-                $discountQuery->andWhere(
-                    [
-                        'or',
-                        ['code' => null],
-                        ['code' => $order->couponCode],
-                    ]
-                );
+                ArrayHelper::prependOrAppend($codeWhere, 'ilike', true);
             }
+
+            $discountQuery->andWhere([
+                'or',
+                // Find discount where the coupon code matches
+                [
+                    'exists', (clone $couponSubQuery)
+                    ->andWhere($codeWhere)
+                    ->andWhere([
+                            'or',
+                            ['maxUses' => null],
+                            new Expression('[[uses]] < [[maxUses]]')
+                        ]
+                    )
+                ],
+                // OR find discounts that do not have a coupon code requirement
+                ['not exists', $couponSubQuery],
+            ]);
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
@@ -319,7 +327,7 @@ class Discounts extends Component
     {
         $discount = $this->getDiscountByCode($order->couponCode);
 
-        if (!$discount) {
+        if (!$discount || !$this->_isDiscountCouponCodeValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Coupon not valid.');
             return false;
         }
@@ -375,10 +383,11 @@ class Discounts extends Component
         }
 
         $query = $this->_createDiscountQuery();
+        $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
         if (Craft::$app->getDb()->getIsPgsql()) {
-            $query->andWhere(['ilike', '[[discounts.code]]', $code]);
+            $query->andWhere(['ilike', '[[coupons.code]]', $code]);
         } else {
-            $query->andWhere(['[[discounts.code]]' => $code]);
+            $query->andWhere(['[[coupons.code]]' => $code]);
         }
         $discounts = $query->all();
 
@@ -386,8 +395,8 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function($discount) use ($code) {
-            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), static function(Discount $discount) use ($code) {
+            return ($discount->enabled && (bool)ArrayHelper::firstWhere($discount->getCoupons(), static fn($coupon) => (strcasecmp($coupon->code, $code) == 0)));
         });
     }
 
@@ -481,7 +490,9 @@ class Discounts extends Component
 
         $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
 
-        if (!$discount->getOrderCondition()->matchElement($order)) {
+        $orderCondition = $discount->getOrderCondition();
+        $hasRules = count($orderCondition->getConditionRules());
+        if ($hasRules && !$discount->getOrderCondition()->matchElement($order)) {
             return false;
         }
 
@@ -491,7 +502,7 @@ class Discounts extends Component
         if ($hasRules && !$customer) {
             return false;
         }
-        if (!$customerCondition->matchElement($customer)) {
+        if ($hasRules && $customer && !$customerCondition->matchElement($customer)) {
             return false;
         }
 
@@ -501,7 +512,7 @@ class Discounts extends Component
         if ($hasRules && !$shippingAddress) {
             return false;
         }
-        if (!$shippingAddressCondition->matchElement($shippingAddress)) {
+        if ($hasRules && $shippingAddress && !$shippingAddressCondition->matchElement($shippingAddress)) {
             return false;
         }
 
@@ -511,7 +522,7 @@ class Discounts extends Component
         if ($hasRules && !$billingAddress) {
             return false;
         }
-        if (!$billingAddressCondition->matchElement($billingAddress)) {
+        if ($hasRules && $billingAddress && !$billingAddressCondition->matchElement($billingAddress)) {
             return false;
         }
 
@@ -662,7 +673,7 @@ class Discounts extends Component
         $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
-        $record->code = $model->code ?: null;
+        $record->couponFormat = $model->couponFormat;
 
         $record->categoryRelationshipType = $model->categoryRelationshipType;
         if ($record->allCategories = $model->allCategories) {
@@ -679,16 +690,8 @@ class Discounts extends Component
             $record->save(false);
             $model->id = $record->id;
 
-            DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
-
-            foreach ($model->getUserGroupIds() as $groupId) {
-                $relation = new DiscountUserGroupRecord();
-                $relation->userGroupId = $groupId;
-                $relation->discountId = $model->id;
-                $relation->save(false);
-            }
 
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
@@ -706,6 +709,7 @@ class Discounts extends Component
                 $relation->save(false);
             }
 
+            Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
 
             // Raise the afterSaveDiscount event
@@ -962,6 +966,17 @@ class Discounts extends Component
                 ])
                 ->execute();
 
+            // if there was a coupon on the order update its usage
+            if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
+                Craft::$app->getDb()->createCommand()
+                    ->update(Table::COUPONS, [
+                        'uses' => new Expression('[[uses]] + 1'),
+                    ], [
+                        'id' => $coupon->id,
+                    ])
+                    ->execute();
+            }
+
             // Reset internal cache
             $this->_allDiscounts = null;
             $this->_activeDiscountsByKey = null;
@@ -969,13 +984,21 @@ class Discounts extends Component
     }
 
 
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     * @throws InvalidConfigException
+     */
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
-        if (!$discount->code) {
+        $coupons = $discount->getCoupons();
+        if (empty($coupons)) {
             return true;
         }
 
-        return ($order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+        $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
+        return (bool)$return;
     }
 
     /**
@@ -1013,7 +1036,7 @@ class Discounts extends Component
 
         return true;
     }
-    
+
     private function _isDiscountTotalUseLimitValid(Discount $discount): bool
     {
         if ($discount->totalDiscountUseLimit > 0) {
@@ -1091,7 +1114,6 @@ class Discounts extends Component
 
         $purchasables = [];
         $categories = [];
-        $userGroups = [];
 
         foreach ($discounts as $discount) {
             $id = $discount['id'];
@@ -1103,11 +1125,7 @@ class Discounts extends Component
                 $categories[$id][] = $discount['categoryId'];
             }
 
-            if ($discount['userGroupId']) {
-                $userGroups[$id][] = $discount['userGroupId'];
-            }
-
-            unset($discount['purchasableId'], $discount['userGroupId'], $discount['categoryId']);
+            unset($discount['purchasableId'], $discount['categoryId']);
 
             if (!isset($allDiscountsById[$id])) {
                 $allDiscountsById[$id] = new Discount($discount);
@@ -1117,7 +1135,6 @@ class Discounts extends Component
         foreach ($allDiscountsById as $id => $discount) {
             $discount->setPurchasableIds($purchasables[$id] ?? []);
             $discount->setCategoryIds($categories[$id] ?? []);
-            $discount->setUserGroupIds($userGroups[$id] ?? []);
         }
 
         return $allDiscountsById;
@@ -1136,7 +1153,7 @@ class Discounts extends Component
                 '[[discounts.baseDiscount]]',
                 '[[discounts.baseDiscountType]]',
                 '[[discounts.categoryRelationshipType]]',
-                '[[discounts.code]]',
+                '[[discounts.couponFormat]]',
                 '[[discounts.dateCreated]]',
                 '[[discounts.dateFrom]]',
                 '[[discounts.dateTo]]',

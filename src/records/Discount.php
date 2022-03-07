@@ -21,7 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allPurchasables
  * @property float $baseDiscount
  * @property string $baseDiscountType
- * @property string $code
+ * @property string $couponFormat
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description

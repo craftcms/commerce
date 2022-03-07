@@ -23,6 +23,7 @@ use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
 use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
+use craft\commerce\services\Coupons;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
@@ -91,6 +92,17 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::COUPONS, [
+            'id' => $this->primaryKey(),
+            'code' => $this->string(),
+            'discountId' => $this->integer()->notNull(),
+            'uses' => $this->integer()->notNull()->defaultValue(0),
+            'maxUses' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::CUSTOMER_DISCOUNTUSES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
@@ -134,11 +146,11 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->text(),
+            'couponFormat' => $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT),
             'orderCondition' => $this->text(),
             'customerCondition' => $this->text(),
             'shippingAddressCondition' => $this->text(),
             'billingAddressCondition' => $this->text(),
-            'code' => $this->string(),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
@@ -783,11 +795,12 @@ class Install extends Migration
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
+        $this->createIndex(null, Table::COUPONS, 'discountId', false);
+        $this->createIndex(null, Table::COUPONS, 'code', false);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
-        $this->createIndex(null, Table::DISCOUNTS, 'code', true);
         $this->createIndex(null, Table::DISCOUNTS, 'dateFrom', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
@@ -870,6 +883,7 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
+        $this->addForeignKey(null, Table::COUPONS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');

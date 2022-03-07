@@ -3,6 +3,19 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
+- Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
+- Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
+- Added `craft\commerce\models\Coupon`.
+- Added `craft\commerce\models\Discount::$_coupons`.
+- Added `craft\commerce\models\Discount::$couponFormat`.
+- Added `craft\commerce\models\Discount::getCoupons()`.
+- Added `craft\commerce\models\Discount::setCoupons()`.
+- Added `craft\commerce\plugin\Services::getCoupons()`.
+- Added `craft\commerce\records\Coupon`.
+- Added `craft\commerce\services\Coupons`.
+- Added `craft\commerce\validators\CouponValidator`.
+- Added `craft\commerce\web\assets\coupons\CouponsAsset`.
 - Customers are now User elements.
 - Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
 - Shipping zones now use a condition builder to determine whether an address is within a zone.
@@ -83,6 +96,7 @@
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\OrdersController::_prepCustomersArray()`. Use `_customerToArray()` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\models\Discount::$code`.
 - Removed `craft\commerce\controllers\StatesController`.
 - Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
 - Removed `craft\commerce\elements\Order::removeEstimatedShippingAddress()`. Used `setEstimatedShippingAddress(null)` instead.
@@ -122,7 +136,7 @@
 - Removed `craft\commerce\services\Customers::saveCustomer()`.
 - Removed `craft\commerce\services\Customers::saveUserHandler()`.
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
-- Removed `craft\commerce\services\Discounts::getCuustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
+- Removed `craft\commerce\services\Discounts::getCustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
 - Removed `craft\commerce\services\States`.
 - Removed direct `moneyphp/money` dependency.
 
