@@ -97,6 +97,18 @@ class Email extends Model
     public ?string $uid = null;
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'pdf';
+        $fields[] = 'config';
+
+        return $fields;
+    }
+
+    /**
      * Determines the language this pdf, if
      *
      * @param Order|null $order

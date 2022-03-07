@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
@@ -85,6 +86,8 @@ class TaxRatesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
+
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
             ['value' => '', 'label' => ''],
@@ -143,6 +146,8 @@ class TaxRatesController extends BaseTaxSettingsController
             $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
+
+        $view->setNamespace();
 
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }

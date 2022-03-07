@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -80,6 +81,8 @@ class SalesController extends BaseCpController
                 $variables['sale']->allGroups = true;
             }
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['sale'], prepend: true);
 
         $this->_populateVariables($variables);
 

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
@@ -65,6 +66,8 @@ class EmailsController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];

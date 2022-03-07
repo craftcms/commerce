@@ -168,6 +168,17 @@ class Sale extends Model
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
 
+    /**
+     * @return array
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+
+        return $fields;
+    }
+
     public function getApplyAmountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));

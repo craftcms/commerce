@@ -104,7 +104,7 @@ class OrderStatus extends Model
             return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
         }
 
-        return $this->name;
+        return $this->name ?? '';
     }
 
     protected function defineRules(): array
@@ -118,6 +118,19 @@ class OrderStatus extends Model
                 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new'],
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'emails';
+        $fields[] = 'emailIds';
+        $fields[] = 'labelHtml';
+
+        return $fields;
     }
 
     public function getCpEditUrl(): string

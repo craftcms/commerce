@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
@@ -89,6 +90,8 @@ class DiscountsController extends BaseCpController
                 $variables['isNewDiscount'] = true;
             }
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['discount'], prepend: true);
 
         $this->_populateVariables($variables);
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);

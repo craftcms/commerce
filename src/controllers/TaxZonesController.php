@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use Twig\Error\LoaderError;
@@ -57,6 +58,8 @@ class TaxZonesController extends BaseTaxSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();

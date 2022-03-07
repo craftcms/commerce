@@ -3,6 +3,9 @@
 ## Unreleased
 
 ### Added
+- Added Commerce panel to the debug toolbar.
+- Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
+- Added `craft\commerce\helpers\DebugPanel`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -21,6 +24,7 @@
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Removed `craft\commerce\models\ProductType::lineItemFormat`.
+- Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.

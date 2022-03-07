@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
@@ -29,6 +30,10 @@ use yii\web\Response;
  */
 class StatesController extends BaseStoreSettingsController
 {
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
@@ -61,8 +66,9 @@ class StatesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new state');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        DebugPanel::prependOrAppendModelTab(model: $variables['state'], prepend: true);
 
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
 
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;
