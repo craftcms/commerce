@@ -637,6 +637,11 @@ EOL
             ->exists();
 
         if ($continue) {
+            $this->_addressIdByV3AddressId = (new Query())
+                ->select(['id', 'v4addressId'])
+                ->from('{{%commerce_addresses}}')
+                ->pairs();
+            ArrayHelper::removeValue($this->_addressIdByV3AddressId, null); //  should not be null but just in case.
             return;
         }
 
@@ -651,8 +656,14 @@ EOL
         foreach ($addresses->each() as $address) {
             $address = $this->_createAddress($address);
             $this->_addressIdByV3AddressId[$address['id']] = $address->id;
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
+                ['v4addressId' => $address->id],
+                ['id' => $address['id']]
+            )->execute();
             Console::updateProgress($done++, $totalAddresses);
         }
+
+
         Console::endProgress();
     }
 

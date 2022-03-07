@@ -134,6 +134,8 @@ class m220301_022054_user_addresses extends Migration
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'userId', false);
 
+        $this->addColumn('{{%commerce_addresses}}', 'v4addressId', $this->integer()->null());
+
         // Add new Store table
         if (!Craft::$app->getDb()->tableExists('{{%commerce_stores}}')) {
             $this->createTable('{{%commerce_stores}}', [
