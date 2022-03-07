@@ -82,7 +82,7 @@ class CommercePanel extends Panel
         $content = [];
 
         if ($this->cart) {
-            $nav[] = 'Cart (in session)';
+            $nav[] = 'Cart';
 
             $content[] = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
                 'model' => $this->cart,
