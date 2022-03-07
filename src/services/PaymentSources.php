@@ -238,7 +238,7 @@ class PaymentSources extends Component
     {
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
-            ->andWhere(['userId' => $userId])
+            ->andWhere(['customerId' => $userId])
             ->one();
 
         return $result ? new PaymentSource($result) : null;
@@ -263,7 +263,7 @@ class PaymentSources extends Component
             throw new PaymentSourceException($exception->getMessage());
         }
 
-        $source->userId = $userId;
+        $source->customerId = $userId;
 
         if (!empty($sourceDescription)) {
             $source->description = $sourceDescription;
@@ -310,7 +310,7 @@ class PaymentSources extends Component
             return false;
         }
 
-        $record->userId = $paymentSource->userId;
+        $record->customerId = $paymentSource->customerId;
         $record->gatewayId = $paymentSource->gatewayId;
         $record->token = $paymentSource->token;
         $record->description = $paymentSource->description;
@@ -379,7 +379,7 @@ class PaymentSources extends Component
                 'id',
                 'response',
                 'token',
-                'userId',
+                'customerId',
             ])
             ->from([Table::PAYMENTSOURCES]);
     }

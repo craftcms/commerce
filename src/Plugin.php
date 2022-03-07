@@ -243,7 +243,7 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (self::getInstance()->is('pro', '>=')) {
+        if (self::getInstance()->is(self::EDITION_PRO, '>=')) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
                 $ret['subnav']['shipping'] = [
                     'label' => Craft::t('commerce', 'Shipping'),

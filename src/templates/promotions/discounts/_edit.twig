@@ -23,6 +23,8 @@
     {% set matchingItemsClasses = "error" %}
 {% endif %}
 
+{% set conditionRulesClasses = "" %}
+
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
     {% set conditionsClasses = "error" %}
@@ -37,8 +39,9 @@
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
     1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
     2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    3: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    4: {'label':'Actions'|t('commerce'),'url':'#actions'}
+    3: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
+    4: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    5: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
 {% hook "cp.commerce.discounts.edit" %}
@@ -143,6 +146,7 @@
             reverseToggle: '#matching-items-purchasables',
             on: discount.allPurchasables ? true : false,
             errors: discount.getErrors('allPurchasables')
+
         }) }}
 
         <div id="matching-items-purchasables" {% if discount.allPurchasables %}class="hidden"{% endif %}>
@@ -216,6 +220,48 @@
         }) }}
     </div>
 
+    <div id="condition-rules" class="hidden">
+        {% set orderConditionInput %}
+            {{ discount.orderCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Order'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order.'|t('commerce'),
+            errors: discount.getErrors('orderCondition')
+        }, orderConditionInput) }}
+
+        {% set customerConditionInput %}
+            {{ discount.customerCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Customer'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s customer.'|t('commerce'),
+            errors: discount.getErrors('customerCondition')
+        }, customerConditionInput) }}
+
+        {% set shippingAddressConditionInput %}
+            {{ discount.shippingAddressCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Shipping Address'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s shipping address.'|t('commerce'),
+            errors: discount.getErrors('shippingAddressCondition')
+        }, shippingAddressConditionInput) }}
+
+        {% set billingAddressConditionInput %}
+            {{ discount.billingAddressCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Billing Address'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s billing address.'|t('commerce'),
+            errors: discount.getErrors('billingAddressCondition')
+        }, billingAddressConditionInput) }}
+    </div>
+
     <div id="conditions" class="hidden">
 
         {{ forms.dateTimeField({
@@ -261,38 +307,6 @@
             {% endblock %}
         {% endembed %}
 
-        {% set usersInput %}
-            <div class="flex">
-                <div>
-                    {{ forms.select({
-                        id: 'user-condition',
-                        name: 'userGroupsCondition',
-                        options: discount.getUserGroupsConditions(),
-                        value: discount.userGroupsCondition
-                    }) }}
-                </div>
-
-                <div class="flex-grow{% if discount.userGroupsCondition is null or discount.userGroupsCondition == 'userGroupsAnyOrNone' %} hidden{% endif %}">
-                    {{ forms.multiselectField({
-                        id: 'groups',
-                        name: 'groups',
-                        options: groups,
-                        values: discount.getUserGroupIds(),
-                        errors: discount.getErrors('groups'),
-                        class: 'selectize fullwidth',
-                    }) }}
-                </div>
-            </div>
-        {% endset %}
-
-        {{ forms.field({
-            id: 'user-groups-condition',
-            label: 'Users'|t('commerce'),
-            instructions: 'Choose which users the discount applies to.'|t('commerce'),
-            errors: [],
-            required: false,
-        }, usersInput) }}
-
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
@@ -324,7 +338,7 @@
             errors: discount.getErrors('maxPurchaseQty'),
         }) }}
 
-        {% set userUsage = userUsage and userUsage|length ? userUsage : {uses: 0, users: 0} %}
+        {% set customerUsage = customerUsage and customerUsage|length ? customerUsage : {uses: 0, users: 0} %}
         {% set userCounterMarkup %}
             <div class="flex">
                 <div>
@@ -338,7 +352,7 @@
                 </div>
                 <div>
                     <input id="user-usage-counter" disabled class="text disabled fullwidth" size="30"
-                           value="{{ '{uses} uses across {users} users'|t('commerce', userUsage) }}">
+                           value="{{ '{uses} uses across {users} users'|t('commerce', customerUsage) }}">
                 </div>
                 <div>
                     <div class="btn clear-btn discount-clear-use" data-spinner="#clear-user-usage-spinner"
@@ -551,9 +565,6 @@
             on: discount.hasFreeShippingForOrder ? true : false
         }) }}
 
-        {#
-        This might need to be disabled to start with. That is handled in the JS
-        #}
         {{ forms.lightswitchField({
             label: "Remove shipping costs for matching items only"|t('commerce'),
             id: 'hasFreeShippingForMatchingItems',
@@ -575,19 +586,6 @@
 
 {% js %}
 $(function() {
-
-    $('#user-condition').change(function() {
-        if ($(this).val() === 'userGroupsAnyOrNone') {
-            $('#groups-field').parent().addClass('hidden');
-        } else {
-            $('#groups-field').parent().removeClass('hidden');
-        }
-    });
-
-    $('#groups').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
 
     $('#code').on('keyup blur', function(event) {
         if (this.value.length === 0) {

@@ -62,6 +62,12 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_ANY_OR_NONE`. Discount user groups were migrated to the customer condition rule.
+- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ALL`. Discount user groups were migrated to the customer condition rule.
+- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ANY`. Discount user groups were migrated to the customer condition rule.
+- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_EXCLUDE`. Discount user groups were migrated to the customer condition rule.
+- Removed `\craft\commerce\models\Discount::getUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
+- Removed `\craft\commerce\models\Discount::setUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
 - Removed `craft\commerce\events\DefineAddressLinesEvent`. Use the new `\craft\services\Addresses::formatAddress()` instead.
 - Removed `craft\commerce\base\AddressZoneInterface`.
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.

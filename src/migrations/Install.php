@@ -130,19 +130,14 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::DISCOUNT_USERGROUPS, [
-            'id' => $this->primaryKey(),
-            'discountId' => $this->integer()->notNull(),
-            'userGroupId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::DISCOUNTS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->text(),
+            'orderCondition' => $this->text(),
+            'customerCondition' => $this->text(),
+            'shippingAddressCondition' => $this->text(),
+            'billingAddressCondition' => $this->text(),
             'code' => $this->string(),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
@@ -150,7 +145,6 @@ class Install extends Migration
             'totalDiscountUseLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
-            'purchaseTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -161,7 +155,6 @@ class Install extends Migration
             'excludeOnSale' => $this->boolean()->notNull()->defaultValue(false),
             'hasFreeShippingForMatchingItems' => $this->boolean()->notNull()->defaultValue(false),
             'hasFreeShippingForOrder' => $this->boolean()->notNull()->defaultValue(false),
-            'userGroupsCondition' => $this->string()->defaultValue('userGroupsAnyOrNone'),
             'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
             'allCategories' => $this->boolean()->notNull()->defaultValue(false),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
@@ -794,8 +787,6 @@ class Install extends Migration
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
-        $this->createIndex(null, Table::DISCOUNT_USERGROUPS, ['discountId', 'userGroupId'], true);
-        $this->createIndex(null, Table::DISCOUNT_USERGROUPS, 'userGroupId', false);
         $this->createIndex(null, Table::DISCOUNTS, 'code', true);
         $this->createIndex(null, Table::DISCOUNTS, 'dateFrom', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
@@ -888,8 +879,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');

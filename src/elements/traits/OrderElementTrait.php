@@ -11,11 +11,13 @@ use Craft;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
+use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
@@ -547,6 +549,15 @@ trait OrderElementTrait
             default:
                 parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @return OrderCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(OrderCondition::class, [static::class]);
     }
 
     /**
