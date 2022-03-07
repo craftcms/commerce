@@ -1119,6 +1119,7 @@ return [
     'Transaction ID' => 'Transaksjons-ID',
     'Transaction captured successfully: {message}' => 'Vellykket fanging av transaksjoner: {message}',
     'Transaction refunded successfully: {message}' => 'Vellykket refusjon av transaksjon: {message}',
+    'Transaction type not supported.' => 'Transaction type not supported.',
     'Transactions' => 'Transaksjoner',
     'Trial days credited' => 'Prøvedager kreditert',
     'Trial expiration' => 'Utløpstid for prøveperiode',
