@@ -73,7 +73,7 @@ class PdfsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
 
-        DebugPanel::prependModelTab($variables['pdf']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
 
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
     }

@@ -91,7 +91,7 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        DebugPanel::prependModelTab($variables['discount']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['discount'], prepend: true);
 
         $this->_populateVariables($variables);
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);

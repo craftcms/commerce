@@ -82,7 +82,7 @@ class SalesController extends BaseCpController
             }
         }
 
-        DebugPanel::prependModelTab($variables['sale']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['sale'], prepend: true);
 
         $this->_populateVariables($variables);
 

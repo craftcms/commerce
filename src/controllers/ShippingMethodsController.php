@@ -65,7 +65,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
-        DebugPanel::prependModelTab($variables['shippingMethod']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
 
         $variables['shippingRules'] = $variables['shippingMethod']->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)

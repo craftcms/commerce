@@ -67,7 +67,7 @@ class EmailsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
 
-        DebugPanel::prependModelTab($variables['email']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];

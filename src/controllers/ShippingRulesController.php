@@ -84,8 +84,8 @@ class ShippingRulesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
         }
 
-        DebugPanel::prependModelTab($variables['shippingMethod']);
-        DebugPanel::prependModelTab($variables['shippingRule']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];

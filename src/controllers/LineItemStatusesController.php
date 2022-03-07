@@ -58,7 +58,7 @@ class LineItemStatusesController extends BaseAdminController
             }
         }
 
-        DebugPanel::prependModelTab($variables['lineItemStatus']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;

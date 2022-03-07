@@ -65,7 +65,7 @@ class PlansController extends BaseStoreSettingsController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
-            DebugPanel::prependModelTab($variables['plan']);
+            DebugPanel::prependOrAppendModelTab(model: $variables['plan'], prepend: true);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }

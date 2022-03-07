@@ -86,7 +86,7 @@ class TaxRatesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
 
-        DebugPanel::prependModelTab($variables['taxRate']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [

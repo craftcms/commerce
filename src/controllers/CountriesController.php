@@ -63,7 +63,7 @@ class CountriesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
-        DebugPanel::prependModelTab($variables['country']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['country'], prepend: true);
 
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;

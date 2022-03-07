@@ -66,7 +66,7 @@ class StatesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new state');
         }
 
-        DebugPanel::prependModelTab($variables['state']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['state'], prepend: true);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
 

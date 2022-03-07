@@ -65,7 +65,7 @@ class ProductTypesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
 
-        DebugPanel::prependModelTab($variables['productType']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['productType'], prepend: true);
 
         $tabs = [
             'productTypeSettings' => [

@@ -59,7 +59,7 @@ class TaxZonesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');
         }
 
-        DebugPanel::prependModelTab($variables['taxZone']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();

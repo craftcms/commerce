@@ -61,7 +61,7 @@ class ShippingZonesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
 
-        DebugPanel::prependModelTab($variables['shippingZone']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingZone'], prepend: true);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();

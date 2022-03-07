@@ -63,7 +63,7 @@ class OrderStatusesController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
 
-        DebugPanel::prependModelTab($variables['orderStatus']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');

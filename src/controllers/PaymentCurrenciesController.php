@@ -71,7 +71,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }
 
-        DebugPanel::prependModelTab($variables['currency']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['currency'], prepend: true);
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());

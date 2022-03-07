@@ -161,7 +161,7 @@ class OrdersController extends Controller
 
         $variables['order'] = $order;
 
-        DebugPanel::prependModelTab($order);
+        DebugPanel::prependOrAppendModelTab(model: $order, prepend: true);
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;

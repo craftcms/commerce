@@ -91,7 +91,7 @@ class GatewaysController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new gateway');
         }
 
-        DebugPanel::prependModelTab($variables['gateway']);
+        DebugPanel::prependOrAppendModelTab(model: $variables['gateway'], prepend: true);
 
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }
