@@ -15,6 +15,7 @@ namespace craft\commerce\db;
  */
 abstract class Table
 {
+    public const COUPONS = '{{%commerce_coupons}}';
     public const CHARGES = '{{%commerce_charges}}';
     public const CUSTOMER_DISCOUNTUSES = '{{%commerce_customer_discountuses}}';
     public const CUSTOMERS = '{{%commerce_customers}}';

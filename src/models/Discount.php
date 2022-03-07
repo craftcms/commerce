@@ -16,12 +16,15 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
+use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount model
@@ -30,6 +33,7 @@ use DateTime;
  * @property-read string $percentDiscountAsPercent
  * @property array $categoryIds
  * @property array $purchasableIds
+ * @property array|Coupon[] $coupons
  * @property string|array|ElementConditionInterface $orderCondition
  * @property string|array|ElementConditionInterface $shippingAddressCondition
  * @property string|array|ElementConditionInterface $billingAddressCondition
@@ -55,9 +59,10 @@ class Discount extends Model
     public ?string $description = null;
 
     /**
-     * @var string|null Coupon Code
+     * @var string Format coupons should be generated with
+     * @since 4.0
      */
-    public ?string $code = null;
+    public string $couponFormat = Coupons::DEFAULT_COUPON_FORMAT;
 
     /**
      * @var ElementConditionInterface|null
@@ -246,6 +251,12 @@ class Discount extends Model
     {
         parent::init();
     }
+
+    /**
+     * @var Coupon[]|null
+     * @since 4.0
+     */
+    private ?array $_coupons = null;
 
     /**
      * @inheritdoc
@@ -459,6 +470,27 @@ class Discount extends Model
         return $this->hasFreeShippingForMatchingItems;
     }
 
+    /**
+     * @return array|Coupon[]
+     * @throws InvalidConfigException
+     */
+    public function getCoupons(): array
+    {
+        if ($this->_coupons === null && $this->id) {
+            $this->_coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($this->id);
+        }
+
+        return $this->_coupons ?? [];
+    }
+
+    /**
+     * @param array $coupons
+     */
+    public function setCoupons(array $coupons): void
+    {
+        $this->_coupons = $coupons;
+    }
+
     public function getPercentDiscountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
@@ -470,7 +502,7 @@ class Discount extends Model
     protected function defineRules(): array
     {
         return [
-            [['name'], 'required'],
+            [['name', 'couponFormat'], 'required'],
             [
                 [
                     'perUserLimit',
@@ -484,7 +516,8 @@ class Discount extends Model
                     'percentDiscount',
                 ], 'number', 'skipOnEmpty' => false,
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [['coupons'], CouponsValidator::class, 'skipOnEmpty' => true],
+            [['couponFormat'], 'string', 'length' => [1, 20]],
             [
                 ['categoryRelationshipType'],
                 'in', 'range' => [
@@ -501,7 +534,6 @@ class Discount extends Model
                     DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS,
                 ],
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
             [
                 'hasFreeShippingForOrder',
                 function($attribute, $params, $validator) {
