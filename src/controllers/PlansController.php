@@ -43,7 +43,6 @@ class PlansController extends BaseStoreSettingsController
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
-        $this->requirePermission('commerce-editSubscriptionPlan');
         
         $variables = compact('planId', 'plan');
 
@@ -118,12 +117,10 @@ class PlansController extends BaseStoreSettingsController
 
         $plan = null;
         if ($planId) {
-            $this->requirePermission('commerce-editSubscriptionPlan');
             $plan = $planService->getPlanById($planId);
         }
         
         if ($plan === null) {
-            $this->requirePermission('commerce-createSubscriptionPlan');
             $plan = $gateway->getPlanModel();
         }
 

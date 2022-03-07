@@ -19,7 +19,6 @@ class m210614_073359_detailed_permission extends Migration
     public function safeUp()
     {
         $this->_detailedPromotions();
-        $this->_detailedSubscriptions();
         $this->_dropManageCustomersPermission();
         $this->_detailedProducts();
         $this->_projectConfigUpdates();
@@ -90,53 +89,6 @@ class m210614_073359_detailed_permission extends Migration
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $editDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $createDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $deleteDiscountsId]);
-        }
-    }
-
-    private function _detailedSubscriptions()
-    {
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptions']);
-        $editSubscriptionId = $this->db->getLastInsertID();
-
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsubscriptionplan']);
-        $createSubscriptionPlanId = $this->db->getLastInsertID();
-
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptionplan']);
-        $editSubscriptionPlanId = $this->db->getLastInsertID();
-
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesubscriptionplan']);
-        $deleteSubscriptionPlanId = $this->db->getLastInsertID();
-
-        $permissionId = (new Query())
-            ->select(['id'])
-            ->from([Table::USERPERMISSIONS])
-            ->where(['name' => 'commerce-managesubscriptions'])
-            ->scalar();
-
-        $userSubscriptions = (new Query())
-            ->select(['id', 'userId'])
-            ->from([Table::USERPERMISSIONS_USERS])
-            ->where(['permissionId' => $permissionId])
-            ->all();
-
-        foreach ($userSubscriptions as $userSubscription) {
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $editSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $createSubscriptionPlanId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $editSubscriptionPlanId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $deleteSubscriptionPlanId]);
-        }
-
-        $groupSubscriptions = (new Query())
-            ->select(['id', 'permissionId', 'groupId'])
-            ->from([Table::USERPERMISSIONS_USERGROUPS])
-            ->where(['permissionId' => $permissionId])
-            ->all();
-
-        foreach ($groupSubscriptions as $groupSubscription) {
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $createSubscriptionPlanId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionPlanId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $deleteSubscriptionPlanId]);
         }
     }
 

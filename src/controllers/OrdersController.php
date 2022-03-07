@@ -166,7 +166,7 @@ class OrdersController extends Controller
             }
         }
 
-        $this->enforceEditOrderPermissions($order);
+        $this->enforceManageOrderPermissions($order);
 
         $variables['order'] = $order;
 
@@ -209,7 +209,7 @@ class OrdersController extends Controller
             throw new HttpException(400, Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        $this->enforceEditOrderPermissions($order);
+        $this->enforceManageOrderPermissions($order);
 
         // Set custom field values
         $order->setFieldValuesFromRequest('fields');
@@ -298,7 +298,7 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        $this->enforceEditOrderPermissions($order);
+        $this->enforceManageOrderPermissions($order);
 
         $this->_updateOrder($order, $orderRequestData);
 
@@ -1537,10 +1537,10 @@ class OrdersController extends Controller
      * @param Order $order
      * @throws ForbiddenHttpException
      */
-    protected function enforceEditOrderPermissions(Order $order)
+    protected function enforceManageOrderPermissions(Order $order)
     {
         if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
-            throw new ForbiddenHttpException('User not authorized to view this address.');
+            throw new ForbiddenHttpException('User not authorized to view this order.');
         }
     }
 }

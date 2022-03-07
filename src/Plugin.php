@@ -150,6 +150,8 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+
+
         $this->_setPluginComponents();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();

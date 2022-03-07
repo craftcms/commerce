@@ -57,7 +57,7 @@ var columns = [
 new Craft.VueAdminTable({
     columns: columns,
     container: '#plans-vue-admin-table',
-    deleteAction: {{ currentUser.can('commerce-deleteSubscriptionPlan')? '"commerce/plans/archive-plan"' : 'null' }},
+    deleteAction: 'commerce/plans/archive-plan',
     deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.'),
     reorderAction: 'commerce/plans/reorder',
     reorderSuccessMessage: Craft.t('commerce', 'Plans reordered.'),
