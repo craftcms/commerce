@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -60,6 +61,8 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingCategory'], prepend: true);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {

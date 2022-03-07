@@ -8,8 +8,8 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -67,6 +67,8 @@ class ShippingZonesController extends BaseShippingSettingsController
         $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingZone'], prepend: true);
 
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }

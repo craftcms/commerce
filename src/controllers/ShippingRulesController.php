@@ -8,10 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
-use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Cp;
@@ -91,6 +91,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
 use craft\helpers\Cp;
@@ -67,6 +68,8 @@ class TaxZonesController extends BaseTaxSettingsController
         $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -61,6 +62,8 @@ class OrderStatusesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -71,6 +72,8 @@ class PdfsController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
 
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
     }

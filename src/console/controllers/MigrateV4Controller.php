@@ -252,47 +252,39 @@ class MigrateV4Controller extends Controller
 
         $this->stdout("Migrating extra address fields to address custom fields...\n");
         $this->_migrateAddressCustomFields();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Creating user for every customer...\n");
         $this->_migrateCustomers();
-        $this->stdout("Done.\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Customer Addresses...\n");
         $this->_migrateAddresses();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Store Location...\n");
         $this->_migrateUserPrimaryAddressIds();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Order Addresses...\n");
         $this->_migrateOrderAddresses();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating User Addresses Books...\n");
         $this->_migrateUserAddressBook();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Store Location...\n");
         $this->_migrateStoreLocation();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Shipping Zones...\n");
         $this->_migrateShippingZones();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
         $this->stdout("Migrating Tax Zones...\n");
         $this->_migrateTaxZones();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
+        $this->stdout("\nDone.\n\n");
 
 
         return 0;
@@ -424,7 +416,7 @@ EOL
             ->all();
 
         $done = 0;
-        Console::startProgress($done, count($shippingZones), 'Migrating shipping zones... ');
+        Console::startProgress($done, count($shippingZones));
         foreach ($shippingZones as $shippingZone) {
             $zoneId = $shippingZone['id'];
 
@@ -481,7 +473,7 @@ EOL
             }
             Console::updateProgress($done++, count($shippingZones));
         }
-        Console::endProgress();
+        Console::endProgress( count($shippingZones) . ' shipping zones migrated.');
     }
 
     /**
@@ -496,7 +488,7 @@ EOL
             ->all();
 
         $done = 0;
-        Console::startProgress($done, count($taxZones), 'Migrating tax zones... ');
+        Console::startProgress($done, count($taxZones));
         foreach ($taxZones as $taxZone) {
             $zoneId = $taxZone['id'];
 
@@ -553,7 +545,7 @@ EOL
             }
             Console::updateProgress($done++, count($taxZones));
         }
-        Console::endProgress();
+        Console::endProgress( count($taxZones) . ' tax zones migrated.');
     }
 
     /**
@@ -651,8 +643,7 @@ SQL;
             )->execute();
 
             // Update owner of address.
-            foreach ($update as $addressType => $addressId)
-            {
+            foreach ($update as $addressType => $addressId) {
                 Craft::$app->getDb()->createCommand()->update(CraftTable::ADDRESSES,
                     ['ownerId' => $orderId],
                     ['id' => $addressId]
@@ -661,7 +652,7 @@ SQL;
 
             Console::updateProgress($done++, $totalAddresses);
         }
-        Console::endProgress();
+        Console::endProgress( $totalAddresses . ' order addresses migrated.');
     }
 
     /**
@@ -691,7 +682,7 @@ SQL;
 
         $totalAddresses = $addresses->count();
         $done = 0;
-        Console::startProgress($done, $totalAddresses, 'Migrating addresses to elements...');
+        Console::startProgress($done, $totalAddresses);
         foreach ($addresses->each() as $address) {
             $address = $this->_createAddress($address);
             Console::updateProgress($done++, $totalAddresses);
@@ -702,7 +693,8 @@ SQL;
                 ['id' => $v3AddressId]
             )->execute();
         }
-        Console::endProgress();
+
+        Console::endProgress( $totalAddresses . ' addresses migrated.');
     }
 
     /**
@@ -719,7 +711,7 @@ SQL;
 
         $done = 0;
         $total = $customerPrimaryAddresses->count();
-        Console::startProgress($done, $total, 'Migrating primary addresses...');
+        Console::startProgress($done, $total);
         foreach ($customerPrimaryAddresses->each() as $customer) {
             if ($customer['v3primaryShippingAddressId'] && $customer['id'] && $shippingId = $this->_addressIdByV3AddressId[$customer['v3primaryShippingAddressId']]) {
                 Craft::$app->getDb()->createCommand()->update(Table::CUSTOMERS,
@@ -735,7 +727,9 @@ SQL;
             }
             Console::updateProgress($done++, $total);
         }
-        Console::endProgress();
+        if ($total) {
+            Console::endProgress( $total . ' customer primary addresses migrated.');
+        }
     }
 
     /**
@@ -824,7 +818,7 @@ SQL;
 
         $totalEmails = $allEmails->count();
         $done = 0;
-        Console::startProgress($done, $totalEmails, 'Migrating customers...');
+        Console::startProgress($done, $totalEmails);
         foreach ($allEmails->each() as $email) {
             $email = $email['email'];
             $user = Craft::$app->getUsers()->ensureUserByEmail($email);
@@ -878,7 +872,7 @@ SQL;
             ->delete(Table::CUSTOMERS, ['id' => $orphanedCustomerIds])
             ->execute();
 
-        Console::endProgress(false, false);
+        Console::endProgress( $totalEmails . ' customers migrated.');
     }
 
     /**
