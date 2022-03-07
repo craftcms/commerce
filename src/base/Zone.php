@@ -5,8 +5,8 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
+use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
-use craft\elements\conditions\addresses\AddressCondition;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
@@ -57,7 +57,7 @@ abstract class Zone extends BaseModel
      */
     public function getCondition(): ElementConditionInterface
     {
-        return $this->_condition ?? new AddressCondition();
+        return $this->_condition ?? new ZoneAddressCondition();
     }
 
     /**
@@ -71,7 +71,7 @@ abstract class Zone extends BaseModel
         }
 
         if (!$condition instanceof ElementConditionInterface) {
-            $condition['class'] = AddressCondition::class;
+            $condition['class'] = ZoneAddressCondition::class;
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;

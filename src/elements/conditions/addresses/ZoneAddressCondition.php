@@ -12,7 +12,7 @@ use yii\base\NotSupportedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0
  */
-class DiscountAddressCondition extends ElementAddressCondition
+class ZoneAddressCondition extends ElementAddressCondition
 {
     /**
      * @inheritdoc
@@ -21,7 +21,7 @@ class DiscountAddressCondition extends ElementAddressCondition
     {
         return array_merge(parent::conditionRuleTypes(),
             [
-                //PostCodeFormulaConditionRule::class
+                PostalCodeFormulaConditionRule::class
             ]);
     }
 

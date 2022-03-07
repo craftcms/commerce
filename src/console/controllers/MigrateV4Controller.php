@@ -12,6 +12,7 @@ use craft\base\FieldInterface;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\commerce\records\Store;
@@ -445,12 +446,13 @@ EOL
                 // do we have a zip code formula
                 if ($shippingZone['v3zipCodeConditionFormula']) {
                     $postalCodeCondition = new PostalCodeFormulaConditionRule();
-                    $postalCodeCondition->value = $shippingZone['v3zipCodeConditionFormula'];
+                    $postalCode = str_replace('zipCode', 'postalCode', $shippingZone['v3zipCodeConditionFormula']);
+                    $postalCodeCondition->value = $postalCode;
                     $newRules[] = $postalCodeCondition;
                 }
 
                 // do we have a country based zone
-                if ($shippingZone['isCountryBased'] ?? false) {
+                if ($shippingZone['v3isCountryBased'] ?? false) {
                     $countryIds = $countryIdsByZoneId[$zoneId];
                     $countryCodes = [];
                     foreach ($countryIds as $countryId) {
@@ -473,6 +475,7 @@ EOL
                 }
 
                 $condition->setConditionRules($newRules);
+                $model->setCondition($condition);
                 Plugin::getInstance()->getShippingZones()->saveShippingZone($model, false);
             }
         }
@@ -653,12 +656,13 @@ EOL
         Console::startProgress($done, $totalAddresses, 'Migrating addresses to elements...');
         foreach ($addresses->each() as $address) {
             $address = $this->_createAddress($address);
-            $this->_addressIdByV3AddressId[$address['id']] = $address->id;
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
-                ['v4addressId' => $address->id],
-                ['id' => $address['id']]
-            )->execute();
             Console::updateProgress($done++, $totalAddresses);
+        }
+        foreach ($this->_addressIdByV3AddressId as $v3AddressId => $addressId) {
+            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
+                ['v4addressId' => $addressId],
+                ['id' => $v3AddressId]
+            )->execute();
         }
         Console::endProgress();
     }

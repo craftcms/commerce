@@ -8,6 +8,7 @@ use craft\base\ElementInterface;
 use craft\commerce\errors\NotImplementedException;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\Cp;
 use yii\base\NotSupportedException;
 
 /**
@@ -17,7 +18,7 @@ use yii\base\NotSupportedException;
  * @since 4.0.0
  *
  */
-class PostCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
+class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
     public function getLabel(): string
     {
@@ -42,11 +43,19 @@ class PostCodeFormulaConditionRule extends BaseTextConditionRule implements Elem
      */
     public function matchElement(ElementInterface $element): bool
     {
-        throw new NotImplementedException();
+
     }
 
     public function inputHtml(): string
     {
-        return 'TODO' . parent::inputHtml();
+        $html = '';
+        Cp::fieldHtml($html,[
+            'label' => Craft::t('commerce', 'Postal Code Formula'),
+            'rows' => 3,
+            'instruction' => Craft::t('commerce',
+                'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping zone should include a given Post Code. (The Zip/postal code can be referenced via a `zipCode` variable.)',
+                ['url' => 'https://twig.symfony.com/doc/2.x/advanced.html#conditionals']
+    ),
+        ]);
     }
 }
