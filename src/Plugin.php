@@ -346,12 +346,7 @@ class Plugin extends BasePlugin
             
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
-                'permissions' => [
-                    'commerce-manageProducts' =>
-                        [
-                            'label' => Craft::t('commerce', 'Manage products'), 
-                            'nested' => $this->_registerProductTypePermission()
-                        ],
+                'permissions' => $this->_registerProductTypePermission() + [
                     'commerce-manageOrders' => [
                         'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                             'commerce-editOrders' => [
@@ -371,7 +366,7 @@ class Plugin extends BasePlugin
                     ],
                     'commerce-manageCustomers' => $this->_registerCustomerPermission(),
                     'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                    'commerce-manageSubscriptions' => $this->_registerSubscriptionPermission(),
+                    'commerce-manageSubscriptions' =>['label' => Craft::t('commerce', 'Manage subscriptions')],
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                     'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                     'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
@@ -383,9 +378,9 @@ class Plugin extends BasePlugin
     /**
      * @return array
      */
-    private function _registerProductTypePermission()
+    private function _registerProductTypePermission(): array
     {
-        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypes = self::getInstance()->getProductTypes()->getAllProductTypes();
 
         $productTypePermissions = [];
         foreach ($productTypes as $productType) {
@@ -407,7 +402,10 @@ class Plugin extends BasePlugin
         return $productTypePermissions;
     }
 
-    private function _registerCustomerPermission()
+    /**
+     * @return array
+     */
+    private function _registerCustomerPermission(): array
     {
         return [
             'label' => Craft::t('commerce', 'Manage customers'),
@@ -418,20 +416,10 @@ class Plugin extends BasePlugin
         ];
     }
 
-    private function _registerSubscriptionPermission()
-    {
-        return [
-            'label' => Craft::t('commerce', 'Manage subscriptions'),
-            'nested' => [
-                'commerce-editSubscriptions' => ['label' => 'Edit Subscriptions'],
-                'commerce-createSubscriptionPlan' => ['label' => 'Create Subscription Plan'],
-                'commerce-editSubscriptionPlan' => ['label' => 'Edit Subscription Plan'],
-                'commerce-deleteSubscriptionPlan' => ['label' => 'Delete Subscription Plan']
-            ]
-        ];
-    }
-
-    private function _registerPromotionPermission()
+    /**
+     * @return array
+     */
+    private function _registerPromotionPermission(): array
     {
         return [
             'label' => Craft::t('commerce', 'Manage promotions'),

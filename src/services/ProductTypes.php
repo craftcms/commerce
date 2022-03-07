@@ -178,7 +178,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns all of the product type IDs that are editable by the current user.
+     * Returns all product type IDs that are editable by the current user.
      *
      * @return array An array of all the editable product types’ IDs.
      */

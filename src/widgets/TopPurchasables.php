@@ -113,7 +113,7 @@ class TopPurchasables extends Widget
      */
     public static function isSelectable(): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders') && Plugin::getInstance()->getProductTypes()->getEditableProductTypes() > 0;
+        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
     /**

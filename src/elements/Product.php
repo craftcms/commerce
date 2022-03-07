@@ -298,6 +298,10 @@ class Product extends Element
      */
     public function canView(User $user): bool
     {
+        if (parent::canView($user)) {
+            return true;
+        }
+
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
@@ -312,6 +316,10 @@ class Product extends Element
      */
     public function canSave(User $user): bool
     {
+        if (parent::canSave($user)) {
+            return true;
+        }
+
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
@@ -326,6 +334,10 @@ class Product extends Element
      */
     public function canDuplicate(User $user): bool
     {
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
@@ -340,6 +352,10 @@ class Product extends Element
      */
     public function canDelete(User $user): bool
     {
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
@@ -354,7 +370,7 @@ class Product extends Element
      */
     public function canDeleteForSite(User $user): bool
     {
-        return true;
+        return $this->canDelete($user);
     }
 
     /**
@@ -362,7 +378,7 @@ class Product extends Element
      */
     public function canCreateDrafts(User $user): bool
     {
-        return true;
+        return $this->canSave($user);
     }
 
     /**
