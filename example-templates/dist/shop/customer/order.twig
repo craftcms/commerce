@@ -67,14 +67,6 @@
       {% endif %}
 
       {# Address information #}
-      {% if order.shippingAddress and order.billingAddress and order.shippingAddress.sameAs(order.billingAddress) %}
-        <div class="mt-6">
-          <h2 class="font-semibold">
-            {{- 'Shipping & Billing Address'|t -}}
-          </h2>
-          {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
-        </div>
-      {% else %}
         <div class="mt-6">
           <h2 class="font-semibold">
             {{- 'Shipping Address'|t -}}
@@ -95,7 +87,6 @@
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}
         </div>
-      {% endif %}
     </div>
     <div class="mt-10 lg:w-2/3 lg:mx-6 lg:mt-0">
       {# Order item and adjustment detail #}
