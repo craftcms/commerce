@@ -2017,14 +2017,6 @@ class Order extends Element
         parent::afterSave($isNew);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
-    }
-
     public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
@@ -2244,6 +2236,22 @@ class Order extends Element
         }
 
         return self::PAID_STATUS_UNPAID;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return $user->can('commerce-editOrders');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        return $user->can('commerce-deleteOrders');
     }
 
     /**

@@ -18,7 +18,7 @@
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
-- - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 
 
 ### Changed (Previously Deprecated)
@@ -49,6 +49,7 @@
 - Removed `\craft\commerce\elements\Product::isEditable()`.
 - Removed `\craft\commerce\elements\Product::isDeletable()`.
 - Removed `\craft\commerce\elements\Variant::isEditable()`.
+- Removed `\craft\commerce\elements\Order::isEditable`.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.

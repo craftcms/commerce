@@ -301,7 +301,7 @@ class Product extends Element
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+            return $user->can('commerce-editProductType:' . $uid);
         }
 
         return false;
@@ -315,7 +315,7 @@ class Product extends Element
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+            return $user->can('commerce-editProductType:' . $uid);
         }
 
         return false;
@@ -329,7 +329,7 @@ class Product extends Element
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
+            return $user->can('commerce-editProductType:' . $uid);
         }
 
         return false;
@@ -343,7 +343,7 @@ class Product extends Element
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-deleteProducts:' . $uid);
+            return $user->can('commerce-deleteProducts:' . $uid);
         }
 
         return false;
