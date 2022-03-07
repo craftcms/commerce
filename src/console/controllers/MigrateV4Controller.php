@@ -413,7 +413,6 @@ EOL
      */
     private function _migrateShippingZones(): void
     {
-
         $shippingZones = (new Query())
             ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
             ->from(['{{%commerce_shippingzones}}'])
@@ -484,7 +483,6 @@ EOL
      */
     private function _migrateTaxZones(): void
     {
-
         $taxZones = (new Query())
             ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
             ->from(['{{%commerce_taxzones}}'])
