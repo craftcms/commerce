@@ -20,12 +20,15 @@ use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
+use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\CustomField;
 use craft\fields\PlainText;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
+use craft\helpers\MigrationHelper;
 use craft\validators\HandleValidator;
 use yii\console\ExitCode;
 use yii\db\Schema;
@@ -193,6 +196,8 @@ class MigrateV4Controller extends Controller
      */
     public function actionMigrate(): int
     {
+        $db = Craft::$app->getDb();
+
         $this->stdout("This command will move data from previous Commerce 3 tables and columns to Commerce 4.\n");
 
         /**
@@ -226,6 +231,30 @@ class MigrateV4Controller extends Controller
             $this->stdout("You must run `craft migrate` command first.\n" . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
+
+        /**
+         * These columns are needed for the migration and will be dropped after
+         */
+        $v3dropColumns = [
+            ['table' => '{{%commerce_taxzones}}', 'column' => 'v3isCountryBased'],
+            ['table' => '{{%commerce_shippingzones}}', 'column' => 'v3isCountryBased'],
+            ['table' => '{{%commerce_taxzones}}', 'column' => 'v3zipCodeConditionFormula'],
+            ['table' => '{{%commerce_shippingzones}}', 'column' => 'v3zipCodeConditionFormula'],
+
+            ['table' => '{{%commerce_orders}}', 'column' => 'v3customerId'],
+            ['table' => '{{%commerce_orders}}', 'column' => 'v3billingAddressId'],
+            ['table' => '{{%commerce_orders}}', 'column' => 'v3shippingAddressId'],
+            ['table' => '{{%commerce_orders}}', 'column' => 'v3estimatedBillingAddressId'],
+            ['table' => '{{%commerce_orders}}', 'column' => 'v3estimatedShippingAddressId'],
+
+            ['table' => '{{%commerce_customers}}', 'column' => 'v3userId'],
+            ['table' => '{{%commerce_customers}}', 'column' => 'v3primaryBillingAddressId'],
+            ['table' => '{{%commerce_customers}}', 'column' => 'v3primaryShippingAddressId'],
+
+            ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
+            ['table' => '{{%commerce_orderhistories}}', 'column' => 'v3customerId'],
+            ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
+        ];
 
         /**
          * Check to make sure they have all tables still around after the migration.
@@ -286,6 +315,25 @@ class MigrateV4Controller extends Controller
         $this->_migrateTaxZones();
         $this->stdout("\nDone.\n\n");
 
+        $this->stdout("Migrating Tax Zones...\n");
+        $this->_migrateTaxZones();
+        $this->stdout("\nDone.\n\n");
+
+        $this->stdout("Migrating Order History User...\n");
+        $this->_migrateOrderHistoryUser();
+        $this->stdout("\nDone.\n\n");
+
+        foreach ($tablesThatShouldStillExist as $table) {
+            Db::dropAllForeignKeysToTable($table);
+            MigrationHelper::dropAllForeignKeysOnTable($table);
+            Craft::$app->getDb()->createCommand()->dropTableIfExists($table)->execute();
+        }
+
+        foreach ($v3dropColumns as $columnDefinition) {
+            if ($db->columnExists($columnDefinition['table'], $columnDefinition['column'])) {
+                Craft::$app->getDb()->createCommand()->dropColumn($columnDefinition['table'], $columnDefinition['column']);
+          }
+        }
 
         return 0;
     }
@@ -473,7 +521,7 @@ EOL
             }
             Console::updateProgress($done++, count($shippingZones));
         }
-        Console::endProgress( count($shippingZones) . ' shipping zones migrated.');
+        Console::endProgress(count($shippingZones) . ' shipping zones migrated.');
     }
 
     /**
@@ -545,7 +593,39 @@ EOL
             }
             Console::updateProgress($done++, count($taxZones));
         }
-        Console::endProgress( count($taxZones) . ' tax zones migrated.');
+        Console::endProgress(count($taxZones) . ' tax zones migrated.');
+    }
+
+    public function _migrateOrderHistoryUser()
+    {
+        $orderHistories = (new Query())
+            ->select(['id', 'v3customerId'])
+            ->from(['{{%commerce_orderhistories}}'])
+            ->limit(null)
+            ->all();
+
+        $done = 0;
+        Console::startProgress($done, count($orderHistories));
+        foreach ($orderHistories as $history)
+        {
+            $userId = null;
+            $v3customerId = $history['v3customerId'];
+            if($v3customerId){
+                $userId = $this->userIdsByv3CustomerId[$v3customerId] ?? null;
+            }
+            // Customer may have been deleted, if so, use the admin user as the history record
+            if($userId === null){
+                $userId = User::find()->admin(true)->one()->id;
+            }
+
+            Craft::$app->getDb()->createCommand()->update(Table::ORDERHISTORIES,
+                ['userId' => $userId],
+                ['id' => $history['id']]
+            )->execute();
+
+            Console::updateProgress($done++, count($orderHistories));
+        }
+        Console::endProgress(count($orderHistories) . ' order history user migrated.');
     }
 
     /**
@@ -652,7 +732,7 @@ SQL;
 
             Console::updateProgress($done++, $totalAddresses);
         }
-        Console::endProgress( $totalAddresses . ' order addresses migrated.');
+        Console::endProgress($totalAddresses . ' order addresses migrated.');
     }
 
     /**
@@ -694,7 +774,7 @@ SQL;
             )->execute();
         }
 
-        Console::endProgress( $totalAddresses . ' addresses migrated.');
+        Console::endProgress($totalAddresses . ' addresses migrated.');
     }
 
     /**
@@ -728,7 +808,7 @@ SQL;
             Console::updateProgress($done++, $total);
         }
         if ($total) {
-            Console::endProgress( $total . ' customer primary addresses migrated.');
+            Console::endProgress($total . ' customer primary addresses migrated.');
         }
     }
 
@@ -782,7 +862,7 @@ SQL;
 
         if (!$continue) {
 
-            // Still need to populate this for speed up in other functions
+            // Still need to populate this as it is used by other functions
             $this->userIdsByv3CustomerId = (new Query())
                 ->select(['id', 'customerId'])
                 ->from('{{%commerce_customers}}')
@@ -872,7 +952,7 @@ SQL;
             ->delete(Table::CUSTOMERS, ['id' => $orphanedCustomerIds])
             ->execute();
 
-        Console::endProgress( $totalEmails . ' customers migrated.');
+        Console::endProgress($totalEmails . ' customers migrated.');
     }
 
     /**
