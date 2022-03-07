@@ -14,6 +14,7 @@ use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 
 /**
