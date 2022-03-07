@@ -11,10 +11,12 @@ use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\i18n\Locale;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -125,11 +127,19 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
 
+
+        $newZone = new TaxAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $view->renderTemplate('commerce/tax/taxzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 

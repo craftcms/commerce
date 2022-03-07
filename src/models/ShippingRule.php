@@ -328,7 +328,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         /** @var ShippingAddressZone $shippingZone */
-        if ($shippingZone && !Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
+        if ($shippingZone && !$shippingZone->getCondition()->matchElement($shippingAddress)) {
             return false;
         }
 

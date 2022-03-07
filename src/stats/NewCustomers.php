@@ -29,7 +29,7 @@ class NewCustomers extends Stat
     public function getData()
     {
         $query = $this->_createStatQuery();
-        $query->select([new Expression('COUNT(DISTINCT [[customerId]]) as newCustomers')]);
+        $query->select([new Expression('COUNT(DISTINCT [[userId]]) as newCustomers')]);
 
         return $query->scalar();
     }

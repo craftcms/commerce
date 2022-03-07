@@ -16,13 +16,13 @@ use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\records\SaleCategory as SaleCategoryRecord;
 use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\helpers\ArrayHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
@@ -417,7 +417,7 @@ class Sales extends Component
         }
 
         if ($order) {
-            $user = $order->getUser();
+            $user = $order->getCustomer();
 
             if (!$sale->allGroups) {
                 // User group condition means we have to have a real user
@@ -425,7 +425,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
+                $userGroups = ArrayHelper::getColumn($user->getGroups(),'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -435,7 +435,11 @@ class Sales extends Component
         // Are we dealing with the current session outside of any cart/order context
         if (!$order && !$sale->allGroups) {
             // User groups of the currently logged in user
-            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            $userGroups = null;
+            if ($currentUser = Craft::$app->getUser()->getIdentity()) {
+                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(),'id');
+            }
+
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                 return false;
             }
@@ -637,7 +641,6 @@ class Sales extends Component
 
         return $result;
     }
-
 
     /**
      * Get all enabled sales.

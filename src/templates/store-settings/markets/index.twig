@@ -1,0 +1,14 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% import "_includes/forms" as forms %}
+{% set fullPageForm = true %}
+{% block content %}
+    <h2>{{ "Market Locations"|t('commerce') }}</h2>
+    <p>{{ "This defines the available markets you will sell in. This limits order address locations and tax and shipping zones."|t('commerce') }}</p>
+
+    {{ forms.hidden({
+        name: 'action',
+        value: 'commmerce/store/save-market-locations'
+    }) }}
+    {{ countryMarketsTableHtml|raw }}
+{% endblock %}

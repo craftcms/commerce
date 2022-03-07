@@ -6,7 +6,6 @@ export default {
     buildDraftData(draft) {
         const draftData = {
             order: {
-                email: draft.order.email,
                 customerId: draft.order.customerId,
                 orderStatusId: draft.order.orderStatusId,
                 isCompleted: draft.order.isCompleted,
@@ -33,6 +32,14 @@ export default {
 
         if (draft.order.shippingAddress) {
             draftData.order.shippingAddress = draft.order.shippingAddress
+        }
+
+        if (draft.order.sourceBillingAddressId != undefined) {
+            draftData.order.sourceBillingAddressId = draft.order.sourceBillingAddressId
+        }
+
+        if (draft.order.sourceShippingAddressId != undefined) {
+            draftData.order.sourceShippingAddressId = draft.order.sourceShippingAddressId
         }
 
         if (draftData.order.dateOrdered && !draftData.order.dateOrdered.hasOwnProperty('timezone')) {

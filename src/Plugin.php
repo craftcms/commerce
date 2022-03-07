@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -58,7 +59,10 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\debug\Module;
+use craft\elements\Address;
 use craft\elements\User as UserElement;
+use craft\events\AuthorizationCheckEvent;
+use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\RebuildConfigEvent;
@@ -70,7 +74,6 @@ use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
-use craft\events\TemplateEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\FileHelper;
@@ -90,7 +93,6 @@ use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
-use craft\web\View;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
@@ -120,7 +122,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '3.4.13';
+    public string $schemaVersion = '4.0.0';
 
     /**
      * @inheritdoc
@@ -171,6 +173,7 @@ class Plugin extends BasePlugin
             $this->_defineResaveCommand();
         } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
+            $this->_registerStoreAddressAuthHandlers();
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
@@ -230,13 +233,6 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageCustomers')) {
-            $ret['subnav']['customers'] = [
-                'label' => Craft::t('commerce', 'Customers'),
-                'url' => 'commerce/customers',
-            ];
-        }
-
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
@@ -251,7 +247,7 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (self::getInstance()->is('pro', '>=')) {
+        if (self::getInstance()->is(self::EDITION_PRO, '>=')) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
                 $ret['subnav']['shipping'] = [
                     'label' => Craft::t('commerce', 'Shipping'),
@@ -449,14 +445,47 @@ class Plugin extends BasePlugin
     {
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler'], null, false); // Lets run this before other plugins if we can
+
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
+
+        Event::on(
+            UserElement::class,
+            UserElement::EVENT_DEFINE_BEHAVIORS,
+            function(DefineBehaviorsEvent $event) {
+                $event->sender->attachBehaviors([
+                    CustomerBehavior::class,
+                ]);
+            }
+        );
+
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
+    }
+
+    /**
+     * Registers store address authorization event handlers
+     */
+    private function _registerStoreAddressAuthHandlers(): void
+    {
+        $checkAuth = function(AuthorizationCheckEvent $event) {
+            /** @var Address $address */
+            $address = $event->sender;
+            if (
+                $address->id && $address->id === Plugin::getInstance()->getStore()->getStoreLocationAddress()->id &&
+                $event->user->can('commerce-manageStoreSettings')
+            ) {
+                $event->authorized = true;
+                $event->handled = true;
+            }
+        };
+
+        Event::on(Address::class, Address::EVENT_AUTHORIZE_VIEW, $checkAuth);
+        Event::on(Address::class, Address::EVENT_AUTHORIZE_SAVE, $checkAuth);
     }
 
     /**
@@ -656,10 +685,6 @@ class Plugin extends BasePlugin
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
             // Deletes carts that meet the purge settings
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
-            // Deletes customers that are not related to any cart/order or user
-            Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
-            // Deletes addresses that are not related to customers, carts or orders
-            Plugin::getInstance()->getAddresses()->purgeOrphanedAddresses();
         });
     }
 
@@ -783,9 +808,9 @@ class Plugin extends BasePlugin
      */
     private function _registerTemplateHooks(): void
     {
-        if ($this->getSettings()->showCustomerInfoTab) {
-            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
-            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        if ($this->getSettings()->showEditUserCommerceTab) {
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCommerceTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCommerceTabContent']);
         }
     }
 }

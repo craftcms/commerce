@@ -308,7 +308,7 @@ class ProductType extends Model
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $layoutTabs[] = new FieldLayoutTab([
+            $contentTab = new FieldLayoutTab([
                 'name' => $variantTabName,
                 'elements' => [
                     [
@@ -316,6 +316,8 @@ class ProductType extends Model
                     ],
                 ],
             ]);
+            $contentTab->setLayout($fieldLayout);
+            $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
 
@@ -400,16 +402,16 @@ class ProductType extends Model
     {
         $behaviors = parent::behaviors();
         $behaviors['productFieldLayout'] = [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId',
-            ];
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Product::class,
+            'idAttribute' => 'fieldLayoutId',
+        ];
 
         $behaviors['variantFieldLayout'] = [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId',
-            ];
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Variant::class,
+            'idAttribute' => 'variantFieldLayoutId',
+        ];
 
         return $behaviors;
     }

@@ -7,25 +7,16 @@
                   :class="avatarClass"
               >
                   <img v-if="customer.photo" class="w-full" :src="customer.photo" :alt="customer.email">
-                  <div v-if="!customer.photo && customer.fullName">{{customer.fullName[0]}}</div>
-                  <div :class="getBgColor(customer.firstName)"
-                       v-if="!customer.photo && !customer.fullName && customer.firstName">{{customer.firstName[0]}}
-                  </div>
+                  <div :class="getBgColor(initialChar)" v-else>{{initialChar}}</div>
               </div>
-              <span class="status" :class="customer.user.status" v-if="customer.user"></span>
+              <span class="status" :class="customer.status"></span>
           </div>
           <div class="customer-info-container ml-1">
-              <div v-if="customer.fullName">{{customer.fullName}}</div>
-              <div v-if="!customer.fullName && (customer.firstName || customer.lastName)">
-                  {{customer.firstName}}<span v-if="customer.firstName && customer.lastName">&nbsp;</span>{{customer.lastName}}
-              </div>
+              <div v-if="getDisplayName(false)">{{getDisplayName(false)}}</div>
               <div class="w-full light">{{customer.email}}</div>
-              <div class="w-full" v-if="display && (customer.url || (customer.user && customer.user.url))">
-                  <a :href="customer.url"
-                     v-if="customer.url">{{$options.filters.t('View customer', 'commerce')}}</a>
-                  <span v-if="customer.url && customer.user && customer.user.url"> | </span>
-                  <a :href="customer.user.url"
-                      v-if="customer.user && customer.user.url">{{$options.filters.t('View user', 'commerce')}}</a>
+              <div class="w-full" v-if="display && customer.cpEditUrl">
+                  <a :href="customer.cpEditUrl"
+                     v-if="customer.cpEditUrl">{{$options.filters.t('View customer', 'commerce')}}</a>
               </div>
           </div>
       </div>
@@ -72,27 +63,52 @@
                 let index = charNum % this.colors.length;
 
                 return this.colors[index];
-            }
-        },
+            },
 
-        computed: {
-            avatarClass() {
+            getDisplayName(useEmail = true) {
                 let customerName = this.customer.fullName;
 
                 if (!customerName) {
                     customerName = this.customer.firstName;
+
+                    if (this.customer.lastName) {
+                        customerName += ' ' + this.customer.lastName;
+                    }
                 }
 
                 if (!customerName) {
+                    customerName = this.customer.friendlyName;
+                }
+
+                if (!customerName && useEmail) {
                     customerName = this.customer.email;
                 }
 
+                if (!customerName) {
+                    return '';
+                }
+
+                return customerName;
+            },
+        },
+
+        computed: {
+            initialChar() {
+                const displayName = this.getDisplayName();
+                if (!displayName) {
+                    return '';
+                }
+
+                return displayName.charAt(0).toUpperCase();
+            },
+
+            avatarClass() {
                 let cl = {
                     'customer-photo--initial': !this.customer.photo
                 };
 
                 if (!this.customer.photo) {
-                    cl[this.getBgColor(customerName)] = true;
+                    cl[this.getBgColor(this.initialChar)] = true;
                 }
 
                 return cl;
