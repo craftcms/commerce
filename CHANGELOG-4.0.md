@@ -7,6 +7,7 @@
 - Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
 - Shipping zones now use a condition builder to determine whether an address is within a zone.
 - Tax zones now use a condition builder to determine whether an address is within a zone.
+- Added a Commerce panel to the debug toolbar.
 - Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
 - Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\base\Zone`.
@@ -16,18 +17,20 @@
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
 - Added `craft\commerce\controllers\OrdersController::actionCreateCustomer()`.
 - Added `craft\commerce\controllers\OrdersController::actionGetCustomerAddresses()`.
-- Added `craft\commerce\elements\Order::$sourceBillingAddressId`
-- Added `craft\commerce\elements\Order::$sourceShippingAddressId`
 - Added `craft\commerce\controllers\OrdersController::actionGetOrderAddress()`.
 - Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
-- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
-- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
+- Added `craft\commerce\elements\Order::$sourceBillingAddressId`
+- Added `craft\commerce\elements\Order::$sourceShippingAddressId`
+- Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
+- Added `craft\commerce\helpers\DebugPanel`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
 - Added `craft\commerce\models\Store`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
 ### Changed
@@ -52,6 +55,7 @@
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Renamed “Customer” column to “User” on Order indexes.
 - Removed `craft\commerce\models\ProductType::lineItemFormat`.
+- Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.

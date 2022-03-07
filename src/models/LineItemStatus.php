@@ -84,6 +84,17 @@ class LineItemStatus extends Model
         ];
     }
 
+    /**
+     * @inerhitdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->id);

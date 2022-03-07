@@ -12,6 +12,7 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -58,6 +59,7 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\elements\Address;
+use craft\debug\Module;
 use craft\elements\User as UserElement;
 use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
@@ -72,6 +74,7 @@ use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\events\TemplateEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\FileHelper;
@@ -89,7 +92,9 @@ use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
+use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use craft\web\View;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\web\User;
@@ -162,6 +167,7 @@ class Plugin extends BasePlugin
         $this->_registerGqlEagerLoadableFields();
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
+        $this->_registerDebugPanels();
 
         $request = Craft::$app->getRequest();
 
@@ -695,6 +701,35 @@ class Plugin extends BasePlugin
         Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
             $e->exporters[] = LineItemExport::class;
+        });
+    }
+
+    /**
+     * Register Commerce related debug panels.
+     *
+     * @since 4.0
+     */
+    private function _registerDebugPanels(): void
+    {
+        Event::on(Application::class, Application::EVENT_BEFORE_REQUEST, function() {
+            /** @var Module|null $module */
+            $module = Craft::$app->getModule('debug');
+            $user = Craft::$app->getUser()->getIdentity();
+
+            if (!$module || !$user || !Craft::$app->getConfig()->getGeneral()->devMode) {
+                return;
+            }
+
+            $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
+            if (!$user->getPreference($pref)) {
+                return;
+            }
+
+            $module->panels['commerce'] = new CommercePanel([
+                'id' => 'commerce',
+                'module' => $module,
+                'cart' => !Craft::$app->getRequest()->getIsCpRequest() ? Plugin::getInstance()->getCarts()->getCart() : null,
+            ]);
         });
     }
 

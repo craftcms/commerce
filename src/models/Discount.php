@@ -259,6 +259,21 @@ class Discount extends Model
         return $attributes;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+        $fields[] = 'categoryIds';
+        $fields[] = 'userGroupIds';
+        $fields[] = 'percentDiscountAsPercent';
+        $fields[] = 'userGroupsConditions';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
