@@ -72,9 +72,7 @@
           <h2 class="font-semibold">
             {{- 'Shipping & Billing Address'|t -}}
           </h2>
-          {{ include('shop/_private/address/address', {
-            address: order.shippingAddress,
-          }) }}
+          {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
         </div>
       {% else %}
         <div class="mt-6">

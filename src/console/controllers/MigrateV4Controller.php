@@ -275,6 +275,11 @@ class MigrateV4Controller extends Controller
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
+        $this->stdout("Migrating User Addresses Books...\n");
+        $this->_migrateUserAddressBook();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
         $this->stdout("Migrating Store Location...\n");
         $this->_migrateStoreLocation();
         $this->stdout("Done.\n");
@@ -290,7 +295,6 @@ class MigrateV4Controller extends Controller
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
-        // TODO decide whether to drop the old unused tables, and all v3* columns
 
         return 0;
     }
@@ -420,20 +424,8 @@ EOL
             ->limit(null)
             ->all();
 
-        $countryIdsByZoneId = (new Query())
-            ->select(['countryId'])
-            ->from(['{{%commerce_shippingzone_countries}}'])
-            ->indexBy('shippingZoneId')
-            ->column();
-
-        $stateIdsByZoneId = (new Query())
-            ->select(['stateId'])
-            ->from(['{{%commerce_shippingzone_states}}'])
-            ->indexBy('shippingZoneId')
-            ->column();
-
         $done = 0;
-        Console::startProgress();
+        Console::startProgress($done, count($shippingZones), 'Migrating shipping zones... ');
         foreach ($shippingZones as $shippingZone) {
             $zoneId = $shippingZone['id'];
 
@@ -453,7 +445,12 @@ EOL
 
                 // do we have a country based zone
                 if ($shippingZone['v3isCountryBased'] ?? false) {
-                    $countryIds = $countryIdsByZoneId[$zoneId];
+                    $countryIds = (new Query())
+                        ->select(['countryId'])
+                        ->from(['{{%commerce_shippingzone_countries}}'])
+                        ->where(['shippingZoneId' => $zoneId])
+                        ->column();
+
                     $countryCodes = [];
                     foreach ($countryIds as $countryId) {
                         $countryCodes[] = $this->_countryCodesByV3CountryId[$countryId];
@@ -463,9 +460,14 @@ EOL
                     $countryCondition->values = $countryCodes;
                     $newRules[] = $countryCondition;
                 } else {
-                    $stateIds = $stateIdsByZoneId[$zoneId];
+                    $statesIds = (new Query())
+                        ->select(['stateId'])
+                        ->from(['{{%commerce_shippingzone_states}}'])
+                        ->where(['shippingZoneId' => $zoneId])
+                        ->column();
+
                     $codes = [];
-                    foreach ($stateIds as $stateId) {
+                    foreach ($statesIds as $stateId) {
                         $codes[] = $this->_administrativeAreaByV3StateId[$stateId];
                     }
 
@@ -478,7 +480,9 @@ EOL
                 $model->setCondition($condition);
                 Plugin::getInstance()->getShippingZones()->saveShippingZone($model, false);
             }
+            Console::updateProgress($done++, count($shippingZones));
         }
+        Console::endProgress();
     }
 
     /**
@@ -492,20 +496,8 @@ EOL
             ->limit(null)
             ->all();
 
-        $countryIdsByZoneId = (new Query())
-            ->select(['countryId'])
-            ->from(['{{%commerce_taxzone_countries}}'])
-            ->indexBy('taxZoneId')
-            ->column();
-
-        $stateIdsByZoneId = (new Query())
-            ->select(['stateId'])
-            ->from(['{{%commerce_taxzone_states}}'])
-            ->indexBy('taxZoneId')
-            ->column();
-
         $done = 0;
-        Console::startProgress();
+        Console::startProgress($done, count($taxZones), 'Migrating tax zones... ');
         foreach ($taxZones as $taxZone) {
             $zoneId = $taxZone['id'];
 
@@ -518,13 +510,19 @@ EOL
                 // do we have a zip code formula
                 if ($taxZone['v3zipCodeConditionFormula']) {
                     $postalCodeCondition = new PostalCodeFormulaConditionRule();
-                    $postalCodeCondition->value = $taxZone['v3zipCodeConditionFormula'];
+                    $postalCode = str_replace('zipCode', 'postalCode', $taxZone['v3zipCodeConditionFormula']);
+                    $postalCodeCondition->value = $postalCode;
                     $newRules[] = $postalCodeCondition;
                 }
 
                 // do we have a country based zone
-                if ($taxZone['isCountryBased'] ?? false) {
-                    $countryIds = $countryIdsByZoneId[$zoneId];
+                if ($taxZone['v3isCountryBased'] ?? false) {
+                    $countryIds = (new Query())
+                        ->select(['countryId'])
+                        ->from(['{{%commerce_taxzone_countries}}'])
+                        ->where(['taxZoneId' => $zoneId])
+                        ->column();
+
                     $countryCodes = [];
                     foreach ($countryIds as $countryId) {
                         $countryCodes[] = $this->_countryCodesByV3CountryId[$countryId];
@@ -534,9 +532,14 @@ EOL
                     $countryCondition->values = $countryCodes;
                     $newRules[] = $countryCondition;
                 } else {
-                    $stateIds = $stateIdsByZoneId[$zoneId];
+                    $statesIds = (new Query())
+                        ->select(['stateId'])
+                        ->from(['{{%commerce_taxzone_states}}'])
+                        ->where(['taxZoneId' => $zoneId])
+                        ->column();
+
                     $codes = [];
-                    foreach ($stateIds as $stateId) {
+                    foreach ($statesIds as $stateId) {
                         $codes[] = $this->_administrativeAreaByV3StateId[$stateId];
                     }
 
@@ -546,21 +549,12 @@ EOL
                 }
 
                 $condition->setConditionRules($newRules);
+                $model->setCondition($condition);
                 Plugin::getInstance()->getTaxZones()->saveTaxZone($model, false);
             }
+            Console::updateProgress($done++, count($taxZones));
         }
-    }
-
-    /**
-     * @return array
-     */
-    private function _countryCodesByV3CountryId(): array
-    {
-        return (new Query())
-            ->select(['iso'])
-            ->from(['{{%commerce_countries}}'])
-            ->indexBy('id')
-            ->column();
+        Console::endProgress();
     }
 
     /**
@@ -573,6 +567,29 @@ EOL
             ->from(['{{%commerce_states}}'])
             ->indexBy('id')
             ->column();
+    }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     */
+    private function _migrateUserAddressBook()
+    {
+        $addressTable = \craft\db\Table::ADDRESSES;
+        $previousAddressTable = '{{%commerce_addresses}}';
+        $customerAddressTable = '{{%commerce_customers_addresses}}';
+        $customersTable = '{{%commerce_customers}}';
+        $sql = <<<SQL
+update $addressTable [[a]]
+inner join $previousAddressTable [[pa]] on
+    [[pa.v4addressId]] = [[a.id]]
+inner join $customerAddressTable [[ca]] on
+    [[ca.addressId]] = [[pa.id]]
+inner join $customersTable [[cu]] on
+    [[cu.id]] = [[ca.customerId]]
+set [[a.ownerId]] = [[cu.customerId]]
+SQL;
+        echo Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
     /**

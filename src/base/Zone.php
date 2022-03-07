@@ -7,7 +7,6 @@ use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
-use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -46,31 +45,35 @@ abstract class Zone extends BaseModel
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ?ElementConditionInterface
+     * @var ?ZoneAddressCondition
      */
-    private ?ElementConditionInterface $_condition;
+    private ?ZoneAddressCondition $_condition;
 
     abstract public function getCpEditUrl(): string;
 
     /**
-     * @return ElementConditionInterface
+     * @return ZoneAddressCondition
      */
-    public function getCondition(): ElementConditionInterface
+    public function getCondition(): ZoneAddressCondition
     {
         return $this->_condition ?? new ZoneAddressCondition();
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @param ZoneAddressCondition|string|array|null $condition
      * @return void
      */
-    public function setCondition(ElementConditionInterface|string|array $condition): void
+    public function setCondition(ZoneAddressCondition|string|array|null $condition): void
     {
+        if($condition === null) {
+            $condition = new ZoneAddressCondition();
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
 
-        if (!$condition instanceof ElementConditionInterface) {
+        if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }

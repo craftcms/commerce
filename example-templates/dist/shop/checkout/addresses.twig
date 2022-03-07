@@ -38,7 +38,8 @@ Outputs a form for collecting an order’s shipping and billing address.
           {{ include('shop/_private/address/fieldset', {
             title: 'Shipping Address'|t,
             classes: 'ShippingAddress',
-            name: 'shippingAddress'
+            name: 'shippingAddress',
+            sourceIdName: 'sourceShippingAddressId',
           }) }}
 
           <hr class="my-5">
@@ -68,7 +69,8 @@ Outputs a form for collecting an order’s shipping and billing address.
             {{ include('shop/_private/address/fieldset', {
               title: 'Billing Address'|t,
               classes: 'BillingAddress hidden',
-              name: 'billingAddress'
+              name: 'billingAddress',
+              sourceIdName: 'sourceBillingAddressId',
             }) }}
           </div>
 

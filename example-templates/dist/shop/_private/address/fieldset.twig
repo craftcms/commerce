@@ -24,7 +24,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
           >
             <span class="js-radio flex py-2">
               {{ input('radio', name ~ 'Id', address.id, {
-                checked: attribute(cart, 'selected'~ name ~ 'Id') == address.id,
+                checked: attribute(cart, sourceIdName) == address.id,
               }) }}
               <span class="-mt-2 ml-3 mb-2">
                 {{ craft.app.addresses.formatAddress(address)|raw }}

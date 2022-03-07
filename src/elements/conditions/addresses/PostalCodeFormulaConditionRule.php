@@ -43,7 +43,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
      */
     public function matchElement(ElementInterface $element): bool
     {
-
+        return false;
     }
 
     public function inputHtml(): string
