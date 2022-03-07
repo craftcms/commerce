@@ -519,15 +519,9 @@ trait Services
             'carts' => [
                 'class' => Carts::class,
             ],
-<<<<<<< HEAD
-            'countries' => [
-                'class' => Countries::class,
-            ],
             'coupons' => [
                 'class' => Coupons::class,
             ],
-=======
->>>>>>> feature/com-137-convert-customers-to-user-elements
             'currencies' => [
                 'class' => Currencies::class,
             ],
