@@ -57,7 +57,9 @@ use craft\commerce\widgets\TotalOrdersByCountry;
 use craft\commerce\widgets\TotalRevenue;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\elements\Address;
 use craft\elements\User as UserElement;
+use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -167,6 +169,7 @@ class Plugin extends BasePlugin
             $this->_defineResaveCommand();
         } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
+            $this->_registerStoreAddressAuthHandlers();
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
@@ -459,6 +462,27 @@ class Plugin extends BasePlugin
         );
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
+    }
+
+    /**
+     * Registers store address authorization event handlers
+     */
+    private function _registerStoreAddressAuthHandlers(): void
+    {
+        $checkAuth = function(AuthorizationCheckEvent $event) {
+            /** @var Address $address */
+            $address = $event->sender;
+            if (
+                $address->id && $address->id === Plugin::getInstance()->getStore()->getStoreLocationAddress()->id &&
+                $event->user->can('commerce-manageStoreSettings')
+            ) {
+                $event->authorized = true;
+                $event->handled = true;
+            }
+        };
+
+        Event::on(Address::class, Address::EVENT_AUTHORIZE_VIEW, $checkAuth);
+        Event::on(Address::class, Address::EVENT_AUTHORIZE_SAVE, $checkAuth);
     }
 
     /**
