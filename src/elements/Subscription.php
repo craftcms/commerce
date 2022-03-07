@@ -44,6 +44,7 @@ use yii\base\InvalidConfigException;
  * @property User $subscriber
  * @property string $eagerLoadedElements
  * @property DateTime $trialExpires datetime of trial expiry
+ * @property array $subscriptionData
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @since 2.0

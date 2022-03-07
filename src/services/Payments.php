@@ -288,6 +288,8 @@ class Payments extends Component
                 case TransactionRecord::TYPE_AUTHORIZE:
                     $response = $gateway->authorize($transaction, $form);
                     break;
+                default:
+                    throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.'));
             }
 
             $this->_updateTransaction($transaction, $response);

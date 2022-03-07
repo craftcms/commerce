@@ -395,6 +395,7 @@ class Product extends Element
      */
     public function getShippingCategory(): ShippingCategory
     {
+        $shippingCategory = null;
         if ($this->shippingCategoryId) {
             $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }

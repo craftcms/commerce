@@ -203,6 +203,7 @@ class SubscriptionsController extends BaseController
         }
 
         $error = null;
+        $subscription = null;
 
         try {
             /** @var SubscriptionGateway $gateway */
@@ -242,7 +243,7 @@ class SubscriptionsController extends BaseController
             $error = $exception->getMessage();
         }
 
-        if (!$error && $subscription->isSuspended && !$subscription->hasStarted) {
+        if (!$error && $subscription && $subscription->isSuspended && !$subscription->hasStarted) {
             $url = Plugin::getInstance()->getSettings()->updateBillingDetailsUrl;
 
             if (empty($url)) {
