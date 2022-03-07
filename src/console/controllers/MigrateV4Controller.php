@@ -414,7 +414,7 @@ EOL
     private function _migrateShippingZones(): void
     {
         $shippingZones = (new Query())
-            ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
+            ->select(['id', 'v3zipCodeConditionFormula', 'v3isCountryBased'])
             ->from(['{{%commerce_shippingzones}}'])
             ->limit(null)
             ->all();
@@ -484,7 +484,7 @@ EOL
     private function _migrateTaxZones(): void
     {
         $taxZones = (new Query())
-            ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
+            ->select(['id', 'v3zipCodeConditionFormula', 'v3isCountryBased'])
             ->from(['{{%commerce_taxzones}}'])
             ->limit(null)
             ->all();
@@ -660,8 +660,6 @@ EOL
             )->execute();
             Console::updateProgress($done++, $totalAddresses);
         }
-
-
         Console::endProgress();
     }
 
@@ -693,7 +691,6 @@ EOL
                     ['customerId' => $this->userIdsByv3CustomerId[$customer['id']]] // guest customer has no userId
                 )->execute();
             }
-            $done++;
             Console::updateProgress($done++, $total);
         }
         Console::endProgress();
@@ -821,20 +818,7 @@ EOL
             Console::updateProgress($done++, $totalEmails);
         }
 
-
-        $guestOrderIds = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['[[customers.id]]'])
-            ->where(['or', ['[[customers.id]]' => null], ['[[customers.id]]' => '']])
-            ->column();
-
-        Craft::$app->getDb()->createCommand()
-            ->update(Table::ORDERS,
-                ['v3customerId' => null],
-                ['id' => $guestOrderIds]
-            )->execute();
-
         // Clear out orphaned customers again now that we have consolidated them to emails
-
         // This gets customerIds that don't have any orders
         $orphanedCustomerIds = (new Query())->from('{{%commerce_customers}} customers')
             ->select(['[[customers.id]]'])
