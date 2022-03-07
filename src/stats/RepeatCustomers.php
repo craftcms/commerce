@@ -26,20 +26,20 @@ class RepeatCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $total = (int)$this->_createStatQuery()
-            ->select(['userId'])
+            ->select(['customerId'])
             ->groupBy('customerId')
             ->count();
 
         $repeatRows = $this->_createStatQuery()
             ->select([new Expression('COUNT([[orders.id]])')])
-            ->groupBy('userId')
+            ->groupBy('customerId')
             ->column();
 
 
-        $repeat = (int)count(array_filter($repeatRows, static function($row) {
+        $repeat = count(array_filter($repeatRows, static function($row) {
             return $row > 1;
         }));
 

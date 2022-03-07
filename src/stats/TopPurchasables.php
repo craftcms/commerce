@@ -47,7 +47,7 @@ class TopPurchasables extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');

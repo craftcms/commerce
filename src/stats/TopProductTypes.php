@@ -50,7 +50,7 @@ class TopProductTypes extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');

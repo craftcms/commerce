@@ -26,7 +26,7 @@ class TotalRevenue extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): ?array
     {
         return $this->_createChartQuery(
             [

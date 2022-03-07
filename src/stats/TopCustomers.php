@@ -9,6 +9,7 @@ namespace craft\commerce\stats;
 
 use Craft;
 use craft\commerce\base\Stat;
+use craft\db\Table;
 use yii\db\Expression;
 
 /**
@@ -49,7 +50,7 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $topCustomers = $this->_createStatQuery()
             ->select([
@@ -57,8 +58,10 @@ class TopCustomers extends Stat
                 'count' => new Expression('COUNT([[orders.id]])'),
                 'customerId',
                 'total' => new Expression('SUM([[total]])'),
+                'users.email',
             ])
-            ->groupBy(['[[orders.userId]]', '[[orders.email]]'])
+            ->innerJoin(Table::USERS . ' users', '[[orders.customerId]] = [[users.id]]')
+            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {
@@ -85,8 +88,6 @@ class TopCustomers extends Stat
     {
         foreach ($data as &$topCustomer) {
             $topCustomer['customer'] = Craft::$app->getUsers()->getUserById($topCustomer['customerId']);
-
-            $topCustomer['email'] = $topCustomer['customer']->email ?? null;
         }
 
         return $data;

@@ -123,7 +123,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
 

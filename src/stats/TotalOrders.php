@@ -26,7 +26,7 @@ class TotalOrders extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $query = $this->_createStatQuery();
         $query->select([new Expression('COUNT([[orders.id]]) as total')]);
