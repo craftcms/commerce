@@ -101,8 +101,8 @@ use yii\web\User;
 class Plugin extends BasePlugin
 {
     // Edition constants
-    const EDITION_LITE = 'lite';
-    const EDITION_PRO = 'pro';
+    public const EDITION_LITE = 'lite';
+    public const EDITION_PRO = 'pro';
 
     public static function editions(): array
     {

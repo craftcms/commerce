@@ -38,9 +38,9 @@ use function get_class;
  */
 class DiscountsController extends BaseCpController
 {
-    const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
-    const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+    public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
+    public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
+    public const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
     /**
      * @inheritdoc

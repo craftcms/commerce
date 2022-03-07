@@ -33,7 +33,7 @@ use function in_array;
  */
 class Tax extends Component implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'tax';
+    public const ADJUSTMENT_TYPE = 'tax';
 
     /**
      * @var Validator

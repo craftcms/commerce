@@ -73,7 +73,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
+    public const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is saved.
@@ -99,7 +99,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
+    public const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is deleted.
@@ -123,7 +123,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
+    public const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
@@ -153,7 +153,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
+    public const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
 
     /**
      * @event MatchOrderEvent The event that is triggered when an order is matched with a discount.
@@ -182,7 +182,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
+    public const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
      * @var Discount[]|null

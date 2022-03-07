@@ -51,7 +51,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
+    public const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered before a payment source is added.
@@ -74,7 +74,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
+    public const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered after a payment source is added.
@@ -98,7 +98,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
+    public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
 
     /**
