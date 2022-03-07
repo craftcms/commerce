@@ -29,7 +29,7 @@ class DebugPanel
      * @param bool $prepend Whether to prepend the content tab.
      * @return void
      */
-    public function prependOrAppendModelTab(object $model, ?string $name = null, bool $prepend = false): void
+    public static function prependOrAppendModelTab(object $model, ?string $name = null, bool $prepend = false): void
     {
         if (!$name) {
             $classSegments = explode('\\', get_class($model));
