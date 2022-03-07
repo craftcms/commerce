@@ -50,7 +50,7 @@ class m211118_101920_split_coupon_codes extends Migration
         if (!(new Query())->from('{{%commerce_coupons}}')->exists()) {
             // These could be one query, leaving as separate for now for readability
             $discountsWithCodes = (new Query())
-                ->select(['id', 'code', 'dateCreated', 'dateUpdated'])
+                ->select(['id', 'code', 'totalDiscountUses', 'dateCreated', 'dateUpdated'])
                 ->from('{{%commerce_discounts}}')
                 ->where(['not', ['code' => null]])
                 ->all();
@@ -65,12 +65,15 @@ class m211118_101920_split_coupon_codes extends Migration
 
             if (!empty($discountsWithCodes)) {
                 $coupons = array_map(static function ($discount) use ($codeUsage) {
-                    $discount['discountId'] = $discount['id'];
-                    $discount['uses'] = $codeUsage[$discount['code']] ?? 0;
-                    $discount['uid'] = StringHelper::UUID();
-                    unset($discount['id']);
+                    $row['code'] = $discount['code'];
+                    $row['discountId'] = $discount['id'];
+                    $row['uses'] = $codeUsage[$discount['code']] ?? 0;
+                    $row['maxUses'] = $discount['totalDiscountUses'] ?? 0;
+                    $row['dateCreated'] = $discount['dateCreated'];
+                    $row['dateUpdated'] = $discount['dateUpdated'];
+                    $row['uid'] = StringHelper::UUID();
 
-                    return $discount;
+                    return $row;
                 }, $discountsWithCodes);
 
                 $this->batchInsert('{{%commerce_coupons}}', [
