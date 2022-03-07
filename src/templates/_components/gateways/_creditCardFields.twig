@@ -8,7 +8,7 @@
         <!-- Card Holder Name -->
         <div class="item" data-colspan="1">
             {{ forms.text({
-                name: 'firstName',
+                name: 'firstName'|namespaceInputName,
                 maxlength: 70,
                 placeholder: "First Name"|t('commerce'),
                 autocomplete: false,
@@ -20,7 +20,7 @@
 
         <div class="item" data-colspan="1">
             {{ forms.text({
-                name: 'lastName',
+                name: 'lastName'|namespaceInputName,
                 maxlength: 70,
                 placeholder: "Last Name"|t('commerce'),
                 autocomplete: false,
@@ -46,7 +46,7 @@
     <div>
         <div>
             {{ forms.text({
-                name: 'number',
+                name: 'number'|namespaceInputName,
                 maxlength: 19,
                 placeholder: "Card Number"|t('commerce'),
                 autocomplete: false,
@@ -60,14 +60,14 @@
             {{ forms.text({
                 class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
                 type: 'text',
-                name: 'expiry',
+                name: 'expiry'|namespaceInputName,
                 placeholder: "MM"|t('commerce')~' / '~"YYYY"|t('commerce'),
                 value: paymentForm.expiry
             }) }}
 
             {{ forms.text({
                 type: 'tel',
-                name: 'cvv',
+                name: 'cvv'|namespaceInputName,
                 placeholder: "CVV"|t('commerce'),
                 class: 'card-cvc'~(paymentForm.getErrors('cvv') ? ' error'),
                 value: paymentForm.cvv

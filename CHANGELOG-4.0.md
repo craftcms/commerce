@@ -4,9 +4,10 @@
 
 ### Added
 - Added Commerce panel to the debug toolbar.
-- Added `craft\commerce\controllers\PaymentsController::PAYMENT_FORM_NAMESPACE`.
+- Added the `|commercePaymentFormNamespace` Twig filter.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
 - Added `craft\commerce\helpers\DebugPanel`.
+- Added `craft\commerce\helpers\PaymentForm`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.

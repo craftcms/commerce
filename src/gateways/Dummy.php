@@ -65,7 +65,6 @@ class Dummy extends SubscriptionGateway
         $previousMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_CP);
         $html = Craft::$app->getView()->renderTemplate('commerce/_components/gateways/_creditCardFields', $params);
-        $html = Html::namespaceInputs($html, PaymentsController::PAYMENT_FORM_NAMESPACE . sprintf('[%s]', $this->handle));
         $view->setTemplateMode($previousMode);
 
         return $html;
