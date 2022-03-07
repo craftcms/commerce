@@ -2,7 +2,7 @@
 
 {# @var orders \craft\commerce\elements\Order[] #}
 {% set orders = craft.orders()
-  .customer(craft.commerce.customers.customer)
+  .customer(currentUser)
   .isCompleted(true)
   .orderBy('dateOrdered DESC')
   .all() %}

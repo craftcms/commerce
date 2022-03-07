@@ -15,7 +15,6 @@ return [
         'percentDiscount' => '15.25',
         'enabled' => true,
         'userGroupsCondition' => 'userGroupsAnyOrNone',
-        'userGroupIds' => [],
         'allCategories' => true,
         'allPurchasables' => true,
         'percentageOffSubject' => 'original',

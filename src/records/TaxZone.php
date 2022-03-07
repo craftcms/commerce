@@ -15,14 +15,11 @@ use yii\db\ActiveQueryInterface;
 /**
  * Tax zone record.
  *
- * @property Country[] $countries
- * @property bool $isCountryBased
  * @property bool $default
- * @property string $description
- * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
- * @property State[] $states
+ * @property string $description
+ * @property array $condition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -34,21 +31,5 @@ class TaxZone extends ActiveRecord
     public static function tableName(): string
     {
         return Table::TAXZONES;
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getCountries(): ActiveQueryInterface
-    {
-        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable(Table::TAXZONE_COUNTRIES, ['taxZoneId' => 'id']);
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getStates(): ActiveQueryInterface
-    {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::TAXZONE_STATES, ['taxZoneId' => 'id']);
     }
 }

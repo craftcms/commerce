@@ -8,11 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use Twig\Error\LoaderError;
@@ -69,11 +71,18 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $this->getView()->startJsBuffer();
 
+        $newZone = new ShippingAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
 
@@ -216,7 +225,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
+        Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
         return $this->asSuccess();
     }
@@ -234,17 +243,14 @@ class ShippingRulesController extends BaseShippingSettingsController
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
-
         if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 
-        $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
-
-        if ($deleted) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asSuccess();
     }
 }

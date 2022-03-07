@@ -26,7 +26,7 @@ class DiscountsFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/discounts.php';
+    public $dataFile = __DIR__ . '/data/discounts.php';
 
     /**
      * @inheritdoc

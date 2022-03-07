@@ -23,6 +23,8 @@
     {% set matchingItemsClasses = "error" %}
 {% endif %}
 
+{% set conditionRulesClasses = "" %}
+
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
     {% set conditionsClasses = "error" %}
@@ -37,8 +39,9 @@
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
     1: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
     2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    3: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    4: {'label':'Actions'|t('commerce'),'url':'#actions'}
+    3: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
+    4: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    5: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
 {% set couponsTable = {
@@ -169,6 +172,7 @@
             reverseToggle: '#matching-items-purchasables',
             on: discount.allPurchasables ? true : false,
             errors: discount.getErrors('allPurchasables')
+
         }) }}
 
         <div id="matching-items-purchasables" {% if discount.allPurchasables %}class="hidden"{% endif %}>
@@ -266,6 +270,48 @@
         </div>
     </div>
 
+    <div id="condition-rules" class="hidden">
+        {% set orderConditionInput %}
+            {{ discount.orderCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Order'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order.'|t('commerce'),
+            errors: discount.getErrors('orderCondition')
+        }, orderConditionInput) }}
+
+        {% set customerConditionInput %}
+            {{ discount.customerCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Customer'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s customer.'|t('commerce'),
+            errors: discount.getErrors('customerCondition')
+        }, customerConditionInput) }}
+
+        {% set shippingAddressConditionInput %}
+            {{ discount.shippingAddressCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Shipping Address'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s shipping address.'|t('commerce'),
+            errors: discount.getErrors('shippingAddressCondition')
+        }, shippingAddressConditionInput) }}
+
+        {% set billingAddressConditionInput %}
+            {{ discount.billingAddressCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Billing Address'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the order’s billing address.'|t('commerce'),
+            errors: discount.getErrors('billingAddressCondition')
+        }, billingAddressConditionInput) }}
+    </div>
+
     <div id="conditions" class="hidden">
 
         {{ forms.dateTimeField({
@@ -309,38 +355,6 @@
             {% endblock %}
         {% endembed %}
 
-        {% set usersInput %}
-            <div class="flex">
-                <div>
-                    {{ forms.select({
-                        id: 'user-condition',
-                        name: 'userGroupsCondition',
-                        options: discount.getUserGroupsConditions(),
-                        value: discount.userGroupsCondition
-                    }) }}
-                </div>
-
-                <div class="flex-grow{% if discount.userGroupsCondition is null or discount.userGroupsCondition == 'userGroupsAnyOrNone' %} hidden{% endif %}">
-                    {{ forms.multiselectField({
-                        id: 'groups',
-                        name: 'groups',
-                        options: groups,
-                        values: discount.getUserGroupIds(),
-                        errors: discount.getErrors('groups'),
-                        class: 'selectize fullwidth',
-                    }) }}
-                </div>
-            </div>
-        {% endset %}
-
-        {{ forms.field({
-            id: 'user-groups-condition',
-            label: 'Users'|t('commerce'),
-            instructions: 'Choose which users the discount applies to.'|t('commerce'),
-            errors: [],
-            required: false,
-        }, usersInput) }}
-
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
@@ -372,8 +386,8 @@
             errors: discount.getErrors('maxPurchaseQty'),
         }) }}
 
-        {% set customerUsage = customerUsage and customerUsage|length ? customerUsage : {uses: 0, customers: 0} %}
-        {% set customerCounterMarkup %}
+        {% set customerUsage = customerUsage and customerUsage|length ? customerUsage : {uses: 0, users: 0} %}
+        {% set userCounterMarkup %}
             <div class="flex">
                 <div>
                     {{ forms.text({
@@ -385,14 +399,14 @@
                     }) }}
                 </div>
                 <div>
-                    <input id="customer-usage-counter" disabled class="text disabled fullwidth" size="30"
-                           value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
+                    <input id="user-usage-counter" disabled class="text disabled fullwidth" size="30"
+                           value="{{ '{uses} uses across {users} users'|t('commerce', customerUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-customer-usage-spinner"
-                         data-field="#customer-usage-counter"
-                         data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
-                    <div id="clear-customer-usage-spinner" class="spinner hidden"></div>
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-user-usage-spinner"
+                         data-field="#user-usage-counter"
+                         data-type="{{ counterTypeUser }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div id="clear-user-usage-spinner" class="spinner hidden"></div>
                 </div>
             </div>
         {% endset %}
@@ -400,7 +414,7 @@
             label: "Per User Discount Limit"|t('commerce'),
             instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
             errors: discount.getErrors('perUserLimit')
-        }, customerCounterMarkup) }}
+        }, userCounterMarkup) }}
 
         {% set emailUsage = emailUsage and emailUsage|length ? emailUsage : {uses: 0, emails: 0} %}
         {% set emailCounterMarkup %}
@@ -599,9 +613,6 @@
             on: discount.hasFreeShippingForOrder ? true : false
         }) }}
 
-        {#
-        This might need to be disabled to start with. That is handled in the JS
-        #}
         {{ forms.lightswitchField({
             label: "Remove shipping costs for matching items only"|t('commerce'),
             id: 'hasFreeShippingForMatchingItems',
@@ -623,19 +634,6 @@
 
 {% js %}
 $(function() {
-
-    $('#user-condition').change(function() {
-        if ($(this).val() === 'userGroupsAnyOrNone') {
-            $('#groups-field').parent().addClass('hidden');
-        } else {
-            $('#groups-field').parent().removeClass('hidden');
-        }
-    });
-
-    $('#groups').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
 
     $('#code').on('keyup blur', function(event) {
         if (this.value.length === 0) {

@@ -7,7 +7,7 @@
 
 namespace craft\commerce\plugin;
 
-use craft\commerce\services\Addresses;
+use craft\commerce\services\AdministrativeAreas;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
 use craft\commerce\services\Coupons;
@@ -38,7 +38,7 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
-use craft\commerce\services\States;
+use craft\commerce\services\Store;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\Taxes;
@@ -52,11 +52,8 @@ use yii\base\InvalidConfigException;
 /**
  * Trait Services
  *
- * @property Addresses $addresses the address service
  * @property Carts $cart the cart service
- * @property Countries $countries the countries service
  * @property Currencies $currencies the currencies service
- * @property Customers $customers the customers service
  * @property Discounts $discounts the discounts service
  * @property Emails $emails the emails service
  * @property Gateways $gateways the gateways service
@@ -80,29 +77,18 @@ use yii\base\InvalidConfigException;
  * @property ShippingRuleCategories $shippingRuleCategories the shipping rule categories service
  * @property ShippingCategories $shippingCategories the shipping categories service
  * @property ShippingZones $shippingZones the shipping zones service
- * @property States $states the states service
  * @property Subscriptions $subscriptions the subscriptions service
  * @property TaxCategories $taxCategories the taxCategories service
  * @property TaxRates $taxRates the taxRates service
  * @property TaxZones $taxZones the taxZones service
  * @property Transactions $transactions the transactions service
+ * @property Customers $customers the customers service
  * @property Variants $variants the variants service
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 trait Services
 {
-    /**
-     * Returns the address service
-     *
-     * @return Addresses The address service
-     * @throws InvalidConfigException
-     */
-    public function getAddresses(): Addresses
-    {
-        return $this->get('addresses');
-    }
-
     /**
      * Returns the cart service
      *
@@ -112,17 +98,6 @@ trait Services
     public function getCarts(): Carts
     {
         return $this->get('carts');
-    }
-
-    /**
-     * Returns the countries service
-     *
-     * @return Countries The countries service
-     * @throws InvalidConfigException
-     */
-    public function getCountries(): Countries
-    {
-        return $this->get('countries');
     }
 
     /**
@@ -435,14 +410,14 @@ trait Services
     }
 
     /**
-     * Returns the states service
+     * Returns the store service
      *
-     * @return States The states service
+     * @return Store The store service
      * @throws InvalidConfigException
      */
-    public function getStates(): States
+    public function getStore(): Store
     {
-        return $this->get('states');
+        return $this->get('store');
     }
 
     /**
@@ -541,23 +516,20 @@ trait Services
     private function _setPluginComponents(): void
     {
         $this->setComponents([
-            'addresses' => [
-                'class' => Addresses::class,
-            ],
             'carts' => [
                 'class' => Carts::class,
             ],
+<<<<<<< HEAD
             'countries' => [
                 'class' => Countries::class,
             ],
             'coupons' => [
                 'class' => Coupons::class,
             ],
+=======
+>>>>>>> feature/com-137-convert-customers-to-user-elements
             'currencies' => [
                 'class' => Currencies::class,
-            ],
-            'customers' => [
-                'class' => Customers::class,
             ],
             'discounts' => [
                 'class' => Discounts::class,
@@ -637,8 +609,8 @@ trait Services
             'shippingZones' => [
                 'class' => ShippingZones::class,
             ],
-            'states' => [
-                'class' => States::class,
+            'store' => [
+                'class' => Store::class,
             ],
             'subscriptions' => [
                 'class' => Subscriptions::class,
@@ -657,6 +629,9 @@ trait Services
             ],
             'transactions' => [
                 'class' => Transactions::class,
+            ],
+            'customers' => [
+                'class' => Customers::class,
             ],
             'variants' => [
                 'class' => Variants::class,

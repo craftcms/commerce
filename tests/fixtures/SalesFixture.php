@@ -21,7 +21,7 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/sales.php';
+    public $dataFile = __DIR__ . '/data/sales.php';
 
     /**
      * @inheritdoc

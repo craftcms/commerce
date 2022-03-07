@@ -36,7 +36,6 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -62,9 +61,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class Product extends Element
 {
-    const STATUS_LIVE = 'live';
-    const STATUS_PENDING = 'pending';
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_LIVE = 'live';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var DateTime|null Post date
@@ -204,18 +203,6 @@ class Product extends Element
         ];
     }
 
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
-    }
-
     /**
      * @inheritdoc
      */
@@ -251,7 +238,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -376,7 +363,7 @@ class Product extends Element
             [
                 'label' => Craft::t('site', $type->name),
                 'url' => "commerce/products/$type->name",
-            ]
+            ],
         ];
     }
 
@@ -701,7 +688,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var ProductType $context */
         return $context->handle . '_Product';
@@ -711,7 +698,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -732,7 +719,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
@@ -1097,7 +1084,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -1204,7 +1191,7 @@ class Product extends Element
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {
@@ -1366,7 +1353,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected function route()
+    protected function route(): array|string|null
     {
         // Make sure that the product is actually live
         if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {

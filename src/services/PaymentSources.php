@@ -51,7 +51,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
+    public const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered before a payment source is added.
@@ -74,7 +74,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
+    public const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered after a payment source is added.
@@ -98,24 +98,24 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
+    public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
 
     /**
-     * Returns a user's payment sources, per the user's ID.
+     * Returns a customer's payment sources, per the customer's ID.
      *
-     * @param int|null $userId the user's ID
+     * @param int|null $customerId the user's ID
      * @return PaymentSource[]
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByUserId(int $userId = null): array
+    public function getAllPaymentSourcesByCustomerId(int $customerId = null): array
     {
-        if ($userId === null) {
+        if ($customerId === null) {
             return [];
         }
 
         $results = $this->_createPaymentSourcesQuery()
-            ->where(['userId' => $userId])
+            ->where(['customerId' => $customerId])
             ->all();
 
         $sources = [];
@@ -125,6 +125,15 @@ class PaymentSources extends Component
         }
 
         return $sources;
+    }
+
+    /**
+     * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
+     */
+    public function getAllPaymentSourcesByUserId(int $customerId = null): array
+    {
+        Craft::$app->getDeprecator()->log('PaymentSources::getAllPaymentSourcesByUserId()', 'The `PaymentSources::getAllPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllPaymentSourcesByCustomerId()` instead.');
+        return $this->getAllPaymentSourcesByCustomerId();
     }
 
     /**
@@ -153,21 +162,20 @@ class PaymentSources extends Component
     }
 
     /**
-     * Returns a user's payment sources on a gateway, per the user's ID.
+     * Returns a customer's payment sources on a gateway, per the customer/user's ID.
      *
      * @param int|null $gatewayId the gateway's ID
-     * @param int|null $userId the user's ID
+     * @param int|null $customerId the user's ID
      * @return PaymentSource[]
-     * @noinspection PhpUnused
      */
-    public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $userId = null): array
+    public function getAllGatewayPaymentSourcesByCustomerId(int $gatewayId = null, int $customerId = null): array
     {
-        if ($gatewayId === null || $userId === null) {
+        if ($gatewayId === null || $customerId === null) {
             return [];
         }
 
         $results = $this->_createPaymentSourcesQuery()
-            ->where(['userId' => $userId])
+            ->where(['customerId' => $customerId])
             ->andWhere(['gatewayId' => $gatewayId])
             ->all();
 
@@ -181,13 +189,22 @@ class PaymentSources extends Component
     }
 
     /**
+     * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
+     */
+    public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $customerId = null): array
+    {
+        Craft::$app->getDeprecator()->log('PaymentSources::getAllGatewayPaymentSourcesByUserId()', 'The `PaymentSources::getAllGatewayPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` instead.');
+        return $this->getAllPaymentSourcesByCustomerId();
+    }
+
+    /**
      * Returns a payment source by its gateways token
      *
      * @param string $token the payment gateway's token
      * @param int $gatewayId the gateway's ID
      * @return PaymentSource|null
      */
-    public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId)
+    public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId): ?PaymentSource
     {
         $result = $this->_createPaymentSourcesQuery()
             ->where(['token' => $token])
@@ -221,7 +238,7 @@ class PaymentSources extends Component
     {
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
-            ->andWhere(['userId' => $userId])
+            ->andWhere(['customerId' => $userId])
             ->one();
 
         return $result ? new PaymentSource($result) : null;
@@ -246,7 +263,7 @@ class PaymentSources extends Component
             throw new PaymentSourceException($exception->getMessage());
         }
 
-        $source->userId = $userId;
+        $source->customerId = $userId;
 
         if (!empty($sourceDescription)) {
             $source->description = $sourceDescription;
@@ -293,7 +310,7 @@ class PaymentSources extends Component
             return false;
         }
 
-        $record->userId = $paymentSource->userId;
+        $record->customerId = $paymentSource->customerId;
         $record->gatewayId = $paymentSource->gatewayId;
         $record->token = $paymentSource->token;
         $record->description = $paymentSource->description;
@@ -362,7 +379,7 @@ class PaymentSources extends Component
                 'id',
                 'response',
                 'token',
-                'userId',
+                'customerId',
             ])
             ->from([Table::PAYMENTSOURCES]);
     }

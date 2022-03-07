@@ -15,6 +15,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
@@ -24,7 +25,6 @@ use craft\helpers\Json;
 use DateTime;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Line Item model representing a line item on an order.
@@ -377,9 +377,12 @@ class LineItem extends Model
      */
     public function getSaleAmount(): float
     {
-        return $this->price - $this->salePrice;
+        return Currency::round($this->price - $this->salePrice);
     }
 
+    /**
+     * @inerhitdoc
+     */
     protected function defineRules(): array
     {
         $rules = [
@@ -465,10 +468,6 @@ class LineItem extends Model
     {
         $fields = parent::fields(); // get the currency and date fields formatted
         $fields['subtotal'] = 'subtotal';
-
-        if ($this->getBehavior('currencyAttributes')) {
-            array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
 
         return $fields;
     }

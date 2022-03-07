@@ -5,8 +5,9 @@ Outputs a form for collecting shipping estimate address details if an address do
 @var cart \craft\commerce\elements\Cart
 #}
 {% if not cart.getShippingAddress() %}
-  {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
-  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
+  {% set countries = craft.app.addresses.getCountryRepository().getList() %}
+  {% set states = [] %}
+{#  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}#}
 
   <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
     <h5 class="mt-0 font-bold">
@@ -204,7 +205,8 @@ Outputs a form for collecting shipping estimate address details if an address do
 
   {% js %}
   {% set enabledStates = {} %}
-{% for cId, cStates in craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
+{#{% for cId, cStates in craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}#}
+{% for cId, cStates in [] %}
     {% set eStates = {} %}
     {% for sId, s in cStates %}
         {% set eStates = eStates|merge({ ('state-' ~ sId): s }) %}

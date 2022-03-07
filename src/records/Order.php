@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\elements\User;
 use craft\records\Element;
 use DateTime;
 use yii\db\ActiveQueryInterface;
@@ -16,7 +17,6 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property Address $billingAddress
  * @property int $billingAddressId
  * @property string $cancelUrl
  * @property string $couponCode
@@ -51,7 +51,6 @@ use yii\db\ActiveQueryInterface;
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
- * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle
  * @property string $shippingMethodName
@@ -65,6 +64,8 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
+ * @property int $sourceBillingAddressId
+ * @property int $sourceShippingAddressId
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -96,12 +97,12 @@ class Order extends ActiveRecord
 
     public function getBillingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'billingAddressId']);
+        return $this->hasOne(Element::class, ['id' => 'billingAddressId']);
     }
 
     public function getShippingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'shippingAddressId']);
+        return $this->hasOne(Element::class, ['id' => 'shippingAddressId']);
     }
 
     public function getDiscount(): ActiveQueryInterface
@@ -121,7 +122,7 @@ class Order extends ActiveRecord
 
     public function getCustomer(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'customerId']);
     }
 
     public function getElement(): ActiveQueryInterface

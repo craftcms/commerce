@@ -113,7 +113,7 @@ class CartTest extends Unit
         self::assertIsBool($data['cart']['estimatedBillingSameAsShipping']);
         self::assertIsString($data['cart']['shippingMethodHandle']);
         self::assertNull($data['cart']['shippingMethodName']);
-        self::assertIsInt($data['cart']['customerId']);
+        self::assertNull($data['cart']['customerId']);
         self::assertIsBool($data['cart']['registerUserOnOrderComplete']);
         self::assertNull($data['cart']['paymentSourceId']);
         self::assertNull($data['cart']['storedTotalPrice']);
@@ -195,7 +195,7 @@ class CartTest extends Unit
         $variant = Variant::find()->sku('rad-hood')->one();
         $this->request->setBodyParams([
             'purchasableId' => $variant->id,
-            'qty' => 2
+            'qty' => 2,
         ]);
 
         $this->cartController->runAction('update-cart');
@@ -225,7 +225,7 @@ class CartTest extends Unit
             ];
         }
         $this->request->setBodyParams([
-            'purchasables' => $purchasables
+            'purchasables' => $purchasables,
         ]);
 
         $lastItem = array_pop($purchasables);
@@ -260,7 +260,7 @@ class CartTest extends Unit
             ];
         }
         $this->request->setBodyParams([
-            'purchasables' => $purchasables
+            'purchasables' => $purchasables,
         ]);
 
         $this->cartController->runAction('update-cart');

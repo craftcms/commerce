@@ -35,7 +35,7 @@ class Variant extends ElementType
     /**
      * @inheritdoc
      */
-    protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
+    protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
         /** @var VariantElement $source */
         $fieldName = $resolveInfo->fieldName;
@@ -46,5 +46,4 @@ class Variant extends ElementType
             default => parent::resolve($source, $arguments, $context, $resolveInfo),
         };
     }
-
 }

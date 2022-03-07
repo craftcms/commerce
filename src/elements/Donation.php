@@ -65,27 +65,17 @@ class Donation extends Purchasable
         ];
     }
 
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
-    }
-
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'trim'];
-        $rules[] = [['sku'], 'required', 'when' => function($model) {
-            /** @var self $model */
-            return $model->availableForPurchase && $model->enabled;
-        }];
+        $rules[] = [
+            ['sku'], 'required', 'when' => function($model) {
+                /** @var self $model */
+                return $model->availableForPurchase && $model->enabled;
+            },
+        ];
 
         return $rules;
     }
@@ -149,7 +139,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'donation';
     }
@@ -174,7 +164,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/store-settings/donation');
     }
@@ -182,7 +172,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return '';
     }

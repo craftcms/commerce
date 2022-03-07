@@ -4,7 +4,6 @@ namespace craft\commerce\migrations;
 
 use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m210831_080542_rename_variant_title_format_field migration.
