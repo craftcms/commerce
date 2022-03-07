@@ -157,8 +157,6 @@ class TaxRatesController extends BaseTaxSettingsController
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
-        $view->setNamespace();
-
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
 
