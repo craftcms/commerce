@@ -3,9 +3,12 @@
 ## Unreleased
 
 ### Added
-- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
-- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
-- Added `craft\commerce\base\AddressZoneInterface::getCountryCode()`.
+- Customers are now User elements.
+- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
+- Shipping zones now use a condition builder to determine whether an address is within a zone.
+- Tax zones now use a condition builder to determine whether an address is within a zone.
+- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
+- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
