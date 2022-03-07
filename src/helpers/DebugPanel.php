@@ -71,7 +71,7 @@ class DebugPanel
      * @param string|null $label
      * @return string
      */
-    public static function renderModelAttributeRow(string $attr, $value, ?string $label = null): string
+    public static function renderModelAttributeRow(string $attr, mixed $value, ?string $label = null): string
     {
         $label = $label ?: $attr;
 
