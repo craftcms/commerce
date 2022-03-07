@@ -41,9 +41,19 @@ class DebugPanel
         }
 
         $user = Craft::$app->getUser()->getIdentity();
-        $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
 
-        if (!Craft::$app->getRequest()->getIsCpRequest() || !$user || !$user->getPreference($pref) || !Craft::$app->getConfig()->getGeneral()->devMode) {
+        // Skip out if there is no user or `devMode` isn't enabled
+        if (!$user || !Craft::$app->getConfig()->getGeneral()->devMode) {
+            return;
+        }
+
+        // Skip out if this is a CP request and the user doesn't have the preference set to `true`
+        if ((Craft::$app->getRequest()->getIsCpRequest() && !$user->getPreference('enableDebugToolbarForCp'))) {
+            return;
+        }
+
+        // Skip out if this is a site request and the user doesn't have the preference set to `true`
+        if (!Craft::$app->getRequest()->getIsCpRequest() && !$user->getPreference('enableDebugToolbarForSite')) {
             return;
         }
 
