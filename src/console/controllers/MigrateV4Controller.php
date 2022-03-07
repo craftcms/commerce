@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\commerce\records\Store;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
@@ -585,7 +586,7 @@ EOL
      */
     private function _migrateUserAddressBook()
     {
-        $addressTable = \craft\db\Table::ADDRESSES;
+        $addressTable = CraftTable::ADDRESSES;
         $previousAddressTable = '{{%commerce_addresses}}';
         $customerAddressTable = '{{%commerce_customers_addresses}}';
         $customersTable = '{{%commerce_customers}}';
@@ -648,6 +649,16 @@ SQL;
                 $update,
                 ['id' => $orderId]
             )->execute();
+
+            // Update owner of address.
+            foreach ($update as $addressType => $addressId)
+            {
+                Craft::$app->getDb()->createCommand()->update(CraftTable::ADDRESSES,
+                    ['ownerId' => $orderId],
+                    ['id' => $addressId]
+                )->execute();
+            }
+
             Console::updateProgress($done++, $totalAddresses);
         }
         Console::endProgress();

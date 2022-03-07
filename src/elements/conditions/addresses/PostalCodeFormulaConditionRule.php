@@ -55,6 +55,8 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
         if (!$result) {
             return false;
         }
+
+        return true;
     }
 
     public function operators(): array
