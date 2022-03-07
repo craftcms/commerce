@@ -10,6 +10,7 @@ namespace craft\commerce\helpers;
 use Craft;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\events\CommerceDebugPanelDataEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use yii\base\Event;
 use yii\helpers\VarDumper;
@@ -23,25 +24,35 @@ use yii\helpers\VarDumper;
 class DebugPanel
 {
     /**
-     * Add a model debug tab to the debug panel.
-     *
      * @param object $model
      * @param string|null $name Name of the tab to be displayed.
+     * @param bool $prepend Whether to prepend the content tab.
+     * @return void
      */
-    public static function appendModelTab(object $model, ?string $name = null): void
+    public function prependOrAppendModelTab(object $model, ?string $name = null, bool $prepend = false): void
     {
-        self::_registerPanelEventListener($model, $name);
-    }
+        if (!$name) {
+            $classSegments = explode('\\', get_class($model));
+            $name = array_pop($classSegments);
 
-    /**
-     * Add a model debug tab to the debug panel.
-     *
-     * @param object $model
-     * @param string|null $name Name of the tab to be displayed.
-     */
-    public static function prependModelTab(object $model, ?string $name = null): void
-    {
-        self::_registerPanelEventListener($model, $name, true);
+            if (property_exists($model, 'id')) {
+                $name .= $model->id ? sprintf(' (ID: %s)', $model->id) : ' (New)';
+            }
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+        $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
+
+        if (!Craft::$app->getRequest()->getIsCpRequest() || !$user || !$user->getPreference($pref) || !Craft::$app->getConfig()->getGeneral()->devMode) {
+            return;
+        }
+
+        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $prepend) {
+            $content = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', compact('model'));
+
+            ArrayHelper::prependOrAppend($event->nav, $name, $prepend);
+            ArrayHelper::prependOrAppend($event->content, $content, $prepend);
+        });
     }
 
     /**
@@ -68,41 +79,5 @@ class DebugPanel
             Html::tag('th', $label)
             . Html::tag('td', Html::tag('code', $output))
         );
-    }
-
-    /**
-     * @param object $model
-     * @param string|null $name Name of the tab to be displayed.
-     * @param bool $prepend Whether to prepend the content tab.
-     */
-    private static function _registerPanelEventListener(object $model, ?string $name = null, bool $prepend = false): void
-    {
-        if (!$name) {
-            $classSegments = explode('\\', get_class($model));
-            $name = array_pop($classSegments);
-
-            if (property_exists($model, 'id')) {
-                $name .= $model->id ? sprintf(' (ID: %s)', $model->id) : ' (New)';
-            }
-        }
-
-        $user = Craft::$app->getUser()->getIdentity();
-        $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
-
-        if (!Craft::$app->getRequest()->getIsCpRequest() || !$user || !$user->getPreference($pref) || !Craft::$app->getConfig()->getGeneral()->devMode) {
-            return;
-        }
-
-        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $prepend) {
-            $content = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', compact('model'));
-
-            if ($prepend) {
-                array_unshift($event->nav, $name);
-                array_unshift($event->content, $content);
-            } else {
-                $event->nav[] = $name;
-                $event->content[] = $content;
-            }
-        });
     }
 }
