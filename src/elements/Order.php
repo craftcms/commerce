@@ -1343,7 +1343,7 @@ class Order extends Element
                 return $model->$attribute;
             };
         }
-        
+
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
@@ -1785,23 +1785,20 @@ class Order extends Element
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if ($this->shippingMethodHandle) {
-                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                    /** @var OrderNotice $orderNotice */
-                    $orderNotice = Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ],
-                    ]);
+            if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                $orderNotice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'shippingMethodChanged',
+                        'attribute' => 'shippingMethodHandle',
+                        'message' => $message,
+                    ],
+                ]);
 
-                    $this->addNotice($orderNotice);
-                    $this->recalculate();
-                }
+                $this->addNotice($orderNotice);
+                $this->recalculate();
             }
         }
     }
