@@ -364,7 +364,6 @@ class Plugin extends BasePlugin
 
                         ],
                     ],
-                    'commerce-manageCustomers' => $this->_registerCustomerPermission(),
                     'commerce-managePromotions' => $this->_registerPromotionPermission(),
                     'commerce-manageSubscriptions' =>['label' => Craft::t('commerce', 'Manage subscriptions')],
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
@@ -400,20 +399,6 @@ class Plugin extends BasePlugin
         }
 
         return $productTypePermissions;
-    }
-
-    /**
-     * @return array
-     */
-    private function _registerCustomerPermission(): array
-    {
-        return [
-            'label' => Craft::t('commerce', 'Manage customers'),
-            'nested' => [
-                'commerce-editCustomers' => ['label' => 'Edit Customers'],
-                'commerce-createCustomers' => ['label' => 'Create Customers']
-            ]
-        ];
     }
 
     /**

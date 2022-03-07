@@ -20,7 +20,7 @@ class m210614_073359_detailed_permission extends Migration
     {
         $this->_detailedPromotions();
         $this->_detailedSubscriptions();
-        $this->_detailedCustomers();
+        $this->_dropManageCustomersPermission();
         $this->_detailedProducts();
         $this->_projectConfigUpdates();
     }
@@ -99,8 +99,8 @@ class m210614_073359_detailed_permission extends Migration
         $editSubscriptionId = $this->db->getLastInsertID();
 
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsubscriptionplan']);
-        $createSubscriptionPlanId = $this->db->getLastInsertID();        
-        
+        $createSubscriptionPlanId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptionplan']);
         $editSubscriptionPlanId = $this->db->getLastInsertID();
 
@@ -138,44 +138,14 @@ class m210614_073359_detailed_permission extends Migration
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionPlanId]);
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $deleteSubscriptionPlanId]);
         }
-
     }
 
-    private function _detailedCustomers()
+    /**
+     * @return void
+     */
+    private function _dropManageCustomersPermission(): void
     {
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editcustomers']);
-        $editCustomerId = $this->db->getLastInsertID();
-
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createcustomers']);
-        $createCustomerId = $this->db->getLastInsertID();
-
-        $permissionId = (new Query())
-            ->select(['id'])
-            ->from([Table::USERPERMISSIONS])
-            ->where(['name' => 'commerce-managecustomers'])
-            ->scalar();
-
-        $userCustomers = (new Query())
-            ->select(['id', 'userId'])
-            ->from([Table::USERPERMISSIONS_USERS])
-            ->where(['permissionId' => $permissionId])
-            ->all();
-
-        foreach ($userCustomers as $userCustomer) {
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userCustomer['userId'], 'permissionId' => $editCustomerId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userCustomer['userId'], 'permissionId' => $createCustomerId]);
-        }
-
-        $groupCustomers = (new Query())
-            ->select(['id', 'permissionId', 'groupId'])
-            ->from([Table::USERPERMISSIONS_USERGROUPS])
-            ->where(['permissionId' => $permissionId])
-            ->all();
-
-        foreach ($groupCustomers as $groupCustomer) {
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupCustomer['groupId'], 'permissionId' => $editCustomerId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupCustomer['groupId'], 'permissionId' => $createCustomerId]);
-        }
+        $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-managecustomers']);
     }
 
     private function _detailedProducts()
