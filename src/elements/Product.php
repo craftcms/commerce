@@ -809,7 +809,7 @@ class Product extends Element
             Craft::$app->getView()::TEMPLATE_MODE_CP
         );
 
-        $html[] = parent::getSidebarHtml();
+        $html[] = parent::getSidebarHtml(false);
 
         // Custom styling
         $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');

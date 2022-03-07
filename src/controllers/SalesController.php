@@ -94,7 +94,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave(): Response
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -178,9 +178,9 @@ class SalesController extends BaseCpController
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             return $this->redirectToPostedUrl($sale);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
+
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
 
         $variables = [
             'sale' => $sale,
@@ -188,6 +188,8 @@ class SalesController extends BaseCpController
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);
+
+        return null;
     }
 
     /**

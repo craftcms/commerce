@@ -323,7 +323,6 @@ class SubscriptionsController extends BaseController
         $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
-        $subscription = null;
 
         try {
             $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
@@ -357,7 +356,7 @@ class SubscriptionsController extends BaseController
                 $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $error = $this->setFailFlash($exception->getMessage());
+            return $this->asFailure($exception->getMessage());
         }
 
         if ($error) {
