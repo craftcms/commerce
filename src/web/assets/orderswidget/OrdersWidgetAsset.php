@@ -32,7 +32,7 @@ class OrdersWidgetAsset extends AssetBundle
             StatWidgetsAsset::class,
             AdminTableAsset::class,
         ];
-        $this->js[] = 'js/OrdersWidgetSettings.js';
+        $this->js[] = 'OrdersWidgetSettings.js';
 
         parent::init();
     }

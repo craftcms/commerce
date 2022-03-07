@@ -28,7 +28,6 @@ use yii\web\Response;
 class EmailPreviewController extends Controller
 {
     /**
-     * @return Response
      * @throws Exception
      * @throws ForbiddenHttpException
      */
@@ -42,9 +41,6 @@ class EmailPreviewController extends Controller
         // TODO Remove `orderNumber` param in 4.0 #COM-31
         $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
         $orderNumber = Craft::$app->getRequest()->getParam('number', $orderNumber);
-
-        $view = Craft::$app->getView();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
         $order = null;
         if ($orderNumber) {
@@ -75,7 +71,7 @@ class EmailPreviewController extends Controller
             $orderHistory = ArrayHelper::firstValue($order->getHistories()) ?: new OrderHistory();
             $orderData = $order->toArray();
             $option = 'email';
-            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'));
+            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'), View::TEMPLATE_MODE_SITE);
         }
 
         $errors = [];
@@ -83,8 +79,6 @@ class EmailPreviewController extends Controller
             $errors[] = Craft::t('commerce', 'Could not find the email or template.');
         }
 
-        $view = Craft::$app->getView();
-        $view->setTemplateMode(View::TEMPLATE_MODE_CP);
         return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
     }
 }

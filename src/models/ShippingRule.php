@@ -158,14 +158,12 @@ class ShippingRule extends Model implements ShippingRuleInterface
     private ?array $_shippingRuleCategories = null;
 
     /**
-     * @param Order $order
-     * @return array
      * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
         $orderShippingCategories = [];
-        foreach ($order->lineItems as $lineItem) {
+        foreach ($order->getLineItems() as $lineItem) {
             // Don't look at the shipping category of non-shippable products.
             if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
@@ -177,7 +175,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $shippingRuleCategories
-     * @return array
      */
     private function _getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories): array
     {
@@ -249,6 +246,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRuleCategories';
+        $fields[] = 'shippingZone';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getIsEnabled(): bool
     {
         return $this->enabled;
@@ -284,7 +293,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             }
         }
 
-        $wholeOrderNonShippable = $nonShippableItems > 0 && count($lineItems) == count($nonShippableItems);
+        $wholeOrderNonShippable = count($nonShippableItems) > 0 && count($lineItems) == count($nonShippableItems);
 
         if ($wholeOrderNonShippable) {
             return false;
@@ -306,7 +315,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        $this->getShippingRuleCategories();
         $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
         foreach ($floatFields as $field) {
             $this->$field *= 1;
@@ -405,7 +413,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return ShippingAddressZone|null
      * @throws InvalidConfigException
      */
     public function getShippingZone(): ?ShippingAddressZone
@@ -481,7 +488,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param string $attribute
      * @since 3.2.7
      */
     public function validateShippingRuleCategories(string $attribute): void

@@ -96,9 +96,6 @@ class TaxCategory extends Model
         return $taxRates;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxcategories/' . $this->id);
@@ -144,5 +141,18 @@ class TaxCategory extends Model
         return [
             [['handle'], 'required'],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'productTypes';
+        $fields[] = 'productTypeIds';
+        $fields[] = 'taxRates';
+
+        return $fields;
     }
 }

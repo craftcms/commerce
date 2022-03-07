@@ -25,35 +25,37 @@ class TopProducts extends Stat
 {
     /**
      * Stat returned based on quantity.
+     *
      * @since 3.4
      */
-    const TYPE_QTY = 'qty';
+    public const TYPE_QTY = 'qty';
 
     /**
      * Stat returned based on revenue.
+     *
      * @since 3.4
      */
-    const TYPE_REVENUE = 'revenue';
+    public const TYPE_REVENUE = 'revenue';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_DISCOUNT = 'discount';
+    public const REVENUE_OPTION_DISCOUNT = 'discount';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX = 'tax';
+    public const REVENUE_OPTION_TAX = 'tax';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
+    public const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_SHIPPING = 'shipping';
+    public const REVENUE_OPTION_SHIPPING = 'shipping';
 
     /**
      * @inheritdoc
@@ -186,7 +188,6 @@ class TopProducts extends Stat
     /**
      * Create select statement for a stat type `custom` based on the options chosen.
      *
-     * @return Expression
      * @since 3.4
      */
     protected function getAdjustmentsSelect(): Expression
@@ -219,14 +220,13 @@ class TopProducts extends Stat
     /**
      * Create the adjustments sub query for use with revenue calculation.
      *
-     * @return Query
      * @since 3.4
      */
     protected function createAdjustmentsSubQuery(): Query
     {
         $types = [];
         foreach ($this->revenueOptions as $revenueOption) {
-            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax' : $revenueOption;
+            $types[] = str_starts_with($revenueOption, 'tax') ? 'tax' : $revenueOption;
         }
         $types = array_unique($types);
 
@@ -250,7 +250,6 @@ class TopProducts extends Stat
     /**
      * Return the order by clause for the data query.
      *
-     * @return Expression
      * @since 3.4
      */
     protected function getOrderBy(): Expression
@@ -270,7 +269,6 @@ class TopProducts extends Stat
     /**
      * Return group by statement based on state type.
      *
-     * @return string
      * @since 3.4
      */
     protected function getGroupBy(): string

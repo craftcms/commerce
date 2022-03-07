@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\events\PdfSaveEvent;
+use craft\commerce\helpers\Locale;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
@@ -25,6 +26,7 @@ use craft\helpers\StringHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
@@ -45,7 +47,6 @@ use yii\web\ServerErrorHttpException;
  */
 class Pdfs extends Component
 {
-
     /**
      * @var Pdf[]|null
      */
@@ -198,7 +199,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @return bool
      * @since 3.2
      */
     public function getHasEnabledPdf(): bool
@@ -218,7 +218,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @return Pdf|null
      * @since 3.2
      */
     public function getDefaultPdf(): ?Pdf
@@ -227,8 +226,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @param string $handle
-     * @return Pdf|null
      * @since 3.2
      */
     public function getPdfByHandle(string $handle): ?Pdf
@@ -239,8 +236,6 @@ class Pdfs extends Component
     /**
      * Get an PDF by its ID.
      *
-     * @param int $id
-     * @return Pdf|null
      * @since 3.2
      */
     public function getPdfById(int $id): ?Pdf
@@ -251,9 +246,6 @@ class Pdfs extends Component
     /**
      * Save an PDF.
      *
-     * @param Pdf $pdf
-     * @param bool $runValidation
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -295,8 +287,6 @@ class Pdfs extends Component
     /**
      * Handle PDF status change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws \yii\db\Exception
      * @since 3.2
      */
@@ -348,8 +338,6 @@ class Pdfs extends Component
     /**
      * Delete an PDF by its ID.
      *
-     * @param int $id
-     * @return bool
      * @since 3.2
      */
     public function deletePdfById(int $id): bool
@@ -366,8 +354,6 @@ class Pdfs extends Component
     /**
      * Handle email getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws \Throwable
      * @throws StaleObjectException
      * @since 3.2
@@ -385,8 +371,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
      * @throws ErrorException
      * @throws Exception
      * @throws NotSupportedException
@@ -448,12 +432,17 @@ class Pdfs extends Component
 
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
+        $originalLanguage = Craft::$app->language;
+        $pdfLanguage = $pdf->getRenderLanguage($order);
+        Locale::switchAppLanguage($pdfLanguage);
+
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
+            Locale::switchAppLanguage($originalLanguage);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -461,12 +450,14 @@ class Pdfs extends Component
         try {
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
+            Locale::switchAppLanguage($originalLanguage);
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
+        Locale::switchAppLanguage($originalLanguage);
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
@@ -502,7 +493,7 @@ class Pdfs extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
-        // Set additional rener options
+        // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
                 'options' => $options,
@@ -536,8 +527,6 @@ class Pdfs extends Component
     /**
      * Gets an PDF record by uid.
      *
-     * @param string $uid
-     * @return PdfRecord
      * @since 3.2
      */
     private function _getPdfRecord(string $uid): PdfRecord
@@ -552,7 +541,6 @@ class Pdfs extends Component
     /**
      * Returns a Query object prepped for retrieving PDFs.
      *
-     * @return Query
      * @since 3.2
      */
     private function _createPdfsQuery(): Query

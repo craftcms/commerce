@@ -30,5 +30,5 @@ class ModifyCartInfoEvent extends Event
      * @var Order|null
      * @since 3.1.11
      */
-    public ?Order $cart;
+    public ?Order $cart = null;
 }

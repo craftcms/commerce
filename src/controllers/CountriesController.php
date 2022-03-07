@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
@@ -28,9 +29,6 @@ use yii\web\Response;
  */
 class CountriesController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
@@ -40,7 +38,6 @@ class CountriesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param Country|null $country
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Country $country = null): Response
@@ -66,12 +63,14 @@ class CountriesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['country'], prepend: true);
+
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;
 
         if ($variables['id'] && $variables['country']->id == $variables['id'] && $variables['country']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['countryId' => $variables['id']])
                 ->count();
@@ -80,7 +79,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::SHIPPINGZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();
@@ -90,7 +89,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::TAXZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();
@@ -145,14 +144,14 @@ class CountriesController extends BaseStoreSettingsController
 
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
-            return $this->asJson(['success' => true]);
         } catch (Exception $e) {
-            return $this->asErrorJson($e->getMessage());
+            return $this->asFailure($e->getMessage());
         }
+
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 2.2
@@ -163,11 +162,11 @@ class CountriesController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getCountries()->reorderCountries($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getCountries()->reorderCountries($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder countries.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+        return $this->asSuccess();
     }
 
     /**

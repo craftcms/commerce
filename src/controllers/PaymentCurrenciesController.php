@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\db\Table as CraftTable;
@@ -29,7 +30,6 @@ use yii\web\Response;
 class PaymentCurrenciesController extends BaseStoreSettingsController
 {
     /**
-     * @return Response
      * @throws CurrencyException
      */
     public function actionIndex(): Response
@@ -42,7 +42,6 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param PaymentCurrency|null $currency
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -71,6 +70,8 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['currency'], prepend: true);
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
@@ -132,7 +133,6 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -144,12 +144,11 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
 
-        if ($currency && !$currency->primary) {
-            Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
-            return $this->asJson(['success' => true]);
+        if (!$currency || $currency->primary) {
+            return $this->asFailure(Craft::t('commerce', 'You can not delete that currency.'));
         }
 
-        $message = Craft::t('commerce', 'You can not delete that currency.');
-        return $this->asErrorJson($message);
+        Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
+        return $this->asSuccess();
     }
 }

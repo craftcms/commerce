@@ -77,9 +77,6 @@ class ShippingCategory extends Model
         return (string)$this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/shipping/shippingcategories/' . $this->id);
@@ -99,7 +96,7 @@ class ShippingCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if (null === $this->_productTypes && $this->id) {
+        if (!isset($this->_productTypes) && $this->id) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 
@@ -117,13 +114,22 @@ class ShippingCategory extends Model
         return ArrayHelper::getColumn($this->getProductTypes(), 'id', false);
     }
 
-    /**
-     * @return array
-     */
     protected function defineRules(): array
     {
         return [
             [['name', 'handle'], 'required'],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'productTypes';
+        $fields[] = 'productTypeIds';
+
+        return $fields;
     }
 }

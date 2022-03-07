@@ -40,9 +40,6 @@ class Donation extends Purchasable
      */
     private string $_sku;
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -68,21 +65,28 @@ class Donation extends Purchasable
         ];
     }
 
-    /**
-     * @return array
-     */
-    public function fields(): array
+    protected function defineRules(): array
     {
-        $fields = parent::fields();
+        $rules = parent::defineRules();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
+        $rules[] = [['sku'], 'trim'];
+        $rules[] = [
+            ['sku'], 'required', 'when' => function($model) {
+                /** @var self $model */
+                return $model->availableForPurchase && $model->enabled;
+            },
+        ];
 
-        return $fields;
+        return $rules;
     }
 
+    /**
+     * @inerhitdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
@@ -135,7 +139,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'donation';
     }
@@ -151,8 +155,6 @@ class Donation extends Purchasable
 
     /**
      * Returns the product title and variants title together for variable products.
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -162,7 +164,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/store-settings/donation');
     }
@@ -170,7 +172,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return '';
     }
@@ -183,9 +185,6 @@ class Donation extends Purchasable
         return $this->_sku;
     }
 
-    /**
-     * @param string|null $value
-     */
     public function setSku(?string $value): void
     {
         $this->_sku = $value;
@@ -268,7 +267,6 @@ class Donation extends Purchasable
     }
 
     /**
-     * @param bool $isNew
      * @throws Exception
      */
     public function afterSave(bool $isNew): void

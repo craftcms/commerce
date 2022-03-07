@@ -48,12 +48,7 @@ class CustomerAddressesController extends BaseFrontEndController
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
             $error = Craft::t('commerce', 'Not allowed to edit that address.');
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['error' => $error]);
-            }
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error);
         }
 
         // If we make it past the ownership check, and there was actually an ID passed, look it up:
@@ -110,12 +105,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
             if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
                 $error = Craft::t('commerce', 'Unable to update primary address.');
-                if ($this->request->getAcceptsJson()) {
-                    return $this->asJson(['error' => $error]);
-                }
-                $this->setFailFlash($error);
-
-                return null;
+                return $this->asFailure($error);
             }
 
             // Refresh the cart, if this address was being used.
@@ -130,31 +120,19 @@ class CustomerAddressesController extends BaseFrontEndController
                 Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
             }
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'address' => $address]);
-            }
 
-            $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
-
-            return $this->redirectToPostedUrl($address);
-        } else {
-            $errorMsg = Craft::t('commerce', 'Could not save address.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $errorMsg,
-                    'errors' => $address->errors,
-                ]);
-            }
-
-            $this->setFailFlash($errorMsg);
-
-            Craft::$app->getUrlManager()->setRouteParams([
-                'address' => $address,
-            ]);
+            return $this->asModelSuccess(
+                $address,
+                Craft::t('commerce', 'Address saved.'),
+                'address'
+            );
         }
 
-        return null;
+        return $this->asModelFailure(
+            $address,
+            Craft::t('commerce', 'Could not save address.'),
+            'address'
+        );
     }
 
     /**
@@ -182,52 +160,38 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         // current customer is the owner of the address
-        if (in_array($id, $addressIds, false) && Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
-            if ($cart->shippingAddressId == $id) {
-                $cart->removeShippingAddress();
-            }
-
-            if ($cart->billingAddressId == $id) {
-                $cart->removeBillingAddress();
-            }
-
-            if ($cart->estimatedShippingAddressId == $id) {
-                $cart->removeEstimatedShippingAddress();
-            }
-
-            if ($cart->estimatedBillingAddressId == $id) {
-                $cart->removeEstimatedBillingAddress();
-            }
-
-            // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
-            $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
-            $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
-
-            Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => true]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Address removed.'));
-            return $this->redirectToPostedUrl();
-        } else {
-            $error = Craft::t('commerce', 'Could not delete address.');
+        if (!in_array($id, $addressIds, false) || !Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete address.'));
         }
 
-        if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['error' => $error]);
+        if ($cart->shippingAddressId == $id) {
+            $cart->removeShippingAddress();
         }
 
-        $this->setFailFlash($error);
+        if ($cart->billingAddressId == $id) {
+            $cart->removeBillingAddress();
+        }
 
-        return null;
+        if ($cart->estimatedShippingAddressId == $id) {
+            $cart->removeEstimatedShippingAddress();
+        }
+
+        if ($cart->estimatedBillingAddressId == $id) {
+            $cart->removeEstimatedBillingAddress();
+        }
+
+        // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
+        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
+
+        Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
+
+        return $this->asSuccess(Craft::t('commerce', 'Address removed.'));
     }
 
     /**
      * Return customer addresses.
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @since 3.2.7
      */
@@ -238,6 +202,8 @@ class CustomerAddressesController extends BaseFrontEndController
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
         $addresses = $customer->getAddresses();
 
-        return $this->asJson(['success' => true, 'addresses' => $addresses]);
+        return $this->asSuccess(data: [
+            'addresses' => $addresses,
+        ]);
     }
 }

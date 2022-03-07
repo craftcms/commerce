@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -29,9 +30,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
@@ -42,7 +40,6 @@ class LineItemStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param LineItemStatus|null $lineItemStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, LineItemStatus $lineItemStatus = null): Response
@@ -60,6 +57,8 @@ class LineItemStatusesController extends BaseAdminController
                 $variables['lineItemStatus'] = new LineItemStatus();
             }
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;
@@ -104,7 +103,6 @@ class LineItemStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -117,15 +115,14 @@ class LineItemStatusesController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.')]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Throwable
      */
@@ -135,10 +132,10 @@ class LineItemStatusesController extends BaseAdminController
 
         $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Line Item Status.')]);
+        return $this->asSuccess();
     }
 }

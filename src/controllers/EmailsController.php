@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
@@ -31,7 +32,6 @@ use yii\web\ServerErrorHttpException;
 class EmailsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -43,7 +43,6 @@ class EmailsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Email|null $email
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Email $email = null): Response
@@ -68,6 +67,8 @@ class EmailsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
+
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
@@ -83,7 +84,6 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -145,6 +145,6 @@ class EmailsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

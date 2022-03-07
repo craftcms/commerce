@@ -43,12 +43,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @var float|null
      */
-    private ?float $_salePrice;
+    private ?float $_salePrice = null;
 
     /**
      * @var Sale[]|null
      */
-    private ?array $_sales;
+    private ?array $_sales = null;
 
     /**
      * @inheritdoc
@@ -209,9 +209,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public function getIsShippable(): bool
     {
         return true;
@@ -244,7 +241,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * Update purchasable table
      *
-     * @param bool $isNew
      * @throws SiteNotFoundException
      */
     public function afterSave(bool $isNew): void
@@ -292,13 +288,15 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($this);
     }
 
-    /**
-     * @return bool
-     */
     public function getOnSale(): bool
     {
         $salePrice = $this->getSalePrice();
-        return null === $salePrice ? false : (Currency::round($salePrice) != Currency::round($this->getPrice()));
+
+        if ($salePrice === null) {
+            return false;
+        }
+
+        return Currency::round($salePrice) !== Currency::round($this->getPrice());
     }
 
     /**

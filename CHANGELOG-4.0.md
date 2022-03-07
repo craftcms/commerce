@@ -3,11 +3,16 @@
 ## Unreleased
 
 ### Added
+- Added Commerce panel to the debug toolbar.
 - Added `craft\commerce\controllers\PaymentsController::PAYMENT_FORM_NAMESPACE`.
+- Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
+- Added `craft\commerce\helpers\DebugPanel`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
+- Tax rate input fields no longer require the percent symbol.
 - When using the Payments controller payment form fields are now expected to be namespaced.
+- `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
@@ -20,6 +25,8 @@
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
+- Removed `craft\commerce\models\ProductType::lineItemFormat`.
+- Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
@@ -35,13 +42,15 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed direct `moneyphp/money` dependency.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
-- Removed `craft\commerce\base\OrderDeprecatedTrait`.
 - Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
+- Removed `craft\commerce\base\OrderDeprecatedTrait`.
 - Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
 - Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions()` instead.
 - Removed `craft\commerce\elements\Order::getOrderLocale()` has been deprecated. Use `Order::orderLanguage` instead.
@@ -49,10 +58,11 @@
 - Removed `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\Order::getTotalTaxablePrice()`. Taxable price is now calculated within the tax adjuster.
 - Removed `craft\commerce\elements\Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
-- Removed `craft\commerce\elements\traits\OrderDeprecatedTrait`.
 - Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\elements\traits\OrderDeprecatedTrait`.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
+- Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Email::getPdfTemplatePath()`. Use `craft\commerce\models\Email::getPdf()->getTemplatePath()` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`.
 - Removed `craft\commerce\services\Customers::getCustomerId()`. Use `Customers::getCustomer()->id` instead.
@@ -68,7 +78,8 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `json_encode_filtered` twig filter.
-- Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
+- Removed the `orderPdfFilenameFormat` setting.
+- Removed the `orderPdfPath` setting.
 
 ### Fixed
 

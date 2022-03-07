@@ -47,8 +47,6 @@ class PaymentCurrencies extends Component
     /**
      * Get payment currency by its ID.
      *
-     * @param int $id
-     * @return PaymentCurrency|null
      * @throws InvalidConfigException if currency has invalid iso code defined
      */
     public function getPaymentCurrencyById(int $id): ?PaymentCurrency
@@ -73,7 +71,7 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies(): array
     {
-        if (null === $this->_allCurrenciesByIso) {
+        if (!isset($this->_allCurrenciesByIso)) {
             $rows = $this->_createPaymentCurrencyQuery()
                 ->orderBy(['primary' => SORT_DESC, 'iso' => SORT_ASC])
                 ->all();
@@ -100,8 +98,6 @@ class PaymentCurrencies extends Component
     /**
      * Get a payment currency by its ISO code.
      *
-     * @param string $iso
-     * @return PaymentCurrency|null
      * @throws CurrencyException if currency does not exist with tat iso code
      * @throws InvalidConfigException
      */
@@ -120,8 +116,6 @@ class PaymentCurrencies extends Component
 
     /**
      * Return the primary currencies ISO code as a string.
-     *
-     * @return string
      */
     public function getPrimaryPaymentCurrencyIso(): string
     {
@@ -131,7 +125,6 @@ class PaymentCurrencies extends Component
     /**
      * Returns the primary currency all prices are entered as.
      *
-     * @return PaymentCurrency|null
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
@@ -164,8 +157,6 @@ class PaymentCurrencies extends Component
      * Convert an amount in site's primary currency to a different currency by its ISO code.
      *
      * @param float $amount This is the unit of price in the primary store currency
-     * @param string $currency
-     * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
      */
@@ -183,11 +174,7 @@ class PaymentCurrencies extends Component
     /**
      * Convert an amount between currencies based on rates configured.
      *
-     * @param float $amount
-     * @param string $fromCurrency
-     * @param string $toCurrency
      * @param bool $round
-     * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
      */
@@ -222,9 +209,7 @@ class PaymentCurrencies extends Component
     /**
      * Save a payment currency.
      *
-     * @param PaymentCurrency $model
      * @param bool $runValidation should we validate this payment currency before saving.
-     * @return bool
      * @throws Exception
      */
     public function savePaymentCurrency(PaymentCurrency $model, bool $runValidation = true): bool
@@ -278,7 +263,6 @@ class PaymentCurrencies extends Component
      * Delete a payment currency by its ID.
      *
      * @param $id
-     * @return bool
      * @throws \Throwable
      * @throws StaleObjectException
      */
@@ -303,8 +287,6 @@ class PaymentCurrencies extends Component
 
     /**
      * Memoize a payment currency
-     *
-     * @param PaymentCurrency $paymentCurrency
      */
     private function _memoizePaymentCurrency(PaymentCurrency $paymentCurrency): void
     {
@@ -314,8 +296,6 @@ class PaymentCurrencies extends Component
 
     /**
      * Returns a Query object prepped for retrieving Emails
-     *
-     * @return Query
      */
     private function _createPaymentCurrencyQuery(): Query
     {

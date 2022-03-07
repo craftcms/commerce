@@ -12,8 +12,8 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax rate model.
@@ -132,26 +132,29 @@ class TaxRate extends Model
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'taxCategory';
+        $fields[] = 'taxZone';
+        $fields[] = 'rateAsPercent';
+        $fields[] = 'isEverywhere';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->rate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asPercent($this->rate);
     }
 
-    /**
-     * @return TaxAddressZone|null
-     */
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
@@ -161,12 +164,9 @@ class TaxRate extends Model
         return $this->_taxZone;
     }
 
-    /**
-     * @return TaxCategory|null
-     */
     public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory && $this->taxCategoryId) {
+        if (!isset($this->_taxCategory) && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 
@@ -175,6 +175,7 @@ class TaxRate extends Model
 
     /**
      * @return bool Does this tax rate apply everywhere
+     * @throws InvalidConfigException
      */
     public function getIsEverywhere(): bool
     {

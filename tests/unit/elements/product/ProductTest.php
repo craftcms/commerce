@@ -30,7 +30,7 @@ class ProductTest extends Unit
         return [
             'products' => [
                 'class' => ProductFixture::class,
-            ]
+            ],
         ];
     }
 
@@ -110,7 +110,7 @@ class ProductTest extends Unit
                     'defaultVariantTitle' => 'Test Variant #1',
                     'cheapestEnabledVariantTitle' => 'Test Variant #1',
                     'defaultEnabledVariantTitle' => 'Test Variant #1',
-                ]
+                ],
             ],
             'One Disabled' => [
                 2001,
@@ -122,7 +122,7 @@ class ProductTest extends Unit
                     'defaultVariantTitle' => 'Test Variant #3',
                     'cheapestEnabledVariantTitle' => 'Test Variant #2',
                     'defaultEnabledVariantTitle' => 'Test Variant #3',
-                ]
+                ],
             ],
             'All Disabled' => [
                 2001,
@@ -134,7 +134,7 @@ class ProductTest extends Unit
                     'defaultVariantTitle' => 'Test Variant #2',
                     'cheapestEnabledVariantTitle' => null,
                     'defaultEnabledVariantTitle' => null,
-                ]
+                ],
             ],
         ];
     }

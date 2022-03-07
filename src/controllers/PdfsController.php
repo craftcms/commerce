@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -30,7 +31,6 @@ use yii\web\ServerErrorHttpException;
 class PdfsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @since 3.2
      */
     public function actionIndex(): Response
@@ -42,7 +42,6 @@ class PdfsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Pdf|null $pdf
-     * @return Response
      * @throws HttpException
      * @since 3.2
      */
@@ -74,11 +73,12 @@ class PdfsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
+
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -138,11 +138,10 @@ class PdfsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getPdfs()->deletePdfById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 3.2
@@ -153,10 +152,10 @@ class PdfsController extends BaseAdminController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder PDFs.')]);
+        return $this->asSuccess();
     }
 }

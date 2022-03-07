@@ -49,12 +49,12 @@ class OrderHistory extends Model
     /**
      * @var int|null New status ID
      */
-    public ?int $newStatusId;
+    public ?int $newStatusId = null;
 
     /**
      * @var int|null Customer ID
      */
-    public ?int $customerId;
+    public ?int $customerId = null;
 
     /**
      * @var Datetime|null
@@ -62,7 +62,6 @@ class OrderHistory extends Model
     public ?DateTime $dateCreated = null;
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
@@ -71,7 +70,6 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return OrderStatus|null
      * @throws InvalidConfigException
      */
     public function getPrevStatus(): ?OrderStatus
@@ -81,7 +79,6 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return OrderStatus|null
      * @throws InvalidConfigException
      */
     public function getNewStatus(): ?OrderStatus
@@ -91,7 +88,6 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return Customer|null
      * @throws InvalidConfigException
      */
     public function getCustomer(): ?Customer

@@ -25,8 +25,6 @@ class ProjectConfigData
 {
     /**
      * Return a rebuilt project config array
-     *
-     * @return array
      */
     public static function rebuildProjectConfig(): array
     {
@@ -65,8 +63,6 @@ class ProjectConfigData
 
     /**
      * Return gateway data config array.
-     *
-     * @return array
      */
     private static function _rebuildGatewayProjectConfig(): array
     {
@@ -97,8 +93,6 @@ class ProjectConfigData
 
     /**
      * Return product type data config array.
-     *
-     * @return array
      */
     private static function _getProductTypeData(): array
     {
@@ -184,8 +178,6 @@ class ProjectConfigData
 
     /**
      * Return email data config array.
-     *
-     * @return array
      */
     private static function _getEmailData(): array
     {
@@ -198,8 +190,6 @@ class ProjectConfigData
 
     /**
      * Return PDF data config array.
-     *
-     * @return array
      */
     private static function _getPdfData(): array
     {
@@ -212,8 +202,6 @@ class ProjectConfigData
 
     /**
      * Return line item status data config array.
-     *
-     * @return array
      */
     private static function _getLineItemStatusData(): array
     {
@@ -226,8 +214,6 @@ class ProjectConfigData
 
     /**
      * Return order status data config array.
-     *
-     * @return array
      */
     private static function _getStatusData(): array
     {

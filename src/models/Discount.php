@@ -145,7 +145,8 @@ class Discount extends Model
     public bool $hasFreeShippingForOrder = false;
 
     /**
-     * @var string|null Type of user group condition that should match the discount. (See getUserConditions().)
+     * @var string Type of user group condition that should match the discount.
+     * @see getUserConditions()
      */
     public ?string $userGroupsCondition = null;
 
@@ -227,8 +228,20 @@ class Discount extends Model
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+        $fields[] = 'categoryIds';
+        $fields[] = 'userGroupIds';
+        $fields[] = 'percentDiscountAsPercent';
+        $fields[] = 'userGroupsConditions';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
@@ -300,40 +313,21 @@ class Discount extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
-    /**
-     * @param bool $value
-     */
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
     }
 
-    /**
-     * @return bool
-     */
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;
     }
 
-    /**
-     * @return string
-     */
     public function getPercentDiscountAsPercent(): string
     {
-        if (isset($this->percentDiscount) && $this->percentDiscount !== 0.0) {
-            $string = (string)$this->percentDiscount;
-            $number = rtrim($string, '0');
-            $diff = strlen($string) - strlen($number);
-            return Craft::$app->formatter->asPercent(-$this->percentDiscount, 2 - $diff);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
-    /**
-     * @return array
-     */
     public function getUserGroupsConditions(): array
     {
         return [
@@ -400,10 +394,8 @@ class Discount extends Model
                         if (!$order) {
                             $order = new Order();
                         }
-                        $orderDiscountConditionParams = [
-                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
-                        ];
-                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, Plugin::getInstance()->getDiscounts()->getOrderConditionParams($order))) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                         }
                     }

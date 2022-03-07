@@ -97,10 +97,21 @@ class Email extends Model
     public ?string $uid = null;
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'pdf';
+        $fields[] = 'config';
+
+        return $fields;
+    }
+
+    /**
      * Determines the language this pdf, if
      *
      * @param Order|null $order
-     * @return string
      */
     public function getRenderLanguage(Order $order = null): string
     {
@@ -136,7 +147,6 @@ class Email extends Model
     }
 
     /**
-     * @return Pdf|null
      * @throws InvalidConfigException
      */
     public function getPdf(): ?Pdf
@@ -150,7 +160,6 @@ class Email extends Model
     /**
      * Returns the field layout config for this email.
      *
-     * @return array
      * @throws InvalidConfigException
      * @since 3.2.0
      */

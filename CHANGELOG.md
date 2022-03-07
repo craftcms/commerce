@@ -1,5 +1,136 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added support for PHP 8.1.
+- Added parent::behaviors() to `\craft\commerce\models\ProductType::behaviors()` to be able to add additional behaviors. ([#2715](https://github.com/craftcms/commerce/issues/2715))
+
+### Fixed
+- Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
+
+## 3.4.11 - 2022-02-09
+
+### Changed
+- Improved memory usage for `craft\commerce\services\LineItems::getAllLineItemsByOrderId()`.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
+
+### Fixed
+- Fixed a bug that could occur when attempting to create a customer on the Edit Order page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
+- Fixed a bug where the shipping method name wasn’t getting updated in the Edit Order page sidebar if the shipping method was changed. ([#2682](https://github.com/craftcms/commerce/issues/2682))
+- Fixed a bug where `Addresses::getStoreLocation()` could return an address with `isStoreLocation` set to `false`. ([#2688](https://github.com/craftcms/commerce/issues/2688))
+- Fixed a bug where Edit State pages included a breadcrumb that linked to a 404. ([#2692](https://github.com/craftcms/commerce/pull/2692))
+- Fixed an error that could occur when saving a discount. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
+## 3.4.10.1 - 2022-01-13
+
+### Fixed
+- Fixed a bug where `craft\commerce\models\LiteTaxSettings::getTaxRateAsPercent()` wasn’t returning a value.
+
+## 3.4.10 - 2022-01-12
+
+### Added
+- It’s now possible to completely disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
+- Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
+- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
+- Added `craft\commerce\helpers\Localization`.
+
+### Fixed
+- Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.
+- Fixed an error that could occur when saving a discount. ([#2660](https://github.com/craftcms/commerce/issues/2660))
+- Fixed a bug where partial payment errors weren’t getting returned correctly for Ajax requests to `commerce/payments/pay`.
+- Fixed an error that could occur when trying to refund an order. ([#2642](https://github.com/craftcms/commerce/pull/2642))
+- Fixed a bug where tax rates weren’t properly supporting localized number formats.
+
+### Security
+- Fixed XSS vulnerabilities.
+
+## 3.4.9.3 - 2021-12-23
+
+### Fixed
+- Fixed a bug where it wasn’t possible to scroll transactions’ gateway response data on View Order pages. ([#2639](https://github.com/craftcms/commerce/issues/2639))
+- Fixed a bug where it wasn’t possible to save sales.
+
+## 3.4.9.2 - 2021-12-15
+
+### Fixed
+- Fixed an error that occurred when loading the Order Edit page. ([#2640](https://github.com/craftcms/commerce/issues/2640))
+
+## 3.4.9.1 - 2021-12-15
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.7.25 or later. ([#2638](https://github.com/craftcms/commerce/issues/2638))
+
+## 3.4.9 - 2021-12-14
+
+### Added
+- Discounts and sales now have “All purchasables”, “All categories”, and “All customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
+
+### Changed
+- Product indexes now use a “Product” header column heading by default, rather than “Title”.
+
+### Fixed
+- Fixed a bug where adjustment snapshots were removed when recalculating a completed order.
+- Fixed a bug where email previews included control panel assets. ([#2632](https://github.com/craftcms/commerce/issues/2632))
+
+## 3.4.8 - 2021-11-25
+
+### Added
+- Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsController::enforceDeleteProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\SubscriptionsController::enforceEditSubscriptionPermissions()`.
+
+### Changed
+- Improved the performance of order saving.
+- Formula condition results are now cached.
+- Products now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+- Subscriptions now support `EVENT_DEFINE_IS_EDITABLE`.
+
+## Deprecated
+- Deprecated `craft\commerce\controllers\ProductsController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
+
+### Fixed
+- Fixed a bug where active/inactive cart queries weren’t factoring the system time zone properly. ([#2601](https://github.com/craftcms/commerce/issues/2601))
+- Fixed a bug where it was possible to save a product without any variants. ([#2612](https://github.com/craftcms/commerce/issues/2612))
+- Fixed a bug where the First Name and Last Name fields within payment modals weren’t immediately visible. ([#2603](https://github.com/craftcms/commerce/issues/2603))
+- Fixed a bug where the “Billing Details URL” subscription setting didn’t fully support being set to an environment variable. ([#2571](https://github.com/craftcms/commerce/pull/2571))
+
+## 3.4.7 - 2021-11-03
+
+### Deprecated
+- Deprecated `craft\commerce\models\ProductType::getLineItemFormat()` and `setLineItemFormat()`.
+
+### Fixed
+- Fixed a bug where products’ Variants fields could be added to the field layout twice.
+- Fixed a bug where PDFs could be rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
+- Fixed an error that that could occur when instantiating a `craft\commerce\elements\Order` object. ([#2602](https://github.com/craftcms/commerce/issues/2602))
+
+### Security
+- Fixed XSS vulnerabilities.
+
+## 3.4.6 - 2021-10-20
+
+### Added
+- Added `craft\commerce\services\PaymentSources::getPaymentSourceByTokenAndGatewayId()`.
+
+### Changed
+- Improved the styling and behavior of the example templates.
+
+### Fixed
+- Fixed a bug where purging inactive carts did not respect time zones. ([#2588](https://github.com/craftcms/commerce/issues/2588))
+- Fixed a bug where it was possible to manage discounts when using the Lite edition. ([#2590](https://github.com/craftcms/commerce/issues/2590))
+
+## 3.4.5 - 2021-10-13
+
+### Added
+- Added `craft\commerce\services\Transactions::getTransactionByReference()`.
+
+### Fixed
+- Fixed a bug where shipping rules could never match when the cart was empty. ([#2583](https://github.com/craftcms/commerce/issues/2583))
+- Fixed a bug where a default shipping method was not being set per the `autoSetCartShippingMethodOption` setting. ([#2584](https://github.com/craftcms/commerce/issues/2584))
+
 ## 3.4.4 - 2021-10-07
 
 ### Added

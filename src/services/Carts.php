@@ -16,6 +16,7 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
@@ -56,7 +57,6 @@ class Carts extends Component
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart to save when requesting it.
-     * @return Order
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -67,7 +67,7 @@ class Carts extends Component
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
-        if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
+        if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order(['customer' => $customer]);
             $this->_cart->number = $this->getSessionCartNumber();
         }
@@ -121,7 +121,6 @@ class Carts extends Component
     }
 
     /**
-     * @return Order|null
      * @throws Exception
      * @throws MissingComponentException
      * @throws Throwable
@@ -155,7 +154,6 @@ class Carts extends Component
     /**
      * Forgets the cart in the current session.
      *
-     * @return void
      * @throws MissingComponentException
      */
     public function forgetCart(): void
@@ -167,7 +165,6 @@ class Carts extends Component
     /**
      * Generate a new random cart number and returns it.
      *
-     * @return string
      * @since 2.0
      */
     public function generateCartNumber(): string
@@ -178,7 +175,6 @@ class Carts extends Component
     /**
      * Calculates the date of the active cart duration edge.
      *
-     * @return string
      * @throws \Exception
      * @since 2.2
      */
@@ -194,7 +190,6 @@ class Carts extends Component
     /**
      * Returns whether there is a cart number in the session.
      *
-     * @return bool
      * @throws MissingComponentException
      * @since 2.1.11
      */
@@ -205,7 +200,6 @@ class Carts extends Component
     }
 
     /**
-     * @return string
      * @since 3.1
      */
     public function getCartName(): string
@@ -216,7 +210,6 @@ class Carts extends Component
     /**
      * Get the session cart number or generates one if none exists.
      *
-     * @return string
      * @throws MissingComponentException
      */
     private function getSessionCartNumber(): string
@@ -235,8 +228,6 @@ class Carts extends Component
     /**
      * Set the session cart number.
      *
-     * @param string $cartNumber
-     * @return void
      * @throws MissingComponentException
      */
     private function setSessionCartNumber(string $cartNumber): void
@@ -286,7 +277,7 @@ class Carts extends Component
             $cartIds = (new Query())
                 ->select(['orders.id'])
                 ->where(['not', ['isCompleted' => true]])
-                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
                 ->from(['orders' => Table::ORDERS])
                 ->column();
 
@@ -311,8 +302,6 @@ class Carts extends Component
 
     /**
      * Gets the current payment currency ISO code
-     *
-     * @return string
      */
     private function _getCartPaymentCurrencyIso(): string
     {

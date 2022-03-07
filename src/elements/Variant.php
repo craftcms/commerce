@@ -28,6 +28,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
@@ -256,7 +257,6 @@ class Variant extends Purchasable
     private string $_sku = '';
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -281,21 +281,6 @@ class Variant extends Purchasable
             'price',
             'salePrice',
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
     }
 
     /**
@@ -348,7 +333,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'variant';
     }
@@ -455,7 +440,6 @@ class Variant extends Purchasable
     /**
      * Returns the product title and variants title together for variable products.
      *
-     * @return string
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
@@ -477,7 +461,6 @@ class Variant extends Purchasable
     /**
      * Updates the title based on titleFormat, or sets it to the same title as the product.
      *
-     * @param Product $product
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
@@ -504,7 +487,6 @@ class Variant extends Purchasable
 
 
     /**
-     * @param Product $product
      * @throws Throwable
      */
     public function updateSku(Product $product): void
@@ -543,7 +525,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
      * @throws InvalidConfigException
      */
     protected function isEditable(): bool
@@ -560,7 +541,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
@@ -568,7 +549,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->product->url . '?variant=' . $this->id;
     }
@@ -585,7 +566,6 @@ class Variant extends Purchasable
 
     /**
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getSnapshot(): array
@@ -612,7 +592,7 @@ class Variant extends Purchasable
 
             // Remove custom fields
             if (($fieldLayout = $product->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     ArrayHelper::removeValue($productAttributes, $field->handle);
                 }
             }
@@ -658,7 +638,7 @@ class Variant extends Purchasable
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 ArrayHelper::removeValue($variantAttributes, $field->handle);
             }
         }
@@ -693,8 +673,6 @@ class Variant extends Purchasable
 
     /**
      * Returns the SKU as text but returns a blank string if it’s a temp SKU.
-     *
-     * @return string
      */
     public function getSkuAsText(): string
     {
@@ -709,7 +687,6 @@ class Variant extends Purchasable
 
     /**
      * @param string|null $sku
-     * @return void
      */
     public function setSku(string $sku = null): void
     {
@@ -734,8 +711,6 @@ class Variant extends Purchasable
 
     /**
      * Returns whether this variant has stock.
-     *
-     * @return bool
      */
     public function hasStock(): bool
     {
@@ -768,7 +743,7 @@ class Variant extends Purchasable
             foreach ($lineItem->getOrder()->getLineItems() as $item) {
                 if ($item->id !== null && $item->id == $lineItem->id) {
                     $qty += $lineItem->qty;
-                } else if ($item->purchasableId == $lineItem->purchasableId) {
+                } elseif ($item->purchasableId == $lineItem->purchasableId) {
                     $qty += $item->qty;
                 }
             }
@@ -835,7 +810,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'product') {
             // Get the source element IDs
@@ -896,8 +871,6 @@ class Variant extends Purchasable
 
     /**
      * Returns a promotion category related to this element if the category is related to the product OR the variant.
-     *
-     * @return array
      */
     public function getPromotionRelationSource(): array
     {
@@ -913,7 +886,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return string
      * @throws InvalidConfigException
      * @since 3.1
      */
@@ -930,20 +902,18 @@ class Variant extends Purchasable
 
     /**
      * @param mixed $context
-     * @return string
      * @since 3.1
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         return $context->handle . '_Variant';
     }
 
     /**
      * @param mixed $context
-     * @return array
      * @since 3.1
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -1118,7 +1088,6 @@ class Variant extends Purchasable
         $this->updateSku($product);
 
         if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
             }
@@ -1141,8 +1110,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param bool $isNew
-     * @return bool
      * @throws InvalidConfigException
      */
     public function beforeSave(bool $isNew): bool
@@ -1232,8 +1199,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param string $attribute
-     * @return string
      * @throws InvalidConfigException
      * @since 2.2
      */
@@ -1329,11 +1294,16 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->getSkuAsText();
+                return Html::encode($this->getSkuAsText());
             }
             case 'product':
             {
-                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
+                $product = $this->getProduct();
+                if (!$product) {
+                    return '';
+                }
+
+                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
             }
             case 'price':
             {

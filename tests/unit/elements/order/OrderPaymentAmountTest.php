@@ -8,11 +8,13 @@
 namespace craftcommercetests\unit\elements\order;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use UnitTester;
 
 /**
@@ -42,6 +44,18 @@ class OrderPaymentAmountTest extends Unit
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
+
+    /**
+     * @return array
+     */
+    public function _fixtures(): array
+    {
+        return [
+            'payment-currencies' => [
+                'class' => PaymentCurrenciesFixture::class,
+            ],
+        ];
+    }
 
     /**
      * @group PaymentCurrencies
@@ -92,6 +106,66 @@ class OrderPaymentAmountTest extends Unit
         // Setting a payment amount in excess of the outstanding balance is ignored and just set to the outstanding balance
         $this->order->setPaymentAmount(1000);
         self::assertEquals($this->order->getPaymentAmount(), $this->order->getOutstandingBalance());
+    }
+
+    /**
+     * @dataProvider isPaymentAmountPartialDataProvider
+     */
+    public function testIsPaymentAmountPartial($lineItems, $paymentAmount, $paymentCurrency, $isPartial)
+    {
+        foreach ($lineItems as &$item) {
+            $item = Craft::createObject(LineItem::class, [
+                'config' => ['attributes' => $item],
+            ]);
+        }
+        unset($item);
+
+        $this->order->setLineItems($lineItems);
+        $this->order->setPaymentCurrency($paymentCurrency);
+
+        if ($paymentAmount !== null) {
+            $this->order->setPaymentAmount($paymentAmount);
+        }
+
+        self::assertEquals($isPartial, $this->order->isPaymentAmountPartial());
+    }
+
+    /**
+     * @return array[]
+     */
+    public function isPaymentAmountPartialDataProvider()
+    {
+        $lineItems = [
+            'first' => [
+                'qty' => 1,
+                'salePrice' => 10,
+            ],
+            'second' => [
+                'qty' => 1,
+                'salePrice' => 20,
+            ],
+        ];
+
+        return [
+            'partial-payment' => [
+                $lineItems,
+                10,
+                'AUD',
+                true,
+            ],
+            'full-payment-specified' => [
+                array_merge($lineItems, ['second' => ['salePrice' => 7.75, 'qty' => 1]]),
+                23.08,
+                'AUD',
+                false,
+            ],
+            'currency-specified-but-no-amount' => [
+                $lineItems,
+                null,
+                'AUD',
+                false,
+            ],
+        ];
     }
 
     /**

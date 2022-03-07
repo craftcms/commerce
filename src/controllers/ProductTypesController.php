@@ -11,6 +11,7 @@ use Craft;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
@@ -27,9 +28,6 @@ use yii\web\Response;
  */
 class ProductTypesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -39,7 +37,6 @@ class ProductTypesController extends BaseAdminController
     /**
      * @param int|null $productTypeId
      * @param ProductType|null $productType
-     * @return Response
      * @throws HttpException
      */
     public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
@@ -67,6 +64,8 @@ class ProductTypesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['productType'], prepend: true);
 
         $tabs = [
             'productTypeSettings' => [
@@ -176,7 +175,6 @@ class ProductTypesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws Throwable
      * @throws BadRequestHttpException
      */
@@ -188,6 +186,6 @@ class ProductTypesController extends BaseAdminController
         $productTypeId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

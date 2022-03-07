@@ -24,12 +24,12 @@ class Variant extends ElementResolver
     /**
      * @inheritdoc
      */
-    public static function prepareQuery($source, array $arguments, $fieldName = null)
+    public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
     {
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
             $query = VariantElement::find();
-            // If not, get the prepared element query
+        // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
         }
@@ -42,7 +42,7 @@ class Variant extends ElementResolver
         foreach ($arguments as $key => $value) {
             if (method_exists($query, $key)) {
                 $query->$key($value);
-            } else if (property_exists($query, $key)) {
+            } elseif (property_exists($query, $key)) {
                 $query->$key = $value;
             } else {
                 // Catch custom field queries

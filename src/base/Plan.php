@@ -68,12 +68,11 @@ abstract class Plan extends Model implements PlanInterface
     /**
      * Returns the gateway for this subscription plan.
      *
-     * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
      */
     public function getGateway(): ?SubscriptionGatewayInterface
     {
-        if (null === $this->_gateway) {
+        if (!isset($this->_gateway)) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -100,8 +99,6 @@ abstract class Plan extends Model implements PlanInterface
 
     /**
      * Returns the plan's related Entry element, if any.
-     *
-     * @return Entry|null
      */
     public function getInformation(): ?Entry
     {
@@ -114,8 +111,6 @@ abstract class Plan extends Model implements PlanInterface
 
     /**
      * Returns the subscription count for this plan.
-     *
-     * @return int
      */
     public function getSubscriptionCount(): int
     {
@@ -124,9 +119,6 @@ abstract class Plan extends Model implements PlanInterface
 
     /**
      * Returns whether there exists an active subscription for this plan for this user.
-     *
-     * @param int $userId
-     * @return bool
      */
     public function hasActiveSubscription(int $userId): bool
     {

@@ -18,8 +18,6 @@ use craft\commerce\elements\Order as OrderElement;
 class Order
 {
     /**
-     * @param OrderElement $order
-     *
      * @return bool Were any line items merged?
      */
     public static function mergeDuplicateLineItems(OrderElement $order): bool
@@ -47,4 +45,3 @@ class Order
         return $lineItems > $lineItemsByKey;
     }
 }
-

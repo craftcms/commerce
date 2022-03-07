@@ -88,10 +88,20 @@ class Pdf extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'config';
+
+        return $fields;
+    }
+
+    /**
      * Determines the language this PDF
      *
      * @param Order|null $order
-     * @return string
      */
     public function getRenderLanguage(Order $order = null): string
     {
@@ -111,7 +121,6 @@ class Pdf extends Model
     /**
      * Returns the field layout config for this email.
      *
-     * @return array
      * @since 3.2.0
      */
     public function getConfig(): array

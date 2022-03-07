@@ -54,7 +54,6 @@ class Countries extends Component
      * Returns a country by its ID.
      *
      * @param int $id the country's ID
-     * @return Country|null
      */
     public function getCountryById(int $id): ?Country
     {
@@ -65,7 +64,6 @@ class Countries extends Component
      * Returns a country by its ISO code.
      *
      * @param string $iso the country's ISO code
-     * @return Country|null
      */
     public function getCountryByIso(string $iso): ?Country
     {
@@ -74,8 +72,6 @@ class Countries extends Component
 
     /**
      * Returns all country names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllCountriesAsList(): array
     {
@@ -87,7 +83,6 @@ class Countries extends Component
     /**
      * Returns all country names, indexed by ID.
      *
-     * @return array
      * @since 3.0
      */
     public function getAllEnabledCountriesAsList(): array
@@ -104,7 +99,7 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        if (null === $this->_countriesById) {
+        if (!isset($this->_countriesById)) {
             $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row) {
@@ -119,15 +114,14 @@ class Countries extends Component
     /**
      * Returns an array of all enabled countries
      *
-     * @return array
      * @since 3.0
      */
     public function getAllEnabledCountries(): array
     {
         $countries = $this->getAllCountries();
 
-        if (null === $this->_enabledCountriesById) {
-            $this->_enabledCountriesById = ArrayHelper::where($countries , 'enabled', true);
+        if (!isset($this->_enabledCountriesById)) {
+            $this->_enabledCountriesById = ArrayHelper::where($countries, 'enabled', true);
         }
 
         return $this->_enabledCountriesById ?? [];
@@ -141,7 +135,7 @@ class Countries extends Component
      */
     public function getCountriesByTaxZoneId(int $taxZoneId): array
     {
-        if (null === $this->_countriesByTaxZoneId) {
+        if (!isset($this->_countriesByTaxZoneId)) {
             $results = $this->_createCountryQuery()
                 ->addSelect(['taxZoneCountries.taxZoneId'])
                 ->innerJoin(Table::TAXZONE_COUNTRIES . ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
@@ -172,7 +166,7 @@ class Countries extends Component
      */
     public function getCountriesByShippingZoneId(int $shippingZoneId): array
     {
-        if (null === $this->_countriesByShippingZoneId) {
+        if (!isset($this->_countriesByShippingZoneId)) {
             $results = $this->_createCountryQuery()
                 ->addSelect(['shippingZoneCountries.shippingZoneId'])
                 ->innerJoin(Table::SHIPPINGZONE_COUNTRIES . ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
@@ -258,8 +252,6 @@ class Countries extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
      * @throws \yii\db\Exception
      * @since 2.2
      */

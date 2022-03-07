@@ -52,7 +52,7 @@ class Products extends BaseRelationField
         return Craft::t('commerce', 'Add a product');
     }
 
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ElementInterface $element = null): string
     {
         Craft::$app->getView()->registerAssetBundle(EditProductAsset::class);
         return parent::getInputHtml($value, $element);
@@ -62,7 +62,7 @@ class Products extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|\GraphQL\Type\Definition\Type
     {
         return [
             'name' => $this->handle,
@@ -76,7 +76,7 @@ class Products extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Product::class;
     }

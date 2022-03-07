@@ -79,89 +79,56 @@ class Order extends ActiveRecord
         return Table::ORDERS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getLineItems(): ActiveQueryInterface
     {
         return $this->hasMany(LineItem::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTransactions(): ActiveQueryInterface
     {
         return $this->hasMany(Transaction::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getHistories(): ActiveQueryInterface
     {
         return $this->hasMany(OrderHistory::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getBillingAddress(): ActiveQueryInterface
     {
         return $this->hasOne(Address::class, ['id' => 'billingAddressId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingAddress(): ActiveQueryInterface
     {
         return $this->hasOne(Address::class, ['id' => 'shippingAddressId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['code' => 'couponCode']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGateway(): ActiveQueryInterface
     {
         return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPaymentSource(): ActiveQueryInterface
     {
         return $this->hasOne(PaymentSource::class, ['id' => 'paymentSourceId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCustomer(): ActiveQueryInterface
     {
         return $this->hasOne(Customer::class, ['id' => 'customerId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrderStatus(): ActiveQueryInterface
     {
         return $this->hasOne(OrderStatus::class, ['id' => 'orderStatusId']);

@@ -95,8 +95,6 @@ JS;
 
     /**
      * @inheritdoc
-     * @param ElementQueryInterface $query
-     * @return bool
      * @throws Exception
      * @throws HttpException
      * @throws InvalidConfigException
@@ -108,7 +106,7 @@ JS;
         $pdfsService = Plugin::getInstance()->getPdfs();
 
         $pdfId = $this->pdfId;
-        if (null === $pdfId) {
+        if ($pdfId === null) {
             throw new InvalidConfigException("Invalid PDF ID");
         }
 
@@ -172,9 +170,6 @@ JS;
     /**
      * Returns a PDF’s file name
      *
-     * @param Pdf $pdf
-     * @param Order $order
-     * @return string
      * @throws Exception
      * @throws \Throwable
      */

@@ -37,7 +37,6 @@ class TaxZone extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getCountries(): ActiveQueryInterface
@@ -46,7 +45,6 @@ class TaxZone extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getStates(): ActiveQueryInterface

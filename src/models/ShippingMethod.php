@@ -27,9 +27,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class ShippingMethod extends BaseShippingMethod
 {
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -114,5 +111,16 @@ class ShippingMethod extends BaseShippingMethod
             [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
             [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRules';
+
+        return $fields;
     }
 }

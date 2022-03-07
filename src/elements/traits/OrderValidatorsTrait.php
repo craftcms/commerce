@@ -25,9 +25,7 @@ use yii\validators\Validator;
 trait OrderValidatorsTrait
 {
     /**
-     * @param string $attribute
      * @param $params
-     * @param Validator $validator
      */
     public function validateGatewayId(string $attribute, $params, Validator $validator): void
     {
@@ -37,9 +35,7 @@ trait OrderValidatorsTrait
     }
 
     /**
-     * @param string $attribute
      * @param $params
-     * @param Validator $validator
      */
     public function validatePaymentSourceId(string $attribute, $params, Validator $validator): void
     {
@@ -53,9 +49,7 @@ trait OrderValidatorsTrait
     }
 
     /**
-     * @param string $attribute
      * @param $params
-     * @param Validator $validator
      * @throws CurrencyException
      * @noinspection PhpUnused
      */
@@ -99,7 +93,6 @@ trait OrderValidatorsTrait
 
         // We need to have a customer ID and an address ID
         if ($customer && $customer->id && $address && $address->id) {
-
             $anotherOrdersAddress = false;
 
             // Is another customer related to this address?

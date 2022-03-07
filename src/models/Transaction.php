@@ -38,9 +38,9 @@ class Transaction extends Model
     public ?int $id = null;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var int|null Parent transaction ID
@@ -187,9 +187,6 @@ class Transaction extends Model
         parent::init();
     }
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -239,7 +236,6 @@ class Transaction extends Model
     }
 
     /**
-     * @return bool
      * @throws InvalidConfigException
      */
     public function canCapture(): bool
@@ -248,7 +244,6 @@ class Transaction extends Model
     }
 
     /**
-     * @return bool
      * @throws InvalidConfigException
      */
     public function canRefund(): bool
@@ -257,7 +252,6 @@ class Transaction extends Model
     }
 
     /**
-     * @return float
      * @throws InvalidConfigException
      */
     public function getRefundableAmount(): float
@@ -266,12 +260,11 @@ class Transaction extends Model
     }
 
     /**
-     * @return Transaction|null
      * @throws InvalidConfigException
      */
     public function getParent(): ?Transaction
     {
-        if (null === $this->_parentTransaction && $this->parentId) {
+        if (!isset($this->_parentTransaction) && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
@@ -279,21 +272,17 @@ class Transaction extends Model
     }
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
-        if (null === $this->_order && $this->orderId) {
+        if (!isset($this->_order) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
         return $this->_order;
     }
 
-    /**
-     * @param Order $order
-     */
     public function setOrder(Order $order): void
     {
         $this->_order = $order;
@@ -301,21 +290,17 @@ class Transaction extends Model
     }
 
     /**
-     * @return Gateway|null
      * @throws InvalidConfigException
      */
     public function getGateway(): ?Gateway
     {
-        if (null === $this->_gateway && $this->gatewayId) {
+        if (!isset($this->_gateway) && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
         return $this->_gateway;
     }
 
-    /**
-     * @param Gateway $gateway
-     */
     public function setGateway(Gateway $gateway): void
     {
         $this->_gateway = $gateway;
@@ -329,7 +314,7 @@ class Transaction extends Model
      */
     public function getChildTransactions(): array
     {
-        if (null === $this->_children && $this->id) {
+        if (!isset($this->_children) && $this->id) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
@@ -338,8 +323,6 @@ class Transaction extends Model
 
     /**
      * Adds a child transaction.
-     *
-     * @param Transaction $transaction
      */
     public function addChildTransaction(Transaction $transaction): void
     {
@@ -352,8 +335,6 @@ class Transaction extends Model
 
     /**
      * Sets child transactions.
-     *
-     * @param array $transactions
      */
     public function setChildTransactions(array $transactions): void
     {

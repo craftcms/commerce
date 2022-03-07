@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -25,9 +26,6 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
@@ -37,7 +35,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxCategory|null $taxCategory
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, TaxCategory $taxCategory = null): Response
@@ -62,9 +59,13 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         if ($variables['taxCategory']->id) {
             $variables['title'] = $variables['taxCategory']->name;
+            $tabName = sprintf('Tax Category (ID: %s)', $variables['taxCategory']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
+            $tabName = 'Tax Category (New)';
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxCategory'], prepend: true);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
@@ -80,7 +81,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Exception
      * @noinspection Duplicates
@@ -109,32 +109,22 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         // Save it
         if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => true,
+            return $this->asModelSuccess(
+                $taxCategory,
+                Craft::t('commerce', 'Tax category saved.'),
+                'taxCategory',
+                [
                     'id' => $taxCategory->id,
                     'name' => $taxCategory->name,
-                ]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Tax category saved.'));
-            $this->redirectToPostedUrl($taxCategory);
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'errors' => $taxCategory->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax category.'));
+                ]
+            );
         }
 
-        // Send the tax category back to the template
-        Craft::$app->getUrlManager()->setRouteParams([
-            'taxCategory' => $taxCategory,
-        ]);
-
-        return null;
+        return $this->asModelSuccess(
+            $taxCategory,
+            Craft::t('commerce', 'Couldn’t save tax category.'),
+            'taxCategory'
+        );
     }
 
     /**
@@ -147,11 +137,11 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
+        return $this->asSuccess();
     }
 
     /**

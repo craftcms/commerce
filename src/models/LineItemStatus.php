@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -76,9 +77,6 @@ class LineItemStatus extends Model
         return (string)$this->name;
     }
 
-    /**
-     * @return array
-     */
     protected function defineRules(): array
     {
         return [
@@ -87,25 +85,29 @@ class LineItemStatus extends Model
     }
 
     /**
-     * @return string
+     * @inerhitdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->name);
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
     }
 
     /**
      * Returns the config for this status.
      *
-     * @return array
      * @since 3.2.2
      */
     public function getConfig(): array

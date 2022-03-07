@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
@@ -81,9 +82,6 @@ class OrderStatus extends Model
      */
     public ?string $uid = null;
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         return $this->softDeleteBehaviors();
@@ -98,7 +96,6 @@ class OrderStatus extends Model
     }
 
     /**
-     * @return string
      * @since 2.2
      */
     public function getDisplayName(): string
@@ -107,12 +104,9 @@ class OrderStatus extends Model
             return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
         }
 
-        return $this->name;
+        return $this->name ?? '';
     }
 
-    /**
-     * @return array
-     */
     protected function defineRules(): array
     {
         return [
@@ -127,15 +121,24 @@ class OrderStatus extends Model
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'emails';
+        $fields[] = 'emailIds';
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->id);
     }
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function getEmailIds(): array
@@ -152,16 +155,12 @@ class OrderStatus extends Model
         return $this->id ? Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id) : [];
     }
 
-    /**
-     * @return string
-     */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->getDisplayName());
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
     }
 
     /**
-     * @return bool
      * @since 2.2
      */
     public function canDelete(): bool

@@ -60,16 +60,23 @@ class Country extends Model
      */
     public ?DateTIme $dateUpdated = null;
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->name;
     }
 
     /**
-     * @return array
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'states';
+
+        return $fields;
+    }
+
+    /**
      * @throws InvalidConfigException
      * @since 3.1
      */
@@ -89,9 +96,6 @@ class Country extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/store-settings/countries/' . $this->id);

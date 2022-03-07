@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -28,9 +29,6 @@ use yii\web\ServerErrorHttpException;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
@@ -41,7 +39,6 @@ class OrderStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param OrderStatus|null $orderStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
@@ -65,6 +62,8 @@ class OrderStatusesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
@@ -110,7 +109,6 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws ErrorException
@@ -123,15 +121,14 @@ class OrderStatusesController extends BaseAdminController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder Order Statuses.')]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response|null
      * @throws \Throwable
      * @throws BadRequestHttpException
      * @since 2.2
@@ -142,10 +139,10 @@ class OrderStatusesController extends BaseAdminController
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Order Status.')]);
+        return $this->asSuccess();
     }
 }

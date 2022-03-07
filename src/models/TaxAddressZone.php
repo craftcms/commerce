@@ -88,9 +88,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     private ?array $_states = null;
 
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxzones/' . $this->id);
@@ -98,8 +95,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
 
     /**
      * If this zone is based on countries only.
-     *
-     * @return bool
      */
     public function getIsCountryBased(): bool
     {
@@ -110,7 +105,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * Set if this zone is based on countries only.
      *
      * @param bool $value is the zone country based
-     * @return void
      */
     public function setIsCountryBased(bool $value): void
     {
@@ -127,7 +121,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function getCountryIds(): array
@@ -144,7 +137,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      *
      * Returns all countries in this Tax Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getCountries(): array
@@ -166,9 +158,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
         $this->_countries = $countries;
     }
 
-    /**
-     * @return array
-     */
     public function getStateIds(): array
     {
         $stateIds = [];
@@ -183,7 +172,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns all states in this Tax Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getStates(): array
@@ -206,7 +194,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return string|null
      * @since 2.2
      */
     public function getZipCodeConditionFormula(): ?string
@@ -216,8 +203,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
 
     /**
      * Returns the names of all countries in this Tax Zone.
-     *
-     * @return array
      */
     public function getCountriesNames(): array
     {
@@ -227,7 +212,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns the names of all states in this Tax Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getStatesNames(): array
@@ -264,5 +248,24 @@ class TaxAddressZone extends Model implements AddressZoneInterface
                 },
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'countries';
+        $fields[] = 'countryIds';
+        $fields[] = 'countriesNames';
+        $fields[] = 'states';
+        $fields[] = 'stateIds';
+        $fields[] = 'statesNames';
+        $fields[] = 'taxRates';
+        $fields[] = 'isCountryBased';
+        $fields[] = 'zipCodeConditionFormula';
+
+        return $fields;
     }
 }

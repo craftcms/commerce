@@ -31,10 +31,10 @@ use craft\db\ActiveRecord;
  */
 class Email extends ActiveRecord
 {
-    const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
+    public const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
 
-    const TYPE_CUSTOMER = 'customer';
-    const TYPE_CUSTOM = 'custom';
+    public const TYPE_CUSTOMER = 'customer';
+    public const TYPE_CUSTOM = 'custom';
 
     /**
      * @inheritdoc

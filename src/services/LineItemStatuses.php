@@ -78,9 +78,6 @@ class LineItemStatuses extends Component
 
     /**
      * Get line item status by its handle.
-     *
-     * @param string $handle
-     * @return LineItemStatus|null
      */
     public function getLineItemStatusByHandle(string $handle): ?LineItemStatus
     {
@@ -108,7 +105,6 @@ class LineItemStatuses extends Component
     /**
      * Get default lineItem status ID from the DB
      *
-     * @return int|null
      * @noinspection PhpUnused
      */
     public function getDefaultLineItemStatusId(): ?int
@@ -124,8 +120,6 @@ class LineItemStatuses extends Component
 
     /**
      * Get default lineItem status from the DB
-     *
-     * @return LineItemStatus|null
      */
     public function getDefaultLineItemStatus(): ?LineItemStatus
     {
@@ -146,9 +140,6 @@ class LineItemStatuses extends Component
 
     /**
      * Get the default lineItem status for a particular lineItem. Defaults to the CP configured default lineItem status.
-     *
-     * @param LineItem $lineItem
-     * @return LineItemStatus|null
      */
     public function getDefaultLineItemStatusForLineItem(LineItem $lineItem): ?LineItemStatus
     {
@@ -166,9 +157,7 @@ class LineItemStatuses extends Component
     /**
      * Save the line item status.
      *
-     * @param LineItemStatus $lineItemStatus
      * @param bool $runValidation should we validate this line item status before saving.
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      */
@@ -219,8 +208,6 @@ class LineItemStatuses extends Component
     /**
      * Handle line item status change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleChangedLineItemStatus(ConfigEvent $event): void
@@ -256,8 +243,6 @@ class LineItemStatuses extends Component
     /**
      * Archive an line item status by it's id.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      */
     public function archiveLineItemStatusById(int $id): bool
@@ -274,8 +259,6 @@ class LineItemStatuses extends Component
     /**
      * Handle line item status being archived
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleArchivedLineItemStatus(ConfigEvent $event): void
@@ -324,9 +307,6 @@ class LineItemStatuses extends Component
 
     /**
      * Get a line item status by ID
-     *
-     * @param int $id
-     * @return LineItemStatus|null
      */
     public function getLineItemStatusById(int $id): ?LineItemStatus
     {
@@ -354,8 +334,6 @@ class LineItemStatuses extends Component
     /**
      * Reorders the line item statuses.
      *
-     * @param array $ids
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -382,8 +360,6 @@ class LineItemStatuses extends Component
 
     /**
      * Memoize an line item status by its ID and handle.
-     *
-     * @param LineItemStatus $lineItemStatus
      */
     private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus): void
     {
@@ -393,8 +369,6 @@ class LineItemStatuses extends Component
 
     /**
      * Returns a Query object prepped for retrieving line item statuses
-     *
-     * @return Query
      */
     private function _createLineItemStatusesQuery(): Query
     {
@@ -415,9 +389,6 @@ class LineItemStatuses extends Component
 
     /**
      * Gets an lineitem status' record by uid.
-     *
-     * @param string $uid
-     * @return LineItemStatusRecord
      */
     private function _getLineItemStatusRecord(string $uid): LineItemStatusRecord
     {

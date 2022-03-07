@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
@@ -28,9 +29,6 @@ use function is_array;
  */
 class PlansController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
@@ -40,7 +38,6 @@ class PlansController extends BaseStoreSettingsController
     /**
      * @param int|null $planId
      * @param Plan|null $plan
-     * @return Response
      * @throws HttpException
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
@@ -68,9 +65,11 @@ class PlansController extends BaseStoreSettingsController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
+            DebugPanel::prependOrAppendModelTab(model: $variables['plan'], prepend: true);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
+
 
         $variables['entryElementType'] = Entry::class;
 
@@ -117,7 +116,7 @@ class PlansController extends BaseStoreSettingsController
             $plan = $planService->getPlanById($planId);
         }
 
-        if (null === $plan) {
+        if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }
 
@@ -147,7 +146,6 @@ class PlansController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws HttpException if request does not match requirements
      */
     public function actionArchivePlan(): Response
@@ -160,10 +158,10 @@ class PlansController extends BaseStoreSettingsController
         try {
             Plugin::getInstance()->getPlans()->archivePlanById($planId);
         } catch (Exception $exception) {
-            return $this->asErrorJson($exception->getMessage());
+            return $this->asFailure($exception->getMessage());
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -175,10 +173,10 @@ class PlansController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPlans()->reorderPlans($ids)) {
-            return $this->asJson(['success' => $success]);
-        }
+        $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
+        return $success ?
+            $this->asSuccess() :
+            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'));
     }
 }

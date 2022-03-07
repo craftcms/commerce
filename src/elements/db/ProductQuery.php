@@ -420,7 +420,7 @@ class ProductQuery extends ElementQuery
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
@@ -466,7 +466,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before($value): ProductQuery
+    public function before(\DateTime|string $value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -511,7 +511,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after($value): ProductQuery
+    public function after(\DateTime|string $value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -585,7 +585,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant($value): ProductQuery
+    public function hasVariant(array|\craft\commerce\elements\db\VariantQuery $value): ProductQuery
     {
         $this->hasVariant = $value;
         return $this;
@@ -680,7 +680,7 @@ class ProductQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch products that are available for purchase #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .availableForPurchase()
      *   .all() %}
      * ```
@@ -718,7 +718,7 @@ class ProductQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch disabled {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('disabled')
      *   .all() %}
      * ```
@@ -820,47 +820,43 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
         $currentTimeDb = Db::prepareDateForDb(new DateTime());
 
-        switch ($status) {
-            case Product::STATUS_LIVE:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['<=', 'commerce_products.postDate', $currentTimeDb],
-                    [
-                        'or',
-                        ['commerce_products.expiryDate' => null],
-                        ['>', 'commerce_products.expiryDate', $currentTimeDb],
-                    ],
-                ];
-            case Product::STATUS_PENDING:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['>', 'commerce_products.postDate', $currentTimeDb],
-                ];
-            case Product::STATUS_EXPIRED:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['not', ['commerce_products.expiryDate' => null]],
-                    ['<=', 'commerce_products.expiryDate', $currentTimeDb],
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Product::STATUS_LIVE => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['<=', 'commerce_products.postDate', $currentTimeDb],
+                [
+                    'or',
+                    ['commerce_products.expiryDate' => null],
+                    ['>', 'commerce_products.expiryDate', $currentTimeDb],
+                ],
+            ],
+            Product::STATUS_PENDING => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['>', 'commerce_products.postDate', $currentTimeDb],
+            ],
+            Product::STATUS_EXPIRED => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['not', ['commerce_products.expiryDate' => null]],
+                ['<=', 'commerce_products.expiryDate', $currentTimeDb],
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
@@ -870,9 +866,9 @@ class ProductQuery extends ElementQuery
     {
         if (empty($this->typeId)) {
             $this->typeId = null;
-        } else if (is_numeric($this->typeId)) {
+        } elseif (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
-        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+        } elseif (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
@@ -915,7 +911,7 @@ class ProductQuery extends ElementQuery
 
         if ($this->hasVariant instanceof VariantQuery) {
             $variantQuery = $this->hasVariant;
-        } else if (is_array($this->hasVariant)) {
+        } elseif (is_array($this->hasVariant)) {
             $query = Variant::find();
             $variantQuery = Craft::configure($query, $this->hasVariant);
         } else {

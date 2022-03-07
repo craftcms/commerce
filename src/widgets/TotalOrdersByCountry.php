@@ -41,7 +41,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var string Options 'billing', 'shippinh'.
@@ -95,7 +95,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritDoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -103,7 +103,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -127,7 +127,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -165,7 +165,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

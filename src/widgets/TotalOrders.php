@@ -13,6 +13,7 @@ use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 
 /**
@@ -39,7 +40,7 @@ class TotalOrders extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var int|bool
@@ -49,7 +50,7 @@ class TotalOrders extends Widget
     /**
      * @var null|TotalOrdersStat
      */
-    private ?TotalOrdersStat $_stat;
+    private ?TotalOrdersStat $_stat = null;
 
     public function init(): void
     {
@@ -82,7 +83,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -90,7 +91,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -103,7 +104,7 @@ class TotalOrders extends Widget
         return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -160,7 +161,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

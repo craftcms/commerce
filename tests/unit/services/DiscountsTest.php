@@ -53,11 +53,11 @@ class DiscountsTest extends Unit
     {
         return [
             'discounts' => [
-                'class' => DiscountsFixture::class
+                'class' => DiscountsFixture::class,
             ],
             'customers' => [
-                'class' => CustomerFixture::class
-            ]
+                'class' => CustomerFixture::class,
+            ],
         ];
     }
 
@@ -109,7 +109,7 @@ class DiscountsTest extends Unit
     {
         // Invalidate the coupon.... It's valid until sometime in the past.
         $this->updateOrderCoupon([
-            'dateTo' => '2019-05-01 10:21:33'
+            'dateTo' => '2019-05-01 10:21:33',
         ]);
 
         $this->orderCouponAvailableTest(
@@ -128,7 +128,7 @@ class DiscountsTest extends Unit
         $date = new DateTime('now');
         $date->add(new DateInterval('P2D'));
         $this->updateOrderCoupon([
-            'dateFrom' => $date->format('Y-m-d H:i:s')
+            'dateFrom' => $date->format('Y-m-d H:i:s'),
         ]);
 
         $this->orderCouponAvailableTest(
@@ -144,7 +144,7 @@ class DiscountsTest extends Unit
     public function testCouponThatHasBeenUsedTooMuch(): void
     {
         $this->updateOrderCoupon([
-            'totalDiscountUses' => 2
+            'totalDiscountUses' => 2,
         ]);
 
         $this->orderCouponAvailableTest(
@@ -160,7 +160,7 @@ class DiscountsTest extends Unit
     public function testCouponWithUseLimitAndNoUserOnClient(): void
     {
         $this->updateOrderCoupon([
-            'perUserLimit' => '1'
+            'perUserLimit' => '1',
         ]);
 
         $this->orderCouponAvailableTest(
@@ -176,7 +176,7 @@ class DiscountsTest extends Unit
     public function testCouponPerUserLimit(): void
     {
         $this->updateOrderCoupon([
-            'perUserLimit' => '1'
+            'perUserLimit' => '1',
         ]);
 
         Craft::$app->getDb()->createCommand()
@@ -203,14 +203,14 @@ class DiscountsTest extends Unit
     public function testCouponPerEmailLimit(): void
     {
         $this->updateOrderCoupon([
-            'perEmailLimit' => '1'
+            'perEmailLimit' => '1',
         ]);
 
         Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_email_discountuses}}', [
                 'email' => 'testing@craftcommerce.com',
                 'discountId' => '1000',
-                'uses' => '1'
+                'uses' => '1',
             ])->execute();
 
         /** @var Order $order */
@@ -236,7 +236,7 @@ class DiscountsTest extends Unit
         $this->matchLineItems(
             ['couponCode' => null],
             ['qty' => 2, 'salePrice' => 10],
-            ['code' => null],
+            ['code' => null, 'allPurchasables' => true, 'allCategories' => true],
             [],
             true
         );
@@ -287,14 +287,14 @@ class DiscountsTest extends Unit
                 $adjustment->sourceSnapshot = ['discountUseId' => 1000];
 
                 return [$adjustment];
-            }
+            },
         ]);
         $order->couponCode = 'discount_1';
         $order->customerId = '1000';
 
         $this->updateOrderCoupon([
             'perUserLimit' => '0',
-            'perEmailLimit' => '0'
+            'perEmailLimit' => '0',
         ]);
 
         $this->discounts->orderCompleteHandler($order);
