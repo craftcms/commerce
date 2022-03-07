@@ -21,7 +21,7 @@ class ProductTypeFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/product-types.php';
+    public $dataFile = __DIR__ . '/data/product-types.php';
 
     /**
      * @inheritdoc

@@ -33,9 +33,6 @@ class State extends ActiveRecord
         return Table::STATES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCountry(): ActiveQueryInterface
     {
         return $this->hasOne(Country::class, ['id' => 'countryId']);

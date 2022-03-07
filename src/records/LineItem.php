@@ -55,41 +55,26 @@ class LineItem extends ActiveRecord
         return Table::LINEITEMS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'purchasableId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategory(): ActiveQueryInterface
     {
         return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getLineItemStatus(): ActiveQueryInterface
     {
         return $this->hasOne(LineItemStatus::class, ['id' => 'lineItemStatusId']);

@@ -82,7 +82,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -90,7 +90,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -103,7 +103,7 @@ class TotalOrders extends Widget
         return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -160,7 +160,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

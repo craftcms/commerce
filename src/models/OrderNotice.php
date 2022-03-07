@@ -11,7 +11,6 @@ use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order notice model.
@@ -67,15 +66,12 @@ class OrderNotice extends Model
     protected function defineRules(): array
     {
         return [
+            [['id'], 'safe'],
             [['type', 'message', 'attribute', 'orderId'], 'required'],
             [['orderId'], 'integer'],
         ];
     }
 
-    /**
-     * @param Order $order
-     * @return void
-     */
     public function setOrder(Order $order): void
     {
         $this->_order = $order;
@@ -83,7 +79,6 @@ class OrderNotice extends Model
     }
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order

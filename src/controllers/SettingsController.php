@@ -44,7 +44,6 @@ class SettingsController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */

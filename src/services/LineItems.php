@@ -139,13 +139,6 @@ class LineItems extends Component
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
-
-    /**
-     * @var LineItem[]
-     */
-    private array $_lineItemsByOrderId = [];
-
-
     /**
      * Returns an order's line items, per the order's ID.
      *
@@ -154,22 +147,20 @@ class LineItems extends Component
      */
     public function getAllLineItemsByOrderId(int $orderId): array
     {
-        if (!isset($this->_lineItemsByOrderId[$orderId])) {
-            $results = $this->_createLineItemQuery()
-                ->where(['orderId' => $orderId])
-                ->orderBy('dateCreated DESC')
-                ->all();
+        $results = $this->_createLineItemQuery()
+            ->where(['orderId' => $orderId])
+            ->orderBy('dateCreated DESC')
+            ->all();
 
-            $this->_lineItemsByOrderId[$orderId] = [];
+        $lineItems = [];
 
-            foreach ($results as $result) {
-                $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $lineItem = new LineItem($result);
-                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
-            }
+        foreach ($results as $result) {
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItems[] = $lineItem;
         }
 
-        return $this->_lineItemsByOrderId[$orderId];
+        return $lineItems;
     }
 
     /**
@@ -181,7 +172,6 @@ class LineItems extends Component
      * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
-     * @return LineItem
      * @throws \Exception
      */
     public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
@@ -210,7 +200,6 @@ class LineItems extends Component
      *
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
-     * @return bool
      * @throws Throwable
      */
     public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
@@ -345,7 +334,6 @@ class LineItems extends Component
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
      * @param string|null $uid
-     * @return LineItem
      * @throws \Exception
      */
     public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
@@ -422,8 +410,6 @@ class LineItems extends Component
 
     /**
      *
-     * @param LineItem $lineItem
-     * @param Order $order
      * @throws Throwable
      * @since 3.2.5
      */

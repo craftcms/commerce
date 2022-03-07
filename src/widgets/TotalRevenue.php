@@ -28,7 +28,6 @@ use craft\helpers\StringHelper;
  */
 class TotalRevenue extends Widget
 {
-
     /**
      * @var int|\DateTime|null
      */
@@ -88,7 +87,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         $stats = $this->_stat->get();
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
@@ -102,7 +101,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -110,7 +109,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -141,7 +140,7 @@ class TotalRevenue extends Widget
                 $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);
-        } else if ($this->_stat->getDateRangeInterval() == 'week') {
+        } elseif ($this->_stat->getDateRangeInterval() == 'week') {
             $labels = array_map(static function($label) {
                 $year = substr($label, 0, 4);
                 $week = substr($label, -2);
@@ -170,7 +169,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

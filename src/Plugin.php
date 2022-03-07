@@ -106,8 +106,8 @@ use yii\web\User;
 class Plugin extends BasePlugin
 {
     // Edition constants
-    const EDITION_LITE = 'lite';
-    const EDITION_PRO = 'pro';
+    public const EDITION_LITE = 'lite';
+    public const EDITION_PRO = 'pro';
 
     public static function editions(): array
     {
@@ -135,7 +135,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public string $minVersionRequired = '2.2.18';
+    public string $minVersionRequired = '3.4.11';
 
     use CommerceServices;
     use Variables;
@@ -169,7 +169,7 @@ class Plugin extends BasePlugin
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
-        } else if ($request->getIsCpRequest()) {
+        } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
             $this->_registerElementExports();
@@ -201,7 +201,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function getSettingsResponse()
+    public function getSettingsResponse(): mixed
     {
         return Craft::$app->getResponse()->redirect(UrlHelper::cpUrl('commerce/settings/general'));
     }
@@ -209,7 +209,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function getCpNavItem(): array
+    public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
 
@@ -299,7 +299,7 @@ class Plugin extends BasePlugin
      */
     private function _addTwigExtensions(): void
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension());
     }
 
     /**
@@ -713,7 +713,7 @@ class Plugin extends BasePlugin
      */
     private function _defineFieldLayoutElements(): void
     {
-        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
             /** @var FieldLayout $fieldLayout */
             $fieldLayout = $e->sender;
 

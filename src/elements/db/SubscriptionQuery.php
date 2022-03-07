@@ -185,7 +185,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->userId = (new Query())
                 ->select(['id'])
                 ->from(['{{%users}}'])
@@ -232,7 +232,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
                 ->from([Table::PLANS])
@@ -317,7 +317,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function gatewayId($value): SubscriptionQuery
+    public function gatewayId(array|int $value): SubscriptionQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -338,7 +338,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function orderId($value): SubscriptionQuery
+    public function orderId(array|int $value): SubscriptionQuery
     {
         $this->orderId = $value;
         return $this;
@@ -350,7 +350,7 @@ class SubscriptionQuery extends ElementQuery
      * @param string|string[] $value The property value
      * @return static self reference
      */
-    public function reference($value): SubscriptionQuery
+    public function reference(array|string $value): SubscriptionQuery
     {
         $this->reference = $value;
         return $this;
@@ -375,7 +375,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch trialed subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .onTrial()
      *   .all() %}
      * ```
@@ -443,7 +443,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch canceled subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCanceled()
      *   .all() %}
      * ```
@@ -511,7 +511,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch started subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasStarted()
      *   .all() %}
      * ```
@@ -539,7 +539,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch suspended subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isSuspended()
      *   .all() %}
      * ```
@@ -606,7 +606,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isExpired()
      *   .all() %}
      * ```
@@ -683,7 +683,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('expired')
      *   .all() %}
      * ```
@@ -695,7 +695,7 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value): self
+    public function status($value): \craft\elements\db\ElementQuery
     {
         return parent::status($value);
     }
@@ -790,7 +790,7 @@ class SubscriptionQuery extends ElementQuery
 
         if (isset($this->onTrial) && $this->onTrial === true) {
             $this->subQuery->andWhere($this->_getTrialCondition(true));
-        } else if (isset($this->onTrial) && $this->onTrial === false) {
+        } elseif (isset($this->onTrial) && $this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 
@@ -800,27 +800,24 @@ class SubscriptionQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
-        switch ($status) {
-            case Subscription::STATUS_ACTIVE:
-                return [
-                    'commerce_subscriptions.isExpired' => '0',
-                ];
-            case Subscription::STATUS_EXPIRED:
-                return [
-                    'commerce_subscriptions.isExpired' => '1',
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Subscription::STATUS_ACTIVE => [
+                'commerce_subscriptions.isExpired' => '0',
+            ],
+            Subscription::STATUS_EXPIRED => [
+                'commerce_subscriptions.isExpired' => '1',
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
      * @inheritdoc
      * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
-    public function anyStatus(): SubscriptionQuery
+    public function anyStatus(): \craft\elements\db\ElementQuery
     {
         unset($this->isSuspended, $this->hasStarted);
         return parent::anyStatus();
@@ -829,7 +826,6 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Returns the SQL condition to use for trial status.
      *
-     * @param bool $onTrial
      * @return mixed
      */
     private function _getTrialCondition(bool $onTrial)

@@ -51,7 +51,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
+    public const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered before a payment source is added.
@@ -74,7 +74,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
+    public const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
 
     /**
      * @event PaymentSourceEvent The event that is triggered after a payment source is added.
@@ -98,7 +98,7 @@ class PaymentSources extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
+    public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
 
     /**
@@ -201,7 +201,6 @@ class PaymentSources extends Component
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
-     * @return PaymentSource|null
      */
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
@@ -217,7 +216,6 @@ class PaymentSources extends Component
      *
      * @param int $sourceId the source ID
      * @param int $userId the source's user ID
-     * @return PaymentSource|null
      */
     public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId): ?PaymentSource
     {
@@ -321,7 +319,6 @@ class PaymentSources extends Component
      * Delete a payment source by its ID.
      *
      * @param int $id The ID
-     * @return bool
      * @throws Throwable in case something went wrong when deleting.
      */
     public function deletePaymentSourceById(int $id): bool

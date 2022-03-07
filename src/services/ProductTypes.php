@@ -73,7 +73,7 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
+    public const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
     /**
      * @event ProductTypeEvent The event that is triggered after a product type has been saved.
@@ -97,9 +97,9 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
+    public const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
 
-    const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
+    public const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
     /**
      * @var bool
@@ -402,8 +402,6 @@ class ProductTypes extends Component
     /**
      * Handle a product type change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleChangedProductType(ConfigEvent $event): void
@@ -475,7 +473,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['productFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->fieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->fieldLayoutId) {
+            } elseif ($productTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->fieldLayoutId);
                 $productTypeRecord->fieldLayoutId = null;
@@ -489,7 +487,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['variantFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->variantFieldLayoutId) {
+            } elseif ($productTypeRecord->variantFieldLayoutId) {
                 // Delete the variant field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
@@ -588,7 +586,7 @@ class ProductTypes extends Component
                                     'siteId' => $sitesNowWithoutUrls,
                                 ])
                             ->execute();
-                    } else if (!empty($sitesWithNewUriFormats)) {
+                    } elseif (!empty($sitesWithNewUriFormats)) {
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
@@ -648,9 +646,6 @@ class ProductTypes extends Component
 
     /**
      * Returns all product types by a tax category id.
-     *
-     * @param int $taxCategoryId
-     * @return array
      */
     public function getProductTypesByTaxCategoryId(int $taxCategoryId): array
     {
@@ -670,9 +665,6 @@ class ProductTypes extends Component
 
     /**
      * Returns all product types by a shipping category id.
-     *
-     * @param int $shippingCategoryId
-     * @return array
      */
     public function getProductTypesByShippingCategoryId(int $shippingCategoryId): array
     {
@@ -707,8 +699,6 @@ class ProductTypes extends Component
     /**
      * Handle a product type getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleDeletedProductType(ConfigEvent $event): void
@@ -763,8 +753,6 @@ class ProductTypes extends Component
 
     /**
      * Prune a deleted site from category group site settings.
-     *
-     * @param DeleteSiteEvent $event
      */
     public function pruneDeletedSite(DeleteSiteEvent $event): void
     {
@@ -783,8 +771,6 @@ class ProductTypes extends Component
 
     /**
      * Prune a deleted field from category group layouts.
-     *
-     * @param FieldEvent $event
      */
     public function pruneDeletedField(FieldEvent $event): void
     {
@@ -939,7 +925,7 @@ class ProductTypes extends Component
      */
     private function _createProductTypeQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'productTypes.descriptionFormat',
                 'productTypes.fieldLayoutId',
@@ -952,18 +938,25 @@ class ProductTypes extends Component
                 'productTypes.name',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
-                'productTypes.variantTitleFormat',
                 'productTypes.uid',
                 'productTypes.variantFieldLayoutId',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
+
+        // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+            $query->addSelect('productTypes.variantTitleFormat');
+        } else {
+            $query->addSelect('productTypes.variantTitleFormat');
+        }
+
+        return $query;
     }
 
     /**
      * Gets a product type's record by uid.
-     *
-     * @param string $uid
-     * @return ProductTypeRecord
      */
     private function _getProductTypeRecord(string $uid): ProductTypeRecord
     {

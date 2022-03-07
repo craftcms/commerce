@@ -84,16 +84,12 @@ class Discount extends ActiveRecord
         return Table::DISCOUNTS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscountUserGroups(): ActiveQueryInterface
     {
         return $this->hasMany(DiscountUserGroup::class, ['discountId' => 'id']);
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getDiscountPurchasables(): ActiveQueryInterface
@@ -101,33 +97,21 @@ class Discount extends ActiveRecord
         return $this->hasMany(DiscountPurchasable::class, ['discountId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscountCategories(): ActiveQueryInterface
     {
         return $this->hasMany(DiscountCategory::class, ['discountId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGroups(): ActiveQueryInterface
     {
         return $this->hasMany(UserGroup::class, ['id' => 'discountId'])->via('discountUserGroups');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasables(): ActiveQueryInterface
     {
         return $this->hasMany(Purchasable::class, ['id' => 'discountId'])->via('discountPurchasables');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCategories(): ActiveQueryInterface
     {
         return $this->hasMany(Category::class, ['id' => 'discountId'])->via('discountCategories');

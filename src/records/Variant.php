@@ -54,17 +54,11 @@ class Variant extends ActiveRecord
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProduct(): ActiveQueryInterface
     {
         return $this->hasOne(Product::class, ['id', 'productId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id', 'id']);

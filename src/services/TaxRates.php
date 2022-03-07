@@ -57,7 +57,6 @@ class TaxRates extends Component
     /**
      * Returns an array of all rates belonging to the zone
      *
-     * @param TaxAddressZone $zone
      *
      * @return TaxRate[]
      * @deprecated in 4.0. Use [[getTaxRatesByTaxZoneId]] instead.
@@ -70,7 +69,6 @@ class TaxRates extends Component
     /**
      * Returns an array of all rates belonging to the zone
      *
-     * @param int $taxZoneId
      *
      * @return TaxRate[]
      */
@@ -81,9 +79,6 @@ class TaxRates extends Component
 
     /**
      * Returns a tax rate by ID.
-     *
-     * @param int $id
-     * @return TaxRate|null
      */
     public function getTaxRateById(int $id): ?TaxRate
     {
@@ -91,9 +86,7 @@ class TaxRates extends Component
     }
 
     /**
-     * @param TaxRate $model
      * @param bool $runValidation should we validate this rate before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -157,9 +150,7 @@ class TaxRates extends Component
     /**
      * Saves a lite tax rate
      *
-     * @param TaxRate $model
      * @param bool $runValidation should we validate this rate before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -177,7 +168,6 @@ class TaxRates extends Component
     }
 
     /**
-     * @return TaxRate
      * @throws InvalidConfigException
      */
     public function getLiteTaxRate(): TaxRate
@@ -203,8 +193,6 @@ class TaxRates extends Component
     /**
      * Deletes a tax rate by ID.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -221,8 +209,6 @@ class TaxRates extends Component
 
     /**
      * Returns a Query object prepped for retrieving tax rates
-     *
-     * @return Query
      */
     private function _createTaxRatesQuery(): Query
     {

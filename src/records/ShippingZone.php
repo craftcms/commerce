@@ -36,7 +36,6 @@ class ShippingZone extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getCountries(): ActiveQueryInterface
@@ -45,7 +44,6 @@ class ShippingZone extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getStates(): ActiveQueryInterface

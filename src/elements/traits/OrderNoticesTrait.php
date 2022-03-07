@@ -62,7 +62,6 @@ trait OrderNoticesTrait
     /**
      * Adds a new notice
      *
-     * @param OrderNotice $notice
      * @since 3.3
      */
     public function addNotice(OrderNotice $notice): void
@@ -76,7 +75,6 @@ trait OrderNoticesTrait
      *
      * @param null $type
      * @param null $attribute
-     * @return OrderNotice|null
      * @since 3.3
      */
     public function getFirstNotice($type = null, $attribute = null): ?OrderNotice
@@ -101,22 +99,21 @@ trait OrderNoticesTrait
      * Removes notices for all types or a single type.
      *
      * @param string|null $type type name. Use null to remove notices for all types.
-     * @param string|null $attribute
      * @since 3.3
      */
     public function clearNotices(?string $type = null, ?string $attribute = null): void
     {
         if ($type === null && $attribute === null) {
             $this->_notices = [];
-        } else if ($type !== null && $attribute === null) {
+        } elseif ($type !== null && $attribute === null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type) {
                 return $notice->type != $type;
             }, true, true, true);
-        } else if ($type === null && $attribute !== null) {
+        } elseif ($type === null && $attribute !== null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute) {
                 return $notice->attribute != $attribute;
             }, true, true, true);
-        } else if ($type !== null && $attribute !== null) {
+        } elseif ($type !== null && $attribute !== null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
                 return $notice->type == $type && $notice->attribute == $attribute;
             }, false, true, true);

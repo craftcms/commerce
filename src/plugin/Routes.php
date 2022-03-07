@@ -19,7 +19,6 @@ use yii\base\Event;
  */
 trait Routes
 {
-
     /**
      * @since 3.1.10
      */
@@ -158,4 +157,3 @@ trait Routes
         });
     }
 }
-

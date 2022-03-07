@@ -51,7 +51,7 @@ class ConsolidateGuestOrders extends BaseJob
     /**
      * @inheritdoc
      */
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return Craft::t('commerce', 'Consolidate all guest orders.');
     }

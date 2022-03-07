@@ -37,7 +37,6 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param int|null $methodId
      * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
-     * @return Response
      * @throws HttpException
      * @throws LoaderError
      * @throws RuntimeError
@@ -139,7 +138,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     /**
      * Duplicates a shipping rule.
      *
-     * @return Response|null
      * @throws InvalidRouteException
      * @since 3.2
      */
@@ -149,7 +147,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @param bool $duplicate
      * @throws BadRequestHttpException
      * @throws Exception
      */
@@ -223,9 +220,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
+        Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
-        return $this->asJson(['success' => $success]);
+        return $this->asSuccess();
     }
 
     /**
@@ -241,17 +238,14 @@ class ShippingRulesController extends BaseShippingSettingsController
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
-
         if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 
-        $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
-
-        if ($deleted) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asSuccess();
     }
 }

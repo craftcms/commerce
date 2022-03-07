@@ -14,7 +14,6 @@ use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order adjustment model.
@@ -130,8 +129,6 @@ class OrderAdjustment extends Model
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -140,11 +137,12 @@ class OrderAdjustment extends Model
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     protected function getCurrency(): string
     {
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
         return $this->_order->currency;
     }
 
@@ -158,10 +156,8 @@ class OrderAdjustment extends Model
 
     /**
      * Set the options array on the line item.
-     *
-     * @param array|string $snapshot
      */
-    public function setSourceSnapshot($snapshot): void
+    public function setSourceSnapshot(array|string $snapshot): void
     {
         if (is_string($snapshot)) {
             $snapshot = Json::decode($snapshot);
@@ -175,7 +171,6 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return LineItem|null
      * @throws InvalidConfigException
      */
     public function getLineItem(): ?LineItem
@@ -187,17 +182,12 @@ class OrderAdjustment extends Model
         return $this->_lineItem;
     }
 
-    /**
-     * @param LineItem $lineItem
-     * @return void
-     */
     public function setLineItem(LineItem $lineItem): void
     {
         $this->_lineItem = $lineItem;
     }
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
@@ -209,10 +199,6 @@ class OrderAdjustment extends Model
         return $this->_order;
     }
 
-    /**
-     * @param Order $order
-     * @return void
-     */
     public function setOrder(Order $order): void
     {
         $this->_order = $order;

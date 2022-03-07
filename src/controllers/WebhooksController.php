@@ -24,7 +24,7 @@ class WebhooksController extends BaseController
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = ['process-webhook'];
+    protected array|bool|int $allowAnonymous = ['process-webhook'];
 
     /**
      * @inheritdoc
@@ -33,7 +33,6 @@ class WebhooksController extends BaseController
 
     /**
      * @param null $gatewayId
-     * @return Response
      * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      */

@@ -89,7 +89,6 @@ class Transactions extends Component
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     * @return bool
      */
     public function canCaptureTransaction(Transaction $transaction): bool
     {
@@ -123,7 +122,6 @@ class Transactions extends Component
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     * @return bool
      */
     public function canRefundTransaction(Transaction $transaction): bool
     {
@@ -151,9 +149,6 @@ class Transactions extends Component
 
     /**
      * Return the refundable amount for a transaction.
-     *
-     * @param Transaction $transaction
-     * @return float
      */
     public function refundableAmountForTransaction(Transaction $transaction): float
     {
@@ -176,7 +171,6 @@ class Transactions extends Component
      * @param Order|null $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
      * @param Transaction|null $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
      * @param null $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
-     * @return Transaction
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
      * @throws CurrencyException
      * @throws InvalidConfigException
@@ -251,7 +245,6 @@ class Transactions extends Component
      * Delete a transaction.
      *
      * @param Transaction $transaction the transaction to delete
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      * @deprecated in 4.0. Use [[deleteTransactionById]] instead.
@@ -271,7 +264,6 @@ class Transactions extends Component
      * Delete a transaction by id.
      *
      * @param int $id the transaction ID
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -330,7 +322,6 @@ class Transactions extends Component
      * Get all children transactions, per a parent transaction's ID.
      *
      * @param int $transactionId the parent transaction's ID
-     * @return array
      */
     public function getChildrenByTransactionId(int $transactionId): array
     {
@@ -351,7 +342,6 @@ class Transactions extends Component
      * Get a transaction by its hash.
      *
      * @param string $hash the hash of transaction
-     * @return Transaction|null
      */
     public function getTransactionByHash(string $hash): ?Transaction
     {
@@ -367,7 +357,6 @@ class Transactions extends Component
      *
      * @param string $reference the transaction reference
      * @param string $status the transaction status
-     * @return Transaction|null
      */
     public function getTransactionByReferenceAndStatus(string $reference, string $status): ?Transaction
     {
@@ -397,7 +386,6 @@ class Transactions extends Component
      * Get a transaction by its ID.
      *
      * @param int $id the ID of transaction
-     * @return Transaction|null
      */
     public function getTransactionById(int $id): ?Transaction
     {
@@ -410,9 +398,6 @@ class Transactions extends Component
 
     /**
      * Returns true if a transaction or a direct child of the transaction is successful.
-     *
-     * @param Transaction $transaction
-     * @return bool
      */
     public function isTransactionSuccessful(Transaction $transaction): bool
     {
@@ -434,7 +419,6 @@ class Transactions extends Component
      *
      * @param Transaction $model the transaction model
      * @param bool $runValidation should we validate this transaction before saving.
-     * @return bool
      * @throws Throwable
      * @throws TransactionException if an attempt is made to modify an existing transaction
      * @throws OrderStatusException

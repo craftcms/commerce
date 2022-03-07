@@ -8,7 +8,9 @@
 
 namespace craft\commerce\behaviors;
 
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
+use craft\events\DefineFieldsEvent;
 use craft\helpers\StringHelper;
 use yii\base\Behavior;
 
@@ -67,6 +69,26 @@ class CurrencyAttributeBehavior extends Behavior
      * @var array mapping of attribute => currency if the default is not desired
      */
     public array $attributeCurrencyMap = [];
+
+    /**
+     * @inheritdoc
+     */
+    public function events()
+    {
+        return [
+            Order::EVENT_DEFINE_FIELDS => 'defineFields',
+        ];
+    }
+
+    /**
+     * @param DefineFieldsEvent $event
+     * @return void
+     */
+    public function defineFields(DefineFieldsEvent $event): void
+    {
+        $fields = $event->fields;
+        $event->fields = array_merge($fields, $this->currencyFields());
+    }
 
     /**
      * @inheritdoc
@@ -150,9 +172,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::canGetProperty($name, $checkVars);
     }
 
-    /**
-     * @return array
-     */
     public function currencyFields(): array
     {
         $fields = [];
@@ -171,7 +190,6 @@ class CurrencyAttributeBehavior extends Behavior
 
     /**
      * @param $name
-     * @return string
      */
     private function _attributeNameWithoutAsCurrency($name): string
     {

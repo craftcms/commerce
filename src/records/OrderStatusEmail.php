@@ -31,17 +31,11 @@ class OrderStatusEmail extends ActiveRecord
         return Table::ORDERSTATUS_EMAILS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrderStatus(): ActiveQueryInterface
     {
         return $this->hasOne(OrderStatus::class, ['id' => 'orderStatusId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getEmail(): ActiveQueryInterface
     {
         return $this->hasOne(Email::class, ['id' => 'emailId']);

@@ -47,7 +47,7 @@ class Variants extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|\GraphQL\Type\Definition\Type
     {
         return [
             'name' => $this->handle,
@@ -61,7 +61,7 @@ class Variants extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Variant::class;
     }

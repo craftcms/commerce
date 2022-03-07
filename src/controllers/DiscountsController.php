@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\DebugPanel;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -21,7 +22,6 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use craft\helpers\Localization;
 use craft\i18n\Locale;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -39,9 +39,9 @@ use function get_class;
  */
 class DiscountsController extends BaseCpController
 {
-    const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
-    const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+    public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
+    public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
+    public const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
     /**
      * @inheritdoc
@@ -69,7 +69,6 @@ class DiscountsController extends BaseCpController
     /**
      * @param int|null $id
      * @param Discount|null $discount
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
@@ -86,6 +85,8 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['discount']->allCategories = true;
+                $variables['discount']->allPurchasables = true;
                 $variables['isNewDiscount'] = true;
             }
         }
@@ -93,6 +94,7 @@ class DiscountsController extends BaseCpController
         DebugPanel::prependModelTab($variables['discount']);
 
         $this->_populateVariables($variables);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
@@ -152,32 +154,33 @@ class DiscountsController extends BaseCpController
             $discount->dateTo = $dateTime;
         }
 
-        // Format into a %
-        $percentDiscountAmount = $request->getBodyParam('percentDiscount');
-        $localeData = Craft::$app->getLocale();
-        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount);
-        if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
-            $discount->percentDiscount = (float)$percentDiscountAmount / -100;
+        $discount->percentDiscount = -Localization::normalizePercentage($request->getBodyParam('percentDiscount'));
+
+        // Set purchasable conditions
+        if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+            $discount->setPurchasableIds([]);
         } else {
-            $discount->percentDiscount = (float)$percentDiscountAmount * -1;
-        }
-
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
+            $purchasables = array_unique($purchasables);
+            $discount->setPurchasableIds($purchasables);
         }
-        $purchasables = array_unique($purchasables);
-        $discount->setPurchasableIds($purchasables);
 
-        $categories = $request->getBodyParam('categories', []);
-        if (!$categories) {
-            $categories = [];
+        // Set category conditions
+        if ($discount->allCategories = (bool)$request->getBodyParam('allCategories')) {
+            $discount->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $discount->setCategoryIds($categories);
         }
-        $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
 
@@ -210,7 +213,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
@@ -219,11 +221,11 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder discounts.')]);
+        return $this->asSuccess();
     }
 
     /**
@@ -250,7 +252,7 @@ class DiscountsController extends BaseCpController
         }
 
         if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Discounts deleted.'));
@@ -259,7 +261,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      * @since 3.0
@@ -274,7 +275,7 @@ class DiscountsController extends BaseCpController
         $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Type not in allowed options.'));
+            return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
         switch ($type) {
@@ -289,7 +290,7 @@ class DiscountsController extends BaseCpController
                 break;
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -324,7 +325,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetDiscountsByPurchasableId(): Response
@@ -335,13 +335,13 @@ class DiscountsController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
         }
 
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
 
         if (!$purchasable) {
-            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+            return $this->asFailure(Craft::t('commerce', 'No purchasable available.'));
         }
 
         $discounts = [];
@@ -355,15 +355,11 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'discounts' => $discounts,
         ]);
     }
 
-    /**
-     * @param array $variables
-     */
     private function _populateVariables(array &$variables): void
     {
         if ($variables['discount']->id) {
@@ -413,25 +409,34 @@ class DiscountsController extends BaseCpController
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
         $currencyName = $currency ? $currency->getCurrency() : '';
+        $percentSymbol = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $variables['baseDiscountTypes'] = [
             DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Craft::t('commerce', $currencyName . ' value'),
         ];
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Craft::t('commerce', '(%) off total original price and shipping total (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Craft::t('commerce', '{pct} off total original price and shipping total (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Craft::t('commerce', '(%) off total discounted price and shipping total (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price and shipping total (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Craft::t('commerce', '(%) off total original price (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Craft::t('commerce', '{pct} off total original price (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Craft::t('commerce', '(%) off total discounted price (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         $variables['categoryElementType'] = Category::class;

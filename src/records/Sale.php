@@ -40,14 +40,14 @@ use yii\db\ActiveQueryInterface;
  */
 class Sale extends ActiveRecord
 {
-    const APPLY_BY_PERCENT = 'byPercent';
-    const APPLY_BY_FLAT = 'byFlat';
-    const APPLY_TO_PERCENT = 'toPercent';
-    const APPLY_TO_FLAT = 'toFlat';
+    public const APPLY_BY_PERCENT = 'byPercent';
+    public const APPLY_BY_FLAT = 'byFlat';
+    public const APPLY_TO_PERCENT = 'toPercent';
+    public const APPLY_TO_FLAT = 'toFlat';
 
-    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
-    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
-    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     /**
      * @inheritdoc
@@ -58,7 +58,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getGroups(): ActiveQueryInterface
@@ -67,7 +66,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getPurchasables(): ActiveQueryInterface
@@ -76,7 +74,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getCategories(): ActiveQueryInterface

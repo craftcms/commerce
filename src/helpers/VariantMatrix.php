@@ -80,7 +80,6 @@ class VariantMatrix
      *
      * @param ProductElement $product The product model
      * @param string $namespace The input namespace
-     * @return array
      * @throws Exception
      * @throws InvalidConfigException
      * @throws LoaderError
@@ -92,7 +91,7 @@ class VariantMatrix
         $variant = new Variant();
         $variant->setProduct($product);
 
-        $variantFields = $variant->getFieldLayout()->getFields();
+        $variantFields = $variant->getFieldLayout()->getCustomFields();
 
         foreach ($variantFields as $fieldLayoutField) {
             $fieldLayoutField->setIsFresh(true);

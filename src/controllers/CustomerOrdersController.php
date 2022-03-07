@@ -22,7 +22,6 @@ class CustomerOrdersController extends BaseFrontEndController
     /**
      * Get customer's orders
      *
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetOrders(): Response
@@ -32,6 +31,8 @@ class CustomerOrdersController extends BaseFrontEndController
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
         $orders = $customer->getOrders();
 
-        return $this->asJson(['success' => true, 'orders' => $orders]);
+        return $this->asSuccess(data: [
+            'orders' => $orders,
+        ]);
     }
 }

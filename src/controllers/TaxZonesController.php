@@ -26,9 +26,6 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
@@ -38,7 +35,6 @@ class TaxZonesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxAddressZone|null $taxZone
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
@@ -72,7 +68,6 @@ class TaxZonesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return null|Response
      * @throws Exception
      * @throws BadRequestHttpException
      */
@@ -111,30 +106,22 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->setStates($states);
 
         if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => true,
+            return $this->asModelSuccess(
+                $taxZone,
+                Craft::t('commerce', 'Tax zone saved.'),
+                'taxZone',
+                data: [
                     'id' => $taxZone->id,
                     'name' => $taxZone->name,
-                ]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Tax zone saved.'));
-            $this->redirectToPostedUrl($taxZone);
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'errors' => $taxZone->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax zone.'));
+                ]
+            );
         }
 
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['taxZone' => $taxZone]);
-
-        return null;
+        return $this->asModelFailure(
+            $taxZone,
+            Craft::t('commerce', 'Couldn’t save tax zone.'),
+            'taxZone'
+        );
     }
 
     /**
@@ -148,11 +135,10 @@ class TaxZonesController extends BaseTaxSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws LoaderError
      * @throws SyntaxError
@@ -167,10 +153,10 @@ class TaxZonesController extends BaseTaxSettingsController
         $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asFailure('failed');
         }
 
-        return $this->asErrorJson('failed');
+        return $this->asSuccess();
     }
 }

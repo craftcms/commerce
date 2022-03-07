@@ -96,9 +96,6 @@ class TaxCategory extends Model
         return $taxRates;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxcategories/' . $this->id);

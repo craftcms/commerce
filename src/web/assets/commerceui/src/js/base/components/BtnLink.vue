@@ -16,7 +16,7 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
     .btn-link-default {
         font-size: 1em;
     }
@@ -34,6 +34,6 @@
     }
 
     .btn-link--danger {
-        color: $red;
+        color: $errorColor;
     }
 </style>

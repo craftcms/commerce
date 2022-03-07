@@ -22,7 +22,6 @@ class Purchasable
     /**
      * Generates a new temporary SKU.
      *
-     * @return string
      * @since 3.2.8
      */
     public static function tempSku(): string
@@ -33,12 +32,10 @@ class Purchasable
     /**
      * Returns whether the given SKU is temporary.
      *
-     * @param string $sku
-     * @return bool
      * @since 3.2.8
      */
     public static function isTempSku(string $sku): bool
     {
-        return strpos($sku, static::TEMPORARY_SKU_PREFIX) === 0;
+        return str_starts_with($sku, static::TEMPORARY_SKU_PREFIX);
     }
 }

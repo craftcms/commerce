@@ -209,9 +209,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public function getIsShippable(): bool
     {
         return true;
@@ -244,7 +241,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * Update purchasable table
      *
-     * @param bool $isNew
      * @throws SiteNotFoundException
      */
     public function afterSave(bool $isNew): void
@@ -292,9 +288,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($this);
     }
 
-    /**
-     * @return bool
-     */
     public function getOnSale(): bool
     {
         $salePrice = $this->getSalePrice();

@@ -12,7 +12,6 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -146,28 +145,16 @@ class TaxRate extends Model
         return $fields;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->rate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asPercent($this->rate);
     }
 
-    /**
-     * @return TaxAddressZone|null
-     * @throws InvalidConfigException
-     */
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
@@ -177,10 +164,6 @@ class TaxRate extends Model
         return $this->_taxZone;
     }
 
-    /**
-     * @return TaxCategory|null
-     * @throws InvalidConfigException
-     */
     public function getTaxCategory(): ?TaxCategory
     {
         if (!isset($this->_taxCategory) && $this->taxCategoryId) {

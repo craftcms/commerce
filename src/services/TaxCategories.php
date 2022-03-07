@@ -59,9 +59,6 @@ class TaxCategories extends Component
 
     /**
      * Get a tax category by its ID.
-     *
-     * @param int $taxCategoryId
-     * @return TaxCategory|null
      */
     public function getTaxCategoryById(int $taxCategoryId): ?TaxCategory
     {
@@ -73,8 +70,6 @@ class TaxCategories extends Component
     /**
      * Get a tax category by its handle.
      *
-     * @param string $taxCategoryHandle
-     * @return TaxCategory|null
      * @noinspection PhpUnused
      */
     public function getTaxCategoryByHandle(string $taxCategoryHandle): ?TaxCategory
@@ -86,8 +81,6 @@ class TaxCategories extends Component
 
     /**
      * Returns all Tax category names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllTaxCategoriesAsList(): array
     {
@@ -99,7 +92,6 @@ class TaxCategories extends Component
     /**
      * Get the default tax category
      *
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getDefaultTaxCategory(): TaxCategory
@@ -122,9 +114,7 @@ class TaxCategories extends Component
     /**
      * Save a tax category.
      *
-     * @param TaxCategory $taxCategory
      * @param bool $runValidation should we validate this state before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -205,8 +195,6 @@ class TaxCategories extends Component
 
     /**
      * Re-save products by product type id
-     *
-     * @param int $productTypeId
      */
     private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
@@ -223,7 +211,6 @@ class TaxCategories extends Component
 
     /**
      * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -247,7 +234,6 @@ class TaxCategories extends Component
 
     /**
      * @param $productTypeId
-     * @return array
      * @throws InvalidConfigException
      */
     public function getTaxCategoriesByProductTypeId($productTypeId): array
@@ -281,8 +267,6 @@ class TaxCategories extends Component
 
     /**
      * Memoize a tax category model by its ID and handle.
-     *
-     * @param TaxCategory $taxCategory
      */
     private function _memoizeTaxCategory(TaxCategory $taxCategory): void
     {
@@ -292,8 +276,6 @@ class TaxCategories extends Component
 
     /**
      * Returns a Query object prepped for retrieving tax categories.
-     *
-     * @return Query
      */
     private function _createTaxCategoryQuery(): Query
     {

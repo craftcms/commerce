@@ -236,6 +236,7 @@ trait OrderElementTrait
             'username',
             'reference',
             'skus',
+            'lineItemDescriptions',
         ];
     }
 
@@ -276,6 +277,8 @@ trait OrderElementTrait
                 return $this->getUser()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
+            case 'lineItemDescriptions':
+                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
             default:
                 return parent::getSearchKeywords($attribute);
         }
@@ -491,7 +494,7 @@ trait OrderElementTrait
         $attributes = [];
         $attributes[] = 'order';
 
-        if (0 !== strpos($source, 'carts:')) {
+        if (!str_starts_with($source, 'carts:')) {
             $attributes[] = 'reference';
             $attributes[] = 'orderStatus';
             $attributes[] = 'dateOrdered';
@@ -621,8 +624,6 @@ trait OrderElementTrait
 
     /**
      * @param array $miniTable Expects an array with rows of 'label', 'value' keys values.
-     *
-     * @return string
      */
     private function _miniTable(array $miniTable): string
     {

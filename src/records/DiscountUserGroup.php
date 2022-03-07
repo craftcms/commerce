@@ -33,17 +33,11 @@ class DiscountUserGroup extends ActiveRecord
         return Table::DISCOUNT_USERGROUPS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id' => 'discountId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(UserGroup::class, ['id' => 'userGroupId']);

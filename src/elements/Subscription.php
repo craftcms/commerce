@@ -24,7 +24,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -203,9 +202,25 @@ class Subscription extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function isEditable(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return false;
+        }
+
+        return (
+            ($this->userId && $this->userId == $user->id) ||
+            $user->can('commerce-manageSubscriptions')
+        );
+    }
+
+    /**
      * Returns whether this subscription can be reactivated.
      *
-     * @return bool
      * @throws InvalidConfigException if gateway misconfigured
      */
     public function canReactivate(): bool
@@ -216,7 +231,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -224,7 +239,6 @@ class Subscription extends Element
     /**
      * Returns whether this subscription is on trial.
      *
-     * @return bool
      * @throws Exception
      */
     public function getIsOnTrial(): bool
@@ -238,8 +252,6 @@ class Subscription extends Element
 
     /**
      * Returns the subscription plan for this subscription
-     *
-     * @return PlanInterface
      */
     public function getPlan(): PlanInterface
     {
@@ -252,8 +264,6 @@ class Subscription extends Element
 
     /**
      * Returns the User that is subscribed.
-     *
-     * @return User
      */
     public function getSubscriber(): User
     {
@@ -264,19 +274,12 @@ class Subscription extends Element
         return $this->_user;
     }
 
-    /**
-     * @return array
-     */
     public function getSubscriptionData(): array
     {
         return $this->_subscriptionData;
     }
 
-    /**
-     *
-     * @param string|array $data
-     */
-    public function setSubscriptionData($data): void
+    public function setSubscriptionData(array|string $data): void
     {
         $data = Json::decodeIfJson($data);
 
@@ -286,7 +289,6 @@ class Subscription extends Element
     /**
      * Returns the datetime of trial expiry.
      *
-     * @return DateTime|null
      * @throws Exception
      */
     public function getTrialExpires(): ?DateTIme
@@ -298,7 +300,6 @@ class Subscription extends Element
     /**
      * Returns the next payment amount with currency code as a string.
      *
-     * @return string
      * @throws InvalidConfigException
      */
     public function getNextPaymentAmount(): string
@@ -308,8 +309,6 @@ class Subscription extends Element
 
     /**
      * Returns the order that included this subscription, if any.
-     *
-     * @return null|Order
      */
     public function getOrder(): ?Order
     {
@@ -327,7 +326,6 @@ class Subscription extends Element
     /**
      * Returns the product type for the product tied to the license.
      *
-     * @return SubscriptionGatewayInterface
      * @throws InvalidConfigException if gateway misconfigured
      */
     public function getGateway(): SubscriptionGatewayInterface
@@ -342,9 +340,6 @@ class Subscription extends Element
         return $this->_gateway;
     }
 
-    /**
-     * @return string
-     */
     public function getPlanName(): string
     {
         return (string)$this->getPlan();
@@ -377,15 +372,13 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }
 
     /**
      * Returns the link for editing the order that purchased this license.
-     *
-     * @return string
      */
     public function getOrderEditUrl(): string
     {
@@ -407,9 +400,6 @@ class Subscription extends Element
         return $this->getGateway()->getSubscriptionPayments($this);
     }
 
-    /**
-     * @return null|string
-     */
     public function getName(): ?string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
@@ -506,7 +496,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 
@@ -637,7 +627,6 @@ class Subscription extends Element
     /**
      * Return a description of the billing issue (if any) with this subscription.
      *
-     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
      * @noinspection PhpUnused
      */
@@ -649,7 +638,6 @@ class Subscription extends Element
     /**
      * Return the form HTML for resolving the billing issue (if any) with this subscription.
      *
-     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
      * @noinspection PhpUnused
      */
@@ -661,7 +649,6 @@ class Subscription extends Element
     /**
      * Return whether this subscription has billing issues.
      *
-     * @return bool
      * @throws InvalidConfigException if not a subscription gateway anymore
      */
     public function getHasBillingIssues(): bool

@@ -9,7 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
-use Twig\Environment;
+use craft\helpers\Json;
+use craft\web\twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
@@ -21,6 +22,11 @@ use Twig\Error\SyntaxError;
  */
 class Formulas extends Component
 {
+    /**
+     * @var array
+     */
+    private $_formulaConditionMatches = [];
+
     /**
      * @var Environment
      */
@@ -41,14 +47,13 @@ class Formulas extends Component
         $loader = new \Twig\Loader\FilesystemLoader();
         $sandbox = new \Twig\Extension\SandboxExtension($policy, true);
 
-        $this->_twigEnv = new \Twig\Environment($loader);
+        $this->_twigEnv = new Environment($loader);
         $this->_twigEnv->addExtension($sandbox);
     }
 
     /**
      * @param string $condition The condition which will be tested for correct syntax
      * @param array $params data passed into the formula
-     * @return bool
      */
     public function validateConditionSyntax(string $condition, array $params): bool
     {
@@ -64,7 +69,6 @@ class Formulas extends Component
     /**
      * @param string $formula The formula which will be tested for correct syntax
      * @param array $params data passed into the formula
-     * @return bool
      */
     public function validateFormulaSyntax(string $formula, array $params): bool
     {
@@ -78,7 +82,6 @@ class Formulas extends Component
     }
 
     /**
-     * @param string $formula
      * @param array $params data passed into the condition
      * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
@@ -91,15 +94,22 @@ class Formulas extends Component
             throw new SyntaxError('Tags are not allowed in a condition formula.');
         }
 
+        $cacheKey = 'formula:' . md5($formula) . '|params:' . md5(Json::encode($params));
+
+        if (Craft::$app->getCache()->exists($cacheKey)) {
+            return (bool)Craft::$app->getCache()->get($cacheKey);
+        }
+
         $twigCode = '{% if ';
         $twigCode .= $formula;
         $twigCode .= ' %}TRUE{% else %}FALSE{% endif %}';
 
         $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        $success = $output == 'TRUE';
+        $result = ($output == 'TRUE');
+        Craft::$app->getCache()->set($cacheKey, $result);
 
-        return $success;
+        return $result;
     }
 
     /**
@@ -129,11 +139,6 @@ class Formulas extends Component
         return $result;
     }
 
-    /**
-     * @param string $code
-     * @param array $disallowedStrings
-     * @return bool
-     */
     private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
         foreach ($disallowedStrings as $disallowedString) {
@@ -144,9 +149,6 @@ class Formulas extends Component
         return false;
     }
 
-    /**
-     * @return array
-     */
     private function _getTags(): array
     {
         return [
@@ -172,9 +174,6 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getFilters(): array
     {
         return [
@@ -233,9 +232,6 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getFunctions(): array
     {
         return [
@@ -257,17 +253,11 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getMethods(): array
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     private function _getProperties(): array
     {
         return [];

@@ -32,7 +32,6 @@ use yii\web\ServerErrorHttpException;
 class EmailsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -44,7 +43,6 @@ class EmailsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Email|null $email
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Email $email = null): Response
@@ -86,7 +84,6 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -148,6 +145,6 @@ class EmailsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

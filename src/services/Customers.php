@@ -50,7 +50,7 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-    const SESSION_CUSTOMER = 'commerce_customer';
+    public const SESSION_CUSTOMER = 'commerce_customer';
 
     /**
      * @var Customer|null
@@ -72,7 +72,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
+    public const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
 
     /**
      * @event CustomerEvent The event that is triggered after customer details is saved.
@@ -89,7 +89,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
+    public const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
 
     /**
      * @event CustomerAddressEvent The event that is triggered before customer address is saved.
@@ -109,7 +109,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
+    public const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
 
     /**
      * @event CustomerAddressEvent The event that is triggered after customer address is successfully saved.
@@ -129,7 +129,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
+    public const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
 
     /**
      * Get all customers.
@@ -152,9 +152,6 @@ class Customers extends Component
 
     /**
      * Get a customer by its ID.
-     *
-     * @param int $id
-     * @return Customer|null
      */
     public function getCustomerById(int $id): ?Customer
     {
@@ -167,8 +164,6 @@ class Customers extends Component
 
     /**
      * Get the current customer by the current customer in session, or creates one if none exists.
-     *
-     * @return Customer
      */
     public function getCustomer(): Customer
     {
@@ -176,7 +171,6 @@ class Customers extends Component
         $isNew = false;
 
         if ($this->_customer === null) {
-
             $user = Craft::$app->getUser()->getIdentity();
 
             // Can we get the current customer from the current user?
@@ -218,10 +212,8 @@ class Customers extends Component
     /**
      * Associates an address with the saved customer, and saves the address.
      *
-     * @param Address $address
      * @param Customer|null $customer Defaults to the current customer in session if none is passing in.
      * @param bool $runValidation should we validate this address before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveAddress(Address $address, Customer $customer = null, bool $runValidation = true): bool
@@ -271,9 +263,7 @@ class Customers extends Component
     /**
      * Save a customer by its model.
      *
-     * @param Customer $customer
      * @param bool $runValidation should we validate this customer before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveCustomer(Customer $customer, bool $runValidation = true): bool
@@ -332,8 +322,6 @@ class Customers extends Component
     /**
      * Get all address IDs for a customer by its ID.
      *
-     * @param int $customerId
-     * @return array
      * @throws InvalidConfigException
      */
     public function getAddressIdsByCustomerId(int $customerId): array
@@ -352,7 +340,6 @@ class Customers extends Component
      * Get all address IDs for a customer by its ID.
      *
      * @param $customerId
-     * @return array
      * @throws InvalidConfigException
      * @deprecated in 4.0. Use [[getAddressIdsByCustomerId()]] instead.
      */
@@ -364,7 +351,6 @@ class Customers extends Component
     /**
      * Delete a customer.
      *
-     * @param Customer $customer
      * @return mixed
      * @throws Throwable
      * @throws StaleObjectException
@@ -384,8 +370,6 @@ class Customers extends Component
     /**
      * Deletes a customer by its ID
      *
-     * @param int $id
-     * @return bool
      * @throws StaleObjectException
      * @throws Throwable
      */
@@ -427,7 +411,6 @@ class Customers extends Component
     /**
      * When a user logs in, consolidate all his/her orders.
      *
-     * @param UserEvent $event
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws InvalidConfigException
@@ -464,9 +447,7 @@ class Customers extends Component
     /**
      * Assigns guest orders to a user.
      *
-     * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
-     * @return bool
      * @throws Throwable
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
@@ -526,7 +507,6 @@ class Customers extends Component
      * Get a customer by user ID. Returns null, if it doesn't exist.
      *
      * @param $id
-     * @return Customer|null
      */
     public function getCustomerByUserId($id): ?Customer
     {
@@ -541,7 +521,6 @@ class Customers extends Component
      * Returns the user groups of the user param but defaults to the current user
      *
      * @param User|null $user
-     * @return array
      */
     public function getUserGroupIdsForUser(User $user = null): array
     {
@@ -560,7 +539,6 @@ class Customers extends Component
     /**
      * Handle the user logout.
      *
-     * @param UserEvent $event
      * @throws InvalidConfigException
      * @throws MissingComponentException
      */
@@ -622,7 +600,7 @@ class Customers extends Component
                     // Don't create two addresses in the address book if they are the same
                     $customer->primaryShippingAddressId = $customer->primaryBillingAddressId;
                     $addressesUpdated = true;
-                } else if ($shippingAddress) {
+                } elseif ($shippingAddress) {
                     $shippingAddress->id = null;
                     if ($this->saveAddress($shippingAddress, $customer, false)) {
                         $customer->primaryShippingAddressId = $shippingAddress->id;
@@ -641,7 +619,6 @@ class Customers extends Component
      * Retrieve customer query with the option to specify a search term
      *
      * @param string|null $search
-     * @return Query
      * @since 3.1
      */
     public function getCustomersQuery(string $search = null): Query
@@ -714,7 +691,6 @@ class Customers extends Component
     /**
      * Consolidate all guest orders for this email address to use one customer record.
      *
-     * @param string $email
      * @param Order|null $order
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
@@ -782,8 +758,6 @@ class Customers extends Component
     }
 
     /**
-     * @param Order $order
-     * @return bool
      * @throws \yii\db\Exception
      */
     private function _copyAddressesToOrder(Order $order): bool
@@ -828,8 +802,6 @@ class Customers extends Component
     }
 
     /**
-     * @param Order $order
-     * @return void
      * @throws Exception
      * @throws Throwable
      * @throws ElementNotFoundException
@@ -905,7 +877,6 @@ class Customers extends Component
     }
 
     /**
-     * @param array $context
      * @since 2.2
      */
     public function addEditUserCustomerInfoTab(array &$context): void
@@ -922,8 +893,6 @@ class Customers extends Component
     /**
      * Add customer info to the Edit User page in the CP
      *
-     * @param array $context
-     * @return string
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -949,7 +918,6 @@ class Customers extends Component
     }
 
     /**
-     * @param ModelEvent $event
      * @throws Exception
      */
     public function afterSaveUserHandler(ModelEvent $event): void
@@ -981,9 +949,8 @@ class Customers extends Component
         // Update the email address in the DB for this customer
         if ($email) {
             $this->_updatePreviousOrderEmails($customer->id, $email);
+            $this->consolidateGuestOrdersByEmail($email);
         }
-
-        $this->consolidateGuestOrdersByEmail($email);
     }
 
     /**
@@ -1025,8 +992,6 @@ class Customers extends Component
     }
 
     /**
-     * @param int $customerId
-     * @param string $email
      * @throws \yii\db\Exception
      */
     private function _updatePreviousOrderEmails(int $customerId, string $email): void

@@ -12,9 +12,9 @@ use craft\commerce\console\Controller;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
+use craft\helpers\Html;
 use yii\base\ErrorException;
 use yii\base\Exception;
-use craft\helpers\Html;
 use yii\console\ExitCode;
 
 /**
@@ -86,7 +86,6 @@ class ExampleTemplatesController extends Controller
     /**
      * Generates and copies the example templates.
      *
-     * @return int
      * @throws ErrorException
      * @throws Exception
      */
@@ -96,7 +95,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->useHtmx = true;
+            $this->useHtmx = false;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -182,7 +181,7 @@ class ExampleTemplatesController extends Controller
             // If this is not a dev build, copy them to the templates folder
             if (!$templatesPath) {
                 $errors[] = 'Can not determine the site template path.';
-            } else if (!FileHelper::isWritable($templatesPath)) {
+            } elseif (!FileHelper::isWritable($templatesPath)) {
                 $errors[] = 'Site template path is not writable.';
             }
 
@@ -199,7 +198,7 @@ class ExampleTemplatesController extends Controller
             // We’re allowed to overwrite templates, and we’ve got valid source and destination folders
             $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);
             FileHelper::removeDirectory($destination);
-        } else if ($destinationExists && !$this->overwrite) {
+        } elseif ($destinationExists && !$this->overwrite) {
             // A target folder’s been specified that already exists, but we’re not supposed to overwrite it
             $errors[] = 'The “' . $folderName . '” directory already exists. Set the `overwrite` param to `true` to replace it.';
             return $this->_returnErrors($errors);
@@ -253,7 +252,7 @@ class ExampleTemplatesController extends Controller
     private function _addResourceAssetsToReplacementData(): void
     {
         $resourceTags = [
-            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css'),
         ];
 
         if ($this->useHtmx) {
@@ -263,6 +262,7 @@ class ExampleTemplatesController extends Controller
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[resourceTags]]' => implode("\n", $resourceTags),
             '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
+            '[[hx-disable]]' => $this->useHtmx ? 'hx-disable' : '',
         ]);
     }
 
@@ -270,7 +270,6 @@ class ExampleTemplatesController extends Controller
      * Formats and outputs errors and exits.
      *
      * @param string[] $errors Error strings to be shown to the user
-     * @return int
      */
     private function _returnErrors(array $errors): int
     {

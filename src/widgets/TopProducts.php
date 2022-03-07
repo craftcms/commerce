@@ -115,23 +115,11 @@ class TopProducts extends Widget
             ],
         ];
 
-        switch ($this->type) {
-            case 'revenue':
-            {
-                $this->_title = Craft::t('commerce', 'Top Products by Revenue');
-                break;
-            }
-            case 'qty':
-            {
-                $this->_title = Craft::t('commerce', 'Top Products by Qty Sold');
-                break;
-            }
-            default:
-            {
-                $this->_title = Craft::t('commerce', 'Top Products');
-                break;
-            }
-        }
+        $this->_title = match ($this->type) {
+            'revenue' => Craft::t('commerce', 'Top Products by Revenue'),
+            'qty' => Craft::t('commerce', 'Top Products by Qty Sold'),
+            default => Craft::t('commerce', 'Top Products'),
+        };
 
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
 
@@ -163,7 +151,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -171,7 +159,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -210,7 +198,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-products' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

@@ -28,9 +28,6 @@ use yii\web\Response;
  */
 class ProductTypesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionProductTypeIndex(): Response
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -40,7 +37,6 @@ class ProductTypesController extends BaseAdminController
     /**
      * @param int|null $productTypeId
      * @param ProductType|null $productType
-     * @return Response
      * @throws HttpException
      */
     public function actionEditProductType(int $productTypeId = null, ProductType $productType = null): Response
@@ -179,7 +175,6 @@ class ProductTypesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws Throwable
      * @throws BadRequestHttpException
      */
@@ -191,6 +186,6 @@ class ProductTypesController extends BaseAdminController
         $productTypeId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

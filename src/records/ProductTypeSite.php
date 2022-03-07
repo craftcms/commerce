@@ -36,17 +36,11 @@ class ProductTypeSite extends ActiveRecord
         return Table::PRODUCTTYPES_SITES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSite(): ActiveQueryInterface
     {
         return $this->hasOne(Site::class, ['id', 'siteId']);
