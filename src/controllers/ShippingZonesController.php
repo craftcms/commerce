@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
+use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
