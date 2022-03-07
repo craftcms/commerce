@@ -9,7 +9,6 @@ namespace craft\commerce\console\controllers;
 
 use Craft;
 use craft\base\FieldInterface;
-use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
@@ -20,7 +19,6 @@ use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
-use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\CustomField;
 use craft\fields\PlainText;
@@ -394,7 +392,7 @@ EOL
                 'default' => $label,
             ]);
             $field->columnType = Schema::TYPE_STRING;
-
+            $field->groupId = ArrayHelper::firstValue(Craft::$app->getFields()->getAllGroups())->id;
             if (!$fieldsService->saveField($field)) {
                 $this->stderr(sprintf("Unable to save the field: %s\n", implode(', ', $field->getFirstErrors())));
                 throw new OperationAbortedException();
@@ -430,7 +428,7 @@ EOL
             $zoneId = $shippingZone['id'];
 
             // If we have a zone model with that ID (which we should)
-            if ($model = Plugin::getInstance()->getShippingZones()->getShippingZoneById($zoneId)) {
+            if ($model = Plugin::getInstance()->getShippingZones()->getShippingZoneById((int)$zoneId)) {
                 // Get the condition (which will create if none exists)
                 $condition = $model->getCondition();
                 $newRules = [];
@@ -502,7 +500,7 @@ EOL
             $zoneId = $taxZone['id'];
 
             // If we have a zone model with that ID (which we should)
-            if ($model = Plugin::getInstance()->getTaxZones()->getTaxZoneById($zoneId)) {
+            if ($model = Plugin::getInstance()->getTaxZones()->getTaxZoneById((int)$zoneId)) {
                 // Get the condition (which will create if none exists)
                 $condition = $model->getCondition();
                 $newRules = [];
@@ -555,6 +553,18 @@ EOL
             Console::updateProgress($done++, count($taxZones));
         }
         Console::endProgress();
+    }
+
+    /**
+     * @return array
+     */
+    public function _countryCodesByV3CountryId(): array
+    {
+        return (new Query())
+            ->select(['iso'])
+            ->from(['{{%commerce_countries}}'])
+            ->indexBy('id')
+            ->column();
     }
 
     /**
