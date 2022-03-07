@@ -16,7 +16,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\elements\User;
-use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use yii\web\UserEvent;
 
@@ -35,7 +34,7 @@ class Customers extends Component
      */
     public function savePrimaryShippingAddressId(User $user, int $addressId): bool
     {
-        $userRecord = CustomerRecord::findOne($user->id) ?: $this->_createCustomerRecord($user);
+        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
         $userRecord->primaryShippingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryShippingAddressId = $addressId;
@@ -49,7 +48,7 @@ class Customers extends Component
      */
     public function savePrimaryBillingAddressId(User $user, int $addressId): bool
     {
-        $userRecord = CustomerRecord::findOne($user->id) ?: $this->_createCustomerRecord($user);
+        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
         $userRecord->primaryBillingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryBillingAddressId = $addressId;

@@ -82,7 +82,7 @@ class Install extends Migration
     public function createTables(): void
     {
         $this->createTable(Table::CUSTOMERS, [
-            'id' => $this->primaryKey(),
+            'id' => $this->primaryKey(), // Not used in v4 but is the old customerId
             'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
             'primaryShippingAddressId' => $this->integer(),
@@ -691,7 +691,7 @@ class Install extends Migration
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean()->notNull()->defaultValue(false),
-            'isVat' => $this->boolean()->notNull()->defaultValue(false), // @TODO rename to isEuVat #COM-45
+            'isVat' => $this->boolean()->notNull()->defaultValue(false), // TODO rename to isEuVat #COM-45
             'removeIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'removeVatIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),

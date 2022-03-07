@@ -33,7 +33,7 @@ class Customer extends ActiveRecord
         return [
             [
                 [
-                    'id',
+                    'customerId',
                     'primaryBillingAddressId',
                     'primaryShippingAddressId',
                     'userId',
