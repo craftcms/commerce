@@ -6,9 +6,11 @@ use Craft;
 use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\errors\NotImplementedException;
+use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
+use craft\helpers\Html;
 use yii\base\NotSupportedException;
 
 /**
@@ -43,19 +45,36 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
      */
     public function matchElement(ElementInterface $element): bool
     {
-        return false;
+        $address = $element;
+        $formulasService = Plugin::getInstance()->getFormulas();
+        $formula = $this->value;
+        $postalCode = $address->postalCode;
+
+        $result = (bool)$formulasService->evaluateCondition($formula, ['postalCode' => $postalCode], 'Postal code formula matching address');
+
+        if (!$result) {
+            return false;
+        }
+    }
+
+    public function operators(): array
+    {
+        return [
+            self::OPERATOR_EQ
+        ];
     }
 
     public function inputHtml(): string
     {
-        $html = '';
-        Cp::fieldHtml($html,[
-            'label' => Craft::t('commerce', 'Postal Code Formula'),
-            'rows' => 3,
-            'instruction' => Craft::t('commerce',
-                'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping zone should include a given Post Code. (The Zip/postal code can be referenced via a `zipCode` variable.)',
-                ['url' => 'https://twig.symfony.com/doc/2.x/advanced.html#conditionals']
-    ),
+        return Html::hiddenLabel($this->getLabel(), 'value') .
+        Cp::textHtml([
+            'type' => $this->inputType(),
+            'id' => 'value',
+            'name' => 'value',
+            'code' => 'value',
+            'value' => $this->value,
+            'autocomplete' => false,
+            'class' => 'fullwidth',
         ]);
     }
 }

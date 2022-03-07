@@ -96,7 +96,7 @@ class TaxZones extends Component
         $record->name = $model->name;
         $record->description = $model->description;
         $record->default = $model->default;
-        $record->condition = $model->getCondition();
+        $record->condition = $model->getCondition()->getConfig();
 
         $record->save();
 
