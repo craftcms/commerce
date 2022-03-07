@@ -134,7 +134,7 @@ class PaymentCurrenciesTest extends Unit
         // Converting from AUD to EUR and back
         $converted = $this->pc->convertCurrency(13, $audCurrencyModel->iso, $eurCurrencyModel->iso);
         self::assertEquals($converted, 5);
-        $converted = $this->pc->convertCurrency(5, $eurCurrencyModel->iso, $audCurrencyModel->iso );
+        $converted = $this->pc->convertCurrency(5, $eurCurrencyModel->iso, $audCurrencyModel->iso);
         self::assertEquals($converted, 13);
     }
 

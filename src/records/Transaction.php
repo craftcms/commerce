@@ -37,15 +37,15 @@ use yii\db\ActiveQueryInterface;
  */
 class Transaction extends ActiveRecord
 {
-    const TYPE_AUTHORIZE = 'authorize';
-    const TYPE_CAPTURE = 'capture';
-    const TYPE_PURCHASE = 'purchase';
-    const TYPE_REFUND = 'refund';
-    const STATUS_PENDING = 'pending';
-    const STATUS_REDIRECT = 'redirect';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_SUCCESS = 'success';
-    const STATUS_FAILED = 'failed';
+    public const TYPE_AUTHORIZE = 'authorize';
+    public const TYPE_CAPTURE = 'capture';
+    public const TYPE_PURCHASE = 'purchase';
+    public const TYPE_REFUND = 'refund';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_REDIRECT = 'redirect';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_SUCCESS = 'success';
+    public const STATUS_FAILED = 'failed';
 
 
     /**

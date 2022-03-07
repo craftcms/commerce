@@ -93,7 +93,6 @@ class OrderStatuses extends Component
      */
     public function getAllOrderStatuses(bool $withTrashed = false): array
     {
-
         if ($this->_orderStatuses !== null && !$withTrashed) {
             return $this->_orderStatuses;
         }

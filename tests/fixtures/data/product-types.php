@@ -24,5 +24,5 @@ return [
         'productTitleFormat' => '',
         'hasProductTitleField' => true,
         'hasVariantTitleField' => false,
-    ]
+    ],
 ];

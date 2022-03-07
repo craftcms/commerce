@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\stats\TopProducts as TopProductsStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
 

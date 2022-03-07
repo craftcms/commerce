@@ -729,7 +729,7 @@ class Variant extends Purchasable
             foreach ($lineItem->getOrder()->getLineItems() as $item) {
                 if ($item->id !== null && $item->id == $lineItem->id) {
                     $qty += $lineItem->qty;
-                } else if ($item->purchasableId == $lineItem->purchasableId) {
+                } elseif ($item->purchasableId == $lineItem->purchasableId) {
                     $qty += $item->qty;
                 }
             }
@@ -1074,7 +1074,6 @@ class Variant extends Purchasable
         $this->updateSku($product);
 
         if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
             }

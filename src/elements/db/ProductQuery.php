@@ -420,7 +420,7 @@ class ProductQuery extends ElementQuery
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
@@ -866,9 +866,9 @@ class ProductQuery extends ElementQuery
     {
         if (empty($this->typeId)) {
             $this->typeId = null;
-        } else if (is_numeric($this->typeId)) {
+        } elseif (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
-        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+        } elseif (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
             $this->typeId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTTYPES])
@@ -911,7 +911,7 @@ class ProductQuery extends ElementQuery
 
         if ($this->hasVariant instanceof VariantQuery) {
             $variantQuery = $this->hasVariant;
-        } else if (is_array($this->hasVariant)) {
+        } elseif (is_array($this->hasVariant)) {
             $query = Variant::find();
             $variantQuery = Craft::configure($query, $this->hasVariant);
         } else {

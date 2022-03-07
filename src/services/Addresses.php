@@ -529,7 +529,6 @@ class Addresses extends Component
         }
 
         foreach ($orders as $key => $order) {
-
             if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
                 $order->setShippingAddress($addresses[$order['shippingAddressId']]);
             }

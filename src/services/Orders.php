@@ -26,7 +26,7 @@ use yii\base\Exception;
  */
 class Orders extends Component
 {
-    const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
+    public const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
 
 
     /**

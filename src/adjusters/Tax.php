@@ -33,7 +33,7 @@ use function in_array;
  */
 class Tax extends Component implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'tax';
+    public const ADJUSTMENT_TYPE = 'tax';
 
     /**
      * @var Validator
@@ -136,7 +136,7 @@ class Tax extends Component implements AdjusterInterface
 
                 if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                     $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
-                } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                     $orderTaxableAmount = $this->_order->getTotalShippingCost();
                 }
 
@@ -144,7 +144,7 @@ class Tax extends Component implements AdjusterInterface
 
                 if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                     $this->_costRemovedForOrderTotalPrice += $amount;
-                } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                     $this->_costRemovedForOrderShipping += $amount;
                 }
 
@@ -305,7 +305,6 @@ class Tax extends Component implements AdjusterInterface
 
     private function _validateEuBusinessTaxId(): bool
     {
-
         if (!$this->_address) {
             return false;
         }
@@ -347,7 +346,6 @@ class Tax extends Component implements AdjusterInterface
     private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
-
             $this->_vatValidator = new Validator();
         }
 
@@ -356,7 +354,7 @@ class Tax extends Component implements AdjusterInterface
 
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
     {
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = Craft::t('site', $rate->name);
         $adjustment->description = $rate->rate * 100 . '%';

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -56,6 +57,8 @@ class LineItemStatusesController extends BaseAdminController
                 $variables['lineItemStatus'] = new LineItemStatus();
             }
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;

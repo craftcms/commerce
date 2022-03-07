@@ -93,7 +93,7 @@ class AddressTest extends Unit
         $cache = $this->make(DummyCache::class, [
             'exists' => static function($key) {
                 return $key == 'commerce:validVatId:exists';
-            }
+            },
         ]);
 
         Craft::$app->set('cache', $cache);
@@ -104,7 +104,7 @@ class AddressTest extends Unit
         $validator = $this->make(Validator::class, ['validateExistence' => function($val) {
             return $val == 'GB000472631';
         }]);
-        $addressModel = Stub::make(new Address, ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);
+        $addressModel = Stub::make(new Address(), ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);
 
         $addressModel->businessTaxId = $businessTaxId;
         $addressModel->validateBusinessTaxId(null, null, null);
@@ -149,7 +149,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('countries', $countries);
@@ -232,7 +232,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('states', $states);
@@ -268,7 +268,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('states', $states);
@@ -346,7 +346,7 @@ class AddressTest extends Unit
                     'custom2' => 'Marty',
                     'custom3' => 'George',
                     'custom4' => 'Biff',
-                ]
+                ],
             ],
             [['address1' => 'Sanitize <br> this'], true, ['address1' => 'Sanitize &lt;br&gt; this']],
         ];
@@ -461,7 +461,7 @@ class AddressTest extends Unit
             [new Address(['stateId' => 1111]), 1111],
             [new Address(['stateId' => 1111, 'stateName' => 'Test State']), 1111],
             [new Address(['stateName' => 'Test State']), 'Test State'],
-            [Stub::make(new Address, ['_stateValue' => 'Test State']), 'Test State'],
+            [Stub::make(new Address(), ['_stateValue' => 'Test State']), 'Test State'],
         ];
     }
 

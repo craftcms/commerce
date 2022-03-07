@@ -21,6 +21,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
@@ -160,6 +161,9 @@ class OrdersController extends Controller
         $this->enforceEditOrderPermissions($order);
 
         $variables['order'] = $order;
+
+        DebugPanel::prependOrAppendModelTab(model: $order, prepend: true);
+
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
@@ -306,13 +310,13 @@ class OrdersController extends Controller
                 Craft::t('commerce', 'The order is not valid.'),
                 'order',
                 [
-                    'order' => $this->_orderToArray($order)
+                    'order' => $this->_orderToArray($order),
                 ]
             );
         }
 
         return $this->asSuccess(data: [
-            'order' => $this->_orderToArray($order)
+            'order' => $this->_orderToArray($order),
         ]);
     }
 
@@ -1118,7 +1122,6 @@ class OrdersController extends Controller
 
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
-
             if ($orderRequestData['order']['dateOrdered']['time'] == '') {
                 $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
                 $dateOrdered['time'] = $dateTime->format('H:i');
@@ -1355,7 +1358,7 @@ class OrdersController extends Controller
                             'transaction' => $transaction,
                         ]
                     );
-                } else if ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
+                } elseif ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
                     $refundCapture = Craft::$app->getView()->renderTemplate(
                         'commerce/orders/includes/_refund',
                         [

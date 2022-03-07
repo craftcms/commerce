@@ -71,7 +71,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
+    public const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
     /**
      * @event SaleEvent The event that is triggered before a sale is saved.
@@ -96,7 +96,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
+    public const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is saved.
@@ -121,7 +121,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
+    public const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is deleted.
@@ -145,7 +145,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
+    public const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
 
     /**
      * @var Sale[]|null
@@ -550,7 +550,7 @@ class Sales extends Component
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord;
+                $relation = new SaleCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();

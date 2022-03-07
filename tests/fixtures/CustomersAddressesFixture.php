@@ -21,7 +21,7 @@ class CustomersAddressesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/customers-addresses.php';
+    public $dataFile = __DIR__ . '/data/customers-addresses.php';
 
     /**
      * @inheritdoc

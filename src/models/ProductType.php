@@ -243,7 +243,7 @@ class ProductType extends Model
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
-            } else if ($category instanceof ShippingCategory) {
+            } elseif ($category instanceof ShippingCategory) {
                 // Make sure it exists
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category->id)) {
                     $categories[$category->id] = $category;
@@ -374,21 +374,56 @@ class ProductType extends Model
     }
 
     /**
+     * @return string
+     * @deprecated 4.0.0
+     */
+    public function getTitleFormat(): string
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Getting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        return $this->variantTitleFormat;
+    }
+
+    /**
+     * @return void
+     * @deprecated 4.0.0
+     */
+    public function setTitleFormat(string $titleFormat): void
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Setting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        $this->variantTitleFormat = $titleFormat;
+    }
+
+    /**
      * @inheritdoc
      */
     public function behaviors(): array
     {
-        return [
-            'productFieldLayout' => [
+        $behaviors = parent::behaviors();
+        $behaviors['productFieldLayout'] = [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
                 'idAttribute' => 'fieldLayoutId',
-            ],
-            'variantFieldLayout' => [
+            ];
+
+        $behaviors['variantFieldLayout'] = [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
                 'idAttribute' => 'variantFieldLayoutId',
-            ],
-        ];
+            ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'taxCategories';
+        $fields[] = 'shippingCategories';
+        $fields[] = 'siteSettings';
+
+        return $fields;
     }
 }

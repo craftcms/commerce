@@ -28,34 +28,34 @@ class TopProducts extends Stat
      *
      * @since 3.4
      */
-    const TYPE_QTY = 'qty';
+    public const TYPE_QTY = 'qty';
 
     /**
      * Stat returned based on revenue.
      *
      * @since 3.4
      */
-    const TYPE_REVENUE = 'revenue';
+    public const TYPE_REVENUE = 'revenue';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_DISCOUNT = 'discount';
+    public const REVENUE_OPTION_DISCOUNT = 'discount';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX = 'tax';
+    public const REVENUE_OPTION_TAX = 'tax';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
+    public const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_SHIPPING = 'shipping';
+    public const REVENUE_OPTION_SHIPPING = 'shipping';
 
     /**
      * @inheritdoc

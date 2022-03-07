@@ -74,7 +74,7 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
+    public const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
     /**
      * @event MailEvent The event that is raised after an email is sent
@@ -105,7 +105,7 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
+    public const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is saved.
@@ -130,7 +130,7 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_EMAIL = 'beforeSaveEmail';
+    public const EVENT_BEFORE_SAVE_EMAIL = 'beforeSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is saved.
@@ -155,7 +155,7 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_EMAIL = 'afterSaveEmail';
+    public const EVENT_AFTER_SAVE_EMAIL = 'afterSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is deleted.
@@ -178,7 +178,7 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_DELETE_EMAIL = 'beforeDeleteEmail';
+    public const EVENT_BEFORE_DELETE_EMAIL = 'beforeDeleteEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is deleted.
@@ -200,9 +200,9 @@ class Emails extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_EMAIL = 'afterDeleteEmail';
+    public const EVENT_AFTER_DELETE_EMAIL = 'afterDeleteEmail';
 
-    const CONFIG_EMAILS_KEY = 'commerce.emails';
+    public const CONFIG_EMAILS_KEY = 'commerce.emails';
 
 
     /**

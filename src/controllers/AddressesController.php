@@ -55,7 +55,7 @@ class AddressesController extends BaseCpController
 
             if ($variables['addressId']) {
                 $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
-            } else if ($variables['customerId']) {
+            } elseif ($variables['customerId']) {
                 $variables['address'] = new AddressModel();
             }
 
@@ -115,7 +115,7 @@ class AddressesController extends BaseCpController
 
                 throw new NotFoundHttpException('Address not found.');
             }
-        } else if ($id) {
+        } elseif ($id) {
             $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$id);
         }
 
@@ -215,7 +215,7 @@ class AddressesController extends BaseCpController
 
         if ($type == 'billing') {
             $customer->primaryBillingAddressId = $address->id;
-        } else if ($type == 'shipping') {
+        } elseif ($type == 'shipping') {
             $customer->primaryShippingAddressId = $address->id;
         }
 

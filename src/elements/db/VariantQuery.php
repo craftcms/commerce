@@ -43,7 +43,6 @@ use yii\db\Schema;
  */
 class VariantQuery extends ElementQuery
 {
-
     /**
      * @inheritdoc
      */
@@ -903,9 +902,9 @@ class VariantQuery extends ElementQuery
     {
         if (empty($this->productId)) {
             $this->productId = null;
-        } else if (is_numeric($this->productId)) {
+        } elseif (is_numeric($this->productId)) {
             $this->productId = [$this->productId];
-        } else if (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
+        } elseif (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
             $this->productId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTS])
@@ -925,7 +924,7 @@ class VariantQuery extends ElementQuery
 
         if ($this->hasProduct instanceof ProductQuery) {
             $productQuery = $this->hasProduct;
-        } else if (is_array($this->hasProduct)) {
+        } elseif (is_array($this->hasProduct)) {
             $query = Product::find();
             $productQuery = Craft::configure($query, $this->hasProduct);
         } else {

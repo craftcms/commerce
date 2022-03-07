@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -89,6 +90,8 @@ class SalesController extends BaseCpController
             }
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['sale'], prepend: true);
+
         $this->_populateVariables($variables);
 
         return $this->renderTemplate('commerce/promotions/sales/_edit', $variables);
@@ -99,7 +102,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave(): Response
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -190,9 +193,9 @@ class SalesController extends BaseCpController
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             return $this->redirectToPostedUrl($sale);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
+
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
 
         $variables = [
             'sale' => $sale,
@@ -200,6 +203,8 @@ class SalesController extends BaseCpController
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);
+
+        return null;
     }
 
     /**

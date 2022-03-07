@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
@@ -413,6 +414,9 @@ class ProductsController extends BaseController
         /** @var Product $product */
         $product = $variables['product'];
 
+        DebugPanel::prependOrAppendModelTab(model: $productType, prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $product, prepend: true);
+
         $form = $productType->getProductFieldLayout()->createForm($product);
         $variables['tabs'] = $form->getTabMenu();
         $variables['fieldsHtml'] = $form->render();
@@ -430,7 +434,7 @@ class ProductsController extends BaseController
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
+        } elseif (!empty($variables['productTypeId'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
         }
 

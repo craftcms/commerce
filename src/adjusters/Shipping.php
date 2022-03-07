@@ -179,7 +179,7 @@ class Shipping extends Component implements AdjusterInterface
             }
 
             //preparing model
-            $adjustment = new OrderAdjustment;
+            $adjustment = new OrderAdjustment();
             $adjustment->type = self::ADJUSTMENT_TYPE;
             $adjustment->setOrder($this->_order);
             $adjustment->name = $shippingMethod->getName();
@@ -198,7 +198,7 @@ class Shipping extends Component implements AdjusterInterface
     private function _createAdjustment(ShippingMethod $shippingMethod, ShippingRule $rule): OrderAdjustment
     {
         //preparing model
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->setOrder($this->_order);
         $adjustment->name = $shippingMethod->getName();

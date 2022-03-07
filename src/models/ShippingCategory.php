@@ -120,4 +120,16 @@ class ShippingCategory extends Model
             [['name', 'handle'], 'required'],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'productTypes';
+        $fields[] = 'productTypeIds';
+
+        return $fields;
+    }
 }

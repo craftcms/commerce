@@ -153,52 +153,52 @@ class Order extends Element
     /**
      * Payments exceed order total.
      */
-    const PAID_STATUS_OVERPAID = 'overPaid';
+    public const PAID_STATUS_OVERPAID = 'overPaid';
 
     /**
      * Payments equal order total.
      */
-    const PAID_STATUS_PAID = 'paid';
+    public const PAID_STATUS_PAID = 'paid';
 
     /**
      * Payments less than order total.
      */
-    const PAID_STATUS_PARTIAL = 'partial';
+    public const PAID_STATUS_PARTIAL = 'partial';
 
     /**
      * Payments total zero on non-free order.
      */
-    const PAID_STATUS_UNPAID = 'unpaid';
+    public const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
      * Recalculates line items, populates from purchasables, and regenerates adjustments.
      */
-    const RECALCULATION_MODE_ALL = 'all';
+    public const RECALCULATION_MODE_ALL = 'all';
 
     /**
      * Recalculates adjustments only; does not recalculate line items or populate from purchasables.
      */
-    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
+    public const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
 
     /**
      * Does not recalculate anything on the order.
      */
-    const RECALCULATION_MODE_NONE = 'none';
+    public const RECALCULATION_MODE_NONE = 'none';
 
     /**
      * Order created from the front end.
      */
-    const ORIGIN_WEB = 'web';
+    public const ORIGIN_WEB = 'web';
 
     /**
      * Order created from the control panel.
      */
-    const ORIGIN_CP = 'cp';
+    public const ORIGIN_CP = 'cp';
 
     /**
      * Order created by a remote source.
      */
-    const ORIGIN_REMOTE = 'remote';
+    public const ORIGIN_REMOTE = 'remote';
 
     /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
@@ -222,7 +222,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
+    public const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
@@ -246,7 +246,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
+    public const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
@@ -270,7 +270,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
+    public const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
@@ -294,7 +294,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemFromOrder';
+    public const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
@@ -318,7 +318,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
+    public const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before an order is completed.
@@ -338,7 +338,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
+    public const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after an order is completed.
@@ -358,7 +358,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
+    public const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after an order is paid and completed.
@@ -378,7 +378,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
+    public const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
     /**
      * @event \yii\base\Event This event is raised after an order is authorized in full and completed
@@ -396,7 +396,7 @@ class Order extends Element
      * });
      * ```
      */
-    const EVENT_AFTER_ORDER_AUTHORIZED = 'afterOrderAuthorized';
+    public const EVENT_AFTER_ORDER_AUTHORIZED = 'afterOrderAuthorized';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -1343,7 +1343,7 @@ class Order extends Element
                 return $model->$attribute;
             };
         }
-        
+
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
@@ -1705,7 +1705,7 @@ class Order extends Element
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
-            } else if ($shippingMethod = $this->getShippingMethod()) {
+            } elseif ($shippingMethod = $this->getShippingMethod()) {
                 $this->shippingMethodName = $shippingMethod->getName();
             }
 
@@ -1785,23 +1785,20 @@ class Order extends Element
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if ($this->shippingMethodHandle) {
-                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                    /** @var OrderNotice $orderNotice */
-                    $orderNotice = Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ],
-                    ]);
+            if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                $orderNotice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'shippingMethodChanged',
+                        'attribute' => 'shippingMethodHandle',
+                        'message' => $message,
+                    ],
+                ]);
 
-                    $this->addNotice($orderNotice);
-                    $this->recalculate();
-                }
+                $this->addNotice($orderNotice);
+                $this->recalculate();
             }
         }
     }
@@ -3183,7 +3180,6 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
-
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
 
@@ -3198,7 +3194,6 @@ class Order extends Element
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 

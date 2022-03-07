@@ -95,7 +95,7 @@ class TopCustomersTest extends Unit
                     'customerId' => 1000,
                     'email' => 'support@craftcms.com',
                     'count' => 2,
-                ]
+                ],
             ],
             [
                 TopCustomers::DATE_RANGE_CUSTOM,

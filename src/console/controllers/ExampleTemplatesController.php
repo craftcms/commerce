@@ -181,7 +181,7 @@ class ExampleTemplatesController extends Controller
             // If this is not a dev build, copy them to the templates folder
             if (!$templatesPath) {
                 $errors[] = 'Can not determine the site template path.';
-            } else if (!FileHelper::isWritable($templatesPath)) {
+            } elseif (!FileHelper::isWritable($templatesPath)) {
                 $errors[] = 'Site template path is not writable.';
             }
 
@@ -198,7 +198,7 @@ class ExampleTemplatesController extends Controller
             // We’re allowed to overwrite templates, and we’ve got valid source and destination folders
             $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);
             FileHelper::removeDirectory($destination);
-        } else if ($destinationExists && !$this->overwrite) {
+        } elseif ($destinationExists && !$this->overwrite) {
             // A target folder’s been specified that already exists, but we’re not supposed to overwrite it
             $errors[] = 'The “' . $folderName . '” directory already exists. Set the `overwrite` param to `true` to replace it.';
             return $this->_returnErrors($errors);
@@ -252,7 +252,7 @@ class ExampleTemplatesController extends Controller
     private function _addResourceAssetsToReplacementData(): void
     {
         $resourceTags = [
-            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css'),
         ];
 
         if ($this->useHtmx) {

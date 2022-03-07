@@ -106,7 +106,7 @@ class SalesTest extends Unit
      */
     public function testGetSalesForPurchasable(): void
     {
-        $variant  = Variant::find()->sku('rad-hood')->one();
+        $variant = Variant::find()->sku('rad-hood')->one();
         $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
 
         self::assertSame([$sale], $this->sales->getSalesForPurchasable($variant));
@@ -117,7 +117,7 @@ class SalesTest extends Unit
      */
     public function testGetSalesRelatedToPurchasable(): void
     {
-        $variant  = Variant::find()->sku('hct-white')->one();
+        $variant = Variant::find()->sku('hct-white')->one();
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
 
         self::assertSame([$sale], $this->sales->getSalesRelatedToPurchasable($variant));
@@ -135,9 +135,9 @@ class SalesTest extends Unit
         self::assertSame(111.59, $salePrice);
 
         $mockCustomersService = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => function () {
+            'getUserGroupIdsForUser' => function() {
                 return ['1002'];
-            }
+            },
         ]);
         Plugin::getInstance()->set('customers', $mockCustomersService);
 
@@ -155,7 +155,7 @@ class SalesTest extends Unit
     {
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
-        $originalDateUpdated = (new Query)
+        $originalDateUpdated = (new Query())
             ->select('dateUpdated')
             ->from(Table::SALES)
             ->where(['id' => $sale->id])

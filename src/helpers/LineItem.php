@@ -9,7 +9,6 @@ namespace craft\commerce\helpers;
 
 use craft\helpers\Json;
 
-
 /**
  * Line item helper
  *
@@ -27,4 +26,3 @@ class LineItem
         return md5(Json::encode($options));
     }
 }
-

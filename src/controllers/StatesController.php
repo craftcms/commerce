@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
@@ -29,6 +30,10 @@ use yii\web\Response;
  */
 class StatesController extends BaseStoreSettingsController
 {
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
@@ -61,15 +66,16 @@ class StatesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new state');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        DebugPanel::prependOrAppendModelTab(model: $variables['state'], prepend: true);
 
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
 
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;
 
         if ($variables['id'] && $variables['state']->id == $variables['id'] && $variables['state']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['stateId' => $variables['id']])
                 ->count();
@@ -78,7 +84,7 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
@@ -88,7 +94,7 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::TAXZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
@@ -106,7 +112,7 @@ class StatesController extends BaseStoreSettingsController
         $url = null;
         if ($variables['countryId']) {
             $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['countryId']);
-        } else if ($variables['state']->countryId) {
+        } elseif ($variables['state']->countryId) {
             $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['state']->countryId);
         }
 

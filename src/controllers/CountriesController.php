@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
@@ -62,12 +63,14 @@ class CountriesController extends BaseStoreSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['country'], prepend: true);
+
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;
 
         if ($variables['id'] && $variables['country']->id == $variables['id'] && $variables['country']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['countryId' => $variables['id']])
                 ->count();
@@ -76,7 +79,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::SHIPPINGZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();
@@ -86,7 +89,7 @@ class CountriesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_countries.id',])
+                    ->select(['zone_countries.id', ])
                     ->from([Table::TAXZONE_COUNTRIES . ' zone_countries'])
                     ->where(['countryId' => $variables['id']])
                     ->count();

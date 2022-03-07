@@ -19,7 +19,6 @@ use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use UnitTester;
 
-
 /**
  * UserGroupConditionDiscountTest
  *
@@ -116,13 +115,12 @@ class UserGroupConditionDiscountTest extends Unit
         $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertFalse($isValid);
-
     }
 
     public function _mockCustomers(array $ids = [1, 2]): void
     {
         $mockCustomers = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => $ids
+            'getUserGroupIdsForUser' => $ids,
         ]);
 
         Plugin::getInstance()->set('customers', $mockCustomers);
@@ -137,7 +135,7 @@ class UserGroupConditionDiscountTest extends Unit
     {
         /** @var Discount $mockDiscount */
         return $this->make(Discount::class, [
-            'getUserGroupIds' => $ids
+            'getUserGroupIds' => $ids,
         ]);
     }
 }

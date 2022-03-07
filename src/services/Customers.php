@@ -50,7 +50,7 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-    const SESSION_CUSTOMER = 'commerce_customer';
+    public const SESSION_CUSTOMER = 'commerce_customer';
 
     /**
      * @var Customer|null
@@ -72,7 +72,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
+    public const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
 
     /**
      * @event CustomerEvent The event that is triggered after customer details is saved.
@@ -89,7 +89,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
+    public const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
 
     /**
      * @event CustomerAddressEvent The event that is triggered before customer address is saved.
@@ -109,7 +109,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
+    public const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
 
     /**
      * @event CustomerAddressEvent The event that is triggered after customer address is successfully saved.
@@ -129,7 +129,7 @@ class Customers extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
+    public const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
 
     /**
      * Get all customers.
@@ -171,7 +171,6 @@ class Customers extends Component
         $isNew = false;
 
         if ($this->_customer === null) {
-
             $user = Craft::$app->getUser()->getIdentity();
 
             // Can we get the current customer from the current user?
@@ -601,7 +600,7 @@ class Customers extends Component
                     // Don't create two addresses in the address book if they are the same
                     $customer->primaryShippingAddressId = $customer->primaryBillingAddressId;
                     $addressesUpdated = true;
-                } else if ($shippingAddress) {
+                } elseif ($shippingAddress) {
                     $shippingAddress->id = null;
                     if ($this->saveAddress($shippingAddress, $customer, false)) {
                         $customer->primaryShippingAddressId = $shippingAddress->id;

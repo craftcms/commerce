@@ -97,7 +97,7 @@ class TopProductTypesTest extends Unit
                     'name' => 'T-Shirts',
                     'qty' => 4,
                     'revenue' => 83.96,
-                ]
+                ],
             ],
             [
                 TopProducts::DATE_RANGE_CUSTOM,
@@ -105,7 +105,7 @@ class TopProductTypesTest extends Unit
                 (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                []
+                [],
             ],
         ];
     }

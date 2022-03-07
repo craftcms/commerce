@@ -12,17 +12,17 @@ return [
                 'fields' => [
                     [
                         'layout-link' => [
-                            'required' => true
+                            'required' => true,
                         ],
                         'field' => [
                             'uid' => 'field-1001-----------------------uid',
                             'name' => 'Commerce Product Variants',
                             'handle' => 'commerceProductVariants',
                             'fieldType' => Variants::class,
-                        ]
+                        ],
                     ],
-                ]
-            ]
-        ]
-    ]
+                ],
+            ],
+        ],
+    ],
 ];

@@ -73,7 +73,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
+    public const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is saved.
@@ -99,7 +99,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
+    public const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is deleted.
@@ -123,7 +123,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
+    public const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
@@ -153,7 +153,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
+    public const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
 
     /**
      * @event MatchOrderEvent The event that is triggered when an order is matched with a discount.
@@ -182,7 +182,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
+    public const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
      * @var Discount[]|null
@@ -450,7 +450,6 @@ class Discounts extends Component
         }
 
         if (!$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
-
             $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
@@ -461,7 +460,7 @@ class Discounts extends Component
                     return $this->_matchingLineItemCategoryCondition[$key] = false;
                 }
                 $this->_matchingLineItemCategoryCondition[$key] = true;
-            } else if ($this->_matchingLineItemCategoryCondition[$key] === false) {
+            } elseif ($this->_matchingLineItemCategoryCondition[$key] === false) {
                 return false;
             }
         }
@@ -657,7 +656,7 @@ class Discounts extends Component
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
 
             foreach ($model->getUserGroupIds() as $groupId) {
-                $relation = new DiscountUserGroupRecord;
+                $relation = new DiscountUserGroupRecord();
                 $relation->userGroupId = $groupId;
                 $relation->discountId = $model->id;
                 $relation->save(false);
@@ -984,7 +983,6 @@ class Discounts extends Component
 
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-
             if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY &&
                 (count(array_intersect($groupIds, $discountGroupIds)) === 0)
             ) {
