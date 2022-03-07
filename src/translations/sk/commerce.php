@@ -1118,6 +1118,7 @@ return [
     'Transaction ID' => 'ID transakcie',
     'Transaction captured successfully: {message}' => 'Transakcia úspešne zachytená: {message}',
     'Transaction refunded successfully: {message}' => 'Transakcia úspešne vrátená: {message}',
+    'Transaction type not supported.' => 'Transaction type not supported.',
     'Transactions' => 'Transakcie',
     'Trial days credited' => 'Priznané dni skúšobnej verzie',
     'Trial expiration' => 'Vypršanie platnosti skúšobnej verzie',
