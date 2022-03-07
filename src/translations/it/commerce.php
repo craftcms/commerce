@@ -1118,6 +1118,7 @@ return [
     'Transaction ID' => 'ID transazione',
     'Transaction captured successfully: {message}' => 'Transazione acquisita correttamente: {message}',
     'Transaction refunded successfully: {message}' => 'Transazione rimborsata correttamente: {message}',
+    'Transaction type not supported.' => 'Transaction type not supported.',
     'Transactions' => 'Transazioni',
     'Trial days credited' => 'Giorni di prova concessi',
     'Trial expiration' => 'Scadenza prova',
