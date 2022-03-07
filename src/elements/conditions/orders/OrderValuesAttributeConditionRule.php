@@ -41,16 +41,7 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $field = $this->orderAttribute;
-        return match ($this->operator) {
-            '=' => $element->$field == $this->value,
-            '!=' => $element->$field != $this->value,
-            '<' => $element->$field < $this->value,
-            '<=' => $element->$field <= $this->value,
-            '>' => $element->$field > $this->value,
-            '>=' => $element->$field >= $this->value,
-            default => false,
-        };
+        return $this->matchValue($this->orderAttribute);
     }
 
     /**
