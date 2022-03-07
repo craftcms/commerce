@@ -296,12 +296,14 @@ class Discounts extends Component
             $discountQuery->andWhere([
                 'or',
                 // Find discount where the coupon code matches
-                ['exists', (clone $couponSubQuery)
+                [
+                    'exists', (clone $couponSubQuery)
                     ->andWhere($codeWhere)
                     ->andWhere([
-                        'or',
-                        ['maxUses' => null],
-                        new Expression('[[uses]] < [[maxUses]]')]
+                            'or',
+                            ['maxUses' => null],
+                            new Expression('[[uses]] < [[maxUses]]')
+                        ]
                     )
                 ],
                 // OR find discounts that do not have a coupon code requirement
@@ -393,7 +395,7 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), static function (Discount $discount) use ($code) {
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), static function(Discount $discount) use ($code) {
             return ($discount->enabled && (bool)ArrayHelper::firstWhere($discount->getCoupons(), static fn($coupon) => (strcasecmp($coupon->code, $code) == 0)));
         });
     }
@@ -488,7 +490,9 @@ class Discounts extends Component
 
         $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
 
-        if (!$discount->getOrderCondition()->matchElement($order)) {
+        $orderCondition = $discount->getOrderCondition();
+        $hasRules = count($orderCondition->getConditionRules());
+        if ($hasRules && !$discount->getOrderCondition()->matchElement($order)) {
             return false;
         }
 
@@ -498,7 +502,7 @@ class Discounts extends Component
         if ($hasRules && !$customer) {
             return false;
         }
-        if (!$customerCondition->matchElement($customer)) {
+        if ($hasRules && $customer && !$customerCondition->matchElement($customer)) {
             return false;
         }
 
@@ -508,7 +512,7 @@ class Discounts extends Component
         if ($hasRules && !$shippingAddress) {
             return false;
         }
-        if (!$shippingAddressCondition->matchElement($shippingAddress)) {
+        if ($hasRules && $shippingAddress && !$shippingAddressCondition->matchElement($shippingAddress)) {
             return false;
         }
 
@@ -518,7 +522,7 @@ class Discounts extends Component
         if ($hasRules && !$billingAddress) {
             return false;
         }
-        if (!$billingAddressCondition->matchElement($billingAddress)) {
+        if ($hasRules && $billingAddress && !$billingAddressCondition->matchElement($billingAddress)) {
             return false;
         }
 
@@ -970,7 +974,7 @@ class Discounts extends Component
                     ], [
                         'id' => $coupon->id,
                     ])
-                ->execute();
+                    ->execute();
             }
 
             // Reset internal cache
@@ -1032,7 +1036,7 @@ class Discounts extends Component
 
         return true;
     }
-    
+
     private function _isDiscountTotalUseLimitValid(Discount $discount): bool
     {
         if ($discount->totalDiscountUseLimit > 0) {
