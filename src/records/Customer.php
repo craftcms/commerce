@@ -15,7 +15,8 @@ use yii\db\ActiveQueryInterface;
 /**
  * Customer record.
  *
- * @property int $id The customer's User element ID
+ * @property int $id
+ * @property int $customerId The customer's User element ID
  * @property int $primaryBillingAddressId
  * @property int $primaryShippingAddressId
  * @property-read ActiveQueryInterface $primaryShippingAddress
@@ -36,7 +37,6 @@ class Customer extends ActiveRecord
                     'customerId',
                     'primaryBillingAddressId',
                     'primaryShippingAddressId',
-                    'userId',
                 ], 'safe',
             ],
         ];
