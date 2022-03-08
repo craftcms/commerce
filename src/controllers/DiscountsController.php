@@ -343,11 +343,14 @@ class DiscountsController extends BaseCpController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editDiscounts');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 

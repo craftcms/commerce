@@ -389,13 +389,17 @@ class SalesController extends BaseCpController
     /**
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
+     * @throws \yii\web\ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editSales');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
 
         if (empty($ids)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));
