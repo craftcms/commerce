@@ -21,7 +21,9 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% if currentUser.can('commerce-createDiscounts') %}
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 
@@ -56,6 +58,7 @@
 
 {% js %}
     var actions = [
+    {% if currentUser.can('commerce-editDiscounts') %}
         {
             label: Craft.t('commerce', 'Set status'),
             actions: [
@@ -75,11 +78,14 @@
                 }
             ]
         },
+    {% endif %}
+    {% if currentUser.can('commerce-deleteDiscounts') %}
         {
             label: Craft.t('commerce', 'Delete'),
             action: 'commerce/discounts/delete',
             error: true,
         }
+    {% endif %}
     ];
 
     var columns = [
@@ -121,7 +127,7 @@
         columns: columns,
         fullPane: false,
         container: '#discounts-vue-admin-table',
-        deleteAction: 'commerce/discounts/delete',
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
         padded: true,
         reorderAction: 'commerce/discounts/reorder',

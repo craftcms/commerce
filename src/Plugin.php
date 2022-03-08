@@ -76,6 +76,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -149,6 +150,8 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+
+
         $this->_setPluginComponents();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
@@ -226,7 +229,7 @@ class Plugin extends BasePlugin
         }
 
         $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
-        if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+        if ($hasEditableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
@@ -342,18 +345,10 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-
-            $productTypePermissions = [];
-            foreach ($productTypes as $productType) {
-                $suffix = ':' . $productType->uid;
-                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
-            }
-
+            
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
-                'permissions' => [
-                    'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
+                'permissions' => $this->_registerProductTypePermission() + [
                     'commerce-manageOrders' => [
                         'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                             'commerce-editOrders' => [
@@ -368,17 +363,62 @@ class Plugin extends BasePlugin
                             'commerce-refundPayment' => [
                                 'label' => Craft::t('commerce', 'Refund payment'),
                             ],
+
                         ],
                     ],
-                    'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
-                    'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
-                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                    'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                    'commerce-manageSubscriptions' =>['label' => Craft::t('commerce', 'Manage subscriptions')],
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                     'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                     'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ],
+                ]
             ];
         });
+    }
+
+    /**
+     * @return array
+     */
+    private function _registerProductTypePermission(): array
+    {
+        $productTypes = self::getInstance()->getProductTypes()->getAllProductTypes();
+
+        $productTypePermissions = [];
+        foreach ($productTypes as $productType) {
+            $suffix = ':' . $productType->uid;
+            
+            $productTypePermissions['commerce-editProductType' . $suffix] = [
+                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
+                'nested' => [
+                    "commerce-createProducts{$suffix}" => [
+                        'label' => Craft::t('commerce', 'Create products'),
+                    ],
+                    "commerce-deleteProducts{$suffix}" => [
+                        'label' => Craft::t('commerce', 'Delete products'),
+                    ],
+                ]
+            ];
+        }
+
+        return $productTypePermissions;
+    }
+
+    /**
+     * @return array
+     */
+    private function _registerPromotionPermission(): array
+    {
+        return [
+            'label' => Craft::t('commerce', 'Manage promotions'),
+            'nested' => [
+                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit Sales')],
+                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create Sales')],
+                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete Sales')],
+                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit Discounts')],
+                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create Discounts')],
+                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')]
+            ]
+        ];
     }
 
     /**
@@ -757,6 +797,14 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand(): void
     {
+
+        if (
+            !Craft::$app instanceof ConsoleApplication ||
+            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
+        ) {
+            return;
+        }
+
         Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
                 'action' => function(): int {

@@ -1989,14 +1989,6 @@ class Order extends Element
         parent::afterSave($isNew);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
-    }
-
     public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
@@ -2255,6 +2247,7 @@ class Order extends Element
     }
 
     /**
+     * Customer represented as HTML
      * Customer User link represented as HTML
      *
      * @return string

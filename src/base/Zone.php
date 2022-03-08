@@ -15,7 +15,7 @@ use DateTime;
  * @property string $cpEditUrl
  * @property ConditionInterface|string $condition
  */
-abstract class Zone extends BaseModel
+abstract class Zone extends BaseModel implements ZoneInterface
 {
     /**
      * @var int|null ID

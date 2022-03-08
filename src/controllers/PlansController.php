@@ -42,6 +42,8 @@ class PlansController extends BaseStoreSettingsController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+        
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
@@ -92,6 +94,8 @@ class PlansController extends BaseStoreSettingsController
      */
     public function actionSavePlan(): void
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+        
         $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
@@ -115,7 +119,7 @@ class PlansController extends BaseStoreSettingsController
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
-
+        
         if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }
@@ -152,6 +156,9 @@ class PlansController extends BaseStoreSettingsController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
+
+        $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-createSubscriptionPlan');
 
         $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 

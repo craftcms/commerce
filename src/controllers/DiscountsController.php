@@ -77,6 +77,12 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
 
@@ -115,6 +121,13 @@ class DiscountsController extends BaseCpController
         $request = Craft::$app->getRequest();
 
         $discount->id = $request->getBodyParam('id');
+        
+        if ($discount->id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
@@ -265,6 +278,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteDiscounts');
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
@@ -329,11 +343,14 @@ class DiscountsController extends BaseCpController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editDiscounts');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
