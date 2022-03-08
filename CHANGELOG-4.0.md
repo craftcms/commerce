@@ -3,6 +3,13 @@
 ## Unreleased
 
 ### Added
+- Customers are now User elements.
+- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
+- Shipping zones now use a condition builder to determine whether an address is within a zone.
+- Tax zones now use a condition builder to determine whether an address is within a zone.
+- Added a Commerce panel to the debug toolbar.
+- Added `craft\commerce\models\OrderHistory::$userName`.
+- Added `craft\commerce\record\OrderHistory::$userName`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
@@ -16,11 +23,6 @@
 - Added `craft\commerce\services\Coupons`.
 - Added `craft\commerce\validators\CouponValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
-- Customers are now User elements.
-- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
-- Shipping zones now use a condition builder to determine whether an address is within a zone.
-- Tax zones now use a condition builder to determine whether an address is within a zone.
-- Added a Commerce panel to the debug toolbar.
 - Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
 - Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\base\Zone`.

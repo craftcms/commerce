@@ -35,7 +35,7 @@
                             {% if orderHistory.user %}
                                 <a href="{{ orderHistory.user.cpEditUrl }}">{{ orderHistory.user.friendlyName ?? orderHistory.user.email }}</a>
                             {% else %}
-                                {{ orderHistory.order.email }}
+                                {{ orderHistory.userName ?? 'System'|t('commerce') }}
                             {% endif %}
                         </td>
                         <td>{{ orderHistory.dateCreated|datetime }}</td>

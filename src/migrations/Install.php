@@ -314,7 +314,8 @@ class Install extends Migration
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
-            'userId' => $this->integer()->notNull(),
+            'userId' => $this->integer(),
+            'userName' => $this->string(),
             'prevStatusId' => $this->integer(),
             'newStatusId' => $this->integer(),
             'message' => $this->text(),
@@ -904,7 +905,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['prevStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
