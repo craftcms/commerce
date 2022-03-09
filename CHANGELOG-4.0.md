@@ -120,6 +120,7 @@
 - Removed `\craft\commerce\elements\Product::isDeletable()`.
 - Removed `\craft\commerce\elements\Variant::isEditable()`.
 - Removed `\craft\commerce\elements\Order::isEditable`.
+- Removed `craft\commerce\events\AddressEvent`.
 - Removed `craft\commerce\models\Discount::$code`.
 - Removed `craft\commerce\controllers\StatesController`.
 - Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
