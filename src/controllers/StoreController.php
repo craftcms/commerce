@@ -8,91 +8,93 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\behaviors\StoreLocationBehavior;
+use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\Plugin;
-use craft\commerce\records\Store;
-use craft\elements\Address as AddressElement;
+use craft\elements\Address;
 use craft\helpers\Cp;
-use Illuminate\Support\Collection;
+use craft\web\Response as CraftResponse;
 use yii\web\Response;
+use yii\web\Response as YiiResponse;
 
 class StoreController extends BaseStoreSettingsController
 {
-    public function actionEditLocation(): Response
+    public function actionEdit(): Response
     {
-        // We will always have a store location address.
-        $storeLocation = Plugin::getInstance()->getStore()->getStoreLocationAddress();
+        $addressesService = Craft::$app->getAddresses();
 
-        $storeLocationHtml = Cp::addressCardsHtml(
-            addresses: [$storeLocation],
+        // We will always have a store location address.
+        $store = Plugin::getInstance()->getStore()->getStore();
+        $allCountries = $addressesService->getCountryRepository()->getList(Craft::$app->language);
+
+        $locationField = Cp::addressCardsHtml(
+            addresses: [$store->getLocationAddress()],
             config: [
-                'name' => 'storeLocation',
+                'name' => 'locationAddressId',
                 'maxAddresses' => 1,
             ]
         );
 
-        $variables = [
-            'storeLocationHtml' => $storeLocationHtml,
-        ];
-
-        return $this->renderTemplate('commerce/store-settings/location/index', $variables);
-    }
-
-    public function actionSaveMarketLocations()
-    {
-        $marketLocations = $this->request->getBodyParam('marketLocations');
-        return $this->asSuccess();
-    }
-
-    public function actionEditMarketLocations()
-    {
-        $countryCols = [
-            'label' => [
-                'heading' => Craft::t('app', 'Country'),
-                'type' => 'heading',
-                'autopopulate' => 'value',
-                'class' => 'option-label',
-            ],
-            'enabled' => [
-                'heading' => Craft::t('commerce', 'Enabled?'),
-                'type' => 'checkbox',
-                'radioMode' => false,
-                'class' => 'option-default thin',
-            ],
-        ];
-
-        $countries = Craft::$app->getAddresses()->getCountryRepository()->getAll(Craft::$app->language);
-        $countryRows = [];
-        foreach ($countries as $country) {
-            $countryRows[$country->getCountryCode()] = [
-                'label' => $country->getName(),
-                'enabled' => false,
-            ];
-//            $administrativeAreas = Craft::$app->getAddresses()->getSubdivisionRepository()->getAll([$country->getCountryCode()]);
-//            foreach ($administrativeAreas as $administrativeArea){
-//                $countryRows[$country->getCountryCode().'-'.$administrativeArea->getCode()] = [
-//                    'label' => '-'.$administrativeArea->getName(),
-//                    'enabled' => false,
-//                ];
-//            }
-        }
-
-        $countryMarketsTableHtml = Cp::editableTableFieldHtml([
-            'label' => Craft::t('commerce', 'Market Locations'),
-            'instructions' => Craft::t('commerce', 'Define the markets that should be available to your customers.'),
-            'id' => 'marketLocations',
-            'name' => 'marketLocations',
-            'allowAdd' => false,
-            'allowReorder' => true,
-            'allowDelete' => false,
-            'cols' => $countryCols,
-            'rows' => $countryRows,
+        $condition = $store->getMarketAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'marketAddressCondition';
+        $condition->id = 'marketAddressCondition';
+        $marketAddressConditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Order Address Condition'),
+            'instructions' => Craft::t('app', 'Only allow orders with addresses that match the following rules:'),
         ]);
 
-        $variables = [
-            'countryMarketsTableHtml' => $countryMarketsTableHtml,
-        ];
+        $js = <<<JS
+$('#countries').selectize({
+    plugins: ['remove_button'],
+});
+JS;
+        Craft::$app->getView()->registerJs($js);
 
-        return $this->renderTemplate('commerce/store-settings/markets/index', $variables);
+        $countriesField = Cp::multiSelectFieldHtml([
+            'class' => 'selectize',
+            'label' => Craft::t('commerce', 'Country List'),
+            'instructions' => Craft::t('commerce', 'The list of countries available for selection by customers.'),
+            'id' => 'countries',
+            'name' => 'countries',
+            'values' => $store->getCountries(),
+            'options' => $allCountries,
+            'allowEmptyOption' => true,
+        ]);
+        $variables = [];
+        $variables['locationField'] = $locationField;
+        $variables['marketAddressConditionField'] = $marketAddressConditionField;
+        $variables['countriesField'] = $countriesField;
+        $variables['store'] = $store;
+
+        return $this->renderTemplate('commerce/store-settings/store/index', $variables);
+    }
+
+    /**
+     * @return CraftResponse
+     */
+    public function actionSave(): YiiResponse
+    {
+        $store = Plugin::getInstance()->getStore()->getStore();
+        if ($locationAddressId = Craft::$app->getRequest()->getBodyParam('locationAddressId')) {
+            $locationAddress = Address::find()->id($locationAddressId)->one();
+            if ($locationAddress) {
+                $store->setLocationAddress($locationAddress);
+            }
+        }
+        $marketAddressCondition = Craft::$app->getRequest()->getBodyParam('marketAddressCondition') ?? new ZoneAddressCondition();
+        $store->setMarketAddressCondition($marketAddressCondition);
+        $store->setCountries(Craft::$app->getRequest()->getBodyParam('countries', []));
+
+        if (!$store->validate() || !Plugin::getInstance()->getStore()->saveStore($store)) {
+            return $this->asFailure(
+                message: Craft::t('commerce', 'Couldn’t save store.'),
+                data: ['store' => $store]
+            );
+        }
+
+        return $this->asSuccess(
+            message: Craft::t('commerce', 'Store saved.'),
+            data: ['store' => $store],
+        );
     }
 }

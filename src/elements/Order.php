@@ -54,14 +54,12 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
-use Illuminate\Support\Collection;
 use Throwable;
 use Twig\Markup;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\StaleObjectException;
 use yii\log\Logger;
 
@@ -2121,9 +2119,8 @@ class Order extends Element
      */
     public function setCustomer(?User $customer = null): void
     {
-        if ($customer && $this->_customer = $customer) {
-            $this->setCustomerId($customer->id);
-        }
+        $this->_customer = $customer;
+        $this->setCustomerId($customer?->id);
     }
 
     /**

@@ -14,6 +14,15 @@
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Added `\craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `\craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
+- Added `\craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
+- Added `\craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
+- Added `\craft\commerce\elements\Product::canView()`.
+- Added `\craft\commerce\elements\Product::canSave()`.
+- Added `\craft\commerce\elements\Product::canDuplicate()`.
+- Added `\craft\commerce\elements\Product::canDelete()`.
+- Added `\craft\commerce\elements\Product::canDeleteForSite()`.
+- Added `\craft\commerce\elements\Product::canCreateDrafts()`.
+- Added `\craft\commerce\elements\Subscription::canView()`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
@@ -47,6 +56,7 @@
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
 - Added `craft\commerce\models\Store`.
+- Added `craft\commerce\service\Store`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
@@ -73,8 +83,7 @@
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - `craft\commerce\models\TaxAddressZone::setCountries()` now expects an array of country code strings.
 - `craft\commerce\models\TaxAddressZone::setStatues()` now expects an array of state codes or state name strings.
-- `craft\commerce\services\Addresses::addressWithinZone()` is now found in `craft\commerce\helpers\AddressZone::addressWithinZone()`.
-
+- `craft\commerce\services\Addresses::addressWithinZone()` is now found in `craft\commerce\helpers\AddressZone::addressWithinZone()`.`
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
@@ -121,8 +130,8 @@
 - Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\models\Country`.
-- Removed `craft\commerce\models\OrderHistory::$customerId`. User `$userId` instead.
-- Removed `craft\commerce\models\OrderHistory::getCustomer()`. User `getUser()` instead.
+- Removed `craft\commerce\models\OrderHistory::$customerId`. Use `$userId` instead.
+- Removed `craft\commerce\models\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
 - Removed `craft\commerce\models\States`.
 - Removed `craft\commerce\models\TaxAddressZone::isCountryBased`
@@ -143,7 +152,7 @@
 - Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
 - Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
-- Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.
+- Removed `craft\commerce\records\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
 - Removed `craft\commerce\records\States`.

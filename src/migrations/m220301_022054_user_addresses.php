@@ -140,8 +140,8 @@ class m220301_022054_user_addresses extends Migration
             $this->createTable('{{%commerce_stores}}', [
                 'id' => $this->primaryKey(),
                 'locationAddressId' => $this->integer(),
-                'enabledCountries' => $this->text(),
-                'enabledAdministrativeAreas' => $this->text(),
+                'countries' => $this->text(),
+                'marketAddressCondition' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),

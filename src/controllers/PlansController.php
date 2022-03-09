@@ -158,7 +158,6 @@ class PlansController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
 
         $this->requirePermission('commerce-manageSubscriptions');
-        $this->requirePermission('commerce-createSubscriptionPlan');
 
         $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 

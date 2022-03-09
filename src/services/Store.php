@@ -15,11 +15,12 @@ use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 
 /**
- * Stores service. This manages the store level settings.
+ * Stores service.
  *
- * @property-read Address $storeLocationAddress
+ * @property-read StoreModel $store
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
@@ -31,32 +32,38 @@ class Store extends Component
     private ?StoreModel $_store = null;
 
     /**
-     * @var ?Address
+     * @return bool
      */
-    private ?Address $_storeLocationAddress = null;
-
     public function init()
     {
         parent::init();
 
-        // Always ensure we have a store record.
         if ($this->_store == null) {
-            $store = $this->_createStoreQuery()->one();
-
+            // We always ensure we have a store record and an associated store address.
+            $store = $this->_createStoreQuery()->one(); // get first row only. Only one store at the moment.
             if ($store === null) {
                 $storeRecord = new StoreRecord();
                 $storeRecord->save();
+                $this->_store = new StoreModel(['id' => $storeRecord->id]);
+            } else {
                 $this->_store = new StoreModel();
-                $this->_store->id = $storeRecord->id;
-            }else{
-                $this->_store = new StoreModel();
-                $this->_store->setAttributes($store, false);
+                $this->_store->setAttributes($store);
             }
 
-            $this->_store->locationAddressId = $this->getStoreLocationAddress()->id; // ensure it is created if not.
+            // Make sure the store always has an address location set.
+            $storeLocationAddress = AddressElement::findOne($this->_store->locationAddressId);
+            if ($storeLocationAddress === null) {
+                $storeLocationAddress = new AddressElement();
+                $storeLocationAddress->title = 'Store';
+                $storeLocationAddress->countryCode = 'US';
+                if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
+                    $storeRecord = StoreRecord::findOne($this->_store->id);
+                    $storeRecord->locationAddressId = $storeLocationAddress->id;
+                    $storeRecord->save();
+                    $this->_store->setLocationAddress = $storeLocationAddress->id; // update the model
+                }
+            }
         }
-
-        return true;
     }
 
     /**
@@ -70,28 +77,6 @@ class Store extends Component
     }
 
     /**
-     * Returns the store location address
-     *
-     * @return Address
-     */
-    public function getStoreLocationAddress(): Address
-    {
-        if ($this->_storeLocationAddress !== null) {
-            return $this->_storeLocationAddress;
-        }
-
-        $this->_storeLocationAddress = AddressElement::findOne($this->_store->locationAddressId);
-
-        if ($this->_storeLocationAddress === null) {
-            $this->_storeLocationAddress = new AddressElement();
-            $this->_storeLocationAddress->title = 'Store';
-            Craft::$app->getElements()->saveElement($this->_storeLocationAddress, false);
-        }
-
-        return $this->_storeLocationAddress;
-    }
-
-    /**
      * @return array|string[]
      */
     public function getAllEnabledCountriesAsList()
@@ -102,14 +87,28 @@ class Store extends Component
     }
 
     /**
-     * @return array|string[]
+     * Saves the store
+     *
+     * @return bool
+     * @throws InvalidConfigException
      */
-    public function getAllEnabledAdministrativeAreasAsList($countryCode)
+    public function saveStore(StoreModel $store): bool
     {
-        $enabledAdministrativeAreas = $this->_store->administrativeAreas;
-        // TODO merge in the custom states and filter out the disabled states
-        $countries = Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
-        return Craft::$app->getAddresses()->getSubdivisionRepository()->getList([$countryCode], Craft::$app->language);
+        $storeRecord = StoreRecord::findOne($store->id);
+
+        if (!$storeRecord) {
+            throw new InvalidConfigException('Invalid store ID');
+        }
+
+        $storeRecord->countries = $store->countries;
+        $storeRecord->marketAddressCondition = $store->marketAddressCondition->getConfig();
+        $storeRecord->locationAddressId = $store->getLocationAddressId();
+
+        if (!$storeRecord->save()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -121,8 +120,8 @@ class Store extends Component
             ->select([
                 'id',
                 'locationAddressId',
-                'enabledCountries',
-                'enabledAdministrativeAreas',
+                'marketAddressCondition',
+                'countries',
             ])
             ->from([Table::STORES]);
     }

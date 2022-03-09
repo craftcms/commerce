@@ -76,7 +76,6 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
-use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -516,7 +515,7 @@ class Plugin extends BasePlugin
             /** @var Address $address */
             $address = $event->sender;
             if (
-                $address->id && $address->id === Plugin::getInstance()->getStore()->getStoreLocationAddress()->id &&
+                $address->id && $address->id === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
                 $event->user->can('commerce-manageStoreSettings')
             ) {
                 $event->authorized = true;

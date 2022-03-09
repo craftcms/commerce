@@ -162,20 +162,6 @@ class ProductTypes extends Component
 
         return $editableProductTypes;
     }   
-    
-    public function getCreatableProductTypes(): array
-    {
-        $creatableProductTypeIds = $this->getCreatableProductTypeIds();
-        $creatableProductTypes = [];
-
-        foreach ($this->getAllProductTypes() as $productTypes) {
-            if (in_array($productTypes->id, $creatableProductTypeIds, false)) {
-                $creatableProductTypes[] = $productTypes;
-            }
-        }
-
-        return $creatableProductTypes;
-    }
 
     /**
      * Returns all product type IDs that are editable by the current user.
@@ -197,25 +183,6 @@ class ProductTypes extends Component
         }
 
         return $this->_editableProductTypeIds;
-    }
-    
-    
-    public function getCreatableProductTypeIds(): array
-    {
-        if (null === $this->_creatableProductTypeIds) {
-            $this->_creatableProductTypeIds = [];
-            $allProductTypes = $this->getAllProductTypes();
-            
-            $user = Craft::$app->getUser()->getIdentity();
-            
-            foreach ($allProductTypes as $productType) {
-                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts')) {
-                    $this->_creatableProductTypeIds[] = $productType->id;
-                }
-            }
-        }
- 
-        return $this->_creatableProductTypeIds;
     }
 
     /**
