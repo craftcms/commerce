@@ -326,7 +326,7 @@ trait OrderElementTrait
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 
-        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
+        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
@@ -340,7 +340,7 @@ trait OrderElementTrait
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
 
-        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
+        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
@@ -352,7 +352,7 @@ trait OrderElementTrait
             ],
         ];
 
-        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
+        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:attempted-payment',
             'label' => Craft::t('commerce', 'Attempted Payments'),
