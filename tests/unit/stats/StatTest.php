@@ -101,7 +101,7 @@ class StatTest extends Unit
             public bool $cache = false;
 
             // Implement getData method
-            public function getData()
+            public function getData(): mixed
             {
                 return $this->_createChartQuery();
             }

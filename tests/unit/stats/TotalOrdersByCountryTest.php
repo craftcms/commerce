@@ -62,14 +62,11 @@ class TotalOrdersByCountryTest extends Unit
 
         if ($count !== 0) {
             $firstItem = array_shift($data);
-            self::assertArrayHasKey('total', $firstItem);
-            self::assertEquals($countryData['total'], $firstItem['total']);
-            self::assertArrayHasKey('id', $firstItem);
-            self::assertEquals($countryData['id'], $firstItem['id']);
-            self::assertArrayHasKey('name', $firstItem);
-            self::assertEquals($countryData['name'], $firstItem['name']);
-            self::assertArrayHasKey('country', $firstItem);
-            self::assertInstanceOf(Country::class, $firstItem['country']);
+
+            foreach ($countryData as $key => $countryDatum) {
+                self::assertArrayHasKey($key, $firstItem);
+                self::assertEquals($countryDatum, $firstItem[$key]);
+            }
         }
     }
 
@@ -88,8 +85,8 @@ class TotalOrdersByCountryTest extends Unit
                 1,
                 [
                     'total' => 2,
-                    'id' => 236,
                     'name' => 'United States',
+                    'countryCode' => 'US',
                 ],
             ],
             [

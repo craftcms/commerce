@@ -10,8 +10,6 @@
 - Added a Commerce panel to the debug toolbar.
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
-- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
-- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
@@ -55,6 +53,8 @@
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\service\Store`.
 - Added `craft\commerce\services\Coupons`.
+- Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`
+- Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
@@ -63,6 +63,7 @@
 - Added `craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `craft\commerce\validators\CouponValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
+- Added `craft\commercetests\unit\services\StoreTest`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -180,6 +181,9 @@
 - Removed `craft\commerce\services\Discounts::getCustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
 - Removed `craft\commerce\services\States`.
 - Removed `craft\commerce\services\States`.
+- Removed `craft\commercetests\fixtures\AddressesFixture`.
+- Removed `craft\commercetests\unit\models\StateTest`.
+- Removed `craft\commercetests\unit\services\CountriesTest`.
 
 ### Removed (Previously Deprecated)
 - Removed `json_encode_filtered` twig filter.

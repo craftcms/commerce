@@ -1527,7 +1527,7 @@ class OrdersController extends Controller
      */
     private function _customerToArray(User $customer): array
     {
-        return $customer->toArray() + [
+        return $customer->toArray(expand: ['photo']) + [
             'cpEditUrl' => $customer->getCpEditUrl(),
             'totalAddresses' => count($customer->getAddresses()),
         ];
