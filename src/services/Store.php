@@ -14,7 +14,9 @@ use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
+use craft\errors\ElementNotFoundException;
 use yii\base\Component;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -32,9 +34,9 @@ class Store extends Component
     private ?StoreModel $_store = null;
 
     /**
-     * @return bool
+     * @return void
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -47,21 +49,17 @@ class Store extends Component
                 $this->_store = new StoreModel(['id' => $storeRecord->id]);
             } else {
                 $this->_store = new StoreModel();
+                $locationAddressId = $store['locationAddressId'] ?? null;
+                if ($locationAddressId === null) {
+                    unset($store['locationAddressId']);
+                }
                 $this->_store->setAttributes($store);
             }
 
             // Make sure the store always has an address location set.
-            $storeLocationAddress = AddressElement::findOne($this->_store->locationAddressId);
+            $storeLocationAddress = $this->_store->getLocationAddressId() ? AddressElement::findOne($this->_store->locationAddressId) : null;
             if ($storeLocationAddress === null) {
-                $storeLocationAddress = new AddressElement();
-                $storeLocationAddress->title = 'Store';
-                $storeLocationAddress->countryCode = 'US';
-                if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
-                    $storeRecord = StoreRecord::findOne($this->_store->id);
-                    $storeRecord->locationAddressId = $storeLocationAddress->id;
-                    $storeRecord->save();
-                    $this->_store->setLocationAddress = $storeLocationAddress->id; // update the model
-                }
+               $this->_createDefaultStoreLocationAddress();
             }
         }
     }
@@ -109,6 +107,33 @@ class Store extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @return void
+     * @throws \Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     */
+    private function _createDefaultStoreLocationAddress(): void
+    {
+        if (!$this->_store instanceof StoreModel) {
+            return;
+        }
+
+        $storeLocationAddress = new AddressElement();
+        $storeLocationAddress->title = 'Store';
+        $storeLocationAddress->countryCode = 'US';
+        if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
+            $storeRecord = StoreRecord::findOne($this->_store->id);
+            if ($storeRecord === null) {
+                return;
+            }
+
+            $storeRecord->locationAddressId = $storeLocationAddress->id;
+            $storeRecord->save();
+            $this->_store->setLocationAddressId($storeLocationAddress->id); // update the model
+        }
     }
 
     /**
