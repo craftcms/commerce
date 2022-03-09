@@ -13,11 +13,25 @@ use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\Cp;
 use craft\web\Response as CraftResponse;
+use craft\web\twig\TemplateLoaderException;
+use yii\base\InvalidConfigException;
 use yii\web\Response;
 use yii\web\Response as YiiResponse;
 
+/**
+ * Class Store Controller
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 4.0
+ */
 class StoreController extends BaseStoreSettingsController
 {
+
+    /**
+     * @return YiiResponse
+     * @throws TemplateLoaderException
+     * @throws InvalidConfigException
+     */
     public function actionEdit(): Response
     {
         $addressesService = Craft::$app->getAddresses();
@@ -71,6 +85,7 @@ JS;
 
     /**
      * @return CraftResponse
+     * @throws InvalidConfigException
      */
     public function actionSave(): YiiResponse
     {
