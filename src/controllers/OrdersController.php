@@ -24,6 +24,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
@@ -881,6 +882,8 @@ class OrdersController extends Controller
                 'paymentForm' => $paymentFormModel,
                 'order' => $order,
             ]);
+
+            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
             $formHtml .= $paymentFormHtml;
         }
