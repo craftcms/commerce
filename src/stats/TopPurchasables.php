@@ -51,7 +51,6 @@ class TopPurchasables extends Stat
      */
     public function getData()
     {
-        $this->_mockUser();
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
@@ -86,18 +85,5 @@ class TopPurchasables extends Stat
     public function getHandle(): string
     {
         return $this->_handle . $this->type;
-    }
-
-    public function _mockUser(): void
-    {
-        $user = new User();
-        $user->id = 1;
-        $user->admin = true;
-
-        $mockUser = \Codeception\Stub::make(\craft\web\User::class, [
-            'getIdentity' => $user
-        ]);
-
-        \Craft::$app->set('user', $mockUser);
     }
 }
