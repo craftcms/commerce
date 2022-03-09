@@ -77,7 +77,6 @@ class ShippingRulesController extends BaseShippingSettingsController
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $condition->fieldContext = 'zone';
         $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);

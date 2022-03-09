@@ -64,7 +64,6 @@ class TaxZonesController extends BaseTaxSettingsController
         $condition->mainTag = 'div';
         $condition->name = 'condition';
         $condition->id = 'condition';
-        $condition->fieldContext = 'zone';
         $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
             'label' => Craft::t('app', 'Address Condition'),
         ]);
