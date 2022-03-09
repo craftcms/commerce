@@ -23,6 +23,7 @@ use craft\elements\conditions\addresses\CountryConditionRule;
 use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\CustomField;
+use craft\fields\Dropdown;
 use craft\fields\PlainText;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
@@ -85,6 +86,14 @@ class MigrateV4Controller extends Controller
      * @var string|null The custom field handle that “Notes” address values should be saved to
      */
     public ?string $notesField = null;
+    /**
+     * @var string|null The custom field handle that “Custom Country” address values should be saved to
+     */
+    public ?string $customCountryField = null;
+    /**
+     * @var string|null The custom field handle that “Custom State” address values should be saved to
+     */
+    public ?string $customStateField = null;
 
     /**
      * @inheritdoc
@@ -106,9 +115,29 @@ class MigrateV4Controller extends Controller
         'custom3' => 'Custom 3',
         'custom4' => 'Custom 4',
         'notes' => 'Notes',
+        'customCountry' => 'Custom Country',
+        'customState' => 'Custom State',
     ];
 
-    private array $_oldAddressHandleToNewCustomFieldHandle = [];
+    /**
+     * @param mixed $state
+     * @return string
+     */
+    private function getStateValueString(mixed $state): string
+    {
+        return $state['countryIso'] . '-' . $state['stateIso'];
+    }
+
+    /**
+     * @param mixed $state
+     * @return string
+     */
+    private function getStateLabelString(mixed $state): string
+    {
+        return $state['stateName'];
+    }
+
+    private array $_oldAddressFieldToNewCustomFieldHandle = [];
 
     /**
      * v3CountryId => countryCode
@@ -116,9 +145,19 @@ class MigrateV4Controller extends Controller
     private array $_countryCodesByV3CountryId = [];
 
     /**
+     * v3CountryId => countryCode
+     */
+    private array $_customCountriesByV3CountryId = [];
+
+    /**
      * v3StateId => administrativeArea
      */
     private array $_administrativeAreaByV3StateId = [];
+
+    /**
+     * v3StateId => administrativeArea
+     */
+    private array $_customStatesByV3StateId = [];
 
     /**
      * v3AddressId => addressId
@@ -150,11 +189,12 @@ class MigrateV4Controller extends Controller
                 $options[] = 'custom3Field';
                 $options[] = 'custom4Field';
                 $options[] = 'notesField';
+                $options[] = 'customCountryField';
+                $options[] = 'customStateField';
         }
 
         return $options;
     }
-
 
     /**
      * @return void
@@ -162,8 +202,34 @@ class MigrateV4Controller extends Controller
     public function beforeAction($action): bool
     {
         // Collect all the countries and state that were set up in v3
-        $this->_countryCodesByV3CountryId = $this->_countryCodesByV3CountryId();
-        $this->_administrativeAreaByV3StateId = $this->_administrativeAreaByV3StateId();
+        $this->_countryCodesByV3CountryId = (new Query())
+            ->select(['iso'])
+            ->from(['{{%commerce_countries}}'])
+            ->where(['iso' => Craft::$app->getAddresses()->getCountryRepository()->getList()])
+            ->indexBy('id')
+            ->column();
+
+        $this->_customCountriesByV3CountryId = (new Query())
+            ->select(['iso', 'name'])
+            ->from(['{{%commerce_countries}}'])
+            ->where(['not', ['iso' => array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList())]])
+            ->indexBy('id')
+            ->all();
+
+        $this->_administrativeAreaByV3StateId = (new Query())
+            ->select(['abbreviation'])
+            ->from(['{{%commerce_states}}'])
+            ->where(['countryId' => array_keys($this->_countryCodesByV3CountryId)])
+            ->indexBy('id')
+            ->column();
+
+        $this->_customStatesByV3StateId = (new Query())
+            ->select(['[[countries.iso]] as countryIso', '[[countries.name]] as countryName', '[[states.abbreviation]] as stateIso ', '[[states.name]] as stateName'])
+            ->from(['states' => '{{%commerce_states}}'])
+            ->where(['countryId' => array_keys($this->_customCountriesByV3CountryId)])
+            ->innerJoin(['countries' => '{{%commerce_countries}}'], '[[countries.id]] = [[states.countryId]]')
+            ->indexBy('id')
+            ->column();
 
         // Filter out the address columns we don't need to migrate to custom fields
         $this->_filterNeededCustomAddressFields();
@@ -175,17 +241,41 @@ class MigrateV4Controller extends Controller
      * @return void
      * @see beforeAction();
      */
-    private function _filterNeededCustomAddressFields()
+    private function _filterNeededCustomAddressFields(): void
     {
         $this->neededCustomAddressFields = array_filter($this->neededCustomAddressFields, function($fieldHandle) {
-            $needed = (new Query())
+
+            if ($fieldHandle == 'customCountry') {
+                return (new Query())
+                    ->select(['countryId'])
+                    ->where(['countryId' => array_keys($this->_customCountriesByV3CountryId)])
+                    ->from(['{{%commerce_addresses}}'])
+                    ->exists();
+            }
+
+            if ($fieldHandle == 'customState') {
+                $neededCustomStateId = (new Query())
+                    ->select(['stateId'])
+                    ->where(['stateId' => array_keys($this->_customStatesByV3StateId)])
+                    ->from(['{{%commerce_addresses}}'])
+                    ->exists();
+
+                $neededCustomStateName = (new Query())
+                    ->select(['stateName'])
+                    ->where(['not', ['stateName' => null]])
+                    ->andWhere(['not', ['stateName' => '']])
+                    ->from(['{{%commerce_addresses}}'])
+                    ->exists();
+
+                return $neededCustomStateName || $neededCustomStateId;
+            }
+
+            return (new Query())
                 ->select($fieldHandle)
                 ->where(['not', [$fieldHandle => null]])
                 ->andWhere(['not', [$fieldHandle => '']])
                 ->from(['{{%commerce_addresses}}'])
-                ->all();
-
-            return count($needed) > 0;
+                ->exists();
         }, ARRAY_FILTER_USE_KEY);
     }
 
@@ -332,7 +422,7 @@ class MigrateV4Controller extends Controller
         foreach ($v3dropColumns as $columnDefinition) {
             if ($db->columnExists($columnDefinition['table'], $columnDefinition['column'])) {
                 Craft::$app->getDb()->createCommand()->dropColumn($columnDefinition['table'], $columnDefinition['column']);
-          }
+            }
         }
 
         return 0;
@@ -364,7 +454,7 @@ EOL
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label);
                 $layoutElements[] = new CustomField($field);
-                $this->_oldAddressHandleToNewCustomFieldHandle[$oldAttribute] = $field->handle;
+                $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = $field->handle;
             }
 
             $firstTab->setElements($layoutElements);
@@ -409,7 +499,25 @@ EOL
             !$this->confirm("Do you have a custom field for storing $label values?")
         ) {
             $this->stdout("Let’s create one then.\n");
-            $field = new PlainText();
+
+            if ($oldAttribute == 'customCountry') {
+                $field = new Dropdown();
+                $options = [];
+                foreach ($this->_customCountriesByV3CountryId as $country) {
+                    $options[] = ['label' => $country['name'], 'value' => $country['iso']];
+                }
+                $field->options = $options;
+            } elseif ($oldAttribute == 'customState') {
+                $field = new Dropdown();
+                $options = [];
+                foreach ($this->_customStatesByV3StateId as $state) {
+                    $options[] = ['label' => $state['stateName'], 'value' => $this->getStateValueString($state)];
+                }
+                $field->options = $options;
+            } else {
+                $field = new PlainText();
+            }
+
             $field->handle = $this->prompt('Field handle:', [
                 'required' => true,
                 'validator' => function($handle) use ($handlePattern, $fieldsService) {
@@ -596,6 +704,9 @@ EOL
         Console::endProgress(count($taxZones) . ' tax zones migrated.');
     }
 
+    /**
+     * @return void
+     */
     public function _migrateOrderHistoryUser()
     {
         $orderHistories = (new Query())
@@ -606,15 +717,14 @@ EOL
 
         $done = 0;
         Console::startProgress($done, count($orderHistories));
-        foreach ($orderHistories as $history)
-        {
+        foreach ($orderHistories as $history) {
             $userId = null;
             $v3customerId = $history['v3customerId'];
-            if($v3customerId){
+            if ($v3customerId) {
                 $userId = $this->userIdsByv3CustomerId[$v3customerId] ?? null;
             }
             // Customer may have been deleted, if so, use the admin user as the history record
-            if($userId === null){
+            if ($userId === null) {
                 $userId = User::find()->admin(true)->one()->id;
             }
 
@@ -626,18 +736,6 @@ EOL
             Console::updateProgress($done++, count($orderHistories));
         }
         Console::endProgress(count($orderHistories) . ' order history user migrated.');
-    }
-
-    /**
-     * @return array
-     */
-    public function _countryCodesByV3CountryId(): array
-    {
-        return (new Query())
-            ->select(['iso'])
-            ->from(['{{%commerce_countries}}'])
-            ->indexBy('id')
-            ->column();
     }
 
     /**
@@ -829,13 +927,35 @@ SQL;
         $address->administrativeArea = $this->_administrativeAreaByV3StateId[$data['stateId']] ?? null; //  get from mapping
         $address->postalCode = $data['zipCode'];
         $address->locality = $data['city'];
+
+        // If no stateId was entered then a state name could have been entered.
+        // No need to migrate it to the custom state field as it could not be used in any tax or shipping zones anyway.
+        if (!$data['stateId'] && $data['stateName']) {
+            if (!$this->_countryCodesByV3CountryId[$data['countryId']]) {
+                $address->administrativeArea = $data['stateName'];
+            }
+        }
         $address->dependentLocality = '';
         $address->organization = $data['businessName'];
         $address->organizationTaxId = $data['businessTaxId'];
 
         // Set fields that were created and mapped from old data
-        foreach ($this->_oldAddressHandleToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
-            $address->setFieldValue($customFieldHandle, $data[$oldAttribute] ?: '');
+        foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
+
+            if ($oldAttribute == 'customCountry') {
+                if ($customCountry = $this->_customCountriesByV3CountryId[$data['countryId']]) {
+                    $address->setFieldValue($customFieldHandle, $customCountry['name']);
+                }
+            } elseif ($oldAttribute == 'customState') {
+                $customState = $this->_customStatesByV3StateId[$data['stateId']];
+                if ($customState) {
+                    $address->setFieldValue($customFieldHandle, $this->getStateValueString($customState));
+                }
+            } else {
+                if ($data[$oldAttribute]) {
+                    $address->setFieldValue($customFieldHandle, $data[$oldAttribute]);
+                }
+            }
         }
 
         $address->dateCreated = DateTimeHelper::toDateTime($data['dateCreated']);
@@ -849,6 +969,9 @@ SQL;
         return $address;
     }
 
+    /**
+     * @return void
+     */
     public function _migrateCustomers(): void
     {
 
