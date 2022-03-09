@@ -14,6 +14,15 @@
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Added `\craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `\craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
+- Added `\craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
+- Added `\craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
+- Added `\craft\commerce\elements\Product::canView()`.
+- Added `\craft\commerce\elements\Product::canSave()`.
+- Added `\craft\commerce\elements\Product::canDuplicate()`.
+- Added `\craft\commerce\elements\Product::canDelete()`.
+- Added `\craft\commerce\elements\Product::canDeleteForSite()`.
+- Added `\craft\commerce\elements\Product::canCreateDrafts()`.
+- Added `\craft\commerce\elements\Subscription::canView()`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
