@@ -127,6 +127,7 @@
 - Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\models\Country`.
+- Removed `craft\commerce\models\Discount::getDiscountUserGroups()`.
 - Removed `craft\commerce\models\OrderHistory::$customerId`. Use `$userId` instead.
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
@@ -149,6 +150,7 @@
 - Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
 - Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
+- Removed `craft\commerce\records\DiscountUserGroup`.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
