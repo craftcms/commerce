@@ -3,6 +3,17 @@
 ## Unreleased
 
 ### Added
+- Customers are now User elements.
+- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
+- Shipping zones now use a condition builder to determine whether an address is within a zone.
+- Tax zones now use a condition builder to determine whether an address is within a zone.
+- Added a Commerce panel to the debug toolbar.
+- Added `craft\commerce\models\OrderHistory::$userName`.
+- Added `craft\commerce\record\OrderHistory::$userName`.
+- Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
+- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Added `\craft\commerce\services\ProductTypes::hasPermission()`.
+- Added `\craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
@@ -16,11 +27,6 @@
 - Added `craft\commerce\services\Coupons`.
 - Added `craft\commerce\validators\CouponValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
-- Customers are now User elements.
-- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
-- Shipping zones now use a condition builder to determine whether an address is within a zone.
-- Tax zones now use a condition builder to determine whether an address is within a zone.
-- Added a Commerce panel to the debug toolbar.
 - Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
 - Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\base\Zone`.
@@ -47,12 +53,15 @@
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
+- Added `craft\commerce\models\TaxAddressZone::condition`.
+- Added `craft\commerce\models\ShippingAddressZone::condition`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - It’s now possible to create an order for a user from the Edit User page.
 - Tax rate input fields no longer require the percent symbol.
 - When using the Payments controller payment form fields are now expected to be namespaced.
+- `craft\commerce\elements\Order::getCustomer()` now returns a User element.
 - `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
@@ -61,9 +70,11 @@
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
+- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - `craft\commerce\models\TaxAddressZone::setCountries()` now expects an array of country code strings.
 - `craft\commerce\models\TaxAddressZone::setStatues()` now expects an array of state codes or state name strings.
 - `craft\commerce\services\Addresses::addressWithinZone()` is now found in `craft\commerce\helpers\AddressZone::addressWithinZone()`.
+
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
@@ -74,9 +85,6 @@
 - Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
-- Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
-- Deprecated `craft\commerce\models\Address::getStateText()`. Use `getStateName()` instead.
-- Deprecated `craft\commerce\models\Address::getAbbreviationText()`. Use `getStateAbbreviation()` instead.
 - Deprecated `craft\commerce\models\ShippingAddressZone::getStatesNames()`. Use `getStatesLabels()` instead.
 - Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getPlansByGatewayId()` instead.
 - Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
@@ -92,13 +100,20 @@
 - Removed `\craft\commerce\models\Discount::getUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
 - Removed `\craft\commerce\models\Discount::setUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
 - Removed `craft\commerce\events\DefineAddressLinesEvent`. Use the new `\craft\services\Addresses::formatAddress()` instead.
-- Removed `craft\commerce\base\AddressZoneInterface`.
+- Removed `craft\commerce\base\AddressZoneInterface`. Use `craft\commerce\base\ZoneInterface` instead.
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
 - Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\OrdersController::_prepCustomersArray()`. Use `_customerToArray()` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
+- Removed `\craft\commerce\elements\Product::getIsEditable()`.
+- Removed `\craft\commerce\elements\Product::getIsDeletable()`.
+- Removed `\craft\commerce\elements\Product::isEditable()`.
+- Removed `\craft\commerce\elements\Product::isDeletable()`.
+- Removed `\craft\commerce\elements\Variant::isEditable()`.
+- Removed `\craft\commerce\elements\Order::isEditable`.
 - Removed `craft\commerce\models\Discount::$code`.
 - Removed `craft\commerce\controllers\StatesController`.
 - Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
@@ -110,8 +125,22 @@
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. User `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
 - Removed `craft\commerce\models\States`.
+- Removed `craft\commerce\models\TaxAddressZone::isCountryBased`
+- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
+- Removed `craft\commerce\models\TaxAddressZone::getStates()`
+- Removed `craft\commerce\models\TaxAddressZone::getStatesNames()`
+- Removed `craft\commerce\models\TaxAddressZone::getCountries()`
+- Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`
+- Removed `craft\commerce\models\ShippingAddressZone::isCountryBased`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
+- Removed `craft\commerce\models\ShippingAddressZone::getStateIds()`
+- Removed `craft\commerce\models\ShippingAddressZone::getStates()`
+- Removed `craft\commerce\models\ShippingAddressZone::getStatesNames()`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountries()`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
 - Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.

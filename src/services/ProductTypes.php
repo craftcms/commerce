@@ -15,10 +15,12 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
+use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\User;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -125,6 +127,11 @@ class ProductTypes extends Component
      * @var int[]|null
      */
     private ?array $_editableProductTypeIds = null;
+    
+    /**
+     * @var int[]
+     */
+    private $_creatableProductTypeIds;
 
     /**
      * @var ProductTypeSite[][]
@@ -154,10 +161,24 @@ class ProductTypes extends Component
         }
 
         return $editableProductTypes;
+    }   
+    
+    public function getCreatableProductTypes(): array
+    {
+        $creatableProductTypeIds = $this->getCreatableProductTypeIds();
+        $creatableProductTypes = [];
+
+        foreach ($this->getAllProductTypes() as $productTypes) {
+            if (in_array($productTypes->id, $creatableProductTypeIds, false)) {
+                $creatableProductTypes[] = $productTypes;
+            }
+        }
+
+        return $creatableProductTypes;
     }
 
     /**
-     * Returns all of the product type IDs that are editable by the current user.
+     * Returns all product type IDs that are editable by the current user.
      *
      * @return array An array of all the editable product types’ IDs.
      */
@@ -167,14 +188,34 @@ class ProductTypes extends Component
             $this->_editableProductTypeIds = [];
             $allProductTypes = $this->getAllProductTypes();
 
+            $user = Craft::$app->getUser()->getIdentity();
             foreach ($allProductTypes as $productType) {
-                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid)) {
+                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
                     $this->_editableProductTypeIds[] = $productType->id;
                 }
             }
         }
 
         return $this->_editableProductTypeIds;
+    }
+    
+    
+    public function getCreatableProductTypeIds(): array
+    {
+        if (null === $this->_creatableProductTypeIds) {
+            $this->_creatableProductTypeIds = [];
+            $allProductTypes = $this->getAllProductTypes();
+            
+            $user = Craft::$app->getUser()->getIdentity();
+            
+            foreach ($allProductTypes as $productType) {
+                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts')) {
+                    $this->_creatableProductTypeIds[] = $productType->id;
+                }
+            }
+        }
+ 
+        return $this->_creatableProductTypeIds;
     }
 
     /**
@@ -965,5 +1006,37 @@ class ProductTypes extends Component
         }
 
         return new ProductTypeRecord();
+    }
+
+    /**
+     * Check if user has product type permission.
+     * 
+     * @param User $user
+     * @param ProductType $productType
+     * @param null $checkPermissionName detailed product type permission.
+     * @return bool
+     */
+    public function hasPermission(User $user, ProductType $productType, $checkPermissionName = null): bool
+    {
+        if ($user->admin == true) {
+            return true;
+        }
+      
+        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
+      
+        $suffix = ':' . $productType->uid;
+       
+        // Required for create and delete permission.
+        $editProductType = strtolower('commerce-editProductType' . $suffix);
+        
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+        }
+        
+        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+            return false;
+        }
+
+        return true;
     }
 }

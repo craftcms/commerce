@@ -123,7 +123,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
 
@@ -141,6 +141,8 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
             ->leftJoin(CraftTable::CONTENT . ' content', [
                 'and',
                 '[[content.elementId]] = [[v.productId]]',

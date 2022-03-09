@@ -59,6 +59,11 @@ class OrderHistory extends Model
     public ?int $userId;
 
     /**
+     * @var string|null User name or email
+     */
+    public ?string $userName;
+
+    /**
      * @var Datetime|null
      */
     public ?DateTime $dateCreated = null;

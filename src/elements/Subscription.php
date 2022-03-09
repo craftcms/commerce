@@ -202,21 +202,9 @@ class Subscription extends Element
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
+    public function canView(User $user): bool
     {
-        $user = Craft::$app->getUser()->getIdentity();
-
-        if (!$user) {
-            return false;
-        }
-
-        return (
-            ($this->userId && $this->userId == $user->id) ||
-            $user->can('commerce-manageSubscriptions')
-        );
+        return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
 
     /**

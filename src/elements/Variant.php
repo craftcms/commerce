@@ -525,20 +525,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @throws InvalidConfigException
-     */
-    protected function isEditable(): bool
-    {
-        $product = $this->getProduct();
-
-        if ($product) {
-            return $product->getIsEditable();
-        }
-
-        return false;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getCpEditUrl(): ?string

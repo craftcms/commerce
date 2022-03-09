@@ -44,11 +44,15 @@ class Store extends Component
             $store = $this->_createStoreQuery()->one();
 
             if ($store === null) {
-                $store = new StoreRecord();
-                $store->save();
+                $storeRecord = new StoreRecord();
+                $storeRecord->save();
+                $this->_store = new StoreModel();
+                $this->_store->id = $storeRecord->id;
+            }else{
+                $this->_store = new StoreModel();
+                $this->_store->setAttributes($store, false);
             }
-            $this->_store = new StoreModel();
-            $this->_store->setAttributes($store, false);
+
             $this->_store->locationAddressId = $this->getStoreLocationAddress()->id; // ensure it is created if not.
         }
 

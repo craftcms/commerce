@@ -39,13 +39,15 @@ use function get_class;
  */
 class SalesController extends BaseCpController
 {
-    /**
-     * @inheritdoc
-     */
-    public function init(): void
+    public function beforeAction($action): bool
     {
-        parent::init();
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
         $this->requirePermission('commerce-managePromotions');
+        
+        return true;
     }
 
     /**
@@ -65,6 +67,12 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createSales');    
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
+        
         $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
@@ -102,6 +110,13 @@ class SalesController extends BaseCpController
 
         // Shared attributes
         $request = Craft::$app->getRequest();
+        
+        if ($sale->id === null) {
+            $this->requirePermission('commerce-createSales');
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
+        
         $sale->id = $request->getBodyParam('id');
         $sale->name = $request->getBodyParam('name');
         $sale->description = $request->getBodyParam('description');
@@ -216,6 +231,7 @@ class SalesController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteSales');
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
@@ -373,13 +389,17 @@ class SalesController extends BaseCpController
     /**
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
+     * @throws \yii\web\ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editSales');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
 
         if (empty($ids)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));

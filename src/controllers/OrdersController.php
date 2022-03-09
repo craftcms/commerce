@@ -90,9 +90,10 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
-            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
             'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
+
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
@@ -109,7 +110,7 @@ class OrdersController extends Controller
      */
     public function actionCreate(): Response
     {
-        $this->requirePermission('commerce-editOrders');
+        $this->requirePermission('commerce-manageOrders');
 
         $userId = Craft::$app->getRequest()->getParam('userId', null);
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
@@ -154,8 +155,6 @@ class OrdersController extends Controller
      */
     public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
     {
-        $this->requirePermission('commerce-editOrders');
-
         $plugin = Plugin::getInstance();
         $variables = [];
 
@@ -166,6 +165,8 @@ class OrdersController extends Controller
                 throw new HttpException(404, Craft::t('commerce', 'Can not find order.'));
             }
         }
+
+        $this->enforceManageOrderPermissions($order);
 
         $variables['order'] = $order;
 
@@ -196,7 +197,6 @@ class OrdersController extends Controller
      */
     public function actionSave(): ?Response
     {
-        $this->requirePermission('commerce-editOrders');
         $this->requirePostRequest();
 
         $data = Craft::$app->getRequest()->getBodyParam('orderData');
@@ -208,6 +208,8 @@ class OrdersController extends Controller
         if (!$order) {
             throw new HttpException(400, Craft::t('commerce', 'Invalid Order ID'));
         }
+
+        $this->enforceManageOrderPermissions($order);
 
         // Set custom field values
         $order->setFieldValuesFromRequest('fields');
@@ -260,13 +262,16 @@ class OrdersController extends Controller
     public function actionDeleteOrder(): ?Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('commerce-deleteOrders');
 
         $orderId = (int)Craft::$app->getRequest()->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
             throw new HttpException(404, Craft::t('commerce', 'Can not find order.'));
+        }
+
+        if (!$order->canDelete(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to view this address.');
         }
 
         if (!Craft::$app->getElements()->deleteElementById($order->id)) {
@@ -284,8 +289,6 @@ class OrdersController extends Controller
      */
     public function actionRefresh(): Response
     {
-        $this->requirePermission('commerce-editOrders');
-
         $data = Craft::$app->getRequest()->getRawBody();
         $orderRequestData = Json::decodeIfJson($data);
 
@@ -294,6 +297,8 @@ class OrdersController extends Controller
         if (!$order) {
             return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
         }
+
+        $this->enforceManageOrderPermissions($order);
 
         $this->_updateOrder($order, $orderRequestData);
 
@@ -486,7 +491,7 @@ class OrdersController extends Controller
      */
     public function actionPurchasablesTable(): Response
     {
-        $this->requirePermission('commerce-editOrders');
+        $this->requirePermission('commerce-manageOrders');
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
@@ -1152,7 +1157,7 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         $permissions = [
-            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
+            'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
             'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
@@ -1526,5 +1531,16 @@ class OrdersController extends Controller
             'cpEditUrl' => $customer->getCpEditUrl(),
             'totalAddresses' => count($customer->getAddresses()),
         ];
+    }
+
+    /**
+     * @param Order $order
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceManageOrderPermissions(Order $order)
+    {
+        if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to view this order.');
+        }
     }
 }

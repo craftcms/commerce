@@ -20,7 +20,9 @@
 ]) %}
 
 {% block actionButton %}
-  <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    {% if currentUser.can('commerce-createSales') %}
+        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -60,6 +62,7 @@
 
 {% js %}
 var actions = [
+    {% if currentUser.can('commerce-editSales') %}
     {
         label: Craft.t('commerce', 'Set status'),
         actions: [
@@ -79,11 +82,14 @@ var actions = [
             },
         ]
     },
+    {% endif %}
+    {% if currentUser.can('commerce-deleteSales') %}
     {
         label: Craft.t('commerce', 'Delete'),
         action: 'commerce/sales/delete',
         error: true
     }
+    {% endif %}
 ];
 
 var columns = [
@@ -116,7 +122,7 @@ new Craft.VueAdminTable({
   columns: columns,
   fullPane: false,
   container: '#sales-vue-admin-table',
-  deleteAction: 'commerce/sales/delete',
+  deleteAction: {{ currentUser.can('commerce-deleteSales')? '"commerce/sales/delete"' : 'null' }},
   emptyMessage: Craft.t('commerce', 'No sales exist yet.'),
   padded: true,
   reorderAction: 'commerce/sales/reorder',

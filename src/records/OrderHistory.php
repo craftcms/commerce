@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property Customer $customer
  * @property int $userId
+ * @property ?string $userName
  * @property DateTime $dateCreated
  * @property int $id
  * @property string $message

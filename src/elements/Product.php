@@ -30,6 +30,7 @@ use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use craft\events\DefineValueEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -297,7 +298,17 @@ class Product extends Element
      */
     public function canView(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canView($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -305,7 +316,17 @@ class Product extends Element
      */
     public function canSave(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -313,7 +334,17 @@ class Product extends Element
      */
     public function canDuplicate(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -321,7 +352,17 @@ class Product extends Element
      */
     public function canDelete(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-deleteProducts:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -329,7 +370,7 @@ class Product extends Element
      */
     public function canDeleteForSite(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        return $this->canDelete($user);
     }
 
     /**
@@ -337,7 +378,7 @@ class Product extends Element
      */
     public function canCreateDrafts(User $user): bool
     {
-        return true;
+        return $this->canSave($user);
     }
 
     /**
@@ -365,23 +406,6 @@ class Product extends Element
                 'url' => "commerce/products/$type->name",
             ],
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isDeletable(): bool
-    {
-        // TODO: Change this to a real delete permission in 4.0
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -496,6 +520,7 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
+     * @param bool $includeDisabled
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
@@ -1155,7 +1180,7 @@ class Product extends Element
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -1216,26 +1241,37 @@ class Product extends Element
             'failMessage' => Craft::t('commerce', 'Products not restored.'),
         ]);
 
-        if (!empty($productTypes)) {
+        if ($source === '*') {
+            // Delete
+            $actions[] = Delete::class;
+        } else if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
-            $canManage = false;
+
+            $currentUser = $userSession->getIdentity();
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->uid);
-            }
+                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
 
-            if ($canManage) {
-                // Duplicate
-                $actions[] = Duplicate::class;
+                if ($canCreate) {
+                    // Duplicate
+                    $actions[] = Duplicate::class;
+                }
 
-                // Allow deletion
-                $deleteAction = Craft::$app->getElements()->createAction([
-                    'type' => Delete::class,
-                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
-                ]);
-                $actions[] = $deleteAction;
-                $actions[] = SetStatus::class;
+                if ($canDelete) {
+                    // Allow deletion
+                    $deleteAction = Craft::$app->getElements()->createAction([
+                        'type' => Delete::class,
+                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
+                        'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
+                    ]);
+                    $actions[] = $deleteAction;
+                }
+
+                if ($canEdit) {
+                    $actions[] = SetStatus::class;
+                }
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
