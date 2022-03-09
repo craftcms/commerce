@@ -31,6 +31,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
 use craft\validators\HandleValidator;
+use Illuminate\Support\Collection;
 use yii\console\ExitCode;
 use yii\db\Schema;
 
@@ -40,7 +41,7 @@ use yii\db\Schema;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0
  */
-class MigrateV4Controller extends Controller
+class UpgradeController extends Controller
 {
     /**
      * @var string|null The custom field handle that “Attention” address values should be saved to
@@ -98,7 +99,7 @@ class MigrateV4Controller extends Controller
     /**
      * @inheritdoc
      */
-    public $defaultAction = 'migrate';
+    public $defaultAction = 'run';
 
     /**
      * @var string[] The list of fields that can be converted to PlainText fields
@@ -203,33 +204,33 @@ class MigrateV4Controller extends Controller
     {
         // Collect all the countries and state that were set up in v3
         $this->_countryCodesByV3CountryId = (new Query())
-            ->select(['iso'])
+            ->select(['*'])
             ->from(['{{%commerce_countries}}'])
-            ->where(['iso' => Craft::$app->getAddresses()->getCountryRepository()->getList()])
+            ->where(['iso' => array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList())])
             ->indexBy('id')
-            ->column();
+            ->all();
 
         $this->_customCountriesByV3CountryId = (new Query())
-            ->select(['iso', 'name'])
+            ->select(['*'])
             ->from(['{{%commerce_countries}}'])
             ->where(['not', ['iso' => array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList())]])
             ->indexBy('id')
             ->all();
 
         $this->_administrativeAreaByV3StateId = (new Query())
-            ->select(['abbreviation'])
+            ->select(['*'])
             ->from(['{{%commerce_states}}'])
             ->where(['countryId' => array_keys($this->_countryCodesByV3CountryId)])
             ->indexBy('id')
-            ->column();
+            ->all();
 
         $this->_customStatesByV3StateId = (new Query())
-            ->select(['[[countries.iso]] as countryIso', '[[countries.name]] as countryName', '[[states.abbreviation]] as stateIso ', '[[states.name]] as stateName'])
+            ->select(['[[states.id]] as id', '[[countries.iso]] as countryIso', '[[countries.name]] as countryName', '[[states.abbreviation]] as stateIso ', '[[states.name]] as stateName'])
             ->from(['states' => '{{%commerce_states}}'])
             ->where(['countryId' => array_keys($this->_customCountriesByV3CountryId)])
             ->innerJoin(['countries' => '{{%commerce_countries}}'], '[[countries.id]] = [[states.countryId]]')
             ->indexBy('id')
-            ->column();
+            ->all();
 
         // Filter out the address columns we don't need to migrate to custom fields
         $this->_filterNeededCustomAddressFields();
@@ -284,7 +285,7 @@ class MigrateV4Controller extends Controller
      *
      * @throws \Throwable
      */
-    public function actionMigrate(): int
+    public function actionRun(): int
     {
         $db = Craft::$app->getDb();
 
@@ -503,6 +504,7 @@ EOL
             if ($oldAttribute == 'customCountry') {
                 $field = new Dropdown();
                 $options = [];
+                $options[] = ['label' => '', 'value' => ''];
                 foreach ($this->_customCountriesByV3CountryId as $country) {
                     $options[] = ['label' => $country['name'], 'value' => $country['iso']];
                 }
@@ -510,12 +512,14 @@ EOL
             } elseif ($oldAttribute == 'customState') {
                 $field = new Dropdown();
                 $options = [];
+                $options[] = ['label' => '', 'value' => ''];
                 foreach ($this->_customStatesByV3StateId as $state) {
                     $options[] = ['label' => $state['stateName'], 'value' => $this->getStateValueString($state)];
                 }
                 $field->options = $options;
             } else {
                 $field = new PlainText();
+                $field->columnType = Schema::TYPE_STRING;
             }
 
             $field->handle = $this->prompt('Field handle:', [
@@ -540,7 +544,7 @@ EOL
                 'required' => true,
                 'default' => $label,
             ]);
-            $field->columnType = Schema::TYPE_STRING;
+
             $field->groupId = ArrayHelper::firstValue(Craft::$app->getFields()->getAllGroups())->id;
             if (!$fieldsService->saveField($field)) {
                 $this->stderr(sprintf("Unable to save the field: %s\n", implode(', ', $field->getFirstErrors())));
