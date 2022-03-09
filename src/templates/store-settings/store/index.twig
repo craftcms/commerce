@@ -1,0 +1,22 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% import "_includes/forms" as forms %}
+{% set fullPageForm = true %}
+{% block content %}
+
+    {{ actionInput('commerce/store/save') }}
+    {{ redirectInput('commerce/store-settings/store') }}
+    {{ hiddenInput('id', store.id) }}
+    {{ hiddenInput('locationAddressId', store.locationAddress.id) }}
+
+    <h2>{{ "Store Location"|t('commerce') }}</h2>
+    <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
+
+    {{ locationField|raw }}
+
+    <hr>
+    <h2>{{ "Store Markets"|t('commerce') }}</h2>
+
+    {{ marketAddressConditionField|raw }}
+    {{ countriesField|raw }}
+{% endblock %}

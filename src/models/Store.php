@@ -7,7 +7,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use craft\elements\Address;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 
 /**
@@ -16,7 +20,8 @@ use craft\helpers\Json;
  * @property int $id
  * @property int $locationAddressId
  * @property array $countries
- * @property array $administrativeAreas
+ * @property Address|null $locationAddress
+ * @property array|ZoneAddressCondition $marketAddressCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
@@ -30,7 +35,12 @@ class Store extends Model
     /**
      * @var int|null
      */
-    public ?int $locationAddressId = null;
+    private ?int $_locationAddressId = null;
+
+    /**
+     * @var Address|false|null
+     */
+    private Address|bool|null $_locationAddress = null;
 
     /**
      * @var array
@@ -38,16 +48,94 @@ class Store extends Model
     private array $_countries = [];
 
     /**
-     * @var array
+     * @var ?ZoneAddressCondition
      */
-    private array $_administrativeAreas = [];
+    private ?ZoneAddressCondition $_marketAddressCondition;
 
     /**
-     * @return array
+     * Sets the store location address ID.
+     *
+     * @param int|int[] $locationAddressId
+     */
+    public function setLocationAddressId(array|int $locationAddressId): void
+    {
+        if (is_array($locationAddressId)) {
+            $this->_locationAddressId = ArrayHelper::firstValue($locationAddressId) ?: null;
+        } else {
+            $this->_locationAddressId = $locationAddressId;
+        }
+    }
+
+    /**
+     * Returns the store location address ID.
+     *
+     * @return int|null
+     */
+    public function getLocationAddressId(): ?int
+    {
+        return $this->_locationAddressId;
+    }
+
+    /**
+     * @return ?Address
+     */
+    public function getLocationAddress(): ?Address
+    {
+        if (!isset($this->_locationAddress)) {
+            if (!$this->getLocationAddressId()) {
+                return null;
+            }
+
+            if (($this->_locationAddress = Address::findOne($this->getLocationAddressId())) === null) {
+                $this->_locationAddress = false;
+            }
+        }
+
+        return $this->_locationAddress ?: null;
+    }
+
+    /**
+     * Sets the store's location address.
+     *
+     * @param Address|null $locationAddress
+     */
+    public function setLocationAddress(?Address $locationAddress = null): void
+    {
+        $this->_locationAddress = $locationAddress;
+        $this->setLocationAddressId($locationAddress?->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes(): array
+    {
+        $names = parent::attributes();
+        $names[] = 'locationAddressId';
+        $names[] = 'countries';
+        $names[] = 'marketAddressCondition';
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeAttributes(): array
+    {
+        return [
+            'id',
+            'locationAddressId',
+            'countries',
+            'marketAddressCondition',
+        ];
+    }
+
+    /**
+     * @return string[] $countries
      */
     public function getCountries(): array
     {
-        return $this->_countries;
+        return $this->_countries ?? [];
     }
 
     /**
@@ -63,18 +151,42 @@ class Store extends Model
     /**
      * @return array
      */
-    public function getAdministrativeAreas(): array
+    public function getCountriesList(): array
     {
-        return $this->_administrativeAreas;
+        $all = Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
+        return array_filter($all, function($fieldHandle) {
+            return in_array($fieldHandle, $this->getCountries(), true);
+        }, ARRAY_FILTER_USE_KEY);
     }
 
     /**
-     * @param string[]|string $administrativeAreas
+     * @return ZoneAddressCondition
+     */
+    public function getMarketAddressCondition(): ZoneAddressCondition
+    {
+        return $this->_marketAddressCondition ?? new ZoneAddressCondition();
+    }
+
+    /**
+     * @param ZoneAddressCondition|string|array|null $condition
      * @return void
      */
-    public function setAdministrativeAreas(mixed $administrativeAreas): void
+    public function setMarketAddressCondition(ZoneAddressCondition|string|array|null $condition): void
     {
-        $administrativeAreas = Json::decodeIfJson($administrativeAreas);
-        $this->_administrativeAreas = $administrativeAreas;
+        if ($condition === null) {
+            $condition = new ZoneAddressCondition();
+        }
+
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ZoneAddressCondition) {
+            $condition['class'] = ZoneAddressCondition::class;
+            $condition = \Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_marketAddressCondition = $condition;
     }
 }

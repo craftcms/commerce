@@ -35,7 +35,7 @@ Outputs address form fields for editing an address.
       {{ _self.displayErrors(address, 'fullName') }}
   </div>
 
-  {% set countries = craft.app.addresses.countryRepository.getList() %}
+  {% set countries = craft.commerce.store.store.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
   
   <div class="my-2">

@@ -8,15 +8,12 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Order as OrderHelper;
-use craft\commerce\models\Address;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
-use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use craft\elements\Address;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -77,6 +74,11 @@ trait OrderValidatorsTrait
 
         if ($address && !$address->validate()) {
             $this->addModelErrors($address, $attribute);
+        }
+
+        $marketLocationCondition = Plugin::getInstance()->getStore()->getStore()->getMarketAddressCondition();
+        if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
+            $this->addError($attribute, Craft::t('commerce', 'The address provided is outside the store’s market.'));
         }
     }
 

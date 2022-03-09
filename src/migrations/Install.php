@@ -24,7 +24,6 @@ use craft\commerce\records\ShippingRule;
 use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
-use craft\db\ActiveRecord;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
@@ -648,8 +647,8 @@ class Install extends Migration
         $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
             'locationAddressId' => $this->integer(),
-            'enabledCountries' => $this->text(),
-            'enabledAdministrativeAreas' => $this->text(),
+            'countries' => $this->text(),
+            'marketAddressCondition' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

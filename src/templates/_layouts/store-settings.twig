@@ -9,8 +9,7 @@
 {% if currentUser.admin or currentUser.can('commerce-manageStoreSettings')%}
 {% set navItems = {
     'store-heading': { heading: "Store"|t('commerce'), minEdition: 'lite' },
-    'location': { title: "Store Location"|t('commerce'), minEdition: 'lite' },
-    'market-locations': { title: "Market Locations"|t('commerce'), minEdition: 'lite' },
+    'store': { title: "Store"|t('commerce'), minEdition: 'lite' },
     'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: 'lite' },
     'donation': { title: "Donations"|t('commerce'), minEdition: 'lite' },
     'subscriptions': { heading: 'Subscriptions'|t('commerce'), minEdition: 'lite' },
