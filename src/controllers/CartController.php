@@ -517,11 +517,12 @@ class CartController extends BaseFrontEndController
                     if (($this->_cart->shippingAddressId !== $shippingAddressId) && $currentShippingAddress = $this->_cart->getShippingAddress()) {
                         $currentShippingAddress->setAttributes($userShippingAddress->attributes());
                         // TODO update custom fields
-                        $this->_cart->setBillingAddress($userShippingAddress);
+                        $this->_cart->setShippingAddress($userShippingAddress);
                     }
                 } else {
+                    /** @var Address $userShippingAddress */
                     $userShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
-                    $this->_cart->setBillingAddress($userShippingAddress);
+                    $this->_cart->setShippingAddress($userShippingAddress);
                 }
             }
         } elseif ($shippingAddress && !$shippingIsBilling) {
@@ -543,6 +544,7 @@ class CartController extends BaseFrontEndController
                         $this->_cart->setBillingAddress($userBillingAddress);
                     }
                 } else {
+                    /** @var Address $userBillingAddress */
                     $userBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
                     $this->_cart->setBillingAddress($userBillingAddress);
                 }
