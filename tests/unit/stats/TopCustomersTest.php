@@ -91,7 +91,7 @@ class TopCustomersTest extends Unit
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
                 function() {
-                    $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1');
+                    $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
                     return [
                         'total' => 83.96,
                         'average' => 41.98,

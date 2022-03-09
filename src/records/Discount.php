@@ -81,11 +81,6 @@ class Discount extends ActiveRecord
         return Table::DISCOUNTS;
     }
 
-    public function getDiscountUserGroups(): ActiveQueryInterface
-    {
-        return $this->hasMany(DiscountUserGroup::class, ['discountId' => 'id']);
-    }
-
     /**
      * @noinspection PhpUnused
      */

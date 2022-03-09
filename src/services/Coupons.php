@@ -167,6 +167,7 @@ class Coupons extends Component
             ->where(['discountId' => $discount->id])
             ->column();
 
+        $couponIds = [];
         foreach ($discount->getCoupons() as $key => $coupon) {
             $coupon->discountId = $discount->id;
 

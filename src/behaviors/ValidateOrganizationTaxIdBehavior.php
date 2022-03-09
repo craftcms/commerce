@@ -15,6 +15,11 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     public $owner;
 
     /**
+     * @var Validator
+     */
+    private Validator $_vatValidator;
+
+    /**
      * @inheritdoc
      */
     public function attach($owner)
@@ -73,7 +78,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
         // Clean up if the API returned false and the item was still in cache
         if (!$validOrganizationTaxId) {
             Craft::$app->getCache()->delete('commerce:validVatId:' . $this->owner->organizationTaxId);
-            $this->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
+            $this->owner->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
         }
     }
 

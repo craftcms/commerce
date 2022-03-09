@@ -139,11 +139,12 @@ class Store extends Model
     }
 
     /**
-     * @param string[]|string $countries
+     * @param mixed $countries
      * @return void
      */
     public function setCountries(mixed $countries): void
     {
+        $countries = $countries ?? [];
         $countries = Json::decodeIfJson($countries);
         $this->_countries = $countries;
     }

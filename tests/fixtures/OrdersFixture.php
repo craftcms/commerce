@@ -55,6 +55,9 @@ class OrdersFixture extends BaseElementFixture
      */
     private $_dateOrdered = false;
 
+    private ?array $_billingAddress = null;
+    private ?array $_shippingAddress = null;
+
     public function init(): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
@@ -75,6 +78,8 @@ class OrdersFixture extends BaseElementFixture
         $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
         $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
         $this->_dateOrdered = ArrayHelper::remove($attributes, '_dateOrdered');
+        $this->_billingAddress = ArrayHelper::remove($attributes, '_billingAddress');
+        $this->_shippingAddress = ArrayHelper::remove($attributes, '_shippingAddress');
 
         parent::populateElement($element, $attributes);
     }
@@ -100,20 +105,36 @@ class OrdersFixture extends BaseElementFixture
             $element->markAsComplete();
         }
 
+        $reSaveOrder = false;
+
         if ($this->_dateOrdered) {
             $element->dateOrdered = $this->_dateOrdered;
+            $reSaveOrder = true;
+        }
+
+        if ($this->_billingAddress) {
+            $element->setBillingAddress($this->_billingAddress);
+            $reSaveOrder = true;
+        }
+
+        if ($this->_shippingAddress) {
+            $element->setShippingAddress($this->_shippingAddress);
+            $reSaveOrder = true;
+        }
+
+        if ($reSaveOrder && !Craft::$app->getElements()->saveElement($element)) {
             // Re-save after extra data
-            if (!$result = Craft::$app->getElements()->saveElement($element)) {
-                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
-            }
+            throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
 
         // Reset private variables
         $this->_lineItems = [];
         $this->_markAsComplete = false;
         $this->_dateOrdered = false;
+        $this->_billingAddress = null;
+        $this->_shippingAddress = null;
 
-        return $result;
+        return true;
     }
 
     /**
@@ -160,8 +181,12 @@ class OrdersFixture extends BaseElementFixture
         $addressIds = array_filter($addressIds);
         if (!empty($addressIds)) {
             foreach ($addressIds as $addressId) {
-                Craft::$app->getElements()->deleteElementById($addressId);
+                Craft::$app->getElements()->deleteElementById(elementId: $addressId, hardDelete: true);
             }
+        }
+
+        if ($customerId = $element->getCustomerId()) {
+            Craft::$app->getElements()->deleteElementById(elementId: $customerId, hardDelete: true);
         }
 
         return $result;

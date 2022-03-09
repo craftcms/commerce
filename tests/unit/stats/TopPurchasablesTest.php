@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Variant;
@@ -56,6 +57,9 @@ class TopPurchasablesTest extends Unit
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $getVariantData): void
     {
+        Craft::$app->getUser()->setIdentity(
+            Craft::$app->getUsers()->getUserById('1')
+        );
         $stat = new TopPurchasables($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
 

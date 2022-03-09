@@ -8,38 +8,13 @@
 - Shipping zones now use a condition builder to determine whether an address is within a zone.
 - Tax zones now use a condition builder to determine whether an address is within a zone.
 - Added a Commerce panel to the debug toolbar.
-- Added `craft\commerce\models\OrderHistory::$userName`.
-- Added `craft\commerce\record\OrderHistory::$userName`.
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
-- Added `\craft\commerce\services\ProductTypes::hasPermission()`.
-- Added `\craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
-- Added `\craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
-- Added `\craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
-- Added `\craft\commerce\elements\Product::canView()`.
-- Added `\craft\commerce\elements\Product::canSave()`.
-- Added `\craft\commerce\elements\Product::canDuplicate()`.
-- Added `\craft\commerce\elements\Product::canDelete()`.
-- Added `\craft\commerce\elements\Product::canDeleteForSite()`.
-- Added `\craft\commerce\elements\Product::canCreateDrafts()`.
-- Added `\craft\commerce\elements\Subscription::canView()`.
+- Added `craft\commerce\base\Zone`.
+- Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
-- Added `craft\commerce\models\Coupon`.
-- Added `craft\commerce\models\Discount::$_coupons`.
-- Added `craft\commerce\models\Discount::$couponFormat`.
-- Added `craft\commerce\models\Discount::getCoupons()`.
-- Added `craft\commerce\models\Discount::setCoupons()`.
-- Added `craft\commerce\plugin\Services::getCoupons()`.
-- Added `craft\commerce\records\Coupon`.
-- Added `craft\commerce\services\Coupons`.
-- Added `craft\commerce\validators\CouponValidator`.
-- Added `craft\commerce\web\assets\coupons\CouponsAsset`.
-- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId()`
-- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId()`
-- Added `craft\commerce\base\Zone`.
-- Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added the `|commercePaymentFormNamespace` Twig filter.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
@@ -48,67 +23,87 @@
 - Added `craft\commerce\controllers\OrdersController::actionGetCustomerAddresses()`.
 - Added `craft\commerce\controllers\OrdersController::actionGetOrderAddress()`.
 - Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
+- Added `craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
+- Added `craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
 - Added `craft\commerce\elements\Order::$sourceBillingAddressId`
 - Added `craft\commerce\elements\Order::$sourceShippingAddressId`
+- Added `craft\commerce\elements\Product::canCreateDrafts()`.
+- Added `craft\commerce\elements\Product::canDelete()`.
+- Added `craft\commerce\elements\Product::canDeleteForSite()`.
+- Added `craft\commerce\elements\Product::canDuplicate()`.
+- Added `craft\commerce\elements\Product::canSave()`.
+- Added `craft\commerce\elements\Product::canView()`.
+- Added `craft\commerce\elements\Subscription::canView()`.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
 - Added `craft\commerce\helpers\DebugPanel`.
 - Added `craft\commerce\helpers\PaymentForm`.
+- Added `craft\commerce\models\Coupon`.
+- Added `craft\commerce\models\Discount::$_coupons`.
+- Added `craft\commerce\models\Discount::$couponFormat`.
+- Added `craft\commerce\models\Discount::getCoupons()`.
+- Added `craft\commerce\models\Discount::setCoupons()`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
+- Added `craft\commerce\models\OrderHistory::$userName`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
+- Added `craft\commerce\models\ShippingAddressZone::condition`.
 - Added `craft\commerce\models\Store`.
-- Added `craft\commerce\service\Store`.
+- Added `craft\commerce\models\TaxAddressZone::condition`.
+- Added `craft\commerce\plugin\Services::getCoupons()`.
+- Added `craft\commerce\record\OrderHistory::$userName`.
+- Added `craft\commerce\records\Coupon`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
+- Added `craft\commerce\service\Store`.
+- Added `craft\commerce\services\Coupons`.
+- Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`
+- Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
-- Added `craft\commerce\models\TaxAddressZone::condition`.
-- Added `craft\commerce\models\ShippingAddressZone::condition`.
+- Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
+- Added `craft\commerce\services\ProductTypes::hasPermission()`.
+- Added `craft\commerce\validators\CouponValidator`.
+- Added `craft\commerce\web\assets\coupons\CouponsAsset`.
+- Added `craft\commercetests\unit\services\StoreTest`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - It’s now possible to create an order for a user from the Edit User page.
 - Tax rate input fields no longer require the percent symbol.
-- When using the Payments controller payment form fields are now expected to be namespaced.
-- `craft\commerce\elements\Order::getCustomer()` now returns a User element.
-- `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
-- Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
-- `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
-- Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
-- `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
-- `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
-- `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
-- `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
+- When using the Payments controller payment form fields are now expected to be namespaced.
+- Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
+- `craft\commerce\elements\Order::getCustomer()` now returns a User element.
+- `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
+- `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
 - `craft\commerce\models\TaxAddressZone::setCountries()` now expects an array of country code strings.
 - `craft\commerce\models\TaxAddressZone::setStatues()` now expects an array of state codes or state name strings.
+- `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - `craft\commerce\services\Addresses::addressWithinZone()` is now found in `craft\commerce\helpers\AddressZone::addressWithinZone()`.`
+- `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
+- `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
+- `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
-- Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Renamed “Customer” column to “User” on Order indexes.
 - Removed `craft\commerce\models\ProductType::lineItemFormat`.
+- Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\ShippingAddressZone::getStatesNames()`. Use `getStatesLabels()` instead.
 - Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getPlansByGatewayId()` instead.
-- Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
 - Deprecated `craft\commerce\services\Subscriptions::doesUserHaveAnySubscriptions()`. Use `doesUserHaveSubscriptions()` instead.
+- Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
 - Deprecated `craft\commerce\services\TaxRates::getTaxRatesForZone()`. Use `getTaxRatesByTaxZoneId()` instead.
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
-- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_ANY_OR_NONE`. Discount user groups were migrated to the customer condition rule.
-- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ALL`. Discount user groups were migrated to the customer condition rule.
-- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ANY`. Discount user groups were migrated to the customer condition rule.
-- Removed `\craft\commerce\records\Discount::CONDITION_USER_GROUPS_EXCLUDE`. Discount user groups were migrated to the customer condition rule.
-- Removed `\craft\commerce\models\Discount::getUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
-- Removed `\craft\commerce\models\Discount::setUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
-- Removed `craft\commerce\events\DefineAddressLinesEvent`. Use the new `\craft\services\Addresses::formatAddress()` instead.
+- Removed direct `moneyphp/money` dependency.
 - Removed `craft\commerce\base\AddressZoneInterface`. Use `craft\commerce\base\ZoneInterface` instead.
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
 - Removed `craft\commerce\controllers\CountriesController`.
@@ -117,41 +112,51 @@
 - Removed `craft\commerce\controllers\OrdersController::_prepCustomersArray()`. Use `_customerToArray()` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
-- Removed `\craft\commerce\elements\Product::getIsEditable()`.
-- Removed `\craft\commerce\elements\Product::getIsDeletable()`.
-- Removed `\craft\commerce\elements\Product::isEditable()`.
-- Removed `\craft\commerce\elements\Product::isDeletable()`.
-- Removed `\craft\commerce\elements\Variant::isEditable()`.
-- Removed `\craft\commerce\elements\Order::isEditable`.
-- Removed `craft\commerce\models\Discount::$code`.
 - Removed `craft\commerce\controllers\StatesController`.
+- Removed `craft\commerce\elements\Order::isEditable`.
 - Removed `craft\commerce\elements\Order::removeEstimatedBillingAddress()`. Used `setEstimatedBillingAddress(null)` instead.
 - Removed `craft\commerce\elements\Order::removeEstimatedShippingAddress()`. Used `setEstimatedShippingAddress(null)` instead.
+- Removed `craft\commerce\elements\Product::getIsDeletable()`.
+- Removed `craft\commerce\elements\Product::getIsEditable()`.
+- Removed `craft\commerce\elements\Product::isDeletable()`.
+- Removed `craft\commerce\elements\Product::isEditable()`.
+- Removed `craft\commerce\elements\Variant::isEditable()`.
+- Removed `craft\commerce\events\AddressEvent`.
 - Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
+- Removed `craft\commerce\events\DefineAddressLinesEvent`. Use the new `craft\services\Addresses::formatAddress()` instead.
 - Removed `craft\commerce\models\Country`.
+- Removed `craft\commerce\models\Discount::$code`.
+- Removed `craft\commerce\models\Discount::getDiscountUserGroups()`.
+- Removed `craft\commerce\models\Discount::getUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
+- Removed `craft\commerce\models\Discount::setUserGroupIds()`. Discount user groups were migrated to the customer condition rule.
 - Removed `craft\commerce\models\OrderHistory::$customerId`. Use `$userId` instead.
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
-- Removed `craft\commerce\models\States`.
-- Removed `craft\commerce\models\TaxAddressZone::isCountryBased`
-- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
-- Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
-- Removed `craft\commerce\models\TaxAddressZone::getStates()`
-- Removed `craft\commerce\models\TaxAddressZone::getStatesNames()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountries()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`
-- Removed `craft\commerce\models\ShippingAddressZone::isCountryBased`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountries()`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
 - Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStateIds()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStates()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStatesNames()`
-- Removed `craft\commerce\models\ShippingAddressZone::getCountries()`
-- Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
+- Removed `craft\commerce\models\ShippingAddressZone::isCountryBased`
+- Removed `craft\commerce\models\States`.
+- Removed `craft\commerce\models\TaxAddressZone::getCountries()`
+- Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`
+- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
+- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
+- Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
+- Removed `craft\commerce\models\TaxAddressZone::getStates()`
+- Removed `craft\commerce\models\TaxAddressZone::getStatesNames()`
+- Removed `craft\commerce\models\TaxAddressZone::isCountryBased`
 - Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
+- Removed `craft\commerce\records\Discount::CONDITION_USER_GROUPS_ANY_OR_NONE`. Discount user groups were migrated to the customer condition rule.
+- Removed `craft\commerce\records\Discount::CONDITION_USER_GROUPS_EXCLUDE`. Discount user groups were migrated to the customer condition rule.
+- Removed `craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ALL`. Discount user groups were migrated to the customer condition rule.
+- Removed `craft\commerce\records\Discount::CONDITION_USER_GROUPS_INCLUDE_ANY`. Discount user groups were migrated to the customer condition rule.
+- Removed `craft\commerce\records\DiscountUserGroup`.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
@@ -160,13 +165,11 @@
 - Removed `craft\commerce\records\TaxZoneState`.
 - Removed `craft\commerce\services\Addresses`.
 - Removed `craft\commerce\services\Countries`.
-- Removed `craft\commerce\services\States`.
+- Removed `craft\commerce\services\Customers::deleteCustomer()`.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`.  Use `Element::EVENT_AFTER_SAVE`, checking for `$event->sender->ownerId` to determine the user address being saved.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
-- Removed `craft\commerce\services\Customers::SESSION_CUSTOMER`.
-- Removed `craft\commerce\services\Customers::deleteCustomer()`.
 - Removed `craft\commerce\services\Customers::forgetCustomer()`.
 - Removed `craft\commerce\services\Customers::getAddressIds()`. Use `ArrayHelper::getColumn($user->getAddresses(), 'id')` instead.
 - Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
@@ -176,18 +179,25 @@
 - Removed `craft\commerce\services\Customers::saveAddress()`. Use `Craft::$app->getElements()->saveElement()` instead.
 - Removed `craft\commerce\services\Customers::saveCustomer()`.
 - Removed `craft\commerce\services\Customers::saveUserHandler()`.
+- Removed `craft\commerce\services\Customers::SESSION_CUSTOMER`.
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
 - Removed `craft\commerce\services\Discounts::getCustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
 - Removed `craft\commerce\services\States`.
-- Removed direct `moneyphp/money` dependency.
+- Removed `craft\commerce\services\States`.
+- Removed `craft\commercetests\fixtures\AddressesFixture`.
+- Removed `craft\commercetests\unit\models\StateTest`.
+- Removed `craft\commercetests\unit\services\CountriesTest`.
 
 ### Removed (Previously Deprecated)
-- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed `json_encode_filtered` twig filter.
+- Removed the `orderPdfFilenameFormat` setting.
+- Removed the `orderPdfPath` setting.
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
-- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\base\CustomersController`.
 - Removed `craft\commerce\base\OrderDeprecatedTrait`.
+- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
 - Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions()` instead.
 - Removed `craft\commerce\elements\Order::getOrderLocale()` has been deprecated. Use `Order::orderLanguage` instead.
@@ -195,14 +205,13 @@
 - Removed `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\Order::getTotalTaxablePrice()`. Taxable price is now calculated within the tax adjuster.
 - Removed `craft\commerce\elements\Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
-- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
-- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\traits\OrderDeprecatedTrait`.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Email::getPdfTemplatePath()`. Use `craft\commerce\models\Email::getPdf()->getTemplatePath()` instead.
 - Removed `craft\commerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
+- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders`.
 - Removed `craft\commerce\services\Customers::consolidateOrdersToUser()`.
 - Removed `craft\commerce\services\Customers::getCustomer()`.
@@ -218,9 +227,7 @@
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
-- Removed `json_encode_filtered` twig filter.
-- Removed the `orderPdfFilenameFormat` setting.
-- Removed the `orderPdfPath` setting.
+- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
 
 ### Fixed
 
