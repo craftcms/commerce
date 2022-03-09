@@ -144,6 +144,7 @@ class Store extends Model
      */
     public function setCountries(mixed $countries): void
     {
+        $countries = $countries ?? [];
         $countries = Json::decodeIfJson($countries);
         $this->_countries = $countries;
     }
