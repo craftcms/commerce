@@ -344,7 +344,7 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            
+
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => $this->_registerProductTypePermission() + [
@@ -385,7 +385,7 @@ class Plugin extends BasePlugin
         $productTypePermissions = [];
         foreach ($productTypes as $productType) {
             $suffix = ':' . $productType->uid;
-            
+
             $productTypePermissions['commerce-editProductType' . $suffix] = [
                 'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
                 'nested' => [
@@ -796,14 +796,6 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand(): void
     {
-
-        if (
-            !Craft::$app instanceof ConsoleApplication ||
-            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
-        ) {
-            return;
-        }
-
         Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
                 'action' => function(): int {
