@@ -48,12 +48,7 @@
       </h4>
       {% if cart.shippingAddress %}
         <div class="js-address-select border-0">
-          {{ include('[[folderName]]/_private/address/address', {
-            address: cart.shippingAddress,
-            ignoreKeys: ['label'],
-            boldKeys: [],
-            asLines: false
-          }) }}
+          {{ craft.app.addresses.formatAddress(cart.shippingAddress)|raw }}
         </div>
       {% else %}
         <p>{{ 'No shipping address selected.'|t }}</p>

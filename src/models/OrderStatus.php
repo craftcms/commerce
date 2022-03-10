@@ -34,7 +34,7 @@ use yii\base\InvalidConfigException;
 class OrderStatus extends Model
 {
     use SoftDeleteTrait {
-        behaviors as softDeleteBehaviors;
+        SoftDeleteTrait::behaviors as softDeleteBehaviors;
     }
 
     /**
@@ -104,7 +104,7 @@ class OrderStatus extends Model
             return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
         }
 
-        return $this->name;
+        return $this->name ?? '';
     }
 
     protected function defineRules(): array
@@ -115,9 +115,22 @@ class OrderStatus extends Model
             [
                 ['handle'],
                 HandleValidator::class,
-                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new'],
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'emails';
+        $fields[] = 'emailIds';
+        $fields[] = 'labelHtml';
+
+        return $fields;
     }
 
     public function getCpEditUrl(): string

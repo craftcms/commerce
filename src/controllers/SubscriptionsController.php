@@ -43,18 +43,6 @@ class SubscriptionsController extends BaseController
         return $this->renderTemplate('commerce/subscriptions/_index');
     }
 
-
-    /**
-     * @throws ForbiddenHttpException
-     * @since 3.4.8
-     */
-    protected function enforceEditSubscriptionPermissions(Subscription $subscription): void
-    {
-        if (!$subscription->getIsEditable()){
-            throw new ForbiddenHttpException('User is not permitted to edit this subscription');
-        }
-    }
-
     /**
      * @param int|null $subscriptionId
      * @param Subscription|null $subscription
@@ -64,7 +52,7 @@ class SubscriptionsController extends BaseController
     public function actionEdit(int $subscriptionId = null, Subscription $subscription = null): Response
     {
         $variables = [];
-        $this->requirePermission('commerce-manageSubscriptions');
+
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         if ($subscription === null && $subscriptionId) {
@@ -75,7 +63,7 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException(Craft::t('commerce', 'Subscription not found'));
         }
 
-        $this->enforceEditSubscriptionPermissions($subscription);
+        $this->enforceManageSubscriptionPermissions($subscription);
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
@@ -126,7 +114,6 @@ class SubscriptionsController extends BaseController
     public function actionSave(): ?Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('commerce-manageSubscriptions');
 
         $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
@@ -134,7 +121,7 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
-        $this->enforceEditSubscriptionPermissions($subscription);
+        $this->enforceManageSubscriptionPermissions($subscription);
 
         $subscription->setFieldValuesFromRequest('fields');
 
@@ -169,8 +156,6 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
-        $this->enforceEditSubscriptionPermissions($subscription);
-
         $gateway = $subscription->getGateway();
         $gateway->refreshPaymentHistory($subscription);
 
@@ -199,6 +184,7 @@ class SubscriptionsController extends BaseController
         }
 
         $error = null;
+        $subscription = null;
 
         try {
             /** @var SubscriptionGateway $gateway */
@@ -238,7 +224,7 @@ class SubscriptionsController extends BaseController
             $error = $exception->getMessage();
         }
 
-        if (!$error && $subscription->isSuspended && !$subscription->hasStarted) {
+        if (!$error && $subscription && $subscription->isSuspended && !$subscription->hasStarted) {
             $url = Plugin::getInstance()->getSettings()->updateBillingDetailsUrl;
 
             if (empty($url)) {
@@ -255,7 +241,7 @@ class SubscriptionsController extends BaseController
         return $this->asSuccess(
             Craft::t('commerce', 'Subscription started.'),
             data: [
-                'subscription' => $subscription,
+                'subscription' => $subscription ?? null,
             ]
         );
     }
@@ -323,7 +309,6 @@ class SubscriptionsController extends BaseController
         $planUid = $request->getValidatedBodyParam('planUid');
 
         $error = false;
-        $subscription = null;
 
         try {
             $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
@@ -357,7 +342,7 @@ class SubscriptionsController extends BaseController
                 $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $error = $this->setFailFlash($exception->getMessage());
+            return $this->asFailure($exception->getMessage());
         }
 
         if ($error) {
@@ -430,5 +415,16 @@ class SubscriptionsController extends BaseController
                 'subscription' => $subscription,
             ]
         );
+    }
+
+    /**
+     * @param Subscription $subscription
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceManageSubscriptionPermissions(Subscription $subscription)
+    {
+        if (!$subscription->canView(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to view this subscription.');
+        }
     }
 }

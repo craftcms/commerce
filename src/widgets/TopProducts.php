@@ -9,9 +9,11 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopProducts as TopProductsStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
 
@@ -137,7 +139,7 @@ class TopProducts extends Widget
      */
     public static function isSelectable(): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders') && Craft::$app->getUser()->checkPermission('commerce-manageProducts');
+        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
     /**
@@ -151,7 +153,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -159,7 +161,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -198,7 +200,7 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-products' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

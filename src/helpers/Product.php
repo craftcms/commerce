@@ -50,11 +50,11 @@ class Product
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
         $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
-        $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
-        $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
-        $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
-        $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
-        $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
+        $variantModel->width = isset($variant['width']) ? (int)LocalizationHelper::normalizeNumber($variant['width']) : null;
+        $variantModel->height = isset($variant['height']) ? (int)LocalizationHelper::normalizeNumber($variant['height']) : null;
+        $variantModel->length = isset($variant['length']) ? (int)LocalizationHelper::normalizeNumber($variant['length']) : null;
+        $variantModel->weight = isset($variant['weight']) ? (int)LocalizationHelper::normalizeNumber($variant['weight']) : null;
+        $variantModel->stock = isset($variant['stock']) ? (int)LocalizationHelper::normalizeNumber($variant['stock']) : null;
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
         $variantModel->minQty = (int)LocalizationHelper::normalizeNumber($variant['minQty']);
         $variantModel->maxQty = (int)LocalizationHelper::normalizeNumber($variant['maxQty']);

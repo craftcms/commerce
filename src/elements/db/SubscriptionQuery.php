@@ -185,7 +185,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->userId = (new Query())
                 ->select(['id'])
                 ->from(['{{%users}}'])
@@ -232,7 +232,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
                 ->from([Table::PLANS])
@@ -695,7 +695,7 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value): self
+    public function status($value): \craft\elements\db\ElementQuery
     {
         return parent::status($value);
     }
@@ -790,7 +790,7 @@ class SubscriptionQuery extends ElementQuery
 
         if (isset($this->onTrial) && $this->onTrial === true) {
             $this->subQuery->andWhere($this->_getTrialCondition(true));
-        } else if (isset($this->onTrial) && $this->onTrial === false) {
+        } elseif (isset($this->onTrial) && $this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 
@@ -800,7 +800,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
         return match ($status) {
             Subscription::STATUS_ACTIVE => [
@@ -817,7 +817,7 @@ class SubscriptionQuery extends ElementQuery
      * @inheritdoc
      * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
-    public function anyStatus(): SubscriptionQuery
+    public function anyStatus(): \craft\elements\db\ElementQuery
     {
         unset($this->isSuspended, $this->hasStarted);
         return parent::anyStatus();

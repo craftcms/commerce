@@ -13,10 +13,12 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -70,9 +72,9 @@ class CartController extends BaseFrontEndController
 
         $this->_cart = $this->_getCart();
 
-        return $this->asSuccess(
-            data: [$this->_cartVariable => $this->cartArray($this->_cart)]
-        );
+        return $this->asSuccess(data: [
+            $this->_cartVariable => $this->cartArray($this->_cart),
+        ]);
     }
 
     /**
@@ -198,8 +200,10 @@ class CartController extends BaseFrontEndController
         $this->_setAddresses();
 
         // Set guest email address onto guest customers order.
-        if (!$this->_cart->getUser() && $email = $this->request->getParam('email')) {
-            $this->_cart->setEmail($email);
+        if ($email = $this->request->getParam('email')) {
+            if ($this->_cart->getEmail() === null) {
+                $this->_cart->setEmail($email);
+            }
         }
 
         // Set if the customer should be registered on order completion
@@ -232,9 +236,9 @@ class CartController extends BaseFrontEndController
         if (($paymentSourceId = $this->request->getParam('paymentSourceId')) !== null) {
             if ($paymentSourceId && $paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
-                $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
-                $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
-                $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $this->_currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
+                $cartCustomerId = $this->_cart->getCustomer() ? $this->_cart->getCustomer()->id : null;
+                $paymentSourceCustomerId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
+                $allowedToUsePaymentSource = ($cartCustomerId && $paymentSourceCustomerId && $this->_currentUser && $isSiteRequest && ($paymentSourceCustomerId == $cartCustomerId));
                 if ($allowedToUsePaymentSource) {
                     $this->_cart->setPaymentSource($paymentSource);
                 }
@@ -285,8 +289,6 @@ class CartController extends BaseFrontEndController
             $this->setFailFlash($error);
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
-
-        $cartCustomer = $cart->getCustomer();
 
         $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
@@ -487,55 +489,89 @@ class CartController extends BaseFrontEndController
      */
     private function _setAddresses(): void
     {
-        // Address updating
-
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        // Copy address options
         $shippingIsBilling = $this->request->getParam('shippingAddressSameAsBilling');
         $billingIsShipping = $this->request->getParam('billingAddressSameAsShipping');
         $estimatedBillingIsShipping = $this->request->getParam('estimatedBillingAddressSameAsShipping');
+
         $shippingAddress = $this->request->getParam('shippingAddress');
         $estimatedShippingAddress = $this->request->getParam('estimatedShippingAddress');
         $billingAddress = $this->request->getParam('billingAddress');
         $estimatedBillingAddress = $this->request->getParam('estimatedBillingAddress');
 
-        // Override billing address with a particular ID
+
+        // Use an address ID from the customer address book to populate the address
         $shippingAddressId = $this->request->getParam('shippingAddressId');
         $billingAddressId = $this->request->getParam('billingAddressId');
 
         // Shipping address
         if ($shippingAddressId && !$shippingIsBilling) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
-
-            $this->_cart->setShippingAddress($address);
-        } else if ($shippingAddress && !$shippingIsBilling) {
+            /** @var Address $userShippingAddress */
+            $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
+            if ($userShippingAddress) {
+                $this->_cart->sourceShippingAddressId = $shippingAddressId;
+                // If there is already a shipping address on the order, populate it
+                if ($this->_cart->shippingAddressId) {
+                    // only set it if it's a different ID
+                    if (($this->_cart->shippingAddressId !== $shippingAddressId) && $currentShippingAddress = $this->_cart->getShippingAddress()) {
+                        $currentShippingAddress->setAttributes($userShippingAddress->attributes());
+                        // TODO update custom fields
+                        $this->_cart->setShippingAddress($userShippingAddress);
+                    }
+                } else {
+                    /** @var Address $userShippingAddress */
+                    $userShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
+                    $this->_cart->setShippingAddress($userShippingAddress);
+                }
+            }
+        } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->setShippingAddress($shippingAddress);
         }
 
         // Billing address
         if ($billingAddressId && !$billingIsShipping) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
-
-            $this->_cart->setBillingAddress($address);
-        } else if ($billingAddress && !$billingIsShipping) {
+            /** @var Address $userBillingAddress */
+            $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
+            if ($userBillingAddress) {
+                $this->_cart->sourceBillingAddressId = $billingAddressId;
+                // If there is already a billing address on the order, populate it
+                if ($this->_cart->billingAddressId) {
+                    // only set it if it's a different ID
+                    if (($this->_cart->billingAddressId !== $billingAddressId) && $currentBillingAddress = $this->_cart->getBillingAddress()) {
+                        $currentBillingAddress->setAttributes($userBillingAddress->attributes());
+                        // TODO update custom fields
+                        $this->_cart->setBillingAddress($userBillingAddress);
+                    }
+                } else {
+                    /** @var Address $userBillingAddress */
+                    $userBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
+                    $this->_cart->setBillingAddress($userBillingAddress);
+                }
+            }
+        } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->setBillingAddress($billingAddress);
         }
 
         // Estimated Shipping Address
         if ($estimatedShippingAddress) {
             if ($this->_cart->estimatedShippingAddressId) {
-                $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->estimatedShippingAddressId);
-                $address->setAttributes($estimatedShippingAddress, false);
-                $estimatedShippingAddress = $address;
+                if ($address = Address::findOne($this->_cart->estimatedShippingAddressId)) {
+                    $address->setAttributes($estimatedShippingAddress);
+                    $estimatedShippingAddress = $address;
+                }
             }
 
             $this->_cart->setEstimatedShippingAddress($estimatedShippingAddress);
         }
 
         // Estimated Billing Address
-        if ($estimatedBillingAddress && !$estimatedBillingIsShipping) {
-            if ($this->_cart->estimatedBillingAddressId && ($this->_cart->estimatedBillingAddressId != $this->_cart->estimatedShippingAddressId)) {
-                $address = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->estimatedBillingAddressId);
-                $address->setAttributes($estimatedBillingAddress, false);
-                $estimatedBillingAddress = $address;
+        if ($estimatedBillingAddress) {
+            if ($this->_cart->estimatedBillingAddressId) {
+                if ($address = Address::findOne($this->_cart->estimatedBillingAddressId)) {
+                    $address->setAttributes($estimatedBillingAddress);
+                    $estimatedBillingAddress = $address;
+                }
             }
 
             $this->_cart->setEstimatedBillingAddress($estimatedBillingAddress);

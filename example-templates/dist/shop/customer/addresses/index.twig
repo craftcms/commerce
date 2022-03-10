@@ -4,12 +4,10 @@
   {% exit 404 %}
 {% endif %}
 
-{# @var customer \craft\commerce\models\Customer #}
-{% set customer = craft.commerce.customers.customer %}
 {# @var primaryBillingAddress \craft\commerce\models\Address #}
-{% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
+{% set primaryBillingAddress = currentUser.getPrimaryBillingAddress() %}
 {# @var primaryShippingAddress \craft\commerce\models\Address #}
-{% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
+{% set primaryShippingAddress = currentUser.getPrimaryShippingAddress() %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
@@ -25,13 +23,11 @@
     </a>
   </div>
 
-  {% if customer.addresses|length %}
+  {% if currentUser.addresses|length %}
     <div class="grid mt-10 gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {% for address in customer.addresses %}
+      {% for address in currentUser.addresses %}
         <div class="relative bg-gray-50 rounded p-2">
-          {{ include('shop/_private/address/address', {
-            address: address
-          }) }}
+          {{ craft.app.addresses.formatAddress(address)|raw }}
           <div>
             {% if primaryBillingAddress and primaryBillingAddress.id == address.id %}
               <span role="img" aria-label="Check Mark">✅</span> {{ 'Primary Billing'|t }}
@@ -54,8 +50,9 @@
             <div>
               <form method="post" action="">
                 {{ csrfInput() }}
-                {{ actionInput('commerce/customer-addresses/delete') }}
-                {{ hiddenInput('id', address.id) }}
+                {{ actionInput('elements/delete') }}
+                {{ redirectInput('shop/customer/addresses') }}
+                {{ hiddenInput('elementId', address.id) }}
                 {{ tag('button', {
                   type: 'submit',
                   class: 'cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',

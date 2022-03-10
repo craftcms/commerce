@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
@@ -61,6 +62,8 @@ class OrderStatusesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
@@ -118,11 +121,11 @@ class OrderStatusesController extends BaseAdminController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -136,10 +139,10 @@ class OrderStatusesController extends BaseAdminController
 
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
+        return $this->asSuccess();
     }
 }

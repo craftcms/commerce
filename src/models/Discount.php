@@ -9,15 +9,22 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
+use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
+use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount model
@@ -26,8 +33,11 @@ use DateTime;
  * @property-read string $percentDiscountAsPercent
  * @property array $categoryIds
  * @property array $purchasableIds
- * @property-read array $userGroupsConditions
- * @property array $userGroupIds
+ * @property array|Coupon[] $coupons
+ * @property string|array|ElementConditionInterface $orderCondition
+ * @property string|array|ElementConditionInterface $shippingAddressCondition
+ * @property string|array|ElementConditionInterface $billingAddressCondition
+ * @property string|array|ElementConditionInterface $customerCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -49,9 +59,38 @@ class Discount extends Model
     public ?string $description = null;
 
     /**
-     * @var string|null Coupon Code
+     * @var string Format coupons should be generated with
+     * @since 4.0
      */
-    public ?string $code = null;
+    public string $couponFormat = Coupons::DEFAULT_COUPON_FORMAT;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getOrderCondition()
+     * @see setOrderCondition()
+     */
+    public null|ElementConditionInterface $_orderCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getCustomerCondition()
+     * @see setCustomerCondition()
+     */
+    public null|ElementConditionInterface $_customerCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getShippingAddressCondition()
+     * @see setShippingAddressCondition()
+     */
+    public null|ElementConditionInterface $_shippingAddressCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getBillingAddressCondition()
+     * @see setBillingAddressCondition()
+     */
+    public null|ElementConditionInterface $_billingAddressCondition = null;
 
     /**
      * @var int Per user coupon use limit
@@ -64,7 +103,7 @@ class Discount extends Model
     public int $perEmailLimit = 0;
 
     /**
-     * @var int Total use limit by guests or users
+     * @var int Total use limit by users
      * @since 3.0
      */
     public int $totalDiscountUseLimit = 0;
@@ -146,12 +185,6 @@ class Discount extends Model
     public bool $hasFreeShippingForOrder = false;
 
     /**
-     * @var string Type of user group condition that should match the discount.
-     * @see getUserConditions()
-     */
-    public ?string $userGroupsCondition = null;
-
-    /**
      * @var bool Match all products
      */
     public bool $allPurchasables = false;
@@ -197,9 +230,9 @@ class Discount extends Model
     public bool $ignoreSales = true;
 
     /**
-     * @var bool What the per item amount and per item percentage off amounts can apply to
+     * @var string What the per item amount and per item percentage off amounts can apply to
      */
-    public $appliedTo = DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
+    public string $appliedTo = DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
 
     /**
      * @var int[] Product Ids
@@ -212,9 +245,18 @@ class Discount extends Model
     private array $_categoryIds;
 
     /**
-     * @var int[] Group IDs
+     * @inheritdoc
      */
-    private array $_userGroupIds;
+    public function init(): void
+    {
+        parent::init();
+    }
+
+    /**
+     * @var Coupon[]|null
+     * @since 4.0
+     */
+    private ?array $_coupons = null;
 
     /**
      * @inheritdoc
@@ -228,9 +270,150 @@ class Discount extends Model
         return $attributes;
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+        $fields[] = 'categoryIds';
+        $fields[] = 'userGroupIds';
+        $fields[] = 'percentDiscountAsPercent';
+        $fields[] = 'userGroupsConditions';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getOrderCondition(): ElementConditionInterface
+    {
+        $condition = $this->_orderCondition ?? new DiscountOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setOrderCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountOrderCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getCustomerCondition(): ElementConditionInterface
+    {
+        $condition = $this->_customerCondition ?? new DiscountCustomerCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountCustomerCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getShippingAddressCondition(): ElementConditionInterface
+    {
+        $condition = $this->_shippingAddressCondition ?? new DiscountAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->id = 'shippingAddressCondition';
+        $condition->name = 'shippingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountAddressCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_shippingAddressCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getBillingAddressCondition(): ElementConditionInterface
+    {
+        $condition = $this->_shippingAddressCondition ?? new DiscountAddressCondition();
+        $condition->mainTag = 'div';
+        $condition->id = 'billingAddressCondition';
+        $condition->name = 'billingAddressCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     */
+    public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = DiscountAddressCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_billingAddressCondition = $condition;
     }
 
     /**
@@ -258,18 +441,6 @@ class Discount extends Model
     }
 
     /**
-     * @return int[]
-     */
-    public function getUserGroupIds(): array
-    {
-        if (!isset($this->_userGroupIds)) {
-            $this->_loadUserGroupRelations();
-        }
-
-        return $this->_userGroupIds;
-    }
-
-    /**
      * Sets the related product type ids
      *
      * @param int[] $categoryIds
@@ -289,16 +460,6 @@ class Discount extends Model
         $this->_purchasableIds = array_unique($purchasableIds);
     }
 
-    /**
-     * Sets the related user group ids
-     *
-     * @param int[] $userGroupIds
-     */
-    public function setUserGroupIds(array $userGroupIds): void
-    {
-        $this->_userGroupIds = array_unique($userGroupIds);
-    }
-
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
@@ -309,19 +470,30 @@ class Discount extends Model
         return $this->hasFreeShippingForMatchingItems;
     }
 
+    /**
+     * @return array|Coupon[]
+     * @throws InvalidConfigException
+     */
+    public function getCoupons(): array
+    {
+        if ($this->_coupons === null && $this->id) {
+            $this->_coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($this->id);
+        }
+
+        return $this->_coupons ?? [];
+    }
+
+    /**
+     * @param array $coupons
+     */
+    public function setCoupons(array $coupons): void
+    {
+        $this->_coupons = $coupons;
+    }
+
     public function getPercentDiscountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
-    }
-
-    public function getUserGroupsConditions(): array
-    {
-        return [
-            DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
-            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
-            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
-            DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:'),
-        ];
     }
 
     /**
@@ -330,14 +502,13 @@ class Discount extends Model
     protected function defineRules(): array
     {
         return [
-            [['name'], 'required'],
+            [['name', 'couponFormat'], 'required'],
             [
                 [
                     'perUserLimit',
                     'perEmailLimit',
                     'totalDiscountUseLimit',
                     'totalDiscountUses',
-                    'purchaseTotal',
                     'purchaseQty',
                     'maxPurchaseQty',
                     'baseDiscount',
@@ -345,7 +516,8 @@ class Discount extends Model
                     'percentDiscount',
                 ], 'number', 'skipOnEmpty' => false,
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [['coupons'], CouponsValidator::class, 'skipOnEmpty' => true],
+            [['couponFormat'], 'string', 'length' => [1, 20]],
             [
                 ['categoryRelationshipType'],
                 'in', 'range' => [
@@ -362,7 +534,6 @@ class Discount extends Model
                     DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS,
                 ],
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
             [
                 'hasFreeShippingForOrder',
                 function($attribute, $params, $validator) {
@@ -416,19 +587,5 @@ class Discount extends Model
             ->column();
 
         $this->setCategoryIds($categoryIds);
-    }
-
-    /**
-     * Loads the related user group IDs into this discount
-     */
-    private function _loadUserGroupRelations(): void
-    {
-        $userGroupIds = (new Query())->select(['dug.userGroupId'])
-            ->from(Table::DISCOUNTS . ' discounts')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-            ->where(['discounts.id' => $this->id])
-            ->column();
-
-        $this->setUserGroupIds($userGroupIds);
     }
 }

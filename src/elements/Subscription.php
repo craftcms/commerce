@@ -24,7 +24,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -45,6 +44,7 @@ use yii\base\InvalidConfigException;
  * @property User $subscriber
  * @property string $eagerLoadedElements
  * @property DateTime $trialExpires datetime of trial expiry
+ * @property array $subscriptionData
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @since 2.0
@@ -202,21 +202,9 @@ class Subscription extends Element
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
+    public function canView(User $user): bool
     {
-        $user = Craft::$app->getUser()->getIdentity();
-
-        if (!$user) {
-            return false;
-        }
-
-        return (
-            ($this->userId && $this->userId == $user->id) ||
-            $user->can('commerce-manageSubscriptions')
-        );
+        return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
 
     /**
@@ -232,7 +220,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -373,7 +361,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }
@@ -497,7 +485,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 

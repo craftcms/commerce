@@ -246,6 +246,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRuleCategories';
+        $fields[] = 'shippingZone';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getIsEnabled(): bool
     {
         return $this->enabled;
@@ -316,7 +328,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         /** @var ShippingAddressZone $shippingZone */
-        if ($shippingZone && !Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
+        if ($shippingZone && !$shippingZone->getCondition()->matchElement($shippingAddress)) {
             return false;
         }
 

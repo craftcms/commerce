@@ -7,8 +7,9 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
-use craft\commerce\Plugin;
+use craft\db\Table;
 use yii\db\Expression;
 
 /**
@@ -49,16 +50,17 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $topCustomers = $this->_createStatQuery()
             ->select([
                 'average' => new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4)'),
                 'count' => new Expression('COUNT([[orders.id]])'),
                 'customerId',
-                'email' => '[[orders.email]]',
                 'total' => new Expression('SUM([[total]])'),
+                'users.email',
             ])
+            ->innerJoin(Table::USERS . ' users', '[[orders.customerId]] = [[users.id]]')
             ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
@@ -85,12 +87,7 @@ class TopCustomers extends Stat
     public function prepareData($data)
     {
         foreach ($data as &$topCustomer) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
-            $topCustomer['customer'] = $customer;
-
-            if ($customer && $user = $customer->getUser()) {
-                $topCustomer['email'] = $user->email;
-            }
+            $topCustomer['customer'] = Craft::$app->getUsers()->getUserById($topCustomer['customerId']);
         }
 
         return $data;

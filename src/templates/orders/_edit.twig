@@ -8,7 +8,6 @@
     { label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
-
 {% do view.registerTranslations('commerce', [
     "A valid email is required to create a customer.",
     "Actions",
@@ -207,9 +206,6 @@
 {% endblock %}
 
 {% js %}
-    window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
-    window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
-
     $(document).ready(function () {
         {% if paymentForm is defined and paymentForm %}
             new Craft.Commerce.OrderEdit({

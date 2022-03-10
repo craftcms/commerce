@@ -19,7 +19,6 @@ use yii\base\Event;
  */
 trait Routes
 {
-
     /**
      * @since 3.1.10
      */
@@ -58,7 +57,7 @@ trait Routes
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
 
-            $event->rules['commerce/orders/create-new'] = 'commerce/orders/new-order';
+            $event->rules['commerce/orders/create'] = 'commerce/orders/create';
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
@@ -90,7 +89,7 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
+            $event->rules['commerce/store-settings/store'] = 'commerce/store/edit';
 
             $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
             $event->rules['commerce/store-settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
@@ -151,11 +150,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
-
-            // Customers
-            $event->rules['commerce/customers'] = 'commerce/customers/index';
-            $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });
     }
 }
-

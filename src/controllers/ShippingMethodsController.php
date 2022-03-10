@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -64,6 +65,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
+
         $variables['shippingRules'] = $variables['shippingMethod']->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
             : [];
@@ -104,11 +107,11 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -140,5 +143,4 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
     }
-
 }

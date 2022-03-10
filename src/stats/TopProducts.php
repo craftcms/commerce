@@ -25,35 +25,37 @@ class TopProducts extends Stat
 {
     /**
      * Stat returned based on quantity.
+     *
      * @since 3.4
      */
-    const TYPE_QTY = 'qty';
+    public const TYPE_QTY = 'qty';
 
     /**
      * Stat returned based on revenue.
+     *
      * @since 3.4
      */
-    const TYPE_REVENUE = 'revenue';
+    public const TYPE_REVENUE = 'revenue';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_DISCOUNT = 'discount';
+    public const REVENUE_OPTION_DISCOUNT = 'discount';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX = 'tax';
+    public const REVENUE_OPTION_TAX = 'tax';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
+    public const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_SHIPPING = 'shipping';
+    public const REVENUE_OPTION_SHIPPING = 'shipping';
 
     /**
      * @inheritdoc
@@ -121,7 +123,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
 
@@ -139,6 +141,8 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
             ->leftJoin(CraftTable::CONTENT . ' content', [
                 'and',
                 '[[content.elementId]] = [[v.productId]]',

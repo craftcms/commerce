@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
@@ -41,6 +42,8 @@ class PlansController extends BaseStoreSettingsController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+        
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
@@ -64,9 +67,11 @@ class PlansController extends BaseStoreSettingsController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
+            DebugPanel::prependOrAppendModelTab(model: $variables['plan'], prepend: true);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
+
 
         $variables['entryElementType'] = Entry::class;
 
@@ -89,6 +94,8 @@ class PlansController extends BaseStoreSettingsController
      */
     public function actionSavePlan(): void
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+        
         $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
@@ -112,7 +119,7 @@ class PlansController extends BaseStoreSettingsController
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
-
+        
         if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }
@@ -150,6 +157,8 @@ class PlansController extends BaseStoreSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
+        $this->requirePermission('commerce-manageSubscriptions');
+
         $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         try {
@@ -174,6 +183,6 @@ class PlansController extends BaseStoreSettingsController
 
         return $success ?
             $this->asSuccess() :
-            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'))
+            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'));
     }
 }

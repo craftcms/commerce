@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\Exception;
@@ -89,6 +90,9 @@ class GatewaysController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new gateway');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['gateway'], prepend: true);
+
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }
 
@@ -156,14 +160,13 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        if ($id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
-            if (Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
-                return $this->asSuccess();
-            }
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+
+        if (!$id || !Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
         }
 
-
-        return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -175,10 +178,11 @@ class GatewaysController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
-            return $this->asSuccess();
+
+        if (!Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));
+        return $this->asSuccess();
     }
 }

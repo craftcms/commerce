@@ -7,7 +7,6 @@
 
 namespace craft\commerce\web\assets\commerceui;
 
-use Craft;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;

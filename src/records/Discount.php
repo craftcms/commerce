@@ -21,7 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allPurchasables
  * @property float $baseDiscount
  * @property string $baseDiscountType
- * @property string $code
+ * @property string $couponFormat
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description
@@ -41,7 +41,10 @@ use yii\db\ActiveQueryInterface;
  * @property float $perItemDiscount
  * @property int $perUserLimit
  * @property int $purchaseQty
- * @property int $purchaseTotal
+ * @property string|null $orderCondition
+ * @property string|null $customerCondition
+ * @property string|null $shippingAddressCondition
+ * @property string|null $billingAddressCondition
  * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing
@@ -49,7 +52,6 @@ use yii\db\ActiveQueryInterface;
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses
  * @property string $categoryRelationshipType
- * @property string $userGroupsCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -71,22 +73,12 @@ class Discount extends ActiveRecord
     const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
     const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
-    const CONDITION_USER_GROUPS_ANY_OR_NONE = 'userGroupsAnyOrNone';
-    const CONDITION_USER_GROUPS_INCLUDE_ALL = 'userGroupsIncludeAll';
-    const CONDITION_USER_GROUPS_INCLUDE_ANY = 'userGroupsIncludeAny';
-    const CONDITION_USER_GROUPS_EXCLUDE = 'userGroupsExcludeAny';
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
         return Table::DISCOUNTS;
-    }
-
-    public function getDiscountUserGroups(): ActiveQueryInterface
-    {
-        return $this->hasMany(DiscountUserGroup::class, ['discountId' => 'id']);
     }
 
     /**

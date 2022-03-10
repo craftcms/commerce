@@ -412,7 +412,7 @@ abstract class Stat implements StatInterface
             $this->_endDate->setTime(23, 59, 59);
         }
 
-        return (new Query)
+        return (new Query())
             ->from(Table::ORDERS . ' orders')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
             ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
@@ -425,7 +425,7 @@ abstract class Stat implements StatInterface
      * @param null|Query $query
      * @throws \Exception
      */
-    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null): ?array
+    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], ?Query $query = null): ?array
     {
         // Allow the passing in of a custom query in case we need to add extra logic
         $query = $query ?: $this->_createStatQuery();

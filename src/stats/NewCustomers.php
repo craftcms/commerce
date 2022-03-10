@@ -26,7 +26,7 @@ class NewCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): string|int|bool|null
     {
         $query = $this->_createStatQuery();
         $query->select([new Expression('COUNT(DISTINCT [[customerId]]) as newCustomers')]);

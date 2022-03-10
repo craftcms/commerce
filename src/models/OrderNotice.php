@@ -11,7 +11,6 @@ use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order notice model.

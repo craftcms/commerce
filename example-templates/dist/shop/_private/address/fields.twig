@@ -1,0 +1,177 @@
+<!-- Template: {{ _self }}.twig -->
+{#
+Outputs address form fields for editing an address.
+#}
+{# @var address \craft\elements\Address #}
+
+{# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
+{% macro displayErrors(address, fieldName) %}
+  {% if address and address.getErrors(fieldName) %}
+    <div class="text-red-700">{{ address.getErrors(fieldName)|join }}</div>
+  {% endif %}
+{% endmacro %}
+
+<div class="">
+  {# First and last name fields #}
+  <div class="my-2">
+    <label for="title">
+      {{- 'Address Label (Work, School, etc)'|t -}}
+    </label>
+    {{ input('text', 'title', address ? address.title : '', {
+      id: 'title',
+      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+    }) }}
+    {{ _self.displayErrors(address, 'title') }}
+  </div>
+
+  <div class="my-2">
+      <label for="fullName">
+        {{- 'Full Name'|t -}}
+      </label>
+      {{ input('text', 'fullName', address.fullName ?? '', {
+        id: 'fullName',
+        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      }) }}
+      {{ _self.displayErrors(address, 'fullName') }}
+  </div>
+
+  {% set countries = craft.commerce.store.store.getCountriesList() %}
+  {% set countryCode = address.countryCode ?? null %}
+  
+  <div class="my-2">
+    <label for="countryCode">
+      {{- 'Country'|t }} *
+    </label>
+    {% tag 'select' with {
+      id: 'countryCode',
+      name: 'countryCode',
+      class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded', countries|length == 0 ? 'hidden' : ''],
+    } %}
+      {{ tag('option', {
+        value: '',
+        disabled: true,
+        selected: countryCode is empty,
+        text: 'Select country'|t ~ '...'
+      }) }}
+      {% for key, option in countries %}
+        {% set optionValue = (countryCode ?: '') %}
+        {{ tag('option', {
+          value: key,
+          selected: key == optionValue,
+          text: option
+        }) }}
+      {% endfor %}
+    {% endtag %}
+    {{ _self.displayErrors(address, 'countryCode') }}
+  </div>
+
+  <div class="my-2">
+    <label for="addressLine1">
+      {{- 'Address 1'|t -}}
+    </label>
+    {{ input('text', 'addressLine1', address.addressLine1 ?? '', {
+      id: 'addressLine1',
+      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+    }) }}
+    {{ _self.displayErrors(address, 'addressLine1') }}
+  </div>
+
+  <div class="my-2">
+    <label for="addressLine2">
+      {{- 'Address 2'|t -}}
+    </label>
+    {{ input('text', 'addressLine2', address ? address.addressLine2 : '', {
+      id: 'addressLine2',
+      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+    }) }}
+    {{ _self.displayErrors(address, 'addressLine2') }}
+  </div>
+
+  {# City, state, and postal code fields #}
+  <div class="md:flex md:-mx-4">
+    <div class="md:w-1/3 md:mx-4 my-2">
+      <label for="locality">
+        {{- 'City'|t -}}
+      </label>
+      {{ input('text', 'locality', address.locality ?? '', {
+        id: 'locality',
+        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      }) }}
+    </div>
+    <div class="md:w-1/3 md:mx-4 my-2">
+      <label for="state">
+        {{- 'State'|t -}}
+      </label>
+
+      {% set administrativeAreas = craft.app.addresses.getSubdivisionRepository.getList(['US']) %}
+
+      {% if administrativeAreas|length %}
+      {% tag 'select' with {
+        id: 'administrativeArea',
+        name: 'administrativeArea',
+        class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'],
+      } %}
+        {{ tag('option', {
+          value: '',
+          disabled: true,
+          selected: address.administrativeArea ?? false,
+          text: 'Select state'|t ~ '...'
+        }) }}
+        {% for key, option in administrativeAreas %}
+          {# @var option \craft\commerce\addresss\State #}
+          {% set optionValue = (address.administrativeArea ?? '') %}
+          {{ tag('option', {
+            value: key,
+            selected: key == optionValue,
+            text: option
+          }) }}
+        {% endfor %}
+      {% endtag %}
+      {% endif %}
+
+      {% if not administrativeAreas|length %}
+      {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
+        id: 'administrativeArea',
+        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      }) }}
+      {% endif %}
+      {{ _self.displayErrors(address, 'administrativeArea') }}
+    </div>
+
+    <div class="md:w-1/3 md:mx-4 my-2">
+      {% set zipCode = address.postalCode ?? '' %}
+      <label for="zipCode">
+        {{- 'Postal Code'|t -}}
+      </label>
+      {{ input('text', 'postalCode', address.postalCode ?? '', {
+        id: 'zipCode',
+        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      }) }}
+      {{ _self.displayErrors(address, 'postalCode') }}
+    </div>
+  </div>
+
+  <div class="my-2">
+    <label for="businessName">
+      {{- 'Organization'|t -}}
+    </label>
+    {{ input('text', 'organization', address ? address.organization : '', {
+      id: 'organization',
+      class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+    }) }}
+    {{ _self.displayErrors(address, 'organization') }}
+  </div>
+
+  <div class="md:flex md:-mx-4">
+    <div class="md:w-1/2 md:mx-4 my-2">
+      <label for="organizationTaxId">
+        {{- 'Organization Tax ID'|t -}}
+      </label>
+      {{ input('text', 'organizationTaxId', address ? address.organizationTaxId : '', {
+        id: 'organizationTaxId',
+        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+      }) }}
+      {{ _self.displayErrors(address, 'organizationTaxId') }}
+    </div>
+  </div>
+</div>

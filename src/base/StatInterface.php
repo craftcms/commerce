@@ -69,9 +69,9 @@ interface StatInterface
     public function get();
 
     /**
-     * @return array|null|false
+     * @return mixed
      */
-    public function getData();
+    public function getData(): mixed;
 
     /**
      * @return mixed

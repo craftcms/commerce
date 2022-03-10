@@ -11,17 +11,22 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
+use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\elements\Category;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -38,9 +43,9 @@ use function get_class;
  */
 class DiscountsController extends BaseCpController
 {
-    const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
-    const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+    public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
+    public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
+    public const DISCOUNT_COUNTER_TYPE_USER = 'user';
 
     /**
      * @inheritdoc
@@ -72,6 +77,12 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
 
@@ -90,8 +101,11 @@ class DiscountsController extends BaseCpController
             }
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['discount'], prepend: true);
+
         $this->_populateVariables($variables);
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $this->getView()->registerAssetBundle(CouponsAsset::class);
 
         return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
@@ -107,9 +121,20 @@ class DiscountsController extends BaseCpController
         $request = Craft::$app->getRequest();
 
         $discount->id = $request->getBodyParam('id');
+        
+        if ($discount->id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
+        $discount->setOrderCondition($request->getBodyParam('orderCondition'));
+        $discount->setCustomerCondition($request->getBodyParam('customerCondition'));
+        $discount->setShippingAddressCondition($request->getBodyParam('shippingAddressCondition'));
+        $discount->setBillingAddressCondition($request->getBodyParam('billingAddressCondition'));
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
@@ -118,7 +143,7 @@ class DiscountsController extends BaseCpController
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
-        $discount->code = trim($request->getBodyParam('code')) ?: null;
+        $discount->couponFormat = $request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalDiscountUseLimit = $request->getBodyParam('totalDiscountUseLimit');
@@ -127,7 +152,6 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
-        $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
 
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
@@ -136,8 +160,6 @@ class DiscountsController extends BaseCpController
         $perItemDiscount = $request->getBodyParam('perItemDiscount') ?: 0;
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
-
-        $discount->purchaseTotal = Localization::normalizeNumber($request->getBodyParam('purchaseTotal'));
 
         $date = $request->getBodyParam('dateFrom');
         if ($date) {
@@ -179,17 +201,11 @@ class DiscountsController extends BaseCpController
             $discount->setCategoryIds($categories);
         }
 
-        $groups = $request->getBodyParam('groups', []);
-
-        if ($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-            $groups = [];
-        }
-
-        $discount->setUserGroupIds($groups);
+        $coupons = $request->getBodyParam('coupons', null) ?: [];
+        $this->_setCouponsOnDiscount(coupons: $coupons, discount: $discount);
 
         // Save it
-        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
-        ) {
+        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
             $this->redirectToPostedUrl($discount);
         } else {
@@ -210,6 +226,38 @@ class DiscountsController extends BaseCpController
     }
 
     /**
+     * @param array $coupons
+     * @param Discount $discount
+     * @return void
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
+    private function _setCouponsOnDiscount(array $coupons, Discount $discount): void
+    {
+        if (empty($coupons)) {
+            return;
+        }
+
+        $discountCoupons = [];
+
+        foreach ($coupons as $c) {
+            $discountCoupons[] = Craft::createObject(Coupon::class, [
+                'config' => [
+                    'attributes' => [
+                        'id' => $c['id'] ?: null,
+                        'discountId' => null,
+                        'code' => $c['code'],
+                        'uses' => $c['uses'] ?: 0,
+                        'maxUses' => $c['maxUses'] ?: null,
+                    ]
+                ]
+            ]);
+        }
+
+        $discount->setCoupons($discountCoupons);
+    }
+
+    /**
      * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
@@ -218,11 +266,11 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -230,6 +278,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteDiscounts');
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
@@ -269,18 +318,18 @@ class DiscountsController extends BaseCpController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
-        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
+        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_USER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
         switch ($type) {
-            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
-                break;
             case self::DISCOUNT_COUNTER_TYPE_EMAIL:
                 Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
+                break;
+            case self::DISCOUNT_COUNTER_TYPE_USER:
+                Plugin::getInstance()->getDiscounts()->clearUserUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_TOTAL:
                 Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
@@ -294,11 +343,14 @@ class DiscountsController extends BaseCpController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editDiscounts');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
@@ -373,7 +425,7 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         foreach ($localizedNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
@@ -393,8 +445,8 @@ class DiscountsController extends BaseCpController
         }
 
         $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;
-        $variables['counterTypeCustomer'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
         $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
+        $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_USER;
 
         if ($variables['discount']->id) {
             $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
@@ -471,7 +523,7 @@ class DiscountsController extends BaseCpController
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
+                if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
                     $purchasableIds[] = $purchasableId;
@@ -504,5 +556,28 @@ class DiscountsController extends BaseCpController
                 'elementType' => $purchasableType,
             ];
         }
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
+     */
+    public function actionGenerateCoupons(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $count = (int)Craft::$app->getRequest()->getBodyParam('count', 0);
+        $format = Craft::$app->getRequest()->getBodyParam('format', Coupons::DEFAULT_COUPON_FORMAT);
+        $existingCodes = Craft::$app->getRequest()->getBodyParam('existingCodes', []);
+
+        try {
+            $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
+        } catch (\Exception $e) {
+            return $this->asFailure(message: Craft::t('commerce', 'Unable to generate coupon codes: {message}', ['message' => $e->getMessage()]));
+        }
+
+        return $this->asSuccess(data: ['coupons' => $coupons]);
     }
 }

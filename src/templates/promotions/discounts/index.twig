@@ -3,13 +3,13 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'Code',
     'Couldn’t reorder discounts.',
     'Delete',
     'Disabled',
     'Discounts reordered.',
     'Duration',
     'Enabled',
+    'Has Coupons?',
     'Ignore Sales?',
     'Name',
     'No discounts exist yet.',
@@ -21,12 +21,13 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% if currentUser.can('commerce-createDiscounts') %}
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 
 {% block content %}
-    <p>{{ 'Discounts are rules that modify the price of items within a cart.'|t('commerce') }}</p>
     <div id="discounts-vue-admin-table"></div>
 
     {% hook "cp.commerce.discounts.index" %}
@@ -47,7 +48,7 @@
         status: discount.enabled ? true : false,
         duration: dateRange,
         timesUsed: discount.totalDiscountUses,
-        handle: discount.code,
+        hasCoupons: discount.coupons|length ? true : false,
         ignore: discount.ignoreSales ? true : false,
         stop: discount.stopProcessing ? true : false,
     }]) %}
@@ -57,6 +58,7 @@
 
 {% js %}
     var actions = [
+    {% if currentUser.can('commerce-editDiscounts') %}
         {
             label: Craft.t('commerce', 'Set status'),
             actions: [
@@ -76,16 +78,27 @@
                 }
             ]
         },
+    {% endif %}
+    {% if currentUser.can('commerce-deleteDiscounts') %}
         {
             label: Craft.t('commerce', 'Delete'),
             action: 'commerce/discounts/delete',
             error: true,
         }
+    {% endif %}
     ];
 
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
+        { name: 'hasCoupons', title: Craft.t('commerce', 'Has Coupons?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
         { name: 'duration', title: Craft.t('commerce', 'Duration') },
         { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
         { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
@@ -112,8 +125,9 @@
         actions: actions,
         checkboxes: true,
         columns: columns,
+        fullPane: false,
         container: '#discounts-vue-admin-table',
-        deleteAction: 'commerce/discounts/delete',
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
         padded: true,
         reorderAction: 'commerce/discounts/reorder',

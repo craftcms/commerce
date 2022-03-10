@@ -26,7 +26,7 @@ class RepeatCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $total = (int)$this->_createStatQuery()
             ->select(['customerId'])
@@ -39,7 +39,7 @@ class RepeatCustomers extends Stat
             ->column();
 
 
-        $repeat = (int)count(array_filter($repeatRows, static function($row) {
+        $repeat = count(array_filter($repeatRows, static function($row) {
             return $row > 1;
         }));
 

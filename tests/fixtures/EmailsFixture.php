@@ -23,7 +23,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/emails.php';
+    public $dataFile = __DIR__ . '/data/emails.php';
 
     /**
      * @inheritdoc

@@ -57,7 +57,7 @@ class OrderHistories extends Component
      * );
      * ```
      */
-    const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
+    public const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
     /**
      * Get order history by its ID.
@@ -107,17 +107,22 @@ class OrderHistories extends Component
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
 
-        // TODO refactor the method by which we store and work out who changed the order history #COM-51
-        $customerId = $order->customerId;
+        // By default the user who changed the status is the same as the user who placed the order
+        $userId = $order->getCustomerId();
 
-        // Use to current customer's ID only if we aren't in a console request
-        // and we currently have an active session
-        if (!Craft::$app->request->isConsoleRequest && !Craft::$app->getResponse()->isSent && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())) {
-            $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
+        // If the user is logged in, use the current user
+        if (!Craft::$app->request->isConsoleRequest
+            && !Craft::$app->getResponse()->isSent
+            && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())
+            && $currentUser = Craft::$app->getUser()->getIdentity()
+        ) {
+            $userId = $currentUser->id;
         }
 
-        $orderHistoryModel->customerId = $customerId;
+        $user = Craft::$app->getUsers()->getUserById($userId);
 
+        $orderHistoryModel->userId = $userId;
+        $orderHistoryModel->userName = $user?->fullName ?? $user?->email;
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel)) {
@@ -165,7 +170,8 @@ class OrderHistories extends Component
         $record->message = $model->message;
         $record->newStatusId = $model->newStatusId;
         $record->prevStatusId = $model->prevStatusId;
-        $record->customerId = $model->customerId;
+        $record->userId = $model->userId;
+        $record->userName = $model->userName;
         $record->orderId = $model->orderId;
 
         // Save it!
@@ -206,7 +212,7 @@ class OrderHistories extends Component
     {
         return (new Query())
             ->select([
-                'customerId',
+                'userId',
                 'dateCreated',
                 'id',
                 'message',

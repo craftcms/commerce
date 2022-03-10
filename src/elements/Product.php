@@ -36,7 +36,6 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -62,9 +61,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class Product extends Element
 {
-    const STATUS_LIVE = 'live';
-    const STATUS_PENDING = 'pending';
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_LIVE = 'live';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var DateTime|null Post date
@@ -204,18 +203,6 @@ class Product extends Element
         ];
     }
 
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
-    }
-
     /**
      * @inheritdoc
      */
@@ -251,7 +238,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -310,7 +297,17 @@ class Product extends Element
      */
     public function canView(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canView($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -318,7 +315,17 @@ class Product extends Element
      */
     public function canSave(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -326,7 +333,17 @@ class Product extends Element
      */
     public function canDuplicate(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-editProductType:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -334,7 +351,17 @@ class Product extends Element
      */
     public function canDelete(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        if ($this->getType()) {
+            $uid = $this->getType()->uid;
+
+            return $user->can('commerce-deleteProducts:' . $uid);
+        }
+
+        return false;
     }
 
     /**
@@ -342,7 +369,7 @@ class Product extends Element
      */
     public function canDeleteForSite(User $user): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+        return $this->canDelete($user);
     }
 
     /**
@@ -350,7 +377,7 @@ class Product extends Element
      */
     public function canCreateDrafts(User $user): bool
     {
-        return true;
+        return $this->canSave($user);
     }
 
     /**
@@ -376,25 +403,8 @@ class Product extends Element
             [
                 'label' => Craft::t('site', $type->name),
                 'url' => "commerce/products/$type->name",
-            ]
+            ],
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
-    {
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isDeletable(): bool
-    {
-        // TODO: Change this to a real delete permission in 4.0
-        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -509,6 +519,7 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
+     * @param bool $includeDisabled
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
@@ -701,7 +712,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var ProductType $context */
         return $context->handle . '_Product';
@@ -711,7 +722,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -732,7 +743,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
@@ -822,7 +833,7 @@ class Product extends Element
             Craft::$app->getView()::TEMPLATE_MODE_CP
         );
 
-        $html[] = parent::getSidebarHtml();
+        $html[] = parent::getSidebarHtml(false);
 
         // Custom styling
         $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
@@ -1097,7 +1108,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -1168,7 +1179,7 @@ class Product extends Element
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -1204,7 +1215,7 @@ class Product extends Element
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {
@@ -1229,26 +1240,37 @@ class Product extends Element
             'failMessage' => Craft::t('commerce', 'Products not restored.'),
         ]);
 
-        if (!empty($productTypes)) {
+        if ($source === '*') {
+            // Delete
+            $actions[] = Delete::class;
+        } else if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
-            $canManage = false;
+
+            $currentUser = $userSession->getIdentity();
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->uid);
-            }
+                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
 
-            if ($canManage) {
-                // Duplicate
-                $actions[] = Duplicate::class;
+                if ($canCreate) {
+                    // Duplicate
+                    $actions[] = Duplicate::class;
+                }
 
-                // Allow deletion
-                $deleteAction = Craft::$app->getElements()->createAction([
-                    'type' => Delete::class,
-                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
-                ]);
-                $actions[] = $deleteAction;
-                $actions[] = SetStatus::class;
+                if ($canDelete) {
+                    // Allow deletion
+                    $deleteAction = Craft::$app->getElements()->createAction([
+                        'type' => Delete::class,
+                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
+                        'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
+                    ]);
+                    $actions[] = $deleteAction;
+                }
+
+                if ($canEdit) {
+                    $actions[] = SetStatus::class;
+                }
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
@@ -1366,7 +1388,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected function route()
+    protected function route(): array|string|null
     {
         // Make sure that the product is actually live
         if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {

@@ -15,10 +15,12 @@ use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
+use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\User;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -73,7 +75,7 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
+    public const EVENT_BEFORE_SAVE_PRODUCTTYPE = 'beforeSaveProductType';
 
     /**
      * @event ProductTypeEvent The event that is triggered after a product type has been saved.
@@ -97,9 +99,9 @@ class ProductTypes extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
+    public const EVENT_AFTER_SAVE_PRODUCTTYPE = 'afterSaveProductType';
 
-    const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
+    public const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
     /**
      * @var bool
@@ -125,6 +127,11 @@ class ProductTypes extends Component
      * @var int[]|null
      */
     private ?array $_editableProductTypeIds = null;
+    
+    /**
+     * @var int[]
+     */
+    private $_creatableProductTypeIds;
 
     /**
      * @var ProductTypeSite[][]
@@ -154,10 +161,10 @@ class ProductTypes extends Component
         }
 
         return $editableProductTypes;
-    }
+    }   
 
     /**
-     * Returns all of the product type IDs that are editable by the current user.
+     * Returns all product type IDs that are editable by the current user.
      *
      * @return array An array of all the editable product types’ IDs.
      */
@@ -167,14 +174,57 @@ class ProductTypes extends Component
             $this->_editableProductTypeIds = [];
             $allProductTypes = $this->getAllProductTypes();
 
+            $user = Craft::$app->getUser()->getIdentity();
             foreach ($allProductTypes as $productType) {
-                if (Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid)) {
+                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType')) {
                     $this->_editableProductTypeIds[] = $productType->id;
                 }
             }
         }
 
         return $this->_editableProductTypeIds;
+    }
+
+    /**
+     * Returns all product type IDs that are creatable by the current user.
+     * @return array|int[]
+     * @throws InvalidConfigException
+     */
+    public function getCreatableProductTypeIds(): array
+    {
+        if (null === $this->_creatableProductTypeIds) {
+            $this->_creatableProductTypeIds = [];
+            $allProductTypes = $this->getAllProductTypes();
+
+            $user = Craft::$app->getUser()->getIdentity();
+
+            foreach ($allProductTypes as $productType) {
+                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts')) {
+                    $this->_creatableProductTypeIds[] = $productType->id;
+                }
+            }
+        }
+
+        return $this->_creatableProductTypeIds;
+    }
+
+    /**
+     * Returns all creatable product types.
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getCreatableProductTypes(): array
+    {
+        $creatableProductTypeIds = $this->getCreatableProductTypeIds();
+        $creatableProductTypes = [];
+
+        foreach ($this->getAllProductTypes() as $productTypes) {
+            if (in_array($productTypes->id, $creatableProductTypeIds, false)) {
+                $creatableProductTypes[] = $productTypes;
+            }
+        }
+
+        return $creatableProductTypes;
     }
 
     /**
@@ -473,7 +523,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['productFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->fieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->fieldLayoutId) {
+            } elseif ($productTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->fieldLayoutId);
                 $productTypeRecord->fieldLayoutId = null;
@@ -487,7 +537,7 @@ class ProductTypes extends Component
                 $layout->uid = key($data['variantFieldLayouts']);
                 $fieldsService->saveLayout($layout);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->variantFieldLayoutId) {
+            } elseif ($productTypeRecord->variantFieldLayoutId) {
                 // Delete the variant field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
@@ -586,7 +636,7 @@ class ProductTypes extends Component
                                     'siteId' => $sitesNowWithoutUrls,
                                 ])
                             ->execute();
-                    } else if (!empty($sitesWithNewUriFormats)) {
+                    } elseif (!empty($sitesWithNewUriFormats)) {
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
@@ -925,7 +975,7 @@ class ProductTypes extends Component
      */
     private function _createProductTypeQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'productTypes.descriptionFormat',
                 'productTypes.fieldLayoutId',
@@ -938,11 +988,21 @@ class ProductTypes extends Component
                 'productTypes.name',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
-                'productTypes.variantTitleFormat',
                 'productTypes.uid',
                 'productTypes.variantFieldLayoutId',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
+
+        // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+            $query->addSelect('productTypes.variantTitleFormat');
+        } else {
+            $query->addSelect('productTypes.variantTitleFormat');
+        }
+
+        return $query;
     }
 
     /**
@@ -955,5 +1015,37 @@ class ProductTypes extends Component
         }
 
         return new ProductTypeRecord();
+    }
+
+    /**
+     * Check if user has product type permission.
+     * 
+     * @param User $user
+     * @param ProductType $productType
+     * @param null $checkPermissionName detailed product type permission.
+     * @return bool
+     */
+    public function hasPermission(User $user, ProductType $productType, $checkPermissionName = null): bool
+    {
+        if ($user->admin == true) {
+            return true;
+        }
+      
+        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
+      
+        $suffix = ':' . $productType->uid;
+       
+        // Required for create and delete permission.
+        $editProductType = strtolower('commerce-editProductType' . $suffix);
+        
+        if ($checkPermissionName !== null) {
+            $checkPermissionName = strtolower($checkPermissionName . $suffix);
+        }
+        
+        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
+            return false;
+        }
+
+        return true;
     }
 }

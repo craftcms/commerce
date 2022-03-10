@@ -112,36 +112,27 @@ class OrdersControllerTest extends Unit
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
-        $response = $this->controller->runAction('customer-search', ['query' => 'support']);
+        Craft::$app->getRequest()->setQueryParams(['query' => 'customer1']);
+        $response = $this->controller->runAction('customer-search');
 
         self::assertEquals(200, $response->statusCode);
         self::assertIsArray($response->data);
         self::assertCount(1, $response->data);
-        $customer = $response->data[0] ?? [];
+        $customer = $response->data['customers'][0] ?? [];
         $keys = [
-            'id',
-            'userId',
+            'cpEditUrl',
             'email',
-            'primaryBillingAddressId',
-            'billingFirstName',
-            'billingLastName',
-            'billingFullName',
-            'billingAddress',
-            'shippingFirstName',
-            'shippingLastName',
-            'shippingFullName',
-            'shippingAddress',
-            'primaryShippingAddressId',
-            'user',
+            'id',
             'photo',
-            'url',
+            'status',
+            'totalAddresses',
         ];
 
         foreach ($keys as $key) {
             self::assertArrayHasKey($key, $customer);
         }
-        // self::assertArrayHasKey('');
-        self::assertEquals('support@craftcms.com', $customer['email']);
+
+        self::assertEquals('customer1@crafttest.com', $customer['email']);
     }
 
     public function testGetIndexSourcesBadgeCounts(): void

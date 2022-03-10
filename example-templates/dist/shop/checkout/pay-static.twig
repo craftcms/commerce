@@ -14,6 +14,8 @@
 {% set paymentCurrency = craft.app.request.getParam('paymentCurrency') %}
 {# @var url string #}
 {% set url = 'shop/checkout/pay-static' %}
+{# @var currentUserIsCartUser string #}
+{% set currentUserIsCartUser = cart.user and currentUser and currentUser.id == user.id %}
 
 {% set cart = null %}
 {% if number and email %}
@@ -81,13 +83,10 @@
           </div>
         </form>
       {% else %}
-        {# @var customer \craft\commerce\models\Customer #}
-        {% set customer = cart.customer ?? null %}
         {% if not gatewayId and not paymentSourceId %}
           {% set paymentSources = [] %}
-          {% set currentUserIsCustomer = customer and customer.userId and currentUser and currentUser.id == customer.userId %}
 
-          {% if currentUserIsCustomer %}
+          {% if currentUserIsCartUser %}
             {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id) %}
           {% endif %}
 
@@ -176,7 +175,7 @@
                     {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
                     {% include 'shop/checkout/_includes/base-payment-form-styles' %}
 
-                    {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
+                    {% if gateway.supportsPaymentSources() and currentUserIsCartUser %}
                       <div class="checkbox">
                         <label>
                           {{ input('checkbox', 'savePaymentSource', 1) }}
@@ -188,7 +187,7 @@
 
                 {% elseif paymentSourceId %}
                   {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentSourceId) ?? null %}
-                  {% if not paymentSource or not currentUser or (currentUser and currentUser.id != customer.userId) %}
+                  {% if not paymentSource or not currentUserIsCartUser %}
                     {% set canPay = false %}
                     <div class="bg-red-500 text-white mb-4">
                       <div class="flash container mx-auto px-6 py-4">

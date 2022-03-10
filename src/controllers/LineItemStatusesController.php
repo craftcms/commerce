@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -56,6 +57,8 @@ class LineItemStatusesController extends BaseAdminController
                 $variables['lineItemStatus'] = new LineItemStatus();
             }
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;
@@ -112,11 +115,11 @@ class LineItemStatusesController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -129,10 +132,10 @@ class LineItemStatusesController extends BaseAdminController
 
         $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
+        return $this->asSuccess();
     }
 }

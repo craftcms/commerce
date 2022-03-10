@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -38,13 +39,15 @@ use function get_class;
  */
 class SalesController extends BaseCpController
 {
-    /**
-     * @inheritdoc
-     */
-    public function init(): void
+    public function beforeAction($action): bool
     {
-        parent::init();
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
         $this->requirePermission('commerce-managePromotions');
+        
+        return true;
     }
 
     /**
@@ -64,6 +67,12 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createSales');    
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
+        
         $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
@@ -81,6 +90,8 @@ class SalesController extends BaseCpController
             }
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['sale'], prepend: true);
+
         $this->_populateVariables($variables);
 
         return $this->renderTemplate('commerce/promotions/sales/_edit', $variables);
@@ -91,7 +102,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave(): Response
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -99,6 +110,13 @@ class SalesController extends BaseCpController
 
         // Shared attributes
         $request = Craft::$app->getRequest();
+        
+        if ($sale->id === null) {
+            $this->requirePermission('commerce-createSales');
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
+        
         $sale->id = $request->getBodyParam('id');
         $sale->name = $request->getBodyParam('name');
         $sale->description = $request->getBodyParam('description');
@@ -175,9 +193,9 @@ class SalesController extends BaseCpController
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             return $this->redirectToPostedUrl($sale);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
+
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
 
         $variables = [
             'sale' => $sale,
@@ -185,6 +203,8 @@ class SalesController extends BaseCpController
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);
+
+        return null;
     }
 
     /**
@@ -196,11 +216,11 @@ class SalesController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getSales()->reorderSales($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -211,6 +231,7 @@ class SalesController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteSales');
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
@@ -283,9 +304,9 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asSuccess(
-            data: ['sales' => $sales],
-        );
+        return $this->asSuccess(data: [
+            'sales' => $sales,
+        ]);
     }
 
     /**
@@ -368,13 +389,17 @@ class SalesController extends BaseCpController
     /**
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
+     * @throws \yii\web\ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
+        $this->requirePermission('commerce-editSales');
+
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
 
         if (empty($ids)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));

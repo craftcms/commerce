@@ -30,20 +30,20 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
-    const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
-    const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
-    const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
 
-    const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
-    const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
+    public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
+    public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
 
-    const VIEW_URI_ORDERS = 'commerce/orders';
-    const VIEW_URI_PRODUCTS = 'commerce/products';
-    const VIEW_URI_CUSTOMERS = 'commerce/customers';
-    const VIEW_URI_PROMOTIONS = 'commerce/promotions';
-    const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
-    const VIEW_URI_TAX = 'commerce/tax/taxrates';
-    const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
+    public const VIEW_URI_ORDERS = 'commerce/orders';
+    public const VIEW_URI_PRODUCTS = 'commerce/products';
+    public const VIEW_URI_CUSTOMERS = 'commerce/customers';
+    public const VIEW_URI_PROMOTIONS = 'commerce/promotions';
+    public const VIEW_URI_SHIPPING = 'commerce/shipping/shippingmethods';
+    public const VIEW_URI_TAX = 'commerce/tax/taxrates';
+    public const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive.
@@ -57,7 +57,7 @@ class Settings extends Model
     public $activeCartDuration = 3600;
 
     /**
-     * @var bool Whether the customer’s primary shipping and billing addresses should be set automatically on new carts.
+     * @var bool Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
      * @group Cart
      */
     public bool $autoSetNewCartAddresses = true;
@@ -309,11 +309,11 @@ class Settings extends Model
     public bool $requireShippingMethodSelectionAtCheckout = false;
 
     /**
-     * @var bool Whether the [customer info tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
+     * @var bool Whether the [Commerce Tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
      * @group System
-     * @since 3.0
+     * @since 4.0
      */
-    public bool $showCustomerInfoTab = true;
+    public bool $showEditUserCommerceTab = true;
 
     /**
      * @var string URL for a user to resolve billing issues with their subscription.
@@ -385,16 +385,6 @@ class Settings extends Model
     public bool $validateCartCustomFieldsOnSubmission = false;
 
     /**
-     * @todo remove in 4.0 #COM-60
-     */
-    private ?string $_orderPdfFilenameFormat = null;
-
-    /**
-     * @todo remove in 4.0 #COM-60
-     */
-    public ?string $_orderPdfPath = null;
-
-    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -405,8 +395,8 @@ class Settings extends Model
 
         // We only want to mass set or retrieve these prior to 3.2 #COM-60
         if ($commerce && version_compare($commerce['version'], '3.2.0', '<')) {
-            $names[] = 'orderPdfFilenameFormat'; // @todo remove in 4.0
-            $names[] = 'orderPdfPath'; // @todo remove in 4.0
+            $names[] = 'orderPdfFilenameFormat'; // TODO remove in 4.0
+            $names[] = 'orderPdfPath'; // TODO remove in 4.0
         }
 
         return $names;
@@ -507,63 +497,5 @@ class Settings extends Model
         return [
             [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
         ];
-    }
-
-    /**
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function setOrderPdfFilenameFormat($value): void
-    {
-        $this->_orderPdfFilenameFormat = $value;
-    }
-
-    /**
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function setOrderPdfPath($value): void
-    {
-        $this->_orderPdfPath = $value;
-    }
-
-    /**
-     * @param bool $fromSettings For use in migration only
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function getOrderPdfFilenameFormat($fromSettings = false): string
-    {
-        if ($fromSettings) {
-            return $this->_orderPdfFilenameFormat ?? '';
-        }
-
-        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
-
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        /** @var Pdf $pdf */
-        $pdf = ArrayHelper::firstValue($pdfs);
-
-        return $pdf->fileNameFormat ?? '';
-    }
-
-    /**
-     * @param bool $fromSettings For use in migration only
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function getOrderPdfPath($fromSettings = false): string
-    {
-        if ($fromSettings) {
-            return $this->_orderPdfPath ?? '';
-        }
-
-        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
-
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        /** @var Pdf $pdf */
-        $pdf = ArrayHelper::firstValue($pdfs);
-
-        return $pdf->templatePath ?? '';
     }
 }
