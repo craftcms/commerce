@@ -95,11 +95,11 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * @inheritdoc
      */
-    public function rules(): array
+    public function defineRules(): array
     {
-        return [
-            [['paymentType', 'handle'], 'required'],
-        ];
+        $rules = parent::defineRules();
+        $rules[] = [['paymentType', 'handle'], 'required'];
+        return $rules;
     }
 
     /**
