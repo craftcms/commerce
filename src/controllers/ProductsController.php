@@ -243,10 +243,6 @@ class ProductsController extends BaseController
 
         $this->enforceEditProductPermissions($oldProduct);
 
-        if ($oldProduct->id !== null) {
-            throw new ForbiddenHttpException('User not permitted to save this product.');
-        }
-
         if ($request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProductTypes()->hasPermission($user, $oldProduct->getType(), 'commerce-createProducts')) {
             if ($oldProduct->id === null || $duplicate === true) {
                 throw new ForbiddenHttpException('User not permitted to create a product for this type.');
