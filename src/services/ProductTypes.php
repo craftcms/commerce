@@ -186,6 +186,48 @@ class ProductTypes extends Component
     }
 
     /**
+     * Returns all product type IDs that are creatable by the current user.
+     * @return array|int[]
+     * @throws InvalidConfigException
+     */
+    public function getCreatableProductTypeIds(): array
+    {
+        if (null === $this->_creatableProductTypeIds) {
+            $this->_creatableProductTypeIds = [];
+            $allProductTypes = $this->getAllProductTypes();
+
+            $user = Craft::$app->getUser()->getIdentity();
+
+            foreach ($allProductTypes as $productType) {
+                if (Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-createProducts')) {
+                    $this->_creatableProductTypeIds[] = $productType->id;
+                }
+            }
+        }
+
+        return $this->_creatableProductTypeIds;
+    }
+
+    /**
+     * Returns all creatable product types.
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getCreatableProductTypes(): array
+    {
+        $creatableProductTypeIds = $this->getCreatableProductTypeIds();
+        $creatableProductTypes = [];
+
+        foreach ($this->getAllProductTypes() as $productTypes) {
+            if (in_array($productTypes->id, $creatableProductTypeIds, false)) {
+                $creatableProductTypes[] = $productTypes;
+            }
+        }
+
+        return $creatableProductTypes;
+    }
+
+    /**
      * Returns all the product type IDs.
      *
      * @return array An array of all the product types’ IDs.

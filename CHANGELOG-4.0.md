@@ -59,7 +59,9 @@
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
-- Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
+- Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getCreatableProductTypes()`.
 - Added `craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `craft\commerce\validators\CouponValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
