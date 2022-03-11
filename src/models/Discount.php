@@ -278,9 +278,7 @@ class Discount extends Model
         $fields = parent::extraFields();
         $fields[] = 'purchasableIds';
         $fields[] = 'categoryIds';
-        $fields[] = 'userGroupIds';
         $fields[] = 'percentDiscountAsPercent';
-        $fields[] = 'userGroupsConditions';
 
         return $fields;
     }

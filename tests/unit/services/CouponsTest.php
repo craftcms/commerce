@@ -218,7 +218,7 @@ class CouponsTest extends Unit
     {
         $discountFixture = $this->tester->grabFixture('discounts')['discount_with_coupon'];
         $newCoupon = new Coupon([
-            'id' => $discountFixture['id'],
+            'discountId' => $discountFixture['id'],
             'code' => 'new_commerce_coupon',
             'uses' => 0,
         ]);

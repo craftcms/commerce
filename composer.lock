@@ -7791,16 +7791,16 @@
         },
         {
             "name": "craftcms/html-field",
-            "version": "2.0.0",
+            "version": "2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/html-field.git",
-                "reference": "60174b111d7c180d91bca59af7d86f3ccac1a1a4"
+                "reference": "5476387139d255a6dd258b7dab2ad952c49cbf20"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/html-field/zipball/60174b111d7c180d91bca59af7d86f3ccac1a1a4",
-                "reference": "60174b111d7c180d91bca59af7d86f3ccac1a1a4",
+                "url": "https://api.github.com/repos/craftcms/html-field/zipball/5476387139d255a6dd258b7dab2ad952c49cbf20",
+                "reference": "5476387139d255a6dd258b7dab2ad952c49cbf20",
                 "shasum": ""
             },
             "require": {
@@ -7835,7 +7835,7 @@
                 "rss": "https://github.com/craftcms/html-field/commits/main.atom",
                 "source": "https://github.com/craftcms/html-field"
             },
-            "time": "2022-03-04T20:53:05+00:00"
+            "time": "2022-03-10T14:41:08+00:00"
         },
         {
             "name": "craftcms/phpstan",
@@ -9254,12 +9254,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "53fdb25a5e0e9eeb895f8882d702effbb939c027"
+                "reference": "43fefabef211e23e023792ffee75005f780a8d31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/53fdb25a5e0e9eeb895f8882d702effbb939c027",
-                "reference": "53fdb25a5e0e9eeb895f8882d702effbb939c027",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/43fefabef211e23e023792ffee75005f780a8d31",
+                "reference": "43fefabef211e23e023792ffee75005f780a8d31",
                 "shasum": ""
             },
             "require": {
@@ -9307,7 +9307,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-10T10:09:54+00:00"
+            "time": "2022-03-10T14:46:54+00:00"
         },
         {
             "name": "sebastian/cli-parser",
