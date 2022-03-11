@@ -9,7 +9,8 @@
 - Tax zones now use a condition builder to determine whether an address is within a zone.
 - Added a Commerce panel to the debug toolbar.
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
-- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Added Edit, Create, and Delete sale promotion permissions.
+- Added Edit, Create, and Delete discount promotion permissions.
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
@@ -71,6 +72,7 @@
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - It’s now possible to create an order for a user from the Edit User page.
 - Tax rate input fields no longer require the percent symbol.
+- Example templates are now compatible with Commerce 4.0
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
@@ -84,7 +86,10 @@
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
-
+- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Removed the `commerce-manageCustomers` permission, which has been replaced by standard user management permissions.
+- `craft\commerce\base\Gateway::getPaymentFormHtml()` 
+- 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Subscription plans are no longer accessible via old Control Panel URLs.
@@ -174,6 +179,7 @@
 - Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
 - Removed `craft\commerce\services\Customers::getCustomerByUserId()`.
 - Removed `craft\commerce\services\Customers::getCustomersQuery()`.
+- Removed `craft\commerce\services\Addresses::purgeOrphanedAddresses()`.
 - Removed `craft\commerce\services\Customers::purgeOrphanedCustomers()`.
 - Removed `craft\commerce\services\Customers::saveAddress()`. Use `Craft::$app->getElements()->saveElement()` instead.
 - Removed `craft\commerce\services\Customers::saveCustomer()`.
