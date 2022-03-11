@@ -702,7 +702,7 @@ EOL
         $customersTable = '{{%commerce_customers}}';
 
         /**
-         * Make all address elements have the owner ID of the user
+         * Make all address elements with their correct customer owner ID
          */
         $sql = <<<SQL
 update $addressTable [[a]]
