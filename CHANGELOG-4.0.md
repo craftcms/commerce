@@ -3,12 +3,12 @@
 ## Unreleased
 
 ### Added
-- Customers are now User elements.
-- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
-- Shipping zones now use a condition builder to determine whether an address is within a zone.
-- Tax zones now use a condition builder to determine whether an address is within a zone.
+- Customers are now User elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
+- Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290),  [#2296](https://github.com/craftcms/commerce/discussions/2296), [#2299](https://github.com/craftcms/commerce/discussions/2299))
+- Shipping zones now use a condition builder to determine whether an address is within a zone. ([#2290](https://github.com/craftcms/commerce/discussions/2290), [#2296](https://github.com/craftcms/commerce/discussions/2296))
+- Tax zones now use a condition builder to determine whether an address is within a zone. ([#2290](https://github.com/craftcms/commerce/discussions/2290), [#2296](https://github.com/craftcms/commerce/discussions/2296))
 - Added a Commerce panel to the debug toolbar.
-- Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
+- Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174), [#2400](https://github.com/craftcms/commerce/discussions/2400))
 - Added Edit, Create, and Delete sale promotion permissions.
 - Added Edit, Create, and Delete discount promotion permissions.
 - Added `craft\commerce\base\Zone`.
@@ -75,6 +75,7 @@
 - It’s now possible to create an order for a user from the Edit User page.
 - Tax rate input fields no longer require the percent symbol.
 - Example templates are now compatible with Commerce 4.0
+- Cart / Order addresses are now only related to the Order only, and can not be related to both the address book and order at the same time ([#2457](https://github.com/craftcms/commerce/discussions/2457))
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - When using the Payments controller payment form fields are now expected to be namespaced.
@@ -91,8 +92,7 @@
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Removed the `commerce-manageCustomers` permission, which has been replaced by standard user management permissions.
-- `craft\commerce\base\Gateway::getPaymentFormHtml()` 
-- 
+
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Subscription plans are no longer accessible via old Control Panel URLs.
