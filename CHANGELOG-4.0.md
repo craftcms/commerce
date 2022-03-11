@@ -160,7 +160,7 @@
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
 - Removed `craft\commerce\records\States`.
-- Removed `craft\commerce\records\TaxZoneCountry`.
+- Removed `craft\commerce\records\TaxZoneCountry`. 
 - Removed `craft\commerce\records\TaxZoneState`.
 - Removed `craft\commerce\services\Addresses`.
 - Removed `craft\commerce\services\Countries`.
@@ -227,6 +227,7 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed `\craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
 
 ### Fixed
 
