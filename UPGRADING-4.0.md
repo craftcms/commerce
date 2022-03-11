@@ -23,7 +23,7 @@ project.
 
 You no longer set an email on an order. All "customers" should be a user element (no matter the status). Previously you
 would have used the setEmail method on an order but now you would use setUser or set the userId . This logic is
-specifically left up to the controller or service to ensure the user exists etc
+specifically left up to the controller or service to ensure the user exists etc.
 
 ## Countries and States
 
@@ -34,7 +34,7 @@ removed the custom concept of managing countries and states.
 Your enabled countries were migrated to store settings, and you can order and remove the list of countries available for
 selection by your customers in front end in dropdowns:
 
-craft.commerce.countries.allEnabledCountriesAsList → craft.commerce.store.store.getCountriesList()
+craft.commerce.countries.allEnabledCountriesAsList → craft.commerce.getStore().store.getCountriesList()
 
 States can no longer be enabled or disabled for selection in dropdown lists, but the new Order Address Condition allows
 you to set rules for allowed addresses, and addresses submitted to the cart/order outside those rules will not be
@@ -44,6 +44,22 @@ We have migrated your custom countries and states into custom fields on the addr
 command), and also added rules to zone and store market condition builders to match those custom country and state
 values. Please review your tax and shipping zones, and we encourage you to use real countries and administrative areas (
 states) for your zones in the future.
+
+## Address management
+
+Addresses are now core elements and can only belong to one owner throughout Craft CMS.
+
+stateId stateValue -> administrativeArea
+
+An orders’ addresses (billing, shipping, estimated billing, estimated shipping) are all owned by the order only.
+
+`order.sourceBillingAddressId`
+`order.sourceShippingAddressId`
+
+`currentuser.addresses`
+
+`ownerId` required on address save address for a user address book.
+
 
 ## Form Requests and Responses (Front-end)
 
