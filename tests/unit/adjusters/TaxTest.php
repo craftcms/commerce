@@ -10,12 +10,16 @@ namespace craftcommercetests\unit\adjusters;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\adjusters\Tax;
+use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\elements\Address;
+use craft\elements\conditions\addresses\CountryConditionRule;
+use craft\helpers\Json;
+use craft\helpers\StringHelper;
 
 /**
  * CartTest
@@ -78,10 +82,12 @@ class TaxTest extends Unit
                 'getIsEverywhere' => !isset($item['zone']),
                 'getTaxZone' => function() use ($item) {
                     if (isset($item['zone'])) {
-                        return $this->make(TaxAddressZone::class, [
-                            'countries' => $item['zone']['countries'],
-                            'getIsCountryBased' => true,
-                        ]);
+                        $zone = $this->make(TaxAddressZone::class, []);
+
+                        if (isset($item['zone']['condition'])) {
+                            $zone->setCondition($item['zone']['condition']);
+                        }
+                        return $zone;
                     }
 
                     return null;
@@ -141,6 +147,7 @@ class TaxTest extends Unit
      */
     public function dataCases(): array
     {
+        $uid = StringHelper::UUID();
         return [
 
             // Example 1) 10% included tax
@@ -161,7 +168,26 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['AU'],
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['AU'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'AU'
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -278,7 +304,26 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['NL'], // Not AU on purpose to create mismatch
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['NL'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'NL'
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -310,7 +355,26 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['NL'], // Not AU on purpose to create mismatch
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['NL'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'NL', // Not AU on purpose to create mismatch
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -334,7 +398,7 @@ class TaxTest extends Unit
             'tax-valid-vat-1' => [
                 [ // Address
                     'countryCode' => 'CZ',
-                    'businessTaxId' => 'CZ25666011',
+                    'organizationTaxId' => 'CZ25666011',
                     '_validateVat' => true,
                 ],
                 [ // Line Items
@@ -351,7 +415,26 @@ class TaxTest extends Unit
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['CZ'], // Not AU on purpose to create mismatch
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['CZ'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'CZ'
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -375,7 +458,7 @@ class TaxTest extends Unit
             'tax-valid-vat-2' => [
                 [ // Address
                     'countryCode' => 'CZ',
-                    'businessTaxId' => 'CZ25666011',
+                    'organizationTaxId' => 'CZ25666011',
                     '_validateVat' => true,
                 ],
                 [ // Line Items
@@ -392,7 +475,26 @@ class TaxTest extends Unit
                         'removeVatIncluded' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['CZ'], // Not AU on purpose to create mismatch
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['CZ'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'CZ'
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
@@ -409,7 +511,7 @@ class TaxTest extends Unit
             'tax-invalid-vat-1' => [
                 [ // Address
                     'countryCode' => 'CZ',
-                    'businessTaxId' => 'CZ99999999',
+                    'organizationTaxId' => 'CZ99999999',
                     '_validateVat' => false,
                 ],
                 [ // Line Items
@@ -426,7 +528,26 @@ class TaxTest extends Unit
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countries' => ['CZ'], // Not AU on purpose to create mismatch
+                            'condition' => [
+                                'class' => ZoneAddressCondition::class,
+                                'config' => '{"elementType":null,"fieldContext":"global"}',
+                                'conditionRules' => [
+                                    [
+                                        'uid' => $uid,
+                                        'class' => CountryConditionRule::class,
+                                        'type' => Json::encode([
+                                            'class' => CountryConditionRule::class,
+                                            'uid' => $uid,
+                                            'operator' => 'in',
+                                            'values' => ['CZ'],
+                                        ]),
+                                        'operator' => 'in',
+                                        'values' => [
+                                            'CZ'
+                                        ]
+                                    ]
+                                ],
+                            ],
                         ],
                     ],
                 ],
