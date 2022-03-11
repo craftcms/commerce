@@ -786,6 +786,7 @@ return [
     'Payment method issue' => 'Problém so spôsobom platby',
     'Payment source created.' => 'Zdroj platby bol vytvorený.',
     'Payment source deleted.' => 'Zdroj platby bol odstránený.',
+    'Payment sources are not supported by this gateway' => 'Payment sources are not supported by this gateway',
     'Pending' => 'Nevyriešené',
     'Per Item Amount Off' => 'Zľavnená čiastka na položku',
     'Per Item Discount' => 'Zľava na položku',
