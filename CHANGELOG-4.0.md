@@ -9,7 +9,8 @@
 - Tax zones now use a condition builder to determine whether an address is within a zone.
 - Added a Commerce panel to the debug toolbar.
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
-- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Added Edit, Create, and Delete sale promotion permissions.
+- Added Edit, Create, and Delete discount promotion permissions.
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
@@ -61,7 +62,9 @@
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
-- Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds`.
+- Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
+- Added `craft\commerce\services\ProductTypes::getCreatableProductTypes()`.
 - Added `craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `craft\commerce\validators\CouponValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
@@ -71,6 +74,7 @@
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - It’s now possible to create an order for a user from the Edit User page.
 - Tax rate input fields no longer require the percent symbol.
+- Example templates are now compatible with Commerce 4.0
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - When using the Payments controller payment form fields are now expected to be namespaced.
@@ -85,7 +89,10 @@
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
-
+- Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Removed the `commerce-manageCustomers` permission, which has been replaced by standard user management permissions.
+- `craft\commerce\base\Gateway::getPaymentFormHtml()` 
+- 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Subscription plans are no longer accessible via old Control Panel URLs.
@@ -161,7 +168,7 @@
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
 - Removed `craft\commerce\records\States`.
-- Removed `craft\commerce\records\TaxZoneCountry`.
+- Removed `craft\commerce\records\TaxZoneCountry`. 
 - Removed `craft\commerce\records\TaxZoneState`.
 - Removed `craft\commerce\services\Addresses`.
 - Removed `craft\commerce\services\Countries`.
@@ -175,6 +182,7 @@
 - Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
 - Removed `craft\commerce\services\Customers::getCustomerByUserId()`.
 - Removed `craft\commerce\services\Customers::getCustomersQuery()`.
+- Removed `craft\commerce\services\Addresses::purgeOrphanedAddresses()`.
 - Removed `craft\commerce\services\Customers::purgeOrphanedCustomers()`.
 - Removed `craft\commerce\services\Customers::saveAddress()`. Use `Craft::$app->getElements()->saveElement()` instead.
 - Removed `craft\commerce\services\Customers::saveCustomer()`.
@@ -228,6 +236,7 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed `\craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
 
 ### Fixed
 

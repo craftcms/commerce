@@ -187,7 +187,7 @@ class DiscountsTest extends Unit
 
         Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_customer_discountuses}}', [
-                'customerId' => '1000',
+                'customerId' => $this->_user->id,
                 'discountId' => $this->tester->grabFixture('discounts')['discount_with_coupon']['id'],
                 'uses' => '1',
             ])->execute();
@@ -319,7 +319,7 @@ class DiscountsTest extends Unit
         $customerUses = (new Query())
             ->select('*')
             ->from('{{%commerce_customer_discountuses}}')
-            ->where(['customerId' => '1000', 'discountId' => $discountId, 'uses' => '1'])
+            ->where(['customerId' => $this->_user->id, 'discountId' => $discountId, 'uses' => '1'])
             ->one();
 
         self::assertNotNull($customerUses);

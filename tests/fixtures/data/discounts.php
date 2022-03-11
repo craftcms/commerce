@@ -14,7 +14,6 @@ return [
         'perItemDiscount' => '5',
         'percentDiscount' => '15.25',
         'enabled' => true,
-        'userGroupsCondition' => 'userGroupsAnyOrNone',
         'allCategories' => true,
         'allPurchasables' => true,
         'percentageOffSubject' => 'original',

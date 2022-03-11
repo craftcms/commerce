@@ -34,6 +34,7 @@ class OrdersFixture extends BaseElementFixture
      * @inheritdoc
      */
     public $depends = [
+        CustomerFixture::class,
         ProductFixture::class,
         OrderStatusesFixture::class,
     ];
@@ -184,10 +185,10 @@ class OrdersFixture extends BaseElementFixture
                 Craft::$app->getElements()->deleteElementById(elementId: $addressId, hardDelete: true);
             }
         }
-
-        if ($customerId = $element->getCustomerId()) {
-            Craft::$app->getElements()->deleteElementById(elementId: $customerId, hardDelete: true);
-        }
+        //
+        // if ($customerId = $element->getCustomerId()) {
+        //     Craft::$app->getElements()->deleteElementById(elementId: $customerId, hardDelete: true);
+        // }
 
         return $result;
     }

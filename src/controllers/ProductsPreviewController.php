@@ -112,53 +112,6 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * Save a new or existing product.
-     *
-     * @throws Exception
-     * @throws HttpException
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
-     * @throws BadRequestHttpException
-     * @deprecated in 3.4.8. Use [[\craft\commerce\controllers\ProductsController::actionSaveProduct()]] instead.
-     * @todo Remove in 4.0
-     */
-    public function actionSaveProduct(): ?Response
-    {
-        $this->requirePostRequest();
-
-        $product = ProductHelper::populateProductFromPost();
-
-        $this->enforceEditProductPermissions($product);
-
-        // Save the entry (finally!)
-        if ($product->enabled && $product->enabledForSite) {
-            $product->setScenario(Element::SCENARIO_LIVE);
-        }
-
-        if (!Craft::$app->getElements()->saveElement($product)) {
-            return $this->asModelFailure(
-                $product,
-                Craft::t('commerce', 'Couldn’t save product.'),
-                'product'
-            );
-        }
-
-        return $this->asModelSuccess(
-            $product,
-            Craft::t('commerce', 'Couldn’t save product.'),
-            'product',
-            [
-                'id' => $product->id,
-                'title' => $product->title,
-                'status' => $product->getStatus(),
-                'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl(),
-            ]
-        );
-    }
-
-    /**
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */

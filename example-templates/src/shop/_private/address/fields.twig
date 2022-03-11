@@ -103,7 +103,7 @@ Outputs address form fields for editing an address.
         {{- 'State'|t -}}
       </label>
 
-      {% set administrativeAreas = craft.app.addresses.getSubdivisionRepository.getList(['US']) %}
+      {% set administrativeAreas = craft.app.addresses.getSubdivisionRepository.getList([address.countryCode]) %}
 
       {% if administrativeAreas|length %}
       {% tag 'select' with {
