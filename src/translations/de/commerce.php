@@ -786,6 +786,7 @@ return [
     'Payment method issue' => 'Problem mit der Zahlungsmethode',
     'Payment source created.' => 'Zahlungsquelle wurde erstellt.',
     'Payment source deleted.' => 'Zahlungsquelle wurde gelöscht.',
+    'Payment sources are not supported by this gateway' => 'Payment sources are not supported by this gateway',
     'Pending' => 'Ausstehend',
     'Per Item Amount Off' => 'Rabattbetrag pro Artikel',
     'Per Item Discount' => 'Rabatt pro Artikel',
