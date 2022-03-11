@@ -17,6 +17,7 @@
 - Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
 - Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
+- Added the `|commercePaymentFormNamespace` Twig filter.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
 - Added `craft\commerce\controllers\OrdersController::actionCreateCustomer()`.
@@ -36,6 +37,7 @@
 - Added `craft\commerce\elements\Subscription::canView()`.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
 - Added `craft\commerce\helpers\DebugPanel`.
+- Added `craft\commerce\helpers\PaymentForm`.
 - Added `craft\commerce\models\Coupon`.
 - Added `craft\commerce\models\Discount::$_coupons`.
 - Added `craft\commerce\models\Discount::$couponFormat`.
@@ -75,6 +77,7 @@
 - Example templates are now compatible with Commerce 4.0
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
+- When using the Payments controller payment form fields are now expected to be namespaced.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - `craft\commerce\elements\Order::getCustomer()` now returns a User element.
 - `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.

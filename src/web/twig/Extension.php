@@ -8,6 +8,7 @@
 namespace craft\commerce\web\twig;
 
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\PaymentForm;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -31,6 +32,7 @@ class Extension extends AbstractExtension
     {
         return [
             new TwigFilter('commerceCurrency', [Currency::class, 'formatAsCurrency']),
+            new TwigFilter('commercePaymentFormNamespace', [PaymentForm::class, 'getPaymentFormNamespace']),
         ];
     }
 }
