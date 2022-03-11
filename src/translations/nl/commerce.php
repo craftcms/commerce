@@ -786,6 +786,7 @@ return [
     'Payment method issue' => 'Probleem met betaalmethode',
     'Payment source created.' => 'Betaalbron aangemaakt.',
     'Payment source deleted.' => 'Betaalbron verwijderd.',
+    'Payment sources are not supported by this gateway' => 'Payment sources are not supported by this gateway',
     'Pending' => 'In afwachting',
     'Per Item Amount Off' => 'Kortingbedrag per item',
     'Per Item Discount' => 'Korting per artikel',
