@@ -786,6 +786,7 @@ return [
     'Payment method issue' => 'Problem med betalingsmetode',
     'Payment source created.' => 'Betalingskilde opprettet.',
     'Payment source deleted.' => 'Betalingskilde slettet.',
+    'Payment sources are not supported by this gateway' => 'Payment sources are not supported by this gateway',
     'Pending' => 'Venter',
     'Per Item Amount Off' => 'Rabattbeløp per vare',
     'Per Item Discount' => 'Rabatt per enhet',
