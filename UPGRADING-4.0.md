@@ -21,3 +21,20 @@ When upgrading from Commerce 3 to Commerce 4, the following changes may be impor
 
 Ajax responses from `commerce/payment-sources/*` no longer return the payment form error using the `paymentForm` key. Use `paymentFormErrors` to get the payment form errors instead.
 
+## Payment forms
+
+Payment forms are now namespaced with `paymentForm` and the gateway's `handle`. This is to prevent conflicts between normal fields and fields required by the gateway.
+
+For example if you were outputting the payment form on the final step of your checkout you would need to make the following change:
+
+```
+// Commerce 3
+{{ cart.gateway.getPaymentFormHtml(params)|raw }}
+
+// Commerce 4
+{% namespace cart.gateway.handle|commercePaymentFormNamespace %}
+    {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+{% endnamespace %}
+```
+
+With this change you are now able to display multiple payment forms on the same page within the same form tag.
