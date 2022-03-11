@@ -786,6 +786,7 @@ return [
     'Payment method issue' => '支払い方法の問題',
     'Payment source created.' => '支払い元が作成されました。',
     'Payment source deleted.' => '支払い元は削除されました。',
+    'Payment sources are not supported by this gateway' => 'Payment sources are not supported by this gateway',
     'Pending' => '保留中',
     'Per Item Amount Off' => 'アイテムごとの料金割引',
     'Per Item Discount' => 'アイテムごとのディスカウント',
