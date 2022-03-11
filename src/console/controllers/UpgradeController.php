@@ -1051,13 +1051,4 @@ SQL;
 
         Plugin::getInstance()->getStore()->saveStore($storeModel);
     }
-
-    /**
-     * @param mixed $state
-     * @return string
-     */
-    private function getStateValueString(mixed $state): string
-    {
-        return $state['countryIso'] . '-' . $state['stateIso'];
-    }
 }
