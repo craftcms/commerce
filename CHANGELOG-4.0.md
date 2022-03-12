@@ -6,8 +6,8 @@
 - Customers are now User elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
 - Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290),  [#2296](https://github.com/craftcms/commerce/discussions/2296), [#2299](https://github.com/craftcms/commerce/discussions/2299))
 - Discounts can now have multiple coupon codes, with their own usage rules. ([#2377](https://github.com/craftcms/commerce/discussions/2377), [#2303](https://github.com/craftcms/commerce/discussions/2303), [#2713](https://github.com/craftcms/commerce/pull/2713))
-- It’s now possible to create an order for a user from the Edit User page.
 - Added the ability to mass generate coupon codes.
+- It’s now possible to create an order for a user from the Edit User page.
 - Shipping zones now use a condition builder to determine whether an address is within a zone. ([#2290](https://github.com/craftcms/commerce/discussions/2290), [#2296](https://github.com/craftcms/commerce/discussions/2296))
 - Tax zones now use a condition builder to determine whether an address is within a zone. ([#2290](https://github.com/craftcms/commerce/discussions/2290), [#2296](https://github.com/craftcms/commerce/discussions/2296))
 - Added a Commerce panel to the debug toolbar.
@@ -103,6 +103,7 @@
 - Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
 - Deprecated `craft\commerce\services\TaxRates::getTaxRatesForZone()`. Use `getTaxRatesByTaxZoneId()` instead.
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
+- Deprecated `craft\commerce\elements\Order::getUser()`. Use `Order::getCustomer()` instead.
 
 ### Removed
 - Removed the `commerce-manageCustomers` permission, which has been replaced by standard user management permissions.
@@ -201,9 +202,9 @@
 - Removed `craft\commerce\base\OrderDeprecatedTrait`.
 - Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
-- Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
-- Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions()` instead.
-- Removed `craft\commerce\elements\Order::getOrderLocale()` has been deprecated. Use `Order::orderLanguage` instead.
+- Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been removed. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
+- Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been removed. Use `Order::getAvailableShippingMethodOptions()` instead.
+- Removed `craft\commerce\elements\Order::getOrderLocale()` has been removed. Use `Order::orderLanguage` instead.
 - Removed `craft\commerce\elements\Order::getShippingMethodId()` has been removed. Use `Order::getShippingMethodHandle()` instead.
 - Removed `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\Order::getTotalTaxablePrice()`. Taxable price is now calculated within the tax adjuster.
