@@ -94,7 +94,7 @@
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Renamed “Customer” column to “User” on Order indexes.
 - Removed `craft\commerce\models\ProductType::lineItemFormat`.
-- Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
+- Renamed `craft\commerce\services\ShippingMethods::getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated
