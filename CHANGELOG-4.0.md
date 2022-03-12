@@ -114,7 +114,6 @@
 - Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomersController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.
-- Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\OrdersController::_prepCustomersArray()`. Use `_customerToArray()` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
