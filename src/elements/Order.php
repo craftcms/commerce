@@ -784,21 +784,6 @@ class Order extends Element
     public ?string $shippingMethodName = null;
 
     /**
-     * @param ?int $oldStatusId
-     * @param ?int $currentOrderStatId
-     * @return void
-     */
-    private function _saveOrderHistory(?int $oldStatusId, ?int $currentOrderStatId): void
-    {
-        $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
-        if ($this->isCompleted && $hasNewStatus) {
-            if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
-                Craft::error('Error saving order history after order save.', __METHOD__);
-            }
-        }
-    }
-
-    /**
      * @var int|null Customer’s ID
      */
     private ?int $_customerId = null;
@@ -3235,5 +3220,20 @@ class Order extends Element
         ($orphanedAddresses->collect())->each(function(AddressElement $address) {
             Craft::$app->getElements()->deleteElement($address, true);
         });
+    }
+    
+    /**
+     * @param ?int $oldStatusId
+     * @param ?int $currentOrderStatId
+     * @return void
+     */
+    private function _saveOrderHistory(?int $oldStatusId, ?int $currentOrderStatId): void
+    {
+        $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
+        if ($this->isCompleted && $hasNewStatus) {
+            if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
+                Craft::error('Error saving order history after order save.', __METHOD__);
+            }
+        }
     }
 }
