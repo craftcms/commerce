@@ -84,7 +84,7 @@
 - When using the Payments controller payment form fields are now expected to be namespaced.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - `craft\commerce\elements\Order::getCustomer()` now returns a User element.
-- `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
+- `craft\commerce\elements\Product::getVariants()`, `getDefaultVariant()`, `getCheapestVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
 - `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
 - `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
