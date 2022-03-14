@@ -187,7 +187,6 @@
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
 - Removed `craft\commerce\services\Discounts::getCustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
 - Removed `craft\commerce\services\States`.
-- Removed `craft\commerce\services\States`.
 - Removed `craft\commercetests\fixtures\AddressesFixture`.
 - Removed `craft\commercetests\unit\models\StateTest`.
 - Removed `craft\commercetests\unit\services\CountriesTest`.
