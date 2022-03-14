@@ -1151,12 +1151,13 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
-            'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
-            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
+            'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
+            'commerce-editOrders' => $currentUser->can('commerce-editOrders'),
+            'commerce-deleteOrders' => $currentUser->can('commerce-deleteOrders'),
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-        $currentUser = Craft::$app->getUser()->getIdentity();
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserId = ' . Json::encode($currentUser->id) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
