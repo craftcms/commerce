@@ -191,7 +191,7 @@
 - Removed `craft\commercetests\fixtures\AddressesFixture`.
 - Removed `craft\commercetests\unit\models\StateTest`.
 - Removed `craft\commercetests\unit\services\CountriesTest`.
-- Removed `json_encode_filtered` twig filter.
+- Removed `json_encode_filtered` Twig filter.
 - Removed the `orderPdfFilenameFormat` setting.
 - Removed the `orderPdfPath` setting.
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
