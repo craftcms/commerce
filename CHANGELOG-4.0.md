@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+### Added
 - Customers are now User elements.
 - Discounts can now have a condition builder to allow flexible matching of the order, user, and adresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290))
 - Shipping zones now use a condition builder to determine whether an address is within a zone.
@@ -10,6 +11,8 @@
 - Added a Commerce panel to the debug toolbar.
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
+- Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
+- Added `craft\commerce\events\OrderStatusEmailsEvent`.
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.

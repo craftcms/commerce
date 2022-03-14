@@ -445,7 +445,7 @@ class OrderStatuses extends Component
             $this->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
         }
 
-        if ($event->isValid === true && $order->orderStatusId) {
+        if (($order->suppressEmails === false || $event->isValid === true) && $order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 $originalLanguage = Craft::$app->language;
