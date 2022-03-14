@@ -141,7 +141,6 @@
 - Removed `craft\commerce\models\ShippingAddressZone::getCountries()`
 - Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
 - Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
-- Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStateIds()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStates()`
 - Removed `craft\commerce\models\ShippingAddressZone::getStatesNames()`
@@ -149,7 +148,6 @@
 - Removed `craft\commerce\models\States`.
 - Removed `craft\commerce\models\TaxAddressZone::getCountries()`
 - Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
 - Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
 - Removed `craft\commerce\models\TaxAddressZone::getStates()`
