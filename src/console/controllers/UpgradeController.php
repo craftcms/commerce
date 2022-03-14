@@ -42,51 +42,6 @@ use yii\db\Schema;
 class UpgradeController extends Controller
 {
     /**
-     * @var string|null The custom field handle that “Attention” address values should be saved to
-     */
-    public ?string $attentionField = null;
-    /**
-     * @var string|null The custom field handle that “Title” address values should be saved to
-     */
-    public ?string $titleField = null;
-    /**
-     * @var string|null The custom field handle that “Address 3” address values should be saved to
-     */
-    public ?string $address3Field = null;
-    /**
-     * @var string|null The custom field handle that “Business ID” address values should be saved to
-     */
-    public ?string $businessIdField = null;
-    /**
-     * @var string|null The custom field handle that “Phone Number” address values should be saved to
-     */
-    public ?string $phoneField = null;
-    /**
-     * @var string|null The custom field handle that “Alternative Phone” address values should be saved to
-     */
-    public ?string $alternativePhoneField = null;
-    /**
-     * @var string|null The custom field handle that “Custom 1” address values should be saved to
-     */
-    public ?string $custom1Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 2” address values should be saved to
-     */
-    public ?string $custom2Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 3” address values should be saved to
-     */
-    public ?string $custom3Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 4” address values should be saved to
-     */
-    public ?string $custom4Field = null;
-    /**
-     * @var string|null The custom field handle that “Notes” address values should be saved to
-     */
-    public ?string $notesField = null;
-
-    /**
      * @inheritdoc
      */
     public $defaultAction = 'run';
@@ -204,30 +159,6 @@ class UpgradeController extends Controller
     private array $_userIdsByv3CustomerId = [];
 
     /**
-     * @inheritdoc
-     */
-    public function options($actionID): array
-    {
-        $options = parent::options($actionID);
-        switch ($actionID) {
-            case 'migrate':
-                $options[] = 'attentionField';
-                $options[] = 'titleField';
-                $options[] = 'address3Field';
-                $options[] = 'businessIdField';
-                $options[] = 'phoneField';
-                $options[] = 'alternativePhoneField';
-                $options[] = 'custom1Field';
-                $options[] = 'custom2Field';
-                $options[] = 'custom3Field';
-                $options[] = 'custom4Field';
-                $options[] = 'notesField';
-        }
-
-        return $options;
-    }
-
-    /**
      * @param $action
      * @return bool
      */
@@ -323,6 +254,11 @@ class UpgradeController extends Controller
      */
     public function actionRun(): int
     {
+        if (!$this->interactive) {
+            $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
         $db = Craft::$app->getDb();
 
         $this->stdout("\nEnsuring address data migration field locations...\n");
@@ -396,15 +332,13 @@ class UpgradeController extends Controller
             $firstTab = $fieldLayout->getTabs()[0];
             $layoutElements = $firstTab->getElements();
 
-            if ($this->interactive) {
-                $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
-                $this->stdout(<<<EOL
+            $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
+            $this->stdout(<<<EOL
 Customer and order addresses will be migrated to native Craft address elements.
 Some of the existing addresses contain data that will need to be stored in custom fields:
 $list
 EOL
-                );
-            }
+            );
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label);
@@ -427,26 +361,6 @@ EOL
     private function _customField(string $oldAttribute, string $label): FieldInterface
     {
         $fieldsService = Craft::$app->getFields();
-
-        // Was a field handle already specified as an option?
-        $option = sprintf('%sField', $oldAttribute);
-        if (isset($this->$option)) {
-            $field = $fieldsService->getFieldByHandle($this->$option);
-            if ($field) {
-                return $field;
-            }
-            if (!$this->interactive) {
-                $this->stderr("No custom field exists with the handle “{$this->$option}”.\n");
-                throw new OperationAbortedException();
-            }
-            $this->stdout("No custom field exists with the handle “{$this->$option}”. Ignoring.\n");
-        }
-
-        if (!$this->interactive) {
-            $this->stderr("Try again with the --$option option set to a valid custom field handle for storing $label data from existing addresses.\n");
-            throw new OperationAbortedException();
-        }
-
         $handlePattern = sprintf('/^%s$/', HandleValidator::$handlePattern);
 
         if (
