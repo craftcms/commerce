@@ -33,6 +33,7 @@
 - Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
 - Added `craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
 - Added `craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
+- Added `craft\commerce\elements\actions\UpdateOrderStatus::$suppressEmails`.
 - Added `craft\commerce\elements\Order::$sourceBillingAddressId`
 - Added `craft\commerce\elements\Order::$sourceShippingAddressId`
 - Added `craft\commerce\elements\Product::canCreateDrafts()`.
