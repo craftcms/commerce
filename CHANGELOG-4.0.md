@@ -138,21 +138,21 @@
 - Removed `craft\commerce\models\OrderHistory::$customerId`. Use `$userId` instead.
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. Use `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
-- Removed `craft\commerce\models\ShippingAddressZone::getCountries()`
-- Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`
-- Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`
-- Removed `craft\commerce\models\ShippingAddressZone::getStateIds()`
-- Removed `craft\commerce\models\ShippingAddressZone::getStates()`
-- Removed `craft\commerce\models\ShippingAddressZone::getStatesNames()`
-- Removed `craft\commerce\models\ShippingAddressZone::isCountryBased`
+- Removed `craft\commerce\models\ShippingAddressZone::getCountries()`.
+- Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`.
+- Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`.
+- Removed `craft\commerce\models\ShippingAddressZone::getStateIds()`.
+- Removed `craft\commerce\models\ShippingAddressZone::getStates()`.
+- Removed `craft\commerce\models\ShippingAddressZone::getStatesNames()`.
+- Removed `craft\commerce\models\ShippingAddressZone::isCountryBased`.
 - Removed `craft\commerce\models\States`.
-- Removed `craft\commerce\models\TaxAddressZone::getCountries()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`
-- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
-- Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
-- Removed `craft\commerce\models\TaxAddressZone::getStates()`
-- Removed `craft\commerce\models\TaxAddressZone::getStatesNames()`
-- Removed `craft\commerce\models\TaxAddressZone::isCountryBased`
+- Removed `craft\commerce\models\TaxAddressZone::getCountries()`.
+- Removed `craft\commerce\models\TaxAddressZone::getCountriesNames()`.
+- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`.
+- Removed `craft\commerce\models\TaxAddressZone::getStateIds()`.
+- Removed `craft\commerce\models\TaxAddressZone::getStates()`.
+- Removed `craft\commerce\models\TaxAddressZone::getStatesNames()`.
+- Removed `craft\commerce\models\TaxAddressZone::isCountryBased`.
 - Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
 - Removed `craft\commerce\records\Discount::CONDITION_USER_GROUPS_ANY_OR_NONE`. Discount user groups were migrated to the customer condition rule.
