@@ -20,6 +20,7 @@ use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
+use craft\commerce\fields\CustomerPreferences;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
@@ -477,6 +478,7 @@ class Plugin extends BasePlugin
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
+            $event->types[] = CustomerPreferences::class;
         });
     }
 
