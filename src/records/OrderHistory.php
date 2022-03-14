@@ -16,7 +16,6 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order history record.
  *
- * @property Customer $customer
  * @property int $userId
  * @property ?string $userName
  * @property DateTime $dateCreated
@@ -27,6 +26,7 @@ use yii\db\ActiveQueryInterface;
  * @property Order $order
  * @property int $orderId
  * @property OrderStatus $prevStatus
+ * @property-read User $user
  * @property int $prevStatusId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -61,11 +61,11 @@ class OrderHistory extends ActiveRecord
     {
         return $this->hasOne(OrderStatus::class, ['id' => 'newStatusId']);
     }
-    
+
     /**
      * @return ActiveQueryInterface
      */
-    public function Customer(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
     }
