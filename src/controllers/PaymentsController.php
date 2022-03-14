@@ -77,8 +77,7 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace. #COM-33
-        $number = $this->request->getParam('orderNumber');
+        $number = $this->request->getParam('number');
 
         if ($number !== null) {
             /** @var Order $order */
