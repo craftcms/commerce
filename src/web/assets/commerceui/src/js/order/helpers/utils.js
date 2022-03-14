@@ -46,6 +46,10 @@ export default {
             draftData.order.dateOrdered['timezone'] = Craft.timezone
         }
 
+        if (draft.order.suppressEmails != undefined) {
+            draftData.order.suppressEmails = draft.order.suppressEmails
+        }
+
         draftData.order.id = this.parseInputValue('int', draft.order.id)
 
         draft.order.lineItems.forEach((lineItem, lineItemKey) => {

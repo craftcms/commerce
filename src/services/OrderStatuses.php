@@ -29,6 +29,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
 use function count;
@@ -431,47 +432,56 @@ class OrderStatuses extends Component
      *
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @throws InvalidConfigException
      */
-    public function statusChangeHandler($order, $orderHistory)
+    public function statusChangeHandler(Order $order, OrderHistory $orderHistory): void
     {
+        $status = $this->getOrderStatusById($order->orderStatusId);
+
+        if ($status === null) {
+            return;
+        }
 
         // Raising 'beforeOrderStatusChange' event
         $event = new OrderStatusEmailsEvent([
             'orderHistory' => $orderHistory,
             'order' => $order,
+            'emails' => $status->getEmails(),
+            'isValid' => !$order->suppressEmails,
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
             $this->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
         }
 
-        if (($order->suppressEmails === false || $event->isValid === true) && $order->orderStatusId) {
-            $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && count($status->emails)) {
-                $originalLanguage = Craft::$app->language;
-
-                foreach ($status->emails as $email) {
-                    if ($email->enabled) {
-
-                        // Set language by email's set locale
-                        // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
-                        $language = $email->getRenderLanguage($order);
-                        Locale::switchAppLanguage($language);
-
-                        Queue::push(new SendEmail([
-                            'orderId' => $order->id,
-                            'commerceEmailId' => $email->id,
-                            'orderHistoryId' => $orderHistory->id,
-                            'orderData' => $order->toArray(),
-                        ]), 100);
-                    }
-                }
-
-                // Set previous language back
-                Craft::$app->language = $originalLanguage;
-                Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
-            }
+        if (!$event->isValid || empty($event->emails)) {
+            // Don't send emails
+            return;
         }
+
+        $originalLanguage = Craft::$app->language;
+
+        foreach ($event->emails as $email) {
+            if (!$email->enabled) {
+                continue;
+            }
+
+            // Set language by email's set locale
+            // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
+            $language = $email->getRenderLanguage($event->order);
+            Locale::switchAppLanguage($language);
+
+            Queue::push(new SendEmail([
+                'orderId' => $event->order->id,
+                'commerceEmailId' => $email->id,
+                'orderHistoryId' => $event->orderHistory->id,
+                'orderData' => $event->order->toArray(),
+            ]), 100);
+        }
+
+        // Set previous language back
+        Craft::$app->language = $originalLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
     }
 
     /**

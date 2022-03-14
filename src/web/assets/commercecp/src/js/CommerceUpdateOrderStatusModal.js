@@ -17,8 +17,13 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
         $updateBtn: null,
         $statusMenuBtn: null,
         $cancelBtn: null,
+        $suppress: null,
         init: function(currentStatus, orderStatuses, settings) {
             this.id = Math.floor(Math.random() * 1000000000);
+
+            settings.onHide = $.proxy(function() {
+                this.destroy();
+            }, this);
 
             this.setSettings(settings, {
                 resizable: false
@@ -60,6 +65,13 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 '<textarea class="text fullwidth" rows="2" cols="50" name="message" maxlength="10000"></textarea>' +
                 '</div>' +
                 '</div>').appendTo($inputs);
+
+            this.$suppress = $('<div class="field">' +
+              '<div class="input">' +
+              '<input id="order-action-suppress-emails" name="suppressEmails" type="checkbox" class="checkbox" value="1">' +
+              '<label for="order-action-suppress-emails">' + Craft.t('commerce', 'Suppress emails') + '</label>' +
+              '</div></div>'
+            ).appendTo($inputs);
 
             // Error notice area
             this.$error = $('<div class="error"/>').appendTo($inputs);
@@ -127,11 +139,13 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 'orderStatusId': this.currentStatus.id,
                 'message': this.$message.find('textarea[name="message"]').val(),
                 'color': this.currentStatus.color,
-                'name': this.currentStatus.name
+                'name': this.currentStatus.name,
+                'suppressEmails': this.$suppress.find('input[name="suppressEmails"]').is(':checked'),
             };
 
             this.settings.onSubmit(data);
         },
+
         defaults: {
             onSubmit: $.noop
         }

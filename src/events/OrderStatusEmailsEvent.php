@@ -28,4 +28,9 @@ class OrderStatusEmailsEvent extends CancelableEvent
      * @var Order The order
      */
     public Order $order;
+
+    /**
+     * @var array The emails to send
+     */
+    public array $emails;
 }
