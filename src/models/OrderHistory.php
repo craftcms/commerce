@@ -61,7 +61,7 @@ class OrderHistory extends Model
     /**
      * @var string|null User name or email
      */
-    public ?string $userName;
+    public ?string $userName = '';
 
     /**
      * @var Datetime|null

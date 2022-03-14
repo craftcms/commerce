@@ -916,12 +916,12 @@ class Discounts extends Component
         foreach ($discounts as $discount) {
             // Count if there was a user on this order that has authentication
             if ($user && $user->getIsCredentialed()) {
-                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
+                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['customerId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
                 if (!$userDiscountUseRecord) {
                     $userDiscountUseRecord = Craft::createObject(CustomerDiscountUse::class);
                     Craft::configure($userDiscountUseRecord, [
-                        'userId' => $user->id,
+                        'customerId' => $user->id,
                         'discountId' => $discount['discountUseId'],
                         'uses' => 1,
                     ]);
@@ -931,7 +931,7 @@ class Discounts extends Component
                         ->update(Table::CUSTOMER_DISCOUNTUSES, [
                             'uses' => new Expression('[[uses]] + 1'),
                         ], [
-                            'userId' => $order->getCustomerId(),
+                            'customerId' => $order->getCustomerId(),
                             'discountId' => $discount['discountUseId'],
                         ])
                         ->execute();
@@ -1063,7 +1063,7 @@ class Discounts extends Component
             $usage = (new Query())
                 ->select(['uses'])
                 ->from([Table::CUSTOMER_DISCOUNTUSES])
-                ->where(['[[userId]]' => $user->id, 'discountId' => $discount->id])
+                ->where(['[[customerId]]' => $user->id, 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {

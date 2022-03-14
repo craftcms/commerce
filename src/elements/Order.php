@@ -381,9 +381,9 @@ class Order extends Element
     public const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
     /**
-     * @event \yii\base\Event This event is raised after an order is customerized in full and completed
+     * @event \yii\base\Event This event is raised after an order is authorized in full and completed
      *
-     * Plugins can get notified after an order is customerized in full and completed
+     * Plugins can get notified after an order is authorized in full and completed
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -484,10 +484,10 @@ class Order extends Element
     public ?DateTime $datePaid = null;
 
     /**
-     * The date and time this order was customerized in full.
+     * The date and time this order was authorized in full.
      * This may the same date as datePaid if the order was paid immediately.
      *
-     * @var DateTime|null Date customerized
+     * @var DateTime|null Date authorized
      * ---
      * ```php
      * echo $order->dateAuthorized;
@@ -782,21 +782,6 @@ class Order extends Element
      * @since 3.2.0
      */
     public ?string $shippingMethodName = null;
-
-    /**
-     * @param ?int $oldStatusId
-     * @param ?int $currentOrderStatId
-     * @return void
-     */
-    private function _saveOrderHistory(?int $oldStatusId, ?int $currentOrderStatId): void
-    {
-        $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
-        if ($this->isCompleted && $hasNewStatus) {
-            if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
-                Craft::error('Error saving order history after order save.', __METHOD__);
-            }
-        }
-    }
 
     /**
      * @var int|null Customer’s ID
@@ -1220,21 +1205,33 @@ class Order extends Element
         return $this->reference ?: $this->getShortNumber();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canSave(User $user): bool
     {
         return parent::canSave($user) || $user->can('commerce-editOrders');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canView(User $user): bool
     {
         return parent::canView($user) || $user->can('commerce-manageOrders');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canDuplicate(User $user): bool
     {
         return parent::canDuplicate($user) || $user->can('commerce-editOrders');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function canDelete(User $user): bool
     {
         return parent::canDelete($user) || $user->can('commerce-deleteOrders');
@@ -1444,17 +1441,17 @@ class Order extends Element
     }
 
     /**
-     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or customerized.
+     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
      */
     public function updateOrderPaidInformation(): void
     {
         $this->_transactions = null; // clear order's transaction cache
 
         $paidInFull = !$this->hasOutstandingBalance();
-        $customerizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
+        $authorizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
 
         $justPaid = $paidInFull && $this->datePaid == null;
-        $justAuthorized = $customerizedInFull && $this->dateAuthorized == null;
+        $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
         $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
 
@@ -1463,8 +1460,8 @@ class Order extends Element
             $this->datePaid = null;
         }
 
-        // If it is no longer customerized in full, set dateAuthorized to null
-        if (!$customerizedInFull) {
+        // If it is no longer authorized in full, set dateAuthorized to null
+        if (!$authorizedInFull) {
             $this->dateAuthorized = null;
         }
 
@@ -1473,7 +1470,7 @@ class Order extends Element
             $this->datePaid = new DateTime();
         }
 
-        // If it was just customerized set the date customerized to now.
+        // If it was just authorized set the date authorized to now.
         if ($justAuthorized) {
             $this->dateAuthorized = new DateTime();
         }
@@ -1485,7 +1482,7 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
-        // If the order is now paid or customerized in full, lets mark it as complete if it has not already been.
+        // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalAuthorized = $this->getTotalAuthorized();
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull || $canComplete) {
@@ -2398,7 +2395,7 @@ class Order extends Element
             return 0;
         }
 
-        $customerized = 0;
+        $authorized = 0;
         $captured = 0;
 
         if ($this->_transactions === null) {
@@ -2415,7 +2412,7 @@ class Order extends Element
             }
 
             if ($isAuth) {
-                $customerized += $transaction->amount;
+                $authorized += $transaction->amount;
                 continue;
             }
 
@@ -2424,7 +2421,7 @@ class Order extends Element
             }
         }
 
-        return $customerized - $captured;
+        return $authorized - $captured;
     }
 
     /**
@@ -3241,5 +3238,20 @@ class Order extends Element
         ($orphanedAddresses->collect())->each(function(AddressElement $address) {
             Craft::$app->getElements()->deleteElement($address, true);
         });
+    }
+
+    /**
+     * @param ?int $oldStatusId
+     * @param ?int $currentOrderStatId
+     * @return void
+     */
+    private function _saveOrderHistory(?int $oldStatusId, ?int $currentOrderStatId): void
+    {
+        $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
+        if ($this->isCompleted && $hasNewStatus) {
+            if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
+                Craft::error('Error saving order history after order save.', __METHOD__);
+            }
+        }
     }
 }

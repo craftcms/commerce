@@ -11,7 +11,7 @@
     {% set countryCode = craft.app.request.param('countryCode') %}
 
     {% if addressId %}
-        {% set address = craft.addresses.id(addressId).ownerId(currentUser.id).one() %}
+        {% set address = collect(currentUser.addresses).firstWhere('id', addressId) %}
         {% if not address %}
             {% exit 404 %}
         {% endif %}

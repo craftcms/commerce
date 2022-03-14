@@ -73,7 +73,9 @@
               {% endif %}
 
               <div class="gateway-payment-form max-w-3/4">
-                {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
+                    {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                {% endnamespace %}
               </div>
 
               {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}

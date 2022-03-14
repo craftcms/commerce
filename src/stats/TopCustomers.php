@@ -61,7 +61,7 @@ class TopCustomers extends Stat
                 'users.email',
             ])
             ->innerJoin(Table::USERS . ' users', '[[orders.customerId]] = [[users.id]]')
-            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
+            ->groupBy(['[[orders.customerId]]', '[[users.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {

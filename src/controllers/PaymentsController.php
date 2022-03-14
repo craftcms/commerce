@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
@@ -238,7 +239,8 @@ class PaymentsController extends BaseFrontEndController
         if ($order->gatewayId && !$order->paymentSourceId) {
 
             // Populate the payment form from the params
-            $paymentForm->setAttributes($this->request->getBodyParams(), false);
+            $paymentFormParams = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle));
+            $paymentForm->setAttributes($paymentFormParams, false);
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {

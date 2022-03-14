@@ -24,7 +24,7 @@ new Craft.VueAdminTable({
     buttons: [
         {
             label: Craft.t('commerce', 'New Order'),
-            href: '{{ cpUrl('commerce/orders/new', { userId: userId }) }}',
+            href: '{{ cpUrl('commerce/orders/create', { customerId: customerId }) }}',
             icon: 'plus',
         }
     ],
@@ -33,7 +33,7 @@ new Craft.VueAdminTable({
     emptyMessage: Craft.t('commerce', 'No orders exist.'),
     padded: true,
     perPage: 10,
-    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?userId={{ userId }}'),
+    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?customerId={{ customerId }}'),
     search: true,
     searchPlaceholder: Craft.t('commerce', 'Search orders')
   });

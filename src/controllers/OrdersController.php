@@ -24,6 +24,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
@@ -112,27 +113,19 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-manageOrders');
 
-        $userId = Craft::$app->getRequest()->getParam('userId', null);
+        $userId = Craft::$app->getRequest()->getParam('customerId', null);
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
 
         if ($userId && !$user) {
             throw new BadRequestHttpException("Invalid user ID: $userId");
         }
 
-        $attributes = [
-            'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-            'origin' => Order::ORIGIN_CP,
-        ];
-
+        $order = new Order();
         if ($user) {
-            $attributes['customerId'] = $user->id;
+            $order->setCustomer($user);
         }
-
-        $order = Craft::createObject(Order::class, [
-            'config' => [
-                'attributes' => $attributes,
-            ],
-        ]);
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+        $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -881,6 +874,8 @@ class OrdersController extends Controller
                 'paymentForm' => $paymentFormModel,
                 'order' => $order,
             ]);
+
+            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
             $formHtml .= $paymentFormHtml;
         }

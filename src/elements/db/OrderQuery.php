@@ -700,8 +700,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *     .origin('web')
-     *     .all() %}
+     *   .origin('web')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -864,8 +864,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .customerId(currentUser.id)
-     *     .all() %}
+     *   .customerId(currentUser.id)
+     *   .all() %}
      * ```
      *
      * ```php

@@ -15,14 +15,14 @@
     "issues": "https://github.com/craftcms/commerce/issues?state=open",
     "forum": "https://craftcms.stackexchange.com/",
     "source": "https://github.com/craftcms/commerce",
-    "docs": "https://craftcms.com/docs/commerce/3.x/",
+    "docs": "https://craftcms.com/docs/commerce/4.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
     "php": "^8.0.2",
-    "craftcms/cms": "^4.0.0-alpha",
+    "craftcms/cms": "^4.0.0-beta.1",
     "dompdf/dompdf": "^1.0.2",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
@@ -52,7 +52,7 @@
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
-    "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
+    "documentationUrl": "https://craftcms.com/docs/commerce/4.x/"
   },
   "scripts": {
     "check-cs": "ecs check --ansi",

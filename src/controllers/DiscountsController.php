@@ -45,7 +45,7 @@ class DiscountsController extends BaseCpController
 {
     public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    public const DISCOUNT_COUNTER_TYPE_USER = 'user';
+    public const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
     /**
      * @inheritdoc
@@ -318,7 +318,7 @@ class DiscountsController extends BaseCpController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
-        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_USER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
+        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
             return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
@@ -328,7 +328,7 @@ class DiscountsController extends BaseCpController
             case self::DISCOUNT_COUNTER_TYPE_EMAIL:
                 Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
                 break;
-            case self::DISCOUNT_COUNTER_TYPE_USER:
+            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
                 Plugin::getInstance()->getDiscounts()->clearUserUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_TOTAL:
@@ -446,7 +446,7 @@ class DiscountsController extends BaseCpController
 
         $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;
         $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
-        $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_USER;
+        $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
 
         if ($variables['discount']->id) {
             $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
