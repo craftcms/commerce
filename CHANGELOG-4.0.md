@@ -59,8 +59,9 @@
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\service\Store`.
 - Added `craft\commerce\services\Coupons`.
-- Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`
-- Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`
+- Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`.
+- Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`.
+- Added `craft\commerce\services\Customers::ensureCustomer()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.

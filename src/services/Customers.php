@@ -34,7 +34,7 @@ class Customers extends Component
      */
     public function savePrimaryShippingAddressId(User $user, ?int $addressId): bool
     {
-        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
+        $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryShippingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryShippingAddressId = $addressId;
@@ -48,7 +48,7 @@ class Customers extends Component
      */
     public function savePrimaryBillingAddressId(User $user, ?int $addressId): bool
     {
-        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
+        $customerRecord = $this->ensureCustomer($user);
         $customerRecord->primaryBillingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryBillingAddressId = $addressId;
@@ -137,6 +137,22 @@ class Customers extends Component
     }
 
     /**
+     * @param User $user
+     * @return CustomerRecord
+     */
+    public function ensureCustomer(User $user): CustomerRecord
+    {
+        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one();
+        if (!$customerRecord) {
+            $customerRecord = new CustomerRecord();
+            $customerRecord->customerId = $user->id;
+            $customerRecord->save();
+        }
+
+        return $customerRecord;
+    }
+
+    /**
      * Makes sure the user has an email address and sets them to pending and sends the activation email
      */
     private function _activateUserFromOrder(Order $order): void
@@ -167,17 +183,5 @@ class Customers extends Component
                 Craft::warning($errors, __METHOD__);
             }
         }
-    }
-
-    /**
-     * @param User $user
-     * @return CustomerRecord
-     */
-    private function _createCustomerRecord(User $user): CustomerRecord
-    {
-        $customer = new CustomerRecord();
-        $customer->customerId = $user->id;
-        $customer->save();
-        return $customer;
     }
 }
