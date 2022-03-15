@@ -77,7 +77,7 @@ class TotalOrdersByCountry extends Stat
         $otherCountries = $this->_createStatQuery()
             ->select([
                 'total' => new Expression('COUNT([[orders.id]])'),
-                'id' => new Expression('NULL'),
+                'countryCode' => new Expression('NULL'),
             ])
             ->leftJoin(CraftTable::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
             ->leftJoin(CraftTable::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')
@@ -109,6 +109,9 @@ class TotalOrdersByCountry extends Stat
     {
         if (!empty($data)) {
             foreach ($data as &$row) {
+                if (!$row['countryCode']) {
+                    continue;
+                }
                 $row['name'] = Craft::$app->getAddresses()->getCountryRepository()->get($row['countryCode'])?->getName();
             }
         }
