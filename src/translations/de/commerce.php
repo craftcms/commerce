@@ -1003,6 +1003,7 @@ return [
     'Subscription' => 'Abonnement',
     'Subscriptions on hold' => 'Abonnements pausiert',
     'Subscriptions' => 'Abonnements',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'Plan wechseln',
     'Switch' => 'Wechseln',
     'System Settings' => 'Systemeinstellungen',
