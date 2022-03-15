@@ -17,8 +17,8 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property int $customerId The customer's User element ID
- * @property int $primaryBillingAddressId
- * @property int $primaryShippingAddressId
+ * @property ?int $primaryBillingAddressId
+ * @property ?int $primaryShippingAddressId
  * @property-read ActiveQueryInterface $primaryShippingAddress
  * @property-read ActiveQueryInterface $primaryBillingAddress
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
