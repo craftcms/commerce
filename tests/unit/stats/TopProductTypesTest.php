@@ -117,7 +117,7 @@ class TopProductTypesTest extends Unit
         $user->admin = true;
 
         $mockUser = $this->make(\craft\web\User::class, [
-            'getIdentity' => $user
+            'getIdentity' => $user,
         ]);
 
         \Craft::$app->set('user', $mockUser);

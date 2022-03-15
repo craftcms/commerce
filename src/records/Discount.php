@@ -57,21 +57,21 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
-    const TYPE_ORIGINAL_SALEPRICE = 'original';
-    const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+    public const TYPE_ORIGINAL_SALEPRICE = 'original';
+    public const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 
-    const BASE_DISCOUNT_TYPE_VALUE = 'value';
-    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
-    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
-    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
-    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
+    public const BASE_DISCOUNT_TYPE_VALUE = 'value';
+    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
+    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
+    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
+    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
 
-    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
-    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
-    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
-    const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
+    public const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
+    public const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
     /**
      * @inheritdoc

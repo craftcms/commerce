@@ -17,7 +17,7 @@ use craft\helpers\StringHelper;
  */
 class Purchasable
 {
-    const TEMPORARY_SKU_PREFIX = '__temp_';
+    public const TEMPORARY_SKU_PREFIX = '__temp_';
 
     /**
      * Generates a new temporary SKU.

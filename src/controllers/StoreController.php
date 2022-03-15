@@ -26,7 +26,6 @@ use yii\web\Response as YiiResponse;
  */
 class StoreController extends BaseStoreSettingsController
 {
-
     /**
      * @return YiiResponse
      * @throws TemplateLoaderException

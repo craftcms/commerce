@@ -10,7 +10,7 @@
             {{ redirectInput(order.cpEditUrl) }}
             <input type="hidden" name="cancelUrl"
                    value="{{ order.cpEditUrl|hash }}"/>
-            <input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+            <input type="hidden" name="number" value="{{ order.number }}"/>
             <input type="hidden" name="orderEmail" value="{{ order.email }}"/>
         {% endif %}
 

@@ -14,10 +14,10 @@ use yii\helpers\Html;
                 'data-toggle' => 'tab',
                 'role' => 'tab',
                 'aria-controls' => 'comdebug-tab-' . $k,
-                'aria-selected' => $k === 0 ? 'true' : 'false'
+                'aria-selected' => $k === 0 ? 'true' : 'false',
             ]),
             [
-                'class' => 'nav-item'
+                'class' => 'nav-item',
             ]
         );
     }
@@ -28,7 +28,7 @@ use yii\helpers\Html;
     foreach ($panel->data['content'] as $k => $item) {
         echo Html::tag('div', $item, [
             'class' => $k === 0 ? 'tab-pane fade active show' : 'tab-pane fade',
-            'id' => 'comdebug-tab-' . $k
+            'id' => 'comdebug-tab-' . $k,
         ]);
     }
     ?>

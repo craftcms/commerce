@@ -10,6 +10,7 @@ namespace craft\commerce\behaviors;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
+use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ModelEvent;
@@ -49,6 +50,11 @@ class CustomerBehavior extends Behavior
      * @var array|null
      */
     private ?array $_subscriptions = null;
+
+    /**
+     * @var Customer|null
+     */
+    private ?Customer $_customer = null;
 
     /**
      * @inheritdoc
@@ -159,6 +165,11 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryBillingAddressId(): ?int
     {
+        /** @var Customer $customer */
+        if (!isset($this->_primaryBillingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
+            $this->_primaryBillingAddressId = $customer->primaryBillingAddressId;
+        }
+
         return $this->_primaryBillingAddressId;
     }
 
@@ -183,6 +194,11 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryShippingAddressId(): ?int
     {
+        /** @var Customer $customer */
+        if (!isset($this->_primaryShippingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
+            $this->_primaryShippingAddressId = $customer->primaryShippingAddressId;
+        }
+
         return $this->_primaryShippingAddressId;
     }
 

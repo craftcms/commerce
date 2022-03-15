@@ -51,7 +51,7 @@ class ShippingMethods extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
+    public const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
 
     /**

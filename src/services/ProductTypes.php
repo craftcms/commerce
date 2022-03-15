@@ -161,7 +161,7 @@ class ProductTypes extends Component
         }
 
         return $editableProductTypes;
-    }   
+    }
 
     /**
      * Returns all product type IDs that are editable by the current user.
@@ -1019,7 +1019,7 @@ class ProductTypes extends Component
 
     /**
      * Check if user has product type permission.
-     * 
+     *
      * @param User $user
      * @param ProductType $productType
      * @param null $checkPermissionName detailed product type permission.

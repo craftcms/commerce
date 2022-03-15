@@ -64,7 +64,7 @@ class m211118_101920_split_coupon_codes extends Migration
                 ->column();
 
             if (!empty($discountsWithCodes)) {
-                $coupons = array_map(static function ($discount) use ($codeUsage) {
+                $coupons = array_map(static function($discount) use ($codeUsage) {
                     $row['code'] = $discount['code'];
                     $row['discountId'] = $discount['id'];
                     $row['uses'] = $codeUsage[$discount['code']] ?? 0;

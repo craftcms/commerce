@@ -59,7 +59,7 @@ class Store extends Component
             // Make sure the store always has an address location set.
             $storeLocationAddress = $this->_store->getLocationAddressId() ? AddressElement::findOne($this->_store->locationAddressId) : null;
             if ($storeLocationAddress === null) {
-               $this->_createDefaultStoreLocationAddress();
+                $this->_createDefaultStoreLocationAddress();
             }
         }
     }
@@ -72,16 +72,6 @@ class Store extends Component
     public function getStore(): StoreModel
     {
         return $this->_store;
-    }
-
-    /**
-     * @return array|string[]
-     */
-    public function getAllEnabledCountriesAsList()
-    {
-        $enabledCountries = $this->_store->countries;
-        // TODO merge in the custom countries and filter out the disabled countries
-        return Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
     }
 
     /**

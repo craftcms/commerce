@@ -65,7 +65,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
+    public const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
 
     /**
      * @event TransactionEvent The event that is triggered before a payment transaction is captured.
@@ -89,7 +89,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
+    public const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a payment transaction is captured.
@@ -113,7 +113,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
+    public const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered before a transaction is refunded.
@@ -136,7 +136,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
+    public const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction is refunded.
@@ -159,7 +159,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
+    public const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
 
     /**
      * @event ProcessPaymentEvent The event that is triggered before a payment is processed.
@@ -194,7 +194,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
+    public const EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
 
     /**
      * @event ProcessPaymentEvent The event that is triggered after a payment is processed.
@@ -227,7 +227,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
+    public const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
 
     /**
      * Process a payment.

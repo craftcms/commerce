@@ -21,7 +21,7 @@ class DiscountAddressCondition extends ElementAddressCondition
     {
         return array_merge(parent::conditionRuleTypes(),
             [
-                PostalCodeFormulaConditionRule::class
+                PostalCodeFormulaConditionRule::class,
             ]);
     }
 

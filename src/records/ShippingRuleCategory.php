@@ -28,9 +28,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRuleCategory extends ActiveRecord
 {
-    const CONDITION_ALLOW = 'allow';
-    const CONDITION_DISALLOW = 'disallow';
-    const CONDITION_REQUIRE = 'require';
+    public const CONDITION_ALLOW = 'allow';
+    public const CONDITION_DISALLOW = 'disallow';
+    public const CONDITION_REQUIRE = 'require';
 
     /**
      * @inheritdoc

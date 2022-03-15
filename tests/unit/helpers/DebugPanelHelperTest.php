@@ -53,7 +53,7 @@ class DebugPanelHelperTest extends Unit
                     'enableDebugToolbarForSite' => true,
                     'enableDebugToolbarForCp' => true,
                 ];
-            }
+            },
         ]);
         Craft::$app->set('users', $usersServices);
 
@@ -99,9 +99,9 @@ class DebugPanelHelperTest extends Unit
                     [
                         'name' => 'Discount (ID: 1)',
                         'content' => '<tr><th>id</th><td><code>1</code></td></tr>',
-                        'position' => 0
+                        'position' => 0,
                     ],
-                ]
+                ],
             ],
             [
                 [
@@ -120,14 +120,14 @@ class DebugPanelHelperTest extends Unit
                     [
                         'name' => 'Test Custom Name',
                         'content' => '<tr><th>id</th><td><code>123</code></td></tr>',
-                        'position' => 1
+                        'position' => 1,
                     ],
                     [
                         'name' => 'Discount (ID: 1)',
                         'content' => '<tr><th>id</th><td><code>1</code></td></tr>',
-                        'position' => 0
+                        'position' => 0,
                     ],
-                ]
+                ],
             ],
         ];
     }

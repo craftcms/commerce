@@ -29,30 +29,30 @@ class Customers extends Component
 {
     /**
      * @param User $user
-     * @param int $addressId
+     * @param int|null $addressId
      * @return bool
      */
-    public function savePrimaryShippingAddressId(User $user, int $addressId): bool
+    public function savePrimaryShippingAddressId(User $user, ?int $addressId): bool
     {
-        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
-        $userRecord->primaryShippingAddressId = $addressId;
+        $customerRecord = $this->ensureCustomer($user);
+        $customerRecord->primaryShippingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryShippingAddressId = $addressId;
-        return $userRecord->save();
+        return $customerRecord->save();
     }
 
     /**
      * @param User $user
-     * @param int $addressId
+     * @param int|null $addressId
      * @return bool
      */
-    public function savePrimaryBillingAddressId(User $user, int $addressId): bool
+    public function savePrimaryBillingAddressId(User $user, ?int $addressId): bool
     {
-        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
-        $userRecord->primaryBillingAddressId = $addressId;
+        $customerRecord = $this->ensureCustomer($user);
+        $customerRecord->primaryBillingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryBillingAddressId = $addressId;
-        return $userRecord->save();
+        return $customerRecord->save();
     }
 
     /**
@@ -137,6 +137,24 @@ class Customers extends Component
     }
 
     /**
+     * Returns a customer record by a user element, creating one if none already exists.
+     * 
+     * @param User $user
+     * @return CustomerRecord
+     */
+    public function ensureCustomer(User $user): CustomerRecord
+    {
+        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one();
+        if (!$customerRecord) {
+            $customerRecord = new CustomerRecord();
+            $customerRecord->customerId = $user->id;
+            $customerRecord->save();
+        }
+
+        return $customerRecord;
+    }
+
+    /**
      * Makes sure the user has an email address and sets them to pending and sends the activation email
      */
     private function _activateUserFromOrder(Order $order): void
@@ -167,17 +185,5 @@ class Customers extends Component
                 Craft::warning($errors, __METHOD__);
             }
         }
-    }
-
-    /**
-     * @param User $user
-     * @return CustomerRecord
-     */
-    private function _createCustomerRecord(User $user): CustomerRecord
-    {
-        $customer = new CustomerRecord();
-        $customer->id = $user->id;
-        $customer->save();
-        return $customer;
     }
 }

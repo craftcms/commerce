@@ -30,7 +30,7 @@ class Discount extends Component implements AdjusterInterface
     /**
      * The discount adjustment type.
      */
-    const ADJUSTMENT_TYPE = 'discount';
+    public const ADJUSTMENT_TYPE = 'discount';
 
     /**
      * @event DiscountAdjustmentsEvent The event that is triggered after a discount has matched the order and before it returns its adjustments.
@@ -60,7 +60,7 @@ class Discount extends Component implements AdjusterInterface
      * );
      * ```
      */
-    const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
+    public const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
     /**

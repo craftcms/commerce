@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-
 use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
@@ -71,7 +70,7 @@ class DiscountsFixture extends BaseModelFixture
         $data['coupons'] = [];
         foreach ($data['_coupons'] as $c) {
             $data['coupons'][] = \Craft::createObject(Coupon::class, ['config' => [
-                'attributes' => $c
+                'attributes' => $c,
             ]]);
         }
 

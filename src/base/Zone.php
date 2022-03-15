@@ -65,7 +65,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
      */
     public function setCondition(ZoneAddressCondition|string|array|null $condition): void
     {
-        if($condition === null) {
+        if ($condition === null) {
             $condition = new ZoneAddressCondition();
         }
 

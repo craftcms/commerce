@@ -25,7 +25,7 @@ use craft\helpers\ArrayHelper;
  */
 class Shipping extends Component implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'shipping';
+    public const ADJUSTMENT_TYPE = 'shipping';
 
     /**
      * @var Order

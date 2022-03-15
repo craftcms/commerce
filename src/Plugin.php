@@ -12,6 +12,7 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\UserAddressBehavior;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -21,6 +22,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
+use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products;
@@ -344,7 +346,6 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => $this->_registerProductTypePermission() + [
@@ -366,11 +367,11 @@ class Plugin extends BasePlugin
                         ],
                     ],
                     'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                    'commerce-manageSubscriptions' =>['label' => Craft::t('commerce', 'Manage subscriptions')],
+                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                     'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                     'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ]
+                ],
             ];
         });
     }
@@ -395,7 +396,7 @@ class Plugin extends BasePlugin
                     "commerce-deleteProducts{$suffix}" => [
                         'label' => Craft::t('commerce', 'Delete products'),
                     ],
-                ]
+                ],
             ];
         }
 
@@ -415,8 +416,8 @@ class Plugin extends BasePlugin
                 'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete Sales')],
                 'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit Discounts')],
                 'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create Discounts')],
-                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')]
-            ]
+                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')],
+            ],
         ];
     }
 
@@ -472,7 +473,7 @@ class Plugin extends BasePlugin
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleDeletedPdf']);
 
-        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
+        Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, static function(RebuildConfigEvent $event) {
             $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();
         });
     }
@@ -497,11 +498,18 @@ class Plugin extends BasePlugin
             UserElement::class,
             UserElement::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
-                $event->sender->attachBehaviors([
-                    CustomerBehavior::class,
-                ]);
+                $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
+            /** @var Address $address */
+            $address = $event->sender;
+            $owner = $address->getOwner();
+            if ($owner instanceof UserElement) {
+                $event->behaviors['commerce:address'] = UserAddressBehavior::class;
+            }
+        });
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }
@@ -514,8 +522,9 @@ class Plugin extends BasePlugin
         $checkAuth = function(AuthorizationCheckEvent $event) {
             /** @var Address $address */
             $address = $event->sender;
+            $canonicalId = $address->getCanonicalId();
             if (
-                $address->id && $address->id === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
+                $canonicalId && $canonicalId === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
                 $event->user->can('commerce-manageStoreSettings')
             ) {
                 $event->authorized = true;
@@ -532,7 +541,7 @@ class Plugin extends BasePlugin
      */
     private function _registerFieldTypes(): void
     {
-        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, static function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
             $event->types[] = Variants::class;
         });
@@ -543,7 +552,7 @@ class Plugin extends BasePlugin
      */
     private function _registerWidgets(): void
     {
-        Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
+        Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, static function(RegisterComponentTypesEvent $event) {
             $event->types[] = AverageOrderTotal::class;
             $event->types[] = NewCustomers::class;
             $event->types[] = Orders::class;
@@ -563,7 +572,7 @@ class Plugin extends BasePlugin
      */
     private function _registerVariables(): void
     {
-        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
+        Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, static function(Event $event) {
             /** @var CraftVariable $variable */
             $variable = $event->sender;
             $variable->attachBehavior('commerce', CraftVariableBehavior::class);
@@ -579,7 +588,7 @@ class Plugin extends BasePlugin
             return;
         }
 
-        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, function(Event $event) {
+        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, static function(Event $event) {
             // Add default FKs
             (new Install())->addForeignKeys();
         });
@@ -608,7 +617,7 @@ class Plugin extends BasePlugin
      */
     private function _registerElementTypes(): void
     {
-        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, static function(RegisterComponentTypesEvent $e) {
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
@@ -622,7 +631,7 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlInterfaces(): void
     {
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, static function(RegisterGqlTypesEvent $event) {
             // Add my GraphQL types
             $types = $event->types;
             $types[] = GqlProductInterface::class;
@@ -636,7 +645,7 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlQueries(): void
     {
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, static function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
             $event->queries = array_merge(
                 $event->queries,
@@ -651,7 +660,7 @@ class Plugin extends BasePlugin
      */
     private function _registerGqlComponents(): void
     {
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, static function(RegisterGqlSchemaComponentsEvent $event) {
             $queryComponents = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -695,7 +704,7 @@ class Plugin extends BasePlugin
             Craft::error($e->getMessage());
         }
 
-        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, function(RegisterCacheOptionsEvent $e) use ($path) {
+        Event::on(ClearCaches::class, ClearCaches::EVENT_REGISTER_CACHE_OPTIONS, static function(RegisterCacheOptionsEvent $e) use ($path) {
             try {
                 FileHelper::createDirectory($path);
             } catch (\Exception $e) {
@@ -721,7 +730,7 @@ class Plugin extends BasePlugin
      */
     private function _registerGarbageCollection(): void
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+        Event::on(Gc::class, Gc::EVENT_RUN, static function() {
             // Deletes carts that meet the purge settings
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
         });
@@ -734,7 +743,7 @@ class Plugin extends BasePlugin
      */
     private function _registerElementExports(): void
     {
-        Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
+        Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, static function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
             $e->exporters[] = LineItemExport::class;
         });
@@ -747,7 +756,7 @@ class Plugin extends BasePlugin
      */
     private function _registerDebugPanels(): void
     {
-        Event::on(Application::class, Application::EVENT_BEFORE_REQUEST, function() {
+        Event::on(Application::class, Application::EVENT_BEFORE_REQUEST, static function() {
             /** @var Module|null $module */
             $module = Craft::$app->getModule('debug');
             $user = Craft::$app->getUser()->getIdentity();
@@ -776,11 +785,14 @@ class Plugin extends BasePlugin
      */
     private function _defineFieldLayoutElements(): void
     {
-        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_NATIVE_FIELDS, static function(DefineFieldLayoutFieldsEvent $e) {
             /** @var FieldLayout $fieldLayout */
             $fieldLayout = $e->sender;
 
             switch ($fieldLayout->type) {
+                case Address::class:
+                    $e->fields[] = UserAddressSettings::class;
+                    break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsField::class;
@@ -796,7 +808,7 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand(): void
     {
-        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
+        Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, static function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
                 'action' => function(): int {
                     /** @var ResaveController $controller */

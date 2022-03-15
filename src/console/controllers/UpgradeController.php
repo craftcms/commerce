@@ -42,51 +42,6 @@ use yii\db\Schema;
 class UpgradeController extends Controller
 {
     /**
-     * @var string|null The custom field handle that “Attention” address values should be saved to
-     */
-    public ?string $attentionField = null;
-    /**
-     * @var string|null The custom field handle that “Title” address values should be saved to
-     */
-    public ?string $titleField = null;
-    /**
-     * @var string|null The custom field handle that “Address 3” address values should be saved to
-     */
-    public ?string $address3Field = null;
-    /**
-     * @var string|null The custom field handle that “Business ID” address values should be saved to
-     */
-    public ?string $businessIdField = null;
-    /**
-     * @var string|null The custom field handle that “Phone Number” address values should be saved to
-     */
-    public ?string $phoneField = null;
-    /**
-     * @var string|null The custom field handle that “Alternative Phone” address values should be saved to
-     */
-    public ?string $alternativePhoneField = null;
-    /**
-     * @var string|null The custom field handle that “Custom 1” address values should be saved to
-     */
-    public ?string $custom1Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 2” address values should be saved to
-     */
-    public ?string $custom2Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 3” address values should be saved to
-     */
-    public ?string $custom3Field = null;
-    /**
-     * @var string|null The custom field handle that “Custom 4” address values should be saved to
-     */
-    public ?string $custom4Field = null;
-    /**
-     * @var string|null The custom field handle that “Notes” address values should be saved to
-     */
-    public ?string $notesField = null;
-
-    /**
      * @inheritdoc
      */
     public $defaultAction = 'run';
@@ -107,7 +62,7 @@ class UpgradeController extends Controller
         'custom2' => 'Custom 2',
         'custom3' => 'Custom 3',
         'custom4' => 'Custom 4',
-        'notes' => 'Notes'
+        'notes' => 'Notes',
     ];
 
     /**
@@ -148,7 +103,6 @@ class UpgradeController extends Controller
 
         ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
         ['table' => '{{%commerce_orderhistories}}', 'column' => 'v3customerId'],
-        ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
     ];
 
     private array $_v3tables = [
@@ -204,50 +158,25 @@ class UpgradeController extends Controller
     private array $_userIdsByv3CustomerId = [];
 
     /**
-     * @inheritdoc
+     * Runs the data migration
+     *
+     * @throws \Throwable
      */
-    public function options($actionID): array
+    public function actionRun(): int
     {
-        $options = parent::options($actionID);
-        switch ($actionID) {
-            case 'migrate':
-                $options[] = 'attentionField';
-                $options[] = 'titleField';
-                $options[] = 'address3Field';
-                $options[] = 'businessIdField';
-                $options[] = 'phoneField';
-                $options[] = 'alternativePhoneField';
-                $options[] = 'custom1Field';
-                $options[] = 'custom2Field';
-                $options[] = 'custom3Field';
-                $options[] = 'custom4Field';
-                $options[] = 'notesField';
-        }
-
-        return $options;
-    }
-
-    /**
-     * @param $action
-     * @return bool
-     */
-    public function beforeAction($action): bool
-    {
-        /**
-         * Check to make sure they are not doing this before running standard migrations.
-         */
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '<')) {
-            $this->stdout("You must run `craft migrate/all` command first.\n" . PHP_EOL, Console::FG_RED);
+        if (!$this->interactive) {
+            $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        /**
-         * Check to make sure they have all tables still around after the migration.
-         * These will be deleted after this migration occurs. This is also a way to
-         * make sure they have not run this more than once.
-         */
+        // Make sure Commerce 4 migrations have been run
+        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '<')) {
+            $this->stderr("You must run the `craft migrate/all` command first.\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        // Make sure all the legacy tables still exist
         foreach ($this->_v3tables as $table) {
             $cleanTableName = str_replace(['{{%', '}}'], '', $table);
             if (!Craft::$app->getDb()->tableExists($table)) {
@@ -256,34 +185,29 @@ class UpgradeController extends Controller
             }
         }
 
-        // List of countries in the system at the moment.
-        // Note: This list will contain the custom countries, but we will replace the 'iso' codes in this array
-        // when we prompt the user for the mapping to real iso codes.
+        // Collect all the countries in the system at the moment
         $this->_allCountriesByV3CountryId = (new Query())
-            ->select(['*'])
             ->from(['{{%commerce_countries}}'])
             ->indexBy('id')
             ->all();
 
-        // Collect all custom countries that were set up that are not in the standard country repository list.
-        $customCountriesByV3CountryId = (new Query())
-            ->select(['*'])
-            ->from(['{{%commerce_countries}}'])
-            ->where(['not', ['iso' => array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList())]])
-            ->indexBy('id')
-            ->all();
+        // Map any invalid country codes to valid ones
+        $validCountries = Craft::$app->getAddresses()->getCountryRepository()->getList();
 
+        foreach ($this->_allCountriesByV3CountryId as &$country) {
+            // Is it already valid?
+            if (isset($validCountries[$country['iso']])) {
+                continue;
+            }
 
-        // After this process we should have not custom countries in out countries list.
-        foreach ($customCountriesByV3CountryId as $customCountry) {
-            $this->stdout(sprintf("Found invalid custom country: %s (%s)\n", $customCountry['name'], $customCountry['iso']));
-            $this->stdout("We need to map this to a real country. All addresses and zones will be updated.\n");
-            $this->stdout("See: https://www.iban.com/country-codes\n");
-            $validCountries = array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList());
-            $countryCode = $this->prompt('Please enter a valid Alpha-2 Country code:', [
+            $this->stdout(sprintf("Invalid custom country found: %s (%s)\n", $country['name'], $country['iso']));
+            $this->stdout("We need to map this to a valid country code. (All addresses and zones will be updated.)\n");
+            $this->stdout('See: ');
+            $this->stdout("https://www.iban.com/country-codes\n", Console::FG_BLUE);
+            $country['iso'] = $this->prompt('Enter a valid Alpha-2 country code:', [
                 'required' => true,
                 'validator' => function($countryCode) use ($validCountries) {
-                    if (in_array($countryCode, $validCountries, false)) {
+                    if (isset($validCountries[$countryCode])) {
                         return true;
                     }
                     $this->stdout("Not a valid Alpha-2 Country code.\n");
@@ -291,14 +215,12 @@ class UpgradeController extends Controller
                 },
                 'default' => 'US',
             ]);
-            // Update our list of countries, replacing the old custom ISO with the new valid ISO.
-            $this->_allCountriesByV3CountryId[$customCountry['id']]['iso'] = strtoupper($countryCode);
-            $this->stdout("\n\n");
+            $this->stdout("\n");
         }
+        unset($country);
 
         // Collect all the standard states that were set up in v3.
         $this->_allStatesByV3StateId = (new Query())
-            ->select(['*'])
             ->from(['{{%commerce_states}}'])
             ->indexBy('id')
             ->all();
@@ -313,59 +235,49 @@ class UpgradeController extends Controller
                 ->exists();
         }, ARRAY_FILTER_USE_KEY);
 
-        return parent::beforeAction($action);
-    }
-
-    /**
-     * Runs the data migration
-     *
-     * @throws \Throwable
-     */
-    public function actionRun(): int
-    {
         $db = Craft::$app->getDb();
 
-        $this->stdout("\nEnsuring address data migration field locations...\n");
+        $this->stdout("Ensuring address data migration field locations…\n");
         $this->_migrateAddressCustomFields();
 
-        $this->stdout("Creating a user for every customer...\n");
+        $this->stdout("Creating a user for every customer…\n");
         $this->_migrateCustomers();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Addresses...\n");
+        $this->stdout("Migrating Addresses…\n");
         $this->_migrateAddresses();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Order Addresses...\n");
+        $this->stdout("Migrating Order Addresses…\n");
         $this->_migrateOrderAddresses();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating User Addresses Books...\n");
+        $this->stdout("Migrating User Addresses Books…\n");
         $this->_migrateUserAddressBook();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Store Location...\n");
+        $this->stdout("Migrating Store Location…\n");
         $this->_migrateStore();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones...\n");
+        $this->stdout("Migrating Shipping Zones…\n");
         $this->_migrateShippingZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones...\n");
+        $this->stdout("Migrating Shipping Zones…\n");
         $this->_migrateTaxZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Tax Zones...\n");
+        $this->stdout("Migrating Tax Zones…\n");
         $this->_migrateTaxZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating order history user...\n");
+        $this->stdout("Migrating order history user…\n");
         $this->_migrateOrderHistoryUser();
         $this->stdout("\nDone.\n\n");
 
 
-        $this->stdout("Cleaning up...\n");
+        $this->stdout("Cleaning up…\n");
         foreach ($this->_v3tables as $table) {
             Db::dropAllForeignKeysToTable($table);
             MigrationHelper::dropAllForeignKeysOnTable($table);
@@ -396,15 +308,13 @@ class UpgradeController extends Controller
             $firstTab = $fieldLayout->getTabs()[0];
             $layoutElements = $firstTab->getElements();
 
-            if ($this->interactive) {
-                $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
-                $this->stdout(<<<EOL
+            $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
+            $this->stdout(<<<EOL
 Customer and order addresses will be migrated to native Craft address elements.
 Some of the existing addresses contain data that will need to be stored in custom fields:
 $list
 EOL
-                );
-            }
+            );
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label);
@@ -427,26 +337,6 @@ EOL
     private function _customField(string $oldAttribute, string $label): FieldInterface
     {
         $fieldsService = Craft::$app->getFields();
-
-        // Was a field handle already specified as an option?
-        $option = sprintf('%sField', $oldAttribute);
-        if (isset($this->$option)) {
-            $field = $fieldsService->getFieldByHandle($this->$option);
-            if ($field) {
-                return $field;
-            }
-            if (!$this->interactive) {
-                $this->stderr("No custom field exists with the handle “{$this->$option}”.\n");
-                throw new OperationAbortedException();
-            }
-            $this->stdout("No custom field exists with the handle “{$this->$option}”. Ignoring.\n");
-        }
-
-        if (!$this->interactive) {
-            $this->stderr("Try again with the --$option option set to a valid custom field handle for storing $label data from existing addresses.\n");
-            throw new OperationAbortedException();
-        }
-
         $handlePattern = sprintf('/^%s$/', HandleValidator::$handlePattern);
 
         if (
@@ -700,11 +590,20 @@ EOL
         $previousAddressTable = '{{%commerce_addresses}}';
         $customerAddressTable = '{{%commerce_customers_addresses}}';
         $customersTable = '{{%commerce_customers}}';
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
 
-        /**
-         * Make all address elements with their correct customer owner ID
-         */
-        $sql = <<<SQL
+        // Make all address elements with their correct customer owner ID
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $addressTable [[a]]
+    set [[ownerId]] = [[cu.customerId]]
+    from $customersTable [[cu]], $customerAddressTable [[ca]], $previousAddressTable [[pa]]
+    where [[cu.id]] = [[ca.customerId]]
+    and [[ca.addressId]] = [[pa.id]]
+    and [[pa.v4addressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $previousAddressTable [[pa]] on
     [[pa.v4addressId]] = [[a.id]]
@@ -714,29 +613,43 @@ inner join $customersTable [[cu]] on
     [[cu.id]] = [[ca.customerId]]
 set [[a.ownerId]] = [[cu.customerId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-
-        /**
-         * Migrates the primary billing address ID
-         */
-        $sql = <<<SQL
+        // Migrates the primary billing address ID
+        if ($isPsql) {
+            $sql = <<<SQL
+update $customersTable [[c]]
+set [[primaryBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[c.v3primaryBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $customersTable [[c]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[c.v3primaryBillingAddressId]]
 set [[c.primaryBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Migrates the primary shipping ID
-         */
-        $sql = <<<SQL
+        // Migrates the primary shipping ID
+        if ($isPsql) {
+            $sql = <<<SQL
+update $customersTable [[c]]
+set [[primaryShippingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[c.v3primaryShippingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $customersTable [[c]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[c.v3primaryShippingAddressId]]
 set [[c.primaryShippingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
@@ -749,86 +662,150 @@ SQL;
         $addressTable = CraftTable::ADDRESSES;
         $previousAddressTable = '{{%commerce_addresses}}';
         $ordersTable = Table::ORDERS;
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
 
         // Order Shipping address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[shippingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3shippingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3shippingAddressId]]
 set [[o.shippingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Billing address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[billingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3billingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3billingAddressId]]
 set [[o.billingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Estimated shipping address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[estimatedBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3estimatedBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3estimatedBillingAddressId]]
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Estimated billing address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[estimatedBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3estimatedBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3estimatedBillingAddressId]]
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-
-        /**
-         * Make all order shipping address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order shipping address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.shippingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.shippingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order billing address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order billing address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.billingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.billingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order estimated billing address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order estimated billing address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.estimatedBillingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.estimatedBillingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order estimated shipping address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order estimated shipping address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.estimatedShippingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.estimatedShippingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
     }
 

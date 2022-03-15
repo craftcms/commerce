@@ -52,9 +52,9 @@ class LineItemStatuses extends Component
      * });
      * ```
      */
-    const EVENT_DEFAULT_LINE_ITEM_STATUS = 'defaultLineItemStatus';
+    public const EVENT_DEFAULT_LINE_ITEM_STATUS = 'defaultLineItemStatus';
 
-    const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
+    public const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
 
     /**
      * @var bool

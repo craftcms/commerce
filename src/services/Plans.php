@@ -49,7 +49,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_ARCHIVE_PLAN = 'archivePlan';
+    public const EVENT_ARCHIVE_PLAN = 'archivePlan';
 
     /**
      * @event PlanEvent The event that is triggered before a plan is saved.
@@ -66,7 +66,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
+    public const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
 
     /**
      * @event PlanEvent The event that is triggered after a plan is saved.
@@ -83,7 +83,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
+    public const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
 
     /**
      * Memoized array of plans.
