@@ -43,10 +43,16 @@ class StoreTest extends Unit
     public function testGetAllEnabledCountriesAsList(): void
     {
         $countriesAsList = $this->service->getStore()->getCountriesList();
+        self::assertIsArray($countriesAsList);
+        self::assertEmpty($countriesAsList);
+
+        $this->service->getStore()->setCountries(['US', 'AU', 'PH', 'GB']);
+        $countriesAsList = $this->service->getStore()->getCountriesList();
 
         self::assertIsArray($countriesAsList);
         self::assertArrayHasKey('US', $countriesAsList);
         self::assertSame('United States', $countriesAsList['US']);
+        self::assertCount(4, $countriesAsList);
     }
 
     /**

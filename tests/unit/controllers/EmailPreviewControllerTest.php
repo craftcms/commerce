@@ -96,7 +96,7 @@ class EmailPreviewControllerTest extends Unit
 
         Craft::$app->getRequest()->setQueryParams([
             'emailId' => $email['id'],
-            'orderNumber' => $order->number,
+            'number' => $order->number,
         ]);
 
         $response = $this->controller->runAction('render');
