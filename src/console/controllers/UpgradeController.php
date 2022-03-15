@@ -159,26 +159,25 @@ class UpgradeController extends Controller
     private array $_userIdsByv3CustomerId = [];
 
     /**
-     * @param $action
-     * @return bool
+     * Runs the data migration
+     *
+     * @throws \Throwable
      */
-    public function beforeAction($action): bool
+    public function actionRun(): int
     {
-        /**
-         * Check to make sure they are not doing this before running standard migrations.
-         */
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '<')) {
-            $this->stdout("You must run `craft migrate/all` command first.\n" . PHP_EOL, Console::FG_RED);
+        if (!$this->interactive) {
+            $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        /**
-         * Check to make sure they have all tables still around after the migration.
-         * These will be deleted after this migration occurs. This is also a way to
-         * make sure they have not run this more than once.
-         */
+        // Make sure Commerce 4 migrations have been run
+        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '<')) {
+            $this->stderr("You must run the `craft migrate/all` command first.\n", Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        // Make sure all the legacy tables still exist
         foreach ($this->_v3tables as $table) {
             $cleanTableName = str_replace(['{{%', '}}'], '', $table);
             if (!Craft::$app->getDb()->tableExists($table)) {
@@ -187,34 +186,29 @@ class UpgradeController extends Controller
             }
         }
 
-        // List of countries in the system at the moment.
-        // Note: This list will contain the custom countries, but we will replace the 'iso' codes in this array
-        // when we prompt the user for the mapping to real iso codes.
+        // Collect all the countries in the system at the moment
         $this->_allCountriesByV3CountryId = (new Query())
-            ->select(['*'])
             ->from(['{{%commerce_countries}}'])
             ->indexBy('id')
             ->all();
 
-        // Collect all custom countries that were set up that are not in the standard country repository list.
-        $customCountriesByV3CountryId = (new Query())
-            ->select(['*'])
-            ->from(['{{%commerce_countries}}'])
-            ->where(['not', ['iso' => array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList())]])
-            ->indexBy('id')
-            ->all();
+        // Map any invalid country codes to valid ones
+        $validCountries = Craft::$app->getAddresses()->getCountryRepository()->getList();
 
+        foreach ($this->_allCountriesByV3CountryId as &$country) {
+            // Is it already valid?
+            if (isset($validCountries[$country['iso']])) {
+                continue;
+            }
 
-        // After this process we should have not custom countries in out countries list.
-        foreach ($customCountriesByV3CountryId as $customCountry) {
-            $this->stdout(sprintf("Found invalid custom country: %s (%s)\n", $customCountry['name'], $customCountry['iso']));
-            $this->stdout("We need to map this to a real country. All addresses and zones will be updated.\n");
-            $this->stdout("See: https://www.iban.com/country-codes\n");
-            $validCountries = array_keys(Craft::$app->getAddresses()->getCountryRepository()->getList());
-            $countryCode = $this->prompt('Please enter a valid Alpha-2 Country code:', [
+            $this->stdout(sprintf("Invalid custom country found: %s (%s)\n", $country['name'], $country['iso']));
+            $this->stdout("We need to map this to a valid country code. (All addresses and zones will be updated.)\n");
+            $this->stdout('See: ');
+            $this->stdout("https://www.iban.com/country-codes\n", Console::FG_BLUE);
+            $country['iso'] = $this->prompt('Enter a valid Alpha-2 country code:', [
                 'required' => true,
                 'validator' => function($countryCode) use ($validCountries) {
-                    if (in_array($countryCode, $validCountries, false)) {
+                    if (isset($validCountries[$countryCode])) {
                         return true;
                     }
                     $this->stdout("Not a valid Alpha-2 Country code.\n");
@@ -222,14 +216,12 @@ class UpgradeController extends Controller
                 },
                 'default' => 'US',
             ]);
-            // Update our list of countries, replacing the old custom ISO with the new valid ISO.
-            $this->_allCountriesByV3CountryId[$customCountry['id']]['iso'] = strtoupper($countryCode);
-            $this->stdout("\n\n");
+            $this->stdout("\n");
         }
+        unset($country);
 
         // Collect all the standard states that were set up in v3.
         $this->_allStatesByV3StateId = (new Query())
-            ->select(['*'])
             ->from(['{{%commerce_states}}'])
             ->indexBy('id')
             ->all();
@@ -244,64 +236,49 @@ class UpgradeController extends Controller
                 ->exists();
         }, ARRAY_FILTER_USE_KEY);
 
-        return parent::beforeAction($action);
-    }
-
-    /**
-     * Runs the data migration
-     *
-     * @throws \Throwable
-     */
-    public function actionRun(): int
-    {
-        if (!$this->interactive) {
-            $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
-            return ExitCode::UNSPECIFIED_ERROR;
-        }
-
         $db = Craft::$app->getDb();
 
-        $this->stdout("\nEnsuring address data migration field locations...\n");
+        $this->stdout("Ensuring address data migration field locations…\n");
         $this->_migrateAddressCustomFields();
 
-        $this->stdout("Creating a user for every customer...\n");
+        $this->stdout("Creating a user for every customer…\n");
         $this->_migrateCustomers();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Addresses...\n");
+        $this->stdout("Migrating Addresses…\n");
         $this->_migrateAddresses();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Order Addresses...\n");
+        $this->stdout("Migrating Order Addresses…\n");
         $this->_migrateOrderAddresses();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating User Addresses Books...\n");
+        $this->stdout("Migrating User Addresses Books…\n");
         $this->_migrateUserAddressBook();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Store Location...\n");
+        $this->stdout("Migrating Store Location…\n");
         $this->_migrateStore();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones...\n");
+        $this->stdout("Migrating Shipping Zones…\n");
         $this->_migrateShippingZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones...\n");
+        $this->stdout("Migrating Shipping Zones…\n");
         $this->_migrateTaxZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Tax Zones...\n");
+        $this->stdout("Migrating Tax Zones…\n");
         $this->_migrateTaxZones();
         $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating order history user...\n");
+        $this->stdout("Migrating order history user…\n");
         $this->_migrateOrderHistoryUser();
         $this->stdout("\nDone.\n\n");
 
 
-        $this->stdout("Cleaning up...\n");
+        $this->stdout("Cleaning up…\n");
         foreach ($this->_v3tables as $table) {
             Db::dropAllForeignKeysToTable($table);
             MigrationHelper::dropAllForeignKeysOnTable($table);
