@@ -101,7 +101,6 @@ class ProductPermissionTest extends Unit
 
     public function testCanAdminUserAbleToEditProduct()
     {
-
         $user = new User();
         $user->id = 1;
         $user->admin = true;
@@ -120,9 +119,9 @@ class ProductPermissionTest extends Unit
             Craft::$app,
             'userPermissions',
             [
-                'getPermissionsByUserId' => function () use ($permissions) {
+                'getPermissionsByUserId' => function() use ($permissions) {
                     return $permissions;
-                }
+                },
             ],
             []
         );

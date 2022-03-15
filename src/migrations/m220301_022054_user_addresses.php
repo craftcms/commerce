@@ -16,7 +16,6 @@ class m220301_022054_user_addresses extends Migration
      */
     public function safeUp(): bool
     {
-
         $isPgsql = $this->db->getIsPgsql();
 
         /**

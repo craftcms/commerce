@@ -9,10 +9,10 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
 use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;

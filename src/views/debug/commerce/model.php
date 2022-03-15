@@ -6,7 +6,7 @@
             <tbody>
             <?php foreach ($model->toArray($fields ?? array_keys($model->fields()), $extraFields ?? $model->extraFields()) as $attr => $value): ?>
                 <?php if (is_array($value) && \craft\helpers\ArrayHelper::isIndexed($value) && count(array_filter(array_values($value), 'is_array')) > 0): ?>
-                    <?php foreach($value as $key => $val): ?>
+                    <?php foreach ($value as $key => $val): ?>
                         <?php echo \craft\commerce\helpers\DebugPanel::renderModelAttributeRow($attr, $val, sprintf('%s.%s', $attr, $key)); ?>
                     <?php endforeach; ?>
                 <?php else: ?>

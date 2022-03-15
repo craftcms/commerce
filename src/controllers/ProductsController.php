@@ -123,7 +123,7 @@ class ProductsController extends BaseController
         $variables['canCreateProduct'] = Plugin::getInstance()->getProductTypes()->hasPermission($user, $product->getType(), 'commerce-createProducts');
 
         if ($product->id === null) {
-            if ($variables['canCreateProduct'] === false ) {
+            if ($variables['canCreateProduct'] === false) {
                 throw new ForbiddenHttpException('User not permitted to create a product for the product type.');
             }
 

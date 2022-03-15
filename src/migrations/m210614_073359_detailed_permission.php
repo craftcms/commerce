@@ -60,8 +60,7 @@ class m210614_073359_detailed_permission extends Migration
             ->where(['name' => 'commerce-managepromotions'])
             ->scalar();
 
-        if($permissionId) {
-
+        if ($permissionId) {
             $userPromotions = (new Query())
                 ->select(['id', 'userId'])
                 ->from([Table::USERPERMISSIONS_USERS])
@@ -113,9 +112,7 @@ class m210614_073359_detailed_permission extends Migration
             ->all();
 
         if (count($permissions) > 0) {
-
             foreach ($permissions as $permission) {
-
                 $permissionName = explode(':', $permission['name']);
                 $productTypeUid = $permissionName[1];
 

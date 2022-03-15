@@ -59,7 +59,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
+    public const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
      * @event LineItemEvent The event that is triggeredd after a line item is saved.
@@ -85,7 +85,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
+    public const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
 
     /**
      * @event LineItemEvent The event that is triggered after a line item has been created from a purchasable.
@@ -111,7 +111,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_CREATE_LINE_ITEM = 'createLineItem';
+    public const EVENT_CREATE_LINE_ITEM = 'createLineItem';
 
     /**
      * @event LineItemEvent The event that is triggered as a line item is being populated from a purchasable.
@@ -137,7 +137,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
+    public const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
     /**
      * Returns an order's line items, per the order's ID.

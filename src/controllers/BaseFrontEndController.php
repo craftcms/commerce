@@ -38,7 +38,7 @@ class BaseFrontEndController extends BaseController
      * );
      * ```
      */
-    const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
+    public const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
 
 
     /**

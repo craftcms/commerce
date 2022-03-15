@@ -216,7 +216,7 @@ class DiscountsTest extends Unit
             ->insert(Table::EMAIL_DISCOUNTUSES, [
                 'email' => 'testing@craftcommerce.com',
                 'discountId' => $this->tester->grabFixture('discounts')['discount_with_coupon']['id'],
-                'uses' => '1'
+                'uses' => '1',
             ])->execute();
 
         /** @var Order $order */

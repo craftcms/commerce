@@ -302,9 +302,9 @@ class Discounts extends Component
                     ->andWhere([
                             'or',
                             ['maxUses' => null],
-                            new Expression('[[uses]] < [[maxUses]]')
+                            new Expression('[[uses]] < [[maxUses]]'),
                         ]
-                    )
+                    ),
                 ],
                 // OR find discounts that do not have a coupon code requirement
                 ['not exists', $couponSubQuery],

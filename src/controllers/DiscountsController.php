@@ -249,8 +249,8 @@ class DiscountsController extends BaseCpController
                         'code' => $c['code'],
                         'uses' => $c['uses'] ?: 0,
                         'maxUses' => $c['maxUses'] ?: null,
-                    ]
-                ]
+                    ],
+                ],
             ]);
         }
 

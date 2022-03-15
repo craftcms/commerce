@@ -344,7 +344,6 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => $this->_registerProductTypePermission() + [
@@ -366,11 +365,11 @@ class Plugin extends BasePlugin
                         ],
                     ],
                     'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                    'commerce-manageSubscriptions' =>['label' => Craft::t('commerce', 'Manage subscriptions')],
+                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                     'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                     'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ]
+                ],
             ];
         });
     }
@@ -395,7 +394,7 @@ class Plugin extends BasePlugin
                     "commerce-deleteProducts{$suffix}" => [
                         'label' => Craft::t('commerce', 'Delete products'),
                     ],
-                ]
+                ],
             ];
         }
 
@@ -415,8 +414,8 @@ class Plugin extends BasePlugin
                 'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete Sales')],
                 'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit Discounts')],
                 'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create Discounts')],
-                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')]
-            ]
+                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')],
+            ],
         ];
     }
 

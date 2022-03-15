@@ -45,7 +45,7 @@ class Webhooks extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_PROCESS_WEBHOOK = 'beforeProcessWebhook';
+    public const EVENT_BEFORE_PROCESS_WEBHOOK = 'beforeProcessWebhook';
 
     /**
      * @event WebhookEvent The event that is triggered after a Webhook is processed.
@@ -69,7 +69,7 @@ class Webhooks extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
+    public const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 
     /**
      * @throws \Exception

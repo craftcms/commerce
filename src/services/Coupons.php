@@ -7,9 +7,9 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\Coupon;
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
@@ -112,7 +112,7 @@ class Coupons extends Component
         $coupons = [];
 
         for ($i = 1; $i <= $count; $i++) {
-            $code = preg_replace_callback('/(['.self::COUPON_FORMAT_REPLACEMENT_CHAR.']+)/', static function ($matches) {
+            $code = preg_replace_callback('/([' . self::COUPON_FORMAT_REPLACEMENT_CHAR . ']+)/', static function($matches) {
                 $length = strlen($matches[0]);
                 return StringHelper::randomStringWithChars(self::CHARS_UPPER, $length);
             }, $format);

@@ -62,7 +62,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
     public function operators(): array
     {
         return [
-            self::OPERATOR_EQ
+            self::OPERATOR_EQ,
         ];
     }
 

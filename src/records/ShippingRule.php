@@ -42,8 +42,8 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
-    const TYPE_MIN_MAX_TOTAL_SALEPRICE = 'salePrice';
-    const TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS = 'salePriceWithDiscounts';
+    public const TYPE_MIN_MAX_TOTAL_SALEPRICE = 'salePrice';
+    public const TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS = 'salePriceWithDiscounts';
 
     /**
      * @inheritdoc

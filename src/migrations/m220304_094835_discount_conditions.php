@@ -22,7 +22,6 @@ class m220304_094835_discount_conditions extends Migration
      */
     public function safeUp(): bool
     {
-
         $orderCondition = new DiscountOrderCondition();
         // TODO migrate some discount conditions to the builder
         $customerCondition = new DiscountCustomerCondition();

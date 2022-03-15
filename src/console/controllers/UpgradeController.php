@@ -62,7 +62,7 @@ class UpgradeController extends Controller
         'custom2' => 'Custom 2',
         'custom3' => 'Custom 3',
         'custom4' => 'Custom 4',
-        'notes' => 'Notes'
+        'notes' => 'Notes',
     ];
 
     /**

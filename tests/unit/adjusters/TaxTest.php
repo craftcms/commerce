@@ -183,9 +183,9 @@ class TaxTest extends Unit
                                         ]),
                                         'operator' => 'in',
                                         'values' => [
-                                            'AU'
-                                        ]
-                                    ]
+                                            'AU',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -319,9 +319,9 @@ class TaxTest extends Unit
                                         ]),
                                         'operator' => 'in',
                                         'values' => [
-                                            'NL'
-                                        ]
-                                    ]
+                                            'NL',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -371,8 +371,8 @@ class TaxTest extends Unit
                                         'operator' => 'in',
                                         'values' => [
                                             'NL', // Not AU on purpose to create mismatch
-                                        ]
-                                    ]
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -430,9 +430,9 @@ class TaxTest extends Unit
                                         ]),
                                         'operator' => 'in',
                                         'values' => [
-                                            'CZ'
-                                        ]
-                                    ]
+                                            'CZ',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -490,9 +490,9 @@ class TaxTest extends Unit
                                         ]),
                                         'operator' => 'in',
                                         'values' => [
-                                            'CZ'
-                                        ]
-                                    ]
+                                            'CZ',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
@@ -543,9 +543,9 @@ class TaxTest extends Unit
                                         ]),
                                         'operator' => 'in',
                                         'values' => [
-                                            'CZ'
-                                        ]
-                                    ]
+                                            'CZ',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],

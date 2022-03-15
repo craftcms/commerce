@@ -54,17 +54,17 @@ class Subscription extends Element
     /**
      * @var string
      */
-    const STATUS_ACTIVE = 'active';
+    public const STATUS_ACTIVE = 'active';
 
     /**
      * @var string
      */
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var string
      */
-    const STATUS_SUSPENDED = 'suspended';
+    public const STATUS_SUSPENDED = 'suspended';
 
     /**
      * @var int User id

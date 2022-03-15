@@ -18,18 +18,18 @@ use DateTime;
  */
 interface StatInterface
 {
-    const DATE_RANGE_ALL = 'all';
-    const DATE_RANGE_TODAY = 'today';
-    const DATE_RANGE_THISWEEK = 'thisWeek';
-    const DATE_RANGE_THISMONTH = 'thisMonth';
-    const DATE_RANGE_THISYEAR = 'thisYear';
-    const DATE_RANGE_PAST7DAYS = 'past7Days';
-    const DATE_RANGE_PAST30DAYS = 'past30Days';
-    const DATE_RANGE_PAST90DAYS = 'past90Days';
-    const DATE_RANGE_PASTYEAR = 'pastYear';
-    const DATE_RANGE_CUSTOM = 'custom';
+    public const DATE_RANGE_ALL = 'all';
+    public const DATE_RANGE_TODAY = 'today';
+    public const DATE_RANGE_THISWEEK = 'thisWeek';
+    public const DATE_RANGE_THISMONTH = 'thisMonth';
+    public const DATE_RANGE_THISYEAR = 'thisYear';
+    public const DATE_RANGE_PAST7DAYS = 'past7Days';
+    public const DATE_RANGE_PAST30DAYS = 'past30Days';
+    public const DATE_RANGE_PAST90DAYS = 'past90Days';
+    public const DATE_RANGE_PASTYEAR = 'pastYear';
+    public const DATE_RANGE_CUSTOM = 'custom';
 
-    const START_DAY_INT_TO_DAY = [
+    public const START_DAY_INT_TO_DAY = [
         0 => 'Sunday',
         1 => 'Monday',
         2 => 'Tuesday',
@@ -39,7 +39,7 @@ interface StatInterface
         6 => 'Saturday',
     ];
 
-    const START_DAY_INT_TO_END_DAY = [
+    public const START_DAY_INT_TO_END_DAY = [
         0 => 'Saturday',
         1 => 'Sunday',
         2 => 'Monday',
@@ -49,7 +49,7 @@ interface StatInterface
         6 => 'Friday',
     ];
 
-    const DATE_RANGE_INTERVAL = [
+    public const DATE_RANGE_INTERVAL = [
         self::DATE_RANGE_TODAY => 'day',
         self::DATE_RANGE_THISWEEK => 'day',
         self::DATE_RANGE_THISMONTH => 'day',

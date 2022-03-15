@@ -67,7 +67,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_EXPIRE_SUBSCRIPTION = 'afterExpireSubscription';
+    public const EVENT_AFTER_EXPIRE_SUBSCRIPTION = 'afterExpireSubscription';
 
     /**
      * @event CreateSubscriptionEvent The event that is triggered before a subscription is created.
@@ -99,7 +99,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_CREATE_SUBSCRIPTION = 'beforeCreateSubscription';
+    public const EVENT_BEFORE_CREATE_SUBSCRIPTION = 'beforeCreateSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered after a subscription is created.
@@ -123,7 +123,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_CREATE_SUBSCRIPTION = 'afterCreateSubscription';
+    public const EVENT_AFTER_CREATE_SUBSCRIPTION = 'afterCreateSubscription';
 
     /**
      * @event SubscriptionEvent TThe event that is triggered before a subscription gets reactivated.
@@ -149,7 +149,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = 'beforeReactivateSubscription';
+    public const EVENT_BEFORE_REACTIVATE_SUBSCRIPTION = 'beforeReactivateSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered after a subscription gets reactivated.
@@ -173,7 +173,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_REACTIVATE_SUBSCRIPTION = 'afterReactivateSubscription';
+    public const EVENT_AFTER_REACTIVATE_SUBSCRIPTION = 'afterReactivateSubscription';
 
     /**
      * @event SubscriptionSwitchPlansEvent The event that is triggered before a subscription is switched to a different plan.
@@ -207,7 +207,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = 'beforeSwitchSubscriptionPlan';
+    public const EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN = 'beforeSwitchSubscriptionPlan';
 
     /**
      * @event SubscriptionSwitchPlansEvent The event that is triggered after a subscription gets switched to a different plan.
@@ -239,7 +239,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN = 'afterSwitchSubscriptionPlan';
+    public const EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN = 'afterSwitchSubscriptionPlan';
 
     /**
      * @event CancelSubscriptionEvent The event that is triggered before a subscription is canceled.
@@ -268,7 +268,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_CANCEL_SUBSCRIPTION = 'beforeCancelSubscription';
+    public const EVENT_BEFORE_CANCEL_SUBSCRIPTION = 'beforeCancelSubscription';
 
     /**
      * @event CancelSubscriptionEvent The event that is triggered after a subscription gets canceled.
@@ -295,7 +295,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_CANCEL_SUBSCRIPTION = 'afterCancelSubscription';
+    public const EVENT_AFTER_CANCEL_SUBSCRIPTION = 'afterCancelSubscription';
 
     /**
      * @event SubscriptionEvent The event that is triggered before a subscription gets updated. Typically this event is fired when subscription data is updated on the gateway.
@@ -318,7 +318,7 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_UPDATE_SUBSCRIPTION = 'beforeUpdateSubscription';
+    public const EVENT_BEFORE_UPDATE_SUBSCRIPTION = 'beforeUpdateSubscription';
 
     /**
      * @event SubscriptionPaymentEvent The event that is triggered when a subscription payment is received.
@@ -348,9 +348,9 @@ class Subscriptions extends Component
      * );
      * ```
      */
-    const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = 'receiveSubscriptionPayment';
+    public const EVENT_RECEIVE_SUBSCRIPTION_PAYMENT = 'receiveSubscriptionPayment';
 
-    const CONFIG_FIELDLAYOUT_KEY = 'commerce.subscriptions.fieldLayouts';
+    public const CONFIG_FIELDLAYOUT_KEY = 'commerce.subscriptions.fieldLayouts';
 
 
     /**

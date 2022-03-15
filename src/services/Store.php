@@ -59,7 +59,7 @@ class Store extends Component
             // Make sure the store always has an address location set.
             $storeLocationAddress = $this->_store->getLocationAddressId() ? AddressElement::findOne($this->_store->locationAddressId) : null;
             if ($storeLocationAddress === null) {
-               $this->_createDefaultStoreLocationAddress();
+                $this->_createDefaultStoreLocationAddress();
             }
         }
     }

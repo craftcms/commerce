@@ -203,7 +203,7 @@ class CouponsTest extends Unit
      */
     public function testDeleteCouponById(): void
     {
-        $couponRecord = New \craft\commerce\records\Coupon();
+        $couponRecord = new \craft\commerce\records\Coupon();
         $couponRecord->code = 'commerce_test_code';
         $couponRecord->discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
         $couponRecord->uses = 0;

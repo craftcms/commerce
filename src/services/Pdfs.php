@@ -75,7 +75,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PDF = 'beforeSavePdf';
+    public const EVENT_BEFORE_SAVE_PDF = 'beforeSavePdf';
 
     /**
      * @event PdfSaveEvent The event that is triggered after an PDF is saved.
@@ -100,7 +100,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PDF = 'afterSavePdf';
+    public const EVENT_AFTER_SAVE_PDF = 'afterSavePdf';
 
     /**
      * @event PdfEvent The event that is triggered before an order’s PDF is rendered.
@@ -130,7 +130,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
+    public const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
 
     /**
      * @event PdfEvent The event that is triggered after an order’s PDF has been rendered.
@@ -152,7 +152,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+    public const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 
     /**
      * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
@@ -175,9 +175,9 @@ class Pdfs extends Component
      * );
      *```
      */
-    const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
+    public const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
 
-    const CONFIG_PDFS_KEY = 'commerce.pdfs';
+    public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
      * @return Pdf[]

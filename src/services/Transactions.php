@@ -58,7 +58,7 @@ class Transactions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
+    public const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been created.
@@ -82,7 +82,7 @@ class Transactions extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
+    public const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
 
     /**

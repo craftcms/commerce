@@ -49,7 +49,7 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
+    public const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
 
     /**
      * @event PurchasableShippableEvent The event that is triggered when determining whether a purchasable may be shipped.
@@ -72,7 +72,7 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
+    public const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
@@ -93,7 +93,7 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
+    public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
      * @param Order|null $order

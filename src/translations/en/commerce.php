@@ -1162,6 +1162,8 @@ return [
     'Update subscription' => 'Update subscription',
     'Update' => 'Update',
     'Updated By' => 'Updated By',
+    'Use as the primary billing address' => 'Use as the primary billing address',
+    'Use as the primary shipping address' => 'Use as the primary shipping address',
     'Used By Tax Rates' => 'Used By Tax Rates',
     'Used by Tax Rates' => 'Used by Tax Rates',
     'User #{id}' => 'User #{id}',

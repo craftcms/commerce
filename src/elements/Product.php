@@ -1243,7 +1243,7 @@ class Product extends Element
         if ($source === '*') {
             // Delete
             $actions[] = Delete::class;
-        } else if (!empty($productTypes)) {
+        } elseif (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
 
             $currentUser = $userSession->getIdentity();

@@ -68,7 +68,7 @@ class SalesController extends BaseCpController
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
         if ($id === null) {
-            $this->requirePermission('commerce-createSales');    
+            $this->requirePermission('commerce-createSales');
         } else {
             $this->requirePermission('commerce-editSales');
         }

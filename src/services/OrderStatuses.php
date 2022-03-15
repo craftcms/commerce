@@ -71,9 +71,9 @@ class OrderStatuses extends Component
      * );
      * ```
      */
-    const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+    public const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
-    const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
+    public const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
     /**
      * @var OrderStatus[]|null

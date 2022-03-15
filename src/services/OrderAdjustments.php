@@ -52,7 +52,7 @@ class OrderAdjustments extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
+    public const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional adjusters.
@@ -72,7 +72,7 @@ class OrderAdjustments extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_DISCOUNT_ADJUSTERS = 'registerDiscountAdjusters';
+    public const EVENT_REGISTER_DISCOUNT_ADJUSTERS = 'registerDiscountAdjusters';
 
 
     /**

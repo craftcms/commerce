@@ -76,9 +76,9 @@ class Gateways extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
+    public const EVENT_REGISTER_GATEWAY_TYPES = 'registerGatewayTypes';
 
-    const CONFIG_GATEWAY_KEY = 'commerce.gateways';
+    public const CONFIG_GATEWAY_KEY = 'commerce.gateways';
 
 
     /**
