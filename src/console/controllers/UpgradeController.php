@@ -103,7 +103,6 @@ class UpgradeController extends Controller
 
         ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
         ['table' => '{{%commerce_orderhistories}}', 'column' => 'v3customerId'],
-        ['table' => '{{%commerce_customer_discountuses}}', 'column' => 'v3customerId'],
     ];
 
     private array $_v3tables = [
