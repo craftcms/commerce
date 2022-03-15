@@ -1003,6 +1003,7 @@ return [
     'Subscription' => 'Prihlásenie na odber',
     'Subscriptions on hold' => 'Predplatné pozastavené',
     'Subscriptions' => 'Prihlásenia na odber',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'Prepnúť plán',
     'Switch' => 'Prepnúť',
     'System Settings' => 'Systémové nastavenia',
