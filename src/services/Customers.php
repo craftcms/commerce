@@ -137,6 +137,8 @@ class Customers extends Component
     }
 
     /**
+     * Returns a customer record by a user element, creating one if none already exists.
+     * 
      * @param User $user
      * @return CustomerRecord
      */
