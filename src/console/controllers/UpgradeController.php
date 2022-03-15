@@ -590,11 +590,20 @@ EOL
         $previousAddressTable = '{{%commerce_addresses}}';
         $customerAddressTable = '{{%commerce_customers_addresses}}';
         $customersTable = '{{%commerce_customers}}';
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
 
-        /**
-         * Make all address elements with their correct customer owner ID
-         */
-        $sql = <<<SQL
+        // Make all address elements with their correct customer owner ID
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $addressTable [[a]]
+    set [[ownerId]] = [[cu.customerId]]
+    from $customersTable [[cu]], $customerAddressTable [[ca]], $previousAddressTable [[pa]]
+    where [[cu.id]] = [[ca.customerId]]
+    and [[ca.addressId]] = [[pa.id]]
+    and [[pa.v4addressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $previousAddressTable [[pa]] on
     [[pa.v4addressId]] = [[a.id]]
@@ -604,29 +613,43 @@ inner join $customersTable [[cu]] on
     [[cu.id]] = [[ca.customerId]]
 set [[a.ownerId]] = [[cu.customerId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-
-        /**
-         * Migrates the primary billing address ID
-         */
-        $sql = <<<SQL
+        // Migrates the primary billing address ID
+        if ($isPsql) {
+            $sql = <<<SQL
+update $customersTable [[c]]
+set [[primaryBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[c.v3primaryBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $customersTable [[c]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[c.v3primaryBillingAddressId]]
 set [[c.primaryBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Migrates the primary shipping ID
-         */
-        $sql = <<<SQL
+        // Migrates the primary shipping ID
+        if ($isPsql) {
+            $sql = <<<SQL
+update $customersTable [[c]]
+set [[primaryShippingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[c.v3primaryShippingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $customersTable [[c]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[c.v3primaryShippingAddressId]]
 set [[c.primaryShippingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
@@ -639,86 +662,150 @@ SQL;
         $addressTable = CraftTable::ADDRESSES;
         $previousAddressTable = '{{%commerce_addresses}}';
         $ordersTable = Table::ORDERS;
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
 
         // Order Shipping address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[shippingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3shippingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3shippingAddressId]]
 set [[o.shippingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Billing address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[billingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3billingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3billingAddressId]]
 set [[o.billingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Estimated shipping address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[estimatedBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3estimatedBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3estimatedBillingAddressId]]
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
         // Order Estimated billing address
-        $sql = <<<SQL
+        if ($isPsql) {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+set [[estimatedBillingAddressId]] = [[pa.v4addressId]]
+from $previousAddressTable [[pa]]
+where [[pa.id]] = [[o.v3estimatedBillingAddressId]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $ordersTable [[o]]
 inner join $previousAddressTable [[pa]] on
     [[pa.id]] = [[o.v3estimatedBillingAddressId]]
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-
-        /**
-         * Make all order shipping address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order shipping address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.shippingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.shippingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order billing address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order billing address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.billingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.billingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order estimated billing address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order estimated billing address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.estimatedBillingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.estimatedBillingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
 
-        /**
-         * Make all order estimated shipping address elements have the owner ID of the order
-         */
-        $sql = <<<SQL
+        // Make all order estimated shipping address elements have the owner ID of the order
+        if ($isPsql) {
+            $sql = <<<SQL
+update $addressTable [[a]]
+set [[ownerId]] = [[o.id]]
+from $ordersTable [[o]]
+where [[o.estimatedShippingAddressId]] = [[a.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
 update $addressTable [[a]]
 inner join $ordersTable [[o]] on
     [[o.estimatedShippingAddressId]] = [[a.id]]
 set [[a.ownerId]] = [[o.id]]
 SQL;
+        }
         Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
