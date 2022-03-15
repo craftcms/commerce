@@ -1003,6 +1003,7 @@ return [
     'Subscription' => '定期支払い',
     'Subscriptions on hold' => '保留中の定期支払い',
     'Subscriptions' => '定期支払い',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'プランの切り替え',
     'Switch' => '切り替える',
     'System Settings' => 'システム設定',
