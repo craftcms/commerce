@@ -946,7 +946,7 @@ class ProductTypes extends Component
             $oldPrimarySiteUid = Db::uidById(CraftTable::SITES, $event->oldPrimarySiteId);
             $existingProductTypeSettings = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
 
-            if (!$projectConfig->getIsApplyingYamlChanges() && is_array($existingProductTypeSettings)) {
+            if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingProductTypeSettings)) {
                 foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
                     $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
                     $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $event->site->uid;
