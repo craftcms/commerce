@@ -52,7 +52,7 @@ class Products extends BaseRelationField
         return Craft::t('commerce', 'Add a product');
     }
 
-    public function getInputHtml(mixed $value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         Craft::$app->getView()->registerAssetBundle(EditProductAsset::class);
         return parent::getInputHtml($value, $element);

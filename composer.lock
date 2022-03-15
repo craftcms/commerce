@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f10b28c360fba624a211f5977742f2d",
+    "content-hash": "3581e74483124071c3afe89ad0ac1268",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -7870,12 +7870,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/rector.git",
-                "reference": "81987a9d34d690fa7e8646b2c127bf676494e925"
+                "reference": "ef9c094056f8cc6d559cdabe3f36354e6d9d378c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/rector/zipball/81987a9d34d690fa7e8646b2c127bf676494e925",
-                "reference": "81987a9d34d690fa7e8646b2c127bf676494e925",
+                "url": "https://api.github.com/repos/craftcms/rector/zipball/ef9c094056f8cc6d559cdabe3f36354e6d9d378c",
+                "reference": "ef9c094056f8cc6d559cdabe3f36354e6d9d378c",
                 "shasum": ""
             },
             "require": {
@@ -7903,7 +7903,7 @@
                 "issues": "https://github.com/craftcms/rector/issues",
                 "source": "https://github.com/craftcms/rector/tree/main"
             },
-            "time": "2022-03-09T00:43:01+00:00"
+            "time": "2022-03-11T18:17:47+00:00"
         },
         {
             "name": "craftcms/redactor",

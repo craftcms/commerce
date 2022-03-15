@@ -29,7 +29,7 @@ class LineItemExport extends ElementExporter
     /**
      * @inheritDoc
      */
-    public function export(ElementQueryInterface $query): array
+    public function export(ElementQueryInterface $query): mixed
     {
         $orderIds = $query->ids();
 
