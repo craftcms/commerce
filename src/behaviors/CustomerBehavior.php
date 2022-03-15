@@ -166,7 +166,7 @@ class CustomerBehavior extends Behavior
     public function getPrimaryBillingAddressId(): ?int
     {
         /** @var Customer $customer */
-        if ($customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
+        if (!isset($this->_primaryBillingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
             $this->_primaryBillingAddressId = $customer->primaryBillingAddressId;
         }
 
@@ -195,7 +195,7 @@ class CustomerBehavior extends Behavior
     public function getPrimaryShippingAddressId(): ?int
     {
         /** @var Customer $customer */
-        if ($customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
+        if (!isset($this->_primaryShippingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
             $this->_primaryShippingAddressId = $customer->primaryShippingAddressId;
         }
 
