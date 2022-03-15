@@ -514,8 +514,9 @@ class Plugin extends BasePlugin
         $checkAuth = function(AuthorizationCheckEvent $event) {
             /** @var Address $address */
             $address = $event->sender;
+            $canonicalId = $address->getCanonicalId();
             if (
-                $address->id && $address->id === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
+                $canonicalId && $canonicalId === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
                 $event->user->can('commerce-manageStoreSettings')
             ) {
                 $event->authorized = true;
