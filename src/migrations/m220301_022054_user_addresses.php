@@ -17,6 +17,8 @@ class m220301_022054_user_addresses extends Migration
     public function safeUp(): bool
     {
 
+        $isPgsql = $this->db->getIsPgsql();
+
         /**
          * Order Addresses
          */
@@ -107,7 +109,15 @@ class m220301_022054_user_addresses extends Migration
         $this->dropForeignKeyIfExists('{{%commerce_customer_discountuses}}', ['customerId']);
         $this->dropIndexIfExists('{{%commerce_customer_discountuses}}', ['customerId', 'discountId']);
         $this->renameColumn('{{%commerce_customer_discountuses}}', 'customerId', 'v3customerId'); // move the data
-        $this->alterColumn('{{%commerce_customer_discountuses}}', 'v3customerId', $this->integer());
+
+        if ($isPgsql) {
+            // Manually construct the SQL for Postgres
+            // (see https://github.com/yiisoft/yii2/issues/12077)
+            $this->execute('alter table {{%commerce_customer_discountuses}} alter column [[v3customerId]] type integer, alter column [[v3customerId]] drop not null');
+        } else {
+            $this->alterColumn('{{%commerce_customer_discountuses}}', 'v3customerId', $this->integer()->null());
+        }
+
         $this->addColumn('{{%commerce_customer_discountuses}}', 'customerId', $this->integer());
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, '{{%commerce_customer_discountuses}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
@@ -128,7 +138,16 @@ class m220301_022054_user_addresses extends Migration
         $this->dropForeignKeyIfExists('{{%commerce_orderhistories}}', ['customerId']);
         $this->dropIndexIfExists('{{%commerce_orderhistories}}', ['customerId']);
         $this->renameColumn('{{%commerce_orderhistories}}', 'customerId', 'v3customerId'); // move the data
-        $this->alterColumn('{{%commerce_orderhistories}}', 'v3customerId', $this->integer()->null());
+
+
+        if ($isPgsql) {
+            // Manually construct the SQL for Postgres
+            // (see https://github.com/yiisoft/yii2/issues/12077)
+            $this->execute('alter table {{%commerce_orderhistories}} alter column [[v3customerId]] type integer, alter column [[v3customerId]] drop not null');
+        } else {
+            $this->alterColumn('{{%commerce_orderhistories}}', 'v3customerId', $this->integer()->null());
+        }
+
         $this->addColumn('{{%commerce_orderhistories}}', 'userId', $this->integer()->null());
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->createIndex(null, '{{%commerce_orderhistories}}', 'userId', false);
