@@ -267,7 +267,7 @@
             {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}
               <a href="{{ siteUrl(
                 '[[folderName]]/checkout/pay-static',
-                { orderNumber: order.number, email: order.email
+                { number: order.number, email: order.email
                 }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]"
               >
                 {{- 'Make payment'|t -}}

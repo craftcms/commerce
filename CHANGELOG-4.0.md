@@ -78,6 +78,7 @@
 - Craft Commerce now requires Craft CMS 4.0.0-beta.1 or newer.
 - Example templates are now compatible with Commerce 4.0 changes.
 - Tax rate input fields no longer require the percent symbol.
+- `orderNumber` is no longer a valid parameter when working with Commerce endpoints. Use `number` instead.
 - Cart / Order addresses are now only related to the Order, and can not be related to both the address book and order at the same time ([#2457](https://github.com/craftcms/commerce/discussions/2457))
 - Removed the `commerce-manageProducts` permission, which has been replaced by the separate (edit, create, and delete) product type permissions. ([#1869](https://github.com/craftcms/commerce/pull/1869))
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder`.

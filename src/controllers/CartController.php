@@ -463,9 +463,7 @@ class CartController extends BaseFrontEndController
      */
     private function _getCart(bool $forceSave = false): ?Order
     {
-        // TODO Remove `orderNumber` param in 4.0 #COM-33
-        $orderNumber = $this->request->getBodyParam('orderNumber');
-        $orderNumber = $this->request->getBodyParam('number', $orderNumber);
+        $orderNumber = $this->request->getBodyParam('number');
 
         if ($orderNumber) {
             // Get the cart from the order number
