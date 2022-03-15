@@ -75,16 +75,6 @@ class Store extends Component
     }
 
     /**
-     * @return array|string[]
-     */
-    public function getAllEnabledCountriesAsList()
-    {
-        $enabledCountries = $this->_store->countries;
-        // TODO merge in the custom countries and filter out the disabled countries
-        return Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language);
-    }
-
-    /**
      * Saves the store
      *
      * @return bool
