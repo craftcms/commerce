@@ -12,6 +12,7 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\UserAddressBehavior;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -21,6 +22,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
+use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products;
@@ -496,11 +498,18 @@ class Plugin extends BasePlugin
             UserElement::class,
             UserElement::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
-                $event->sender->attachBehaviors([
-                    CustomerBehavior::class,
-                ]);
+                $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
+            /** @var Address $address */
+            $address = $event->sender;
+            $owner = $address->getOwner();
+            if ($owner instanceof UserElement) {
+                $event->behaviors['commerce:address'] = UserAddressBehavior::class;
+            }
+        });
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }
@@ -781,6 +790,9 @@ class Plugin extends BasePlugin
             $fieldLayout = $e->sender;
 
             switch ($fieldLayout->type) {
+                case Address::class:
+                    $e->fields[] = UserAddressSettings::class;
+                    break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsField::class;

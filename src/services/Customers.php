@@ -29,10 +29,10 @@ class Customers extends Component
 {
     /**
      * @param User $user
-     * @param int $addressId
+     * @param int|null $addressId
      * @return bool
      */
-    public function savePrimaryShippingAddressId(User $user, int $addressId): bool
+    public function savePrimaryShippingAddressId(User $user, ?int $addressId): bool
     {
         $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
         $userRecord->primaryShippingAddressId = $addressId;
@@ -43,10 +43,10 @@ class Customers extends Component
 
     /**
      * @param User $user
-     * @param int $addressId
+     * @param int|null $addressId
      * @return bool
      */
-    public function savePrimaryBillingAddressId(User $user, int $addressId): bool
+    public function savePrimaryBillingAddressId(User $user, ?int $addressId): bool
     {
         $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
         $userRecord->primaryBillingAddressId = $addressId;

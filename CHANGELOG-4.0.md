@@ -17,6 +17,7 @@
 - Added the `|commercePaymentFormNamespace` Twig filter.
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
+- Added `craft\commerce\behaviors\UserAddressBehavior`.
 - Added `craft\commerce\console\controllers\UpgradeController`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
@@ -38,6 +39,7 @@
 - Added `craft\commerce\elements\Product::canView()`.
 - Added `craft\commerce\elements\Subscription::canView()`.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
+- Added `craft\commerce\fieldlayoutelements\UserAddressSettings`.
 - Added `craft\commerce\helpers\DebugPanel`.
 - Added `craft\commerce\helpers\PaymentForm`.
 - Added `craft\commerce\models\Coupon`.
