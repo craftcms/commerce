@@ -1003,6 +1003,7 @@ return [
     'Subscription' => 'Subscription',
     'Subscriptions on hold' => 'Subscriptions on hold',
     'Subscriptions' => 'Subscriptions',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'Switch plan',
     'Switch' => 'Switch',
     'System Settings' => 'System Settings',
