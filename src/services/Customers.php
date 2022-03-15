@@ -34,11 +34,11 @@ class Customers extends Component
      */
     public function savePrimaryShippingAddressId(User $user, ?int $addressId): bool
     {
-        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
-        $userRecord->primaryShippingAddressId = $addressId;
+        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
+        $customerRecord->primaryShippingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryShippingAddressId = $addressId;
-        return $userRecord->save();
+        return $customerRecord->save();
     }
 
     /**
@@ -48,11 +48,11 @@ class Customers extends Component
      */
     public function savePrimaryBillingAddressId(User $user, ?int $addressId): bool
     {
-        $userRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
-        $userRecord->primaryBillingAddressId = $addressId;
+        $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one() ?: $this->_createCustomerRecord($user);
+        $customerRecord->primaryBillingAddressId = $addressId;
         /** @var User|CustomerBehavior $user */
         $user->primaryBillingAddressId = $addressId;
-        return $userRecord->save();
+        return $customerRecord->save();
     }
 
     /**
@@ -176,7 +176,7 @@ class Customers extends Component
     private function _createCustomerRecord(User $user): CustomerRecord
     {
         $customer = new CustomerRecord();
-        $customer->id = $user->id;
+        $customer->customerId = $user->id;
         $customer->save();
         return $customer;
     }
