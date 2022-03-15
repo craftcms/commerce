@@ -1003,6 +1003,7 @@ return [
     'Subscription' => 'Abonnement',
     'Subscriptions on hold' => 'Abonnement på vent',
     'Subscriptions' => 'Abonnementer',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'Bytte plan',
     'Switch' => 'Bytte',
     'System Settings' => 'Systeminnstillinger',
