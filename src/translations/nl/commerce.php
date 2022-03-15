@@ -1003,6 +1003,7 @@ return [
     'Subscription' => 'Abonnement',
     'Subscriptions on hold' => 'Abonnementen in wachtstand',
     'Subscriptions' => 'Abonnementen',
+    'Suppress emails' => 'Suppress emails',
     'Switch plan' => 'Ander plan selecteren',
     'Switch' => 'Wisselen',
     'System Settings' => 'Systeeminstellingen',
