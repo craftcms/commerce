@@ -417,6 +417,10 @@ export default new Vuex.Store({
             state.draft = draft
         },
 
+        updateDraftSuppressEmails(state, suppressEmails) {
+            state.draft.order.suppressEmails = suppressEmails
+        },
+
         updateDraftOrderMessage(state, message) {
             state.draft.order.message = message
         },

@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+### Added
 - Customers are now User elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
 - Discounts can now have a condition builder to allow flexible matching of the order, user, and addresses. ([#2290](https://github.com/craftcms/commerce/discussions/2290),  [#2296](https://github.com/craftcms/commerce/discussions/2296), [#2299](https://github.com/craftcms/commerce/discussions/2299))
 - Discounts can now have multiple coupon codes, with their own usage rules. ([#2377](https://github.com/craftcms/commerce/discussions/2377), [#2303](https://github.com/craftcms/commerce/discussions/2303), [#2713](https://github.com/craftcms/commerce/pull/2713))
@@ -15,6 +16,8 @@
 - Added Edit, Create, and Delete sale promotion permissions.
 - Added Edit, Create, and Delete discount promotion permissions.
 - Added the `|commercePaymentFormNamespace` Twig filter.
+- Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
+- Added `craft\commerce\events\OrderStatusEmailsEvent`.
 - Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\behaviors\UserAddressBehavior`.
@@ -29,6 +32,7 @@
 - Added `craft\commerce\controllers\OrdersController::actionValidateAddress()`.
 - Added `craft\commerce\controllers\OrdersController::enforceManageOrderPermissions()`.
 - Added `craft\commerce\controllers\SubscriptionsController::enforceManageSubscriptionPermissions()`.
+- Added `craft\commerce\elements\actions\UpdateOrderStatus::$suppressEmails`.
 - Added `craft\commerce\elements\Order::$sourceBillingAddressId`
 - Added `craft\commerce\elements\Order::$sourceShippingAddressId`
 - Added `craft\commerce\elements\Product::canCreateDrafts()`.

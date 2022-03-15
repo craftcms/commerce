@@ -34,6 +34,10 @@ class UpdateOrderStatus extends ElementAction
      */
     public string $message = '';
 
+    /**
+     * @var bool Whether to suppress the sending of related order status emails
+     */
+    public bool $suppressEmails = false;
 
     /**
      * @inheritdoc
@@ -96,6 +100,7 @@ EOT;
             /** @var Order $order */
             $order->orderStatusId = $this->orderStatusId;
             $order->message = $this->message;
+            $order->suppressEmails = $this->suppressEmails;
             Craft::$app->getElements()->saveElement($order);
         }
 

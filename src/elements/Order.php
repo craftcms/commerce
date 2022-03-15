@@ -1086,6 +1086,12 @@ class Order extends Element
     private ?float $_paymentAmount = null;
 
     /**
+     * Ability to cancel email sending to avoid email even being queued.
+     * @var bool
+     */
+    public bool $suppressEmails = false;
+
+    /**
      * @inheritdoc
      */
     public function init(): void

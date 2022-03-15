@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
@@ -28,6 +29,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
 use function count;
@@ -71,9 +73,38 @@ class OrderStatuses extends Component
      * );
      * ```
      */
-    public const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+    const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
-    public const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
+    /**
+     * @event OrderStatusEmailsEvent The email event that is triggered when an order status is changed.
+     *
+     * Plugins can get notified when an order status is changed
+     *
+     * ```php
+     * use craft\commerce\events\OrderStatusEmailsEvent;
+     * use craft\commerce\services\OrderStatuses;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrderStatuses::class,
+     *     OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS,
+     *     function(OrderStatusEmailsEvent $event) {
+     *         // @var OrderHistory $orderHistory
+     *         $orderHistory = $event->orderHistory;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *
+     *         // Let the delivery department know the order’s ready to be delivered
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_ORDER_STATUS_CHANGE_EMAILS = 'orderStatusChangeEmails';
+
+    const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
     /**
      * @var OrderStatus[]|null
@@ -401,36 +432,56 @@ class OrderStatuses extends Component
      *
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @throws InvalidConfigException
      */
-    public function statusChangeHandler($order, $orderHistory)
+    public function statusChangeHandler(Order $order, OrderHistory $orderHistory): void
     {
-        if ($order->orderStatusId) {
-            $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && count($status->emails)) {
-                $originalLanguage = Craft::$app->language;
+        $status = $this->getOrderStatusById($order->orderStatusId);
 
-                foreach ($status->emails as $email) {
-                    if ($email->enabled) {
-
-                        // Set language by email's set locale
-                        // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
-                        $language = $email->getRenderLanguage($order);
-                        Locale::switchAppLanguage($language);
-
-                        Queue::push(new SendEmail([
-                            'orderId' => $order->id,
-                            'commerceEmailId' => $email->id,
-                            'orderHistoryId' => $orderHistory->id,
-                            'orderData' => $order->toArray(),
-                        ]), 100);
-                    }
-                }
-
-                // Set previous language back
-                Craft::$app->language = $originalLanguage;
-                Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
-            }
+        if ($status === null) {
+            return;
         }
+
+        // Raising 'beforeOrderStatusChange' event
+        $event = new OrderStatusEmailsEvent([
+            'orderHistory' => $orderHistory,
+            'order' => $order,
+            'emails' => $status->getEmails(),
+            'isValid' => !$order->suppressEmails,
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
+            $this->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
+        }
+
+        if (!$event->isValid || empty($event->emails)) {
+            // Don't send emails
+            return;
+        }
+
+        $originalLanguage = Craft::$app->language;
+
+        foreach ($event->emails as $email) {
+            if (!$email->enabled) {
+                continue;
+            }
+
+            // Set language by email's set locale
+            // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
+            $language = $email->getRenderLanguage($event->order);
+            Locale::switchAppLanguage($language);
+
+            Queue::push(new SendEmail([
+                'orderId' => $event->order->id,
+                'commerceEmailId' => $email->id,
+                'orderHistoryId' => $event->orderHistory->id,
+                'orderData' => $event->order->toArray(),
+            ]), 100);
+        }
+
+        // Set previous language back
+        Craft::$app->language = $originalLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
     }
 
     /**

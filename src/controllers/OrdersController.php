@@ -1226,6 +1226,7 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+        $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
 
         $getAddress = static function($address, $orderId, $title) {
             if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {

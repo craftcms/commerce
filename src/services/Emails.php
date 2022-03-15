@@ -627,40 +627,43 @@ class Emails extends Component
         }
         // Plain Text Template Path
         $plainTextTemplatePath = null;
-        try {
-            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
-        } catch (\Exception $e) {
-            $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
-                'email' => $email->name,
-                'order' => $order->getShortNumber(),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-            ]);
-            Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
-            $view->setTemplateMode($oldTemplateMode);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
+        if ($email->plainTextTemplatePath) {
+            try {
+                $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+            } catch (\Exception $e) {
+                $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+                Craft::error($error, __METHOD__);
 
-            return false;
-        }
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
-        // Plain Text Body
-        if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
-            $error = Craft::t('commerce', 'Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
-                'templatePath' => $email->plainTextTemplatePath,
-                'templateParsedPath' => $plainTextTemplatePath,
-                'email' => $email->name,
-                'order' => $order->getShortNumber(),
-            ]);
-            Craft::error($error, __METHOD__);
+                return false;
+            }
 
-            Craft::$app->language = $originalLanguage;
-            $view->setTemplateMode($oldTemplateMode);
-            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
+            // Plain Text Body
+            if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
+                $error = Craft::t('commerce', 'Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
+                    'templatePath' => $email->plainTextTemplatePath,
+                    'templateParsedPath' => $plainTextTemplatePath,
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                ]);
+                Craft::error($error, __METHOD__);
 
-            return false;
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
+
+                return false;
+            }
         }
 
         if ($pdf = $email->getPdf()) {

@@ -37,6 +37,12 @@
                     v-model="message"
                     maxlength="10000"
                 ></textarea>
+
+                <input id="orderedit-suppress-emails"
+                       class="checkbox"
+                       type="checkbox"
+                       v-model="suppressEmails"
+                ><label for="orderedit-suppress-emails">{{$options.filters.t('Suppress emails', 'commerce')}}</label>
             </div>
         </template>
     </div>
@@ -54,6 +60,10 @@
             },
             originalOrderStatusId: {
                 type: Number,
+            },
+            suppressEmails: {
+                type: Boolean,
+                default: false,
             },
         },
 
@@ -111,6 +121,12 @@
                     this.$store.commit('updateDraftOrderMessage', value)
                 },
             },
+        },
+
+        watch: {
+            suppressEmails(newVal, oldVal) {
+                this.$store.commit('updateDraftSuppressEmails', newVal)
+            }
         },
 
         methods: {
