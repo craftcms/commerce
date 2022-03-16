@@ -196,7 +196,7 @@ class Subscription extends Element
     }
 
     /**
-     * @return null|string
+     * @return string
      */
     public function __toString(): string
     {

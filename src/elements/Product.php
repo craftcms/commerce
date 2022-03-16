@@ -195,7 +195,7 @@ class Product extends Element
     }
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function currencyAttributes(): array
     {

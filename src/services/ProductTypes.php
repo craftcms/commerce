@@ -187,7 +187,8 @@ class ProductTypes extends Component
 
     /**
      * Returns all product type IDs that are creatable by the current user.
-     * @return array|int[]
+     *
+     * @return array
      * @throws InvalidConfigException
      */
     public function getCreatableProductTypeIds(): array

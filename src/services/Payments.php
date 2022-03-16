@@ -236,9 +236,11 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
-     * @return void|null
+     * @return void
+     * @throws InvalidConfigException
      * @throws PaymentException if the payment was unsuccessful
-     * @throws Throwable if reasons
+     * @throws TransactionException
+     * @throws \craft\commerce\errors\CurrencyException
      */
     public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
     {

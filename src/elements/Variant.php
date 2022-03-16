@@ -273,7 +273,7 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function currencyAttributes(): array
     {

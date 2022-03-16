@@ -448,7 +448,7 @@ class Discount extends Model
     }
 
     /**
-     * @return array|Coupon[]
+     * @return array
      * @throws InvalidConfigException
      */
     public function getCoupons(): array

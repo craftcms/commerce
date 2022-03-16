@@ -22,7 +22,7 @@ abstract class Localization extends \craft\helpers\Localization
      * Normalizes a percentage value into a float.
      *
      * @param int|float|string|null $number
-     * @return float
+     * @return float|null
      */
     public static function normalizePercentage($number): ?float
     {

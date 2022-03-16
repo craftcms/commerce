@@ -280,7 +280,7 @@ class Transactions extends Component
 
     /**
      * @param int $orderId the order's ID
-     * @return array|Transaction[]
+     * @return array
      * @noinspection PhpUnused
      */
     public function getAllTopLevelTransactionsByOrderId(int $orderId): array

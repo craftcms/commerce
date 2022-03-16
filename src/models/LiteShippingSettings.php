@@ -31,7 +31,7 @@ class LiteShippingSettings extends Model
     public float $shippingPerItemRate;
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function safeAttributes(): array
     {

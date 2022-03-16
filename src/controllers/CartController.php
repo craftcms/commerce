@@ -303,7 +303,7 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @return Response
+     * @return Response|null
      * @throws BadRequestHttpException
      * @throws ElementNotFoundException
      * @throws Exception
@@ -392,11 +392,11 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @return Response
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws BadRequestHttpException
      */
     private function _returnCart(): ?Response
     {

@@ -37,7 +37,7 @@ class LiteTaxSettings extends Model
     public string $taxInclude;
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function safeAttributes(): array
     {

@@ -180,7 +180,7 @@ class Pdfs extends Component
     public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
-     * @return Pdf[]
+     * @return array|null
      * @since 3.2
      */
     public function getAllPdfs(): ?array

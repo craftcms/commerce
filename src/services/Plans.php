@@ -371,7 +371,7 @@ class Plans extends Component
     /**
      * Get all plans memoized.
      *
-     * @return array
+     * @return array|null
      * @since 3.2.8
      */
     private function _getAllPlans(): ?array

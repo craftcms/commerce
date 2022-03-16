@@ -219,8 +219,10 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return null|Response
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function actionReorder(): Response
     {

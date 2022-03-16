@@ -458,7 +458,7 @@ class Gateways extends Component
     }
 
     /**
-     * @return GatewayInterface[]|array|null
+     * @return array|null
      * @throws InvalidConfigException
      */
     private function _getAllGateways(): ?array

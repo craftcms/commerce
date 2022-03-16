@@ -206,7 +206,7 @@ class Transaction extends Model
     }
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function currencyAttributes(): array
     {

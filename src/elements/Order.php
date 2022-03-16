@@ -1169,7 +1169,7 @@ class Order extends Element
     }
 
     /**
-     * @return null|string
+     * @return string
      */
     public static function displayName(): string
     {
@@ -2586,7 +2586,8 @@ class Order extends Element
     /**
      * Returns the total of adjustments made to order.
      *
-     * @return float|int
+     * @return float
+     * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
     public function getAdjustmentSubtotal(): float
