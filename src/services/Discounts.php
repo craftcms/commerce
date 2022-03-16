@@ -775,7 +775,7 @@ class Discounts extends Component
      * @throws \yii\db\Exception
      * @since 4.0
      */
-    public function clearUserUsageHistoryById(int $id): void
+    public function clearCustomerUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
@@ -870,18 +870,6 @@ class Discounts extends Component
             ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['[[discountId]]' => $id])
             ->one();
-    }
-
-    /**
-     * User usage stats for discount
-     *
-     * @param int $id
-     * @return array in the format ['uses' => int, 'users' => int]
-     * @deprecated 4.0.0
-     */
-    public function getUserUsageStatsById(int $id): array
-    {
-        return $this->getCustomerUsageStatsById($id);
     }
 
     /**
