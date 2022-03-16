@@ -2094,9 +2094,9 @@ class Order extends Element
      * <p>By {{ order.customer.name }}</p>
      * ```
      *
-     * @return User|null|false
+     * @return User|null
      */
-    public function getCustomer(): User|null|false
+    public function getCustomer(): ?User
     {
         if (!isset($this->_customer)) {
             if (!$this->getCustomerId()) {
