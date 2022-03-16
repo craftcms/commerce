@@ -93,8 +93,6 @@ class Webhooks extends Component
             throw new Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
         }
 
-        $response = null;
-
         try {
             if ($gateway->supportsWebhooks()) {
                 $response = $gateway->processWebhook();

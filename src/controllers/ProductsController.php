@@ -187,7 +187,6 @@ class ProductsController extends BaseController
         $productId = Craft::$app->getRequest()->getRequiredParam('productId');
         $product = Plugin::getInstance()->getProducts()->getProductById($productId);
 
-        $user = Craft::$app->getUser()->getIdentity();
         $this->enforceDeleteProductPermissions($product);
 
         if (!$product) {

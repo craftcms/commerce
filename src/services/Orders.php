@@ -43,7 +43,7 @@ class Orders extends Component
         ProjectConfigHelper::ensureAllFieldsProcessed();
         $fieldsService = Craft::$app->getFields();
 
-        if (empty($data) || empty($config = reset($data))) {
+        if (empty($data) || empty(reset($data))) {
             // Delete the field layout
             $fieldsService->deleteLayoutsByType(Order::class);
             return;

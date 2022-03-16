@@ -98,7 +98,7 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear line items when updating the cart
-        if (($clearCart = $this->request->getParam('clearLineItems')) !== null) {
+        if ($this->request->getParam('clearLineItems') !== null) {
             $this->_cart->setLineItems([]);
         }
 
@@ -184,7 +184,7 @@ class CartController extends BaseFrontEndController
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
                     $lineItem->qty = (int)$this->request->getParam("lineItems.$key.qty", $lineItem->qty);
-                    $lineItem->note = $note = $this->request->getParam("lineItems.$key.note", $lineItem->note);
+                    $lineItem->note = $this->request->getParam("lineItems.$key.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.$key.options", $lineItem->getOptions()));
 
                     $removeLine = $this->request->getParam("lineItems.$key.remove", false);
@@ -227,7 +227,7 @@ class CartController extends BaseFrontEndController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $this->request->getParam('gatewayId')) {
-            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
                 $this->_cart->setGatewayId($gatewayId);
             }
         }
@@ -363,7 +363,7 @@ class CartController extends BaseFrontEndController
         if (empty($errors)) {
             try {
                 $completedSuccess = $this->_cart->markAsComplete();
-            } catch (\Exception $exception) {
+            } catch (\Exception) {
                 $completedSuccess = false;
             }
 

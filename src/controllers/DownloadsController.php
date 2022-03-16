@@ -48,8 +48,6 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException('404', 'Order not found');
         }
 
-        $pdf = null;
-
         if ($pdfHandle) {
             $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
 

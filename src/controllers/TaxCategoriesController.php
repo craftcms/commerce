@@ -59,10 +59,8 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         if ($variables['taxCategory']->id) {
             $variables['title'] = $variables['taxCategory']->name;
-            $tabName = sprintf('Tax Category (ID: %s)', $variables['taxCategory']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
-            $tabName = 'Tax Category (New)';
         }
 
         DebugPanel::prependOrAppendModelTab(model: $variables['taxCategory'], prepend: true);

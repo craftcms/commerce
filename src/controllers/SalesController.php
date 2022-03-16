@@ -460,7 +460,7 @@ class SalesController extends BaseCpController
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;
-        $categories = $categoryIds = [];
+        $categories = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
             $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
@@ -482,7 +482,7 @@ class SalesController extends BaseCpController
         ];
 
         $variables['purchasables'] = null;
-        $purchasables = $purchasableIds = [];
+        $purchasables = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));

@@ -53,7 +53,7 @@ class PlansController extends BaseStoreSettingsController
                 $planId = $variables['planId'];
                 try {
                     $variables['plan'] = Plugin::getInstance()->getPlans()->getPlanById($planId);
-                } catch (InvalidConfigException $exception) {
+                } catch (InvalidConfigException) {
                     throw new HttpException(404);
                 }
 

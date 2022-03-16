@@ -122,7 +122,6 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Get the HTML and JS for the new tax zone/category modals
         $view = $this->getView();
-        $oldNamespace = $view->getNamespace();
         $view->setNamespace('new');
 
         $view->startJsBuffer();

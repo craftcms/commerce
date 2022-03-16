@@ -63,7 +63,7 @@ class Formulas extends Component
     {
         try {
             $this->evaluateCondition($condition, $params, Craft::t('commerce', 'Validating condition syntax'));
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
 
@@ -78,7 +78,7 @@ class Formulas extends Component
     {
         try {
             $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
 

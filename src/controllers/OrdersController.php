@@ -734,7 +734,7 @@ class OrdersController extends Controller
             if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, null, $orderData, $error)) {
                 $success = false;
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $success = false;
         }
 
@@ -1296,7 +1296,7 @@ class OrdersController extends Controller
         try {
             $order->getPaymentSource();
             $order->getGateway();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $order->paymentSourceId = null;
             $order->gatewayId = null;
         }

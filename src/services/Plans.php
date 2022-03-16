@@ -340,7 +340,7 @@ class Plans extends Component
         foreach ($results as $result) {
             try {
                 $plans[] = $this->_populatePlan($result);
-            } catch (InvalidConfigException $exception) {
+            } catch (InvalidConfigException) {
                 continue; // Just skip this
             }
         }

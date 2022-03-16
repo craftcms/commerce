@@ -175,7 +175,7 @@ class PaymentsController extends BaseFrontEndController
         // Set Payment Gateway on cart
         // Same as CartController::updateCart()
         if ($gatewayId = $this->request->getParam('gatewayId')) {
-            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
                 $order->setGatewayId($gatewayId);
             }
         }

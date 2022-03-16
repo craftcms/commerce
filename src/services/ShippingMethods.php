@@ -270,7 +270,7 @@ class ShippingMethods extends Component
             $transaction->commit();
             $this->_allShippingMethods = null; //clear the cache
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $transaction->rollBack();
 
             return false;
