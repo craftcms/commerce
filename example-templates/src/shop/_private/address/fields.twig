@@ -3,7 +3,7 @@
 Outputs address form fields for editing an address.
 #}
 {# @var address \craft\elements\Address #}
-
+{% set addressName = addressName is defined ? addressName : '' %}
 {# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
 {% macro displayErrors(address, fieldName) %}
   {% if address and address.getErrors(fieldName) %}
@@ -105,11 +105,13 @@ Outputs address form fields for editing an address.
 
       {% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
 
-      {% if administrativeAreas|length %}
       {% tag 'select' with {
         id: 'administrativeArea',
         name: 'administrativeArea',
         class: ['w-full', 'max-w-full', 'h-9', '[[classes.input]]'],
+        data: {
+          'selected': address.administrativeArea ?? null
+        }
       } %}
         {{ tag('option', {
           value: '',
@@ -118,7 +120,6 @@ Outputs address form fields for editing an address.
           text: 'Select state'|t ~ '...'
         }) }}
       {% endtag %}
-      {% endif %}
 
       {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
         id: 'administrativeArea',
@@ -166,33 +167,28 @@ Outputs address form fields for editing an address.
 </div>
 
 {% js %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
-const countrySelect = document.querySelector('select#countryCode');
-console.log(countrySelect);
-countrySelect.addEventListener('change', ev => {
-    console.log('change');
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').addEventListener('change', ev => {
   const countryCode = ev.target.value;
-  const stateSelect = document.querySelector('select#administrativeArea');
-    console.log(stateSelect);
-  const stateText = document.querySelector('#administrativeArea[type=text]');
-    console.log(stateText);
+  const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(addressName) }}');
+  const stateText = document.querySelector('#{{ 'administrativeArea'|namespaceInputId(addressName) }}[type=text]');
   stateSelect.innerHTML = '';
   if (states[countryCode] && Object.keys(states[countryCode]).length) {
     stateSelect.classList.remove('hidden');
-    stateSelect.setAttribute('name', 'administrativeArea');
+    stateSelect.setAttribute('name', '{{ 'adminstrativeArea'|namespaceInputName(addressName) }}');
     stateText.classList.add('hidden');
     stateText.removeAttribute('name');
     stateSelect.innerHTML = '<option value="">Select state...</option>';
     for (const key in states[countryCode]) {
-      stateSelect.innerHTML += `<option value="${key}">${states[countryCode][key]}</option>`;
+      let selected = (key == stateSelect.dataset.selected) ? 'selected' : '';
+      stateSelect.innerHTML += `<option value="${key}" ${selected}>${states[countryCode][key]}</option>`;
     }
   } else {
     stateSelect.classList.add('hidden');
     stateSelect.removeAttribute('name');
     stateText.classList.remove('hidden');
-    stateText.setAttribute('name', 'administrativeArea');
+    stateText.setAttribute('name', '{{ 'adminstrativeArea'|namespaceInputName(addressName) }}');
   }
 });
 
-countrySelect.dispatchEvent(new Event('change'));
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').dispatchEvent(new Event('change'));
 {% endjs %}
