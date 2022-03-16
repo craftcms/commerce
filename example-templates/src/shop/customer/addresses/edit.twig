@@ -16,7 +16,7 @@
             {% exit 404 %}
         {% endif %}
     {% else %}
-        {% set aless = create({
+        {% set address = create({
             class: 'craft\\elements\\Address',
             ownerId: currentUser.id,
             countryCode: countryCode ?? 'US'
@@ -34,11 +34,11 @@
 
     <form method="post" action="">
         {{ csrfInput() }}
-        {{ actionInput('elements/save') }}
+        {{ actionInput('users/save-address') }}
         {{ redirectInput(redirect ?: '[[folderName]]/customer/addresses') }}
 
         {% if addressId %}
-            {{ hiddenInput('elementId', addressId) }}
+            {{ hiddenInput('addressId', addressId) }}
         {% endif %}
 
         {{ include('[[folderName]]/_private/address/fields', {
@@ -66,3 +66,7 @@
         </div>
     </form>
 {% endblock %}
+
+{% js %}
+let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+{% endjs %}

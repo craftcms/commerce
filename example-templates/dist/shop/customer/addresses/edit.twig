@@ -34,11 +34,11 @@
 
     <form method="post" action="">
         {{ csrfInput() }}
-        {{ actionInput('elements/save') }}
+        {{ actionInput('users/save-address') }}
         {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
 
         {% if addressId %}
-            {{ hiddenInput('elementId', addressId) }}
+            {{ hiddenInput('addressId', addressId) }}
         {% endif %}
 
         {{ include('shop/_private/address/fields', {
@@ -66,3 +66,7 @@
         </div>
     </form>
 {% endblock %}
+
+{% js %}
+let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+{% endjs %}

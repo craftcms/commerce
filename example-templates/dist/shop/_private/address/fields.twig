@@ -3,7 +3,7 @@
 Outputs address form fields for editing an address.
 #}
 {# @var address \craft\elements\Address #}
-
+{% set addressName = addressName is defined ? addressName : '' %}
 {# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
 {% macro displayErrors(address, fieldName) %}
   {% if address and address.getErrors(fieldName) %}
@@ -37,7 +37,7 @@ Outputs address form fields for editing an address.
 
   {% set countries = craft.commerce.store.store.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
-  
+
   <div class="my-2">
     <label for="countryCode">
       {{- 'Country'|t }} *
@@ -103,13 +103,15 @@ Outputs address form fields for editing an address.
         {{- 'State'|t -}}
       </label>
 
-      {% set administrativeAreas = craft.app.addresses.getSubdivisionRepository.getList([address.countryCode]) %}
+      {% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
 
-      {% if administrativeAreas|length %}
       {% tag 'select' with {
         id: 'administrativeArea',
         name: 'administrativeArea',
         class: ['w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'],
+        data: {
+          'selected': address.administrativeArea ?? null
+        }
       } %}
         {{ tag('option', {
           value: '',
@@ -117,24 +119,12 @@ Outputs address form fields for editing an address.
           selected: address.administrativeArea ?? false,
           text: 'Select state'|t ~ '...'
         }) }}
-        {% for key, option in administrativeAreas %}
-          {# @var option \craft\commerce\addresss\State #}
-          {% set optionValue = (address.administrativeArea ?? '') %}
-          {{ tag('option', {
-            value: key,
-            selected: key == optionValue,
-            text: option
-          }) }}
-        {% endfor %}
       {% endtag %}
-      {% endif %}
 
-      {% if not administrativeAreas|length %}
       {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
         id: 'administrativeArea',
-        class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+        class: ['w-full hidden', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
       }) }}
-      {% endif %}
       {{ _self.displayErrors(address, 'administrativeArea') }}
     </div>
 
@@ -175,3 +165,30 @@ Outputs address form fields for editing an address.
     </div>
   </div>
 </div>
+
+{% js %}
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').addEventListener('change', ev => {
+  const countryCode = ev.target.value;
+  const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(addressName) }}');
+  const stateText = document.querySelector('#{{ 'administrativeArea'|namespaceInputId(addressName) }}[type=text]');
+  stateSelect.innerHTML = '';
+  if (states[countryCode] && Object.keys(states[countryCode]).length) {
+    stateSelect.classList.remove('hidden');
+    stateSelect.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+    stateText.classList.add('hidden');
+    stateText.removeAttribute('name');
+    stateSelect.innerHTML = '<option value="">Select state...</option>';
+    for (const key in states[countryCode]) {
+      let selected = (key == stateSelect.dataset.selected) ? 'selected' : '';
+      stateSelect.innerHTML += `<option value="${key}" ${selected}>${states[countryCode][key]}</option>`;
+    }
+  } else {
+    stateSelect.classList.add('hidden');
+    stateSelect.removeAttribute('name');
+    stateText.classList.remove('hidden');
+    stateText.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+  }
+});
+
+document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').dispatchEvent(new Event('change'));
+{% endjs %}

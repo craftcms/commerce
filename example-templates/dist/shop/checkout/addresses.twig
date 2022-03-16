@@ -158,9 +158,13 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
   {% js %}
-    {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
+    {% if (cart.billingAddressId and cart.billingAddress and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
       $billingSameAs.click();
     {% endif %}
   {% endjs %}
 
 {% endblock %}
+
+{% js %}
+let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+{% endjs %}
