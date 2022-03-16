@@ -15,6 +15,7 @@ use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -101,7 +102,7 @@ class Store extends Component
 
     /**
      * @return void
-     * @throws \Throwable
+     * @throws Throwable
      * @throws ElementNotFoundException
      * @throws Exception
      */

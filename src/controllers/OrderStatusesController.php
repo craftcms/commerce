@@ -13,6 +13,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use Throwable;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
@@ -129,7 +130,7 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      * @throws BadRequestHttpException
      * @since 2.2
      */

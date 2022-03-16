@@ -20,6 +20,7 @@ use craft\db\Query;
 use craft\events\RegisterComponentTypesEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -206,7 +207,7 @@ class OrderAdjustments extends Component
     /**
      * Delete an order adjustment by its ID.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws StaleObjectException
      * @noinspection PhpUnused
      */

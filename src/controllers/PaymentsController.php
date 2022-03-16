@@ -16,6 +16,7 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
@@ -59,7 +60,7 @@ class PaymentsController extends BaseFrontEndController
      * @throws CurrencyException
      * @throws Exception
      * @throws NotSupportedException
-     * @throws \Throwable
+     * @throws Throwable
      * @throws ElementNotFoundException
      * @throws InvalidConfigException
      * @throws BadRequestHttpException

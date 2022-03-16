@@ -7,6 +7,8 @@ use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\events\DefineRulesEvent;
 use DvK\Vat\Validator;
+use Exception;
+use RuntimeException;
 use yii\base\Behavior;
 
 class ValidateOrganizationTaxIdBehavior extends Behavior
@@ -25,7 +27,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     public function attach($owner)
     {
         if (!$owner instanceof Address) {
-            throw new \RuntimeException('ValidateOrganizationTaxIdBehavior can only be attached to an Address element');
+            throw new RuntimeException('ValidateOrganizationTaxIdBehavior can only be attached to an Address element');
         }
 
         parent::attach($owner);
@@ -90,7 +92,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
             return false;

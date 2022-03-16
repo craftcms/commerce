@@ -9,6 +9,7 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\helpers\ArrayHelper;
+use yii\base\Exception;
 use yii\base\InvalidConfigException;
 
 /**
@@ -34,7 +35,7 @@ class Locale
     /**
      * Get the created sites languages and all languages.
      *
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public static function getSiteAndOtherLanguages(): array
     {

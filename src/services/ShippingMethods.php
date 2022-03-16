@@ -19,6 +19,7 @@ use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -247,7 +248,7 @@ class ShippingMethods extends Component
      * Delete a shipping method by its ID.
      *
      * @param $shippingMethodId int
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function deleteShippingMethodById(int $shippingMethodId): bool
     {

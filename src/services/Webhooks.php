@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\events\WebhookEvent;
+use Exception;
 use Throwable;
 use yii\base\Component;
 use yii\web\BadRequestHttpException;
@@ -72,7 +73,7 @@ class Webhooks extends Component
     public const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function processWebhook(Gateway $gateway): Response
     {
@@ -89,7 +90,7 @@ class Webhooks extends Component
         $mutex = Craft::$app->getMutex();
 
         if ($useMutex && !$mutex->acquire($transactionLockName, 15)) {
-            throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
         }
 
         $response = null;

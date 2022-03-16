@@ -33,6 +33,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use DateTime;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Component;
@@ -738,7 +739,7 @@ class Discounts extends Component
     /**
      * Delete a discount by its ID.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws StaleObjectException
      */
     public function deleteDiscountById(int $id): bool

@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
+use DateInterval;
 use DateTime;
 use yii\base\Exception;
 use yii\db\Expression;
@@ -262,14 +263,14 @@ abstract class Stat implements StatInterface
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P' . $number . 'D');
+                $interval = new DateInterval('P' . $number . 'D');
                 $date->sub($interval);
                 break;
             }
             case self::DATE_RANGE_PASTYEAR:
             {
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P1Y');
+                $interval = new DateInterval('P1Y');
                 $date->sub($interval);
                 $date->modify('first day of next month');
                 break;
@@ -453,7 +454,7 @@ abstract class Stat implements StatInterface
             $tmp['datekey'] = $key;
 
             $defaults[$key] = $tmp;
-            $dateKeyDate->add(new \DateInterval($options['interval']));
+            $dateKeyDate->add(new DateInterval($options['interval']));
         }
 
         // Add defaults to select

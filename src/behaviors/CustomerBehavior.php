@@ -15,6 +15,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
+use RuntimeException;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
 
@@ -62,7 +63,7 @@ class CustomerBehavior extends Behavior
     public function attach($owner)
     {
         if (!$owner instanceof User) {
-            throw new \RuntimeException('CustomerBehavior can only be attached to a User element');
+            throw new RuntimeException('CustomerBehavior can only be attached to a User element');
         }
 
         parent::attach($owner);

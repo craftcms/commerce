@@ -2,13 +2,15 @@
 
 namespace craft\commerce\base;
 
+use craft\base\ComponentInterface;
+
 /**
  * Tax Engine Interface
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1
  */
-interface TaxEngineInterface extends \craft\base\ComponentInterface
+interface TaxEngineInterface extends ComponentInterface
 {
     /**
      * Return class name for the Adjuster to be used for tax

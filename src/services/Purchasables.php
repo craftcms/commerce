@@ -16,6 +16,7 @@ use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
+use Throwable;
 use yii\base\Component;
 
 /**
@@ -140,7 +141,7 @@ class Purchasables extends Component
     /**
      * Delete a purchasable by its ID.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @noinspection PhpUnused
      */
     public function deletePurchasableById(int $purchasableId): bool

@@ -11,8 +11,12 @@ use Craft;
 use craft\base\Component;
 use craft\helpers\Json;
 use craft\web\twig\Environment;
+use Exception;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
+use Twig\Extension\SandboxExtension;
+use Twig\Loader\FilesystemLoader;
+use Twig\Sandbox\SecurityPolicy;
 
 /**
  * Formulas service.
@@ -43,9 +47,9 @@ class Formulas extends Component
         $methods = $this->_getMethods();
         $properties = $this->_getProperties();
 
-        $policy = new \Twig\Sandbox\SecurityPolicy($tags, $filters, $methods, $properties, $functions);
-        $loader = new \Twig\Loader\FilesystemLoader();
-        $sandbox = new \Twig\Extension\SandboxExtension($policy, true);
+        $policy = new SecurityPolicy($tags, $filters, $methods, $properties, $functions);
+        $loader = new FilesystemLoader();
+        $sandbox = new SandboxExtension($policy, true);
 
         $this->_twigEnv = new Environment($loader);
         $this->_twigEnv->addExtension($sandbox);
@@ -59,7 +63,7 @@ class Formulas extends Component
     {
         try {
             $this->evaluateCondition($condition, $params, Craft::t('commerce', 'Validating condition syntax'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return false;
         }
 
@@ -74,7 +78,7 @@ class Formulas extends Component
     {
         try {
             $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             return false;
         }
 

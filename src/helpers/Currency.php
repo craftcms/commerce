@@ -7,6 +7,7 @@
 
 namespace craft\commerce\helpers;
 
+use Craft;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
@@ -92,7 +93,7 @@ class Currency
                 $amount = self::round($amount, $currencyData); // Will round to the right minorUnits
             }
 
-            $amount = \Craft::$app->getFormatter()->asCurrency($amount, $currencyIso, [], [], $stripZeros);
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currencyIso, [], [], $stripZeros);
         }
 
         return (string)$amount;

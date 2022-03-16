@@ -38,6 +38,8 @@ use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
@@ -49,6 +51,8 @@ use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\web\View;
+use DateTime;
+use DateTimeZone;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -1206,8 +1210,8 @@ class OrdersController extends Controller
      * @param $orderRequestData
      * @throws InvalidConfigException
      * @throws Throwable
-     * @throws \craft\errors\InvalidElementException
-     * @throws \craft\errors\UnsupportedSiteException
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
      */
     private function _updateOrder(Order $order, $orderRequestData): void
     {
@@ -1273,7 +1277,7 @@ class OrdersController extends Controller
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
             if ($orderRequestData['order']['dateOrdered']['time'] == '') {
-                $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
+                $dateTime = (new DateTime('now', new DateTimeZone($dateOrdered['timezone'])));
                 $dateOrdered['time'] = $dateTime->format('H:i');
             }
 

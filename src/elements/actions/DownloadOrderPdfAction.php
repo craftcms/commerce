@@ -17,6 +17,7 @@ use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use iio\libmergepdf\Merger;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\HttpException;
@@ -99,7 +100,7 @@ JS;
      * @throws HttpException
      * @throws InvalidConfigException
      * @throws RangeNotSatisfiableHttpException
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function performAction(ElementQueryInterface $query): bool
     {
@@ -171,7 +172,7 @@ JS;
      * Returns a PDF’s file name
      *
      * @throws Exception
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function _pdfFileName(Pdf $pdf, Order $order): string
     {

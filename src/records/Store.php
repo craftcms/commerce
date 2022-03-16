@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\elements\Address;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -38,6 +39,6 @@ class Store extends ActiveRecord
      */
     public function getStoreLocation(): ActiveQueryInterface
     {
-        return $this->hasOne(\craft\elements\Address::class, ['id' => 'locationAddressId']);
+        return $this->hasOne(Address::class, ['id' => 'locationAddressId']);
     }
 }

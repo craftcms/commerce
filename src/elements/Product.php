@@ -36,6 +36,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -1108,7 +1109,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): ?\craft\models\FieldLayout
+    public function getFieldLayout(): ?FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }

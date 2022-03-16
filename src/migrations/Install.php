@@ -27,6 +27,7 @@ use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 use Exception;
+use ReflectionClass;
 use yii\base\NotSupportedException;
 
 /**
@@ -1131,7 +1132,7 @@ class Install extends Migration
      */
     private function _getAllTableNames(): array
     {
-        $class = new \ReflectionClass(Table::class);
+        $class = new ReflectionClass(Table::class);
         return $class->getConstants();
     }
 }

@@ -16,8 +16,10 @@ use craft\commerce\records\Coupon as CouponRecord;
 use craft\db\Query;
 use craft\helpers\StringHelper;
 use Exception;
+use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Coupons service.
@@ -131,8 +133,8 @@ class Coupons extends Component
     /**
      * @param int $id
      * @return bool
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteCouponById(int $id): bool
     {

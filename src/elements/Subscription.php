@@ -24,6 +24,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -220,7 +221,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): ?\craft\models\FieldLayout
+    public function getFieldLayout(): ?FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }

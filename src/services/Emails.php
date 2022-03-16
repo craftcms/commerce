@@ -29,6 +29,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
@@ -398,7 +399,7 @@ class Emails extends Component
      * @return bool $result
      * @throws Exception
      * @throws Throwable
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function sendEmail(Email $email, Order $order, ?OrderHistory $orderHistory = null, ?array $orderData = null, string &$error = ''): bool
     {

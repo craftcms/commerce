@@ -18,6 +18,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use DateTime;
 use yii\db\Connection;
 use yii\db\Schema;
 
@@ -684,7 +685,7 @@ class VariantQuery extends ElementQuery
                 ->limit(null)
                 ->ids();
 
-            $now = new \DateTime();
+            $now = new DateTime();
             $activeSales = (new Query())->select([
                 'sales.id',
                 'sales.allGroups',

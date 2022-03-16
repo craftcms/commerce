@@ -13,6 +13,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
 use craft\helpers\Html;
+use craft\web\View;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\console\ExitCode;
@@ -295,7 +296,7 @@ class ExampleTemplatesController extends Controller
     {
         $view = Craft::$app->getView();
         $originalMode = $view->getTemplateMode();
-        $view->setTemplateMode(\craft\web\View::TEMPLATE_MODE_SITE);
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
         $templatesPath = $view->getTemplatesPath();
         $view->setTemplateMode($originalMode);
         return $templatesPath;

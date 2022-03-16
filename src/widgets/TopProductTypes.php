@@ -15,6 +15,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
+use DateTime;
 
 /**
  * Top Product Types widget
@@ -28,12 +29,12 @@ use craft\web\assets\admintable\AdminTableAsset;
 class TopProductTypes extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $startDate;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $endDate;
 

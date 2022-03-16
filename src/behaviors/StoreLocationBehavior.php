@@ -6,6 +6,7 @@ use craft\commerce\records\Store;
 use craft\elements\Address;
 use craft\events\AuthorizationCheckEvent;
 use craft\events\ModelEvent;
+use RuntimeException;
 use yii\base\Behavior;
 
 class StoreLocationBehavior extends Behavior
@@ -19,7 +20,7 @@ class StoreLocationBehavior extends Behavior
     public function attach($owner)
     {
         if (!$owner instanceof Address) {
-            throw new \RuntimeException('StoreLocationBehavior can only be attached to an Address element');
+            throw new RuntimeException('StoreLocationBehavior can only be attached to an Address element');
         }
 
         parent::attach($owner);

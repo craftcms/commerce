@@ -13,6 +13,7 @@ use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Average Order Total widget
@@ -26,12 +27,12 @@ use craft\helpers\StringHelper;
 class AverageOrderTotal extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $startDate;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $endDate;
 

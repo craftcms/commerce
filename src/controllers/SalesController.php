@@ -26,6 +26,7 @@ use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
@@ -389,7 +390,7 @@ class SalesController extends BaseCpController
     /**
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
-     * @throws \yii\web\ForbiddenHttpException
+     * @throws ForbiddenHttpException
      * @since 3.0
      */
     public function actionUpdateStatus(): void

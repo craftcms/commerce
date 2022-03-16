@@ -18,6 +18,7 @@ use craft\commerce\gateways\MissingGateway;
 use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
+use craft\errors\DeprecationException;
 use craft\errors\MissingComponentException;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -399,7 +400,7 @@ class Gateways extends Component
      * Returns any custom gateway settings form config file.
      *
      * @param string $handle The gateway handle
-     * @throws \craft\errors\DeprecationException
+     * @throws DeprecationException
      * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
      * // TODO Only remove once Craft 4 has lightswitch and dropdown overrides in core
      */

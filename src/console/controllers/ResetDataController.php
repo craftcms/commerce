@@ -13,6 +13,7 @@ use craft\commerce\db\Table;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\Console;
+use Exception;
 use yii\console\ExitCode;
 
 /**
@@ -105,7 +106,7 @@ class ResetDataController extends Controller
                 $this->stdout('Finished.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 $transaction->commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->stdout($e->getmessage() . PHP_EOL, Console::FG_RED);
                 $transaction->rollBack();
             }

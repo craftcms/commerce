@@ -17,6 +17,7 @@ use craft\commerce\records\OrderHistory as OrderHistoryRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\helpers\DateTimeHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -187,7 +188,7 @@ class OrderHistories extends Component
     /**
      * Delete an order history by its ID.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws StaleObjectException
      * @noinspection PhpUnused
      */

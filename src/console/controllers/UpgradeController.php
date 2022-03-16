@@ -35,7 +35,9 @@ use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
+use Throwable;
 use yii\console\ExitCode;
+use yii\db\Exception;
 use yii\db\Schema;
 
 /**
@@ -72,7 +74,7 @@ class UpgradeController extends Controller
 
     /**
      * @return array
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     private function _getOrphanedCustomerIds(): array
     {
@@ -174,7 +176,7 @@ class UpgradeController extends Controller
     /**
      * Runs the data migration
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function actionRun(): int
     {
@@ -312,7 +314,7 @@ class UpgradeController extends Controller
     /**
      * @return void
      * @throws OperationAbortedException
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function _migrateAddressCustomFields(): void
     {
@@ -349,7 +351,7 @@ EOL
      * @param string $label
      * @return FieldInterface
      * @throws OperationAbortedException
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function _customField(string $oldAttribute, string $label): FieldInterface
     {
@@ -612,7 +614,7 @@ EOL
 
     /**
      * @return void
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     private function _migrateUserAddressBook()
     {
@@ -685,7 +687,7 @@ SQL;
 
     /**
      * @return void
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     private function _migrateOrderAddresses(): void
     {

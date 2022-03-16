@@ -26,6 +26,7 @@ use craft\helpers\StringHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
@@ -353,7 +354,7 @@ class Pdfs extends Component
     /**
      * Handle email getting deleted.
      *
-     * @throws \Throwable
+     * @throws Throwable
      * @throws StaleObjectException
      * @since 3.2
      */

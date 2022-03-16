@@ -13,6 +13,7 @@ use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Repeat Customers widget
@@ -26,12 +27,12 @@ use craft\helpers\StringHelper;
 class RepeatCustomers extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $startDate;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $endDate;
 

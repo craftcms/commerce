@@ -16,6 +16,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Total Revenue widget
@@ -30,12 +31,12 @@ use craft\helpers\StringHelper;
 class TotalRevenue extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $startDate;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $endDate;
 
