@@ -824,19 +824,15 @@ class VariantQuery extends ElementQuery
                                 ])
                                 ->all();
 
-                            $sourceProductIds = ArrayHelper::getColumn($sourceRows, function($row) {
-                                if ($row['type'] == Product::class) {
-                                    return $row['sourceId'];
-                                }
-                            });
-                            $sourceVariantIds = ArrayHelper::getColumn($sourceRows, function($row) {
-                                if ($row['type'] == Variant::class) {
-                                    return $row['sourceId'];
-                                }
-                            });
+                            $sourceProductIds = collect($sourceRows)
+                                ->filter(fn($row) => $row['type'] === Product::class)
+                                ->map(fn($row) => $row['sourceId'])
+                                ->all();
 
-                            $sourceProductIds = array_filter($sourceProductIds);
-                            $sourceVariantIds = array_filter($sourceVariantIds);
+                            $sourceVariantIds = collect($sourceRows)
+                                ->filter(fn($row) => $row['type'] === Variant::class)
+                                ->map(fn($row) => $row['sourceId'])
+                                ->all();
                         }
 
                         // Target relationships
@@ -853,19 +849,15 @@ class VariantQuery extends ElementQuery
                                 ])
                                 ->all();
 
-                            $targetProductIds = ArrayHelper::getColumn($targetRows, function($row) {
-                                if ($row['type'] == Product::class) {
-                                    return $row['targetId'];
-                                }
-                            });
-                            $targetVariantIds = ArrayHelper::getColumn($targetRows, function($row) {
-                                if ($row['type'] == Variant::class) {
-                                    return $row['targetId'];
-                                }
-                            });
+                            $targetProductIds = collect($targetRows)
+                                ->filter(fn($row) => $row['type'] === Product::class)
+                                ->map(fn($row) => $row['targetId'])
+                                ->all();
 
-                            $targetProductIds = array_filter($targetProductIds);
-                            $targetVariantIds = array_filter($targetVariantIds);
+                            $targetVariantIds = collect($targetRows)
+                                ->filter(fn($row) => $row['type'] === Product::class)
+                                ->map(fn($row) => $row['targetId'])
+                                ->all();
                         }
 
                         $categoryRestrictedVariantIds = array_merge($sourceVariantIds, $targetVariantIds);
