@@ -2,14 +2,10 @@
 
 namespace craft\commerce\behaviors;
 
-use Craft;
-use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\elements\Address;
 use craft\events\AuthorizationCheckEvent;
-use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
-use DvK\Vat\Validator;
 use yii\base\Behavior;
 
 class StoreLocationBehavior extends Behavior

@@ -5,7 +5,6 @@ namespace craft\commerce\elements\conditions\addresses;
 use Craft;
 use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
-use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;

@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
 use craft\db\Query;

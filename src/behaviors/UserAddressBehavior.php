@@ -7,17 +7,11 @@
 
 namespace craft\commerce\behaviors;
 
-use craft\commerce\elements\Order;
-use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
-use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\events\DefineRulesEvent;
-use craft\events\ModelEvent;
-use craft\helpers\ArrayHelper;
 use yii\base\Behavior;
-use yii\base\InvalidConfigException;
 
 /**
  * User address behavior.

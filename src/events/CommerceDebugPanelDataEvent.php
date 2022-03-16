@@ -7,7 +7,6 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\debug\CommercePanel;
 use yii\base\Event;
 
 /**

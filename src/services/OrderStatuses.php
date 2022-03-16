@@ -73,7 +73,7 @@ class OrderStatuses extends Component
      * );
      * ```
      */
-    const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+    public const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
     /**
      * @event OrderStatusEmailsEvent The email event that is triggered when an order status is changed.
@@ -102,9 +102,9 @@ class OrderStatuses extends Component
      * );
      * ```
      */
-    const EVENT_ORDER_STATUS_CHANGE_EMAILS = 'orderStatusChangeEmails';
+    public const EVENT_ORDER_STATUS_CHANGE_EMAILS = 'orderStatusChangeEmails';
 
-    const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
+    public const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
     /**
      * @var OrderStatus[]|null

@@ -9,8 +9,6 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
-use yii\base\InvalidConfigException;
-use yii\db\ActiveQueryInterface;
 
 /**
  * Tax zone record.

@@ -10,9 +10,7 @@ namespace craftcommercetests\unit\elements\order;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craftcommercetests\fixtures\ProductFixture;
-use craftcommercetests\fixtures\SalesFixture;
 
 /**
  * ProductTest

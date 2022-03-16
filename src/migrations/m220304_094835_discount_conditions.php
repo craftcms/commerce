@@ -2,8 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
 use craft\commerce\elements\conditions\orders\DiscountOrderCondition;

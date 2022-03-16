@@ -8,18 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\Plugin;
-use craft\errors\ElementNotFoundException;
-use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
-use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;

@@ -22,7 +22,6 @@ use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
 

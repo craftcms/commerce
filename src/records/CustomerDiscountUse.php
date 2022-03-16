@@ -10,7 +10,6 @@ namespace craft\commerce\records;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Element;
-use craft\records\User;
 use yii\db\ActiveQueryInterface;
 
 /**

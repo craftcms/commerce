@@ -7,7 +7,6 @@
 
 namespace craft\commerce\plugin;
 
-use craft\commerce\services\AdministrativeAreas;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
 use craft\commerce\services\Coupons;

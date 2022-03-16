@@ -7,28 +7,13 @@
 
 namespace craftcommercetests\unit\services;
 
-use Codeception\Stub;
 use Codeception\Test\Unit;
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\services\Customers;
-use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
-use craft\commerce\services\Sales;
-use craft\config\GeneralConfig;
-use craft\console\Application;
-use craft\db\Query;
-use craft\elements\Category;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
-use craft\services\Config;
-use craft\services\UserPermissions;
-use craftcommercetests\fixtures\SalesFixture;
 use UnitTester;
 
 /**

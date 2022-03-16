@@ -11,7 +11,6 @@ use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
-use craft\db\Query;
 
 /**
  * Class DiscountsFixture.

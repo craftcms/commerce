@@ -9,8 +9,6 @@ namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
-use craft\commerce\services\Sales;
 
 /**
  * SaleTest

@@ -2,8 +2,6 @@
 
 namespace craft\commerce\base;
 
-use yii\base\ComponentInterface;
-
 /**
  * Tax Engine Interface
  *

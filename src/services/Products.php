@@ -9,8 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\Plugin;
-use craft\elements\User;
 use craft\events\SiteEvent;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;

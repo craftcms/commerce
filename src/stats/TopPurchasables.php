@@ -10,7 +10,6 @@ namespace craft\commerce\stats;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use craft\elements\User;
 use yii\db\Expression;
 
 /**

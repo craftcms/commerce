@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\unit\services;
 
-use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
