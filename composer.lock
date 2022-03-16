@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3581e74483124071c3afe89ad0ac1268",
+    "content-hash": "b30e04fcf0a35f37fd77a662822c3e03",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -449,16 +449,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.3.0",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "f79c90ad4e9b41ac4dfc5d77bf398cf61fbd718b"
+                "reference": "5d8e574bb0e69188786b8ef77d43341222a41a71"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/f79c90ad4e9b41ac4dfc5d77bf398cf61fbd718b",
-                "reference": "f79c90ad4e9b41ac4dfc5d77bf398cf61fbd718b",
+                "url": "https://api.github.com/repos/composer/semver/zipball/5d8e574bb0e69188786b8ef77d43341222a41a71",
+                "reference": "5d8e574bb0e69188786b8ef77d43341222a41a71",
                 "shasum": ""
             },
             "require": {
@@ -510,7 +510,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.3.0"
+                "source": "https://github.com/composer/semver/tree/3.3.1"
             },
             "funding": [
                 {
@@ -526,7 +526,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-15T08:35:57+00:00"
+            "time": "2022-03-16T11:22:07+00:00"
         },
         {
             "name": "composer/spdx-licenses",
@@ -676,16 +676,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "4.0.0-beta.1",
+            "version": "4.0.0-beta.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "2c20eed81e34c35b880ddd9e1bc61c9cfd9c6690"
+                "reference": "147517d020e58c8b528c6e548437908d259060e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/2c20eed81e34c35b880ddd9e1bc61c9cfd9c6690",
-                "reference": "2c20eed81e34c35b880ddd9e1bc61c9cfd9c6690",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/147517d020e58c8b528c6e548437908d259060e0",
+                "reference": "147517d020e58c8b528c6e548437908d259060e0",
                 "shasum": ""
             },
             "require": {
@@ -790,7 +790,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2022-03-09T20:44:42+00:00"
+            "time": "2022-03-16T19:10:28+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -9249,12 +9249,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "9d2d61cbddcc6635efe5bf88d2de2d06ba87d041"
+                "reference": "063eb1eeb322c9a59cd87c8adc5833b6a64e8eed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/9d2d61cbddcc6635efe5bf88d2de2d06ba87d041",
-                "reference": "9d2d61cbddcc6635efe5bf88d2de2d06ba87d041",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/063eb1eeb322c9a59cd87c8adc5833b6a64e8eed",
+                "reference": "063eb1eeb322c9a59cd87c8adc5833b6a64e8eed",
                 "shasum": ""
             },
             "require": {
@@ -9302,7 +9302,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-16T09:24:07+00:00"
+            "time": "2022-03-16T16:27:17+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -10958,16 +10958,16 @@
         },
         {
             "name": "symplify/easy-coding-standard",
-            "version": "10.1.3",
+            "version": "10.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symplify/easy-coding-standard.git",
-                "reference": "e2002a9061b1a5fc94b4e5ee88ac8769cbcb6a21"
+                "reference": "3fdbead9da24889727dc11804e9bbfb9d4502d3a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/e2002a9061b1a5fc94b4e5ee88ac8769cbcb6a21",
-                "reference": "e2002a9061b1a5fc94b4e5ee88ac8769cbcb6a21",
+                "url": "https://api.github.com/repos/symplify/easy-coding-standard/zipball/3fdbead9da24889727dc11804e9bbfb9d4502d3a",
+                "reference": "3fdbead9da24889727dc11804e9bbfb9d4502d3a",
                 "shasum": ""
             },
             "require": {
@@ -10997,7 +10997,7 @@
             ],
             "description": "Prefixed scoped version of ECS package",
             "support": {
-                "source": "https://github.com/symplify/easy-coding-standard/tree/10.1.3"
+                "source": "https://github.com/symplify/easy-coding-standard/tree/10.1.4"
             },
             "funding": [
                 {
@@ -11009,7 +11009,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-16T00:09:13+00:00"
+            "time": "2022-03-16T15:18:55+00:00"
         },
         {
             "name": "symplify/easy-testing",
