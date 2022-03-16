@@ -15,6 +15,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
@@ -388,7 +389,7 @@ class ProductType extends Model
     /**
      * @param string $titleFormat
      * @return void
-     * @throws \craft\errors\DeprecationException
+     * @throws DeprecationException
      * @deprecated 4.0.0
      */
     public function setTitleFormat(string $titleFormat): void

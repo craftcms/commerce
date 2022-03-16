@@ -13,7 +13,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -837,11 +836,8 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->customerId = $value->id;
-        } elseif ($value !== null) {
-            $user = Craft::$app->getUser()->getUserById($value);
-            $this->customerId = $user->id ?? null;
         } else {
-            $this->customerId = null;
+            $this->customerId = $value;
         }
 
         return $this;

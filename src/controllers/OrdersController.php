@@ -527,7 +527,7 @@ class OrdersController extends Controller
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
             [$column, $direction] = explode('|', $sort);
-            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+            if ($column && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
         } else {
@@ -1497,7 +1497,7 @@ class OrdersController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
         foreach ($results as $row) {
-            /** @var PurchasableInterface $purchasable */
+            /** @var PurchasableInterface|PurchasableElement $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;

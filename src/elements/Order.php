@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
@@ -80,7 +81,7 @@ use yii\log\Logger;
  * @property string $origin
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
- * @property-read Customer $customer
+ * @property-read User|null $customer
  * @property-read Gateway $gateway
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
@@ -1103,6 +1104,7 @@ class Order extends Element
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
             $user = $this->getCustomer();
             if (!$this->shippingAddressId && $user) {
+                /** @var User|CustomerBehavior $user */
                 if ($primaryShippingAddress = $user->getPrimaryShippingAddress()) {
                     $this->setShippingAddress($primaryShippingAddress);
                 }

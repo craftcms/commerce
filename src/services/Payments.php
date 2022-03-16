@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\SubscriptionException;
@@ -240,7 +241,7 @@ class Payments extends Component
      * @throws InvalidConfigException
      * @throws PaymentException if the payment was unsuccessful
      * @throws TransactionException
-     * @throws \craft\commerce\errors\CurrencyException
+     * @throws CurrencyException
      */
     public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
     {

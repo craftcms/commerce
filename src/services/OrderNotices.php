@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderNotice;

@@ -208,6 +208,11 @@ class Subscription extends Element
         return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
 
+    public function canSave(User $user): bool
+    {
+        return parent::canView($user) || $user->can('commerce-manageSubscriptions');
+    }
+
     /**
      * Returns whether this subscription can be reactivated.
      *

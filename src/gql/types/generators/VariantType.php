@@ -43,7 +43,7 @@ class VariantType implements GeneratorInterface
             }
 
             $layout = $productType->getVariantFieldLayout();
-            $contentFields = $layout->getFields();
+            $contentFields = $layout->getCustomFields();
             $contentFieldGqlTypes = [];
 
             /** @var Field $contentField */

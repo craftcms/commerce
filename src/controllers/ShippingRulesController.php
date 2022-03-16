@@ -22,6 +22,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -221,7 +222,7 @@ class ShippingRulesController extends BaseShippingSettingsController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @throws \yii\db\Exception
      */
     public function actionReorder(): Response

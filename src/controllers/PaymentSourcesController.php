@@ -101,7 +101,7 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $currentUser = Craft::$app->getUser()->getIdentity();
 
-        if ($paymentSource->userId != $currentUser->getId() && !$currentUser->can('commerce-manageOrders')) {
+        if ($paymentSource->getCustomer()?->id != $currentUser->getId() && !$currentUser->can('commerce-manageOrders')) {
             return null;
         }
 

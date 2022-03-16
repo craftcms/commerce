@@ -965,7 +965,7 @@ class Product extends Element
             // Set Craft to the entry's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $title = Craft::$app->getView()->renderObjectTemplate((string)$productType->productTitleFormat, $this);
+            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
             if ($title !== '') {
                 $this->title = $title;
             }

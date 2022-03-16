@@ -269,7 +269,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = $subscription->getIsEditable();
+            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -317,7 +317,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = $subscription->getIsEditable();
+            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -377,7 +377,7 @@ class SubscriptionsController extends BaseController
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = $subscription->getIsEditable();
+            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */

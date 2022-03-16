@@ -8,7 +8,6 @@
 namespace craft\commerce\plugin;
 
 use craft\commerce\services\Carts;
-use craft\commerce\services\Countries;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;

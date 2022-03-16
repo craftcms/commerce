@@ -8,6 +8,8 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\behaviors\CustomerBehavior;
+use craft\elements\User;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
@@ -28,6 +30,7 @@ class UserOrdersController extends BaseFrontEndController
     {
         $this->requireAcceptsJson();
 
+        /** @var User|CustomerBehavior|null $user */
         $user = Craft::$app->getUser()->getIdentity();
 
         if (!$user) {

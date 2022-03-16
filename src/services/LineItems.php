@@ -235,8 +235,8 @@ class LineItems extends Component
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
         $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
-        $lineItemRecord->sku = $lineItem->sku;
-        $lineItemRecord->description = $lineItem->description;
+        $lineItemRecord->sku = $lineItem->getSku();
+        $lineItemRecord->description = $lineItem->getDescription();
 
         $lineItemRecord->options = $lineItem->getOptions();
         $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();

@@ -42,7 +42,7 @@ class ProductType implements GeneratorInterface
                 continue;
             }
 
-            $contentFields = $productType->getFields();
+            $contentFields = $productType->getCustomFields();
             $contentFieldGqlTypes = [];
 
             /** @var Field $contentField */

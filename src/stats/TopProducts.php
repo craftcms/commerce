@@ -113,7 +113,7 @@ class TopProducts extends Stat
 
         // Set defaults
         $this->revenueOptions = $this->_defaultRevenueOptions;
-        if ($revenueOptions !== null && is_array($revenueOptions)) {
+        if (is_array($revenueOptions)) {
             $this->revenueOptions = $revenueOptions;
         }
 

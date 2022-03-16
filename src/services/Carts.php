@@ -84,7 +84,7 @@ class Carts extends Component
         $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalSiteId = $this->_cart->orderSiteId;
         $originalPaymentCurrency = $this->_cart->paymentCurrency;
-        $originalUserId = $this->_cart->customerId;
+        $originalUserId = $this->_cart->getCustomerId();
 
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
