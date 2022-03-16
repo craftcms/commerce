@@ -220,6 +220,7 @@
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. `clearUserUsageHistoryById()` can be used instead.
 - Removed `craft\commerce\services\Discounts::getCustomerUsageStatsById()`. `getUserUsageStatsById()` can be used instead.
 - Removed `craft\commerce\services\Discounts::populateDiscountRelations()`.
+- Removed `craft\commerce\services\Discounts::getOrderConditionParams()`. `$order->toArray()` can be used instead.
 - Removed `craft\commerce\services\Orders::cartArray()`. `$order->toArray()` can be used instead.
 - Removed `craft\commerce\services\Payments::getTotalAuthorizedForOrder()`.
 - Removed `craft\commerce\services\Payments::getTotalAuthorizedOnlyForOrder()`. `Order::getTotalAuthorized()` can be used instead.
