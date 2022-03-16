@@ -2934,8 +2934,8 @@ class Order extends Element
         }
 
         if ($paymentSource instanceof PaymentSource) {
-            $user = $this->getCustomer();
-            if ($user && $paymentSource->getUser()->id != $user->id) {
+            $customer = $this->getCustomer();
+            if ($customer?->id && $paymentSource->getCustomer()?->id !== $customer->id) {
                 throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
             }
 
