@@ -17,6 +17,7 @@ use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Manual as ManualRequestResponse;
 use craft\commerce\models\Transaction;
+use craft\helpers\App;
 use craft\web\Response as WebResponse;
 
 /**
@@ -215,7 +216,7 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if (Craft::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
+        if (App::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
             return false;
         }
 
