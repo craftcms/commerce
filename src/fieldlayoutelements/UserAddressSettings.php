@@ -71,7 +71,7 @@ class UserAddressSettings extends BaseField
 
         $owner = $element->getOwner();
 
-        if (!$owner || !$owner instanceof User) {
+        if (!$owner instanceof User) {
             return null;
         }
 

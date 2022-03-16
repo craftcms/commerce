@@ -489,7 +489,7 @@ class SalesController extends BaseCpController
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
+                if ($purchasable instanceof Product) {
                     foreach ($purchasable->getVariants(true) as $variant) {
                         $purchasableIds[] = $variant->getId();
                     }
@@ -503,7 +503,7 @@ class SalesController extends BaseCpController
 
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-            if ($purchasable && $purchasable instanceof PurchasableInterface) {
+            if ($purchasable instanceof PurchasableInterface) {
                 $class = get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
                 $purchasables[$class][] = $purchasable;

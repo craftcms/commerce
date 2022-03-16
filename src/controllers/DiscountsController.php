@@ -538,7 +538,7 @@ class DiscountsController extends BaseCpController
         $purchasables = [];
         foreach ($purchasableIds as $purchasableId) {
             $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-            if ($purchasable && $purchasable instanceof PurchasableInterface) {
+            if ($purchasable instanceof PurchasableInterface) {
                 $class = get_class($purchasable);
                 $purchasables[$class] = $purchasables[$class] ?? [];
                 $purchasables[$class][] = $purchasable;

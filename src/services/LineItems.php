@@ -338,7 +338,7 @@ class LineItems extends Component
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
-        if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
+        if ($purchasable instanceof PurchasableInterface) {
             $lineItem->setPurchasable($purchasable);
             $lineItem->populateFromPurchasable($purchasable);
         } else {
