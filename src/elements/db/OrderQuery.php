@@ -830,10 +830,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param User|int $value The property value
+     * @param User|int|null $value The property value
      * @return static self reference
      */
-    public function customer(int|User $value): OrderQuery
+    public function customer(int|User|null $value): OrderQuery
     {
         if ($value instanceof User) {
             $this->customerId = $value->id;
