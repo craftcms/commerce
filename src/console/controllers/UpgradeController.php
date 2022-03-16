@@ -601,18 +601,6 @@ EOL
     }
 
     /**
-     * @return array
-     */
-    private function _administrativeAreaByV3StateId(): array
-    {
-        return (new Query())
-            ->select(['abbreviation'])
-            ->from(['{{%commerce_states}}'])
-            ->indexBy('id')
-            ->column();
-    }
-
-    /**
      * @return void
      * @throws Exception
      */

@@ -475,19 +475,4 @@ abstract class Stat implements StatInterface
         return $return;
     }
 
-    /**
-     * @return string[]|null
-     */
-    private function _getCustomDateChartQueryOptions(int $days): ?array
-    {
-        if ($days > 90) {
-            return $this->getChartQueryOptionsByInterval('month');
-        }
-
-        if ($days > 27) {
-            return $this->getChartQueryOptionsByInterval('week');
-        }
-
-        return $this->getChartQueryOptionsByInterval('day');
-    }
 }
