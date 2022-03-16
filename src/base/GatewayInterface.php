@@ -66,7 +66,7 @@ interface GatewayInterface extends SavableComponentInterface
      *
      * @param string $token
      */
-    public function deletePaymentSource($token): bool;
+    public function deletePaymentSource(string $token): bool;
 
     /**
      * Returns payment form model to use in payment forms.
@@ -180,8 +180,8 @@ interface GatewayInterface extends SavableComponentInterface
      * Retrieves the transaction hash from the webhook data. This could be a query string
      * param or part of the response data.
      *
-     * @return mixed
+     * @return string|null
      * @since 3.1.9
      */
-    public function getTransactionHashFromWebhook();
+    public function getTransactionHashFromWebhook(): ?string;
 }

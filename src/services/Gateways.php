@@ -194,10 +194,10 @@ class Gateways extends Component
     /**
      * Returns a gateway by its handle.
      *
-     * @return Gateway|GatewayInterface|null The gateway or null if not found.
+     * @return GatewayInterface|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
-    public function getGatewayByHandle(string $handle)
+    public function getGatewayByHandle(string $handle): ?GatewayInterface
     {
         return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }
@@ -357,11 +357,12 @@ class Gateways extends Component
     /**
      * Creates a gateway with a given config
      *
-     * @param mixed $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
-     * @return GatewayInterface The gateway
+     * @template T
+     * @param class-string<T>|array{type: class-string<T>} $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
+     * @return T The gateway
      * @throws InvalidConfigException
      */
-    public function createGateway($config): GatewayInterface
+    public function createGateway(string|array $config): GatewayInterface
     {
         if (is_string($config)) {
             $config = ['type' => $config];
@@ -387,8 +388,6 @@ class Gateways extends Component
             $config['errorMessage'] = $e->getMessage();
             $config['expectedType'] = $config['type'];
             unset($config['type']);
-
-            $config = $originalConfig ?? $config;
 
             $gateway = new MissingGateway($config);
         }

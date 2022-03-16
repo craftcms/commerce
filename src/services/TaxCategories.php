@@ -15,7 +15,6 @@ use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
-use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -211,10 +210,10 @@ class TaxCategories extends Component
 
     /**
      * @param int $id
-     * @throws Throwable
+     * @return bool
      * @throws StaleObjectException
      */
-    public function deleteTaxCategoryById($id): bool
+    public function deleteTaxCategoryById(int $id): bool
     {
         $all = $this->getAllTaxCategories();
 

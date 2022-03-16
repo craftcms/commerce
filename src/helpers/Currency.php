@@ -27,9 +27,11 @@ class Currency
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
+     * @param float $amount
      * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return float
      */
-    public static function round(float $amount, $currency = null): float
+    public static function round(float $amount, PaymentCurrency|CurrencyModel|null $currency = null): float
     {
         if (!$currency) {
             $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
@@ -37,7 +39,6 @@ class Currency
         }
 
         $decimals = $currency->minorUnit;
-
         return round($amount, $decimals);
     }
 

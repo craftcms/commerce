@@ -174,11 +174,15 @@ class PaymentCurrencies extends Component
     /**
      * Convert an amount between currencies based on rates configured.
      *
+     * @param float $amount
+     * @param string $fromCurrency
+     * @param string $toCurrency
      * @param bool $round
+     * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
      */
-    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, $round = false): float
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
         $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
         $toCurrency = $this->getPaymentCurrencyByIso($toCurrency);

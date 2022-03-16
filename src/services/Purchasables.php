@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
@@ -18,6 +17,7 @@ use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
 use Throwable;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 
 /**
  * Product type service.
@@ -151,10 +151,18 @@ class Purchasables extends Component
 
     /**
      * Get a purchasable by its ID.
+     *
+     * @param int $purchasableId
+     * @return PurchasableInterface|null
+     * @throws InvalidArgumentException if $purchasableId is an element ID but not a purchasable
      */
-    public function getPurchasableById(int $purchasableId): ?ElementInterface
+    public function getPurchasableById(int $purchasableId): ?PurchasableInterface
     {
-        return Craft::$app->getElements()->getElementById($purchasableId);
+        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        if ($purchasable && !$purchasable instanceof PurchasableInterface) {
+            throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
+        }
+        return $purchasable;
     }
 
     /**

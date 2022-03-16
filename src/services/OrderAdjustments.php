@@ -79,7 +79,7 @@ class OrderAdjustments extends Component
     /**
      * Get all order adjusters.
      *
-     * @return string[]
+     * @return class-string<AdjusterInterface>[]
      * @throws InvalidConfigException
      */
     public function getAdjusters(): array
@@ -273,6 +273,9 @@ class OrderAdjustments extends Component
             ->from([Table::ORDERADJUSTMENTS]);
     }
 
+    /**
+     * @return class-string<AdjusterInterface>[]
+     */
     public function getDiscountAdjusters(): array
     {
         $discountEvent = new RegisterComponentTypesEvent([

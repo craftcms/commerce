@@ -134,6 +134,16 @@ class Store extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['countries'], 'required'];
+        return $rules;
+    }
+
+    /**
      * @return string[] $countries
      */
     public function getCountries(): array

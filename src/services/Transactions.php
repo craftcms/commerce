@@ -373,7 +373,7 @@ class Transactions extends Component
      * @param string $reference the transaction reference
      * @return Transaction|null
      */
-    public function getTransactionByReference(string $reference)
+    public function getTransactionByReference(string $reference): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(compact('reference'))

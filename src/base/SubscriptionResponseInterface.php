@@ -22,7 +22,7 @@ interface SubscriptionResponseInterface
      *
      * @return mixed
      */
-    public function getData();
+    public function getData(): mixed;
 
     /**
      * Returns the subscription reference.

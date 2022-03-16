@@ -20,7 +20,6 @@ use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
-use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\addresses\OrganizationField;
 use craft\fieldlayoutelements\addresses\OrganizationTaxIdField;
@@ -1030,9 +1029,6 @@ SQL;
             ->column();
 
         $condition = $storeModel->getMarketAddressCondition();
-        $rule = new CountryConditionRule();
-        $rule->values = $storeModel->countries;
-        $condition->addConditionRule($rule);
         $storeModel->setMarketAddressCondition($condition);
 
         Plugin::getInstance()->getStore()->saveStore($storeModel);

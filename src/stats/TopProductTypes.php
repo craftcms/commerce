@@ -97,7 +97,7 @@ class TopProductTypes extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         if (!empty($data)) {
             foreach ($data as &$row) {

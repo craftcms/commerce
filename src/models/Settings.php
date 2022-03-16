@@ -54,7 +54,7 @@ class Settings extends Model
      * @since 2.2
      * @defaultAlt 1 hour
      */
-    public $activeCartDuration = 3600;
+    public mixed $activeCartDuration = 3600;
 
     /**
      * @var bool Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
@@ -67,7 +67,7 @@ class Settings extends Model
      *
      * @group Cart
      */
-    public $autoSetCartShippingMethodOption = false;
+    public bool $autoSetCartShippingMethodOption = false;
 
     /**
      * @var bool Whether carts are allowed to be empty on checkout.
@@ -288,7 +288,7 @@ class Settings extends Model
      * @group Cart
      * @defaultAlt 90 days
      */
-    public $purgeInactiveCartsDuration = 7776000;
+    public mixed $purgeInactiveCartsDuration = 7776000;
 
     /**
      * @var bool Whether a shipping address is required before making payment on an order.

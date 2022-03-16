@@ -513,8 +513,9 @@ class OrderStatuses extends Component
      * Returns a Query object prepped for retrieving order statuses
      *
      * @param bool $withTrashed
+     * @return Query
      */
-    private function _createOrderStatusesQuery($withTrashed = false): Query
+    private function _createOrderStatusesQuery(bool $withTrashed = false): Query
     {
         $query = (new Query())
             ->select([

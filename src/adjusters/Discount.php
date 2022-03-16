@@ -71,7 +71,7 @@ class Discount extends Component implements AdjusterInterface
     /**
      * @var float
      */
-    private $_discountTotal = 0;
+    private float $_discountTotal = 0;
 
     /**
      * Temporary feature flag for testing

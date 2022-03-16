@@ -28,7 +28,7 @@ class Orders extends Widget
     /**
      * @var int|string|null
      */
-    public $orderStatusId = null;
+    public mixed $orderStatusId = null;
 
     /**
      * @var int

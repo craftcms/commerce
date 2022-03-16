@@ -12,7 +12,6 @@ use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\Cp;
-use craft\web\Response as CraftResponse;
 use craft\web\twig\TemplateLoaderException;
 use yii\base\InvalidConfigException;
 use yii\web\Response;
@@ -66,11 +65,12 @@ JS;
         $countriesField = Cp::multiSelectFieldHtml([
             'class' => 'selectize',
             'label' => Craft::t('commerce', 'Country List'),
-            'instructions' => Craft::t('commerce', 'The list of countries available for selection by customers.'),
+            'instructions' => Craft::t('commerce', 'The list of countries available and allowed for selection by customers for orders.'),
             'id' => 'countries',
             'name' => 'countries',
             'values' => $store->getCountries(),
             'options' => $allCountries,
+            'errors' => $store->getErrors('countries'),
             'allowEmptyOption' => true,
         ]);
         $variables = [];
@@ -83,10 +83,10 @@ JS;
     }
 
     /**
-     * @return CraftResponse
+     * @return YiiResponse|null
      * @throws InvalidConfigException
      */
-    public function actionSave(): YiiResponse
+    public function actionSave(): ?YiiResponse
     {
         $store = Plugin::getInstance()->getStore()->getStore();
         if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
@@ -97,7 +97,8 @@ JS;
         }
         $marketAddressCondition = $this->request->getBodyParam('marketAddressCondition') ?? new ZoneAddressCondition();
         $store->setMarketAddressCondition($marketAddressCondition);
-        $store->setCountries($this->request->getBodyParam('countries', []));
+        $countries = $this->request->getBodyParam('countries') ?: [];
+        $store->setCountries($countries);
 
         if (!$store->validate() || !Plugin::getInstance()->getStore()->saveStore($store)) {
             return $this->asFailure(

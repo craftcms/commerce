@@ -233,7 +233,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getPromotionRelationSource()
+    public function getPromotionRelationSource(): mixed
     {
         return $this->id;
     }

@@ -26,7 +26,6 @@ use Twig\Sandbox\SecurityPolicy;
  */
 class Formulas extends Component
 {
-
     /**
      * @var Environment
      */

@@ -32,7 +32,7 @@ interface ShippingRuleInterface
      *
      * @return mixed
      */
-    public function getOptions();
+    public function getOptions(): mixed;
 
     /**
      * Returns the percentage rate that is multiplied per line item subtotal.

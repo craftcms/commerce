@@ -72,14 +72,14 @@ class Tax extends Component implements AdjusterInterface
      *
      * @var float
      */
-    private $_costRemovedForOrderShipping = 0;
+    private float $_costRemovedForOrderShipping = 0;
 
     /**
      * Track the additional discounts created inside the tax adjuster for order total price
      *
-     * @var array
+     * @var float
      */
-    private $_costRemovedForOrderTotalPrice = 0;
+    private float $_costRemovedForOrderTotalPrice = 0;
 
     /**
      * @inheritdoc

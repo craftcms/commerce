@@ -36,7 +36,7 @@ abstract class Stat implements StatInterface
      * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null)
     {
         $this->dateRange = $dateRange ?? $this->dateRange;
         if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
@@ -61,10 +61,10 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @return array|false|mixed|null
+     * @return mixed
      * @throws Exception
      */
-    public function get()
+    public function get(): mixed
     {
         $this->_setDates();
 
@@ -92,7 +92,7 @@ abstract class Stat implements StatInterface
     /**
      * @inheritdoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         return $data;
     }
@@ -124,7 +124,7 @@ abstract class Stat implements StatInterface
     /**
      * @inheritdoc
      */
-    public function getStartDate()
+    public function getStartDate(): mixed
     {
         return $this->_startDate;
     }
@@ -132,7 +132,7 @@ abstract class Stat implements StatInterface
     /**
      * @inheritdoc
      */
-    public function getEndDate()
+    public function getEndDate(): mixed
     {
         return $this->_endDate;
     }
@@ -474,5 +474,4 @@ abstract class Stat implements StatInterface
 
         return $return;
     }
-
 }

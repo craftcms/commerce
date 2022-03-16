@@ -328,7 +328,7 @@ class DiscountsController extends BaseCpController
                 Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearUserUsageHistoryById($id);
+                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_TOTAL:
                 Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);

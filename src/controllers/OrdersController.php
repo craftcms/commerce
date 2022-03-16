@@ -397,8 +397,9 @@ class OrdersController extends Controller
 
     /**
      * @param Order $order
+     * @return array
      */
-    private function _orderToArray($order): array
+    private function _orderToArray(Order $order): array
     {
         // Remove custom fields
         $orderFields = array_keys($order->fields());

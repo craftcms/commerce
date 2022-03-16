@@ -60,7 +60,7 @@ interface RequestResponseInterface
      *
      * @return mixed
      */
-    public function getData();
+    public function getData(): mixed;
 
     /**
      * Returns the gateway message.
@@ -69,8 +69,6 @@ interface RequestResponseInterface
 
     /**
      * Perform the redirect.
-     *
-     * @return mixed
      */
-    public function redirect();
+    public function redirect(): void;
 }

@@ -43,7 +43,7 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
     /**
      * @inheritdoc
      */
-    public function getData()
+    public function getData(): mixed
     {
         return ['dummyData' => StringHelper::randomString()];
     }

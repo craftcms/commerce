@@ -87,7 +87,7 @@ class SettingsController extends BaseAdminController
      *
      * @return Response|null
      */
-    public function actionSaveSubscriptionFieldLayout()
+    public function actionSaveSubscriptionFieldLayout(): ?Response
     {
         $this->requirePostRequest();
         $this->requireAdmin();

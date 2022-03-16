@@ -129,9 +129,9 @@ class ProductTypes extends Component
     private ?array $_editableProductTypeIds = null;
     
     /**
-     * @var int[]
+     * @var int[]|null
      */
-    private $_creatableProductTypeIds;
+    private ?array $_creatableProductTypeIds = null;
 
     /**
      * @var ProductTypeSite[][]

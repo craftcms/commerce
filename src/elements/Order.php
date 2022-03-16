@@ -42,6 +42,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
@@ -1103,14 +1104,14 @@ class Order extends Element
         // Set default addresses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
             $user = $this->getCustomer();
-            if (!$this->getShippingAddress() && $user) {
+            if (!$this->_shippingAddress && $user) {
                 /** @var User|CustomerBehavior $user */
                 if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
                     $this->shippingAddressId = $primaryShippingAddressId;
                 }
             }
 
-            if (!$this->getBillingAddress() && $user) {
+            if (!$this->_billingAddress && $user) {
                 if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
                     $this->billingAddressId = $primaryBillingAddressId;
                 }
@@ -1412,6 +1413,7 @@ class Order extends Element
         return array_merge(parent::defineRules(), [
             // Address models are valid
             [['billingAddress', 'shippingAddress'], 'validateAddress'],
+            [['billingAddress', 'shippingAddress'], StoreCountryValidator::class, 'skipOnEmpty' => true],
 
             // Are the addresses both being set to each other.
             [
@@ -1798,7 +1800,7 @@ class Order extends Element
             $this->setAdjustments([]);
 
             foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-                /** @var AdjusterInterface $adjuster */
+                /** @var string|AdjusterInterface $adjuster */
                 $adjuster = Craft::createObject($adjuster);
                 $adjustments = $adjuster->adjust($this);
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
@@ -1938,13 +1940,16 @@ class Order extends Element
         $orderRecord->dateUpdated = $this->dateUpdated;
         $orderRecord->dateCreated = $this->dateCreated;
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
+
         if ($shippingAddress = $this->getShippingAddress()) {
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
             // Set primary shipping if asked
-            if ($this->makePrimaryShippingAddress && $this->getCustomer()) {
-                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->getShippingAddress()->id);
+            if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
+                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
             }
         } else {
             $orderRecord->shippingAddressId = null;
@@ -1956,8 +1961,8 @@ class Order extends Element
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
             // Set primary billing if asked
-            if ($this->makePrimaryBillingAddress && $this->getCustomer()) {
-                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->getBillingAddress()->id);
+            if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
+                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
             }
         } else {
             $orderRecord->billingAddressId = null;
@@ -2392,7 +2397,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getTotalAuthorized()
+    public function getTotalAuthorized(): float
     {
         if (!$this->id) {
             return 0;

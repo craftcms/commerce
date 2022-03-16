@@ -67,7 +67,7 @@ class CustomerBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function events()
+    public function events(): array
     {
         return [
             User::EVENT_AFTER_SAVE => 'afterSaveUserHandler',

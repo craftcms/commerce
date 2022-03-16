@@ -14,13 +14,13 @@ use craft\events\DefineRulesEvent;
 use yii\base\Behavior;
 
 /**
- * User address behavior.
+ * Customer address behavior.
  *
  * @property Address $owner
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0
  */
-class UserAddressBehavior extends Behavior
+class CustomerAddressBehavior extends Behavior
 {
     private bool $_isPrimaryBilling;
     private bool $_isPrimaryShipping;
@@ -28,7 +28,7 @@ class UserAddressBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function events()
+    public function events(): array
     {
         return [
             Address::EVENT_DEFINE_RULES => 'defineRules',

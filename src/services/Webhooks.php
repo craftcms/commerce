@@ -8,7 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use craft\commerce\events\WebhookEvent;
 use Exception;
 use Throwable;
@@ -31,14 +31,14 @@ class Webhooks extends Component
      * ```php
      * use craft\commerce\events\WebhookEvent;
      * use craft\commerce\services\Webhooks;
-     * use craft\commerce\base\Gateway;
+     * use craft\commerce\base\GatewayInterface;
      * use yii\base\Event;
      *
      * Event::on(
      *     Webhooks::class,
      *     Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK,
      *     function(WebhookEvent $event) {
-     *         // @var Gateway $gateway
+     *         // @var GatewayInterface $gateway
      *         $gateway = $event->gateway;
      *
      *         // ...
@@ -55,7 +55,6 @@ class Webhooks extends Component
      * ```php
      * use craft\commerce\events\WebhookEvent;
      * use craft\commerce\services\Webhooks;
-     * use craft\commerce\base\Gateway;
      * use yii\base\Event;
      *
      * Event::on(
@@ -75,7 +74,7 @@ class Webhooks extends Component
     /**
      * @throws Exception
      */
-    public function processWebhook(Gateway $gateway): Response
+    public function processWebhook(GatewayInterface $gateway): Response
     {
         // Fire a 'beforeProcessWebhook' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_PROCESS_WEBHOOK)) {

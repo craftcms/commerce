@@ -22,9 +22,11 @@ use yii\base\Component;
 class Products extends Component
 {
     /**
-     * Get a product by ID.
+     * Returns a product by its ID.
      *
+     * @param int $id
      * @param int|null $siteId
+     * @return Product|null
      */
     public function getProductById(int $id, int $siteId = null): ?Product
     {

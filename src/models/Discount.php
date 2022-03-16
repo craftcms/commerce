@@ -146,7 +146,7 @@ class Discount extends Model
     /**
      * @var float Base amount of discount
      */
-    public $baseDiscount = 0;
+    public float $baseDiscount = 0;
 
     /**
      * @var string Type of discount for the base discount e.g. currency value or percentage

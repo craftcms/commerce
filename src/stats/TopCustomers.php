@@ -84,7 +84,7 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         foreach ($data as &$topCustomer) {
             $topCustomer['customer'] = Craft::$app->getUsers()->getUserById($topCustomer['customerId']);

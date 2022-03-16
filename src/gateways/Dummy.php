@@ -28,6 +28,7 @@ use craft\elements\User;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
+use http\Exception\InvalidArgumentException;
 use yii\base\NotSupportedException;
 
 /**
@@ -81,6 +82,10 @@ class Dummy extends SubscriptionGateway
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        if (!$form instanceof CreditCardPaymentForm) {
+            throw new InvalidArgumentException(sprintf('%s only accepts %s objects passed to $form.', __METHOD__, CreditCardPaymentForm::class));
+        }
+
         return new DummyRequestResponse($form);
     }
 
@@ -127,7 +132,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token): bool
+    public function deletePaymentSource(string $token): bool
     {
         return true;
     }
@@ -137,6 +142,10 @@ class Dummy extends SubscriptionGateway
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        if (!$form instanceof CreditCardPaymentForm) {
+            throw new InvalidArgumentException(sprintf('%s only accepts %s objects passed to $form.', __METHOD__, CreditCardPaymentForm::class));
+        }
+
         return new DummyRequestResponse($form);
     }
 
@@ -255,7 +264,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPlanSettingsHtml(array $params = []): string
+    public function getPlanSettingsHtml(array $params = []): ?string
     {
         return '<input type="hidden" name="reference" value="dummy.reference"/>';
     }

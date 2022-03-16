@@ -41,7 +41,7 @@ abstract class Plan extends Model implements PlanInterface
     /**
      * @var mixed the plan data.
      */
-    private $_data = null;
+    private mixed $_data = null;
 
     /**
      * @var DateTime|null
@@ -88,7 +88,7 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return mixed
      */
-    public function getPlanData()
+    public function getPlanData(): mixed
     {
         if ($this->_data === null) {
             $this->_data = Json::decodeIfJson($this->planData);
