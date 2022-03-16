@@ -1940,13 +1940,16 @@ class Order extends Element
         $orderRecord->dateUpdated = $this->dateUpdated;
         $orderRecord->dateCreated = $this->dateCreated;
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
+
         if ($shippingAddress = $this->getShippingAddress()) {
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
             // Set primary shipping if asked
-            if ($this->makePrimaryShippingAddress && $this->getCustomer()) {
-                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->getShippingAddress()->id);
+            if ($this->makePrimaryShippingAddress && $currentUserIsCustomer && $this->sourceShippingAddressId) {
+                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->sourceShippingAddressId);
             }
         } else {
             $orderRecord->shippingAddressId = null;
@@ -1958,8 +1961,8 @@ class Order extends Element
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
             // Set primary billing if asked
-            if ($this->makePrimaryBillingAddress && $this->getCustomer()) {
-                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->getBillingAddress()->id);
+            if ($this->makePrimaryBillingAddress && $currentUserIsCustomer && $this->sourceBillingAddressId) {
+                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->sourceBillingAddressId);
             }
         } else {
             $orderRecord->billingAddressId = null;
