@@ -301,7 +301,7 @@ class Tax extends Component implements AdjusterInterface
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
-            return (bool)$zone->default;
+            return $zone->default;
         }
 
         return $zone->getCondition()->matchElement($this->_address);

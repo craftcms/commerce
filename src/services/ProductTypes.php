@@ -914,7 +914,7 @@ class ProductTypes extends Component
             $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
 
             // Does the template exist?
-            $templateExists = Craft::$app->getView()->doesTemplateExist((string)$productTypeSiteSettings[$siteId]->template);
+            $templateExists = Craft::$app->getView()->doesTemplateExist($productTypeSiteSettings[$siteId]->template);
 
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);

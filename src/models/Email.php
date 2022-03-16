@@ -173,7 +173,7 @@ class Email extends Model
             'bcc' => $this->bcc ?: null,
             'cc' => $this->cc ?: null,
             'replyTo' => $this->replyTo ?: null,
-            'enabled' => (bool)$this->enabled,
+            'enabled' => $this->enabled,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'templatePath' => $this->templatePath ?: null,
             'language' => $this->language,

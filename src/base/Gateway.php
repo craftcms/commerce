@@ -22,7 +22,6 @@ use DateTime;
  * @property DateTime|null $dateArchived
  * @property bool $isFrontendEnabled
  * @property bool $isArchived
- * @property string $name
  * @property null|BasePaymentForm $paymentFormModel
  * @property string $paymentType
  * @property-read null|string $transactionHashFromWebhook

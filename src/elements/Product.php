@@ -892,9 +892,9 @@ class Product extends Element
             $record->postDate = $this->postDate;
             $record->expiryDate = $this->expiryDate;
             $record->typeId = $this->typeId;
-            $record->promotable = (bool)$this->promotable;
-            $record->availableForPurchase = (bool)$this->availableForPurchase;
-            $record->freeShipping = (bool)$this->freeShipping;
+            $record->promotable = $this->promotable;
+            $record->availableForPurchase = $this->availableForPurchase;
+            $record->freeShipping = $this->freeShipping;
             $record->taxCategoryId = $this->taxCategoryId;
             $record->shippingCategoryId = $this->shippingCategoryId;
 

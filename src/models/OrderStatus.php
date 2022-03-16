@@ -92,7 +92,7 @@ class OrderStatus extends Model
      */
     public function __toString()
     {
-        return (string)$this->getDisplayName();
+        return $this->getDisplayName();
     }
 
     /**

@@ -129,7 +129,7 @@ class Formulas extends Component
     {
         $formula = trim($formula);
 
-        $template = $this->_twigEnv->createTemplate((string)$formula, $name);
+        $template = $this->_twigEnv->createTemplate($formula, $name);
         $result = $template->render($params);
 
         if ($setType === null) {
