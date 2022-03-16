@@ -1798,7 +1798,7 @@ class Order extends Element
             $this->setAdjustments([]);
 
             foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
-                /** @var AdjusterInterface $adjuster */
+                /** @var string|AdjusterInterface $adjuster */
                 $adjuster = Craft::createObject($adjuster);
                 $adjustments = $adjuster->adjust($this);
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
@@ -2392,7 +2392,7 @@ class Order extends Element
     /**
      * @return float
      */
-    public function getTotalAuthorized()
+    public function getTotalAuthorized(): float
     {
         if (!$this->id) {
             return 0;

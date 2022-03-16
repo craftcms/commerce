@@ -83,12 +83,12 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @var float Minimum total
      */
-    public $minTotal = 0;
+    public float $minTotal = 0;
 
     /**
      * @var float Maximum total
      */
-    public $maxTotal = 0;
+    public float $maxTotal = 0;
 
     /**
      * @var string Minimum type rule
@@ -98,42 +98,42 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @var float Minimum Weight
      */
-    public $minWeight = 0;
+    public float $minWeight = 0;
 
     /**
      * @var float Maximum Weight
      */
-    public $maxWeight = 0;
+    public float $maxWeight = 0;
 
     /**
      * @var float Base rate
      */
-    public $baseRate = 0;
+    public float $baseRate = 0;
 
     /**
      * @var float Per item rate
      */
-    public $perItemRate = 0;
+    public float $perItemRate = 0;
 
     /**
      * @var float Percentage rate
      */
-    public $percentageRate = 0;
+    public float $percentageRate = 0;
 
     /**
      * @var float Weight rate
      */
-    public $weightRate = 0;
+    public float $weightRate = 0;
 
     /**
      * @var float Minimum Rate
      */
-    public $minRate = 0;
+    public float $minRate = 0;
 
     /**
      * @var float Maximum rate
      */
-    public $maxRate = 0;
+    public float $maxRate = 0;
 
     /**
      * @var bool Is lite shipping rule
@@ -510,7 +510,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @return mixed
      * @throws InvalidConfigException
      */
-    private function _getRate($attribute, $shippingCategoryId = null)
+    private function _getRate($attribute, $shippingCategoryId = null): mixed
     {
         if (!$shippingCategoryId) {
             return $this->$attribute;

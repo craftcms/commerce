@@ -52,14 +52,14 @@ class ProductsPreviewController extends Controller
     /**
      * Redirects the client to a URL for viewing a disabled product on the front end.
      *
-     * @param mixed $productId
-     * @param mixed $siteId
+     * @param int $productId
+     * @param int|null $siteId
      * @return Response
      * @throws Exception
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionShareProduct($productId, $siteId): Response
+    public function actionShareProduct(int $productId, ?int $siteId): Response
     {
         $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
@@ -87,11 +87,11 @@ class ProductsPreviewController extends Controller
     /**
      * Shows a product/draft/version based on a token.
      *
-     * @param mixed $productId
-     * @param mixed $site
+     * @param int $productId
+     * @param int|null $site
      * @throws HttpException
      */
-    public function actionViewSharedProduct($productId, $site = null): ?Response
+    public function actionViewSharedProduct(int $productId, ?int $site = null): ?Response
     {
         $this->requireToken();
 

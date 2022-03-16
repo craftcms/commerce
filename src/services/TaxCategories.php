@@ -214,7 +214,7 @@ class TaxCategories extends Component
      * @throws Throwable
      * @throws StaleObjectException
      */
-    public function deleteTaxCategoryById($id): bool
+    public function deleteTaxCategoryById(int $id): bool
     {
         $all = $this->getAllTaxCategories();
 

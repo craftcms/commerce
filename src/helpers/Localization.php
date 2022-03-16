@@ -24,7 +24,7 @@ abstract class Localization extends \craft\helpers\Localization
      * @param int|float|string|null $number
      * @return float|null
      */
-    public static function normalizePercentage($number): ?float
+    public static function normalizePercentage(mixed $number): ?float
     {
         if ($number === null) {
             return 0.0;

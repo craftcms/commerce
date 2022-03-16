@@ -100,7 +100,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token): bool
+    public function deletePaymentSource(string $token): bool
     {
         throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }

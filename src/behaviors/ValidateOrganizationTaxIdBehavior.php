@@ -36,7 +36,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function events()
+    public function events(): array
     {
         return [
             Address::EVENT_DEFINE_RULES => 'defineRules',

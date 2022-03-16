@@ -24,7 +24,7 @@ class Dummy implements RequestResponseInterface
      */
     private bool $_success = true;
 
-    public function __construct(CreditCardPaymentForm $form = null)
+    public function __construct(?CreditCardPaymentForm $form = null)
     {
         if ($form === null) {
             $this->_success = false;
@@ -111,15 +111,14 @@ class Dummy implements RequestResponseInterface
     /**
      * @inheritdoc
      */
-    public function redirect()
+    public function redirect(): void
     {
-        return null;
     }
 
     /**
      * @inheritdoc
      */
-    public function getData()
+    public function getData(): mixed
     {
         return '';
     }

@@ -74,32 +74,32 @@ class LineItem extends Model
     /**
      * @var float Price is the original price of the purchasable
      */
-    private $_price = 0;
+    private float $_price = 0;
 
     /**
      * @var float Sale price is the price of the line item. Sale price is price + saleAmount
      */
-    private $_salePrice = 0;
+    private float $_salePrice = 0;
 
     /**
      * @var float Weight
      */
-    public $weight = 0;
+    public float $weight = 0;
 
     /**
      * @var float Length
      */
-    public $length = 0;
+    public float $length = 0;
 
     /**
      * @var float Height
      */
-    public $height = 0;
+    public float $height = 0;
 
     /**
      * @var float Width
      */
-    public $width = 0;
+    public float $width = 0;
 
     /**
      * @var int Quantity
@@ -109,7 +109,7 @@ class LineItem extends Model
     /**
      * @var mixed Snapshot
      */
-    public $snapshot;
+    public mixed $snapshot = null;
 
     /**
      * @var string SKU
@@ -426,7 +426,7 @@ class LineItem extends Model
      * @param mixed $rule
      * @return mixed
      */
-    private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
+    private function _normalizePurchasableRule(mixed $rule, PurchasableInterface $purchasable): mixed
     {
         if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];

@@ -307,7 +307,7 @@ class LineItems extends Component
      * @param int $id the line item ID
      * @return LineItem|null Line item or null, if not found.
      */
-    public function getLineItemById($id): ?LineItem
+    public function getLineItemById(int $id): ?LineItem
     {
         $result = $this->_createLineItemQuery()
             ->where(['id' => $id])

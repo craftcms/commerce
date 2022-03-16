@@ -30,7 +30,7 @@ class Currencies extends Component
      *
      * @return Currency|null
      */
-    public function getCurrencyByIso(string $iso)
+    public function getCurrencyByIso(string $iso): ?Currency
     {
         foreach ($this->getAllCurrencies() as $currency) {
             if ($currency->alphabeticCode == $iso) {

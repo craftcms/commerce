@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use yii\validators\Validator;
 
 /**
  * Interface Purchasable
@@ -79,6 +80,8 @@ interface PurchasableInterface
 
     /**
      * Returns any validation rules this purchasable required the line item to have.
+     *
+     * @return array[]|Validator[]
      */
     public function getLineItemRules(LineItem $lineItem): array;
 
@@ -117,5 +120,5 @@ interface PurchasableInterface
      *
      * @return mixed
      */
-    public function getPromotionRelationSource();
+    public function getPromotionRelationSource(): mixed;
 }

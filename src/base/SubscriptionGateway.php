@@ -41,9 +41,10 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     /**
      * Returns the subscription plan settings HTML
      *
+     * @param array $params
      * @return string|null
      */
-    abstract public function getPlanSettingsHtml(array $params = []);
+    abstract public function getPlanSettingsHtml(array $params = []): ?string;
 
     /**
      * Returns the subscription plan model.

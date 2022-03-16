@@ -32,12 +32,12 @@ class TotalOrdersByCountry extends Widget
     /**
      * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
      * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null

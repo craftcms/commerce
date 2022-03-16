@@ -66,7 +66,7 @@ interface StatInterface
     /**
      * @return mixed
      */
-    public function get();
+    public function get(): mixed;
 
     /**
      * @return mixed
@@ -76,12 +76,12 @@ interface StatInterface
     /**
      * @return mixed
      */
-    public function getStartDate();
+    public function getStartDate(): mixed;
 
     /**
      * @return mixed
      */
-    public function getEndDate();
+    public function getEndDate(): mixed;
 
     public function setStartDate(?DateTime $date): void;
 
@@ -91,7 +91,7 @@ interface StatInterface
      * @param $data
      * @return mixed
      */
-    public function prepareData($data);
+    public function prepareData($data): mixed;
 
     public function getDateRangeWording(): string;
 }

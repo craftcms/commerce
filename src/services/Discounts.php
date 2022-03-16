@@ -200,7 +200,7 @@ class Discounts extends Component
     /**
      * @var array|null
      */
-    private $_matchingLineItemCategoryCondition;
+    private ?array $_matchingLineItemCategoryCondition = null;
 
     /**
      * Get a discount by its ID.

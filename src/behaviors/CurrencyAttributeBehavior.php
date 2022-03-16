@@ -73,7 +73,7 @@ class CurrencyAttributeBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function events()
+    public function events(): array
     {
         return [
             Order::EVENT_DEFINE_FIELDS => 'defineFields',

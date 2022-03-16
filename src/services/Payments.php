@@ -359,7 +359,7 @@ class Payments extends Component
      * @param string $note the administrators note on the refund
      * @throws RefundException if something went wrong during the refund.
      */
-    public function refundTransaction(Transaction $transaction, $amount = null, $note = ''): Transaction
+    public function refundTransaction(Transaction $transaction, ?float $amount = null, string $note = ''): Transaction
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
@@ -381,7 +381,7 @@ class Payments extends Component
      *
      * @param string|null &$customError
      */
-    public function completePayment(Transaction $transaction, &$customError): bool
+    public function completePayment(Transaction $transaction, ?string &$customError): bool
     {
         // Only transactions with the status of "redirect" can be completed
         if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
@@ -507,7 +507,7 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
-            // Let the gateways response redirect us
+            // Let the gateway's response redirect us
             $response->redirect();
         }
     }
@@ -545,7 +545,7 @@ class Payments extends Component
      * @param string $note the administrators note on the refund
      * @throws RefundException if anything goes wrong during a refund
      */
-    private function _refund(Transaction $parent, float $amount = null, $note = ''): Transaction
+    private function _refund(Transaction $parent, float $amount = null, string $note = ''): Transaction
     {
         try {
             $gateway = $parent->getGateway();
@@ -592,7 +592,7 @@ class Payments extends Component
      * @param Transaction $child
      * @throws TransactionException
      */
-    private function _saveTransaction($child): void
+    private function _saveTransaction(Transaction $child): void
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
             throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));

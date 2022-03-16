@@ -106,7 +106,7 @@ class PaymentSource extends Model
      * @return GatewayInterface|null
      * @throws InvalidConfigException
      */
-    public function getGateway()
+    public function getGateway(): ?GatewayInterface
     {
         if (isset($this->_gateway)) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);

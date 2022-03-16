@@ -127,7 +127,7 @@ class Transaction extends Model
     /**
      * @var mixed Response
      */
-    public $response;
+    public mixed $response = null;
 
     /**
      * @var DateTime|null The date that the transaction was created

@@ -178,7 +178,7 @@ class PaymentCurrencies extends Component
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
      */
-    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, $round = false): float
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
         $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
         $toCurrency = $this->getPaymentCurrencyByIso($toCurrency);

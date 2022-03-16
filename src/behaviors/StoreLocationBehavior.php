@@ -29,7 +29,7 @@ class StoreLocationBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function events()
+    public function events(): array
     {
         return [
             Address::EVENT_AFTER_SAVE => 'saveStoreLocation',
