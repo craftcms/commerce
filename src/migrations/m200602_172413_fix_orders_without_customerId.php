@@ -28,7 +28,6 @@ class m200602_172413_fix_orders_without_customerId extends Migration
 
         foreach ($orders->batch() as $batch) {
             foreach ($batch as $order) {
-
                 $fixed = false;
 
                 if ($order['email']) {

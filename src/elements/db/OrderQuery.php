@@ -342,7 +342,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch completed orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCompleted()
      *   .all() %}
      * ```
@@ -559,7 +559,7 @@ class OrderQuery extends ElementQuery
     {
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
@@ -879,7 +879,7 @@ class OrderQuery extends ElementQuery
         if ($value instanceof User) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);
             $this->customerId = $customer->id ?? null;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value);
             $this->customerId = $customer->id ?? null;
         } else {
@@ -896,7 +896,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch paid orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isPaid()
      *   .all() %}
      * ```
@@ -924,7 +924,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch unpaid orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isUnpaid()
      *   .all() %}
      * ```
@@ -952,7 +952,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch orders that do or do not have line items #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasLineItems()
      *   .all() %}
      * ```
@@ -980,7 +980,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch carts that have attempted payments #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasTransactions()
      *   .all() %}
      * ```
@@ -1364,7 +1364,7 @@ class OrderQuery extends ElementQuery
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
                     $purchasableIds[] = $purchasable->getId();
-                } else if (is_numeric($purchasable)) {
+                } elseif (is_numeric($purchasable)) {
                     $purchasableIds[] = $purchasable;
                 }
             }

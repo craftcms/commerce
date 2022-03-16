@@ -22,7 +22,6 @@ use yii\base\InvalidConfigException;
  */
 class Taxes extends Component implements TaxEngineInterface
 {
-
     /**
      * @event TaxEngineEvent The event that is triggered when determining the tax engine.
      * @since 3.1

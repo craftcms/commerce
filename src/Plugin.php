@@ -178,7 +178,7 @@ class Plugin extends BasePlugin
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
-        } else if ($request->getIsCpRequest()) {
+        } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
             $this->_registerWidgets();
             $this->_registerElementExports();
@@ -312,7 +312,7 @@ class Plugin extends BasePlugin
      */
     private function _addTwigExtensions()
     {
-        Craft::$app->view->registerTwigExtension(new Extension);
+        Craft::$app->view->registerTwigExtension(new Extension());
     }
 
     /**

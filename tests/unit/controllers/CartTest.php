@@ -67,7 +67,8 @@ class CartTest extends Unit
     /**
      * @throws \yii\base\InvalidRouteException
      */
-    public function testGetCart() {
+    public function testGetCart()
+    {
         $this->request->headers->set('Accept', 'application/json');
         $return = $this->cartController->runAction('get-cart');
 
@@ -93,7 +94,7 @@ class CartTest extends Unit
         $variant = Variant::find()->sku('rad-hood')->one();
         $this->request->setBodyParams([
             'purchasableId' => $variant->id,
-            'qty' => 2
+            'qty' => 2,
         ]);
 
         $this->cartController->runAction('update-cart');
@@ -123,7 +124,7 @@ class CartTest extends Unit
             ];
         }
         $this->request->setBodyParams([
-            'purchasables' => $purchasables
+            'purchasables' => $purchasables,
         ]);
 
         $lastItem = array_pop($purchasables);
@@ -158,7 +159,7 @@ class CartTest extends Unit
             ];
         }
         $this->request->setBodyParams([
-            'purchasables' => $purchasables
+            'purchasables' => $purchasables,
         ]);
 
         $this->cartController->runAction('update-cart');

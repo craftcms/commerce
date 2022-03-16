@@ -26,7 +26,7 @@ class OrdersFixture extends BaseElementFixture
     /**
      * @inheritDoc
      */
-    public $dataFile = __DIR__.'/data/orders.php';
+    public $dataFile = __DIR__ . '/data/orders.php';
 
     /**
      * @inheritdoc
@@ -157,6 +157,5 @@ class OrdersFixture extends BaseElementFixture
         }
 
         return $result;
-
     }
 }

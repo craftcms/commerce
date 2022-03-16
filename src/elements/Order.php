@@ -1754,7 +1754,7 @@ class Order extends Element
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
-            } else if ($shippingMethod = $this->getShippingMethod()) {
+            } elseif ($shippingMethod = $this->getShippingMethod()) {
                 $this->shippingMethodName = $shippingMethod->getName();
             }
 
@@ -1834,23 +1834,20 @@ class Order extends Element
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if ($this->shippingMethodHandle) {
-                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                    $this->addNotice(
-                        Craft::createObject([
-                            'class' => OrderNotice::class,
-                            'attributes' => [
-                                'type' => 'shippingMethodChanged',
-                                'attribute' => 'shippingMethodHandle',
-                                'message' => $message,
-                            ],
-                        ])
-                    );
-                    $this->recalculate();
-                    return;
-                }
+            if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                $this->addNotice(
+                    Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'shippingMethodChanged',
+                            'attribute' => 'shippingMethodHandle',
+                            'message' => $message,
+                        ],
+                    ])
+                );
+                $this->recalculate();
             }
         }
     }
@@ -3361,7 +3358,6 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
-
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
 
@@ -3376,7 +3372,6 @@ class Order extends Element
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 

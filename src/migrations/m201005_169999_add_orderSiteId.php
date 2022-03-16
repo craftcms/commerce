@@ -20,7 +20,6 @@ class m201005_169999_add_orderSiteId extends Migration
      */
     public function safeUp()
     {
-
         if (!$this->db->columnExists('{{%commerce_orders}}', 'orderSiteId')) {
             $this->addColumn('{{%commerce_orders}}', 'orderSiteId', $this->integer());
         }

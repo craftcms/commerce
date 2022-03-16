@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -159,7 +160,11 @@ class OrderAdjustment extends Model
      */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
+        return $this->_order->currency;
     }
 
     /**

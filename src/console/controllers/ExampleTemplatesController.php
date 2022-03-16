@@ -159,6 +159,7 @@ class ExampleTemplatesController extends Controller
 
         // New source is our temp directory ready for copying to site templates
         $source = $tempDestination;
+        $destination = null;
 
         // If this is a dev build, copy them to the build folder
         if ($this->devBuild) {
@@ -167,7 +168,6 @@ class ExampleTemplatesController extends Controller
 
         // If this is not a dev build, copy them to the templates folder
         if (!$this->devBuild) {
-
             if (!$templatesPath) {
                 $errors[] = 'Can not determine the site template path.';
             }
@@ -183,19 +183,20 @@ class ExampleTemplatesController extends Controller
             $destination = $templatesPath . $slash . $folderName;
         }
 
-        $alreadyExists = is_dir($destination);
+        $alreadyExists = $destination && is_dir($destination);
         if ($alreadyExists && !$this->overwrite) {
             $errors[] = 'Template folder "' . $folderName . '" already exists. Set the `overwrite` param to `true` if you want to replace it.';
             return $this->_returnErrors($errors);
         }
 
-        if (is_dir($destination) && is_dir($source)) {
+        if ($destination && is_dir($destination) && is_dir($source)) {
             if ($this->overwrite) {
                 $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);
                 FileHelper::removeDirectory($destination);
             }
         }
-        if (!is_dir($destination) && is_dir($source)) {
+
+        if ($destination && !is_dir($destination) && is_dir($source)) {
             try {
                 $this->stdout('Copying ...' . PHP_EOL, Console::FG_YELLOW);
                 FileHelper::copyDirectory($source, $destination, ['recursive' => true, 'copyEmptyDirectories' => true]);
@@ -242,7 +243,7 @@ class ExampleTemplatesController extends Controller
     private function _addResourceAssetsToReplacementData(): void
     {
         $resourceTags = [
-            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css'),
         ];
 
         if ($this->useHtmx) {

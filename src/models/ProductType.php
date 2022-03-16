@@ -251,7 +251,7 @@ class ProductType extends Model
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
-            } else if ($category instanceof ShippingCategory) {
+            } elseif ($category instanceof ShippingCategory) {
                 // Make sure it exists
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category->id)) {
                     $categories[$category->id] = $category;
@@ -404,17 +404,19 @@ class ProductType extends Model
      */
     public function behaviors(): array
     {
-        return [
-            'productFieldLayout' => [
+        $behaviors = parent::behaviors();
+        $behaviors['productFieldLayout'] = [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
                 'idAttribute' => 'fieldLayoutId',
-            ],
-            'variantFieldLayout' => [
+            ];
+
+        $behaviors['variantFieldLayout'] = [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
                 'idAttribute' => 'variantFieldLayoutId',
-            ],
-        ];
+            ];
+
+        return $behaviors;
     }
 }

@@ -18,5 +18,5 @@ return [
         'hasVariants' => true,
         'descriptionFormat' => '{product.title} - {title}',
         'titleFormat' => '{product.title}',
-    ]
+    ],
 ];

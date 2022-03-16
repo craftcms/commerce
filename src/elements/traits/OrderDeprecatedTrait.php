@@ -15,7 +15,6 @@ use yii\base\InvalidConfigException;
 
 trait OrderDeprecatedTrait
 {
-
     /**
      * @return ShippingMethodInterface[]
      * @throws \craft\errors\DeprecationException
