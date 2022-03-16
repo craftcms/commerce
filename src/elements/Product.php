@@ -521,6 +521,7 @@ class Product extends Element
      * Returns the default variant.
      *
      * @param bool $includeDisabled
+     * @return Variant|null
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant

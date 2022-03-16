@@ -386,7 +386,9 @@ class ProductType extends Model
     }
 
     /**
+     * @param string $titleFormat
      * @return void
+     * @throws \craft\errors\DeprecationException
      * @deprecated 4.0.0
      */
     public function setTitleFormat(string $titleFormat): void

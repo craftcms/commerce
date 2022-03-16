@@ -78,6 +78,7 @@ class Store extends Component
     /**
      * Saves the store
      *
+     * @param StoreModel $store
      * @return bool
      * @throws InvalidConfigException
      */

@@ -276,6 +276,7 @@ class Tax extends Component implements AdjusterInterface
      * @param $taxableAmount
      * @param $rate
      * @param $included
+     * @return float
      * @since 3.1
      */
     private function _getTaxAmount($taxableAmount, $rate, $included): float

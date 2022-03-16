@@ -233,6 +233,7 @@ class ShippingCategories extends Component
 
     /**
      * @param $productTypeId
+     * @return array
      * @throws InvalidConfigException
      */
     public function getShippingCategoriesByProductTypeId($productTypeId): array

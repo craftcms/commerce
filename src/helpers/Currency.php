@@ -52,6 +52,10 @@ class Currency
      *
      * @param      $amount
      * @param null $currency
+     * @param bool $convert
+     * @param bool $format
+     * @param bool $stripZeros
+     * @return string
      * @throws CurrencyException
      * @throws InvalidConfigException
      */

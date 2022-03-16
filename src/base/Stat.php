@@ -423,7 +423,10 @@ abstract class Stat implements StatInterface
     }
 
     /**
+     * @param array $select
+     * @param array $resultsDefaults
      * @param null|Query $query
+     * @return array|null
      * @throws \Exception
      */
     protected function _createChartQuery(array $select = [], array $resultsDefaults = [], ?Query $query = null): ?array

@@ -28,8 +28,10 @@ class Product
     /**
      * Populates all Variant Models from HUD or POST data
      *
+     * @param ProductModel $product
      * @param               $variant
      * @param               $key
+     * @return Variant
      * @throws InvalidConfigException
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant

@@ -102,6 +102,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     }
 
     /**
+     * @param string $attribute
      * @param $params
      */
     public function creditCardLuhn(string $attribute, $params): void

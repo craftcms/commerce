@@ -888,6 +888,7 @@ class Variant extends Purchasable
 
     /**
      * @param mixed $context
+     * @return string
      * @since 3.1
      */
     public static function gqlTypeNameByContext(mixed $context): string
@@ -897,6 +898,7 @@ class Variant extends Purchasable
 
     /**
      * @param mixed $context
+     * @return array
      * @since 3.1
      */
     public static function gqlScopesByContext(mixed $context): array

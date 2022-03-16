@@ -23,7 +23,9 @@ use yii\validators\Validator;
 trait OrderValidatorsTrait
 {
     /**
+     * @param string $attribute
      * @param $params
+     * @param Validator $validator
      */
     public function validateGatewayId(string $attribute, $params, Validator $validator): void
     {
@@ -33,7 +35,9 @@ trait OrderValidatorsTrait
     }
 
     /**
+     * @param string $attribute
      * @param $params
+     * @param Validator $validator
      */
     public function validatePaymentSourceId(string $attribute, $params, Validator $validator): void
     {
@@ -47,7 +51,9 @@ trait OrderValidatorsTrait
     }
 
     /**
+     * @param string $attribute
      * @param $params
+     * @param Validator $validator
      * @throws CurrencyException
      * @noinspection PhpUnused
      */

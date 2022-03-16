@@ -234,6 +234,7 @@ class TaxCategories extends Component
 
     /**
      * @param $productTypeId
+     * @return array
      * @throws InvalidConfigException
      */
     public function getTaxCategoriesByProductTypeId($productTypeId): array

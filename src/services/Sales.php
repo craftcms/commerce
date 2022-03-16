@@ -594,6 +594,7 @@ class Sales extends Component
      * Reorder Sales based on a list of ids.
      *
      * @param $ids
+     * @return bool
      * @throws \yii\db\Exception
      */
     public function reorderSales($ids): bool
@@ -613,8 +614,7 @@ class Sales extends Component
      * Delete a sale by its id.
      *
      * @param $id
-     * @throws \Exception
-     * @throws Throwable
+     * @return bool
      * @throws StaleObjectException
      */
     public function deleteSaleById($id): bool

@@ -458,12 +458,13 @@ class Payments extends Component
     /**
      * Handles a redirect.
      *
+     * @param RequestResponseInterface $response
      * @param                          $redirect
+     * @throws ExitException
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \yii\base\Exception
-     * @throws ExitException
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect): void
     {

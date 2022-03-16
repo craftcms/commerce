@@ -172,6 +172,7 @@ class LineItems extends Component
      * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
+     * @return LineItem
      * @throws \Exception
      */
     public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem

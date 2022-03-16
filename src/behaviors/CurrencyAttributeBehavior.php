@@ -190,6 +190,7 @@ class CurrencyAttributeBehavior extends Behavior
 
     /**
      * @param $name
+     * @return string
      */
     private function _attributeNameWithoutAsCurrency($name): string
     {

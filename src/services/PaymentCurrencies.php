@@ -264,7 +264,7 @@ class PaymentCurrencies extends Component
      * Delete a payment currency by its ID.
      *
      * @param $id
-     * @throws Throwable
+     * @return bool
      * @throws StaleObjectException
      */
     public function deletePaymentCurrencyById($id): bool

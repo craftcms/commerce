@@ -84,12 +84,13 @@ class ProductsController extends BaseController
      * @param int|null $productId
      * @param string|null $siteHandle
      * @param Product|null $product
+     * @return Response
      * @throws Exception
      * @throws ForbiddenHttpException
      * @throws HttpException
+     * @throws InvalidConfigException
      * @throws NotFoundHttpException
      * @throws SiteNotFoundException
-     * @throws InvalidConfigException
      */
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
     {

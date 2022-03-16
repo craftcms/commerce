@@ -175,6 +175,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $shippingRuleCategories
+     * @return array
      */
     private function _getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories): array
     {

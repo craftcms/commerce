@@ -1104,6 +1104,7 @@ class Discounts extends Component
 
     /**
      * @param $discounts
+     * @return array
      * @since 2.2.14
      */
     private function _populateDiscounts($discounts): array
