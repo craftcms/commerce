@@ -391,7 +391,6 @@ class ProductsController extends BaseController
 
     /**
      * @throws ForbiddenHttpException
-     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
     private function _prepVariables(array &$variables): void
     {
