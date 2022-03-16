@@ -94,7 +94,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      *
      * @return mixed
      */
-    public function getPaymentConfirmationFormHtml(): string
+    public function getPaymentConfirmationFormHtml(array $params): string
     {
         return '';
     }

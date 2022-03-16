@@ -1030,9 +1030,6 @@ SQL;
             ->column();
 
         $condition = $storeModel->getMarketAddressCondition();
-        $rule = new CountryConditionRule();
-        $rule->values = $storeModel->countries;
-        $condition->addConditionRule($rule);
         $storeModel->setMarketAddressCondition($condition);
 
         Plugin::getInstance()->getStore()->saveStore($storeModel);

@@ -75,6 +75,7 @@
 - Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::hasPermission()`.
 - Added `craft\commerce\validators\CouponValidator`.
+- Added `craft\commerce\validators\StoreCountryValidator`.
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
 - Added `craft\commercetests\unit\services\StoreTest`.
 
