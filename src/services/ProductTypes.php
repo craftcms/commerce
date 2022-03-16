@@ -603,7 +603,6 @@ class ProductTypes extends Component
                 // site rows
                 $affectedSiteUids = array_keys($siteData);
 
-                /** @noinspection PhpUndefinedVariableInspection */
                 foreach ($allOldSiteSettingsRecords as $siteId => $siteSettingsRecord) {
                     $siteUid = array_search($siteId, $siteIdMap, false);
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
