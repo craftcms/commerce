@@ -117,15 +117,15 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula
-     * @oaram array $params data passed into the condition
-     * @oaram string|null $setType the type of the response data, passing nothing will leave as a string. Uses \settype().
-     * @oaram string|null $name The name of the formula, useful for locating template errors in logs and exceptions
+     * @param string $formula
+     * @param array $params data passed into the condition
+     * @param string|null $setType the type of the response data, passing nothing will leave as a string. Uses \settype().
+     * @param string|null $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      * @throws SyntaxError
      * @throws LoaderError
      */
-    public function evaluateFormula(string $formula, $params, $setType = null, $name = 'Inline formula'): bool
+    public function evaluateFormula(string $formula, array $params, ?string $setType = null, ?string $name = 'Inline formula'): bool
     {
         $formula = trim($formula);
 
