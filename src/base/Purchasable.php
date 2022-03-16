@@ -273,9 +273,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         $purchasable = PurchasableRecord::findOne($this->id);
 
-        if ($purchasable) {
-            $purchasable->delete();
-        }
+        $purchasable?->delete();
 
         parent::afterDelete();
     }

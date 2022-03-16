@@ -345,9 +345,7 @@ class PaymentSources extends Component
         if ($record) {
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($record->gatewayId);
 
-            if ($gateway) {
-                $gateway->deletePaymentSource($record->token);
-            }
+            $gateway?->deletePaymentSource($record->token);
 
             $paymentSource = $this->getPaymentSourceById($id);
 
