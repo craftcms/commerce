@@ -244,14 +244,6 @@ class Discount extends Model
     private array $_categoryIds;
 
     /**
-     * @inheritdoc
-     */
-    public function init(): void
-    {
-        parent::init();
-    }
-
-    /**
      * @var Coupon[]|null
      * @since 4.0
      */

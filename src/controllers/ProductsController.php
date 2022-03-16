@@ -50,14 +50,6 @@ class ProductsController extends BaseController
     protected array $ignorePluginPermission = ['save-product', 'duplicate-product', 'delete-product'];
 
     /**
-     * @inheritdoc
-     */
-    public function init(): void
-    {
-        parent::init();
-    }
-
-    /**
      * @inheritDoc
      */
     public function beforeAction($action): bool
