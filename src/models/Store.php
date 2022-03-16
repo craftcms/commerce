@@ -184,7 +184,7 @@ class Store extends Model
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
-            $condition = \Craft::$app->getConditions()->createCondition($condition);
+            $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;
 

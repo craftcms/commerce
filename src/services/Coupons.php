@@ -107,7 +107,7 @@ class Coupons extends Component
 
         if ($numPossibleCodes < $count) {
             // TODO figure out correct exception to throw
-            throw new \Exception('The format is too restrictive to generate enough unique codes.');
+            throw new Exception('The format is too restrictive to generate enough unique codes.');
         }
 
         $existingCodes = array_unique([...$existingCodes, ...$this->getAllCodes()]);

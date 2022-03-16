@@ -27,7 +27,7 @@ class m220304_094835_discount_conditions extends Migration
         $shippingAddressCondition = new DiscountAddressCondition();
         $billingAddressCondition = new DiscountAddressCondition();
 
-        $discounts = (new \craft\db\Query())
+        $discounts = (new Query())
             ->select(['id', 'userGroupsCondition'])
             ->from(['{{%commerce_discounts}}'])
             ->indexBy('id')

@@ -259,7 +259,7 @@ class PaymentSources extends Component
     {
         try {
             $source = $gateway->createPaymentSource($paymentForm, $userId);
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             throw new PaymentSourceException($exception->getMessage());
         }
 

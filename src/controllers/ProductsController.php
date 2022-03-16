@@ -286,7 +286,7 @@ class ProductsController extends BaseController
                         $message,
                         'product'
                     );
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0, $e);
                 }
             } else {
@@ -334,7 +334,7 @@ class ProductsController extends BaseController
             }
 
             $transaction->commit();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
         }

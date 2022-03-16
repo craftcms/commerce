@@ -37,7 +37,7 @@ use yii\web\ServerErrorHttpException;
 /**
  * Email service.
  *
- * @property-read \craft\commerce\models\Email[] $allEnabledEmails
+ * @property-read Email[] $allEnabledEmails
  * @property array|Email[] $allEmails
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

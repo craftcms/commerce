@@ -695,7 +695,7 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value): \craft\elements\db\ElementQuery
+    public function status($value): ElementQuery
     {
         return parent::status($value);
     }
@@ -817,7 +817,7 @@ class SubscriptionQuery extends ElementQuery
      * @inheritdoc
      * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
-    public function anyStatus(): \craft\elements\db\ElementQuery
+    public function anyStatus(): ElementQuery
     {
         unset($this->isSuspended, $this->hasStarted);
         return parent::anyStatus();

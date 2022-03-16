@@ -28,7 +28,7 @@ use function in_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
- * @property-read \craft\commerce\models\TaxRate[] $taxRates
+ * @property-read TaxRate[] $taxRates
  * @property Validator $vatValidator
  */
 class Tax extends Component implements AdjusterInterface

@@ -225,7 +225,7 @@ abstract class Stat implements StatInterface
      *
      * @throws \Exception
      */
-    private function _getStartDate(string $dateRange): bool|\DateTime
+    private function _getStartDate(string $dateRange): bool|DateTime
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;
@@ -284,7 +284,7 @@ abstract class Stat implements StatInterface
     /**
      * @throws \Exception
      */
-    private function _getFirstCompletedOrderDate(): \DateTime|false
+    private function _getFirstCompletedOrderDate(): DateTime|false
     {
         $firstCompletedOrder = (new Query())
             ->select(['dateOrdered'])
@@ -301,7 +301,7 @@ abstract class Stat implements StatInterface
      *
      * @throws \Exception
      */
-    private function _getEndDate(string $dateRange): bool|\DateTime
+    private function _getEndDate(string $dateRange): bool|DateTime
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;

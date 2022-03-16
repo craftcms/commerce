@@ -307,8 +307,8 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      * @since 3.0
      */
     public function actionClearDiscountUses(): Response

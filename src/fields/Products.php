@@ -62,7 +62,7 @@ class Products extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType(): array|\GraphQL\Type\Definition\Type
+    public function getContentGqlType(): array|Type
     {
         return [
             'name' => $this->handle,

@@ -391,7 +391,7 @@ class Payments extends Component
         $mutex = Craft::$app->getMutex();
 
         if (!$mutex->acquire($transactionLockName, 15)) {
-            throw new \Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
 
         // If it's successful already, we're good.

@@ -466,7 +466,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before(\DateTime|string $value): ProductQuery
+    public function before(DateTime|string $value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -511,7 +511,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after(\DateTime|string $value): ProductQuery
+    public function after(DateTime|string $value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -585,7 +585,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant(array|\craft\commerce\elements\db\VariantQuery $value): ProductQuery
+    public function hasVariant(array|VariantQuery $value): ProductQuery
     {
         $this->hasVariant = $value;
         return $this;
