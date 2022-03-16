@@ -13,6 +13,7 @@ use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\elements\Address;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use yii\base\InvalidConfigException;
 
 /**
  * Store record.
@@ -21,6 +22,8 @@ use craft\helpers\Json;
  * @property int $locationAddressId
  * @property array $countries
  * @property Address|null $locationAddress
+ * @property-read array $countriesList
+ * @property-read array $administrativeAreasListByCountryCode
  * @property array|ZoneAddressCondition $marketAddressCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
@@ -141,11 +144,17 @@ class Store extends Model
     /**
      * @param mixed $countries
      * @return void
+     * @throws InvalidConfigException
      */
     public function setCountries(mixed $countries): void
     {
         $countries = $countries ?? [];
         $countries = Json::decodeIfJson($countries);
+
+        if (!is_array($countries)) {
+            throw new InvalidConfigException('Countries must be an array.');
+        }
+
         $this->_countries = $countries;
     }
 
@@ -158,6 +167,23 @@ class Store extends Model
         return array_filter($all, function($fieldHandle) {
             return in_array($fieldHandle, $this->getCountries(), true);
         }, ARRAY_FILTER_USE_KEY);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAdministrativeAreasListByCountryCode(): array
+    {
+        if (empty($this->_countries)) {
+            return [];
+        }
+
+        $administrativeAreas = [];
+        foreach ($this->_countries as $countryCode) {
+            $administrativeAreas[$countryCode] = Craft::$app->getAddresses()->getSubdivisionRepository()->getList([$countryCode]);
+        }
+
+        return $administrativeAreas;
     }
 
     /**
