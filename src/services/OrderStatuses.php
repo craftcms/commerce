@@ -284,7 +284,7 @@ class OrderStatuses extends Component
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
                 'description' => $orderStatus->description,
-                'sortOrder' => isset($orderStatus->sortOrder) ? $orderStatus->sortOrder : 99,
+                'sortOrder' => $orderStatus->sortOrder ?? 99,
                 'default' => $orderStatus->default,
                 'emails' => array_combine($emails, $emails),
             ];
