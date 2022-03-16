@@ -1001,7 +1001,7 @@ class Install extends Migration
     }
 
     /**
-     * Make teh default store market US
+     * Make the default store market US
      */
     private function _defaultStore(): void{
         $data = [
