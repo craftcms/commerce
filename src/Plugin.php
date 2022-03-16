@@ -813,11 +813,11 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    $query = Product::find();
+                    $criteria = [];
                     if ($controller->type !== null) {
-                        $query->type(explode(',', $controller->type));
+                        $criteria['type'] = explode(',', $controller->type);
                     }
-                    return $controller->saveElements($query);
+                    return $controller->resaveElements(Product::class, $criteria);
                 },
                 'options' => ['type'],
                 'helpSummary' => 'Re-saves Commerce products.',
@@ -830,9 +830,9 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    $query = Order::find();
-                    $query->isCompleted(true);
-                    return $controller->saveElements($query);
+                    return $controller->resaveElements(Order::class, [
+                        'isCompleted' => true,
+                    ]);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves completed Commerce orders.',
@@ -842,9 +842,9 @@ class Plugin extends BasePlugin
                 'action' => function(): int {
                     /** @var ResaveController $controller */
                     $controller = Craft::$app->controller;
-                    $query = Order::find();
-                    $query->isCompleted(false);
-                    return $controller->saveElements($query);
+                    return $controller->resaveElements(Order::class, [
+                        'isCompleted' => false,
+                    ]);
                 },
                 'options' => [],
                 'helpSummary' => 'Re-saves Commerce carts.',
