@@ -82,7 +82,7 @@ class PaymentSource extends Model
      *
      * @return User|null
      */
-    public function getCustomer()
+    public function getCustomer(): ?User
     {
         if (!isset($this->_customer)) {
             $this->_customer = Craft::$app->getUsers()->getUserById($this->customerId);
