@@ -22,13 +22,18 @@ use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
 use craft\elements\User;
 use craft\errors\OperationAbortedException;
+use craft\fieldlayoutelements\addresses\OrganizationField;
+use craft\fieldlayoutelements\addresses\OrganizationTaxIdField;
+use craft\fieldlayoutelements\BaseField;
 use craft\fieldlayoutelements\CustomField;
+use craft\fieldlayoutelements\FullNameField;
 use craft\fields\PlainText;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
+use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use yii\console\ExitCode;
 use yii\db\Schema;
@@ -78,7 +83,6 @@ class UpgradeController extends Controller
             ->where(['[[orders.v3customerId]]' => null])
             ->column();
     }
-
 
     /**
      * These columns are needed for the migration and can be dropped after
@@ -156,6 +160,16 @@ class UpgradeController extends Controller
     private array $_allStatesByV3StateId = [];
     private array $_addressIdByV3AddressId = [];
     private array $_userIdsByv3CustomerId = [];
+
+    private bool $_allowAdminChanges;
+    private FieldLayout $_addressFieldLayout;
+
+    public function init(): void
+    {
+        $this->_allowAdminChanges = Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
+        $this->_addressFieldLayout = Craft::$app->getAddresses()->getLayout();
+        parent::init();
+    }
 
     /**
      * Runs the data migration
@@ -237,45 +251,50 @@ class UpgradeController extends Controller
 
         $db = Craft::$app->getDb();
 
-        $this->stdout("Ensuring address data migration field locations…\n");
-        $this->_migrateAddressCustomFields();
+        try {
+            $db->transaction(function() {
+                $this->stdout("Ensuring address data migration field locations…\n");
+                $this->_migrateAddressCustomFields();
 
-        $this->stdout("Creating a user for every customer…\n");
-        $this->_migrateCustomers();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Creating a user for every customer…\n");
+                $this->_migrateCustomers();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Addresses…\n");
-        $this->_migrateAddresses();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Addresses…\n");
+                $this->_migrateAddresses();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Order Addresses…\n");
-        $this->_migrateOrderAddresses();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Order Addresses…\n");
+                $this->_migrateOrderAddresses();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating User Addresses Books…\n");
-        $this->_migrateUserAddressBook();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating User Addresses Books…\n");
+                $this->_migrateUserAddressBook();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Store Location…\n");
-        $this->_migrateStore();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Store Location…\n");
+                $this->_migrateStore();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones…\n");
-        $this->_migrateShippingZones();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Shipping Zones…\n");
+                $this->_migrateShippingZones();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Shipping Zones…\n");
-        $this->_migrateTaxZones();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Shipping Zones…\n");
+                $this->_migrateTaxZones();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating Tax Zones…\n");
-        $this->_migrateTaxZones();
-        $this->stdout("\nDone.\n\n");
+                $this->stdout("Migrating Tax Zones…\n");
+                $this->_migrateTaxZones();
+                $this->stdout("\nDone.\n\n");
 
-        $this->stdout("Migrating order history user…\n");
-        $this->_migrateOrderHistoryUser();
-        $this->stdout("\nDone.\n\n");
-
+                $this->stdout("Migrating order history user…\n");
+                $this->_migrateOrderHistoryUser();
+                $this->stdout("\nDone.\n\n");
+            });
+        } catch (OperationAbortedException) {
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
 
         $this->stdout("Cleaning up…\n");
         foreach ($this->_v3tables as $table) {
@@ -291,21 +310,19 @@ class UpgradeController extends Controller
         }
         $this->stdout("\nDone.\n\n");
 
-
         return 0;
     }
 
     /**
      * @return void
+     * @throws OperationAbortedException
      * @throws \Throwable
      */
     private function _migrateAddressCustomFields(): void
     {
         if (!empty($this->neededCustomAddressFields)) {
             // Add custom fields to the address field layout
-            $addressesService = Craft::$app->getAddresses();
-            $fieldLayout = $addressesService->getLayout();
-            $firstTab = $fieldLayout->getTabs()[0];
+            $firstTab = $this->_addressFieldLayout->getTabs()[0];
             $layoutElements = $firstTab->getElements();
 
             $list = implode(array_map(fn($label) => " - $label\n", $this->neededCustomAddressFields));
@@ -318,12 +335,16 @@ EOL
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label);
-                $layoutElements[] = new CustomField($field);
                 $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = $field->handle;
+                if ($this->_allowAdminChanges && !$this->_addressFieldLayout->getFieldByHandle($field->handle)) {
+                    $layoutElements[] = new CustomField($field);
+                }
             }
 
-            $firstTab->setElements($layoutElements);
-            $addressesService->saveLayout($fieldLayout);
+            if ($this->_allowAdminChanges) {
+                $firstTab->setElements($layoutElements);
+                Craft::$app->getAddresses()->saveLayout($this->_addressFieldLayout);
+            }
         }
     }
 
@@ -340,7 +361,7 @@ EOL
         $handlePattern = sprintf('/^%s$/', HandleValidator::$handlePattern);
 
         if (
-            Craft::$app->getConfig()->getGeneral()->allowAdminChanges &&
+            $this->_allowAdminChanges &&
             !$this->confirm("Do you have a custom field for storing $label values?")
         ) {
             $this->stdout("Let’s create one then.\n");
@@ -380,11 +401,24 @@ EOL
 
         $handle = $this->prompt("Enter the field handle for storing $label values:", [
             'required' => true,
-            'validator' => fn($handle) => (
-                preg_match($handlePattern, $handle) &&
-                $fieldsService->getFieldByHandle($handle) !== null
-            ),
+            'validator' => function($handle) use ($handlePattern, $fieldsService) {
+                if (!preg_match($handlePattern, $handle)) {
+                    $this->stdout("Invalid field handle.\n");
+                    return false;
+                }
+                $field = $fieldsService->getFieldByHandle($handle);
+                if (!$field) {
+                    $this->stdout("No field exists with that handle.\n");
+                    return false;
+                }
+                if (!$this->_allowAdminChanges && $this->_addressFieldLayout->getFieldByHandle($handle) === null) {
+                    $this->stdout("$field->name isn’t included in the address field layout, and admin changes aren't allowed on this environment.\n");
+                    return false;
+                }
+                return true;
+            },
         ]);
+
         return $fieldsService->getFieldByHandle($handle);
     }
 
@@ -858,7 +892,6 @@ SQL;
     {
         $address = new Address();
         $address->title = $data['label'] ?: 'Address';
-        $address->fullName = $data['firstName'] . ' ' . $data['lastName'];
         $address->addressLine1 = $data['address1'];
         $address->addressLine2 = $data['address2'];
         $address->countryCode = $this->_allCountriesByV3CountryId[$data['countryId']]['iso'] ?? 'US';
@@ -869,11 +902,25 @@ SQL;
         } else {
             $address->administrativeArea = $data['stateName'] ?? null;
         }
+
         $address->postalCode = $data['zipCode'];
         $address->locality = $data['city'];
         $address->dependentLocality = '';
-        $address->organization = $data['businessName'];
-        $address->organizationTaxId = $data['businessTaxId'];
+
+        if ($data['firstName'] || $data['lastName']) {
+            $this->_ensureAddressField(new FullNameField());
+            $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+        }
+
+        if ($data['businessName']) {
+            $this->_ensureAddressField(new OrganizationField());
+            $address->organization = $data['businessName'];
+        }
+
+        if ($data['businessTaxId']) {
+            $this->_ensureAddressField(new OrganizationTaxIdField());
+            $address->organizationTaxId = $data['businessTaxId'];
+        }
 
         // Set fields that were created and mapped from old data
         foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
@@ -891,6 +938,25 @@ SQL;
         $this->_addressIdByV3AddressId[$data['id']] = $address->id;
 
         return $address;
+    }
+
+    private function _ensureAddressField(BaseField $layoutElement): void
+    {
+        $attribute = $layoutElement->attribute();
+        if ($this->_addressFieldLayout->isFieldIncluded($attribute)) {
+            return;
+        }
+
+        if (!$this->_allowAdminChanges) {
+            $this->stdout("The address field layout doesn't include the `$attribute` field. Admin changes aren't allowed on this environment, so it can't be added automatically.\n");
+            return;
+        }
+
+        $firstTab = $this->_addressFieldLayout->getTabs()[0];
+        $layoutElements = $firstTab->getElements();
+        $layoutElements[] = $layoutElement;
+        $firstTab->setElements($layoutElements);
+        Craft::$app->getAddresses()->saveLayout($this->_addressFieldLayout);
     }
 
     /**
