@@ -42,105 +42,105 @@ use yii\db\Schema;
 class OrderQuery extends ElementQuery
 {
     /**
-     * @var string The order number of the resulting order.
+     * @var mixed The order number of the resulting order.
      */
-    public string $number;
+    public mixed $number = null;
 
     /**
-     * @var string The short order number of the resulting order.
+     * @var mixed The short order number of the resulting order.
      */
-    public string $shortNumber;
+    public mixed $shortNumber = null;
 
     /**
-     * @var string The order reference of the resulting order.
+     * @var mixed The order reference of the resulting order.
      * @used-by reference()
      */
-    public string $reference;
+    public mixed $reference = null;
 
     /**
-     * @var string The email address the resulting orders must have.
+     * @var mixed The email address the resulting orders must have.
      */
-    public string $email;
+    public mixed $email = null;
 
     /**
      * @var bool The completion status that the resulting orders must have.
      */
-    public bool $isCompleted;
+    public ?bool $isCompleted = null;
 
     /**
      * @var mixed The Date Ordered date that the resulting orders must have.
      */
-    public $dateOrdered;
+    public mixed $dateOrdered = null;
 
     /**
      * @var mixed The Expiry Date that the resulting orders must have.
      */
-    public $expiryDate;
+    public mixed $expiryDate = null;
 
     /**
      * @var mixed The date the order was paid in full.
      */
-    public $datePaid;
+    public mixed $datePaid = null;
 
     /**
      * @var mixed The date the order was authorized in full.
      */
-    public $dateAuthorized;
+    public mixed $dateAuthorized = null;
 
     /**
-     * @var int|int[] The Order Status ID that the resulting orders must have.
+     * @var mixed The Order Status ID that the resulting orders must have.
      */
-    public $orderStatusId;
+    public mixed $orderStatusId = null;
 
     /**
-     * @var int The language the order was made that the resulting the order must have.
+     * @var mixed The language the order was made that the resulting the order must have.
      */
-    public int $orderLanguage;
+    public mixed $orderLanguage = null;
 
     /**
-     * @var int The Order Site ID that the resulting orders must have.
+     * @var mixed The Order Site ID that the resulting orders must have.
      */
-    public int $orderSiteId;
+    public mixed $orderSiteId = null;
 
     /**
-     * @var string|null The origin the resulting orders must have.
+     * @var mixed The origin the resulting orders must have.
      */
-    public ?string $origin = null;
+    public mixed $origin = null;
 
     /**
-     * @var int|null The user ID that the resulting orders must have.
+     * @var mixed The user ID that the resulting orders must have.
      */
-    public ?int $customerId = null;
+    public mixed $customerId = null;
 
     /**
-     * @var int|null The gateway ID that the resulting orders must have.
+     * @var mixed The gateway ID that the resulting orders must have.
      */
-    public ?int $gatewayId = null;
+    public mixed $gatewayId = null;
 
     /**
-     * @var bool Whether the order is paid
+     * @var bool|null Whether the order is paid
      */
-    public bool $isPaid;
+    public ?bool $isPaid = null;
 
     /**
-     * @var bool Whether the order is unpaid
+     * @var bool|null Whether the order is unpaid
      */
-    public bool $isUnpaid;
+    public ?bool $isUnpaid = null;
 
     /**
-     * @var PurchasableInterface|PurchasableInterface[] The resulting orders must contain these Purchasables.
+     * @var mixed The resulting orders must contain these Purchasables.
      */
-    public $hasPurchasables;
+    public mixed $hasPurchasables = null;
 
     /**
-     * @var bool Whether the order has any transactions
+     * @var bool|null Whether the order has any transactions
      */
-    public bool $hasTransactions;
+    public ?bool $hasTransactions = null;
 
     /**
-     * @var bool Whether the order has any line items.
+     * @var bool|null Whether the order has any line items.
      */
-    public bool $hasLineItems;
+    public ?bool $hasLineItems = null;
 
     /**
      * @var bool Eager loads all relational data (addresses, adjustments, users, line items, transactions) for the resulting orders.
@@ -220,7 +220,7 @@ class OrderQuery extends ElementQuery
      * @param string|array|null $value The property value.
      * @return static self reference
      */
-    public function number($value = null): OrderQuery
+    public function number(mixed $value): OrderQuery
     {
         $this->number = $value;
         return $this;
@@ -257,7 +257,7 @@ class OrderQuery extends ElementQuery
      * @return static self reference
      * @since 2.2
      */
-    public function shortNumber($value = null): OrderQuery
+    public function shortNumber(mixed $value): OrderQuery
     {
         $this->shortNumber = $value;
         return $this;
@@ -293,7 +293,7 @@ class OrderQuery extends ElementQuery
      * @param string|null $value The property value
      * @return static self reference
      */
-    public function reference(string $value = null): OrderQuery
+    public function reference(mixed $value): OrderQuery
     {
         $this->reference = $value;
         return $this;
@@ -329,7 +329,7 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|null $value The property value
      * @return static self reference
      */
-    public function email($value): OrderQuery
+    public function email(mixed $value): OrderQuery
     {
         $this->email = $value;
         return $this;
@@ -357,7 +357,7 @@ class OrderQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isCompleted(bool $value = true): OrderQuery
+    public function isCompleted(?bool $value = true): OrderQuery
     {
         $this->isCompleted = $value;
         return $this;
@@ -397,7 +397,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateOrdered($value): OrderQuery
+    public function dateOrdered(mixed $value): OrderQuery
     {
         $this->dateOrdered = $value;
         return $this;
@@ -437,7 +437,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function datePaid($value): OrderQuery
+    public function datePaid(mixed $value): OrderQuery
     {
         $this->datePaid = $value;
         return $this;
@@ -477,7 +477,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateAuthorized($value): OrderQuery
+    public function dateAuthorized(mixed $value): OrderQuery
     {
         $this->dateAuthorized = $value;
         return $this;
@@ -517,7 +517,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate($value): OrderQuery
+    public function expiryDate(mixed $value): OrderQuery
     {
         $this->expiryDate = $value;
         return $this;
@@ -555,7 +555,7 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|OrderStatus|null $value The property value
      * @return static self reference
      */
-    public function orderStatus($value): OrderQuery
+    public function orderStatus(mixed $value): OrderQuery
     {
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
@@ -603,7 +603,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderStatusId($value): OrderQuery
+    public function orderStatusId(mixed $value): OrderQuery
     {
         $this->orderStatusId = $value;
         return $this;
@@ -640,7 +640,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderLanguage($value): OrderQuery
+    public function orderLanguage(mixed $value): OrderQuery
     {
         $this->orderLanguage = $value;
         return $this;
@@ -677,7 +677,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderSiteId($value): OrderQuery
+    public function orderSiteId(mixed $value): OrderQuery
     {
         $this->orderSiteId = $value;
         return $this;
@@ -714,7 +714,7 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|null $value The property value
      * @return static self reference
      */
-    public function origin($value = null): OrderQuery
+    public function origin(mixed $value): OrderQuery
     {
         $this->origin = $value;
 
@@ -733,7 +733,7 @@ class OrderQuery extends ElementQuery
      * @param GatewayInterface|null $value The property value
      * @return static self reference
      */
-    public function gateway(GatewayInterface $value = null): OrderQuery
+    public function gateway(?GatewayInterface $value): OrderQuery
     {
         if ($value) {
             /** @var Gateway $value */
@@ -760,7 +760,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function gatewayId($value): OrderQuery
+    public function gatewayId(mixed $value): OrderQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -793,11 +793,11 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param User|int $value The property value
+     * @param User|int|null $value The property value
      * @return static self reference
      * @deprecated 4.0.0 in favor of [[customer()]]
      */
-    public function user(int|User $value): OrderQuery
+    public function user(int|User|null $value): OrderQuery
     {
         Craft::$app->getDeprecator()->log('OrderQuery::user()', 'The `OrderQuery::user()` method is deprecated, use the `OrderQuery::customer()` method instead.');
         return $this->customer($value);
@@ -879,7 +879,7 @@ class OrderQuery extends ElementQuery
      * @param int|null $value The property value
      * @return static self reference
      */
-    public function customerId(?int $value): OrderQuery
+    public function customerId(mixed $value): OrderQuery
     {
         $this->customerId = $value;
         return $this;
@@ -904,10 +904,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isPaid(bool $value = true): OrderQuery
+    public function isPaid(?bool $value = true): OrderQuery
     {
         $this->isPaid = $value;
         return $this;
@@ -932,10 +932,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isUnpaid(bool $value = true): OrderQuery
+    public function isUnpaid(?bool $value = true): OrderQuery
     {
         $this->isUnpaid = $value;
         return $this;
@@ -960,10 +960,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasLineItems(bool $value = true): OrderQuery
+    public function hasLineItems(?bool $value = true): OrderQuery
     {
         $this->hasLineItems = $value;
         return $this;
@@ -988,10 +988,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasTransactions(bool $value = true): OrderQuery
+    public function hasTransactions(?bool $value = true): OrderQuery
     {
         $this->hasTransactions = $value;
         return $this;
@@ -1010,7 +1010,7 @@ class OrderQuery extends ElementQuery
      * @param PurchasableInterface|PurchasableInterface[]|null $value The property value
      * @return static self reference
      */
-    public function hasPurchasables($value): OrderQuery
+    public function hasPurchasables(mixed $value): OrderQuery
     {
         $this->hasPurchasables = $value;
 
@@ -1026,12 +1026,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withAll()
      */
-    public function withAll(?bool $value = true): OrderQuery
+    public function withAll(bool $value = true): OrderQuery
     {
         $this->withAll = $value;
 
@@ -1047,12 +1047,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withAddresses()
      */
-    public function withAddresses(?bool $value = true): OrderQuery
+    public function withAddresses(bool $value = true): OrderQuery
     {
         $this->withAddresses = $value;
 
@@ -1068,12 +1068,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withAdjustments()
      */
-    public function withAdjustments(?bool $value = true): OrderQuery
+    public function withAdjustments(bool $value = true): OrderQuery
     {
         $this->withAdjustments = $value;
 
@@ -1089,12 +1089,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withCustomer()
      */
-    public function withCustomer(?bool $value = true): OrderQuery
+    public function withCustomer(bool $value = true): OrderQuery
     {
         $this->withCustomer = $value;
 
@@ -1110,12 +1110,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withLineItems()
      */
-    public function withLineItems(?bool $value = true): OrderQuery
+    public function withLineItems(bool $value = true): OrderQuery
     {
         $this->withLineItems = $value;
 
@@ -1131,12 +1131,12 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
-     * @param bool|null $value The property value
+     * @param bool $value The property value
      * @return static self reference
      *
      * @used-by withTransactions()
      */
-    public function withTransactions(?bool $value = true): OrderQuery
+    public function withTransactions(bool $value = true): OrderQuery
     {
         $this->withTransactions = $value;
 

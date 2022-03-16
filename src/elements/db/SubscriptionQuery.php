@@ -39,79 +39,79 @@ use yii\db\Schema;
 class SubscriptionQuery extends ElementQuery
 {
     /**
-     * @var int|int[] The user id of the subscriber
+     * @var mixed The user id of the subscriber
      */
-    public $userId;
+    public mixed $userId = null;
 
     /**
-     * @var int|int[] The subscription plan id
+     * @var mixed The subscription plan id
      */
-    public $planId;
+    public mixed $planId = null;
 
     /**
-     * @var int|int[] The gateway id
+     * @var mixed The gateway id
      */
-    public $gatewayId;
+    public mixed $gatewayId = null;
 
     /**
-     * @var int|int[] The id of the order that the license must be a part of.
+     * @var mixed The id of the order that the license must be a part of.
      */
-    public $orderId;
+    public mixed $orderId = null;
 
     /**
-     * @var string|string[] The gateway reference for subscription
+     * @var mixed The gateway reference for subscription
      */
-    public $reference;
+    public mixed $reference = null;
 
     /**
-     * @var int|int[] Number of trial days for the subscription
+     * @var mixed Number of trial days for the subscription
      */
-    public $trialDays;
+    public mixed $trialDays = null;
 
     /**
-     * @var bool Whether the subscription is currently on trial.
+     * @var bool|null Whether the subscription is currently on trial.
      */
-    public bool $onTrial;
+    public ?bool $onTrial = null;
 
     /**
-     * @var DateTime Time of next payment for the subscription
+     * @var mixed Time of next payment for the subscription
      */
-    public DateTime $nextPaymentDate;
+    public mixed $nextPaymentDate = null;
 
     /**
-     * @var bool Whether the subscription is canceled
+     * @var bool|null Whether the subscription is canceled
      */
-    public bool $isCanceled;
+    public ?bool $isCanceled = null;
 
     /**
-     * @var bool Whether the subscription is suspended
+     * @var bool|null Whether the subscription is suspended
      */
-    public bool $isSuspended;
+    public ?bool $isSuspended = null;
 
     /**
-     * @var DateTime The date the subscription ceased to be active
+     * @var mixed The date the subscription ceased to be active
      */
-    public DateTime $dateSuspended;
+    public mixed $dateSuspended = null;
 
     /**
-     * @var bool Whether the subscription has started
+     * @var bool|null Whether the subscription has started
      */
-    public bool $hasStarted;
+    public ?bool $hasStarted = null;
 
     /**
-     * @var DateTime The time the subscription was canceled
+     * @var mixed The time the subscription was canceled
      */
-    public DateTime $dateCanceled;
+    public mixed $dateCanceled = null;
 
     /**
-     * @var bool Whether the subscription has expired
+     * @var bool|null Whether the subscription has expired
      */
-    public bool $isExpired;
+    public ?bool $isExpired = null;
 
     /**
-     * @var DateTime The date the subscription ceased to be active
+     * @var mixed The date the subscription ceased to be active
      */
-    public DateTime $dateExpired;
+    public mixed $dateExpired = null;
 
     /**
      * @var array
@@ -181,7 +181,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function user($value): SubscriptionQuery
+    public function user(mixed $value): SubscriptionQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
@@ -228,7 +228,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function plan($value): SubscriptionQuery
+    public function plan(mixed $value): SubscriptionQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
@@ -276,7 +276,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function userId($value): SubscriptionQuery
+    public function userId(mixed $value): SubscriptionQuery
     {
         $this->userId = $value;
         return $this;
@@ -296,7 +296,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function planId($value): SubscriptionQuery
+    public function planId(mixed $value): SubscriptionQuery
     {
         $this->planId = $value;
         return $this;
@@ -314,10 +314,10 @@ class SubscriptionQuery extends ElementQuery
      * | `[1, 2]` | with a gateway with an ID of 1 or 2.
      * | `['not', 1, 2]` | not with a gateway with an ID of 1 or 2.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function gatewayId(array|int $value): SubscriptionQuery
+    public function gatewayId(mixed $value): SubscriptionQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -335,10 +335,10 @@ class SubscriptionQuery extends ElementQuery
      * | `[1, 2]` | with an order with an ID of 1 or 2.
      * | `['not', 1, 2]` | not with an order with an ID of 1 or 2.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderId(array|int $value): SubscriptionQuery
+    public function orderId(mixed $value): SubscriptionQuery
     {
         $this->orderId = $value;
         return $this;
@@ -347,10 +347,10 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Narrows the query results based on the reference.
      *
-     * @param string|string[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function reference(array|string $value): SubscriptionQuery
+    public function reference(mixed $value): SubscriptionQuery
     {
         $this->reference = $value;
         return $this;
@@ -362,7 +362,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function trialDays($value): SubscriptionQuery
+    public function trialDays(mixed $value): SubscriptionQuery
     {
         $this->trialDays = $value;
         return $this;
@@ -387,10 +387,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function onTrial(bool $value = true): SubscriptionQuery
+    public function onTrial(?bool $value = true): SubscriptionQuery
     {
         $this->onTrial = $value;
         return $this;
@@ -430,7 +430,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function nextPaymentDate($value): SubscriptionQuery
+    public function nextPaymentDate(mixed $value): SubscriptionQuery
     {
         $this->nextPaymentDate = $value;
         return $this;
@@ -455,10 +455,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isCanceled(bool $value = true): SubscriptionQuery
+    public function isCanceled(?bool $value = true): SubscriptionQuery
     {
         $this->isCanceled = $value;
         return $this;
@@ -498,7 +498,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateCanceled($value): SubscriptionQuery
+    public function dateCanceled(mixed $value): SubscriptionQuery
     {
         $this->dateCanceled = $value;
         return $this;
@@ -523,10 +523,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasStarted(bool $value = true): SubscriptionQuery
+    public function hasStarted(?bool $value = true): SubscriptionQuery
     {
         $this->hasStarted = $value;
         return $this;
@@ -551,10 +551,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isSuspended(bool $value = true): SubscriptionQuery
+    public function isSuspended(?bool $value = true): SubscriptionQuery
     {
         $this->isSuspended = $value;
         return $this;
@@ -593,7 +593,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateSuspended($value): SubscriptionQuery
+    public function dateSuspended(mixed $value): SubscriptionQuery
     {
         $this->dateSuspended = $value;
         return $this;
@@ -618,10 +618,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isExpired(bool $value = true): SubscriptionQuery
+    public function isExpired(?bool $value = true): SubscriptionQuery
     {
         $this->isExpired = $value;
 
@@ -662,7 +662,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateExpired($value): SubscriptionQuery
+    public function dateExpired(mixed $value): SubscriptionQuery
     {
         $this->dateExpired = $value;
 

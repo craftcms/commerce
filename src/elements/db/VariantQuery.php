@@ -55,89 +55,89 @@ class VariantQuery extends ElementQuery
     public bool $editable = false;
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    public bool $hasStock;
+    public ?bool $hasStock = null;
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    public bool $hasSales;
+    public ?bool $hasSales = null;
 
     /**
-     * @var ProductQuery|array only return variants that match the resulting product query.
+     * @var mixed only return variants that match the resulting product query.
      */
-    public $hasProduct;
+    public mixed $hasProduct = null;
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    public bool $isDefault;
-
-    /**
-     * @var mixed
-     */
-    public $price;
+    public ?bool $isDefault = null;
 
     /**
      * @var mixed
      */
-    public $productId;
+    public mixed $price = null;
+
+    /**
+     * @var mixed
+     */
+    public mixed $productId = null;
 
     /**
      * @var mixed the SKU of the variant
      */
-    public $sku;
+    public mixed $sku = null;
 
     /**
      * @var mixed
      */
-    public $stock;
+    public mixed $stock = null;
 
     /**
      * @var mixed
      */
-    public $typeId;
+    public mixed $typeId = null;
 
     /**
-     * @var bool
+     * @var bool|null
      * @since 3.3.4
      */
-    public bool $hasUnlimitedStock;
+    public ?bool $hasUnlimitedStock = null;
 
     /**
      * @var mixed
      */
-    public $minQty;
+    public mixed $minQty = null;
 
     /**
      * @var mixed
      */
-    public $maxQty;
-
-    /**
-     * @var mixed
-     * @since 3.2.0
-     */
-    public $width = false;
+    public mixed $maxQty = null;
 
     /**
      * @var mixed
      * @since 3.2.0
      */
-    public $height = false;
+    public mixed $width = false;
 
     /**
      * @var mixed
      * @since 3.2.0
      */
-    public $length = false;
+    public mixed $height = false;
 
     /**
      * @var mixed
      * @since 3.2.0
      */
-    public $weight = false;
+    public mixed $length = false;
+
+    /**
+     * @var mixed
+     * @since 3.2.0
+     */
+    public mixed $weight = false;
 
     /**
      * @inheritdoc
@@ -204,7 +204,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function sku($value): VariantQuery
+    public function sku(mixed $value): VariantQuery
     {
         $this->sku = $value;
         return $this;
@@ -222,7 +222,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function product($value): VariantQuery
+    public function product(mixed $value): VariantQuery
     {
         if ($value instanceof Product) {
             $this->productId = [$value->id];
@@ -246,7 +246,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function productId($value): VariantQuery
+    public function productId(mixed $value): VariantQuery
     {
         $this->productId = $value;
         return $this;
@@ -266,7 +266,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function typeId($value): VariantQuery
+    public function typeId(mixed $value): VariantQuery
     {
         $this->typeId = $value;
         return $this;
@@ -291,10 +291,10 @@ class VariantQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isDefault(bool $value = true): VariantQuery
+    public function isDefault(?bool $value = true): VariantQuery
     {
         $this->isDefault = $value;
         return $this;
@@ -314,7 +314,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function stock($value): VariantQuery
+    public function stock(mixed $value): VariantQuery
     {
         $this->stock = $value;
         return $this;
@@ -334,7 +334,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function price($value): VariantQuery
+    public function price(mixed $value): VariantQuery
     {
         $this->price = $value;
         return $this;
@@ -350,10 +350,10 @@ class VariantQuery extends ElementQuery
      * | `true` | with stock.
      * | `false` | with no stock.
      *
-     * @param bool $value
+     * @param bool|null $value
      * @return static self reference
      */
-    public function hasStock(bool $value = true): VariantQuery
+    public function hasStock(?bool $value = true): VariantQuery
     {
         $this->hasStock = $value;
         return $this;
@@ -369,12 +369,12 @@ class VariantQuery extends ElementQuery
      * | `true` | with unlimited stock checked.
      * | `false` | with unlimited stock not checked.
      *
-     * @param bool $value
+     * @param bool|null $value
      * @return static self reference
      * @since 3.3.4
      * @noinspection PhpUnused
      */
-    public function hasUnlimitedStock(bool $value = true): VariantQuery
+    public function hasUnlimitedStock(?bool $value = true): VariantQuery
     {
         $this->hasUnlimitedStock = $value;
         return $this;
@@ -390,10 +390,10 @@ class VariantQuery extends ElementQuery
      * | `true` | on sale
      * | `false` | not on sale
      *
-     * @param bool $value
+     * @param bool|null $value
      * @return static self reference
      */
-    public function hasSales(bool $value = true): VariantQuery
+    public function hasSales(?bool $value = true): VariantQuery
     {
         $this->hasSales = $value;
         return $this;
@@ -408,10 +408,10 @@ class VariantQuery extends ElementQuery
      * | - | -
      * | a [[ProductQuery|ProductQuery]] object | for products that match the query.
      *
-     * @param ProductQuery|array $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function hasProduct(array|ProductQuery $value): VariantQuery
+    public function hasProduct(mixed $value): VariantQuery
     {
         $this->hasProduct = $value;
         return $this;
@@ -431,7 +431,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function minQty($value): VariantQuery
+    public function minQty(mixed $value): VariantQuery
     {
         $this->minQty = $value;
         return $this;
@@ -451,7 +451,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function maxQty($value): VariantQuery
+    public function maxQty(mixed $value): VariantQuery
     {
         $this->maxQty = $value;
         return $this;
@@ -471,7 +471,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function width($value): VariantQuery
+    public function width(mixed $value): VariantQuery
     {
         $this->width = $value;
         return $this;
@@ -491,7 +491,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function height($value): VariantQuery
+    public function height(mixed $value): VariantQuery
     {
         $this->height = $value;
         return $this;
@@ -511,7 +511,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function length($value): VariantQuery
+    public function length(mixed $value): VariantQuery
     {
         $this->length = $value;
         return $this;
@@ -531,7 +531,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function weight($value): VariantQuery
+    public function weight(mixed $value): VariantQuery
     {
         $this->weight = $value;
         return $this;

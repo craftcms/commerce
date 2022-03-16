@@ -24,9 +24,9 @@ use yii\db\Connection;
 class DonationQuery extends ElementQuery
 {
     /**
-     * @var string|null The SKU of the donation purchasable
+     * @var mixed The SKU of the donation purchasable
      */
-    public ?string $sku = null;
+    public mixed $sku = null;
 
     /**
      * Narrows the query results based on the SKU.
@@ -55,15 +55,14 @@ class DonationQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param string|null $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function sku(string $value = null): DonationQuery
+    public function sku(mixed $value): DonationQuery
     {
         $this->sku = $value;
         return $this;
     }
-
 
     /**
      * @inheritdoc

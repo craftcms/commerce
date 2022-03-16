@@ -45,9 +45,9 @@ use yii\db\Connection;
 class ProductQuery extends ElementQuery
 {
     /**
-     * @var bool Whether the product is available for purchase
+     * @var bool|null Whether the product is available for purchase
      */
-    public bool $availableForPurchase;
+    public ?bool $availableForPurchase = null;
 
     /**
      * @var bool Whether to only return products that the user has permission to edit.
@@ -57,58 +57,57 @@ class ProductQuery extends ElementQuery
     /**
      * @var mixed The Post Date that the resulting products must have.
      */
-    public $expiryDate;
+    public mixed $expiryDate = null;
 
     /**
-     * @var float The default price the resulting products must have.
+     * @var mixed The default price the resulting products must have.
      */
-    public float $defaultPrice;
+    public mixed $defaultPrice = null;
 
     /**
-     * @var float The default height the resulting products must have.
+     * @var mixed The default height the resulting products must have.
      */
-    public float $defaultHeight;
+    public mixed $defaultHeight = null;
 
     /**
-     * @var float The default length the resulting products must have.
+     * @var mixed The default length the resulting products must have.
      */
-    public float $defaultLength;
+    public mixed $defaultLength = null;
 
     /**
-     * @var float The default width the resulting products must have.
+     * @var mixed The default width the resulting products must have.
      */
-    public float $defaultWidth;
+    public mixed $defaultWidth = null;
 
     /**
-     * @var float The default weight the resulting products must have.
+     * @var mixed The default weight the resulting products must have.
      */
-    public float $defaultWeight;
+    public mixed $defaultWeight = null;
 
     /**
      * @var mixed The default sku the resulting products must have.
      */
-    public $defaultSku;
+    public mixed $defaultSku = null;
 
     /**
-     * @var VariantQuery|array only return products that match the resulting variant query.
+     * @var mixed only return products that match the resulting variant query.
      */
-    public $hasVariant;
+    public mixed $hasVariant = null;
 
     /**
      * @var mixed The Post Date that the resulting products must have.
      */
-    public $postDate;
+    public mixed $postDate = null;
 
     /**
-     * @var int|int[]|null The product type ID(s) that the resulting products must have.
+     * @var mixed The product type ID(s) that the resulting products must have.
      */
-    public $typeId;
+    public mixed $typeId = null;
 
     /**
      * @inheritdoc
      */
     protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
-
 
     /**
      * @inheritdoc
@@ -187,7 +186,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultPrice($value): ProductQuery
+    public function defaultPrice(mixed $value): ProductQuery
     {
         $this->defaultPrice = $value;
 
@@ -225,7 +224,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultHeight($value): ProductQuery
+    public function defaultHeight(mixed $value): ProductQuery
     {
         $this->defaultHeight = $value;
 
@@ -263,7 +262,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultLength($value): ProductQuery
+    public function defaultLength(mixed $value): ProductQuery
     {
         $this->defaultLength = $value;
 
@@ -301,7 +300,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWidth($value): ProductQuery
+    public function defaultWidth(mixed $value): ProductQuery
     {
         $this->defaultWidth = $value;
 
@@ -339,7 +338,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWeight($value): ProductQuery
+    public function defaultWeight(mixed $value): ProductQuery
     {
         $this->defaultWeight = $value;
 
@@ -377,7 +376,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultSku($value): ProductQuery
+    public function defaultSku(mixed $value): ProductQuery
     {
         $this->defaultSku = $value;
 
@@ -416,7 +415,7 @@ class ProductQuery extends ElementQuery
      * @param string|string[]|ProductType|null $value The property value
      * @return static self reference
      */
-    public function type($value): ProductQuery
+    public function type(mixed $value): ProductQuery
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
@@ -566,7 +565,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function typeId($value): ProductQuery
+    public function typeId(mixed $value): ProductQuery
     {
         $this->typeId = $value;
         return $this;
@@ -585,7 +584,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant(array|VariantQuery $value): ProductQuery
+    public function hasVariant(mixed $value): ProductQuery
     {
         $this->hasVariant = $value;
         return $this;
@@ -627,7 +626,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function postDate($value): ProductQuery
+    public function postDate(mixed $value): ProductQuery
     {
         $this->postDate = $value;
         return $this;
@@ -667,7 +666,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate($value): ProductQuery
+    public function expiryDate(mixed $value): ProductQuery
     {
         $this->expiryDate = $value;
         return $this;
@@ -692,10 +691,10 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function availableForPurchase(bool $value = true): ProductQuery
+    public function availableForPurchase(?bool $value = true): ProductQuery
     {
         $this->availableForPurchase = $value;
         return $this;
@@ -770,7 +769,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.shippingCategoryId',
         ]);
 
-        if (isset($this->availableForPurchase) && $this->availableForPurchase !== null) {
+        if (isset($this->availableForPurchase)) {
             $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
         }
 
