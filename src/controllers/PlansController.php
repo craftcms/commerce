@@ -100,7 +100,7 @@ class PlansController extends BaseStoreSettingsController
         $this->requirePostRequest();
 
         $gatewayId = $request->getBodyParam('gatewayId');
-        $reference = $request->getBodyParam("gateway.{$gatewayId}.reference", '');
+        $reference = $request->getBodyParam("gateway.$gatewayId.reference", '');
 
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 

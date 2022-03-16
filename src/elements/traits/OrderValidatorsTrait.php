@@ -105,7 +105,7 @@ trait OrderValidatorsTrait
 
         foreach ($this->getLineItems() as $key => $lineItem) {
             if (!$lineItem->validate()) {
-                $this->addModelErrors($lineItem, "lineItems.{$key}");
+                $this->addModelErrors($lineItem, "lineItems.$key");
             }
         }
     }

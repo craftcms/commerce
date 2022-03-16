@@ -362,7 +362,7 @@ class ProductTypes extends Component
                 ->one();
 
             if (!$existingProductTypeRecord) {
-                throw new ProductTypeNotFoundException("No product type exists with the ID '{$productType->id}'");
+                throw new ProductTypeNotFoundException("No product type exists with the ID '$productType->id'");
             }
 
             $productType->uid = $existingProductTypeRecord->uid;

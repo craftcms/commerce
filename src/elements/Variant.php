@@ -292,7 +292,7 @@ class Variant extends Purchasable
 
         // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
         if ($product && $product->getType()->hasVariants) {
-            return "{$this->product}: {$this->title}";
+            return "$this->product: $this->title";
         }
 
         return parent::__toString();
@@ -840,7 +840,7 @@ class Variant extends Purchasable
                     'class' => OrderNotice::class,
                     'attributes' => [
                         'type' => 'lineItemSalePriceChanged',
-                        'attribute' => "lineItems.{$lineItem->id}.qty",
+                        'attribute' => "lineItems.$lineItem->id.qty",
                         'message' => $message,
                     ],
                 ]);

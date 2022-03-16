@@ -46,7 +46,7 @@ class CopyLoadCartUrl extends ElementAction
 (() => {
     var url = "$url";
     new Craft.ElementActionTrigger({
-        type: {$type},
+        type: $type,
         batch: false,
         validateSelection: function(\$selectedItems)
         {

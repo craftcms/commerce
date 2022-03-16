@@ -59,14 +59,14 @@ class UpdateOrderStatus extends ElementAction
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        type: {$type},
+        type: $type,
         batch: true,
         activate: function(\$selectedItems)
         {
             Craft.elementIndex.setIndexBusy();
             var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
             var currentOrderStatus = null;
-            var orderStatuses = {$orderStatuses};
+            var orderStatuses = $orderStatuses;
             for (i = 0; i < orderStatuses.length; i++) {
                 if(orderStatuses[i].handle == currentSourceStatusHandle){
                     currentOrderStatus = orderStatuses[i];
@@ -74,7 +74,7 @@ class UpdateOrderStatus extends ElementAction
             }
             var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
-                   Craft.elementIndex.submitAction({$type}, data);
+                   Craft.elementIndex.submitAction($type, data);
                    modal.hide();
                    return false;
                 }

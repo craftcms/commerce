@@ -137,10 +137,10 @@ class CartController extends BaseFrontEndController
             // Initially combine same purchasables
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
-                $purchasableId = $this->request->getParam("purchasables.{$key}.id");
-                $note = $this->request->getParam("purchasables.{$key}.note", '');
-                $options = $this->request->getParam("purchasables.{$key}.options", []);
-                $qty = (int)$this->request->getParam("purchasables.{$key}.qty", 1);
+                $purchasableId = $this->request->getParam("purchasables.$key.id");
+                $note = $this->request->getParam("purchasables.$key.note", '');
+                $options = $this->request->getParam("purchasables.$key.options", []);
+                $qty = (int)$this->request->getParam("purchasables.$key.qty", 1);
 
                 $purchasable = [];
                 $purchasable['id'] = $purchasableId;
@@ -183,11 +183,11 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = (int)$this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
-                    $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
-                    $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
+                    $lineItem->qty = (int)$this->request->getParam("lineItems.$key.qty", $lineItem->qty);
+                    $lineItem->note = $note = $this->request->getParam("lineItems.$key.note", $lineItem->note);
+                    $lineItem->setOptions($this->request->getParam("lineItems.$key.options", $lineItem->getOptions()));
 
-                    $removeLine = $this->request->getParam("lineItems.{$key}.remove", false);
+                    $removeLine = $this->request->getParam("lineItems.$key.remove", false);
                     if (($lineItem->qty !== null && $lineItem->qty == 0) || $removeLine) {
                         $this->_cart->removeLineItem($lineItem);
                     } else {

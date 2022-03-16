@@ -84,7 +84,7 @@ class DownloadOrderPdfAction extends ElementAction
         if (count($allPdfs) > 0) {
             $js = <<<JS
 (() => {
-    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'),{$pdfOptions}, {$typeOptions});
+    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions);
 })();
 JS;
             Craft::$app->getView()->registerJs($js);

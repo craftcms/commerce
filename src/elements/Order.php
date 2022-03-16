@@ -1741,7 +1741,7 @@ class Order extends Element
                             'class' => OrderNotice::class,
                             'attributes' => [
                                 'type' => 'lineItemSalePriceChanged',
-                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'attribute' => "lineItems.$item->id.salePrice",
                                 'message' => $message,
                             ],
                         ]);
@@ -1755,7 +1755,7 @@ class Order extends Element
                             'class' => OrderNotice::class,
                             'attributes' => [
                                 'type' => 'lineItemSalePriceChanged',
-                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'attribute' => "lineItems.$item->id.salePrice",
                                 'message' => $message,
                             ],
                         ]);
@@ -2912,7 +2912,7 @@ class Order extends Element
         }
 
         if (($paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceByIdAndUserId($this->paymentSourceId, $user->id)) === null) {
-            throw new InvalidArgumentException("Invalid payment source ID: {$this->paymentSourceId}");
+            throw new InvalidArgumentException("Invalid payment source ID: $this->paymentSourceId");
         }
 
         return $paymentSource;

@@ -40,7 +40,7 @@ class CreateDiscount extends ElementAction
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        type: {$type},
+        type: $type,
         batch: true,
         activate: function(\$selectedItems)
         {

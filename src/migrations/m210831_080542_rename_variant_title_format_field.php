@@ -28,7 +28,7 @@ class m210831_080542_rename_variant_title_format_field extends Migration
             foreach ($productTypes as $uid => $productType) {
                 $productType['variantTitleFormat'] = $productType['titleFormat'];
                 unset($productType['titleFormat']);
-                $projectConfig->set("commerce.productTypes.{$uid}", $productType);
+                $projectConfig->set("commerce.productTypes.$uid", $productType);
             }
 
             $projectConfig->muteEvents = $muteEvents;

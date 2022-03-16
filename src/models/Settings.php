@@ -465,7 +465,7 @@ class Settings extends Model
         $paymentCurrencies = ArrayHelper::getColumn($allPaymentCurrencies, 'iso');
 
         if ($paymentCurrency && !in_array($paymentCurrency, $paymentCurrencies, false)) {
-            throw new InvalidConfigException("Invalid payment currency: {$paymentCurrency}");
+            throw new InvalidConfigException("Invalid payment currency: $paymentCurrency");
         }
 
         return $paymentCurrency;

@@ -390,10 +390,10 @@ class Plugin extends BasePlugin
             $productTypePermissions['commerce-editProductType' . $suffix] = [
                 'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
                 'nested' => [
-                    "commerce-createProducts{$suffix}" => [
+                    "commerce-createProducts$suffix" => [
                         'label' => Craft::t('commerce', 'Create products'),
                     ],
-                    "commerce-deleteProducts{$suffix}" => [
+                    "commerce-deleteProducts$suffix" => [
                         'label' => Craft::t('commerce', 'Delete products'),
                     ],
                 ],
