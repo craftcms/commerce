@@ -513,7 +513,7 @@ class Discount extends Model
             ],
             [
                 'hasFreeShippingForOrder',
-                function($attribute, $params, $validator) {
+                function($attribute) {
                     if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                         $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
                     }
@@ -522,7 +522,7 @@ class Discount extends Model
             [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
             [
                 'orderConditionFormula',
-                function($attribute, $params, $validator) {
+                function($attribute) {
                     if ($this->{$attribute}) {
                         $order = Order::find()->one();
                         if (!$order) {

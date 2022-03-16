@@ -58,7 +58,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     /**
      * Returns the html form to use when switching between two plans
      */
-    public function getSwitchPlansFormHtml(PlanInterface $originalPlan, PlanInterface $targetPlan): string
+    public function getSwitchPlansFormHtml(): string
     {
         return '';
     }

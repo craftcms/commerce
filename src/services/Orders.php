@@ -85,7 +85,7 @@ class Orders extends Component
     /**
      * Handle field layout being deleted
      */
-    public function handleDeletedFieldLayout(ConfigEvent $event): void
+    public function handleDeletedFieldLayout(): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Order::class);
     }

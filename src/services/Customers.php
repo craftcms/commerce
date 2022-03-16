@@ -58,7 +58,7 @@ class Customers extends Component
     /**
      * Handle user login
      */
-    public function loginHandler(UserEvent $event): void
+    public function loginHandler(): void
     {
         $impersonating = Craft::$app->getSession()->get(User::IMPERSONATE_KEY) !== null;
         // Don't allow transition of current cart to a user that is being impersonated.

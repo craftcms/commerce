@@ -55,11 +55,8 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     }
 
     /**
-     * @param $attribute
-     * @param $params
-     * @param $validator
      */
-    public function validateOrganizationTaxId($attribute, $params, $validator): void
+    public function validateOrganizationTaxId(): void
     {
         if (!Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
             return;

@@ -103,9 +103,8 @@ class CreditCardPaymentForm extends BasePaymentForm
 
     /**
      * @param string $attribute
-     * @param $params
      */
-    public function creditCardLuhn(string $attribute, $params): void
+    public function creditCardLuhn(string $attribute): void
     {
         $str = '';
         foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {

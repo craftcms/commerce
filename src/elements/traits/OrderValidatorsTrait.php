@@ -103,9 +103,8 @@ trait OrderValidatorsTrait
     /**
      * Validates line items, and also adds prefixed validation errors to order
      *
-     * @param string $attribute the attribute being validated
      */
-    public function validateLineItems(string $attribute): void
+    public function validateLineItems(): void
     {
         OrderHelper::mergeDuplicateLineItems($this);
 

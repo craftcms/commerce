@@ -588,7 +588,7 @@ class Plugin extends BasePlugin
             return;
         }
 
-        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, static function(Event $event) {
+        Event::on(RestoreController::class, RestoreController::EVENT_AFTER_RESTORE_FKS, static function() {
             // Add default FKs
             (new Install())->addForeignKeys();
         });

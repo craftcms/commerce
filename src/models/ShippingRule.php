@@ -226,7 +226,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
             [
                 'orderConditionFormula',
-                function($attribute, $params, $validator) {
+                function($attribute) {
                     if ($this->{$attribute}) {
                         $order = Order::find()->one();
                         if (!$order) {

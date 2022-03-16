@@ -24,7 +24,7 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-    public function actionEdit(array $variables = []): Response
+    public function actionEdit(): Response
     {
         $donation = Donation::find()->status(null)->one();
 
