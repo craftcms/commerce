@@ -69,11 +69,6 @@ class Discount extends Component implements AdjusterInterface
     private Order $_order;
 
     /**
-     * @var array
-     */
-    private array $_appliedDiscounts = [];
-
-    /**
      * @var float
      */
     private $_discountTotal = 0;

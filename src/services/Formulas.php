@@ -26,10 +26,6 @@ use Twig\Sandbox\SecurityPolicy;
  */
 class Formulas extends Component
 {
-    /**
-     * @var array
-     */
-    private $_formulaConditionMatches = [];
 
     /**
      * @var Environment

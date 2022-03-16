@@ -53,11 +53,6 @@ class CustomerBehavior extends Behavior
     private ?array $_subscriptions = null;
 
     /**
-     * @var Customer|null
-     */
-    private ?Customer $_customer = null;
-
-    /**
      * @inheritdoc
      */
     public function attach($owner)

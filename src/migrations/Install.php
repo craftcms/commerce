@@ -38,14 +38,6 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-    /**
-     * @var int
-     */
-    private int $_variantFieldLayoutId;
-    /**
-     * @var int
-     */
-    private int $_productFieldLayoutId;
 
     /**
      * @inheritdoc
