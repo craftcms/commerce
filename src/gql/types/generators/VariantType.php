@@ -7,6 +7,7 @@
 
 namespace craft\commerce\gql\types\generators;
 
+use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
@@ -51,7 +52,7 @@ class VariantType implements GeneratorInterface
                 $contentFieldGqlTypes[$contentField->handle] = $contentField->getContentGqlType();
             }
 
-            $fields = TypeManager::prepareFieldDefinitions(array_merge(VariantInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
+            $fields = Craft::$app->getGql()->prepareFieldDefinitions(array_merge(VariantInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
 
             // Generate a type for each product type
             $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new Variant([

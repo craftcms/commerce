@@ -7,9 +7,9 @@
 
 namespace craft\commerce\gql\types;
 
+use Craft;
 use craft\gql\base\ObjectType;
 use craft\gql\GqlEntityRegistry;
-use craft\gql\TypeManager;
 use craft\gql\types\DateTime;
 use GraphQL\Type\Definition\Type;
 
@@ -44,7 +44,7 @@ class SaleType extends ObjectType
 
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions([
+        return Craft::$app->getGql()->prepareFieldDefinitions([
             'name' => [
                 'name' => 'name',
                 'type' => Type::string(),
