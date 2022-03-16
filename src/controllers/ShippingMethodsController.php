@@ -144,5 +144,4 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
     }
-
 }

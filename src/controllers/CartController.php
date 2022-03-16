@@ -343,7 +343,6 @@ class CartController extends BaseFrontEndController
 
 
         if (empty($errors)) {
-
             $completedSuccess = false;
 
             try {
@@ -512,7 +511,7 @@ class CartController extends BaseFrontEndController
             $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
 
             $this->_cart->setShippingAddress($address);
-        } else if ($shippingAddress && !$shippingIsBilling) {
+        } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->setShippingAddress($shippingAddress);
         }
 
@@ -521,7 +520,7 @@ class CartController extends BaseFrontEndController
             $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
 
             $this->_cart->setBillingAddress($address);
-        } else if ($billingAddress && !$billingIsShipping) {
+        } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->setBillingAddress($billingAddress);
         }
 

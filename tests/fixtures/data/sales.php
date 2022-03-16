@@ -9,7 +9,7 @@ $allPurchasables = $hctWhite ? [$hctWhite->id] : [];
 $radHood = Variant::find()->sku('rad-hood')->one();
 $percentagePurchasables = $radHood ? [$radHood->id] : [];
 
-$categoryIds = Category::find()->title(['Commerce Category','Commerce Category #2'])->ids();
+$categoryIds = Category::find()->title(['Commerce Category', 'Commerce Category #2'])->ids();
 
 return [
     'percentageSale' => [
@@ -27,7 +27,7 @@ return [
         'ignorePrevious' => null,
         'stopProcessing' => null,
         'categoryRelationshipType' => 'sourceElement',
-        '_purchasableIds' => $percentagePurchasables
+        '_purchasableIds' => $percentagePurchasables,
     ],
     'allRelationships' => [
         'name' => 'All Relationships',
@@ -46,6 +46,6 @@ return [
         'categoryRelationshipType' => 'element',
         '_purchasableIds' => $allPurchasables,
         '_categoryIds' => $categoryIds,
-        '_userGroupIds' => ['1002']
-    ]
+        '_userGroupIds' => ['1002'],
+    ],
 ];

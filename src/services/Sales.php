@@ -569,13 +569,13 @@ class Sales extends Component
             $record->$field = $model->$field;
         }
 
-        if($record->allGroups = $model->allGroups){
+        if ($record->allGroups = $model->allGroups) {
             $model->setUserGroupIds([]);
         }
-        if($record->allCategories = $model->allCategories){
+        if ($record->allCategories = $model->allCategories) {
             $model->setCategoryIds([]);
         }
-        if($record->allPurchasables = $model->allPurchasables){
+        if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
         }
 
@@ -606,7 +606,7 @@ class Sales extends Component
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord;
+                $relation = new SaleCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();

@@ -13,7 +13,6 @@ use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\events\CancelableEvent;
 
-
 class ProcessPaymentEvent extends CancelableEvent
 {
     /**

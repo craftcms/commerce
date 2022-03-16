@@ -92,7 +92,6 @@ class PaymentsController extends BaseFrontEndController
 
             // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
-
         } else {
             $order = $plugin->getCarts()->getCart();
         }
@@ -281,7 +280,6 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
-
                 try {
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
                 } catch (PaymentSourceException $exception) {
@@ -388,7 +386,6 @@ class PaymentsController extends BaseFrontEndController
                 $error = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
                 if ($this->request->getAcceptsJson()) {
-
                     return $this->asJson([
                         'error' => $error,
                         'paymentFormErrors' => $paymentForm->getErrors(),
@@ -418,7 +415,7 @@ class PaymentsController extends BaseFrontEndController
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
                 $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
-            } else if ($this->request->getBodyParam('paymentAmount')) {
+            } elseif ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);
             }

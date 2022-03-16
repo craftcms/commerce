@@ -274,18 +274,6 @@ class TaxCategories extends Component
         return $taxCategories;
     }
 
-
-    /**
-     * Memoize a tax category model by its ID and handle.
-     *
-     * @param TaxCategory $taxCategory
-     */
-    private function _memoizeTaxCategory(TaxCategory $taxCategory)
-    {
-        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
-        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
-    }
-
     /**
      * Returns a Query object prepped for retrieving tax categories.
      *

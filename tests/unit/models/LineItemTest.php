@@ -79,9 +79,9 @@ class LineItemTest extends Unit
         $lineItem = new LineItem();
         $lineItem->populateFromPurchasable($variant);
 
-        self::assertSame(123.99, $lineItem->price);
-        self::assertSame(111.59, $lineItem->salePrice);
-        self::assertSame(12.40, $lineItem->saleAmount);
+        self::assertSame(123.99, round($lineItem->price, 2));
+        self::assertSame(111.59, round($lineItem->salePrice, 2));
+        self::assertSame(12.40, round($lineItem->saleAmount, 2));
         self::assertTrue($lineItem->getOnSale());
     }
 
@@ -93,7 +93,7 @@ class LineItemTest extends Unit
         $options = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => '❌'
+            'emoji' => '❌',
         ];
         $jsonOptions = Json::encode($options);
         $lineItem = new LineItem();
@@ -101,7 +101,7 @@ class LineItemTest extends Unit
         $output = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => ':x:'
+            'emoji' => ':x:',
         ];
 
         // TODO change this when set options for emojis is refactored

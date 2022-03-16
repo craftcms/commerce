@@ -42,7 +42,6 @@ class m200218_231199_add_appliesTo_to_discounts extends Migration
 
         $alreadyDone = [];
         foreach ($discounts as $discount) {
-
             $values = [
                 'percentDiscount' => $discount['baseDiscount'] / 100, //base discount was stored in whole amounts
                 'baseDiscount' => 0, // moved this to the percentDiscount above

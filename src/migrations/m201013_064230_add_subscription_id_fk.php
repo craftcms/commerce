@@ -40,7 +40,6 @@ class m201013_064230_add_subscription_id_fk extends Migration
         $this->addForeignKey(null, '{{%commerce_subscriptions}}', ['orderId'], '{{%commerce_orders}}', ['id'], 'SET NULL');
 
         return true;
-
     }
 
     /**

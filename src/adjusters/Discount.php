@@ -133,7 +133,6 @@ class Discount extends Component implements AdjusterInterface
         }
 
         if ($this->_spreadBaseOrderDiscountsToLineItems) {
-
             $priceByLineItem = [];
             foreach ($this->_order->getLineItems() as $lineItem) {
                 $lineItemHashId = spl_object_hash($lineItem);

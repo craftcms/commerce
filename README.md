@@ -30,7 +30,7 @@ cd /path/to/my-project.test
 composer require craftcms/commerce
 
 # tell Craft to install the plugin
-php craft install/plugin commerce
+php craft plugin/install commerce
 
 # optional: copy the Craft Commerce example templates to your project’s templates folder
 php craft commerce/example-templates

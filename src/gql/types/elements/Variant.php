@@ -50,5 +50,4 @@ class Variant extends ElementType
 
         return parent::resolve($source, $arguments, $context, $resolveInfo);
     }
-
 }

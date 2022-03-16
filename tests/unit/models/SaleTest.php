@@ -34,7 +34,7 @@ class SaleTest extends Unit
                 $sale->setPurchasableIds([]);
                 $sale->setCategoryIds([]);
                 $sale->setUserGroupIds([]);
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('sales', $mockSalesService);
