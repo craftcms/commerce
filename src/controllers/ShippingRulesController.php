@@ -129,7 +129,7 @@ class ShippingRulesController extends BaseShippingSettingsController
                 }
 
                 if (!empty($categoryModels)) {
-                    foreach ($categoryModels as &$categoryModel) {
+                    foreach ($categoryModels as $categoryModel) {
                         if (isset($categoryModel->{$attr}) && $categoryModel->{$attr} !== null) {
                             $categoryModel->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$categoryModel->{$attr});
                         }

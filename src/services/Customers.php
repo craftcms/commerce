@@ -86,7 +86,7 @@ class Customers extends Component
     /**
      * Add customer info to the Edit User page in the CP
      */
-    public function addEditUserCommerceTabContent(array &$context): string
+    public function addEditUserCommerceTabContent(array $context): string
     {
         if (!$context['user'] || $context['isNewUser']) {
             return '';
