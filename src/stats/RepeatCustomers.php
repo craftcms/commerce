@@ -43,7 +43,7 @@ class RepeatCustomers extends Stat
             return $row > 1;
         }));
 
-        $percentage = round($total ? ($repeat / $total) * 100 : 0, 0);
+        $percentage = round($total ? ($repeat / $total) * 100 : 0);
 
         return compact('total', 'repeat', 'percentage');
     }

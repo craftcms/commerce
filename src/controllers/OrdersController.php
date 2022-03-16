@@ -113,7 +113,7 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-manageOrders');
 
-        $userId = Craft::$app->getRequest()->getParam('customerId', null);
+        $userId = Craft::$app->getRequest()->getParam('customerId');
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
 
         if ($userId && !$user) {
@@ -332,12 +332,12 @@ class OrdersController extends Controller
 
         $request = Craft::$app->getRequest();
         $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort', null);
+        $sort = $request->getParam('sort');
         $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search', null);
+        $search = $request->getParam('search');
         $offset = ($page - 1) * $limit;
 
-        $customerId = $request->getQueryParam('customerId', null);
+        $customerId = $request->getQueryParam('customerId');
 
         if (!$customerId) {
             return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
@@ -489,9 +489,9 @@ class OrdersController extends Controller
 
         $request = Craft::$app->getRequest();
         $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort', null);
+        $sort = $request->getParam('sort');
         $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search', null);
+        $search = $request->getParam('search');
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
@@ -553,7 +553,7 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $query = Craft::$app->getRequest()->getQueryParam('query', null);
+        $query = Craft::$app->getRequest()->getQueryParam('query');
 
         $limit = 30;
         $customers = [];
@@ -1218,7 +1218,7 @@ class OrdersController extends Controller
         if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
             $order->setCustomer($customer);
         } else {
-            $order->setCustomer(null);
+            $order->setCustomer();
         }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];

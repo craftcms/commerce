@@ -183,7 +183,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
+        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
         $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 

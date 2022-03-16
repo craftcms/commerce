@@ -276,7 +276,7 @@ abstract class Stat implements StatInterface
             }
         }
 
-        $date->setTime(0, 0, 0);
+        $date->setTime(0, 0);
         return $date;
     }
 

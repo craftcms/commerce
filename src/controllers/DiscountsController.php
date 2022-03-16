@@ -201,7 +201,7 @@ class DiscountsController extends BaseCpController
             $discount->setCategoryIds($categories);
         }
 
-        $coupons = $request->getBodyParam('coupons', null) ?: [];
+        $coupons = $request->getBodyParam('coupons') ?: [];
         $this->_setCouponsOnDiscount(coupons: $coupons, discount: $discount);
 
         // Save it
@@ -381,7 +381,7 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
-        $id = $request->getParam('id', null);
+        $id = $request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));

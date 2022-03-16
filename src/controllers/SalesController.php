@@ -279,7 +279,7 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
-        $id = $request->getParam('id', null);
+        $id = $request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Product ID is required.'));
@@ -318,7 +318,7 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
-        $id = $request->getParam('id', null);
+        $id = $request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
@@ -357,7 +357,7 @@ class SalesController extends BaseCpController
         $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
         $ids = $request->getParam('ids', []);
-        $saleId = $request->getParam('saleId', null);
+        $saleId = $request->getParam('saleId');
 
         if (empty($ids) || !$saleId) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));

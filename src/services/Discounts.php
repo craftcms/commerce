@@ -578,7 +578,7 @@ class Discounts extends Component
             $matchingQty = 0;
             foreach ($order->getLineItems() as $lineItem) {
                 // Must mot match order as we would get an infinate recursion
-                if ($this->matchLineItem($lineItem, $discount, false)) {
+                if ($this->matchLineItem($lineItem, $discount)) {
                     $lineItemMatch = true;
                     $matchingTotal += $lineItem->getSubtotal();
                     $matchingQty += $lineItem->qty;
