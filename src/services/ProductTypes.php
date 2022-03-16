@@ -618,7 +618,7 @@ class ProductTypes extends Component
                 // Get all of the product IDs in this group
                 $productIds = Product::find()
                     ->typeId($productTypeRecord->id)
-                    ->anyStatus()
+                    ->status(null)
                     ->limit(null)
                     ->ids();
 
@@ -645,7 +645,7 @@ class ProductTypes extends Component
                                 $product = Product::find()
                                     ->id($productId)
                                     ->siteId($siteId)
-                                    ->anyStatus()
+                                    ->status(null)
                                     ->one();
 
                                 if ($product) {
@@ -765,7 +765,7 @@ class ProductTypes extends Component
         try {
             $products = Product::find()
                 ->typeId($productTypeRecord->id)
-                ->anyStatus()
+                ->status(null)
                 ->limit(null)
                 ->all();
 

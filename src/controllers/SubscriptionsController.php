@@ -57,7 +57,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         if ($subscription === null && $subscriptionId) {
-            $subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one();
+            $subscription = Subscription::find()->status(null)->id($subscriptionId)->one();
         }
 
         if (!$subscription) {
@@ -118,7 +118,7 @@ class SubscriptionsController extends BaseController
 
         $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
-        if (!$subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one()) {
+        if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
             throw new NotFoundHttpException('Subscription not found');
         }
 
@@ -153,7 +153,7 @@ class SubscriptionsController extends BaseController
 
         $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
-        if (!$subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one()) {
+        if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
             throw new NotFoundHttpException('Subscription not found');
         }
 
@@ -265,7 +265,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
-            $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
+            $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
@@ -312,7 +312,7 @@ class SubscriptionsController extends BaseController
         $error = false;
 
         try {
-            $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
+            $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanByUid($planUid);
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
@@ -375,7 +375,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
-            $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
+            $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
             $canModifySubscription = $subscription->getIsEditable();
 

@@ -820,7 +820,7 @@ class SubscriptionQuery extends ElementQuery
     public function anyStatus(): ElementQuery
     {
         unset($this->isSuspended, $this->hasStarted);
-        return parent::anyStatus();
+        return parent::status(null);
     }
 
     /**

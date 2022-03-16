@@ -151,7 +151,7 @@ abstract class Plan extends Model implements PlanInterface
         return Subscription::find()
             ->userId($userId)
             ->planId($this->id)
-            ->anyStatus()
+            ->status(null)
             ->all();
     }
 
