@@ -20,7 +20,6 @@ use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
-use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\addresses\OrganizationField;
 use craft\fieldlayoutelements\addresses\OrganizationTaxIdField;

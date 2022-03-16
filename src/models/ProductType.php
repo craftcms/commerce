@@ -100,7 +100,7 @@ class ProductType extends Model
     public string $descriptionFormat = '{product.title} - {title}';
 
     /**
-     * @var string Template
+     * @var string|null Template
      */
     public ?string $template = null;
 

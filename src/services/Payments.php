@@ -285,7 +285,6 @@ class Payments extends Component
         $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order, null, $defaultAction);
 
         try {
-            /** @var RequestResponseInterface $response */
             $response = match ($defaultAction) {
                 TransactionRecord::TYPE_PURCHASE => $gateway->purchase($transaction, $form),
                 TransactionRecord::TYPE_AUTHORIZE => $gateway->authorize($transaction, $form),
