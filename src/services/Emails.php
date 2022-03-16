@@ -437,10 +437,10 @@ class Emails extends Component
         $craftMailSettings = App::mailSettings();
 
         $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
-        $fromEmail = Craft::parseEnv($fromEmail);
+        $fromEmail = App::parseEnv($fromEmail);
 
         $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
-        $fromName = Craft::parseEnv($fromName);
+        $fromName = App::parseEnv($fromName);
 
         if ($fromEmail) {
             $newEmail->setFrom($fromEmail);

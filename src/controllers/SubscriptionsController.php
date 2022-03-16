@@ -15,6 +15,7 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\helpers\App;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Throwable;
@@ -230,7 +231,7 @@ class SubscriptionsController extends BaseController
             if (empty($url)) {
                 $error = Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.');
             } else {
-                return $this->redirect(UrlHelper::url(Craft::parseEnv($url), ['subscription' => $subscription->uid]));
+                return $this->redirect(UrlHelper::url(App::parseEnv($url), ['subscription' => $subscription->uid]));
             }
         }
 
