@@ -196,7 +196,7 @@ class UpgradeController extends Controller
         foreach ($this->_v3tables as $table) {
             $cleanTableName = str_replace(['{{%', '}}'], '', $table);
             if (!Craft::$app->getDb()->tableExists($table)) {
-                $this->stdout('The `' . $cleanTableName . '` table no longer exists, can not proceed with v4 migration.' . PHP_EOL . PHP_EOL, Console::FG_YELLOW);
+                $this->stderr(sprintf("Unable to proceed with the Commerce 4 migration: the `%s` table no longer exists.\n", $cleanTableName), Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
         }
@@ -217,18 +217,12 @@ class UpgradeController extends Controller
             }
 
             $this->stdout(sprintf("Invalid custom country found: %s (%s)\n", $country['name'], $country['iso']));
-            $this->stdout("We need to map this to a valid country code. (All addresses and zones will be updated.)\n");
+            $this->stdout("We need to map this to a valid country code. (All related addresses and zones will be updated.)\n");
             $this->stdout('See: ');
             $this->stdout("https://www.iban.com/country-codes\n", Console::FG_BLUE);
             $country['iso'] = $this->prompt('Enter a valid Alpha-2 country code:', [
                 'required' => true,
-                'validator' => function($countryCode) use ($validCountries) {
-                    if (isset($validCountries[$countryCode])) {
-                        return true;
-                    }
-                    $this->stdout("Not a valid Alpha-2 Country code.\n");
-                    return false;
-                },
+                'validator' => fn($code) => isset($validCountries[$code]),
                 'default' => 'US',
             ]);
             $this->stdout("\n");
@@ -255,38 +249,38 @@ class UpgradeController extends Controller
 
         try {
             $db->transaction(function() {
-                $this->stdout("Ensuring address data migration field locations…\n");
+                $this->stdout("Ensuring we have all the required custom fields…\n");
                 $this->_migrateAddressCustomFields();
 
                 $this->stdout("Creating a user for every customer…\n");
                 $this->_migrateCustomers();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Addresses…\n");
+                $this->stdout("Migrating address data…\n");
                 $this->_migrateAddresses();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Order Addresses…\n");
+                $this->stdout("Updating orders…\n");
                 $this->_migrateOrderAddresses();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating User Addresses Books…\n");
+                $this->stdout("Updating users…\n");
                 $this->_migrateUserAddressBook();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Store Location…\n");
+                $this->stdout("Updating the store location…\n");
                 $this->_migrateStore();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Shipping Zones…\n");
+                $this->stdout("Updating shipping zones…\n");
                 $this->_migrateShippingZones();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Tax Zones…\n");
+                $this->stdout("Updating tax zones…\n");
                 $this->_migrateTaxZones();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating order history user…\n");
+                $this->stdout("Updating order histories…\n");
                 $this->_migrateOrderHistoryUser();
                 $this->stdout("\nDone.\n\n");
             });
