@@ -154,7 +154,7 @@ return [
     'Carts' => 'Carrinhos',
     'Categories Relationship Type' => 'Tipo de relação das categorias',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Categorias a que os itens que podem ser comprados devem estar relacionados. Deixe em branco para ignorar a correspondência de categorias.',
-    'Categories that the purchasables must be related to.' => 'Categorias a que os itens que podem ser comprados devem estar relacionados. Deixe em branco para todas as categorias.',
+    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Categorias a que os itens que podem ser comprados devem estar relacionados. Deixe em branco para todas as categorias.',
     'Categories' => 'Categorias',
     'Category Rate Overrides' => 'Sobreposições à Categoria de Tributo',
     'Centimeters (cm)' => 'Centímetros (cm)',
