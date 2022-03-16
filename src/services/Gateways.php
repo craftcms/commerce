@@ -389,8 +389,6 @@ class Gateways extends Component
             $config['expectedType'] = $config['type'];
             unset($config['type']);
 
-            $config = $originalConfig ?? $config;
-
             $gateway = new MissingGateway($config);
         }
 
