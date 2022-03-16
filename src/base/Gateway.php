@@ -19,7 +19,6 @@ use DateTime;
  * Class Gateway
  *
  * @property string $cpEditUrl
- * @property DateTime|null $dateArchived
  * @property bool $isFrontendEnabled
  * @property bool $isArchived
  * @property null|BasePaymentForm $paymentFormModel
@@ -41,16 +40,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function __toString()
     {
         return (string)$this->name;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        return array_merge(parent::datetimeAttributes(), [
-            'dateArchived',
-        ]);
     }
 
     /**

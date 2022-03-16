@@ -549,19 +549,6 @@ class Subscription extends Element
 
     /**
      * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'nextPaymentDate';
-        $attributes[] = 'dateExpired';
-        $attributes[] = 'dateCanceled';
-        $attributes[] = 'dateSuspended';
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
     public static function find(): ElementQueryInterface

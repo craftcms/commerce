@@ -152,17 +152,6 @@ class Sale extends Model
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'dateFrom';
-        $attributes[] = 'dateTo';
-        return $attributes;
-    }
-
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);

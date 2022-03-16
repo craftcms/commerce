@@ -252,18 +252,6 @@ class Discount extends Model
     /**
      * @inheritdoc
      */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'dateFrom';
-        $attributes[] = 'dateTo';
-
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function extraFields(): array
     {
         $fields = parent::extraFields();

@@ -54,6 +54,9 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use ReflectionClass;
+use ReflectionNamedType;
+use ReflectionProperty;
 use Throwable;
 use Twig\Markup;
 use yii\base\Exception;
@@ -1270,21 +1273,6 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-
-        $attributes[] = 'dateAuthorized';
-        $attributes[] = 'datePaid';
-        $attributes[] = 'dateOrdered';
-        $attributes[] = 'dateUpdated';
-
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function attributes(): array
     {
         $names = parent::attributes();
@@ -1349,7 +1337,20 @@ class Order extends Element
     {
         $fields = parent::fields();
 
-        foreach ($this->datetimeAttributes() as $attribute) {
+        $datetimeAttributes = [];
+        foreach ((new ReflectionClass($this))->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            if (!$property->isStatic()) {
+                $type = $property->getType();
+                if ($type instanceof ReflectionNamedType && $type->getName() === DateTime::class) {
+                    $datetimeAttributes[] = $property->getName();
+                }
+            }
+        }
+
+        // Include datetimeAttributes() for now
+        $datetimeAttributes = array_unique(array_merge($datetimeAttributes, $this->datetimeAttributes()));
+
+        foreach ($datetimeAttributes as $attribute) {
             $fields[$attribute] = static function($model, $attribute) {
                 if (!empty($model->$attribute)) {
                     $formatter = Craft::$app->getFormatter();

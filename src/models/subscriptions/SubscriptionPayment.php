@@ -48,14 +48,4 @@ class SubscriptionPayment extends Model
      * @var string the gateway response text
      */
     public string $response;
-
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        return array_merge(parent::datetimeAttributes(), [
-            'paymentDate',
-        ]);
-    }
 }
