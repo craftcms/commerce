@@ -75,7 +75,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
             'code' => 'value',
             'value' => $this->value,
             'autocomplete' => false,
-            'class' => 'fullwidth',
+            'class' => 'fullwidth code',
         ]);
     }
 }
