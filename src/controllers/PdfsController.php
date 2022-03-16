@@ -103,14 +103,14 @@ class PdfsController extends BaseAdminController
         }
 
         // Shared attributes
-        $pdf->name = Craft::$app->getRequest()->getBodyParam('name');
-        $pdf->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $pdf->description = Craft::$app->getRequest()->getBodyParam('description');
-        $pdf->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
-        $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
-        $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
-        $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
-        $pdf->language = Craft::$app->getRequest()->getBodyParam('language');
+        $pdf->name = $this->request->getBodyParam('name');
+        $pdf->handle = $this->request->getBodyParam('handle');
+        $pdf->description = $this->request->getBodyParam('description');
+        $pdf->templatePath = $this->request->getBodyParam('templatePath');
+        $pdf->fileNameFormat = $this->request->getBodyParam('fileNameFormat');
+        $pdf->enabled = $this->request->getBodyParam('enabled');
+        $pdf->isDefault = $this->request->getBodyParam('isDefault');
+        $pdf->language = $this->request->getBodyParam('language');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
@@ -135,7 +135,7 @@ class PdfsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getPdfs()->deletePdfById($id);
         return $this->asSuccess();
@@ -150,7 +150,7 @@ class PdfsController extends BaseAdminController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));

@@ -89,7 +89,7 @@ class CartController extends BaseFrontEndController
     public function actionUpdateCart(): ?Response
     {
         $this->requirePostRequest();
-        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        $isSiteRequest = $this->request->getIsSiteRequest();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 

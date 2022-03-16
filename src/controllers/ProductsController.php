@@ -139,7 +139,7 @@ class ProductsController extends BaseController
         }
 
         // Enable Live Preview?
-        if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
+        if (!$this->request->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
                     'fields' => '#fields > .flex-fields > .field',
                     'extraFields' => '#details',
@@ -184,7 +184,7 @@ class ProductsController extends BaseController
     {
         $this->requirePostRequest();
 
-        $productId = Craft::$app->getRequest()->getRequiredParam('productId');
+        $productId = $this->request->getRequiredParam('productId');
         $product = Plugin::getInstance()->getProducts()->getProductById($productId);
 
         $this->enforceDeleteProductPermissions($product);
@@ -227,15 +227,14 @@ class ProductsController extends BaseController
         $this->requirePostRequest();
 
         // Get the requested product
-        $request = Craft::$app->getRequest();
-        $oldProduct = ProductHelper::productFromPost($request);
-        $variants = $request->getBodyParam('variants') ?: [];
+        $oldProduct = ProductHelper::productFromPost($this->request);
+        $variants = $this->request->getBodyParam('variants') ?: [];
 
         $user = Craft::$app->getUser()->getIdentity();
 
         $this->enforceEditProductPermissions($oldProduct);
 
-        if ($request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProductTypes()->hasPermission($user, $oldProduct->getType(), 'commerce-createProducts')) {
+        if ($this->request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProductTypes()->hasPermission($user, $oldProduct->getType(), 'commerce-createProducts')) {
             if ($oldProduct->id === null || $duplicate === true) {
                 throw new ForbiddenHttpException('User not permitted to create a product for this type.');
             }
@@ -271,7 +270,7 @@ class ProductsController extends BaseController
                     $clone = $e->element;
 
                     $message = Craft::t('commerce', 'Couldn’t duplicate product.');
-                    if ($request->getAcceptsJson()) {
+                    if ($this->request->getAcceptsJson()) {
                         return $this->asModelFailure(
                             $clone,
                             $message,
@@ -294,7 +293,7 @@ class ProductsController extends BaseController
             }
 
             // Now populate the rest of it from the post data
-            ProductHelper::populateProductFromPost($product, $request);
+            ProductHelper::populateProductFromPost($product, $this->request);
 
             $product->setVariants($variants);
 
@@ -314,7 +313,7 @@ class ProductsController extends BaseController
             if (!$success) {
                 $transaction->rollBack();
                 $message = Craft::t('commerce', 'Couldn’t save product.');
-                if ($request->getAcceptsJson()) {
+                if ($this->request->getAcceptsJson()) {
                     return $this->asModelFailure(
                         $product,
                         $message,

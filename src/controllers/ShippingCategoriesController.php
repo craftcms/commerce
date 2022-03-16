@@ -89,15 +89,15 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory = new ShippingCategory();
 
         // Shared attributes
-        $shippingCategory->id = Craft::$app->getRequest()->getBodyParam('shippingCategoryId');
-        $shippingCategory->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $shippingCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $shippingCategory->id = $this->request->getBodyParam('shippingCategoryId');
+        $shippingCategory->name = $this->request->getBodyParam('name');
+        $shippingCategory->handle = $this->request->getBodyParam('handle');
+        $shippingCategory->description = $this->request->getBodyParam('description');
+        $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
         $productTypes = [];
-        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
@@ -133,7 +133,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping category'));
@@ -151,7 +151,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     {
         $this->requirePostRequest();
 
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $ids = $this->request->getRequiredBodyParam('ids');
 
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);

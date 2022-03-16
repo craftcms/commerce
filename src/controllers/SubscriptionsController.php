@@ -116,7 +116,7 @@ class SubscriptionsController extends BaseController
     {
         $this->requirePostRequest();
 
-        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
+        $subscriptionId = $this->request->getRequiredBodyParam('subscriptionId');
 
         if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
             throw new NotFoundHttpException('Subscription not found');
@@ -151,7 +151,7 @@ class SubscriptionsController extends BaseController
     {
         $this->requirePostRequest();
 
-        $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
+        $subscriptionId = $this->request->getRequiredBodyParam('subscriptionId');
 
         if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
             throw new NotFoundHttpException('Subscription not found');
@@ -177,8 +177,7 @@ class SubscriptionsController extends BaseController
 
         $plugin = Commerce::getInstance();
 
-        $request = Craft::$app->getRequest();
-        $planUid = $request->getValidatedBodyParam('planUid');
+        $planUid = $this->request->getValidatedBodyParam('planUid');
 
         if (!$planUid || !$plan = $plugin->getPlans()->getPlanByUid($planUid)) {
             throw new InvalidConfigException('Subscription plan not found with that id.');
@@ -193,7 +192,7 @@ class SubscriptionsController extends BaseController
             $parameters = $gateway->getSubscriptionFormModel();
 
             foreach ($parameters->attributes() as $attributeName) {
-                $value = $request->getValidatedBodyParam($attributeName);
+                $value = $this->request->getValidatedBodyParam($attributeName);
 
                 if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
                     [$hashedPlanUid, $parameterValue] = explode(':', $value);
@@ -206,14 +205,14 @@ class SubscriptionsController extends BaseController
 
             try {
                 $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($request->getBodyParams(), false);
+                $paymentForm->setAttributes($this->request->getBodyParams(), false);
 
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                 }
 
-                $fieldsLocation = Craft::$app->getRequest()->getParam('fieldsLocation', 'fields');
-                $fieldValues = $request->getBodyParam($fieldsLocation, []);
+                $fieldsLocation = $this->request->getParam('fieldsLocation', 'fields');
+                $fieldValues = $this->request->getBodyParam($fieldsLocation, []);
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
             } catch (Throwable $exception) {
@@ -258,13 +257,11 @@ class SubscriptionsController extends BaseController
 
         $plugin = Commerce::getInstance();
 
-        $request = Craft::$app->getRequest();
-
         $error = false;
         $subscription = null;
 
         try {
-            $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
+            $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
 
             $validData = $subscriptionUid && $subscription;
@@ -305,9 +302,8 @@ class SubscriptionsController extends BaseController
 
         $plugin = Commerce::getInstance();
 
-        $request = Craft::$app->getRequest();
-        $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
-        $planUid = $request->getValidatedBodyParam('planUid');
+        $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
+        $planUid = $this->request->getValidatedBodyParam('planUid');
 
         $error = false;
 
@@ -325,7 +321,7 @@ class SubscriptionsController extends BaseController
                 $parameters = $gateway->getSwitchPlansFormModel();
 
                 foreach ($parameters->attributes() as $attributeName) {
-                    $value = $request->getValidatedBodyParam($attributeName);
+                    $value = $this->request->getValidatedBodyParam($attributeName);
 
                     if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
                         [$hashedPlanUid, $parameterValue] = explode(':', $value);
@@ -368,13 +364,12 @@ class SubscriptionsController extends BaseController
         $this->requirePostRequest();
 
         $plugin = Commerce::getInstance();
-        $request = Craft::$app->getRequest();
 
         $error = false;
         $subscription = null;
 
         try {
-            $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
+            $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
             $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
@@ -385,7 +380,7 @@ class SubscriptionsController extends BaseController
                 $parameters = $gateway->getCancelSubscriptionFormModel();
 
                 foreach ($parameters->attributes() as $attributeName) {
-                    $value = $request->getValidatedBodyParam($attributeName);
+                    $value = $this->request->getValidatedBodyParam($attributeName);
 
                     if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
                         [$hashedSubscriptionUid, $parameterValue] = explode(':', $value);

@@ -84,10 +84,10 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone = new ShippingAddressZone();
 
         // Shared attributes
-        $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
-        $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingZone->setCondition(Craft::$app->getRequest()->getBodyParam('condition'));
+        $shippingZone->id = $this->request->getBodyParam('shippingZoneId');
+        $shippingZone->name = $this->request->getBodyParam('name');
+        $shippingZone->description = $this->request->getBodyParam('description');
+        $shippingZone->setCondition($this->request->getBodyParam('condition'));
 
         if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
             return $this->asModelSuccess(
@@ -116,7 +116,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping zone'));
@@ -136,8 +136,8 @@ class ShippingZonesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
-        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+        $zipCodeFormula = (string)$this->request->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)$this->request->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
 

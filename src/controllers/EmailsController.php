@@ -107,19 +107,19 @@ class EmailsController extends BaseAdminController
         }
 
         // Shared attributes
-        $email->name = Craft::$app->getRequest()->getBodyParam('name');
-        $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
-        $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
-        $email->to = Craft::$app->getRequest()->getBodyParam('to');
-        $email->bcc = Craft::$app->getRequest()->getBodyParam('bcc');
-        $email->cc = Craft::$app->getRequest()->getBodyParam('cc');
-        $email->replyTo = Craft::$app->getRequest()->getBodyParam('replyTo');
-        $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
-        $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
-        $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
+        $email->name = $this->request->getBodyParam('name');
+        $email->subject = $this->request->getBodyParam('subject');
+        $email->recipientType = $this->request->getBodyParam('recipientType');
+        $email->to = $this->request->getBodyParam('to');
+        $email->bcc = $this->request->getBodyParam('bcc');
+        $email->cc = $this->request->getBodyParam('cc');
+        $email->replyTo = $this->request->getBodyParam('replyTo');
+        $email->enabled = (bool)$this->request->getBodyParam('enabled');
+        $email->templatePath = $this->request->getBodyParam('templatePath');
+        $email->plainTextTemplatePath = $this->request->getBodyParam('plainTextTemplatePath');
+        $pdfId = $this->request->getBodyParam('pdfId');
         $email->pdfId = $pdfId ?: null;
-        $email->language = Craft::$app->getRequest()->getBodyParam('language');
+        $email->language = $this->request->getBodyParam('language');
 
         // Save it
         if ($emailsService->saveEmail($email)) {
@@ -142,7 +142,7 @@ class EmailsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
         return $this->asSuccess();

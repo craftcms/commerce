@@ -90,15 +90,15 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory = new TaxCategory();
 
         // Shared attributes
-        $taxCategory->id = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
-        $taxCategory->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $taxCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $taxCategory->id = $this->request->getBodyParam('taxCategoryId');
+        $taxCategory->name = $this->request->getBodyParam('name');
+        $taxCategory->handle = $this->request->getBodyParam('handle');
+        $taxCategory->description = $this->request->getBodyParam('description');
+        $taxCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
         $productTypes = [];
-        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
@@ -133,7 +133,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
@@ -152,7 +152,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
     {
         $this->requirePostRequest();
 
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $ids = $this->request->getRequiredBodyParam('ids');
 
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);

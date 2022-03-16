@@ -51,7 +51,7 @@ class SettingsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $params = Craft::$app->getRequest()->getBodyParams();
+        $params = $this->request->getBodyParams();
         $data = $params['settings'];
 
         $settings = Plugin::getInstance()->getSettings();

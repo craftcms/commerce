@@ -53,9 +53,9 @@ class DonationsController extends BaseStoreSettingsController
             $donation = new Donation();
         }
 
-        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');
-        $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
-        $donation->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
+        $donation->sku = $this->request->getBodyParam('sku');
+        $donation->availableForPurchase = (bool)$this->request->getBodyParam('availableForPurchase');
+        $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
             return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));

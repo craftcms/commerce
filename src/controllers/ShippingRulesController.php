@@ -163,36 +163,34 @@ class ShippingRulesController extends BaseShippingSettingsController
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
         $shippingRule = new ShippingRule();
 
         if (!$duplicate) {
-            $shippingRule->id = $request->getBodyParam('id');
+            $shippingRule->id = $this->request->getBodyParam('id');
         }
 
-        $shippingRule->name = $request->getBodyParam('name');
-        $shippingRule->description = $request->getBodyParam('description');
-        $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
-        $shippingRule->methodId = $request->getBodyParam('methodId');
-        $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
-        $shippingRule->orderConditionFormula = trim($request->getBodyParam('orderConditionFormula', ''));
-        $shippingRule->minQty = $request->getBodyParam('minQty');
-        $shippingRule->maxQty = $request->getBodyParam('maxQty');
-        $shippingRule->minTotal = Localization::normalizeNumber($request->getBodyParam('minTotal'));
-        $shippingRule->maxTotal = Localization::normalizeNumber($request->getBodyParam('maxTotal'));
-        $shippingRule->minMaxTotalType = $request->getBodyParam('minMaxTotalType');
-        $shippingRule->minWeight = Localization::normalizeNumber($request->getBodyParam('minWeight'));
-        $shippingRule->maxWeight = Localization::normalizeNumber($request->getBodyParam('maxWeight'));
-        $shippingRule->baseRate = Localization::normalizeNumber($request->getBodyParam('baseRate'));
-        $shippingRule->perItemRate = Localization::normalizeNumber($request->getBodyParam('perItemRate'));
-        $shippingRule->weightRate = Localization::normalizeNumber($request->getBodyParam('weightRate'));
-        $shippingRule->percentageRate = Localization::normalizeNumber($request->getBodyParam('percentageRate'));
-        $shippingRule->minRate = Localization::normalizeNumber($request->getBodyParam('minRate'));
-        $shippingRule->maxRate = Localization::normalizeNumber($request->getBodyParam('maxRate'));
+        $shippingRule->name = $this->request->getBodyParam('name');
+        $shippingRule->description = $this->request->getBodyParam('description');
+        $shippingRule->shippingZoneId = $this->request->getBodyParam('shippingZoneId');
+        $shippingRule->methodId = $this->request->getBodyParam('methodId');
+        $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
+        $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
+        $shippingRule->minQty = $this->request->getBodyParam('minQty');
+        $shippingRule->maxQty = $this->request->getBodyParam('maxQty');
+        $shippingRule->minTotal = Localization::normalizeNumber($this->request->getBodyParam('minTotal'));
+        $shippingRule->maxTotal = Localization::normalizeNumber($this->request->getBodyParam('maxTotal'));
+        $shippingRule->minMaxTotalType = $this->request->getBodyParam('minMaxTotalType');
+        $shippingRule->minWeight = Localization::normalizeNumber($this->request->getBodyParam('minWeight'));
+        $shippingRule->maxWeight = Localization::normalizeNumber($this->request->getBodyParam('maxWeight'));
+        $shippingRule->baseRate = Localization::normalizeNumber($this->request->getBodyParam('baseRate'));
+        $shippingRule->perItemRate = Localization::normalizeNumber($this->request->getBodyParam('perItemRate'));
+        $shippingRule->weightRate = Localization::normalizeNumber($this->request->getBodyParam('weightRate'));
+        $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
+        $shippingRule->minRate = Localization::normalizeNumber($this->request->getBodyParam('minRate'));
+        $shippingRule->maxRate = Localization::normalizeNumber($this->request->getBodyParam('maxRate'));
 
         $ruleCategories = [];
-        $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');
+        $allRulesCategories = $this->request->getBodyParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
             $perItemRate = $ruleCategory['perItemRate'];
             $weightRate = $ruleCategory['weightRate'];
@@ -230,7 +228,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
         Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
         return $this->asSuccess();
@@ -245,7 +243,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
+        if (!$id = $this->request->getRequiredBodyParam('id')) {
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 

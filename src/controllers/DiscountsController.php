@@ -118,9 +118,8 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
 
         $discount = new Discount();
-        $request = Craft::$app->getRequest();
 
-        $discount->id = $request->getBodyParam('id');
+        $discount->id = $this->request->getBodyParam('id');
         
         if ($discount->id === null) {
             $this->requirePermission('commerce-createDiscounts');
@@ -128,59 +127,59 @@ class DiscountsController extends BaseCpController
             $this->requirePermission('commerce-editDiscounts');
         }
         
-        $discount->name = $request->getBodyParam('name');
-        $discount->description = $request->getBodyParam('description');
-        $discount->enabled = (bool)$request->getBodyParam('enabled');
-        $discount->setOrderCondition($request->getBodyParam('orderCondition'));
-        $discount->setCustomerCondition($request->getBodyParam('customerCondition'));
-        $discount->setShippingAddressCondition($request->getBodyParam('shippingAddressCondition'));
-        $discount->setBillingAddressCondition($request->getBodyParam('billingAddressCondition'));
-        $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
-        $discount->purchaseQty = $request->getBodyParam('purchaseQty');
-        $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
-        $discount->percentDiscount = (float)$request->getBodyParam('percentDiscount');
-        $discount->percentageOffSubject = $request->getBodyParam('percentageOffSubject');
-        $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
-        $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
-        $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
-        $discount->couponFormat = $request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
-        $discount->perUserLimit = $request->getBodyParam('perUserLimit');
-        $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
-        $discount->totalDiscountUseLimit = $request->getBodyParam('totalDiscountUseLimit');
-        $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
-        $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
-        $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
-        $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
-        $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
+        $discount->name = $this->request->getBodyParam('name');
+        $discount->description = $this->request->getBodyParam('description');
+        $discount->enabled = (bool)$this->request->getBodyParam('enabled');
+        $discount->setOrderCondition($this->request->getBodyParam('orderCondition'));
+        $discount->setCustomerCondition($this->request->getBodyParam('customerCondition'));
+        $discount->setShippingAddressCondition($this->request->getBodyParam('shippingAddressCondition'));
+        $discount->setBillingAddressCondition($this->request->getBodyParam('billingAddressCondition'));
+        $discount->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');
+        $discount->purchaseQty = $this->request->getBodyParam('purchaseQty');
+        $discount->maxPurchaseQty = $this->request->getBodyParam('maxPurchaseQty');
+        $discount->percentDiscount = (float)$this->request->getBodyParam('percentDiscount');
+        $discount->percentageOffSubject = $this->request->getBodyParam('percentageOffSubject');
+        $discount->hasFreeShippingForMatchingItems = (bool)$this->request->getBodyParam('hasFreeShippingForMatchingItems');
+        $discount->hasFreeShippingForOrder = (bool)$this->request->getBodyParam('hasFreeShippingForOrder');
+        $discount->excludeOnSale = (bool)$this->request->getBodyParam('excludeOnSale');
+        $discount->couponFormat = $this->request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
+        $discount->perUserLimit = $this->request->getBodyParam('perUserLimit');
+        $discount->perEmailLimit = $this->request->getBodyParam('perEmailLimit');
+        $discount->totalDiscountUseLimit = $this->request->getBodyParam('totalDiscountUseLimit');
+        $discount->ignoreSales = (bool)$this->request->getBodyParam('ignoreSales');
+        $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
+        $discount->baseDiscountType = $this->request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
+        $discount->appliedTo = $this->request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
+        $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
 
-        $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
+        $baseDiscount = $this->request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
 
-        $perItemDiscount = $request->getBodyParam('perItemDiscount') ?: 0;
+        $perItemDiscount = $this->request->getBodyParam('perItemDiscount') ?: 0;
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
 
-        $date = $request->getBodyParam('dateFrom');
+        $date = $this->request->getBodyParam('dateFrom');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateFrom = $dateTime;
         }
 
-        $date = $request->getBodyParam('dateTo');
+        $date = $this->request->getBodyParam('dateTo');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
             $discount->dateTo = $dateTime;
         }
 
-        $discount->percentDiscount = -Localization::normalizePercentage($request->getBodyParam('percentDiscount'));
+        $discount->percentDiscount = -Localization::normalizePercentage($this->request->getBodyParam('percentDiscount'));
 
         // Set purchasable conditions
-        if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+        if ($discount->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
             $discount->setPurchasableIds([]);
         } else {
             $purchasables = [];
-            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            $purchasableGroups = $this->request->getBodyParam('purchasables') ?: [];
             foreach ($purchasableGroups as $group) {
                 if (is_array($group)) {
                     array_push($purchasables, ...$group);
@@ -191,17 +190,17 @@ class DiscountsController extends BaseCpController
         }
 
         // Set category conditions
-        if ($discount->allCategories = (bool)$request->getBodyParam('allCategories')) {
+        if ($discount->allCategories = (bool)$this->request->getBodyParam('allCategories')) {
             $discount->setCategoryIds([]);
         } else {
-            $categories = $request->getBodyParam('categories', []);
+            $categories = $this->request->getBodyParam('categories', []);
             if (!$categories) {
                 $categories = [];
             }
             $discount->setCategoryIds($categories);
         }
 
-        $coupons = $request->getBodyParam('coupons') ?: [];
+        $coupons = $this->request->getBodyParam('coupons') ?: [];
         $this->_setCouponsOnDiscount(coupons: $coupons, discount: $discount);
 
         // Save it
@@ -265,7 +264,7 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
         if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
@@ -281,8 +280,8 @@ class DiscountsController extends BaseCpController
         $this->requirePermission('commerce-deleteDiscounts');
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
-        $ids = Craft::$app->getRequest()->getBodyParam('ids');
+        $id = $this->request->getBodyParam('id');
+        $ids = $this->request->getBodyParam('ids');
 
         if ((!$id && empty($ids)) || ($id && !empty($ids))) {
             throw new BadRequestHttpException('id or ids must be specified.');
@@ -316,8 +315,8 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
-        $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
+        $id = $this->request->getRequiredBodyParam('id');
+        $type = $this->request->getBodyParam('type', 'total');
         $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
@@ -351,8 +350,8 @@ class DiscountsController extends BaseCpController
         $this->requirePostRequest();
         $this->requirePermission('commerce-editDiscounts');
 
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
-        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+        $ids = $this->request->getRequiredBodyParam('ids');
+        $status = $this->request->getRequiredBodyParam('status');
 
         if (empty($ids)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
@@ -380,8 +379,7 @@ class DiscountsController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
-        $id = $request->getParam('id');
+        $id = $this->request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
@@ -492,8 +490,8 @@ class DiscountsController extends BaseCpController
         $variables['categories'] = null;
         $categories = [];
 
-        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
-            $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+        if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
+            $categoryIds = explode('|', $this->request->getParam('categoryIds'));
         } else {
             $categoryIds = $variables['discount']->getCategoryIds();
         }
@@ -518,8 +516,8 @@ class DiscountsController extends BaseCpController
 
         $variables['purchasables'] = null;
 
-        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+        if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
+            $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
@@ -568,9 +566,9 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $count = (int)Craft::$app->getRequest()->getBodyParam('count', 0);
-        $format = Craft::$app->getRequest()->getBodyParam('format', Coupons::DEFAULT_COUPON_FORMAT);
-        $existingCodes = Craft::$app->getRequest()->getBodyParam('existingCodes', []);
+        $count = (int)$this->request->getBodyParam('count', 0);
+        $format = $this->request->getBodyParam('format', Coupons::DEFAULT_COUPON_FORMAT);
+        $existingCodes = $this->request->getBodyParam('existingCodes', []);
 
         try {
             $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);

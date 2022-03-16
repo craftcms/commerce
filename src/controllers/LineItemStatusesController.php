@@ -79,17 +79,17 @@ class LineItemStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $id = $this->request->getBodyParam('id');
         $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id) : false;
 
         if (!$lineItemStatus) {
             $lineItemStatus = new LineItemStatus();
         }
 
-        $lineItemStatus->name = Craft::$app->getRequest()->getBodyParam('name');
-        $lineItemStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $lineItemStatus->color = Craft::$app->getRequest()->getBodyParam('color');
-        $lineItemStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $lineItemStatus->name = $this->request->getBodyParam('name');
+        $lineItemStatus->handle = $this->request->getBodyParam('handle');
+        $lineItemStatus->color = $this->request->getBodyParam('color');
+        $lineItemStatus->default = (bool)$this->request->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getLineItemStatuses()->saveLineItemStatus($lineItemStatus)) {
@@ -114,7 +114,7 @@ class LineItemStatusesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
         if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
         }
@@ -130,7 +130,7 @@ class LineItemStatusesController extends BaseAdminController
     {
         $this->requireAcceptsJson();
 
-        $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
+        $lineItemStatusId = $this->request->getRequiredParam('id');
 
         if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));

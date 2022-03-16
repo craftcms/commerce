@@ -29,10 +29,8 @@ class FormulasController extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $condition = $request->getBodyParam('condition');
-        $params = $request->getBodyParam('params');
+        $condition = $this->request->getBodyParam('condition');
+        $params = $this->request->getBodyParam('params');
 
         if ($condition == '') {
             return $this->asSuccess();
@@ -53,10 +51,8 @@ class FormulasController extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $formula = $request->getBodyParam('formula');
-        $params = $request->getBodyParam('params');
+        $formula = $this->request->getBodyParam('formula');
+        $params = $this->request->getBodyParam('params');
 
         if ($formula == '') {
             return $this->asSuccess();

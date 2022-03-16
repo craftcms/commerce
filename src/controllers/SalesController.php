@@ -110,37 +110,35 @@ class SalesController extends BaseCpController
         $sale = new Sale();
 
         // Shared attributes
-        $request = Craft::$app->getRequest();
-        
         if ($sale->id === null) {
             $this->requirePermission('commerce-createSales');
         } else {
             $this->requirePermission('commerce-editSales');
         }
         
-        $sale->id = $request->getBodyParam('id');
-        $sale->name = $request->getBodyParam('name');
-        $sale->description = $request->getBodyParam('description');
-        $sale->apply = $request->getBodyParam('apply');
-        $sale->enabled = (bool)$request->getBodyParam('enabled');
+        $sale->id = $this->request->getBodyParam('id');
+        $sale->name = $this->request->getBodyParam('name');
+        $sale->description = $this->request->getBodyParam('description');
+        $sale->apply = $this->request->getBodyParam('apply');
+        $sale->enabled = (bool)$this->request->getBodyParam('enabled');
 
         $dateFields = [
             'dateFrom',
             'dateTo',
         ];
         foreach ($dateFields as $field) {
-            if (($date = $request->getBodyParam($field)) !== false) {
+            if (($date = $this->request->getBodyParam($field)) !== false) {
                 $sale->$field = DateTimeHelper::toDateTime($date) ?: null;
             } else {
                 $sale->$field = $sale->$date;
             }
         }
 
-        $applyAmount = $request->getBodyParam('applyAmount');
-        $sale->sortOrder = $request->getBodyParam('sortOrder');
-        $sale->ignorePrevious = (bool)$request->getBodyParam('ignorePrevious');
-        $sale->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
-        $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
+        $applyAmount = $this->request->getBodyParam('applyAmount');
+        $sale->sortOrder = $this->request->getBodyParam('sortOrder');
+        $sale->ignorePrevious = (bool)$this->request->getBodyParam('ignorePrevious');
+        $sale->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');
+        $sale->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
@@ -154,11 +152,11 @@ class SalesController extends BaseCpController
         }
 
         // Set purchasable conditions
-        if ($sale->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+        if ($sale->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
             $sale->setPurchasableIds([]);
         } else {
             $purchasables = [];
-            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            $purchasableGroups = $this->request->getBodyParam('purchasables') ?: [];
             foreach ($purchasableGroups as $group) {
                 if (is_array($group)) {
                     array_push($purchasables, ...$group);
@@ -168,10 +166,10 @@ class SalesController extends BaseCpController
         }
 
         // Set category conditions
-        if ($sale->allCategories = (bool)$request->getBodyParam('allCategories')) {
+        if ($sale->allCategories = (bool)$this->request->getBodyParam('allCategories')) {
             $sale->setCategoryIds([]);
         } else {
-            $categories = $request->getBodyParam('categories', []);
+            $categories = $this->request->getBodyParam('categories', []);
             if (!$categories) {
                 $categories = [];
             }
@@ -180,10 +178,10 @@ class SalesController extends BaseCpController
 
         // Set user group conditions
         // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
-        if ($sale->allGroups = (bool)$request->getBodyParam('allGroups', true)) {
+        if ($sale->allGroups = (bool)$this->request->getBodyParam('allGroups', true)) {
             $sale->setUserGroupIds([]);
         } else {
-            $groups = $request->getBodyParam('groups', []);
+            $groups = $this->request->getBodyParam('groups', []);
             if (!$groups) {
                 $groups = [];
             }
@@ -216,7 +214,7 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
         if (!Plugin::getInstance()->getSales()->reorderSales($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
         }
@@ -235,8 +233,8 @@ class SalesController extends BaseCpController
         $this->requirePermission('commerce-deleteSales');
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
-        $ids = Craft::$app->getRequest()->getBodyParam('ids');
+        $id = $this->request->getBodyParam('id');
+        $ids = $this->request->getBodyParam('ids');
 
         if ((!$id && empty($ids)) || ($id && !empty($ids))) {
             throw new BadRequestHttpException('id or ids must be specified.');
@@ -279,8 +277,7 @@ class SalesController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
-        $id = $request->getParam('id');
+        $id = $this->request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Product ID is required.'));
@@ -318,8 +315,7 @@ class SalesController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
-        $id = $request->getParam('id');
+        $id = $this->request->getParam('id');
 
         if (!$id) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
@@ -356,9 +352,8 @@ class SalesController extends BaseCpController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
-        $ids = $request->getParam('ids', []);
-        $saleId = $request->getParam('saleId');
+        $ids = $this->request->getParam('ids', []);
+        $saleId = $this->request->getParam('saleId');
 
         if (empty($ids) || !$saleId) {
             return $this->asFailure(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));
@@ -398,8 +393,8 @@ class SalesController extends BaseCpController
         $this->requirePostRequest();
         $this->requirePermission('commerce-editSales');
 
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
-        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+        $ids = $this->request->getRequiredBodyParam('ids');
+        $status = $this->request->getRequiredBodyParam('status');
 
 
         if (empty($ids)) {
@@ -462,8 +457,8 @@ class SalesController extends BaseCpController
         $variables['categories'] = null;
         $categories = [];
 
-        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
-            $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
+        if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
+            $categoryIds = explode('|', $this->request->getParam('categoryIds'));
         } else {
             $categoryIds = $sale->getCategoryIds();
         }
@@ -484,8 +479,8 @@ class SalesController extends BaseCpController
         $variables['purchasables'] = null;
         $purchasables = [];
 
-        if (empty($variables['id']) && Craft::$app->getRequest()->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = explode('|', Craft::$app->getRequest()->getParam('purchasableIds'));
+        if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
+            $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);

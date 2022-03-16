@@ -104,24 +104,23 @@ class GatewaysController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
         $gatewayService = Plugin::getInstance()->getGateways();
 
-        $type = $request->getRequiredParam('type');
-        $gatewayId = $request->getBodyParam('id');
+        $type = $this->request->getRequiredParam('type');
+        $gatewayId = $this->request->getBodyParam('id');
 
         $config = [
             'id' => $gatewayId,
             'type' => $type,
-            'name' => $request->getBodyParam('name'),
-            'handle' => $request->getBodyParam('handle'),
-            'paymentType' => $request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
-            'isFrontendEnabled' => (bool)$request->getParam('isFrontendEnabled'),
-            'settings' => $request->getBodyParam('types.' . $type),
+            'name' => $this->request->getBodyParam('name'),
+            'handle' => $this->request->getBodyParam('handle'),
+            'paymentType' => $this->request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
+            'isFrontendEnabled' => (bool)$this->request->getParam('isFrontendEnabled'),
+            'settings' => $this->request->getBodyParam('types.' . $type),
         ];
 
         // For new gateway avoid NULL value.
-        if (!$request->getBodyParam('id')) {
+        if (!$this->request->getBodyParam('id')) {
             $config['isArchived'] = false;
         }
 
@@ -160,7 +159,7 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         if (!$id || !Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
@@ -177,7 +176,7 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         if (!Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));

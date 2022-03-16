@@ -84,10 +84,10 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $shippingMethod = new ShippingMethod();
 
         // Shared attributes
-        $shippingMethod->id = Craft::$app->getRequest()->getBodyParam('shippingMethodId');
-        $shippingMethod->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingMethod->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $shippingMethod->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
+        $shippingMethod->id = $this->request->getBodyParam('shippingMethodId');
+        $shippingMethod->name = $this->request->getBodyParam('name');
+        $shippingMethod->handle = $this->request->getBodyParam('handle');
+        $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
 
         // Save it
         $success = Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod);
@@ -105,7 +105,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
@@ -122,8 +122,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
     public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
-        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+        $ids = $this->request->getRequiredBodyParam('ids');
+        $status = $this->request->getRequiredBodyParam('status');
 
         if (empty($ids)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));

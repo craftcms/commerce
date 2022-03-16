@@ -174,16 +174,16 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate = new TaxRate();
 
         // Shared attributes
-        $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
-        $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
-        $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
-        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
-        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
-        $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
-        $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
-        $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
+        $taxRate->id = $this->request->getBodyParam('taxRateId');
+        $taxRate->name = $this->request->getBodyParam('name');
+        $taxRate->code = $this->request->getBodyParam('code');
+        $taxRate->include = (bool)$this->request->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)$this->request->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)$this->request->getBodyParam('removeVatIncluded');
+        $taxRate->isVat = (bool)$this->request->getBodyParam('isVat');
+        $taxRate->taxable = $this->request->getBodyParam('taxable');
+        $taxRate->taxCategoryId = $this->request->getBodyParam('taxCategoryId');
+        $taxRate->taxZoneId = $this->request->getBodyParam('taxZoneId');
         $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
@@ -213,7 +213,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
         return $this->asSuccess();

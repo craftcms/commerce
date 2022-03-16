@@ -117,7 +117,7 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-manageOrders');
 
-        $userId = Craft::$app->getRequest()->getParam('customerId');
+        $userId = $this->request->getParam('customerId');
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
 
         if ($userId && !$user) {
@@ -196,7 +196,7 @@ class OrdersController extends Controller
     {
         $this->requirePostRequest();
 
-        $data = Craft::$app->getRequest()->getBodyParam('orderData');
+        $data = $this->request->getBodyParam('orderData');
 
         $orderRequestData = Json::decodeIfJson($data);
 
@@ -260,7 +260,7 @@ class OrdersController extends Controller
     {
         $this->requirePostRequest();
 
-        $orderId = (int)Craft::$app->getRequest()->getRequiredBodyParam('orderId');
+        $orderId = (int)$this->request->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
@@ -286,7 +286,7 @@ class OrdersController extends Controller
      */
     public function actionRefresh(): Response
     {
-        $data = Craft::$app->getRequest()->getRawBody();
+        $data = $this->request->getRawBody();
         $orderRequestData = Json::decodeIfJson($data);
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
@@ -334,14 +334,13 @@ class OrdersController extends Controller
         $this->requirePermission('commerce-manageOrders');
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort');
-        $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search');
+        $page = $this->request->getParam('page', 1);
+        $sort = $this->request->getParam('sort');
+        $limit = $this->request->getParam('per_page', 10);
+        $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
-        $customerId = $request->getQueryParam('customerId');
+        $customerId = $this->request->getQueryParam('customerId');
 
         if (!$customerId) {
             return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
@@ -491,11 +490,10 @@ class OrdersController extends Controller
         $this->requirePermission('commerce-manageOrders');
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort');
-        $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search');
+        $page = $this->request->getParam('page', 1);
+        $sort = $this->request->getParam('sort');
+        $limit = $this->request->getParam('per_page', 10);
+        $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
@@ -557,7 +555,7 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $query = Craft::$app->getRequest()->getQueryParam('query');
+        $query = $this->request->getQueryParam('query');
 
         $limit = 30;
         $customers = [];
@@ -588,10 +586,9 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $id = $request->getRequiredParam('id');
-        $page = $request->getParam('page', 1);
-        $limit = $request->getParam('per_page', 10);
+        $id = $this->request->getRequiredParam('id');
+        $page = $this->request->getParam('page', 1);
+        $limit = $this->request->getParam('per_page', 10);
         $offset = ($page - 1) * $limit;
 
         $user = Craft::$app->getUsers()->getUserById($id);
@@ -626,9 +623,8 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $orderId = $request->getRequiredParam('orderId');
-        $addressId = $request->getRequiredParam('addressId');
+        $orderId = $this->request->getRequiredParam('orderId');
+        $addressId = $this->request->getRequiredParam('addressId');
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
@@ -663,7 +659,7 @@ class OrdersController extends Controller
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $requestAddress = Craft::$app->getRequest()->getRequiredParam('address');
+        $requestAddress = $this->request->getRequiredParam('address');
 
         $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
 
@@ -683,7 +679,7 @@ class OrdersController extends Controller
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $email = Craft::$app->getRequest()->getRequiredParam('email');
+        $email = $this->request->getRequiredParam('email');
 
         try {
             $user = Craft::$app->getUsers()->ensureUserByEmail($email);
@@ -704,8 +700,8 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getParam('id');
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $id = $this->request->getParam('id');
+        $orderId = $this->request->getParam('orderId');
 
         if ($id === null || $orderId === null) {
             return $this->asFailure(Craft::t('commerce', 'Bad Request'));
@@ -758,9 +754,9 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
 
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $addressId = Craft::$app->getRequest()->getParam('addressId');
-        $type = Craft::$app->getRequest()->getParam('addressType');
+        $orderId = $this->request->getParam('orderId');
+        $addressId = $this->request->getParam('addressId');
+        $type = $this->request->getParam('addressType');
 
         // Validate Address Type
         if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
@@ -824,18 +820,17 @@ class OrdersController extends Controller
         $this->requireAcceptsJson();
         $view = $this->getView();
 
-        $request = Craft::$app->getRequest();
-        $orderId = $request->getParam('orderId');
-        $paymentFormData = $request->getParam('paymentForm');
+        $orderId = $this->request->getParam('orderId');
+        $paymentFormData = $this->request->getParam('paymentForm');
 
         $plugin = Plugin::getInstance();
         $order = $plugin->getOrders()->getOrderById($orderId);
         $gateways = $plugin->getGateways()->getAllGateways();
 
-        if ($paymentAmount = $request->getParam('paymentAmount')) {
+        if ($paymentAmount = $this->request->getParam('paymentAmount')) {
             $order->setPaymentAmount($paymentAmount);
         }
-        if ($paymentCurrency = $request->getParam('paymentCurrency')) {
+        if ($paymentCurrency = $this->request->getParam('paymentCurrency')) {
             $order->setPaymentCurrency($paymentCurrency);
         }
 
@@ -908,7 +903,7 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-capturePayment');
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         if ($transaction->canCapture()) {
@@ -944,17 +939,17 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-refundPayment');
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
-        $amount = Craft::$app->getRequest()->getParam('amount');
+        $amount = $this->request->getParam('amount');
         $amount = Localization::normalizeNumber($amount);
-        $note = Craft::$app->getRequest()->getRequiredBodyParam('note');
+        $note = $this->request->getRequiredBodyParam('note');
 
         if (!$transaction) {
             $error = Craft::t('commerce', 'Can not find the transaction to refund');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
@@ -968,7 +963,7 @@ class OrdersController extends Controller
 
         if ($amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);

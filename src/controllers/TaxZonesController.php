@@ -83,11 +83,11 @@ class TaxZonesController extends BaseTaxSettingsController
 
         $taxZone = new TaxAddressZone();
 
-        $taxZone->id = Craft::$app->getRequest()->getBodyParam('taxZoneId');
-        $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $taxZone->setCondition(Craft::$app->getRequest()->getBodyParam('condition'));
+        $taxZone->id = $this->request->getBodyParam('taxZoneId');
+        $taxZone->name = $this->request->getBodyParam('name');
+        $taxZone->description = $this->request->getBodyParam('description');
+        $taxZone->default = (bool)$this->request->getBodyParam('default');
+        $taxZone->setCondition($this->request->getBodyParam('condition'));
 
         if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
             return $this->asModelSuccess(
@@ -116,7 +116,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asSuccess();
@@ -133,8 +133,8 @@ class TaxZonesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
-        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+        $zipCodeFormula = (string)$this->request->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)$this->request->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
         if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {

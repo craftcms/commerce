@@ -7,7 +7,6 @@
 
 namespace craft\commerce\controllers;
 
-use Craft;
 use craft\commerce\Plugin;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
@@ -39,7 +38,7 @@ class WebhooksController extends BaseController
     public function actionProcessWebhook($gatewayId = null): Response
     {
         if ($gatewayId == null) {
-            $gatewayId = Craft::$app->getRequest()->getRequiredParam('gateway');
+            $gatewayId = $this->request->getRequiredParam('gateway');
         }
 
         if (!$gatewayId) {

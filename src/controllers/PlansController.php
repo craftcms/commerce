@@ -95,12 +95,11 @@ class PlansController extends BaseStoreSettingsController
     public function actionSavePlan(): void
     {
         $this->requirePermission('commerce-manageSubscriptions');
-        
-        $request = Craft::$app->getRequest();
+
         $this->requirePostRequest();
 
-        $gatewayId = $request->getBodyParam('gatewayId');
-        $reference = $request->getBodyParam("gateway.$gatewayId.reference", '');
+        $gatewayId = $this->request->getBodyParam('gatewayId');
+        $reference = $this->request->getBodyParam("gateway.$gatewayId.reference", '');
 
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
@@ -110,10 +109,10 @@ class PlansController extends BaseStoreSettingsController
             throw new InvalidConfigException('This gateway does not support subscription plans.');
         }
 
-        $planInformationIds = $request->getBodyParam('planInformation');
+        $planInformationIds = $this->request->getBodyParam('planInformation');
 
         $planService = Plugin::getInstance()->getPlans();
-        $planId = $request->getParam('planId');
+        $planId = $this->request->getParam('planId');
 
         $plan = null;
         if ($planId) {
@@ -127,11 +126,11 @@ class PlansController extends BaseStoreSettingsController
         // Shared attributes
         $plan->id = $planId;
         $plan->gatewayId = $gatewayId;
-        $plan->name = $request->getParam('name');
-        $plan->handle = $request->getParam('handle');
+        $plan->name = $this->request->getParam('name');
+        $plan->handle = $this->request->getParam('handle');
         $plan->planInformationId = is_array($planInformationIds) ? reset($planInformationIds) : null;
         $plan->reference = $reference;
-        $plan->enabled = (bool)$request->getParam('enabled');
+        $plan->enabled = (bool)$this->request->getParam('enabled');
         $plan->planData = $planData;
         $plan->isArchived = false;
 
@@ -159,7 +158,7 @@ class PlansController extends BaseStoreSettingsController
 
         $this->requirePermission('commerce-manageSubscriptions');
 
-        $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $planId = $this->request->getRequiredBodyParam('id');
 
         try {
             Plugin::getInstance()->getPlans()->archivePlanById($planId);
@@ -177,7 +176,7 @@ class PlansController extends BaseStoreSettingsController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
 

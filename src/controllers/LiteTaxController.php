@@ -72,8 +72,8 @@ class LiteTaxController extends BaseStoreSettingsController
         $this->requirePostRequest();
 
         $settings = new LiteTaxSettings();
-        $settings->taxName = Craft::$app->getRequest()->getBodyParam('taxName');
-        $settings->taxInclude = (bool)Craft::$app->getRequest()->getBodyParam('taxInclude');
+        $settings->taxName = $this->request->getBodyParam('taxName');
+        $settings->taxInclude = (bool)$this->request->getBodyParam('taxInclude');
         $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {

@@ -89,15 +89,15 @@ JS;
     public function actionSave(): YiiResponse
     {
         $store = Plugin::getInstance()->getStore()->getStore();
-        if ($locationAddressId = Craft::$app->getRequest()->getBodyParam('locationAddressId')) {
+        if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
             $locationAddress = Address::find()->id($locationAddressId)->one();
             if ($locationAddress) {
                 $store->setLocationAddress($locationAddress);
             }
         }
-        $marketAddressCondition = Craft::$app->getRequest()->getBodyParam('marketAddressCondition') ?? new ZoneAddressCondition();
+        $marketAddressCondition = $this->request->getBodyParam('marketAddressCondition') ?? new ZoneAddressCondition();
         $store->setMarketAddressCondition($marketAddressCondition);
-        $store->setCountries(Craft::$app->getRequest()->getBodyParam('countries', []));
+        $store->setCountries($this->request->getBodyParam('countries', []));
 
         if (!$store->validate() || !Plugin::getInstance()->getStore()->saveStore($store)) {
             return $this->asFailure(

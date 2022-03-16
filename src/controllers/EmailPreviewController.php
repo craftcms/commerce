@@ -35,10 +35,10 @@ class EmailPreviewController extends Controller
     {
         $this->requireAdmin();
 
-        $emailId = Craft::$app->getRequest()->getParam('emailId');
+        $emailId = $this->request->getParam('emailId');
         $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
 
-        $orderNumber = Craft::$app->getRequest()->getParam('number');
+        $orderNumber = $this->request->getParam('number');
 
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();

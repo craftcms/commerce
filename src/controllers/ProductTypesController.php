@@ -106,29 +106,28 @@ class ProductTypesController extends BaseAdminController
             throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
         }
 
-        $request = Craft::$app->getRequest();
         $this->requirePostRequest();
 
         $productType = new ProductType();
 
         // Shared attributes
-        $productType->id = Craft::$app->getRequest()->getBodyParam('productTypeId');
-        $productType->name = Craft::$app->getRequest()->getBodyParam('name');
-        $productType->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $productType->hasDimensions = (bool)Craft::$app->getRequest()->getBodyParam('hasDimensions');
-        $productType->hasProductTitleField = (bool)Craft::$app->getRequest()->getBodyParam('hasProductTitleField');
-        $productType->productTitleFormat = Craft::$app->getRequest()->getBodyParam('productTitleFormat');
-        $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
-        $productType->hasVariantTitleField = $productType->hasVariants && Craft::$app->getRequest()->getBodyParam('hasVariantTitleField', false);
-        $productType->variantTitleFormat = Craft::$app->getRequest()->getBodyParam('variantTitleFormat');
-        $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
-        $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');
+        $productType->id = $this->request->getBodyParam('productTypeId');
+        $productType->name = $this->request->getBodyParam('name');
+        $productType->handle = $this->request->getBodyParam('handle');
+        $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
+        $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
+        $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
+        $productType->hasVariants = (bool)$this->request->getBodyParam('hasVariants');
+        $productType->hasVariantTitleField = $productType->hasVariants && $this->request->getBodyParam('hasVariantTitleField', false);
+        $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
+        $productType->skuFormat = $this->request->getBodyParam('skuFormat');
+        $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
 
         // Site-specific settings
         $allSiteSettings = [];
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $postedSettings = $request->getBodyParam('sites.' . $site->handle);
+            $postedSettings = $this->request->getBodyParam('sites.' . $site->handle);
 
             $siteSettings = new ProductTypeSite();
             $siteSettings->siteId = $site->id;
@@ -183,7 +182,7 @@ class ProductTypesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $productTypeId = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $productTypeId = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getProductTypes()->deleteProductTypeById($productTypeId);
         return $this->asSuccess();

@@ -89,10 +89,10 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $currency = new PaymentCurrency();
 
         // Shared attributes
-        $currency->id = Craft::$app->getRequest()->getBodyParam('currencyId');
-        $currency->iso = Craft::$app->getRequest()->getBodyParam('iso');
-        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate', 1);
-        $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
+        $currency->id = $this->request->getBodyParam('currencyId');
+        $currency->iso = $this->request->getBodyParam('iso');
+        $currency->rate = $this->request->getBodyParam('rate', 1);
+        $currency->primary = (bool)$this->request->getBodyParam('primary');
 
         // Check to see if the primary currency is being changed
         $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
@@ -137,7 +137,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
 
         if (!$currency || $currency->primary) {

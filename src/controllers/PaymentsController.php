@@ -74,8 +74,8 @@ class PaymentsController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
-        $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        $isSiteRequest = $this->request->getIsSiteRequest();
+        $isCpRequest = $this->request->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
         $number = $this->request->getParam('number');
@@ -465,7 +465,7 @@ class PaymentsController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
-        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
+        $hash = $this->request->getParam('commerceTransactionHash');
 
         $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
 
@@ -480,7 +480,7 @@ class PaymentsController extends BaseFrontEndController
             $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
             $this->setFailFlash($errorMessage);
 
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 $data = [
                     'url' => $transaction->order->cancelUrl,
                 ];
@@ -491,7 +491,7 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->cancelUrl);
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             $data = [
                 'url' => $transaction->order->returnUrl,
             ];

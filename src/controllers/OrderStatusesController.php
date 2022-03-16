@@ -80,19 +80,19 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $id = $this->request->getBodyParam('id');
         $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id) : false;
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();
         }
 
-        $orderStatus->name = Craft::$app->getRequest()->getBodyParam('name');
-        $orderStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $orderStatus->color = Craft::$app->getRequest()->getBodyParam('color');
-        $orderStatus->description = Craft::$app->getRequest()->getBodyParam('description');
-        $orderStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $emailIds = Craft::$app->getRequest()->getBodyParam('emails', []);
+        $orderStatus->name = $this->request->getBodyParam('name');
+        $orderStatus->handle = $this->request->getBodyParam('handle');
+        $orderStatus->color = $this->request->getBodyParam('color');
+        $orderStatus->description = $this->request->getBodyParam('description');
+        $orderStatus->default = (bool)$this->request->getBodyParam('default');
+        $emailIds = $this->request->getBodyParam('emails', []);
 
         if (!$emailIds) {
             $emailIds = [];
@@ -120,7 +120,7 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
         if (!Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
@@ -138,7 +138,7 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requireAcceptsJson();
 
-        $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
+        $orderStatusId = $this->request->getRequiredParam('id');
 
         if (!Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
