@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.12 - 2022-03-16
 
 ### Added
 - Added support for PHP 8.1.
