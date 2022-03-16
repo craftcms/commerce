@@ -20,10 +20,12 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
+use craft\commerce\records\Store;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
+use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 use Exception;
@@ -969,6 +971,7 @@ class Install extends Migration
     {
         // The following defaults are not stored in the project config.
         $this->_defaultCurrency();
+        $this->_defaultStore();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
@@ -995,6 +998,16 @@ class Install extends Migration
             'primary' => true,
         ];
         $this->insert(PaymentCurrency::tableName(), $data);
+    }
+
+    /**
+     * Make teh default store market US
+     */
+    private function _defaultStore(): void{
+        $data = [
+            'countries' => Json::encode(['US']),
+        ];
+        $this->insert(Store::tableName(), $data);
     }
 
     /**

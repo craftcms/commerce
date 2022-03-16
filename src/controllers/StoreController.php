@@ -71,6 +71,7 @@ JS;
             'name' => 'countries',
             'values' => $store->getCountries(),
             'options' => $allCountries,
+            'errors' => $store->getErrors('countries'),
             'allowEmptyOption' => true,
         ]);
         $variables = [];
@@ -86,7 +87,7 @@ JS;
      * @return CraftResponse
      * @throws InvalidConfigException
      */
-    public function actionSave(): YiiResponse
+    public function actionSave(): ?YiiResponse
     {
         $store = Plugin::getInstance()->getStore()->getStore();
         if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
@@ -97,7 +98,8 @@ JS;
         }
         $marketAddressCondition = $this->request->getBodyParam('marketAddressCondition') ?? new ZoneAddressCondition();
         $store->setMarketAddressCondition($marketAddressCondition);
-        $store->setCountries($this->request->getBodyParam('countries', []));
+        $countries = $this->request->getBodyParam('countries') ?: [];
+        $store->setCountries($countries);
 
         if (!$store->validate() || !Plugin::getInstance()->getStore()->saveStore($store)) {
             return $this->asFailure(

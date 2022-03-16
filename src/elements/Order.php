@@ -42,6 +42,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
@@ -1412,6 +1413,7 @@ class Order extends Element
         return array_merge(parent::defineRules(), [
             // Address models are valid
             [['billingAddress', 'shippingAddress'], 'validateAddress'],
+            [['billingAddress', 'shippingAddress'], StoreCountryValidator::class, 'skipOnEmpty' => true],
 
             // Are the addresses both being set to each other.
             [
