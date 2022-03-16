@@ -154,7 +154,7 @@ return [
     'Carts' => 'カート',
     'Categories Relationship Type' => 'カテゴリの関係付けタイプ',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => '一致するパーチャサブルを関連付ける必要のあるカテゴリです。カテゴリの一致を無視する場合は空白のままにします。',
-    'Categories that the purchasables must be related to.' => 'セールの適用に必要な、商品に関連付けられたカテゴリ。すべてのカテゴリに適用するには空白のままにします。',
+    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'セールの適用に必要な、商品に関連付けられたカテゴリ。すべてのカテゴリに適用するには空白のままにします。',
     'Categories' => 'カテゴリ',
     'Category Rate Overrides' => 'カテゴリの料金上書き',
     'Centimeters (cm)' => 'センチメートル（cm）',
