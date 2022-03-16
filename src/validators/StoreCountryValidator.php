@@ -24,9 +24,11 @@ class StoreCountryValidator extends Validator
      */
     public function validateAttribute($model, $attribute): void
     {
-        $countriesList = array_keys(Plugin::getInstance()->getStore()->getStore()->getCountriesList());
-        if (!in_array($model->$attribute, $countriesList, false)) {
-            $this->addError($model, $attribute, Craft::t('commerce', 'Country not allowed.'));
+        if ($model->$attribute) {
+            $countriesList = array_keys(Plugin::getInstance()->getStore()->getStore()->getCountriesList());
+            if (!in_array($model->$attribute->countryCode, $countriesList, false)) {
+                $this->addError($model, $attribute, Craft::t('commerce', 'Country not allowed.'));
+            }
         }
     }
 }
