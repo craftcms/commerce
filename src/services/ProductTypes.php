@@ -998,7 +998,7 @@ class ProductTypes extends Component
         if (version_compare($schemaVersion, '4.0.0', '>=')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
-            $query->addSelect('productTypes.variantTitleFormat');
+            $query->addSelect('productTypes.titleFormat');
         }
 
         return $query;
