@@ -174,7 +174,11 @@ class PaymentCurrencies extends Component
     /**
      * Convert an amount between currencies based on rates configured.
      *
+     * @param float $amount
+     * @param string $fromCurrency
+     * @param string $toCurrency
      * @param bool $round
+     * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
      */

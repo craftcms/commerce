@@ -84,7 +84,7 @@ JS;
     }
 
     /**
-     * @return CraftResponse
+     * @return YiiResponse|null
      * @throws InvalidConfigException
      */
     public function actionSave(): ?YiiResponse

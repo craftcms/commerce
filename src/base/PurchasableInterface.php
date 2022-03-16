@@ -81,7 +81,8 @@ interface PurchasableInterface
     /**
      * Returns any validation rules this purchasable required the line item to have.
      *
-     * @return array[]|Validator[]
+     * @param LineItem $lineItem
+     * @return array
      */
     public function getLineItemRules(LineItem $lineItem): array;
 

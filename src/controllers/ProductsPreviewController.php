@@ -89,7 +89,11 @@ class ProductsPreviewController extends Controller
      *
      * @param int $productId
      * @param int|null $site
+     * @return Response|null
      * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ServerErrorHttpException
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionViewSharedProduct(int $productId, ?int $site = null): ?Response
     {

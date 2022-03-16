@@ -379,7 +379,20 @@ class Payments extends Component
     /**
      * Process return from off-site payment.
      *
+     * @param Transaction $transaction
      * @param string|null &$customError
+     * @return bool
+     * @throws CurrencyException
+     * @throws ExitException
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Throwable
+     * @throws TransactionException
+     * @throws \craft\commerce\errors\OrderStatusException
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
      */
     public function completePayment(Transaction $transaction, ?string &$customError): bool
     {

@@ -211,7 +211,7 @@ class TaxCategories extends Component
 
     /**
      * @param int $id
-     * @throws Throwable
+     * @return bool
      * @throws StaleObjectException
      */
     public function deleteTaxCategoryById(int $id): bool
