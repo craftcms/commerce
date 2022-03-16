@@ -31,7 +31,7 @@ class UserOrdersController extends BaseFrontEndController
         $user = Craft::$app->getUser()->getIdentity();
 
         if (!$user) {
-            return $this->asErrorJson(Craft::t('commerce', 'No user authenticated.'));
+            return $this->asFailure(Craft::t('commerce', 'No user authenticated.'));
         }
 
         $orders = $user->getOrders();
