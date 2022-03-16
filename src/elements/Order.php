@@ -1103,16 +1103,16 @@ class Order extends Element
         // Set default addresses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
             $user = $this->getCustomer();
-            if (!$this->shippingAddressId && $user) {
+            if (!$this->getShippingAddress() && $user) {
                 /** @var User|CustomerBehavior $user */
-                if ($primaryShippingAddress = $user->getPrimaryShippingAddress()) {
-                    $this->setShippingAddress($primaryShippingAddress);
+                if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
+                    $this->shippingAddressId = $primaryShippingAddressId;
                 }
             }
 
-            if (!$this->shippingAddressId && $user) {
-                if ($primaryShippingAddress = $user->getPrimaryShippingAddress()) {
-                    $this->setBillingAddress($primaryShippingAddress);
+            if (!$this->getBillingAddress() && $user) {
+                if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
+                    $this->billingAddressId = $primaryBillingAddressId;
                 }
             }
         }
