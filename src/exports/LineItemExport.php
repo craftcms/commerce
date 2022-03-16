@@ -84,13 +84,11 @@ class LineItemExport extends ElementExporter
             'lineitems.uid',
         ];
 
-        $lineItems = (new CraftQuery())
+        return (new CraftQuery())
             ->select($columns)
             ->from(Table::LINEITEMS . ' lineitems')
             ->leftJoin(Table::ORDERS . ' orders', '[[lineitems.orderId]] = [[orders.id]]')
             ->where(['[[lineitems.orderId]]' => $orderIds])
             ->all();
-
-        return $lineItems;
     }
 }

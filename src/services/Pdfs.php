@@ -544,7 +544,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
                 'description',
                 'enabled',
@@ -561,7 +561,5 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
-
-        return $query;
     }
 }

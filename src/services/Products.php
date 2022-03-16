@@ -28,10 +28,7 @@ class Products extends Component
      */
     public function getProductById(int $id, int $siteId = null): ?Product
     {
-        /** @var Product $product */
-        $product = Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
-
-        return $product;
+        return Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
     }
 
     /**

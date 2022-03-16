@@ -849,13 +849,11 @@ class Discounts extends Component
      */
     public function getEmailUsageStatsById(int $id): array
     {
-        $usage = (new Query())
+        return (new Query())
             ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT(email) as emails'])
             ->from(Table::EMAIL_DISCOUNTUSES)
             ->where(['discountId' => $id])
             ->one();
-
-        return $usage;
     }
 
     /**

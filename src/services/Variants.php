@@ -57,10 +57,7 @@ class Variants extends Component
      */
     public function getVariantById(int $variantId, int $siteId = null): ?Variant
     {
-        /** @var Variant|null $variant */
-        $variant = Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
-
-        return $variant;
+        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
     }
 
     /**

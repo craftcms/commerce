@@ -43,10 +43,7 @@ class Currency
     public static function defaultDecimals(): int
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-        $decimals = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
-
-        return $decimals;
+        return Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
     }
 
     /**

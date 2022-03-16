@@ -312,12 +312,7 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
-        if ($result) {
-            $lineItem = new LineItem($result);
-            return $lineItem;
-        }
-
-        return null;
+        return $result ? new LineItem($result) : null;
     }
 
     /**

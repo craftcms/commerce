@@ -873,7 +873,7 @@ class Emails extends Component
      */
     private function _createEmailQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
                 'emails.bcc',
                 'emails.cc',
@@ -892,8 +892,6 @@ class Emails extends Component
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);
-
-        return $query;
     }
 
 

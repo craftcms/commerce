@@ -35,13 +35,11 @@ class SaleType extends ObjectType
             return $type;
         }
 
-        $type = GqlEntityRegistry::createEntity(self::getName(), new self([
+        return GqlEntityRegistry::createEntity(self::getName(), new self([
             'name' => static::getName(),
             'fields' => self::class . '::getFieldDefinitions',
             'description' => '',
         ]));
-
-        return $type;
     }
 
     public static function getFieldDefinitions(): array
