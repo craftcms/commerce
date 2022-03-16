@@ -529,7 +529,13 @@ class Discount extends Model
                             $order = new Order();
                         }
 
-                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, Plugin::getInstance()->getDiscounts()->getOrderConditionParams($order))) {
+                        $fieldsAsArray = $order->getSerializedFieldValues();
+                        $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+                        $orderConditionParams = [
+                            'order' => array_merge($orderAsArray, $fieldsAsArray),
+                        ];
+
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                         }
                     }
