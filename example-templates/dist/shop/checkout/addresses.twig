@@ -106,6 +106,7 @@ Outputs a form for collecting an order’s shipping and billing address.
   </div>
 
   {% js %}
+  let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
   var $fieldsets = document.querySelectorAll('.js-address-fieldset');
 
   if ($fieldsets && $fieldsets.length) {
@@ -164,7 +165,3 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
 {% endblock %}
-
-{% js %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
-{% endjs %}
