@@ -43,56 +43,52 @@ class CraftVariableBehavior extends Behavior
     /**
      * Returns a new OrderQuery instance.
      *
-     * @param mixed $criteria
+     * @param array $criteria
+     * @return OrderQuery
      */
-    public function orders($criteria = null): OrderQuery
+    public function orders(array $criteria = []): OrderQuery
     {
         $query = Order::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
+        Craft::configure($query, $criteria);
         return $query;
     }
 
     /**
      * Returns a new SubscriptionQuery instance.
      *
-     * @param mixed $criteria
+     * @param array $criteria
+     * @return SubscriptionQuery
      */
-    public function subscriptions($criteria = null): SubscriptionQuery
+    public function subscriptions(array $criteria = []): SubscriptionQuery
     {
         $query = Subscription::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
+        Craft::configure($query, $criteria);
         return $query;
     }
 
     /**
      * Returns a new ProductQuery instance.
      *
-     * @param mixed $criteria
+     * @param array $criteria
+     * @return ProductQuery
      */
-    public function products($criteria = null): ProductQuery
+    public function products(array $criteria = []): ProductQuery
     {
         $query = Product::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
+        Craft::configure($query, $criteria);
         return $query;
     }
 
     /**
      * Returns a new VariantQuery instance.
      *
-     * @param mixed $criteria
+     * @param array $criteria
+     * @return VariantQuery
      */
-    public function variants($criteria = null): VariantQuery
+    public function variants(array $criteria = []): VariantQuery
     {
         $query = Variant::find();
-        if ($criteria) {
-            Craft::configure($query, $criteria);
-        }
+        Craft::configure($query, $criteria);
         return $query;
     }
 }
