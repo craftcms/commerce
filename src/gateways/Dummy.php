@@ -255,7 +255,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPlanSettingsHtml(array $params = [])
+    public function getPlanSettingsHtml(array $params = []): string
     {
         return '<input type="hidden" name="reference" value="dummy.reference"/>';
     }
