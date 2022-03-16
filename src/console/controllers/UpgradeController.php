@@ -838,7 +838,7 @@ SQL;
         $done = 0;
         Console::startProgress($done, $totalAddresses);
         foreach ($addresses->each() as $address) {
-            $address = $this->_createAddress($address);
+            $this->_createAddress($address);
             Console::updateProgress($done++, $totalAddresses);
         }
         foreach ($this->_addressIdByV3AddressId as $v3AddressId => $addressId) {
@@ -854,12 +854,9 @@ SQL;
     /**
      * Creates an Address element from previous address data and returns the ID
      */
-    private function _createAddress($data, ?int $ownerId = null): Address
+    private function _createAddress($data): Address
     {
         $address = new Address();
-        if ($ownerId) {
-            $address->ownerId = $ownerId;
-        }
         $address->title = $data['label'] ?: 'Address';
         $address->fullName = $data['firstName'] . ' ' . $data['lastName'];
         $address->addressLine1 = $data['address1'];
