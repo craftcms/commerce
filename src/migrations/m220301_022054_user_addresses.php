@@ -106,7 +106,9 @@ class m220301_022054_user_addresses extends Migration
          */
         $this->dropAllForeignKeysToTable('{{%commerce_customer_discountuses}}');
         $this->dropForeignKeyIfExists('{{%commerce_customer_discountuses}}', ['customerId']);
-        $this->dropIndexIfExists('{{%commerce_customer_discountuses}}', ['customerId', 'discountId']);
+        $this->dropForeignKeyIfExists('{{%commerce_customer_discountuses}}', ['discountId']);
+        $this->dropIndexIfExists('{{%commerce_customer_discountuses}}', ['customerId', 'discountId'], true);
+        $this->dropIndexIfExists('{{%commerce_customer_discountuses}}', ['discountId']);
         $this->renameColumn('{{%commerce_customer_discountuses}}', 'customerId', 'v3customerId'); // move the data
 
         if ($isPgsql) {
