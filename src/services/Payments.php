@@ -283,16 +283,11 @@ class Payments extends Component
 
         try {
             /** @var RequestResponseInterface $response */
-            switch ($defaultAction) {
-                case TransactionRecord::TYPE_PURCHASE:
-                    $response = $gateway->purchase($transaction, $form);
-                    break;
-                case TransactionRecord::TYPE_AUTHORIZE:
-                    $response = $gateway->authorize($transaction, $form);
-                    break;
-                default:
-                    throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.'));
-            }
+            $response = match ($defaultAction) {
+                TransactionRecord::TYPE_PURCHASE => $gateway->purchase($transaction, $form),
+                TransactionRecord::TYPE_AUTHORIZE => $gateway->authorize($transaction, $form),
+                default => throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.')),
+            };
 
             $this->_updateTransaction($transaction, $response);
 
