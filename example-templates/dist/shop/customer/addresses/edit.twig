@@ -34,7 +34,8 @@
 
     <form method="post" action="">
         {{ csrfInput() }}
-        {{ actionInput('elements/save') }}
+        {{ actionInput('users/save-address') }}
+        {{ hiddenInput('userId', currentUser.id) }}
         {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
 
         {% if addressId %}

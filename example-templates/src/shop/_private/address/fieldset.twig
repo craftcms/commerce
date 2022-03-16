@@ -27,7 +27,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
                 checked: attribute(cart, sourceIdName) == address.id,
               }) }}
               <span class="-mt-2 ml-3 mb-2">
-                {{ craft.app.addresses.formatAddress(address)|raw }}
+                {{ address|address }}
               </span>
             </span>
             <span class="block mb-1">
@@ -51,7 +51,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
 
   <div class="js-address-select">
     {% if attribute(cart, name ~ 'Id') %}
-      {% set addressHasErrors = attribute(cart, name).hasErrors() %}
+      {% set addressHasErrors = attribute(cart, name) and attribute(cart, name).hasErrors() %}
     {% else %}
       {% set addressHasErrors = false %}
     {% endif %}

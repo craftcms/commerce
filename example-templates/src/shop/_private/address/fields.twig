@@ -37,7 +37,7 @@ Outputs address form fields for editing an address.
 
   {% set countries = craft.commerce.store.store.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
-  
+
   <div class="my-2">
     <label for="countryCode">
       {{- 'Country'|t }} *
@@ -103,7 +103,7 @@ Outputs address form fields for editing an address.
         {{- 'State'|t -}}
       </label>
 
-      {% set administrativeAreas = craft.app.addresses.getSubdivisionRepository.getList([address.countryCode]) %}
+      {% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
 
       {% if administrativeAreas|length %}
       {% tag 'select' with {
@@ -117,24 +117,13 @@ Outputs address form fields for editing an address.
           selected: address.administrativeArea ?? false,
           text: 'Select state'|t ~ '...'
         }) }}
-        {% for key, option in administrativeAreas %}
-          {# @var option \craft\commerce\addresss\State #}
-          {% set optionValue = (address.administrativeArea ?? '') %}
-          {{ tag('option', {
-            value: key,
-            selected: key == optionValue,
-            text: option
-          }) }}
-        {% endfor %}
       {% endtag %}
       {% endif %}
 
-      {% if not administrativeAreas|length %}
       {{ input('text', 'administrativeArea', address.administrativeArea ?? '', {
         id: 'administrativeArea',
-        class: ['w-full', '[[classes.input]]']
+        class: ['w-full hidden', '[[classes.input]]']
       }) }}
-      {% endif %}
       {{ _self.displayErrors(address, 'administrativeArea') }}
     </div>
 
@@ -175,3 +164,35 @@ Outputs address form fields for editing an address.
     </div>
   </div>
 </div>
+
+{% js %}
+let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+const countrySelect = document.querySelector('select#countryCode');
+console.log(countrySelect);
+countrySelect.addEventListener('change', ev => {
+    console.log('change');
+  const countryCode = ev.target.value;
+  const stateSelect = document.querySelector('select#administrativeArea');
+    console.log(stateSelect);
+  const stateText = document.querySelector('#administrativeArea[type=text]');
+    console.log(stateText);
+  stateSelect.innerHTML = '';
+  if (states[countryCode] && Object.keys(states[countryCode]).length) {
+    stateSelect.classList.remove('hidden');
+    stateSelect.setAttribute('name', 'administrativeArea');
+    stateText.classList.add('hidden');
+    stateText.removeAttribute('name');
+    stateSelect.innerHTML = '<option value="">Select state...</option>';
+    for (const key in states[countryCode]) {
+      stateSelect.innerHTML += `<option value="${key}">${states[countryCode][key]}</option>`;
+    }
+  } else {
+    stateSelect.classList.add('hidden');
+    stateSelect.removeAttribute('name');
+    stateText.classList.remove('hidden');
+    stateText.setAttribute('name', 'administrativeArea');
+  }
+});
+
+countrySelect.dispatchEvent(new Event('change'));
+{% endjs %}
