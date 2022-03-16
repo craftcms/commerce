@@ -16,7 +16,6 @@ use craft\commerce\helpers\Gql as CommerceGqlHelper;
 use craft\commerce\Plugin;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
-use craft\gql\TypeManager;
 
 /**
  * Class ProductType

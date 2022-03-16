@@ -8,9 +8,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;

@@ -24,7 +24,6 @@ use craft\db\Query;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use DateTime;
-use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;

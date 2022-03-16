@@ -15,7 +15,6 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\Db;
-use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
 use yii\db\Schema;

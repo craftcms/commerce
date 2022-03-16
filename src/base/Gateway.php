@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use DateTime;
 
 /**
  * Class Gateway
