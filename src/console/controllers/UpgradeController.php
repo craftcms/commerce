@@ -280,10 +280,6 @@ class UpgradeController extends Controller
                 $this->_migrateShippingZones();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating Shipping Zones…\n");
-                $this->_migrateTaxZones();
-                $this->stdout("\nDone.\n\n");
-
                 $this->stdout("Migrating Tax Zones…\n");
                 $this->_migrateTaxZones();
                 $this->stdout("\nDone.\n\n");
