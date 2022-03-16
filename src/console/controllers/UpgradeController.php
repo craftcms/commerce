@@ -161,7 +161,6 @@ class UpgradeController extends Controller
      */
     private array $_allStatesByV3StateId = [];
     private array $_addressIdByV3AddressId = [];
-    private array $_userIdsByv3CustomerId = [];
 
     private bool $_allowAdminChanges;
     private FieldLayout $_addressFieldLayout;
@@ -565,33 +564,27 @@ EOL
      */
     public function _migrateOrderHistoryUser()
     {
-        $orderHistories = (new Query())
-            ->select(['id', 'v3customerId'])
-            ->from(['{{%commerce_orderhistories}}'])
-            ->limit(null)
-            ->all();
+        $orderHistoriesTable = '{{%commerce_orderhistories}}';
+        $customersTable = '{{%commerce_customers}}';
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
 
-        $done = 0;
-        Console::startProgress($done, count($orderHistories));
-        foreach ($orderHistories as $history) {
-            $userId = null;
-            $v3customerId = $history['v3customerId'];
-            if ($v3customerId) {
-                $userId = $this->_userIdsByv3CustomerId[$v3customerId] ?? null;
-            }
-            // Customer may have been deleted, if so, use the admin user as the history record
-            if ($userId === null) {
-                $userId = User::find()->admin(true)->one()->id;
-            }
-
-            Craft::$app->getDb()->createCommand()->update(Table::ORDERHISTORIES,
-                ['userId' => $userId],
-                ['id' => $history['id']]
-            )->execute();
-
-            Console::updateProgress($done++, count($orderHistories));
+        // Make all address elements with their correct customer owner ID
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $orderHistoriesTable [[oh]]
+    set [[userId]] = [[cu.customerId]]
+    from $customersTable [[cu]]
+    where [[cu.id]] = [[oh.v3customerId]]
+SQL;
+        } else {
+            $sql = <<<SQL
+update $orderHistoriesTable [[oh]]
+inner join $customersTable [[cu]] on
+    [[cu.id]] = [[oh.v3customerId]]
+set [[oh.userId]] = [[cu.customerId]]
+SQL;
         }
-        Console::endProgress(count($orderHistories) . ' order history user migrated.');
+        Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
     /**
@@ -828,21 +821,6 @@ SQL;
      */
     private function _migrateAddresses()
     {
-        $continue = (new Query())
-            ->select('*')
-            ->from(['a' => '{{%addresses}}'])
-            ->limit(null)
-            ->exists();
-
-        if ($continue) {
-            $this->_addressIdByV3AddressId = (new Query())
-                ->select(['id', 'v4addressId'])
-                ->from('{{%commerce_addresses}}')
-                ->pairs();
-            ArrayHelper::removeValue($this->_addressIdByV3AddressId, null); //  should not be null but just in case.
-            return;
-        }
-
         $addresses = (new Query())
             ->select('*')
             ->from(['a' => '{{%commerce_addresses}}'])
@@ -852,14 +830,13 @@ SQL;
         $done = 0;
         Console::startProgress($done, $totalAddresses);
         foreach ($addresses->each() as $address) {
-            $this->_createAddress($address);
-            Console::updateProgress($done++, $totalAddresses);
-        }
-        foreach ($this->_addressIdByV3AddressId as $v3AddressId => $addressId) {
+            $addressElement = $this->_createAddress($address);
+            // Save the old ID for later
             Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
-                ['v4addressId' => $addressId],
-                ['id' => $v3AddressId]
+                ['v4addressId' => $addressElement->id],
+                ['id' => $address['id']]
             )->execute();
+            Console::updateProgress($done++, $totalAddresses);
         }
 
         Console::endProgress($totalAddresses . ' addresses migrated.');
@@ -913,10 +890,6 @@ SQL;
         $address->dateUpdated = DateTimeHelper::toDateTime($data['dateUpdated']);
         Craft::$app->getElements()->saveElement($address, false, false, false);
 
-        // Update global mapping.
-        // Will be used by primary shipping and billing replacement on customers
-        $this->_addressIdByV3AddressId[$data['id']] = $address->id;
-
         return $address;
     }
 
@@ -953,11 +926,6 @@ SQL;
             ->exists();
 
         if (!$exists) {
-            // Still need to populate this as it is used by other functions
-            $this->_userIdsByv3CustomerId = (new Query())
-                ->select(['id', 'customerId'])
-                ->from('{{%commerce_customers}}')
-                ->pairs();
             return;
         }
 
@@ -1001,8 +969,6 @@ SQL;
                 $customer->save(false);
                 $customerId = $customer->id;
             }
-
-            $this->_userIdsByv3CustomerId[$customerId] = $user->id;
 
             Craft::$app->getDb()->createCommand()
                 ->update(Table::CUSTOMERS,
