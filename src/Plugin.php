@@ -12,7 +12,7 @@ use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerBehavior;
-use craft\commerce\behaviors\UserAddressBehavior;
+use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -506,7 +506,7 @@ class Plugin extends BasePlugin
             $address = $event->sender;
             $owner = $address->getOwner();
             if ($owner instanceof UserElement) {
-                $event->behaviors['commerce:address'] = UserAddressBehavior::class;
+                $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
             }
         });
 

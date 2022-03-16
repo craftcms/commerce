@@ -19,8 +19,8 @@
 - Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
 - Added `craft\commerce\events\OrderStatusEmailsEvent`.
 - Added `craft\commerce\base\Zone`.
+- Added `craft\commerce\behaviors\CustomerAddressBehavior`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
-- Added `craft\commerce\behaviors\UserAddressBehavior`.
 - Added `craft\commerce\console\controllers\UpgradeController`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
