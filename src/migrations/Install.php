@@ -1122,7 +1122,7 @@ class Install extends Migration
     private function _dropForeignKeyToAndFromTable($tableName): void
     {
         if ($this->_tableExists($tableName)) {
-            MigrationHelper::dropAllForeignKeysToTable($tableName, $this);
+            $this->dropAllForeignKeysToTable($tableName);
             MigrationHelper::dropAllForeignKeysOnTable($tableName, $this);
         }
     }
