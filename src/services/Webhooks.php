@@ -96,7 +96,7 @@ class Webhooks extends Component
         $response = null;
 
         try {
-            if ($gateway && $gateway->supportsWebhooks()) {
+            if ($gateway->supportsWebhooks()) {
                 $response = $gateway->processWebhook();
             } else {
                 throw new BadRequestHttpException('Gateway not found or does not support webhooks.');
