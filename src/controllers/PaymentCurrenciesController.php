@@ -62,11 +62,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         }
 
         if ($variables['currency']->id) {
-            if ($variables['currency']->primary) {
-                $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
-            } else {
-                $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
-            }
+            $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }

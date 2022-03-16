@@ -136,10 +136,7 @@ class Formulas extends Component
             return $result;
         }
 
-        if (settype($result, $setType)) {
-            return $result;
-        }
-
+        settype($result, $setType);
         return $result;
     }
 
