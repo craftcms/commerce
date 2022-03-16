@@ -485,7 +485,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getDescription(): string
     {
-        return $this->description;
+        return $this->description ?? '';
     }
 
     /**
