@@ -9,7 +9,6 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
-use yii\validators\Validator;
 
 /**
  * Interface Purchasable

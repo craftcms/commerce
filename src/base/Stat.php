@@ -474,5 +474,4 @@ abstract class Stat implements StatInterface
 
         return $return;
     }
-
 }

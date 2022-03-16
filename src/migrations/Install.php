@@ -40,7 +40,6 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-
     /**
      * @inheritdoc
      */
@@ -1003,7 +1002,8 @@ class Install extends Migration
     /**
      * Make the default store market US
      */
-    private function _defaultStore(): void{
+    private function _defaultStore(): void
+    {
         $data = [
             'countries' => Json::encode(['US']),
         ];
