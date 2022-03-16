@@ -1,6 +1,6 @@
-# Release Notes for Craft Commerce 4
+# WIP Release Notes for Craft Commerce 4.0.0
 
-## Unreleased
+## 4.0.0 (Unreleased)
 
 ### Added
 - Customers are now native Craft user elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
