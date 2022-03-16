@@ -84,7 +84,7 @@ class Webhooks extends Component
         }
 
         $transactionHash = $gateway->getTransactionHashFromWebhook();
-        $useMutex = $transactionHash ? true : false;
+        $useMutex = (bool)$transactionHash;
         $transactionLockName = 'commerceTransaction:' . $transactionHash;
         $mutex = Craft::$app->getMutex();
 
