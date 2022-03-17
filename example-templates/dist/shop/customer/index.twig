@@ -22,11 +22,15 @@
     </h1>
     {% if currentUser %}
     <div>
-      <a href="{{ url('/shop/customer/cards') }}" class="lg:mr-6 text-blue-500 hover:text-blue-600">
+      <a href="{{ url('/shop/customer/addresses') }}" class="lg:mr-6 inline-block text-blue-500 hover:text-blue-600">
+        {{- 'Manage Addresses'|t -}}
+      </a>
+
+      <a href="{{ url('/shop/customer/cards') }}" class="lg:mr-6 inline-block text-blue-500 hover:text-blue-600">
         {{- 'Manage Stored Cards'|t -}}
       </a>
 
-      <a href="{{ logoutUrl }}" class="text-blue-500 hover:text-blue-600">
+      <a href="{{ logoutUrl }}" class="inline-block text-blue-500 hover:text-blue-600">
         {{- 'Sign Out'|t -}}
       </a>
     </div>
