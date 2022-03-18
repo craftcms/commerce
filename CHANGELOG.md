@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Beta Unreleased
+
+### Fixed 
+- Fixed a bug where the "New Order" button was not visible.
+
 ## 4.0.0-beta.1 - 2022-03-16
 
 ### Added
