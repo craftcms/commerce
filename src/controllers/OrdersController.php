@@ -96,6 +96,7 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
             'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
+            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
             'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
 
