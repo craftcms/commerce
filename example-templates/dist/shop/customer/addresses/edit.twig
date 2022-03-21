@@ -42,7 +42,8 @@
         {% endif %}
 
         {{ include('shop/_private/address/fields', {
-            address: address
+            address: address,
+            showLabelField: true,
         }) }}
         {{ hiddenInput('ownerId', currentUser.id) }}
 
@@ -66,7 +67,3 @@
         </div>
     </form>
 {% endblock %}
-
-{% js %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
-{% endjs %}

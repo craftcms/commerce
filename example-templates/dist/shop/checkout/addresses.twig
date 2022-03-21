@@ -164,7 +164,3 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
 {% endblock %}
-
-{% js %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
-{% endjs %}
