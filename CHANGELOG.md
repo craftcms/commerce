@@ -2,6 +2,9 @@
 
 ## Beta Unreleased
 
+###
+- Update related sales and discounts on product edit page using detailed promotions permissions.
+
 ### Fixed 
 - Fixed a bug where the "New Order" button was not visible.
 
