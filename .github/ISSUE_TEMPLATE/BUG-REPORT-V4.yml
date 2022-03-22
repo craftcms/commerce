@@ -38,7 +38,7 @@ body:
     validations:
       required: true
   - type: input
-    id: cmsVersion
+    id: commerceVersion
     attributes:
       label: Craft Commerce version
     validations:
