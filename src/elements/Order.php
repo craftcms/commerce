@@ -2531,21 +2531,41 @@ class Order extends Element
         return $amount;
     }
 
+    /**
+     * The total amount of tax adjustments that are additive taxes that affect total price.
+     *
+     * @return float
+     */
     public function getTotalTax(): float
     {
         return $this->_getAdjustmentsTotalByType('tax');
     }
 
+    /**
+     * The total amount of tax adjustments on the order that are included in the price, and do not affect total price.
+     *
+     * @return float
+     */
     public function getTotalTaxIncluded(): float
     {
         return $this->_getAdjustmentsTotalByType('tax', true);
     }
 
+    /**
+     * The total amount of discount adjustments.
+     *
+     * @return float
+     */
     public function getTotalDiscount(): float
     {
         return $this->_getAdjustmentsTotalByType('discount');
     }
 
+    /**
+     * The total amount of shipping adjustments.
+     *
+     * @return float
+     */
     public function getTotalShippingCost(): float
     {
         return $this->_getAdjustmentsTotalByType('shipping');
