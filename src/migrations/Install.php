@@ -373,7 +373,7 @@ class Install extends Migration
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
-            'customerId' => $this->integer()->notNull(),
+            'customerId' => $this->integer(),
             'prevStatusId' => $this->integer(),
             'newStatusId' => $this->integer(),
             'message' => $this->text(),
@@ -1074,7 +1074,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERHISTORIES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERHISTORIES, ['customerId'], Table::CUSTOMERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['prevStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
