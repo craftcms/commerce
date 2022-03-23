@@ -5,6 +5,9 @@
 ### Added
 - Added the `abs`, `filter`, `first`, `map`, and `merge` filters to be allowed in condition formulas. ([#2744](https://github.com/craftcms/commerce/issues/2744))
 
+### Fixed
+- Fixed a bug where a second guest order would not persist an order history record. ([#2727](https://github.com/craftcms/commerce/issues/2727))
+
 ## 3.4.12 - 2022-03-16
 
 ### Added
