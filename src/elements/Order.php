@@ -1092,6 +1092,7 @@ class Order extends Element
 
     /**
      * Ability to cancel email sending to avoid email even being queued.
+     *
      * @var bool
      */
     public bool $suppressEmails = false;
