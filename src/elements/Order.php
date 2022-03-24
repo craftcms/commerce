@@ -1836,11 +1836,18 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $matchingMethods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
-        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        $matchingMethodHandles = ArrayHelper::getColumn($matchingMethods, 'handle');
+        $availableMethods = [];
+        // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
+        $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
+        $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
 
-        $options = [];
+        // Get all regular methods and add them to the list, for use only when the order is complete.
+        if($this->isCompleted){
+            $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle');
+            $methods = ArrayHelper::merge($allShippingMethods, $methods);
+        }
+
+        $availableShippingMethodOptions = [];
         $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
@@ -1855,11 +1862,11 @@ class Order extends Element
 
             // Add all methods if completed, and only the matching methods when it is not completed.
             if ($this->isCompleted || $option->matchesOrder) {
-                $options[$option->handle] = $option;
+                $availableShippingMethodOptions[$option->handle] = $option;
             }
         }
 
-        return $options;
+        return $availableShippingMethodOptions;
     }
 
     /**
