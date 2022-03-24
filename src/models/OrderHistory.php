@@ -51,7 +51,7 @@ class OrderHistory extends Model
     public $newStatusId;
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
     public $customerId;
 
@@ -92,6 +92,10 @@ class OrderHistory extends Model
      */
     public function getCustomer()
     {
+        if ($this->customerId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
     }
 
