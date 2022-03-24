@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.13 - 2022-03-24
 
 ### Changed
 - Condition formulas now support `abs`, `filter`, `first`, `map`, and `merge` filters. ([#2744](https://github.com/craftcms/commerce/issues/2744))
