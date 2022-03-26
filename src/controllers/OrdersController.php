@@ -609,8 +609,8 @@ class OrdersController extends Controller
 
         $addresses = $addressElements->map(function(Address $address) {
             return $address->toArray() + [
-                'html' => Cp::addressCardHtml(address: $address),
-            ];
+                    'html' => Cp::addressCardHtml(address: $address),
+                ];
         });
 
         return $this->asSuccess(data: compact('addresses', 'total'));
@@ -645,8 +645,8 @@ class OrdersController extends Controller
 
         return $this->asSuccess(data: [
             'address' => $address->toArray() + [
-                'html' => Cp::addressCardHtml(address: $address),
-            ],
+                    'html' => Cp::addressCardHtml(address: $address),
+                ],
         ]);
     }
 
@@ -1312,9 +1312,9 @@ class OrdersController extends Controller
             $qty = $lineItemData['qty'] ?? 1;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
-            $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-            if (!$lineItem) {
+            if ($lineItemId) {
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+            } else {
                 try {
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
                 } catch (\Exception $exception) {
@@ -1526,9 +1526,9 @@ class OrdersController extends Controller
     private function _customerToArray(User $customer): array
     {
         return $customer->toArray(expand: ['photo']) + [
-            'cpEditUrl' => $customer->getCpEditUrl(),
-            'totalAddresses' => count($customer->getAddresses()),
-        ];
+                'cpEditUrl' => $customer->getCpEditUrl(),
+                'totalAddresses' => count($customer->getAddresses()),
+            ];
     }
 
     /**
