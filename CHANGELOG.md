@@ -218,6 +218,14 @@
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
 
+## 3.4.13 - 2022-03-24
+
+### Changed
+- Condition formulas now support `abs`, `filter`, `first`, `map`, and `merge` filters. ([#2744](https://github.com/craftcms/commerce/issues/2744))
+
+### Fixed
+- Fixed a bug where some order history records were getting deleted along with guest customer records during garbage collection. ([#2727](https://github.com/craftcms/commerce/issues/2727))
+
 ## 3.4.12 - 2022-03-16
 
 ### Added

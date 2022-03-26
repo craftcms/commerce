@@ -99,7 +99,7 @@ class OrderHistory extends Model
      */
     public function getUser(): ?User
     {
-        if (!$this->userId) {
+        if ($this->userId === null) {
             return null;
         }
 
