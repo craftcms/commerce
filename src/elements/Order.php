@@ -2989,6 +2989,10 @@ class Order extends Element
      */
     public function getHistories(): array
     {
+        if ($this->id === null) {
+            return [];
+        }
+
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
 

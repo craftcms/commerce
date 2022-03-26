@@ -4,6 +4,7 @@
 
 ### Fixed 
 - Fixed a bug where the "New Order" button was not visible.
+- Fixed a PHP error when calling `Order::getHistories()` when an order was new.
 
 ## 4.0.0-beta.1 - 2022-03-16
 
