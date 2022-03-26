@@ -2373,7 +2373,7 @@ class Order extends Element
      */
     public function getTotalPaid(): float
     {
-        if (!$this->id) {
+        if ($this->id === null) {
             return 0;
         }
 
@@ -3012,7 +3012,7 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        if (!$this->id) {
+        if ($this->id === null) {
             $this->_transactions = [];
         }
 
