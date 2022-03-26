@@ -135,7 +135,7 @@ class SalesController extends BaseCpController
         }
 
         $applyAmount = $this->request->getBodyParam('applyAmount');
-        $sale->sortOrder = $this->request->getBodyParam('sortOrder');
+        $sale->sortOrder = (int)$this->request->getBodyParam('sortOrder');
         $sale->ignorePrevious = (bool)$this->request->getBodyParam('ignorePrevious');
         $sale->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
