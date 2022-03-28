@@ -741,6 +741,7 @@ class Customers extends Component
         $orders = (new Query())
             ->select([
                 'id' => 'orders.id',
+                'customerId' => 'orders.customerId',
                 'userId' => 'customers.userId',
             ])
             ->where(['and', ['[[orders.email]]' => $email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
@@ -758,6 +759,16 @@ class Customers extends Component
                         ['customerId' => $customerId],
                         ['id' => $orderId]
                     )->execute();
+
+                // Update order history records relating to old customerId
+                if ($orderRow['customerId']) {
+                    Craft::$app->getDb()->createCommand()
+                        ->update(Table::ORDERHISTORIES,
+                            ['customerId' => $customerId],
+                            ['customerId' => $orderRow['customerId'], 'orderId' => $orderId]
+                        )
+                        ->execute();
+                }
             }
         }
     }

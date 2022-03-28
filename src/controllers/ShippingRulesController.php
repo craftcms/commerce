@@ -8,11 +8,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
-use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use yii\web\BadRequestHttpException;
