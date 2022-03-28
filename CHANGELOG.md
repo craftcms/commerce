@@ -2,13 +2,34 @@
 
 ## Unreleased
 
-### Added
-- Added support for PHP 8.1.
-- Added parent::behaviors() to `\craft\commerce\models\ProductType::behaviors()` to be able to add additional behaviors. ([#2715](https://github.com/craftcms/commerce/issues/2715))
+### Fixed
+- Line items are returned in a consistent order when eager loaded. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+- Removed incorrect behavior description "Leave blank for all categories." Sales promotions setting in Matching Items tab.
+
+## 3.4.13 - 2022-03-24
+
+### Changed
+- Condition formulas now support `abs`, `filter`, `first`, `map`, and `merge` filters. ([#2744](https://github.com/craftcms/commerce/issues/2744))
 
 ### Fixed
+- Fixed a bug where some order history records were getting deleted along with guest customer records during garbage collection. ([#2727](https://github.com/craftcms/commerce/issues/2727))
+
+## 3.4.12 - 2022-03-16
+
+### Added
+- Added support for PHP 8.1.
+
+### Changed
+- `craft\commerce\models\ProductType` now supports `EVENT_DEFINE_BEHAVIORS`. ([#2715](https://github.com/craftcms/commerce/issues/2715))
+
+### Fixed
+<<<<<<< HEAD
 - Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
 - Removed incorrect behavior description "Leave blank for all categories." Sales promotions setting in Matching Items tab.
+=======
+- Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on Edit Product pages.
+- Fixed a bug where `craft\commerce\errors\ProductTypeNotFoundException` had the wrong namespace (`craft\errors`) and wasn’t autoloadable with Composer 2.
+>>>>>>> develop
 
 ## 3.4.11 - 2022-02-09
 
