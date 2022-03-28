@@ -395,7 +395,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
             $fieldLayout->setTabs($tabs);
 
-            Craft::$app->getFields()->saveLayout($fieldLayout);
+            Craft::$app->getFields()->saveLayout($fieldLayout, false);
         }
 
         return $field;
