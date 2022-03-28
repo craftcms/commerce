@@ -2,6 +2,9 @@
 
 ## Beta Unreleased
 
+###
+- Update related sales and discounts on product edit page using detailed promotions permissions.
+
 ### Fixed 
 - Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.
 - Fixed a bug where the "New Order" button was not visible.
