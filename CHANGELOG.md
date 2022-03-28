@@ -2,15 +2,14 @@
 
 ## Beta Unreleased
 
-###
-- Update related sales and discounts on product edit page using detailed promotions permissions.
-
 ### Fixed 
 - Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.
 - Fixed a bug where the "New Order" button was not visible.
 - Fixed a PHP error when calling `Order::getHistories()` when an order was new. ([#2748](https://github.com/craftcms/commerce/issues/2748))
 - Fixed a PHP error when saving a new Sale. ([#2748](https://github.com/craftcms/commerce/issues/2748))
 - Fixed a PHP error when saving an Order on the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
+- Fixed a bug where related sales and discounts on product edit page would show without the correct permissions.
+
 ## 4.0.0-beta.1 - 2022-03-16
 
 ### Added
