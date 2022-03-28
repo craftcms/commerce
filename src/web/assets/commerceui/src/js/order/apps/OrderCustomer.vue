@@ -129,6 +129,7 @@
 
         computed: {
             ...mapGetters([
+                'autoSetNewCartAddresses',
                 'hasCustomer',
                 'hasAddresses',
                 'originalCustomer',
@@ -238,7 +239,7 @@
                     this.customerUrl = customer.url;
                     this.draft = draft;
 
-                    if (!draft.order.isCompleted && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
+                    if (!draft.order.isCompleted && this.autoSetNewCartAddresses && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
                         let billingPromise = true;
                         if (customer.primaryBillingAddressId) {
                             billingPromise = this.getAddressById(customer.primaryBillingAddressId)

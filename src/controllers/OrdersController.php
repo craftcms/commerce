@@ -1051,6 +1051,8 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
+        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode(Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) . ';', View::POS_BEGIN);
+
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
 
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
