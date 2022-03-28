@@ -4,6 +4,7 @@
 
 ### Fixed
 - Line items are returned in a consistent order when eager loaded. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+- Fixed a bug where it wasn't possible to remove an address on the Edit Order page. ([#2745](https://github.com/craftcms/commerce/issues/2745))
 
 ## 3.4.13 - 2022-03-24
 
