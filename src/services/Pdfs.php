@@ -577,8 +577,7 @@ class Pdfs extends Component
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
 
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
+        if (Craft::$app->getDb()->columnExists(Table::PDFS, 'language')) {
             $query->addSelect(['language']);
         }
 

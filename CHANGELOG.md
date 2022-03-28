@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixed
+- Line items are returned in a consistent order when eager loaded. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+
+## 3.4.13 - 2022-03-24
+
 ### Changed
 - Condition formulas now support `abs`, `filter`, `first`, `map`, and `merge` filters. ([#2744](https://github.com/craftcms/commerce/issues/2744))
 
