@@ -2,6 +2,9 @@
 
 ## Beta Unreleased
 
+### Changed
+- Gateway’s `isFrontendEnabled` setting is now environment variable aware.
+
 ### Fixed 
 - Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.
 - Fixed a bug where the "New Order" button was not visible.
