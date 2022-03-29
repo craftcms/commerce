@@ -33,7 +33,7 @@
             missing: gateway is missing ? true : false,
             name: gateway is missing? gateway.expectedType : gateway.displayName()
         },
-        customerEnabled: gateway.isFrontendEnabled ? true : false
+        customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
     }]) %}
 {% endfor %}
 

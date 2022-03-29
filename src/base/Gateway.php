@@ -18,7 +18,7 @@ use craft\helpers\UrlHelper;
  * Class Gateway
  *
  * @property string $cpEditUrl
- * @property bool $isFrontendEnabled
+ * @property bool|string|null $isFrontendEnabled
  * @property bool $isArchived
  * @property null|BasePaymentForm $paymentFormModel
  * @property string $paymentType
@@ -86,6 +86,9 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     {
         $rules = parent::defineRules();
         $rules[] = [['paymentType', 'handle'], 'required'];
+
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
+
         return $rules;
     }
 

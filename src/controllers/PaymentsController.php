@@ -16,6 +16,7 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\App;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -197,7 +198,7 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->isFrontendEnabled && !$isCpRequest)) {
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!App::parseBooleanEnv($gateway->isFrontendEnabled) && !$isCpRequest)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($order->gatewayId) {
