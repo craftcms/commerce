@@ -22,6 +22,7 @@ use craft\errors\DeprecationException;
 use craft\errors\MissingComponentException;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
@@ -110,8 +111,9 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): array
     {
-        // Filter gateways to respect custom config files settings `isFrontendEnabled` to `false`
-        return ArrayHelper::where($this->getAllGateways(), 'isFrontendEnabled', true);
+        return ArrayHelper::where($this->getAllGateways(), function($gateway) {
+            return App::parseBooleanEnv($gateway->isFrontendEnabled);
+        });
     }
 
     /**
@@ -248,7 +250,7 @@ class Gateways extends Component
                 'settings' => $gateway->getSettings(),
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => $gateway->isFrontendEnabled,
+                'isFrontendEnabled' => !str_starts_with($gateway->isFrontendEnabled, '$') ? (bool)$gateway->isFrontendEnabled : $gateway->isFrontendEnabled,
             ];
         }
 
@@ -284,6 +286,10 @@ class Gateways extends Component
             $gatewayRecord->settings = $data['settings'] ?? null;
             $gatewayRecord->sortOrder = $data['sortOrder'];
             $gatewayRecord->paymentType = $data['paymentType'];
+            if ($data['isFrontendEnabled'] === null || is_bool($data['isFrontendEnabled'])) {
+                $data['isFrontendEnabled'] = $data['isFrontendEnabled'] ? '1' : '0';
+            }
+
             $gatewayRecord->isFrontendEnabled = $data['isFrontendEnabled'];
             $gatewayRecord->isArchived = false;
             $gatewayRecord->dateArchived = null;

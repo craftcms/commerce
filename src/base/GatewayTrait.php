@@ -33,9 +33,9 @@ trait GatewayTrait
     public string $paymentType = 'purchase';
 
     /**
-     * @var bool Enabled on the frontend
+     * @var bool|string|null Enabled on the frontend
      */
-    public bool $isFrontendEnabled = true;
+    public bool|string|null $isFrontendEnabled = true;
 
     /**
      * @var bool Archived

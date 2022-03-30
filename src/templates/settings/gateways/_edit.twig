@@ -90,10 +90,12 @@
 
     <hr>
 
-    {{ forms.lightswitchField({
-        label: "Enabled for customers to select during checkout?"|t('commerce'),
+    {{ forms.booleanMenuField({
+      label: "Enabled for customers to select during checkout?"|t('commerce'),
+        id: 'isFrontendEnabled',
         name: 'isFrontendEnabled',
-        on: gateway.isFrontendEnabled,
+        includeEnvVars: true,
+        value: gateway.isFrontendEnabled,
         errors: gateway.getErrors('isFrontendEnabled'),
     }) }}
 
