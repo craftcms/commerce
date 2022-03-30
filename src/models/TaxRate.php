@@ -75,7 +75,7 @@ class TaxRate extends Model
      * @var string The subject to which `$rate` should be applied. Options:
      *             - `price` – line item price
      *             - `shipping` – line item shipping cost
-     *             - `price_shipping` – line item shipping cost
+     *             - `price_shipping` – line item price and shipping cost
      *             - `order_total_shipping` – order total shipping cost
      *             - `order_total_price` – order total taxable price (line item subtotal + total discounts +
      *               total shipping)
@@ -118,7 +118,6 @@ class TaxRate extends Model
      * @var TaxAddressZone|null
      */
     private ?TaxAddressZone $_taxZone = null;
-
 
     /**
      * @inheritdoc
