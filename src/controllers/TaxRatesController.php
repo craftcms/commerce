@@ -182,8 +182,8 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->removeVatIncluded = (bool)$this->request->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)$this->request->getBodyParam('isVat');
         $taxRate->taxable = $this->request->getBodyParam('taxable');
-        $taxRate->taxCategoryId = $this->request->getBodyParam('taxCategoryId');
-        $taxRate->taxZoneId = $this->request->getBodyParam('taxZoneId');
+        $taxRate->taxCategoryId = (int)$this->request->getBodyParam('taxCategoryId') ?: null;
+        $taxRate->taxZoneId = (int)$this->request->getBodyParam('taxZoneId') ?: null;
         $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
