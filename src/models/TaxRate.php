@@ -16,7 +16,7 @@ use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
- * Tax rate model.
+ * Tax Rate model.
  *
  * @property string $cpEditUrl
  * @property string $rateAsPercent
@@ -34,45 +34,51 @@ class TaxRate extends Model
     public ?int $id = null;
 
     /**
-     * @var string|null Name
+     * @var string|null Human-friendly name for the tax rate
      */
     public ?string $name = null;
 
     /**
-     * @var string|null Code
+     * @var string|null Optional code used for internal reference
      * @since 2.2
      */
     public ?string $code = null;
 
     /**
-     * @var float Rate
+     * @var float Rate percentage applied to the taxable subject
      */
     public float $rate = .00;
 
     /**
-     * @var bool Include
+     * @var bool Whether the tax amount should be included in the subject price
      */
     public bool $include = false;
 
     /**
-     * @var bool Remove the included tax rate
+     * @var bool Whether the included tax amount should be removed from disqualified subject prices
      * @since 3.4
      */
     public bool $removeIncluded = false;
 
     /**
-     * @var bool Remove the included vat tax rate
+     * @var bool Whether an included VAT tax amount should be removed from VAT-disqualified subject prices
      * @since 3.4
      */
     public bool $removeVatIncluded = false;
 
     /**
-     * @var bool Is VAT
+     * @var bool Whether this tax rate represents VAT
      */
     public bool $isVat = false;
 
     /**
-     * @var string taxable
+     * @var string The subject to which `$rate` should be applied. Options:
+     *             - `price` – line item price
+     *             - `shipping` – line item shipping cost
+     *             - `price_shipping` – line item shipping cost
+     *             - `order_total_shipping` – order total shipping cost
+     *             - `order_total_price` – order total taxable price (line item subtotal + total discounts +
+     *               total shipping)
      */
     public string $taxable = 'price';
 
@@ -145,16 +151,32 @@ class TaxRate extends Model
         return $fields;
     }
 
+    /**
+     * Returns the tax rate’s control panel edit page URL.
+     *
+     * @return string
+     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
     }
 
+    /**
+     * Returns `$rate` formatted as a percentage.
+     *
+     * @return string
+     */
     public function getRateAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent($this->rate);
     }
 
+    /**
+     * Returns the designated Tax Zone for the rate, or `null` if none has been designated.
+     *
+     * @return TaxAddressZone|null
+     * @throws InvalidConfigException
+     */
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
@@ -164,6 +186,12 @@ class TaxRate extends Model
         return $this->_taxZone;
     }
 
+    /**
+     * Returns the designated Tax Category for the rate, or `null` if none has been designated.
+     *
+     * @return TaxCategory|null
+     * @throws InvalidConfigException
+     */
     public function getTaxCategory(): ?TaxCategory
     {
         if (!isset($this->_taxCategory) && $this->taxCategoryId) {
@@ -174,7 +202,9 @@ class TaxRate extends Model
     }
 
     /**
-     * @return bool Does this tax rate apply everywhere
+     * Returns `true` is this tax rate isn’t limited by zone.
+     *
+     * @return bool Whether this tax rate applies to any zone
      * @throws InvalidConfigException
      */
     public function getIsEverywhere(): bool
