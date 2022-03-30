@@ -4,6 +4,7 @@
 
 ### Fixed
 - Line items are returned in a consistent order when eager loaded. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+- Fixed an issue on Dummy gateway credit card form first name and last name fields not displaying in the control panel transaction modal payment.
 
 ## 3.4.13 - 2022-03-24
 
