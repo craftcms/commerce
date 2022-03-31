@@ -62,7 +62,7 @@
 
         mounted() {
             // Disable non-static custom field tabs
-            const $tabLinks = window.document.querySelectorAll('#tabs a.tab.custom-tab')
+            const $tabLinks = window.document.querySelectorAll('#tabs a.custom-tab')
 
             $tabLinks.forEach(function($tabLink) {
                 if (!$tabLink.classList.contains('static')) {
@@ -71,7 +71,7 @@
             })
 
             // For custom tabs, if the selected tab is dynamic, find corresponding static tab and select it instead.
-            const $selectedTabLink = window.document.querySelector('#tabs a.tab.custom-tab.sel')
+            const $selectedTabLink = window.document.querySelector('#tabs a.custom-tab.sel')
 
             if ($selectedTabLink) {
                 const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')

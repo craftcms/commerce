@@ -22,7 +22,6 @@ class m201102_064231_fix_deletedWithProduct_bool extends Migration
             $this->execute('ALTER TABLE {{%commerce_variants}} ALTER COLUMN [[deletedWithProduct]] DROP DEFAULT;');
             $this->execute('ALTER TABLE {{%commerce_variants}} ALTER [[deletedWithProduct]] TYPE bool USING CASE WHEN [[deletedWithProduct]]::integer=1 THEN TRUE WHEN [[deletedWithProduct]]::integer=0 THEN FALSE ELSE NULL END;');
             $this->execute('ALTER TABLE {{%commerce_variants}} ALTER COLUMN [[deletedWithProduct]] SET DEFAULT NULL;');
-
         } else {
             $this->alterColumn('{{%commerce_variants}}', '[[deletedWithProduct]]', $this->boolean()->null());
         }

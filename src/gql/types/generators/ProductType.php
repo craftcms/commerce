@@ -57,7 +57,7 @@ class ProductType implements GeneratorInterface
                 'name' => $typeName,
                 'fields' => function() use ($productTypeFields) {
                     return $productTypeFields;
-                }
+                },
             ]));
         }
 

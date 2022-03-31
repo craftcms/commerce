@@ -34,7 +34,7 @@ return [
                 'minQty' => null,
                 'maxQty' => null,
             ],
-        ]
+        ],
     ],
     [
         'typeId' => '2001',
@@ -77,7 +77,7 @@ return [
                 'hasUnlimitedStock' => 1,
                 'minQty' => null,
                 'maxQty' => null,
-            ]
-        ]
-    ]
+            ],
+        ],
+    ],
 ];

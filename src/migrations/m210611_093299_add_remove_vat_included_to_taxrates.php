@@ -3,8 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use Craft;
 
 /**
  * m210611_093299_add_remove_vat_included_to_taxrates migration.
@@ -22,7 +20,7 @@ class m210611_093299_add_remove_vat_included_to_taxrates extends Migration
         }
 
         // Wherever we were currently doing an included tax, turn on removeIncluded
-        $columns = ['removeVatIncluded' => true,];
+        $columns = ['removeVatIncluded' => true, ];
         $condition = ['include' => true, 'isVat' => true];
         $this->update($table, $columns, $condition, [], false);
 

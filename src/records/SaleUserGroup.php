@@ -39,7 +39,7 @@ class SaleUserGroup extends ActiveRecord
     public function rules()
     {
         return [
-            [['saleId', 'userGroupId'], 'unique', 'targetAttribute' => ['saleId', 'userGroupId']]
+            [['saleId', 'userGroupId'], 'unique', 'targetAttribute' => ['saleId', 'userGroupId']],
         ];
     }
 

@@ -43,7 +43,6 @@ use yii\db\Schema;
  */
 class VariantQuery extends ElementQuery
 {
-
     /**
      * @inheritdoc
      */
@@ -189,8 +188,8 @@ class VariantQuery extends ElementQuery
      *
      * {# Fetch the {element} with that slug #}
      * {% set {element-var} = {twig-method}
-     *     .sku(requestedSlug|literal)
-     *     .one() %}
+     *   .sku(requestedSlug|literal)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -281,9 +280,9 @@ class VariantQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch default variants #}
-     * {% set {elements-var} = {twig-function}
-     *     .isDefault()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isDefault()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -566,7 +565,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.stock',
             'commerce_variants.hasUnlimitedStock',
             'commerce_variants.minQty',
-            'commerce_variants.maxQty'
+            'commerce_variants.maxQty',
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
@@ -644,7 +643,7 @@ class VariantQuery extends ElementQuery
 
         if ($this->hasUnlimitedStock !== null) {
             $this->subQuery->andWhere([
-                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock
+                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock,
             ]);
         }
 
@@ -723,7 +722,7 @@ class VariantQuery extends ElementQuery
                         ['not', ['dateTo' => null]],
                         ['<=', 'dateFrom', Db::prepareDateForDb($now)],
                         ['>=', 'dateTo', Db::prepareDateForDb($now)],
-                    ]
+                    ],
                 ])
                 ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
@@ -809,7 +808,7 @@ class VariantQuery extends ElementQuery
                             'categoryRelationshipType' => [
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_TARGET,
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_BOTH,
-                            ]
+                            ],
                         ]);
 
                         // Source relationships
@@ -904,9 +903,9 @@ class VariantQuery extends ElementQuery
     {
         if (empty($this->productId)) {
             $this->productId = null;
-        } else if (is_numeric($this->productId)) {
+        } elseif (is_numeric($this->productId)) {
             $this->productId = [$this->productId];
-        } else if (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
+        } elseif (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
             $this->productId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTS])

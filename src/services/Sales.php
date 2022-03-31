@@ -208,7 +208,7 @@ class Sales extends Component
                 'sales.dateUpdated',
                 'sp.purchasableId',
                 'spt.categoryId',
-                'sug.userGroupId'
+                'sug.userGroupId',
             ])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
@@ -474,7 +474,7 @@ class Sales extends Component
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
-                // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
+                // User group condition means we have to have a real user
                 if (null === $user) {
                     return false;
                 }
@@ -563,21 +563,27 @@ class Sales extends Component
             'stopProcessing',
             'ignorePrevious',
             'categoryRelationshipType',
-            'enabled'
+            'enabled',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+        if ($record->allGroups = $model->allGroups) {
+            $model->setUserGroupIds([]);
+        }
+        if ($record->allCategories = $model->allCategories) {
+            $model->setCategoryIds([]);
+        }
+        if ($record->allPurchasables = $model->allPurchasables) {
+            $model->setPurchasableIds([]);
+        }
 
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
                 'sale' => $model,
-                'isNew' => $isNewSale
+                'isNew' => $isNewSale,
             ]));
         }
 
@@ -600,7 +606,7 @@ class Sales extends Component
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord;
+                $relation = new SaleCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();
@@ -625,7 +631,7 @@ class Sales extends Component
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
                     'sale' => $model,
-                    'isNew' => $isNewSale
+                    'isNew' => $isNewSale,
                 ]));
             }
 
@@ -681,7 +687,7 @@ class Sales extends Component
         if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_SALE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_SALE, new SaleEvent([
                 'sale' => $sale,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 

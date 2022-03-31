@@ -21,7 +21,7 @@ class m180601_161904_fix_orderLanguage extends Migration
     public function safeUp()
     {
         $this->update('{{%commerce_orders}}', [
-            'orderLocale' => Craft::$app->language
+            'orderLocale' => Craft::$app->language,
         ], [
             'orderLocale' => null,
         ], [], false);

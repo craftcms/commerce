@@ -7,9 +7,9 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\Localization;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
@@ -147,31 +147,22 @@ class Sale extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['apply'],
-            'in',
-            'range' => [
-                'toPercent',
-                'toFlat',
-                'byPercent',
-                'byFlat'
-            ]
+        return [
+            [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
+            [
+                ['categoryRelationshipType'],
+                'in',
+                'range' => [
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                ],
+            ],
+            [['enabled'], 'boolean'],
+            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' => [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-            ]
-        ];
-        $rules[] = [['enabled'], 'boolean'];
-        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
-
-        return $rules;
     }
 
     /**
@@ -198,11 +189,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        if ($this->applyAmount) {
-            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Localization::formatAsPercentage(-($this->applyAmount ?? 0));
     }
 
     /**

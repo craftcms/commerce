@@ -92,7 +92,7 @@ class TotalOrdersByCountry extends Stat
             ->andWhere(['not', [($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') => $countryIds]])
             ->one();
 
-        if (!$otherCountries || empty($otherCountries)) {
+        if (empty($otherCountries)) {
             return $rows;
         }
 

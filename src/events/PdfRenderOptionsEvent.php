@@ -18,7 +18,6 @@ use yii\base\Event;
  */
 class PdfRenderOptionsEvent extends Event
 {
-
     /**
      * @var Options
      */

@@ -168,14 +168,14 @@ class Product extends Element
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -187,7 +187,7 @@ class Product extends Element
     public function currencyAttributes(): array
     {
         return [
-            'defaultPrice'
+            'defaultPrice',
         ];
     }
 
@@ -300,13 +300,16 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -392,6 +395,7 @@ class Product extends Element
      */
     public function getShippingCategory(): ShippingCategory
     {
+        $shippingCategory = null;
         if ($this->shippingCategoryId) {
             $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
@@ -642,7 +646,7 @@ class Product extends Element
 
             return [
                 'elementType' => Variant::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -670,7 +674,7 @@ class Product extends Element
             self::STATUS_LIVE => Craft::t('commerce', 'Live'),
             self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
         ];
     }
 
@@ -689,7 +693,7 @@ class Product extends Element
             'label' => Craft::t('commerce', 'Enabled'),
             'id' => 'enabled',
             'name' => 'enabled',
-            'on' =>  $this->enabled,
+            'on' => $this->enabled,
         ]);
 
         // Multi site enabled
@@ -698,7 +702,7 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'Enabled for site'),
                 'id' => 'enabledForSite',
                 'name' => 'enabledForSite',
-                'on' =>  $this->enabledForSite,
+                'on' => $this->enabledForSite,
             ]);
         }
 
@@ -935,54 +939,49 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
-        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                if (empty($this->getVariants())) {
-                    $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
-                }
-            },
-            'skipOnEmpty' => false,
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    if (isset($skus[$variant->sku])) {
-                        $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
-                        break;
+        return array_merge(parent::defineRules(), [
+            [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true],
+            [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [
+                ['variants'],
+                function() {
+                    if (empty($this->getVariants())) {
+                        $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
-                    $skus[$variant->sku] = true;
-                }
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                foreach ($this->getVariants() as $i => $variant) {
-                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
-                        $variant->setScenario(self::SCENARIO_LIVE);
+                },
+                'skipOnEmpty' => false,
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    $skus = [];
+                    foreach ($this->getVariants() as $variant) {
+                        if (isset($skus[$variant->sku])) {
+                            $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
+                            break;
+                        }
+                        $skus[$variant->sku] = true;
                     }
-                    if (!$variant->validate()) {
-                        $this->addModelErrors($variant, "variants[$i]");
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants() as $i => $variant) {
+                        if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                            $variant->setScenario(self::SCENARIO_LIVE);
+                        }
+                        if (!$variant->validate()) {
+                            $this->addModelErrors($variant, "variants[$i]");
+                        }
                     }
-                }
-            },
-        ];
-
-        return $rules;
+                },
+            ],
+        ]);
     }
 
     /**
@@ -1060,10 +1059,10 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'All products'),
                 'criteria' => [
                     'typeId' => $productTypeIds,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ],
-                'defaultSort' => ['postDate', 'desc']
-            ]
+                'defaultSort' => ['postDate', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
@@ -1077,9 +1076,9 @@ class Product extends Element
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts
+                    'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
             ];
         }
 
@@ -1106,7 +1105,7 @@ class Product extends Element
                     if ($productType) {
                         $productTypes = [$productType];
                     }
-                } else if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
                     $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
 
                     if ($productType) {
@@ -1120,7 +1119,7 @@ class Product extends Element
 
         // Copy Reference Tag
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => CopyReferenceTag::class
+            'type' => CopyReferenceTag::class,
         ]);
 
         // Restore
@@ -1168,7 +1167,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'title' => ['label' => Craft::t('commerce', 'Product')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -1190,7 +1189,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce', 'Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')],
         ];
     }
 
@@ -1288,8 +1287,8 @@ class Product extends Element
                 'template' => (string)$productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -1308,7 +1307,7 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {

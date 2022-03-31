@@ -73,7 +73,7 @@ class StatesController extends BaseStoreSettingsController
 
         if ($variables['id'] && $variables['state']->id == $variables['id'] && $variables['state']->enabled) {
             $relatedAddressCount = (new Query())
-                ->select(['addresses.id',])
+                ->select(['addresses.id', ])
                 ->from([Table::ADDRESSES . ' addresses'])
                 ->where(['stateId' => $variables['id']])
                 ->count();
@@ -82,7 +82,7 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedShippingZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
@@ -92,13 +92,30 @@ class StatesController extends BaseStoreSettingsController
 
             if (!$variables['showDisableWarning']) {
                 $relatedTaxZoneCount = (new Query())
-                    ->select(['zone_states.id',])
+                    ->select(['zone_states.id', ])
                     ->from([Table::TAXZONE_STATES . ' zone_states'])
                     ->where(['stateId' => $variables['id']])
                     ->count();
 
                 $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
             }
+        }
+
+        $variables['countryId'] = Craft::$app->getRequest()->getQueryParam('countryId', false);
+        $variables['showCountrySelect'] = !(!$variables['state']->countryId && $variables['countryId']);
+
+        $countryId = $variables['state']->countryId ?: $variables['countryId'];
+        $country = $countryId ? Plugin::getInstance()->getCountries()->getCountryById($countryId) : null;
+
+        $url = null;
+        if ($variables['countryId']) {
+            $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['countryId']);
+        } elseif ($variables['state']->countryId) {
+            $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['state']->countryId);
+        }
+
+        if ($country && $url) {
+            $variables['breadcrumb'] = ['label' => $country->name, 'url' => $url];
         }
 
         return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
@@ -130,7 +147,7 @@ class StatesController extends BaseStoreSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'state' => $state
+            'state' => $state,
         ]);
     }
 

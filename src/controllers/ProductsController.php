@@ -151,7 +151,7 @@ class ProductsController extends BaseController
                         'typeId' => $variables['productType']->id,
                         'productId' => $product->id,
                         'siteId' => $product->siteId,
-                    ]
+                    ],
                 ]) . ');');
 
             $variables['showPreviewBtn'] = true;
@@ -164,7 +164,7 @@ class ProductsController extends BaseController
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products-preview/share-product', [
                         'productId' => $product->id,
-                        'siteId' => $product->siteId
+                        'siteId' => $product->siteId,
                     ]);
                 }
             }
@@ -194,7 +194,7 @@ class ProductsController extends BaseController
                 ['id' => $productId]));
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -203,7 +203,7 @@ class ProductsController extends BaseController
 
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete product.'));
             Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product
+                'product' => $product,
             ]);
         }
 
@@ -234,8 +234,8 @@ class ProductsController extends BaseController
         // Get the requested product
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
-        $variants = $request->getBodyParam('variants');
-        $this->enforceProductPermissions($oldProduct);
+        $variants = $request->getBodyParam('variants') ?: [];
+        $this->enforceEditProductPermissions($oldProduct);
         $elementsService = Craft::$app->getElements();
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -277,7 +277,7 @@ class ProductsController extends BaseController
                     // Send the original product back to the template, with any validation errors on the clone
                     $oldProduct->addErrors($clone->getErrors());
                     Craft::$app->getUrlManager()->setRouteParams([
-                        'product' => $oldProduct
+                        'product' => $oldProduct,
                     ]);
 
                     return null;
@@ -323,7 +323,7 @@ class ProductsController extends BaseController
                     $oldProduct->addErrors($product->getErrors());
                 }
                 Craft::$app->getUrlManager()->setRouteParams([
-                    'product' => $oldProduct
+                    'product' => $oldProduct,
                 ]);
 
                 return null;
@@ -342,7 +342,7 @@ class ProductsController extends BaseController
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl()
+                'cpEditUrl' => $product->getCpEditUrl(),
             ]);
         }
 
@@ -364,14 +364,38 @@ class ProductsController extends BaseController
 
     /**
      * @param Product $product
-     * @throws HttpException
-     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
+     */
+    protected function enforceEditProductPermissions(Product $product): void
+    {
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
+     */
+    protected function enforceDeleteProductPermissions(Product $product): void
+    {
+        if (!$product->getIsDeletable()) {
+            throw new ForbiddenHttpException('User is not permitted to delete this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        $this->enforceEditProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
     }
-
 
     /**
      * @param array $variables
@@ -403,7 +427,7 @@ class ProductsController extends BaseController
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);
-        } else if (!empty($variables['productTypeId'])) {
+        } elseif (!empty($variables['productTypeId'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeById($variables['productTypeId']);
         }
 
@@ -467,7 +491,6 @@ class ProductsController extends BaseController
                 $variables['product']->taxCategoryId = key($taxCategories);
                 $shippingCategories = $variables['productType']->getShippingCategories();
                 $variables['product']->shippingCategoryId = key($shippingCategories);
-                $variables['product']->typeId = $variables['productType']->id;
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;
@@ -477,7 +500,7 @@ class ProductsController extends BaseController
         }
 
         if ($variables['product']->id) {
-            $this->enforceProductPermissions($variables['product']);
+            $this->enforceEditProductPermissions($variables['product']);
             $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
             $variables['enabledSiteIds'] = [];

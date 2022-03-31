@@ -166,8 +166,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .user(currentUser)
-     *     .all() %}
+     *   .user(currentUser)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -185,7 +185,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->userId = (new Query())
                 ->select(['id'])
                 ->from(['{{%users}}'])
@@ -214,8 +214,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch Supporter plan subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .plan('supporter')
-     *     .all() %}
+     *   .plan('supporter')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -232,7 +232,7 @@ class SubscriptionQuery extends ElementQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
                 ->from([Table::PLANS])
@@ -261,8 +261,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .userId(currentUser.id)
-     *     .all() %}
+     *   .userId(currentUser.id)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -375,9 +375,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch trialed subscriptions #}
-     * {% set {elements-var} = {twig-function}
-     *     .onTrial()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .onTrial()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -414,8 +414,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekFromNow = date('+7 days')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .nextPaymentDate("< #{aWeekFromNow}")
-     *     .all() %}
+     *   .nextPaymentDate("< #{aWeekFromNow}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -443,9 +443,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch canceled subscriptions #}
-     * {% set {elements-var} = {twig-function}
-     *     .isCanceled()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isCanceled()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -482,8 +482,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateCanceled(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateCanceled(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -511,9 +511,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch started subscriptions #}
-     * {% set {elements-var} = {twig-function}
-     *     .hasStarted()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .hasStarted()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -539,9 +539,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch suspended subscriptions #}
-     * {% set {elements-var} = {twig-function}
-     *     .isSuspended()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isSuspended()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -577,8 +577,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateSuspended(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateSuspended(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -606,9 +606,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired subscriptions #}
-     * {% set {elements-var} = {twig-function}
-     *     .isExpired()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isExpired()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -646,8 +646,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateExpired(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateExpired(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -683,9 +683,9 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired {elements} #}
-     * {% set {elements-var} = {twig-function}
-     *     .status('expired')
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .status('expired')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -790,7 +790,7 @@ class SubscriptionQuery extends ElementQuery
 
         if ($this->onTrial === true) {
             $this->subQuery->andWhere($this->_getTrialCondition(true));
-        } else if ($this->onTrial === false) {
+        } elseif ($this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 

@@ -124,7 +124,7 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite'
+            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -158,13 +158,13 @@ class ShippingRules extends Component
                     'condition' => $ruleCategory->condition,
                     'perItemRate' => $ruleCategory->perItemRate,
                     'weightRate' => $ruleCategory->weightRate,
-                    'percentageRate' => $ruleCategory->percentageRate
+                    'percentageRate' => $ruleCategory->percentageRate,
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
-                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
+                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW,
                 ]);
             }
 
@@ -287,7 +287,7 @@ class ShippingRules extends Component
                 'percentageRate',
                 'minRate',
                 'maxRate',
-                'isLite'
+                'isLite',
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);

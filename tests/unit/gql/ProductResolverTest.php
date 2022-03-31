@@ -37,7 +37,7 @@ class ProductResolverTest extends Unit
                 'scope' => [
                     'productTypes.type-1-uid:read',
                     'productTypes.type-2-uid:read',
-                ]
+                ],
             ])]
         );
     }
@@ -59,12 +59,12 @@ class ProductResolverTest extends Unit
         $mockElement = $this->make(
             ProductElement::class, [
                 'postDate' => new \DateTime(),
-                '__get' => function ($property) {
+                '__get' => function($property) {
                     return in_array($property, ['plainTextField', 'typeface'], false) ? 'ok' : $this->$property;
                 },
-                'getType' => function () use ($typeHandle) {
+                'getType' => function() use ($typeHandle) {
                     return $this->make(ProductType::class, ['handle' => $typeHandle]);
-                }
+                },
             ]
         );
 
@@ -83,13 +83,13 @@ class ProductResolverTest extends Unit
     public function _runTest($element, string $gqlTypeClass, string $propertyName, $result)
     {
         $resolveInfo = $this->make(ResolveInfo::class, ['fieldName' => $propertyName]);
-        $resolve = function () use ($gqlTypeClass, $element, $resolveInfo) {
+        $resolve = function() use ($gqlTypeClass, $element, $resolveInfo) {
             return $this->make($gqlTypeClass)->resolveWithDirectives($element, [], null, $resolveInfo);
         };
 
         if (is_callable($result)) {
             self::assertEquals($result($element), $resolve());
-        } else if ($result === true) {
+        } elseif ($result === true) {
             self::assertEquals($element->$propertyName, $resolve());
             self::assertNotNull($element->$propertyName);
         } else {
@@ -103,7 +103,9 @@ class ProductResolverTest extends Unit
     public function productFieldTestDataProvider(): array
     {
         return [
-            [ProductGqlType::class, 'productTypeHandle', function ($source) { return $source->getType()->handle;}],
+            [ProductGqlType::class, 'productTypeHandle', function($source) {
+                return $source->getType()->handle;
+            }],
             [ProductGqlType::class, 'plainTextField', true],
             [ProductGqlType::class, 'notAField', false],
         ];

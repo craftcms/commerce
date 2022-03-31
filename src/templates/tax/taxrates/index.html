@@ -24,8 +24,8 @@
 {% endblock %}
 
 {% set tableData = [] %}
-{% for taxRate in taxRates %}
-    {% set tableData = tableData|merge([{
+{% for taxRate in taxRates -%}
+    {%- set tableData = tableData|merge([{
         id: taxRate.id,
         title: taxRate.name|t('site'),
         url: url('commerce/tax/taxrates/'~taxRate.id),
@@ -35,8 +35,8 @@
         vat: taxRate.isVat ? true : false,
         zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name|t('site')|e, url: taxRate.taxZone.cpEditUrl },
         category: taxRate.taxCategory ? { label: taxRate.taxCategory.name|t('site')|e, url: taxRate.taxCategory.cpEditUrl } : false,
-    }]) %}
-{% endfor %}
+    }]) -%}
+{%- endfor %}
 
 {% js %}
 var columns = [

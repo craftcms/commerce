@@ -133,7 +133,6 @@ class Discount extends Component implements AdjusterInterface
         }
 
         if ($this->_spreadBaseOrderDiscountsToLineItems) {
-
             $priceByLineItem = [];
             foreach ($this->_order->getLineItems() as $lineItem) {
                 $lineItemHashId = spl_object_hash($lineItem);
@@ -322,7 +321,7 @@ class Discount extends Component implements AdjusterInterface
         $event = new DiscountAdjustmentsEvent([
             'order' => $this->_order,
             'discount' => $discount,
-            'adjustments' => $adjustments
+            'adjustments' => $adjustments,
         ]);
 
         $this->trigger(self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);

@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -49,14 +50,14 @@ class ShippingMethodOption extends ShippingMethod
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -79,7 +80,11 @@ class ShippingMethodOption extends ShippingMethod
      */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
+        return $this->_order->currency;
     }
 
     /**

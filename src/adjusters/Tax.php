@@ -137,7 +137,7 @@ class Tax extends Component implements AdjusterInterface
 
                 if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                     $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
-                } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                     $orderTaxableAmount = $this->_order->getTotalShippingCost();
                 }
 
@@ -145,7 +145,7 @@ class Tax extends Component implements AdjusterInterface
 
                 if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                     $this->_costRemovedForOrderTotalPrice += $amount;
-                } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
                     $this->_costRemovedForOrderShipping += $amount;
                 }
 
@@ -314,7 +314,6 @@ class Tax extends Component implements AdjusterInterface
      */
     private function _validateEuBusinessTaxId(): bool
     {
-
         if (!$this->_address) {
             return false;
         }
@@ -330,23 +329,23 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validBusinessTaxId) {
-            $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
+            $validBusinessTaxId = $this->validateVatNumber($this->_address->businessTaxId);
         }
 
         if ($validBusinessTaxId) {
             Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
             return true;
-        } else {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
-            return false;
         }
+
+        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
+        return false;
     }
 
     /**
      * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    protected function validateVatNumber($businessVatId): bool
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
@@ -363,7 +362,6 @@ class Tax extends Component implements AdjusterInterface
     private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
-
             $this->_vatValidator = new Validator();
         }
 
@@ -376,7 +374,7 @@ class Tax extends Component implements AdjusterInterface
      */
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
     {
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
         $adjustment->name = Craft::t('site', $rate->name);
         $adjustment->description = $rate->rate * 100 . '%';

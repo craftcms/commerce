@@ -47,7 +47,7 @@ class m180402_161902_email_discount_usage extends Migration
         $columns = [
             'uses',
             'email',
-            'discountId'
+            'discountId',
         ];
 
         $this->batchInsert('{{%commerce_email_discountuses}}', $columns, $rows);

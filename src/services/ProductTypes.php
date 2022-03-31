@@ -12,6 +12,7 @@ use craft\base\Field;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\events\ProductTypeEvent;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
@@ -19,7 +20,6 @@ use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\FieldEvent;
@@ -258,7 +258,7 @@ class ProductTypes extends Component
                     'siteId',
                     'uriFormat',
                     'hasUrls',
-                    'template'
+                    'template',
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
@@ -340,7 +340,7 @@ class ProductTypes extends Component
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
-            'siteSettings' => []
+            'siteSettings' => [],
         ];
 
         $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
@@ -440,7 +440,8 @@ class ProductTypes extends Component
 
             // Product title fields
             $hasProductTitleField = $data['hasProductTitleField'];
-            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';
+            ;
             if ($productTypeRecord->productTitleFormat != $productTitleFormat || $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
                 $shouldResaveProducts = true;
             }
@@ -470,9 +471,9 @@ class ProductTypes extends Component
                 $layout->id = $productTypeRecord->fieldLayoutId;
                 $layout->type = Product::class;
                 $layout->uid = key($data['productFieldLayouts']);
-                $fieldsService->saveLayout($layout);
+                $fieldsService->saveLayout($layout, false);
                 $productTypeRecord->fieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->fieldLayoutId) {
+            } elseif ($productTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->fieldLayoutId);
                 $productTypeRecord->fieldLayoutId = null;
@@ -484,9 +485,9 @@ class ProductTypes extends Component
                 $layout->id = $productTypeRecord->variantFieldLayoutId;
                 $layout->type = Variant::class;
                 $layout->uid = key($data['variantFieldLayouts']);
-                $fieldsService->saveLayout($layout);
+                $fieldsService->saveLayout($layout, false);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
-            } else if ($productTypeRecord->variantFieldLayoutId) {
+            } elseif ($productTypeRecord->variantFieldLayoutId) {
                 // Delete the variant field layout
                 $fieldsService->deleteLayoutById($productTypeRecord->variantFieldLayoutId);
                 $productTypeRecord->variantFieldLayoutId = null;
@@ -585,7 +586,7 @@ class ProductTypes extends Component
                                     'siteId' => $sitesNowWithoutUrls,
                                 ])
                             ->execute();
-                    } else if (!empty($sitesWithNewUriFormats)) {
+                    } elseif (!empty($sitesWithNewUriFormats)) {
                         foreach ($productIds as $productId) {
                             App::maxPowerCaptain();
 
@@ -616,8 +617,8 @@ class ProductTypes extends Component
                         'siteId' => '*',
                         'status' => null,
                         'typeId' => $productTypeRecord->id,
-                        'enabledForSite' => false
-                    ]
+                        'enabledForSite' => false,
+                    ],
                 ]));
             }
         } catch (Throwable $e) {
@@ -952,7 +953,7 @@ class ProductTypes extends Component
 
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
-                'productTypes.uid'
+                'productTypes.uid',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
     }

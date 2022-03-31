@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\adjusters;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
@@ -41,6 +42,8 @@ class TaxTest extends Unit
     {
         parent::_before();
 
+        // start with fresh cache
+        Craft::$app->getCache()->flush();
         $this->pluginInstance = Plugin::getInstance();
         $this->originalEdition = $this->pluginInstance->edition;
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
@@ -65,7 +68,7 @@ class TaxTest extends Unit
 
         $address = new Address();
         $address->countryId = $this->pluginInstance->getCountries()->getCountryByIso($addressData['countryIso'])->id;
-        $address->businessTaxId = isset($addressData['businessTaxId']) ? $addressData['businessTaxId'] : null;
+        $address->businessTaxId = $addressData['businessTaxId'] ?? null;
 
         $order->setShippingAddress($address);
 
@@ -75,7 +78,6 @@ class TaxTest extends Unit
                 'getIsEverywhere' => !isset($item['zone']),
                 'getTaxZone' => function() use ($item) {
                     if (isset($item['zone'])) {
-
                         $countryIds = [];
                         foreach ($item['zone']['countryIsos'] as $iso) {
                             $countryIds[] = $this->pluginInstance->getCountries()->getCountryByIso($iso)->id;
@@ -88,7 +90,7 @@ class TaxTest extends Unit
                     }
 
                     return null;
-                }
+                },
             ]);
 
             $rate->name = $item['name'];
@@ -113,7 +115,10 @@ class TaxTest extends Unit
         $order->setLineItems($lineItems);
 
         $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => $taxRates
+            'getTaxRates' => $taxRates,
+            'validateVatNumber' => function($vatNum) use ($addressData) {
+                return $addressData['_validateVat'] ?? false;
+            },
         ]);
 
         $adjustments = $taxAdjuster->adjust($order);
@@ -142,12 +147,12 @@ class TaxTest extends Unit
         return [
 
             // Example 1) 10% included tax
-            [
+            'tax-10pct-included' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryIso' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -158,9 +163,9 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['AU']
-                        ]
-                    ]
+                            'countryIsos' => ['AU'],
+                        ],
+                    ],
                 ],
                 [
                     'adjustments' => [
@@ -168,23 +173,23 @@ class TaxTest extends Unit
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10%'
-                        ]
+                            'description' => '10%',
+                        ],
                     ],
                     'orderTotalPrice' => 100,
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 9.09,
-                ]
+                ],
             ],
 
             // Example 2) 10% not included
-            [
+            'tax-10pct-not-included' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryIso' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -193,9 +198,9 @@ class TaxTest extends Unit
                         'rate' => 0.1,
                         'include' => false,
                         'isVat' => false,
-                        'taxable' => 'order_total_price'
+                        'taxable' => 'order_total_price',
                         // zone is everywhere
-                    ]
+                    ],
                 ],
                 [
                     'adjustments' => [
@@ -203,24 +208,24 @@ class TaxTest extends Unit
                             'type' => 'tax',
                             'amount' => 10,
                             'included' => false,
-                            'description' => '10%'
-                        ]
+                            'description' => '10%',
+                        ],
                     ],
                     'orderTotalPrice' => 110,
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 10,
                     'orderTotalTaxIncluded' => 0,
-                ]
+                ],
             ],
 
             // Example 3) 10% included, 2 line items, isVat
-            [
+            'tax-10pct-included-2-line-items' => [
                 [ // Address
-                    'countryIso' => 'NL'
+                    'countryIso' => 'NL',
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1], // 100 total price
-                    ['salePrice' => 50, 'qty' => 2] // 100 total price
+                    ['salePrice' => 50, 'qty' => 2], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -229,9 +234,9 @@ class TaxTest extends Unit
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
-                        'taxable' => 'price_shipping'
+                        'taxable' => 'price_shipping',
                         // zone is everywhere
-                    ]
+                    ],
                 ],
                 [
                     'adjustments' => [
@@ -239,29 +244,29 @@ class TaxTest extends Unit
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10%'
+                            'description' => '10%',
                         ],
                         [
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10%'
-                        ]
+                            'description' => '10%',
+                        ],
                     ],
                     'orderTotalPrice' => 200,
                     'orderTotalQty' => 3,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 18.18,
-                ]
+                ],
             ],
 
             // Example 4) 10% tax that does not apply due to zone mismatch
-            [
+            'tax-zone-mismatch-1' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryIso' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -272,9 +277,9 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['NL'] // Not AU on purpose to create mismatch
-                        ]
-                    ]
+                            'countryIsos' => ['NL'], // Not AU on purpose to create mismatch
+                        ],
+                    ],
                 ],
                 [
                     'adjustments' => [],
@@ -282,16 +287,16 @@ class TaxTest extends Unit
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
-                ]
+                ],
             ],
 
             // Example 5) 10% tax that gets removed due to zone mismatch
-            [
+            'tax-zone-mismatch-2' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryIso' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -303,9 +308,9 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['NL'] // Not AU on purpose to create mismatch
-                        ]
-                    ]
+                            'countryIsos' => ['NL'], // Not AU on purpose to create mismatch
+                        ],
+                    ],
                 ],
                 [
                     'adjustments' => [
@@ -313,24 +318,25 @@ class TaxTest extends Unit
                             'type' => 'discount',
                             'amount' => -9.09,
                             'included' => false,
-                            'description' => '10%'
+                            'description' => '10%',
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
-                ]
+                ],
             ],
 
             // Example 6) 10% tax that gets removed due to valid VAT ID
-            [
+            'tax-valid-vat-1' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -342,9 +348,9 @@ class TaxTest extends Unit
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
-                        ]
-                    ]
+                            'countryIsos' => ['CZ'], // Not AU on purpose to create mismatch
+                        ],
+                    ],
                 ],
                 [
                     'adjustments' => [
@@ -352,24 +358,25 @@ class TaxTest extends Unit
                             'type' => 'discount',
                             'amount' => -9.09,
                             'included' => false,
-                            'description' => '10%'
+                            'description' => '10%',
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
-                ]
+                ],
             ],
 
             // Example 7) 10% included tax that does not apply since it has a valid tax ID, but does not remove
-            [
+            'tax-valid-vat-2' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -381,9 +388,9 @@ class TaxTest extends Unit
                         'removeVatIncluded' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
-                        ]
-                    ]
+                            'countryIsos' => ['CZ'], // Not AU on purpose to create mismatch
+                        ],
+                    ],
                 ],
                 [
                     'adjustments' => [],
@@ -391,8 +398,48 @@ class TaxTest extends Unit
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
-                ]
-            ]
+                ],
+            ],
+
+            // Example 6) 10% tax that does not get removed due to an invalid VAT ID
+            'tax-invalid-vat-1' => [
+                [ // Address
+                    'countryIso' => 'CZ',
+                    'businessTaxId' => 'CZ99999999',
+                    '_validateVat' => false,
+                ],
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'CZ Vat',
+                        'code' => 'CZVAT',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => true,
+                        'removeVatIncluded' => true,
+                        'taxable' => 'order_total_price',
+                        'zone' => [
+                            'countryIsos' => ['CZ'], // Not AU on purpose to create mismatch
+                        ],
+                    ],
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'description' => '10%',
+                            'included' => true,
+                            'amount' => 9.09,
+                        ],
+                    ],
+                    'orderTotalPrice' => 100,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 9.09,
+                ],
+            ],
         ];
     }
 }

@@ -142,7 +142,7 @@ class PlansController extends BaseStoreSettingsController
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'plan' => $plan
+            'plan' => $plan,
         ]);
     }
 

@@ -51,7 +51,7 @@ class Donation extends Purchasable
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -64,7 +64,7 @@ class Donation extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
@@ -75,7 +75,7 @@ class Donation extends Purchasable
     {
         $fields = parent::fields();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        // TODO Remove this when we require Craft 3.5 and the behaviour can support the define fields event
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -83,6 +83,29 @@ class Donation extends Purchasable
         return $fields;
     }
 
+    /**
+     * @return array
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['sku'], 'trim'];
+        $rules[] = [['sku'], 'required', 'when' => function($model) {
+            /** @var self $model */
+            return $model->availableForPurchase && $model->enabled;
+        }];
+
+        return $rules;
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
@@ -246,8 +269,8 @@ class Donation extends Purchasable
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -293,7 +316,7 @@ class Donation extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**

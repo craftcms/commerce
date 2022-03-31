@@ -30,7 +30,8 @@ class AddressTest extends Unit
     /**
      *
      */
-    public function testGetCpEditUrl() {
+    public function testGetCpEditUrl()
+    {
         $address = new Address(['id' => '1001']);
         self::assertSame('http://test.craftcms.test/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
     }
@@ -43,7 +44,8 @@ class AddressTest extends Unit
      * @param $errors
      * @throws \yii\base\InvalidConfigException
      */
-    public function testValidateState($addressModel, $hasErrors, $errors) {
+    public function testValidateState($addressModel, $hasErrors, $errors)
+    {
         $countries = $this->make(Countries::class, [
             'getCountryById' => function($id) {
                 return new Country([
@@ -84,11 +86,12 @@ class AddressTest extends Unit
      * @param $validateBusinessTaxIdAsVatId
      * @throws \yii\base\InvalidConfigException
      */
-    public function testValidateBusinessTaxId($businessTaxId, $hasErrors, $errors, $validateBusinessTaxIdAsVatId) {
+    public function testValidateBusinessTaxId($businessTaxId, $hasErrors, $errors, $validateBusinessTaxIdAsVatId)
+    {
         $cache = $this->make(DummyCache::class, [
             'exists' => static function($key) {
                 return $key == 'commerce:validVatId:exists';
-            }
+            },
         ]);
 
         Craft::$app->set('cache', $cache);
@@ -99,7 +102,7 @@ class AddressTest extends Unit
         $validator = $this->make(Validator::class, ['validateExistence' => function($val) {
             return $val == 'GB000472631';
         }]);
-        $addressModel = Stub::make(new Address, ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);
+        $addressModel = Stub::make(new Address(), ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);
 
         $addressModel->businessTaxId = $businessTaxId;
         $addressModel->validateBusinessTaxId(null, null, null);
@@ -135,7 +138,8 @@ class AddressTest extends Unit
      * @param $country
      * @throws \yii\base\InvalidConfigException
      */
-    public function testGetCountry($address, $country) {
+    public function testGetCountry($address, $country)
+    {
         $countries = $this->make(Countries::class, [
             'getCountryById' => function($id) {
                 if ($id == 9000) {
@@ -143,7 +147,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('countries', $countries);
@@ -158,7 +162,8 @@ class AddressTest extends Unit
      * @param $countryIso
      * @throws \Exception
      */
-    public function testGetCountryIso($countryId, $countryIso) {
+    public function testGetCountryIso($countryId, $countryIso)
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getCountry' => $countryId === 9000 ? new Country(['iso' => 'XX']) : null,
@@ -177,7 +182,8 @@ class AddressTest extends Unit
      * @param $stateText
      * @throws \Exception
      */
-    public function testGetStateText($stateId, $stateName, $stateText) {
+    public function testGetStateText($stateId, $stateName, $stateText)
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getState' => $stateId === 1111 ? new State(['name' => 'Oregon']) : null,
@@ -196,7 +202,8 @@ class AddressTest extends Unit
      * @param $abbreviationText
      * @throws \Exception
      */
-    public function testGetAbbreviationText($stateId, $abbreviationText) {
+    public function testGetAbbreviationText($stateId, $abbreviationText)
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getState' => $stateId === 1111 ? new State(['abbreviation' => 'OR']) : null,
@@ -214,7 +221,8 @@ class AddressTest extends Unit
      * @param $state
      * @throws \yii\base\InvalidConfigException
      */
-    public function testGetState($address, $state) {
+    public function testGetState($address, $state)
+    {
         $states = $this->make(States::class, [
             'getStateById' => function($id) {
                 if ($id == 1111) {
@@ -222,7 +230,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('states', $states);
@@ -236,7 +244,8 @@ class AddressTest extends Unit
      * @param Address $address
      * @param $stateValue
      */
-    public function testGetStateValue($address, $stateValue) {
+    public function testGetStateValue($address, $stateValue)
+    {
         self::assertSame($stateValue, $address->getStateValue());
     }
 
@@ -248,7 +257,8 @@ class AddressTest extends Unit
      * @param $stateName
      * @throws \yii\base\InvalidConfigException
      */
-    public function testSetStateValue($value, $stateId, $stateName) {
+    public function testSetStateValue($value, $stateId, $stateName)
+    {
         $states = $this->make(States::class, [
             'getStateById' => function($id) {
                 if ($id == 1111) {
@@ -256,7 +266,7 @@ class AddressTest extends Unit
                 }
 
                 return null;
-            }
+            },
         ]);
 
         Plugin::getInstance()->set('states', $states);
@@ -334,7 +344,7 @@ class AddressTest extends Unit
                     'custom2' => 'Marty',
                     'custom3' => 'George',
                     'custom4' => 'Biff',
-                ]
+                ],
             ],
             [['address1' => 'Sanitize <br> this'], true, ['address1' => 'Sanitize &lt;br&gt; this']],
         ];
@@ -449,7 +459,7 @@ class AddressTest extends Unit
             [new Address(['stateId' => 1111]), 1111],
             [new Address(['stateId' => 1111, 'stateName' => 'Test State']), 1111],
             [new Address(['stateName' => 'Test State']), 'Test State'],
-            [Stub::make(new Address, ['_stateValue' => 'Test State']), 'Test State'],
+            [Stub::make(new Address(), ['_stateValue' => 'Test State']), 'Test State'],
         ];
     }
 

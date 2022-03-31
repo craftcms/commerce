@@ -78,8 +78,8 @@ class CustomerAddressesTest extends Unit
         $this->request->setBodyParams([
             'address' => [
                 'id' => $address->id,
-                'address1' => '1 Apple Park Way'
-            ]
+                'address1' => '1 Apple Park Way',
+            ],
         ]);
 
         $response = $this->controller->runAction('save');

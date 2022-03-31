@@ -54,7 +54,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'priceChange',
                 'attribute' => 'lineItems',
                 'message' => 'The Price of the product changed.',
-            ]
+            ],
         ]);
         $this->order->addNotice($firstNotice);
 
@@ -71,8 +71,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'lineItemRemoved',
                 'attribute' => 'lineItems',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         $this->order->addNotice($secondNotice);
@@ -94,8 +94,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'priceChange',
                 'attribute' => 'lineItems',
-                'message' => 'The Price of the product changed.'
-            ]
+                'message' => 'The Price of the product changed.',
+            ],
         ]);
 
         $secondNotice = Craft::createObject([
@@ -103,8 +103,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'lineItemRemoved',
                 'attribute' => 'lineItems',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         $this->order->addNotices([$firstNotice, $secondNotice, $firstNotice, $secondNotice]);
@@ -122,8 +122,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'couponNotValid',
                 'attribute' => 'couponCode',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         // Test clearing by attribute

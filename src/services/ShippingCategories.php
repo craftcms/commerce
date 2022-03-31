@@ -131,7 +131,6 @@ class ShippingCategories extends Component
                 throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
                     ['id' => $shippingCategory->id]));
             }
-
         } else {
             $record = new ShippingCategoryRecord();
         }
@@ -214,7 +213,7 @@ class ShippingCategories extends Component
                 'unique' => true,
                 'status' => null,
                 'enabledForSite' => false,
-            ]
+            ],
         ]));
     }
 

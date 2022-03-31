@@ -11,26 +11,43 @@
     {{ redirectInput('commerce/store-settings/donation') }}
     {{ csrfInput() }}
 
-    {{ forms.textField({
-        first: true,
-        label: "SKU"|t('commerce'),
-        instructions: "The unique SKU of the donation purchasable."|t('commerce'),
-        id: 'sku',
-        name: 'sku',
-        class: 'code',
-        value: donation.sku,
-        errors: donation.getErrors('sku'),
-        autofocus: true,
-        required: true,
-    }) }}
+    {% tag 'div' with {
+        id: 'donation-available-sku',
+        class: not donation.enabled ? 'hidden' : '',
+    } %}
+        {{ forms.lightSwitchField({
+            label: 'Available for purchase?'|t('commerce'),
+            id: 'availableForPurchase',
+            name: 'availableForPurchase',
+            first: true,
+            value: 1,
+            on: donation.availableForPurchase,
+            errors: donation.getErrors('availableForPurchase'),
+            toggle: 'sku-field',
+        }) }}
 
-    {{ forms.checkboxField({
-        label: "Available for purchase?"|t('commerce'),
-        id: 'availableForPurchase',
-        name: 'availableForPurchase',
+        {{ forms.textField({
+            fieldClass: [not donation.availableForPurchase ? 'hidden' : '']|filter,
+            label: "SKU"|t('commerce'),
+            instructions: "The unique SKU of the donation purchasable."|t('commerce'),
+            id: 'sku',
+            name: 'sku',
+            class: 'code',
+            value: donation.sku,
+            errors: donation.getErrors('sku'),
+            autofocus: true,
+            required: true,
+        }) }}
+    {% endtag %}
+
+    {{ forms.lightSwitchField({
+        label: 'Enabled'|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
         value: 1,
-        checked: donation.availableForPurchase,
-        errors: donation.getErrors('availableForPurchase')
+        on: donation.enabled,
+        errors: donation.getErrors('enabled'),
+        toggle: 'donation-available-sku',
     }) }}
 
     <div class="buttons">

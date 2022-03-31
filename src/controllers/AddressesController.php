@@ -114,7 +114,7 @@ class AddressesController extends BaseCpController
 
                 throw new NotFoundHttpException('Address not found.');
             }
-        } else if ($id) {
+        } elseif ($id) {
             $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$id);
         }
 
@@ -161,7 +161,7 @@ class AddressesController extends BaseCpController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => Craft::t('commerce', 'Couldn’t save address.'),
-                    'errors' => $address->errors
+                    'errors' => $address->errors,
                 ]);
             }
 
@@ -224,7 +224,7 @@ class AddressesController extends BaseCpController
 
         if ($type == 'billing') {
             $customer->primaryBillingAddressId = $address->id;
-        } else if ($type == 'shipping') {
+        } elseif ($type == 'shipping') {
             $customer->primaryShippingAddressId = $address->id;
         }
 

@@ -154,20 +154,29 @@ class LineItems extends Component
      */
     public function getAllLineItemsByOrderId(int $orderId): array
     {
-        if (!isset($this->_lineItemsByOrderId[$orderId])) {
-            $results = $this->_createLineItemQuery()
-                ->where(['orderId' => $orderId])
-                ->orderBy('dateCreated DESC')
-                ->all();
+        if (isset($this->_lineItemsByOrderId[$orderId])) {
+            return $this->_lineItemsByOrderId[$orderId];
+        }
 
-            $this->_lineItemsByOrderId[$orderId] = [];
+        // Memoization in this service for line items was not designed
+        // for large exports of hundreds of orders' line items in long-running requests.
+        // So, we will clear the internal cache if over 25 orders have been memoized
+        // TODO remove memoization in 4.0 and leave it to the caller.
+        if (count($this->_lineItemsByOrderId) > 25) {
+            $this->_lineItemsByOrderId = [];
+        }
 
-            foreach ($results as $result) {
-                $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $lineItem = new LineItem($result);
-                $lineItem->typecastAttributes();
-                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
-            }
+        $results = $this->_createLineItemQuery()
+            ->where(['orderId' => $orderId])
+            ->all();
+
+        $this->_lineItemsByOrderId[$orderId] = [];
+
+        foreach ($results as $result) {
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            $this->_lineItemsByOrderId[$orderId][] = $lineItem;
         }
 
         return $this->_lineItemsByOrderId[$orderId];
@@ -192,7 +201,7 @@ class LineItems extends Component
             ->where([
                 'orderId' => $orderId,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
             ->one();
 
@@ -487,6 +496,7 @@ class LineItems extends Component
                 'dateUpdated',
                 'uid',
             ])
-            ->from([Table::LINEITEMS . ' lineItems']);
+            ->from([Table::LINEITEMS . ' lineItems'])
+            ->orderBy('dateCreated DESC');
     }
 }

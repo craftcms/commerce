@@ -240,7 +240,7 @@ class Addresses extends Component
             ->where(['isStoreLocation' => true])
             ->one();
 
-        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address(['isStoreLocation' => true]);
 
         return $this->_storeLocationAddress;
     }
@@ -272,7 +272,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
 
@@ -323,7 +323,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
 
@@ -354,7 +354,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -364,7 +364,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -457,11 +457,11 @@ class Addresses extends Component
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
                     '[[addresses.isStoreLocation]]' => false,
-                ]
+                ],
             ]);
 
         $event = new PurgeAddressesEvent([
-            'addressesQuery' => $addresses
+            'addressesQuery' => $addresses,
         ]);
 
         //Raise the beforePurgeDeleteAddresses event
@@ -470,7 +470,7 @@ class Addresses extends Component
         }
 
         if ($event->isValid) {
-            foreach ($addresses->batch(500) as $address) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
                 $ids = ArrayHelper::getColumn($address, 'id', false);
 
                 if (!empty($ids)) {
@@ -530,7 +530,6 @@ class Addresses extends Component
         }
 
         foreach ($orders as $key => $order) {
-
             if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
                 $order->setShippingAddress($addresses[$order['shippingAddressId']]);
             }

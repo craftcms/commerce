@@ -3,7 +3,6 @@
 
 namespace craft\commerce\web\panel;
 
-
 use yii\debug\Panel;
 
 class CommercePanel extends Panel

@@ -8,7 +8,7 @@
     "commerce",
     "yii2"
   ],
-  "homepage": "https://craftcommerce.com",
+  "homepage": "https://craftcms.com/commerce",
   "license": "proprietary",
   "support": {
     "email": "support@craftcms.com",
@@ -18,26 +18,14 @@
     "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
-    "craftcms/cms": "^3.7.0-beta.5",
+    "craftcms/cms": "^3.7.25",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "craft\\commerce\\": "src/",
-      "craftcommercetests\\fixtures\\": "tests/fixtures/"
-    }
-  },
-  "extra": {
-    "handle": "commerce",
-    "version": "3.4.0-beta.1",
-    "name": "Craft Commerce",
-    "description": "Create beautifully bespoke ecommerce experiences",
-    "developer": "Pixel & Tonic",
-    "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
     "vlucas/phpdotenv": "^3.4",
@@ -47,9 +35,29 @@
     "codeception/module-asserts": "^1.0.0",
     "codeception/module-rest": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0"
+    "codeception/module-yii2": "^1.0.0",
+    "craftcms/ecs": "dev-main",
+    "craftcms/phpstan": "dev-main",
+    "craftcms/redactor": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "craft\\commerce\\": "src/",
+      "craftcommercetests\\fixtures\\": "tests/fixtures/"
+    }
+  },
+  "extra": {
+    "handle": "commerce",
+    "version": "3.4.13",
+    "name": "Craft Commerce",
+    "description": "Create beautifully bespoke ecommerce experiences",
+    "developer": "Pixel & Tonic",
+    "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "scripts": {
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix",
+    "phpstan": "phpstan --memory-limit=1G",
     "testunit": [
       "Composer\\Config::disableProcessTimeout",
       "codecept run unit"
@@ -59,6 +67,10 @@
     "sort-packages": true,
     "platform": {
       "php": "7.2.5"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
     }
   }
 }

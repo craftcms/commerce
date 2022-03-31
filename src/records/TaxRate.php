@@ -42,7 +42,7 @@ class TaxRate extends ActiveRecord
 
     const ORDER_TAXABALES = [
         self::TAXABLE_ORDER_TOTAL_PRICE,
-        self::TAXABLE_ORDER_TOTAL_SHIPPING
+        self::TAXABLE_ORDER_TOTAL_SHIPPING,
     ];
 
 

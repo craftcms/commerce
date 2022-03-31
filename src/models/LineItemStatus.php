@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use DateTime;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -84,7 +85,7 @@ class LineItemStatus extends Model
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         return $behaviors;
@@ -101,13 +102,11 @@ class LineItemStatus extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-
-        return $rules;
+        return [
+            [['name', 'handle'], 'required'],
+        ];
     }
 
     /**
@@ -123,7 +122,7 @@ class LineItemStatus extends Model
      */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->name);
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
     }
 
     /**

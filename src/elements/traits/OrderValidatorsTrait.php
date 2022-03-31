@@ -96,7 +96,6 @@ trait OrderValidatorsTrait
 
         // We need to have a customer ID and an address ID
         if ($customer && $customer->id && $address && $address->id) {
-
             $anotherOrdersAddress = false;
 
             // Is another customer related to this address?
@@ -172,7 +171,7 @@ trait OrderValidatorsTrait
                         'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
                             'explanation' => $explanation,
                         ]),
-                    ]
+                    ],
                 ])
             );
             $this->$attribute = null;

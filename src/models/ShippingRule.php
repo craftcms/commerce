@@ -197,61 +197,52 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
+        return [
             [
-                'name',
-                'methodId',
-                'priority',
-                'enabled',
-                'minQty',
-                'maxQty',
-                'minTotal',
-                'minMaxTotalType',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
-                'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
-                'maxRate',
-            ], 'required'
-        ];
-
-        $rules[] = [
+                [
+                    'name',
+                    'methodId',
+                    'priority',
+                    'enabled',
+                    'minQty',
+                    'maxQty',
+                    'minTotal',
+                    'minMaxTotalType',
+                    'maxTotal',
+                    'minWeight',
+                    'maxWeight',
+                    'baseRate',
+                    'perItemRate',
+                    'weightRate',
+                    'percentageRate',
+                    'minRate',
+                    'maxRate',
+                ],
+                'required',
+            ],
+            [['perItemRate', 'weightRate', 'percentageRate'], 'number'],
+            [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true],
+            [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
             [
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-            ], 'number'
-        ];
-
-        $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
-
-        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
-        $rules[] = [
-            'orderConditionFormula', function($attribute, $params, $validator) {
-                if($this->{$attribute}) {
-                    $order = Order::find()->one();
-                    if (!$order) {
-                        $order = new Order();
+                'orderConditionFormula',
+                function($attribute, $params, $validator) {
+                    if ($this->{$attribute}) {
+                        $order = Order::find()->one();
+                        if (!$order) {
+                            $order = new Order();
+                        }
+                        $orderConditionParams = [
+                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
+                        ];
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
+                            $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                        }
                     }
-                    $orderConditionParams = [
-                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                    ];
-                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
-                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
-                    }
-                }
-            }
+                },
+            ],
         ];
-
-        return $rules;
     }
 
     /**
@@ -277,7 +268,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             $fieldsAsArray = $order->getSerializedFieldValues();
             $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
             $orderConditionParams = [
-                'order' => array_merge($orderAsArray, $fieldsAsArray)
+                'order' => array_merge($orderAsArray, $fieldsAsArray),
             ];
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
@@ -292,7 +283,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             }
         }
 
-        $wholeOrderNonShippable = $nonShippableItems > 0 && count($lineItems) == count($nonShippableItems);
+        $wholeOrderNonShippable = count($nonShippableItems) > 0 && count($lineItems) == count($nonShippableItems);
 
         if ($wholeOrderNonShippable) {
             return false;
@@ -314,7 +305,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        $this->getShippingRuleCategories();
         $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
         foreach ($floatFields as $field) {
             $this->$field *= 1;

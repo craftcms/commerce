@@ -28,6 +28,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -267,13 +268,13 @@ class Variant extends Purchasable
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -286,7 +287,7 @@ class Variant extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
@@ -363,25 +364,23 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['sku'], 'string', 'max' => 255];
-        $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price', 'weight', 'width', 'height', 'length'], 'number'];
-        $rules[] = [
-            ['stock'],
-            'required',
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->hasUnlimitedStock;
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-        $rules[] = [['stock'], 'number'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['sku'], 'string', 'max' => 255],
+            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            [
+                ['stock'],
+                'required',
+                'when' => static function($model) {
+                    /** @var Variant $model */
+                    return !$model->hasUnlimitedStock;
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [['stock'], 'number'],
+        ]);
     }
 
     /**
@@ -605,7 +604,7 @@ class Variant extends Purchasable
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
             'product' => $this->getProduct(),
-            'fields' => $productFields
+            'fields' => $productFields,
         ]);
 
         // Allow plugins to modify Product fields to be fetched
@@ -633,12 +632,12 @@ class Variant extends Purchasable
 
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => $data['product']
+                'fieldData' => $data['product'],
             ]);
         } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => []
+                'fieldData' => [],
             ]);
         }
 
@@ -653,7 +652,7 @@ class Variant extends Purchasable
         $variantFields = [];
         $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent([
             'variant' => $this,
-            'fields' => $variantFields
+            'fields' => $variantFields,
         ]);
 
         // Allow plugins to modify fields to be fetched
@@ -679,7 +678,7 @@ class Variant extends Purchasable
 
         $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
             'variant' => $this,
-            'fieldData' => $variantData
+            'fieldData' => $variantData,
         ]);
 
         // Allow plugins to modify captured Variant data
@@ -792,7 +791,7 @@ class Variant extends Purchasable
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
-                }
+                },
             ],
             [
                 'qty',
@@ -818,7 +817,7 @@ class Variant extends Purchasable
                     }
                 },
             ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false]
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
     }
 
@@ -864,7 +863,7 @@ class Variant extends Purchasable
                 'criteria' => [
                     'status' => null,
                     'enabledForSite' => false,
-                ]
+                ],
             ];
         }
 
@@ -889,7 +888,7 @@ class Variant extends Purchasable
                         'type' => 'lineItemSalePriceChanged',
                         'attribute' => "lineItems.{$lineItem->id}.qty",
                         'message' => $message,
-                    ]
+                    ],
                 ]);
                 $order->addNotice($notice);
                 $lineItem->qty = $this->stock;
@@ -1128,7 +1127,6 @@ class Variant extends Purchasable
         $this->updateSku($product);
 
         if ($this->getScenario() === self::SCENARIO_DEFAULT) {
-
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
             }
@@ -1281,7 +1279,7 @@ class Variant extends Purchasable
             'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
             'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
             'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities')
+            'minQty' => Craft::t('commerce', 'Quantities'),
         ];
     }
 
@@ -1341,11 +1339,16 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->getSkuAsText();
+                return Html::encode($this->getSkuAsText());
             }
             case 'product':
             {
-                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
+                $product = $this->getProduct();
+                if (!$product) {
+                    return '';
+                }
+
+                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
             }
             case 'price':
             {

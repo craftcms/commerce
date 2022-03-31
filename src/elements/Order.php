@@ -67,46 +67,46 @@ use yii\log\Logger;
 /**
  * Order or Cart model.
  *
- * @property OrderAdjustment[] $adjustments
- * @property string $email the email for this order
- * @property LineItem[] $lineItems
- * @property Address|null $billingAddress
- * @property Address|null $shippingAddress
+ * @property OrderAdjustment[] $adjustments The order’s adjustments
+ * @property string $email The order’s email address
+ * @property LineItem[] $lineItems The order’s line items
+ * @property Address|null $billingAddress The order’s billing address
+ * @property Address|null $shippingAddress The order’s shipping address
  * @property PaymentSource|null $paymentSource
- * @property string $paymentCurrency the payment currency for this order
- * @property string $recalculationMode the mode of recalculation.
+ * @property string $paymentCurrency The payment currency for this order
+ * @property string $recalculationMode The mode of recalculation
  * @property string $origin
  * @property-read ShippingMethod[] $availableShippingMethods
- * @property-read bool $activeCart Is the current order the same as the active cart
- * @property-read Customer $customer
- * @property-read Gateway $gateway
- * @property-read OrderStatus $orderStatus
- * @property-read float $outstandingBalance The balance amount to be paid on the Order
+ * @property-read bool $activeCart Whether the order is the same as the active cart
+ * @property-read Customer $customer The order’s customer
+ * @property-read Gateway $gateway The order’s payment gateway
+ * @property-read OrderStatus $orderStatus The order status
+ * @property-read float $outstandingBalance The balance amount to be paid on the order
  * @property-read ShippingMethodInterface $shippingMethod
  * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
- * @property-read string $pdfUrl the URL to the order’s PDF invoice
- * @property-read float|int $adjustmentSubtotal the total of adjustments made to order
+ * @property-read string $pdfUrl The URL to the order’s PDF invoice
+ * @property-read float|int $adjustmentSubtotal The total of adjustments made to order
  * @property-read float $adjustmentsTotal
- * @property-read OrderHistory[] $histories order histories
- * @property-read bool $isPaid if the order is paid
- * @property-read bool $isUnpaid if the order is not paid
- * @property-read float $itemTotal
- * @property-read int $itemSubtotal the total of all line item subtotals
- * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
- * @property-read bool $isEmpty the order has no line items with any qty
- * @property-read null|Transaction $lastTransaction The last transaction on the order.
- * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
- * @property-read string $paidStatus the order’s paid status
- * @property-read string $paidStatusHtml the order’s paid status as HTML
+ * @property-read OrderHistory[] $histories Order histories
+ * @property-read bool $isPaid Whether the order is paid
+ * @property-read bool $isUnpaid Whether the order is not paid
+ * @property-read float $itemTotal The sum of each line item’s total
+ * @property-read int $itemSubtotal The total of all line item subtotals
+ * @property-read bool $isActiveCart Whether the order has the same ID as the current session’s cart
+ * @property-read bool $isEmpty Whether the order has no line items with any qty
+ * @property-read null|Transaction $lastTransaction The last transaction on the order
+ * @property-read Transaction[] $nestedTransactions Order transactions that have child transactions set on them
+ * @property-read string $paidStatus The order’s paid status
+ * @property-read string $paidStatusHtml The order’s paid status as HTML
  * @property-read string $shortNumber
- * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
- * @property-read float $total
- * @property-read float $totalPrice
- * @property-read int $totalSaleAmount the total sale amount
+ * @property-read float $totalPaid The total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $total The sum of `itemSubtotal` and `adjustmentsTotal`
+ * @property-read float $totalPrice The total order price with a minimum enforced by the `minimumTotalPriceStrategy` setting
+ * @property-read int $totalSaleAmount The total sale amount
  * @property-read float $totalTaxablePrice
- * @property-read int $totalQty the total number of items
+ * @property-read int $totalQty The total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
  * @property-read string $customerLinkHtml
@@ -927,12 +927,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->shippingAddress) {
-     * echo $order->shippingAddress->firstName;
+     *     echo $order->shippingAddress->firstName;
      * }
      * ```
      * ```twig
      * {% if order.shippingAddress %}
-     * {{ order.shippingAddress.firstName }}
+     *   {{ order.shippingAddress.firstName }}
      * {% endif %}
      * ```
      */
@@ -945,12 +945,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->billingAddress) {
-     * echo $order->billingAddress->firstName;
+     *     echo $order->billingAddress->firstName;
      * }
      * ```
      * ```twig
      * {% if order.billingAddress %}
-     * {{ order.billingAddress.firstName }}
+     *   {{ order.billingAddress.firstName }}
      * {% endif %}
      * ```
      */
@@ -975,12 +975,12 @@ class Order extends Element
      * ---
      * ```php
      * foreach ($order->getLineItems() as $lineItem) {
-     * echo $lineItem->description';
+     *     echo $lineItem->description';
      * }
      * ```
      * ```twig
      * {% for lineItem in order.lineItems %}
-     * {{ lineItem.description }}
+     *   {{ lineItem.description }}
      * {% endfor %}
      * ```
      */
@@ -993,12 +993,12 @@ class Order extends Element
      * ---
      * ```php
      * foreach ($order->getAdjustments() as $adjustment) {
-     * echo $adjustment->amount';
+     *     echo $adjustment->amount';
      * }
      * ```
      * ```twig
      * {% for adjustment in order.adjustments %}
-     * {{ adjustment.amount }}
+     *   {{ adjustment.amount }}
      * {% endfor %}
      * ```
      */
@@ -1078,15 +1078,19 @@ class Order extends Element
      */
     public function init()
     {
-        // Set default addresses on the order
+        // Set default addresseses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
-            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
-                $this->setShippingAddress($shippingAddress);
+            if (!$this->shippingAddressId) {
+                $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+                if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
+                    $this->setShippingAddress($shippingAddress);
+                }
             }
-            $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
-            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
-                $this->setBillingAddress($billingAddress);
+            if (!$this->billingAddressId) {
+                $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+                if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
+                    $this->setBillingAddress($billingAddress);
+                }
             }
         }
 
@@ -1119,7 +1123,14 @@ class Order extends Element
             }
         }
 
-        return parent::init();
+        // Sets a default shipping method
+        // Leave this as the last one inside init(), as shipping rules will need access the above default that are set (like currency).
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+        }
+
+        parent::init();
     }
 
     /**
@@ -1161,14 +1172,14 @@ class Order extends Element
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -1342,7 +1353,7 @@ class Order extends Element
 
                     return [
                         'date' => $formatter->asDate($model->$attribute, Locale::LENGTH_SHORT),
-                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT)
+                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT),
                     ];
                 }
 
@@ -1394,46 +1405,42 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
+        return array_merge(parent::defineRules(), [
+            // Address models are valid
+            [['billingAddress', 'shippingAddress'], 'validateAddress'],
 
-        // Address models are valid
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddress'
-        ]; // from OrderValidatorTrait
+            // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+            [['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'],
 
-        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'
-        ]; // from OrderValidatorTrait
+            // Are the addresses both being set to each other.
+            [
+                ['billingAddress', 'shippingAddress'],
+                'validateAddressReuse',
+                'when' => function($model) {
+                    /** @var Order $model */
+                    return !$model->isCompleted;
+                },
+            ],
 
-        // Are the addresses both being set to each other.
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressReuse', 'when' => function($model) {
-                /** @var Order $model */
-                return !$model->isCompleted;
-            }
-        ]; // from OrderValidatorTrait
+            // Line items are valid?
+            [['lineItems'], 'validateLineItems'],
 
-        // Line items are valid?
-        $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
+            // Coupon Code valid?
+            [['couponCode'], 'validateCouponCode'],
 
-        // Coupon Code valid?
-        $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
+            [['gatewayId'], 'number', 'integerOnly' => true],
+            [['gatewayId'], 'validateGatewayId'],
+            [['shippingAddressId'], 'number', 'integerOnly' => true],
+            [['billingAddressId'], 'number', 'integerOnly' => true],
 
-        $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
-        $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
-        $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
+            [['paymentCurrency'], 'validatePaymentCurrency'],
 
-        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
-
-        $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
-        $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
-        $rules[] = [['email'], 'email'];
-
-        return $rules;
+            [['paymentSourceId'], 'number', 'integerOnly' => true],
+            [['paymentSourceId'], 'validatePaymentSourceId'],
+            [['email'], 'email'],
+        ]);
     }
 
     /**
@@ -1690,7 +1697,7 @@ class Order extends Element
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
-                'isNew' => !$replaced
+                'isNew' => !$replaced,
             ]));
         }
     }
@@ -1736,6 +1743,21 @@ class Order extends Element
         }
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+
+            // Make sure we set a default shipping method option
+            if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+                $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+                if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                }
+            }
+
+            if (!$this->shippingMethodHandle) {
+                $this->shippingMethodName = null;
+            } elseif ($shippingMethod = $this->getShippingMethod()) {
+                $this->shippingMethodName = $shippingMethod->getName();
+            }
+
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $key => $item) {
                 $originalSalePrice = $item->getSalePrice();
@@ -1750,7 +1772,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1764,7 +1786,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1776,8 +1798,8 @@ class Order extends Element
                         'attributes' => [
                             'message' => $message,
                             'type' => 'lineItemRemoved',
-                            'attribute' => 'lineItems'
-                        ]
+                            'attribute' => 'lineItems',
+                        ],
                     ]);
                     $this->addNotice($notice);
                     $this->removeLineItem($item);
@@ -1812,23 +1834,20 @@ class Order extends Element
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if ($this->shippingMethodHandle) {
-                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                    $this->addNotice(
-                        Craft::createObject([
-                            'class' => OrderNotice::class,
-                            'attributes' => [
-                                'type' => 'shippingMethodChanged',
-                                'attribute' => 'shippingMethodHandle',
-                                'message' => $message,
-                            ]
-                        ])
-                    );
-                    $this->recalculate();
-                    return;
-                }
+            if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                $this->addNotice(
+                    Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'shippingMethodChanged',
+                            'attribute' => 'shippingMethodHandle',
+                            'message' => $message,
+                        ],
+                    ])
+                );
+                $this->recalculate();
             }
         }
     }
@@ -1840,44 +1859,36 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
+        $allMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
 
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
 
-        foreach ($methods as $method) {
-            $option = new ShippingMethodOption();
+        foreach ($availableMethods as $method) {
+            $option = new ShippingMethodOption($method->getAttributes($attributes));
             $option->setOrder($this);
-            foreach ($attributes as $attribute) {
-                $option->$attribute = $method->$attribute;
-            }
-
-            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
+            $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
+            $options[$option->getHandle()] = $option;
+        }
 
-            // Add all methods if completed, and only the matching methods when it is not completed.
-            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
-                $options[$option->handle] = $option;
+        // If the order is completed add all other shipping methods
+        if ($this->isCompleted) {
+            // Add any additional method
+            foreach ($allMethods as $method) {
+                // If they are not in the existing available matching shipping method options
+                if (!ArrayHelper::keyExists($method->getHandle(), $options)) {
+                    $option = new ShippingMethodOption($method->getAttributes($attributes));
+                    $option->setOrder($this);
+                    $option->matchesOrder = false;
+                    $option->price = $method->getPriceForOrder($this);
+                    $options[$option->getHandle()] = $option;
+                }
             }
         }
 
         return $options;
-    }
-
-    public function beforeSave(bool $isNew): bool
-    {
-
-        if (null === $this->shippingMethodHandle) {
-            // Reset shipping method name if there is no handle
-            $this->shippingMethodName = null;
-        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
-            // Update shipping method name if there is a handle and we can retrieve the method
-            $this->shippingMethodName = $shippingMethod->name;
-        }
-
-        return parent::beforeSave($isNew);
     }
 
     /**
@@ -2253,7 +2264,7 @@ class Order extends Element
     {
         $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getOutstandingBalance(), $this->currency, $this->paymentCurrency);
 
-        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $outstandingBalanceInPaymentCurrency) {
+        if (isset($this->_paymentAmount) && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $outstandingBalanceInPaymentCurrency) {
             return $this->_paymentAmount;
         }
 
@@ -2261,7 +2272,7 @@ class Order extends Element
     }
 
     /**
-     * Sets the orders payment amount in the order's currency. This amount is not persisted.
+     * Sets the order's payment amount in the order's currency. This amount is not persisted.
      *
      * @param float $amount
      */
@@ -2270,6 +2281,21 @@ class Order extends Element
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
         $this->_paymentAmount = $amount;
+    }
+
+    /**
+     * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
+     *
+     * @return bool
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @since 3.4.10
+     */
+    public function isPaymentAmountPartial(): bool
+    {
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+
+        return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
     }
 
     /**
@@ -2980,15 +3006,14 @@ class Order extends Element
         $this->_estimatedBillingAddress = null;
     }
 
-
     /**
      * @return int|null
      * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
      */
     public function getShippingMethodId()
     {
-        if ($this->getShippingMethod()) {
-            return $this->getShippingMethod()->getId();
+        if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            return $shippingMethod->getId();
         }
 
         return null;
@@ -2999,7 +3024,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
+        return ArrayHelper::firstWhere(Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this), 'handle', $this->shippingMethodHandle);
     }
 
     /**
@@ -3231,8 +3256,7 @@ class Order extends Element
         $orderSite = $this->getOrderSite();
         $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
 
-        $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $this->shippingMethodName ?? '';
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
@@ -3283,23 +3307,33 @@ class Order extends Element
      */
     private function _saveNotices()
     {
-        // Line items that are currently in the DB
-        $previousNotices = OrderNoticeRecord::find()
+        $previousNoticeIds = (new Query())
+            ->select(['id'])
+            ->from([Table::ORDERNOTICES])
             ->where(['orderId' => $this->id])
-            ->all();
+            ->column();
 
-        foreach ($previousNotices as $notice) {
-            $notice->delete();
+        $currentNoticeIds = [];
+
+        // We are never updating a notice, just adding it or keeping it.
+        foreach ($this->getNotices() as $notice) {
+            if ($notice->id === null) {
+                $noticeRecord = new OrderNoticeRecord();
+                $noticeRecord->orderId = $notice->orderId;
+                $noticeRecord->type = $notice->type;
+                $noticeRecord->attribute = $notice->attribute;
+                $noticeRecord->message = $notice->message;
+                if ($noticeRecord->save(false)) {
+                    $notice->id = $noticeRecord->id;
+                }
+            }
+
+            $currentNoticeIds[] = $notice->id;
         }
 
-
-        foreach ($this->getNotices() as $notice) {
-            $noticeRecord = new OrderNoticeRecord();
-            $noticeRecord->orderId = $notice->orderId;
-            $noticeRecord->type = $notice->type;
-            $noticeRecord->attribute = $notice->attribute;
-            $noticeRecord->message = $notice->message;
-            $noticeRecord->save(false);
+        // Delete any notices that are no longer on the order
+        if ($deletableNoticeIds = array_diff($previousNoticeIds, $currentNoticeIds)) {
+            OrderNoticeRecord::deleteAll(['id' => $deletableNoticeIds]);
         }
     }
 
@@ -3324,13 +3358,12 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
-
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $lineItem
+                        'lineItem' => $lineItem,
                     ]));
                 }
             }
@@ -3339,7 +3372,6 @@ class Order extends Element
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-
             $originalId = $lineItem->id;
             $lineItem->setOrder($this); // just in case.
 
@@ -3352,7 +3384,7 @@ class Order extends Element
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
                         'lineItem' => $lineItem,
-                        'isNew' => true
+                        'isNew' => true,
                     ]));
                 }
             }

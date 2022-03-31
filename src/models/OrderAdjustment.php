@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -105,14 +106,14 @@ class OrderAdjustment extends Model
                 'type' => AttributeTypecastBehavior::TYPE_STRING,
                 'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'description' => AttributeTypecastBehavior::TYPE_STRING
-            ]
+                'description' => AttributeTypecastBehavior::TYPE_STRING,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -121,23 +122,14 @@ class OrderAdjustment extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            [
-                'type',
-                'amount',
-                'sourceSnapshot',
-                'orderId'
-            ], 'required'
+        return [
+            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required'],
+            [['amount'], 'number'],
+            [['orderId'], 'integer'],
+            [['lineItemId'], 'integer'],
         ];
-        $rules[] = [['amount'], 'number'];
-        $rules[] = [['orderId'], 'integer'];
-        $rules[] = [['lineItemId'], 'integer'];
-
-        return $rules;
     }
 
     /**
@@ -168,7 +160,11 @@ class OrderAdjustment extends Model
      */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
+        return $this->_order->currency;
     }
 
     /**

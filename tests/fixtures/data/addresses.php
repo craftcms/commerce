@@ -90,5 +90,5 @@ return [
         'custom3' => '',
         'custom4' => '',
         'isEstimated' => false,
-    ]
+    ],
 ];

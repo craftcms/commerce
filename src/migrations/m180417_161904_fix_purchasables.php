@@ -38,7 +38,7 @@ class m180417_161904_fix_purchasables extends Migration
             ->where([
                 'and',
                 ['type' => Variant::class],
-                ['not', ['id' => $variantIds]]
+                ['not', ['id' => $variantIds]],
             ])
             ->column();
 
@@ -57,7 +57,7 @@ class m180417_161904_fix_purchasables extends Migration
             ->where([
                 'and',
                 ['type' => Product::class],
-                ['not', ['id' => $productIds]]
+                ['not', ['id' => $productIds]],
             ])
             ->column();
 
