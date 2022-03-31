@@ -729,7 +729,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value): ElementQuery
+    public function status(array|string|null $value): static
     {
         return parent::status($value);
     }
