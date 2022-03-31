@@ -162,7 +162,7 @@ class StatTest extends Unit
                 Stat::DATE_RANGE_PASTYEAR,
                 (new DateTime('11 months ago', $tz))->setTime(0, 0),
                 clone $today,
-                12,
+                11,
                 false,
             ],
             [
