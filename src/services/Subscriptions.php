@@ -376,7 +376,7 @@ class Subscriptions extends Component
         $layout->id = $fieldsService->getLayoutByType(Subscription::class)->id;
         $layout->type = Subscription::class;
         $layout->uid = key($data);
-        $fieldsService->saveLayout($layout);
+        $fieldsService->saveLayout($layout, false);
     }
 
     /**
