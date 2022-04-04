@@ -28,7 +28,7 @@ class ProductFixture extends BaseProductFixture
     /**
      * @inheritdoc
      */
-    public $depends = [ProductTypeFixture::class];
+    public $depends = [ProductTypeFixture::class, ProductTypesShippingCategoriesFixture::class, ShippingCategoryFixture::class, ProductTypesTaxCategoriesFixture::class, TaxCategoryFixture::class];
 
     /**
      * @inheritdoc
