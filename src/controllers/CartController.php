@@ -507,21 +507,14 @@ class CartController extends BaseFrontEndController
         if ($shippingAddressId && !$shippingIsBilling) {
             /** @var Address $userShippingAddress */
             $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
+
+            // If a user's address ID has been submitted duplicate the address to the order
             if ($userShippingAddress) {
                 $this->_cart->sourceShippingAddressId = $shippingAddressId;
-                // If there is already a shipping address on the order, populate it
-                if ($this->_cart->shippingAddressId) {
-                    // only set it if it's a different ID
-                    if (($this->_cart->shippingAddressId !== $shippingAddressId) && $currentShippingAddress = $this->_cart->getShippingAddress()) {
-                        $currentShippingAddress->setAttributes($userShippingAddress->attributes());
-                        // TODO update custom fields
-                        $this->_cart->setShippingAddress($userShippingAddress);
-                    }
-                } else {
-                    /** @var Address $userShippingAddress */
-                    $userShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
-                    $this->_cart->setShippingAddress($userShippingAddress);
-                }
+
+                /** @var Address $userShippingAddress */
+                $userShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
+                $this->_cart->setShippingAddress($userShippingAddress);
             }
         } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->sourceShippingAddressId = null;
@@ -532,21 +525,14 @@ class CartController extends BaseFrontEndController
         if ($billingAddressId && !$billingIsShipping) {
             /** @var Address $userBillingAddress */
             $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
+
+            // If a user's address ID has been submitted duplicate the address to the order
             if ($userBillingAddress) {
                 $this->_cart->sourceBillingAddressId = $billingAddressId;
-                // If there is already a billing address on the order, populate it
-                if ($this->_cart->billingAddressId) {
-                    // only set it if it's a different ID
-                    if (($this->_cart->billingAddressId !== $billingAddressId) && $currentBillingAddress = $this->_cart->getBillingAddress()) {
-                        $currentBillingAddress->setAttributes($userBillingAddress->attributes());
-                        // TODO update custom fields
-                        $this->_cart->setBillingAddress($userBillingAddress);
-                    }
-                } else {
-                    /** @var Address $userBillingAddress */
-                    $userBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
-                    $this->_cart->setBillingAddress($userBillingAddress);
-                }
+
+                /** @var Address $userBillingAddress */
+                $userBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
+                $this->_cart->setBillingAddress($userBillingAddress);
             }
         } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->sourceBillingAddressId = null;
@@ -592,11 +578,13 @@ class CartController extends BaseFrontEndController
 
         // Shipping
         if ($shippingAddressId && !$shippingIsBilling && $billingIsShipping) {
+            $this->_cart->sourceBillingAddressId = $this->_cart->sourceShippingAddressId;
             $this->_cart->billingAddressId = $shippingAddressId;
         }
 
         // Billing
         if ($billingAddressId && !$billingIsShipping && $shippingIsBilling) {
+            $this->_cart->sourceShippingAddressId = $this->_cart->sourceBillingAddressId;
             $this->_cart->shippingAddressId = $billingAddressId;
         }
     }

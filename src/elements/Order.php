@@ -3268,7 +3268,12 @@ class Order extends Element
             return;
         }
 
-        $safeIds = array_filter([$this->getBillingAddress()?->id, $this->getShippingAddress()?->id]);
+        $safeIds = array_filter([
+            $this->getBillingAddress()?->id,
+            $this->getShippingAddress()?->id,
+            $this->getEstimatedBillingAddress()?->id,
+            $this->getEstimatedShippingAddress()?->id,
+        ]);
 
         $orphanedAddresses = AddressElement::find()
             ->ownerId($this->id);
