@@ -223,7 +223,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
-            'isFrontendEnabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isFrontendEnabled' => $this->string(500)->notNull()->defaultValue('1'),
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),

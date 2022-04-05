@@ -4,6 +4,7 @@
 
 ### Changed
 - Changed `cartVariableName` to`order` if completed otherwise config setting `cartVariableName`.
+- Gateway’s `isFrontendEnabled` setting is now environment variable aware.
 
 ### Fixed 
 - Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.

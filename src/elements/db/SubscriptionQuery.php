@@ -694,8 +694,11 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value): ElementQuery
+    public function status(array|string|null $value): static
     {
+        if ($value === null) {
+            unset($this->isSuspended, $this->hasStarted);
+        }
         return parent::status($value);
     }
 
@@ -816,7 +819,7 @@ class SubscriptionQuery extends ElementQuery
      * @inheritdoc
      * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
-    public function anyStatus(): ElementQuery
+    public function anyStatus(): static
     {
         unset($this->isSuspended, $this->hasStarted);
         return parent::status(null);

@@ -77,6 +77,7 @@
 - Tax rate inputs no longer require the percent symbol.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Addresses can no longer be related to both a user’s address book and an order at the same time. ([#2457](https://github.com/craftcms/commerce/discussions/2457))
+- Gateway’s `isFrontendEnabled` setting is now environment variable aware.
 - `commerce/*` actions no longer accept `orderNumber` params. `number` can be used instead.
 - `commerce/cart/*` actions no longer accept `cartUpdatedNotice` params. `successMessage` can be used instead.
 - `commerce/cart/*` actions no longer include `availableShippingMethods` in their JSON responses. `availableShippingMethodOptions` can be used instead.
