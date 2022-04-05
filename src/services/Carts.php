@@ -71,6 +71,7 @@ class Carts extends Component
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order(['customer' => $customer]);
             $this->_cart->number = $this->getSessionCartNumber();
+            $this->_cart->autoSetAddresses();
         }
 
         // Ensure the session knows what the current cart is.
