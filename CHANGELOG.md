@@ -3,7 +3,9 @@
 ## Beta Unreleased
 
 ### Changed
+- Craft Commerce now requires Craft CMS 4.0.0-beta.4 or newer.
 - Gateway’s `isFrontendEnabled` setting is now environment variable aware.
+- The installer now archives any database tables that were left behind by a previous Craft Commerce installation.
 
 ### Fixed 
 - Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.

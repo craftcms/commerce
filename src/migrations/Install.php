@@ -73,6 +73,7 @@ class Install extends Migration
      */
     public function createTables(): void
     {
+        $this->archiveTableIfExists(Table::CUSTOMERS);
         $this->createTable(Table::CUSTOMERS, [
             'id' => $this->primaryKey(), // Not used in v4 but is the old customerId
             'customerId' => $this->integer()->notNull(), // This is the User element ID
@@ -83,6 +84,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::COUPONS);
         $this->createTable(Table::COUPONS, [
             'id' => $this->primaryKey(),
             'code' => $this->string(),
@@ -94,6 +96,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::CUSTOMER_DISCOUNTUSES);
         $this->createTable(Table::CUSTOMER_DISCOUNTUSES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
@@ -104,6 +107,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::EMAIL_DISCOUNTUSES);
         $this->createTable(Table::EMAIL_DISCOUNTUSES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
@@ -114,6 +118,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::DISCOUNT_PURCHASABLES);
         $this->createTable(Table::DISCOUNT_PURCHASABLES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
@@ -124,6 +129,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::DISCOUNT_CATEGORIES);
         $this->createTable(Table::DISCOUNT_CATEGORIES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
@@ -133,6 +139,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::DISCOUNTS);
         $this->createTable(Table::DISCOUNTS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -172,6 +179,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::DONATIONS);
         $this->createTable(Table::DONATIONS, [
             'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
@@ -181,6 +189,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::EMAILS);
         $this->createTable(Table::EMAILS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -200,6 +209,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PDFS);
         $this->createTable(Table::PDFS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -216,6 +226,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::GATEWAYS);
         $this->createTable(Table::GATEWAYS, [
             'id' => $this->primaryKey(),
             'type' => $this->string()->notNull(),
@@ -232,6 +243,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::LINEITEMS);
         $this->createTable(Table::LINEITEMS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -261,6 +273,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::LINEITEMSTATUSES);
         $this->createTable(Table::LINEITEMSTATUSES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -275,6 +288,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERADJUSTMENTS);
         $this->createTable(Table::ORDERADJUSTMENTS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -291,6 +305,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERNOTICES);
         $this->createTable(Table::ORDERNOTICES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -302,6 +317,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERHISTORIES);
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -315,6 +331,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERS);
         $this->createTable(Table::ORDERS, [
             'id' => $this->integer()->notNull(),
             'billingAddressId' => $this->integer(),
@@ -364,6 +381,7 @@ class Install extends Migration
             'PRIMARY KEY(id)',
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERSTATUS_EMAILS);
         $this->createTable(Table::ORDERSTATUS_EMAILS, [
             'id' => $this->primaryKey(),
             'orderStatusId' => $this->integer()->notNull(),
@@ -373,6 +391,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::ORDERSTATUSES);
         $this->createTable(Table::ORDERSTATUSES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -387,6 +406,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PAYMENTCURRENCIES);
         $this->createTable(Table::PAYMENTCURRENCIES, [
             'id' => $this->primaryKey(),
             'iso' => $this->string(3)->notNull(),
@@ -397,6 +417,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PAYMENTSOURCES);
         $this->createTable(Table::PAYMENTSOURCES, [
             'id' => $this->primaryKey(),
             'customerId' => $this->integer()->notNull(),
@@ -409,6 +430,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PLANS);
         $this->createTable(Table::PLANS, [
             'id' => $this->primaryKey(),
             'gatewayId' => $this->integer(),
@@ -426,6 +448,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PRODUCTS);
         $this->createTable(Table::PRODUCTS, [
             'id' => $this->integer()->notNull(),
             'typeId' => $this->integer(),
@@ -449,6 +472,7 @@ class Install extends Migration
             'PRIMARY KEY(id)',
         ]);
 
+        $this->archiveTableIfExists(Table::PRODUCTTYPES);
         $this->createTable(Table::PRODUCTTYPES, [
             'id' => $this->primaryKey(),
             'fieldLayoutId' => $this->integer(),
@@ -473,6 +497,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PRODUCTTYPES_SITES);
         $this->createTable(Table::PRODUCTTYPES_SITES, [
             'id' => $this->primaryKey(),
             'productTypeId' => $this->integer()->notNull(),
@@ -485,6 +510,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PRODUCTTYPES_SHIPPINGCATEGORIES);
         $this->createTable(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, [
             'id' => $this->primaryKey(),
             'productTypeId' => $this->integer()->notNull(),
@@ -494,6 +520,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PRODUCTTYPES_TAXCATEGORIES);
         $this->createTable(Table::PRODUCTTYPES_TAXCATEGORIES, [
             'id' => $this->primaryKey(),
             'productTypeId' => $this->integer()->notNull(),
@@ -503,6 +530,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::PURCHASABLES);
         $this->createTable(Table::PURCHASABLES, [
             'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
@@ -513,6 +541,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SALE_PURCHASABLES);
         $this->createTable(Table::SALE_PURCHASABLES, [
             'id' => $this->primaryKey(),
             'saleId' => $this->integer()->notNull(),
@@ -523,6 +552,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SALE_CATEGORIES);
         $this->createTable(Table::SALE_CATEGORIES, [
             'id' => $this->primaryKey(),
             'saleId' => $this->integer()->notNull(),
@@ -532,6 +562,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SALE_USERGROUPS);
         $this->createTable(Table::SALE_USERGROUPS, [
             'id' => $this->primaryKey(),
             'saleId' => $this->integer()->notNull(),
@@ -541,6 +572,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SALES);
         $this->createTable(Table::SALES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -562,6 +594,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SHIPPINGCATEGORIES);
         $this->createTable(Table::SHIPPINGCATEGORIES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -573,6 +606,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SHIPPINGMETHODS);
         $this->createTable(Table::SHIPPINGMETHODS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -584,6 +618,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SHIPPINGRULE_CATEGORIES);
         $this->createTable(Table::SHIPPINGRULE_CATEGORIES, [
             'id' => $this->primaryKey(),
             'shippingRuleId' => $this->integer(),
@@ -597,6 +632,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SHIPPINGRULES);
         $this->createTable(Table::SHIPPINGRULES, [
             'id' => $this->primaryKey(),
             'shippingZoneId' => $this->integer(),
@@ -625,6 +661,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SHIPPINGZONES);
         $this->createTable(Table::SHIPPINGZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -636,6 +673,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::STORES);
         $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
             'locationAddressId' => $this->integer(),
@@ -646,6 +684,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
         $this->createTable(Table::SUBSCRIPTIONS, [
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
@@ -668,6 +707,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::TAXCATEGORIES);
         $this->createTable(Table::TAXCATEGORIES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -679,6 +719,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::TAXRATES);
         $this->createTable(Table::TAXRATES, [
             'id' => $this->primaryKey(),
             'taxZoneId' => $this->integer(),
@@ -698,6 +739,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::TAXZONES);
         $this->createTable(Table::TAXZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
@@ -709,6 +751,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::TRANSACTIONS);
         $this->createTable(Table::TRANSACTIONS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -733,6 +776,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::VARIANTS);
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
