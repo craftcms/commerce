@@ -17,7 +17,7 @@
     "lodash.find": "^4.6.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isobjectlike": "^4.0.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "prismjs": "^1.27.0",
     "vue": "^2.6.14",
     "vue-prism-editor": "^0.6.1",
