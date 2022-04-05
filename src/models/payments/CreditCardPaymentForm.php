@@ -33,14 +33,14 @@ class CreditCardPaymentForm extends BasePaymentForm
     public ?string $number = null;
 
     /**
-     * @var int|null Expiry month
+     * @var string|null Expiry month
      */
-    public ?int $month = null;
+    public ?string $month = null;
 
     /**
-     * @var int|null Expiry year
+     * @var string|null Expiry year
      */
-    public ?int $year = null;
+    public ?string $year = null;
 
     /**
      * @var string|null CVV number
