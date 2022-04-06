@@ -13,6 +13,7 @@
 - Fixed a PHP error when saving an Order on the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
 - Fixed a bug where related sales and discounts on product edit page would show without the correct permissions.
 - Fixed a PHP error when updating cart addresses.
+- Fixed a PHP error when saving a Tax Rate.
 
 ## 4.0.0-beta.1 - 2022-03-16
 
