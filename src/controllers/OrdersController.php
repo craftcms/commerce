@@ -128,6 +128,10 @@ class OrdersController extends Controller
         $order = new Order();
         if ($user) {
             $order->setCustomer($user);
+
+            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+                $order->autoSetAddresses();
+            }
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
@@ -1132,6 +1136,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode(Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
 

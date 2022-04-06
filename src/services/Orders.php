@@ -54,7 +54,7 @@ class Orders extends Component
         $layout->id = $fieldsService->getLayoutByType(Order::class)->id;
         $layout->type = Order::class;
         $layout->uid = key($data);
-        $fieldsService->saveLayout($layout);
+        $fieldsService->saveLayout($layout, false);
     }
 
 

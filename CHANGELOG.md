@@ -15,6 +15,7 @@
 - Fixed a PHP error when saving an Order on the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
 - Fixed a bug where related sales and discounts on product edit page would show without the correct permissions.
 - Fixed a PHP error when updating cart addresses.
+- Fixed a PHP error when saving a Tax Rate.
 
 ## 4.0.0-beta.1 - 2022-03-16
 
@@ -225,6 +226,13 @@
 - Removed `craft\commerce\services\Payments::getTotalRefundedForOrder()`.
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
+
+## 3.4.14 - 2022-04-06
+
+### Fixed
+- Fixed a bug where eager-loaded line items weren’t getting returned in a consistent order. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+- Fixed a bug where it wasn’t possible to remove an address on the Edit Order page. ([#2745](https://github.com/craftcms/commerce/issues/2745))
+- Fixed a bug where the First Name and Last Name fields weren’t shown in payment modals on the Edit Order page, when using the Dummy gateway.
 
 ## 3.4.13 - 2022-03-24
 

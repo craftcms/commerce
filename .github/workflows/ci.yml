@@ -1,0 +1,20 @@
+name: ci
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - '4.0'
+  pull_request:
+
+jobs:
+
+  call-workflow:
+    uses: craftcms/.github/.github/workflows/ci.yml@v1
+    with:
+      run_ecs: true
+      run_phpstan: true
+      run_tests: true
+      php_versions: '["8.0", "8.1"]'
+    secrets:
+      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

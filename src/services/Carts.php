@@ -74,6 +74,7 @@ class Carts extends Component
             }
 
             $this->_cart->number = $this->getSessionCartNumber();
+            $this->_cart->autoSetAddresses();
         }
 
         // Ensure the session knows what the current cart is.

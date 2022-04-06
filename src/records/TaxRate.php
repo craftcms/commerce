@@ -12,7 +12,7 @@ use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Tax rate record.
+ * Tax Rate record.
  *
  * @property int $id
  * @property bool $include
@@ -34,12 +34,34 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxRate extends ActiveRecord
 {
+    /**
+     * @var string Tax subject is line item price.
+     */
     public const TAXABLE_PRICE = 'price';
+
+    /**
+     * @var string Tax subject is line item shipping cost.
+     */
     public const TAXABLE_SHIPPING = 'shipping';
+
+    /**
+     * @var string Tax subject is line item price and shipping cost.
+     */
     public const TAXABLE_PRICE_SHIPPING = 'price_shipping';
+
+    /**
+     * @var string Tax subject is order total shipping cost.
+     */
     public const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
+
+    /**
+     * @var string Tax subject is order total price.
+     */
     public const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
 
+    /**
+     * @var array Order-specific tax subject options.
+     */
     public const ORDER_TAXABALES = [
         self::TAXABLE_ORDER_TOTAL_PRICE,
         self::TAXABLE_ORDER_TOTAL_SHIPPING,

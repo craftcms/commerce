@@ -522,7 +522,7 @@ class ProductTypes extends Component
                 $layout->id = $productTypeRecord->fieldLayoutId;
                 $layout->type = Product::class;
                 $layout->uid = key($data['productFieldLayouts']);
-                $fieldsService->saveLayout($layout);
+                $fieldsService->saveLayout($layout, false);
                 $productTypeRecord->fieldLayoutId = $layout->id;
             } elseif ($productTypeRecord->fieldLayoutId) {
                 // Delete the main field layout
@@ -536,7 +536,7 @@ class ProductTypes extends Component
                 $layout->id = $productTypeRecord->variantFieldLayoutId;
                 $layout->type = Variant::class;
                 $layout->uid = key($data['variantFieldLayouts']);
-                $fieldsService->saveLayout($layout);
+                $fieldsService->saveLayout($layout, false);
                 $productTypeRecord->variantFieldLayoutId = $layout->id;
             } elseif ($productTypeRecord->variantFieldLayoutId) {
                 // Delete the variant field layout
