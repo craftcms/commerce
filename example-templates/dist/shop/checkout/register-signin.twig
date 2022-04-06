@@ -21,7 +21,7 @@
   {% redirect 'shop/checkout/addresses' %}
 {% endif %}
 
-{% set userExists = craft.users.email(cart.email).one() %}
+{% set userExists = craft.users.email(cart.email ?? 'NULL').one() %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->

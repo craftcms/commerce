@@ -95,7 +95,7 @@
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
             {% endif %}
 
-            {% set user = craft.users.email(cart.email).one() %}
+            {% set user = craft.users.email(cart.email ?? 'NULL').one() %}
             {% if not user %}
               <div class="mt-3">
                 <label for="registerUserOnOrderComplete">
