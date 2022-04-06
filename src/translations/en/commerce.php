@@ -154,7 +154,7 @@ return [
     'Carts' => 'Carts',
     'Categories Relationship Type' => 'Categories Relationship Type',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Categories that the purchasables must be related to. Leave blank for all categories.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Categories',
     'Category Rate Overrides' => 'Category Rate Overrides',
     'Centimeters (cm)' => 'Centimeters (cm)',
