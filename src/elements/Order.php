@@ -1842,7 +1842,7 @@ class Order extends Element
         $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
 
         // Get all regular methods and add them to the list, for use only when the order is complete.
-        if($this->isCompleted){
+        if ($this->isCompleted) {
             $allShippingMethods = ArrayHelper::index(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle');
             $methods = ArrayHelper::merge($allShippingMethods, $methods);
         }

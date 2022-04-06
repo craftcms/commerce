@@ -104,7 +104,7 @@ class GatewaysTest extends Unit
                 ],
                 3,
                 ['dummy', 'dummy-enabled-string', 'dummy-enabled-env'],
-            ]
+            ],
         ];
     }
 }
