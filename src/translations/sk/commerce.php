@@ -154,7 +154,7 @@ return [
     'Carts' => 'Košíky',
     'Categories Relationship Type' => 'Kategórie typov vzťahov',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Kategórie, na ktoré sa musia vzťahovať zhodujúce položky na zakúpenie. Ak chcete ignorovať zhody kategórií, ponechajte prázdne.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Kategórie, na ktoré sa musia vzťahovať položky na zakúpenie. Ponechajte prázdne pre všetky kategórie.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Kategórie',
     'Category Rate Overrides' => 'Nahradenia sadzieb kategórií',
     'Centimeters (cm)' => 'Centimetre (cm)',
