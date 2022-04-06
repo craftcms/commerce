@@ -1102,23 +1102,6 @@ class Order extends Element
      */
     public function init(): void
     {
-        // Set default addresses
-        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $user = $this->getCustomer();
-            if (!$this->_shippingAddress && $user) {
-                /** @var User|CustomerBehavior $user */
-                if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
-                    $this->shippingAddressId = $primaryShippingAddressId;
-                }
-            }
-
-            if (!$this->_billingAddress && $user) {
-                if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
-                    $this->billingAddressId = $primaryBillingAddressId;
-                }
-            }
-        }
-
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }
@@ -1444,6 +1427,34 @@ class Order extends Element
 
             [['number', 'user'], 'safe'],
         ]);
+    }
+
+    /**
+     * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
+     *
+     * @return void
+     * @since 3.4.14
+     */
+    public function autoSetAddresses(): void
+    {
+        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+            return;
+        }
+
+        // Set default addresses
+        if (!$this->getShippingAddress()) {
+            $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
+                $this->setShippingAddress($shippingAddress);
+            }
+        }
+
+        if (!$this->getBillingAddress()) {
+            $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
+                $this->setBillingAddress($billingAddress);
+            }
+        }
     }
 
     /**

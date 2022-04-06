@@ -24,6 +24,10 @@ export default new Vuex.Store({
     },
 
     getters: {
+        autoSetNewCartAddresses() {
+            return window.orderEdit.autoSetNewCartAddresses
+        },
+
         currentUserId() {
             return window.orderEdit.currentUserId
         },

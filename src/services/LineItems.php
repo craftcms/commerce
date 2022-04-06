@@ -149,7 +149,6 @@ class LineItems extends Component
     {
         $results = $this->_createLineItemQuery()
             ->where(['orderId' => $orderId])
-            ->orderBy('dateCreated DESC')
             ->all();
 
         $lineItems = [];
@@ -455,6 +454,7 @@ class LineItems extends Component
                 'weight',
                 'width',
             ])
-            ->from([Table::LINEITEMS . ' lineItems']);
+            ->from([Table::LINEITEMS . ' lineItems'])
+            ->orderBy('dateCreated DESC');
     }
 }

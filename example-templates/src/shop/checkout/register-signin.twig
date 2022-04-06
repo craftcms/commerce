@@ -13,7 +13,7 @@
 {% endif %}
 
 {% set userExistsButCantLogin = craft.users
-  .email(cart.email)
+  .email(cart.email ?? 'NULL')
   .status(['locked','suspended','pending'])
   .one() %}
 

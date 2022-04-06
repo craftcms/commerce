@@ -132,6 +132,10 @@ class OrdersController extends Controller
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
 
+        if ($customer && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+            $order->autoSetAddresses();
+        }
+
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
@@ -1132,6 +1136,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode(Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
 
