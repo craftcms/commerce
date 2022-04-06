@@ -4,18 +4,18 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-beta.4 or newer.
-- Gateway’s `isFrontendEnabled` setting is now environment variable aware.
+- Gateways’ `isFrontendEnabled` settings now support environment variables.
 - The installer now archives any database tables that were left behind by a previous Craft Commerce installation.
 
-### Fixed 
-- Fixed a bug where custom shipping methods options were not being returned from `Order::getAvailableShippingMethodOptions()`.
-- Fixed a bug where the "New Order" button was not visible.
-- Fixed a PHP error when calling `Order::getHistories()` when an order was new. ([#2748](https://github.com/craftcms/commerce/issues/2748))
-- Fixed a PHP error when saving a new Sale. ([#2748](https://github.com/craftcms/commerce/issues/2748))
-- Fixed a PHP error when saving an Order on the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
-- Fixed a bug where related sales and discounts on product edit page would show without the correct permissions.
-- Fixed a PHP error when updating cart addresses.
-- Fixed a PHP error when saving a Tax Rate.
+### Fixed
+- Fixed a bug where `craft\commerce\elements\Order::getAvailableShippingMethodOptions()` wasn’t returning custom shipping method options.
+- Fixed a bug where the “New Order” button wasn’t visible.
+- Fixed a PHP error that occurred when calling `craft\commerce\elements\Order::getHistories()` for new orders. ([#2748](https://github.com/craftcms/commerce/issues/2748))
+- Fixed a PHP error that could occur when saving a new sale. ([#2748](https://github.com/craftcms/commerce/issues/2748))
+- Fixed a PHP error that could occur when saving an order from the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
+- Fixed a bug where the Edit Product page was showing related sales without accounting for permissions.
+- Fixed a PHP error that could occur when updating cart addresses.
+- Fixed a PHP error that could occur when saving a tax rate.
 
 ## 4.0.0-beta.1 - 2022-03-16
 
