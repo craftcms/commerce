@@ -126,8 +126,9 @@ class Customers extends Component
         $users = User::find()->id($customerIds)->limit(null)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {
-            if (isset($users[$order->customerId])) {
-                $order->setCustomer($users[$order->customerId]);
+            $customerId = $order->getCustomerId();
+            if (isset($users[$customerId])) {
+                $order->setCustomer($users[$customerId]);
                 $orders[$key] = $order;
             }
         }

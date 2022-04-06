@@ -178,7 +178,7 @@ class TaxRates extends Component
 
     /**
      * Returns the Commerce Lite tax rate.
-     * 
+     *
      * @return TaxRate
      * @throws InvalidConfigException
      */
