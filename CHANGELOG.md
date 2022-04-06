@@ -3,10 +3,9 @@
 ## Unreleased
 
 ### Fixed
-- Line items are returned in a consistent order when eager loaded. ([#2740](https://github.com/craftcms/commerce/issues/2740))
-- Fixed a bug where it wasn't possible to remove an address on the Edit Order page. ([#2745](https://github.com/craftcms/commerce/issues/2745))
-- Fixed an issue on Dummy gateway credit card form first name and last name fields not displaying in the control panel transaction modal payment.
-- Removed incorrect behavior description "Leave blank for all categories." Sales promotions setting in Matching Items tab.
+- Fixed a bug where eager-loaded line items weren’t getting returned in a consistent order. ([#2740](https://github.com/craftcms/commerce/issues/2740))
+- Fixed a bug where it wasn’t possible to remove an address on the Edit Order page. ([#2745](https://github.com/craftcms/commerce/issues/2745))
+- Fixed a bug where the First Name and Last Name fields weren’t shown in payment modals on the Edit Order page, when using the Dummy gateway.
 
 ## 3.4.13 - 2022-03-24
 
