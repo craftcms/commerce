@@ -22,7 +22,7 @@ use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 
 /**
- * Tax rate service.
+ * Tax Rate service.
  *
  * @property TaxRate $liteTaxRate the lite tax rate
  * @property TaxRate[] $allTaxRates an array of all the existing tax rates
@@ -55,9 +55,9 @@ class TaxRates extends Component
     }
 
     /**
-     * Returns an array of all rates belonging to the zone
+     * Returns an array of all rates belonging to the specified zone.
      *
-     *
+     * @param TaxAddressZone $zone The tax zone whose rates we’d like returned
      * @return TaxRate[]
      * @deprecated in 4.0. Use [[getTaxRatesByTaxZoneId]] instead.
      */
@@ -67,9 +67,9 @@ class TaxRates extends Component
     }
 
     /**
-     * Returns an array of all rates belonging to the zone
+     * Returns an array of all rates belonging to the specified zone.
      *
-     *
+     * @param int $taxZoneId The ID of the tax zone whose rates we’d like returned
      * @return TaxRate[]
      */
     public function getTaxRatesByTaxZoneId(int $taxZoneId): array
@@ -79,6 +79,9 @@ class TaxRates extends Component
 
     /**
      * Returns a tax rate by ID.
+     *
+     * @param int $id The ID of the desired tax rate
+     * @return ?TaxRate
      */
     public function getTaxRateById(int $id): ?TaxRate
     {
@@ -86,7 +89,11 @@ class TaxRates extends Component
     }
 
     /**
-     * @param bool $runValidation should we validate this rate before saving.
+     * Saves a tax rate.
+     *
+     * @param TaxRate $model          The tax rate model to be saved
+     * @param bool    $runValidation  Whether we should validate this rate before saving
+     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -148,9 +155,11 @@ class TaxRates extends Component
     }
 
     /**
-     * Saves a lite tax rate
+     * Saves a Commerce Lite tax rate.
      *
-     * @param bool $runValidation should we validate this rate before saving.
+     * @param TaxRate $model          The tax rate model to be saved
+     * @param bool    $runValidation  Whether we should validate this rate before saving
+     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -168,6 +177,9 @@ class TaxRates extends Component
     }
 
     /**
+     * Returns the Commerce Lite tax rate.
+     * 
+     * @return TaxRate
      * @throws InvalidConfigException
      */
     public function getLiteTaxRate(): TaxRate
