@@ -154,7 +154,7 @@ return [
     'Carts' => 'Warenkörbe',
     'Categories Relationship Type' => 'Kategorien Beziehungstyp',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Kategorien, mit welchen die Kaufoptionen verbunden sein müssen. Leer lassen um den Kategorieabgleich zu ignorieren.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Kategorien, mit welchen die Kaufoptionen verbunden sein müssen. Lassen Sie diese für alle Kategorien leer.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Kategorien',
     'Category Rate Overrides' => 'Preiskategorie-Overrides',
     'Centimeters (cm)' => 'Zentimeter (cm)',
