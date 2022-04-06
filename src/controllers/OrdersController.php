@@ -128,13 +128,13 @@ class OrdersController extends Controller
         $order = new Order();
         if ($user) {
             $order->setCustomer($user);
+
+            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+                $order->autoSetAddresses();
+            }
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
-
-        if ($customer && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $order->autoSetAddresses();
-        }
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
