@@ -297,7 +297,7 @@ class DiscountsTest extends Unit
             },
         ]);
         $order->couponCode = 'discount_1';
-        $order->customerId = $this->_user->id;
+        $order->setCustomerId($this->_user->id);
 
         $this->updateOrderCoupon([
             'perUserLimit' => '0',
