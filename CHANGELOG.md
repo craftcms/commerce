@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Beta Unreleased
+## 4.0.0-beta.2 - 2022-04-06
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-beta.4 or newer.
