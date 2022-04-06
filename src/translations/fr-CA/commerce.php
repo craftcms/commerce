@@ -154,7 +154,7 @@ return [
     'Carts' => 'Paniers',
     'Categories Relationship Type' => 'Type de relation des catégories',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Catégories auxquelles les produits disponibles à la vente correspondants doivent être liés. Laissez cette zone vide pour ignorer la correspondance des catégories.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Catégories auxquelles les articles pouvant être achetés doivent être associés. Laissez la zone vide pour toutes les catégories.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Catégories',
     'Category Rate Overrides' => 'Remplacements du taux de catégorie',
     'Centimeters (cm)' => 'Centimètres (cm)',
