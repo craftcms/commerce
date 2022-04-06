@@ -154,7 +154,7 @@ return [
     'Carts' => 'Carrelli',
     'Categories Relationship Type' => 'Tipo di rapporto delle categorie',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Categorie a cui devono essere collegati gli oggetti disponibili all’acquisto. Lasciare vuoto per ignorare la corrispondenza delle categorie.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Categorie a cui devono essere collegati gli oggetti acquistabili. Lasciare vuoto per tutte le categorie.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Categorie',
     'Category Rate Overrides' => 'Ignora tariffa categoria',
     'Centimeters (cm)' => 'Centimetri (cm)',
