@@ -154,7 +154,7 @@ return [
     'Carts' => 'Handlekurver',
     'Categories Relationship Type' => 'Kategorienes forholdstype',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Kategorier som de samsvarende kjøpbare artikler må være relatert til. La stå tom for å ignorere samsvarende kategorier.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Kategorier som de kjøpbare artikler må være relatert til. La være blank for alle kategorier.',
+    'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
     'Categories' => 'Kategorier',
     'Category Rate Overrides' => 'Overstyrer kategorirate',
     'Centimeters (cm)' => 'Centimeter (cm)',
