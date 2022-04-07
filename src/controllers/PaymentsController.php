@@ -241,7 +241,10 @@ class PaymentsController extends BaseFrontEndController
 
             // Populate the payment form from the params
             $paymentFormParams = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle));
-            $paymentForm->setAttributes($paymentFormParams, false);
+
+            if ($paymentFormParams) {
+                $paymentForm->setAttributes($paymentFormParams, false);
+            }
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
