@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
@@ -1441,18 +1442,18 @@ class Order extends Element
             return;
         }
 
-        // Set default addresses
-        if (!$this->getShippingAddress()) {
-            $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
-            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->getCustomerId()))) {
-                $this->setShippingAddress($shippingAddress);
+        $user = $this->getCustomer();
+
+        if (!$this->_shippingAddress && $user) {
+            /** @var User|CustomerBehavior $user */
+            if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
+                $this->shippingAddressId = $primaryShippingAddressId;
             }
         }
 
-        if (!$this->getBillingAddress()) {
-            $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
-            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->getCustomerId()))) {
-                $this->setBillingAddress($billingAddress);
+        if (!$this->_billingAddress && $user) {
+            if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
+                $this->billingAddressId = $primaryBillingAddressId;
             }
         }
     }
