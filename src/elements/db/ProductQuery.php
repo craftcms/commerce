@@ -166,7 +166,7 @@ class ProductQuery extends ElementQuery
      * | Value | Fetches {elements}…
      * | - | -
      * | `10` | of a price of 10.
-     * | `['and', '>= ' ~ 100, '<= ' ~ 2000,] | of a default variant price between 100 and 2000
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000]` | of a default variant price between 100 and 2000
      *
      * ---
      *
@@ -195,28 +195,28 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ default variant height domention IDs.
+     * Narrows the query results based on the products’ default variant height dimension IDs.
      *
      * Possible values include:
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `1` | of a type with a domention of 1.
-     * | `'not 1'` | not a domention of 1.
-     * | `[1, 2]` | of a a domention 1 or 2.
-     * | `['and', '>= ' ~ 100, '<= ' ~ 2000,] | of a dimention between 100 and 2000
+     * | `1` | of a type with a dimension of 1.
+     * | `'not 1'` | not a dimension of 1.
+     * | `[1, 2]` | of a a dimension 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000]` | of a dimension between 100 and 2000
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {# Fetch {elements} of the product default dimension of 1 #}
      * {% set {elements-var} = {twig-method}
      *   .defaultHeight(1)
      *   .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements} of the  product default dimention of 1
+     * // Fetch {elements} of the product default dimension of 1
      * ${elements-var} = {php-method}
      *     ->defaultHeight(1)
      *     ->all();
@@ -233,28 +233,28 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ default variant length domention IDs.
+     * Narrows the query results based on the products’ default variant length dimension IDs.
      *
      * Possible values include:
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `1` | of a type with a domention of 1.
-     * | `'not 1'` | not a domention of 1.
-     * | `[1, 2]` | of a a domention 1 or 2.
-     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     * | `1` | of a type with a dimension of 1.
+     * | `'not 1'` | not a dimension of 1.
+     * | `[1, 2]` | of a a dimension 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000]` | of a dimension between 100 and 2000
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {# Fetch {elements} of the product default dimension of 1 #}
      * {% set {elements-var} = {twig-method}
      *   .defaulLength(1)
      *   .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements} of the  product default dimention of 1
+     * // Fetch {elements} of the  product default dimension of 1
      * ${elements-var} = {php-method}
      *     ->defaulLength(1)
      *     ->all();
@@ -271,28 +271,28 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ default variant width domention IDs.
+     * Narrows the query results based on the products’ default variant width dimension IDs.
      *
      * Possible values include:
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `1` | of a type with a domention of 1.
-     * | `'not 1'` | not a domention of 1.
-     * | `[1, 2]` | of a a domention 1 or 2.
-     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     * | `1` | of a type with a dimension of 1.
+     * | `'not 1'` | not a dimension of 1.
+     * | `[1, 2]` | of a a dimension 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000]` | of a dimension between 100 and 2000
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {# Fetch {elements} of the product default dimension of 1 #}
      * {% set {elements-var} = {twig-method}
      *   .defaultWidth(1)
      *   .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements} of the  product default dimention of 1
+     * // Fetch {elements} of the  product default dimension of 1
      * ${elements-var} = {php-method}
      *     ->defaultWidth(1)
      *     ->all();
@@ -309,28 +309,28 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the products’ default variant weight domention IDs.
+     * Narrows the query results based on the products’ default variant weight dimension IDs.
      *
      * Possible values include:
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `1` | of a type with a domention of 1.
-     * | `'not 1'` | not a domention of 1.
-     * | `[1, 2]` | of a a domention 1 or 2.
-     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     * | `1` | of a type with a dimension of 1.
+     * | `'not 1'` | not a dimension of 1.
+     * | `[1, 2]` | of a a dimension 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000]` | of a dimension between 100 and 2000
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {# Fetch {elements} of the product default dimension of 1 #}
      * {% set {elements-var} = {twig-method}
      *   .defaultWeight(1)
      *   .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements} of the  product default dimention of 1
+     * // Fetch {elements} of the  product default dimension of 1
      * ${elements-var} = {php-method}
      *     ->defaultWeight(1)
      *     ->all();
