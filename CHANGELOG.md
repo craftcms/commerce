@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed addresses not showing as primary. ([#2762](https://github.com/craftcms/commerce/issues/2762))
 - Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
 
 ## 4.0.0-beta.2 - 2022-04-06

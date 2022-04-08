@@ -16,6 +16,8 @@ use yii\base\Behavior;
 /**
  * Customer address behavior.
  *
+ * @property bool $isPrimaryBilling
+ * @property bool $isPrimaryShipping
  * @property Address $owner
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0

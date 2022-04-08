@@ -9,6 +9,7 @@ namespace craft\commerce\fieldlayoutelements;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\fieldlayoutelements\BaseField;
@@ -69,6 +70,7 @@ class UserAddressSettings extends BaseField
             throw new InvalidArgumentException('UserAddressSettings can only be used in the address field layout.');
         }
 
+        /** @var Address|CustomerAddressBehavior $element */
         $owner = $element->getOwner();
 
         if (!$owner instanceof User) {
@@ -76,13 +78,15 @@ class UserAddressSettings extends BaseField
         }
 
         return
-            Cp::checkboxFieldHtml([
-                'checkboxLabel' => Craft::t('commerce', 'Use as the primary billing address'),
+            Cp::lightswitchFieldHtml([
+                'fieldLabel' => Craft::t('commerce', 'Use as the primary billing address'),
                 'name' => 'isPrimaryBilling',
+                'on' => $element->getIsPrimaryBilling(),
             ]) .
-            Cp::checkboxFieldHtml([
-                'checkboxLabel' => Craft::t('commerce', 'Use as the primary shipping address'),
+            Cp::lightswitchFieldHtml([
+                'fieldLabel' => Craft::t('commerce', 'Use as the primary shipping address'),
                 'name' => 'isPrimaryShipping',
+                'on' => $element->getIsPrimaryShipping(),
             ]);
     }
 }
