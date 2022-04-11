@@ -1,7 +1,7 @@
 <template>
   <div v-if="customerId">
-    <a :class="{ disabled: $store.state.draft.order.customer.totalAddresses == 0}"
-       :disabled="$store.state.draft.order.customer.totalAddresses == 0"
+    <a :class="{ disabled: !canSelectAddress}"
+       :disabled="!canSelectAddress"
         @click.prevent="open">{{$options.filters.t('Select address', 'commerce')}}</a>
 
     <div class="hidden">
@@ -65,7 +65,20 @@
                 }
 
                 return true;
-            }
+            },
+
+            canSelectAddress() {
+                if (!this.$store.state.draft.order.customer) {
+                    return false;
+                }
+
+                if (this.$store.state.draft.order.customer.totalAddresses == 0) {
+                    return false;
+                }
+
+
+                return true;
+            },
         },
 
         methods: {
