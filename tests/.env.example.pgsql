@@ -1,12 +1,13 @@
-# Set in accordance to your environment
+APP_ID=CraftCMS
+SECURITY_KEY=UPzGqJJMCTM4n07jkqaFNaVoof6j_Xgo
 
-DB_DSN="pgsql:host=127.0.0.1;port=5432;dbname=commercetest"
-DB_USER="postgres"
-DB_PASSWORD=""
+DB_DRIVER=pgsql
+DB_SERVER=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=craft_test
+DB_USER=root
+DB_PASSWORD=
 DB_SCHEMA="public"
-DB_TABLE_PREFIX=""
-
-SECURITY_KEY="abcde12345"
 
 # Set this to the `entryUrl` param in the `codeception.yml` file.
 DEFAULT_SITE_URL="https://test.craftcms.test/index.php"
