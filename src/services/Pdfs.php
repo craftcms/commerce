@@ -177,6 +177,29 @@ class Pdfs extends Component
      */
     public const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
 
+    /**
+     * @event PdfEvent The event that is triggered before a pdf is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\services\Pdfs;
+     * use craft\commerce\models\Pdf;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdfs::class,
+     *     Pdfs::EVENT_BEFORE_DELETE_PDF,
+     *     function(PdfEvent $event) {
+     *         // @var Pdf $pdf
+     *         $pdf = $event->pdf;
+     *
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_BEFORE_DELETE_PDF = 'beforeDeletePdf';
+
     public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
@@ -345,6 +368,13 @@ class Pdfs extends Component
         $pdf = PdfRecord::findOne($id);
 
         if ($pdf) {
+
+            // Fire a 'beforeDeletePdf' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
+                $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
+                    'pdf' => $pdf
+                ]));
+            }
             Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
         }
 
@@ -379,6 +409,7 @@ class Pdfs extends Component
      */
     public function reorderPdfs(array $ids): bool
     {
+        // TODO Add event
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -434,6 +465,8 @@ class Pdfs extends Component
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
         $pdfLanguage = $pdf->getRenderLanguage($order);
+
+        // TODO add event
         Locale::switchAppLanguage($pdfLanguage);
 
         $oldTemplateMode = $view->getTemplateMode();
@@ -448,6 +481,7 @@ class Pdfs extends Component
         }
 
         try {
+            // TODO Add event
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
             Locale::switchAppLanguage($originalLanguage);
@@ -506,8 +540,11 @@ class Pdfs extends Component
         // Paper size and orientation
         $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
         $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
+
+
         $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
 
+        // TODO add event
         $dompdf->loadHtml($html);
         $dompdf->render();
 
