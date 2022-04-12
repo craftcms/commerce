@@ -31,4 +31,4 @@ jobs:
       failure_text_prefix: <!subteam^S01CWPYH9D5>
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
-      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      slack_webhook_url: ${{ secrets.SLACK_COMMERCE_WEBHOOK_URL }}
