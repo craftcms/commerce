@@ -1,0 +1,29 @@
+name: ci
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+  pull_request:
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  ecs:
+    name: ECS
+    uses: craftcms/.github/.github/workflows/ecs.yml@v1
+  codecept:
+    name: Codeception
+    uses: craftcms/.github/.github/workflows/codecept.yml@v1
+    with:
+      php_versions: '["7.2", "7.3", "7.4", "8.0", "8.1"]'
+  notify-slack:
+    name: Notify Slack
+    needs: [ ecs codecept ]
+    uses: craftcms/.github/.github/workflows/notify-slack.yml@v1
+    with:
+      success: ${{ needs.ecs.result == 'success' && needs.codecept.result == 'success' }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+      slack_group_id: ${{ secrets.SLACK_GROUP_ID }}
