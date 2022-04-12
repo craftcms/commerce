@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
+use craft\commerce\events\PdfRenderEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\events\PdfSaveEvent;
 use craft\commerce\helpers\Locale;
@@ -365,10 +366,9 @@ class Pdfs extends Component
      */
     public function deletePdfById(int $id): bool
     {
-        $pdf = PdfRecord::findOne($id);
+        $pdf = $this->getPdfById($id);
 
         if ($pdf) {
-
             // Fire a 'beforeDeletePdf' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
@@ -445,7 +445,7 @@ class Pdfs extends Component
         }
 
         // Trigger a 'beforeRenderPdf' event
-        $event = new PdfEvent([
+        $event = new PdfRenderEvent([
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
@@ -549,7 +549,7 @@ class Pdfs extends Component
         $dompdf->render();
 
         // Trigger an 'afterRenderPdf' event
-        $afterEvent = new PdfEvent([
+        $afterEvent = new PdfRenderEvent([
             'order' => $event->order,
             'option' => $event->option,
             'template' => $event->template,
