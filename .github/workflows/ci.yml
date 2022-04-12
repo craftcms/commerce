@@ -22,13 +22,13 @@ jobs:
     with:
       php_versions: '["8.0", "8.1"]'
   notify-slack:
-    if: ${{ always() }}
     name: Notify Slack
     needs: [ ecs, phpstan, codecept ]
+    if: ${{ always() }}
     uses: craftcms/.github/.github/workflows/notify-slack.yml@v1
     with:
       success: ${{ needs.ecs.result == 'success' && needs.phpstan.result == 'success' && needs.codecept.result == 'success' }}
+      failure_text_prefix: <!subteam^S01CWPYH9D5>
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-      slack_group_id: ${{ secrets.SLACK_GROUP_ID }}
