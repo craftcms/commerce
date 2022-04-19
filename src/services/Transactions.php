@@ -232,6 +232,7 @@ class Transactions extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
                 'transaction' => $transaction,
+                'order' => $parentTransaction ? $parentTransaction->getOrder() : $order
             ]));
         }
 
