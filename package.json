@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@craftcms/webpack": "^0.3.0",
-    "axios": "^0.25.0",
+    "axios": "^0.26.1",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
     "craftcms-sass": "^3.5.6",
