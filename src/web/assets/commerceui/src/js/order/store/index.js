@@ -203,7 +203,7 @@ export default new Vuex.Store({
         },
 
         edit({commit, state}) {
-            const $tabLinks = window.document.querySelectorAll('#tabs > ul > li > a')
+            const $tabLinks = window.document.querySelectorAll('#tabs > div > a')
             let $selectedLink = null
             let $detailsLink = null
             let switchToDetailsTab = false
@@ -241,9 +241,9 @@ export default new Vuex.Store({
 
                     // Disable static custom field tabs
                     if ($tabLink.classList.contains('static')) {
-                        $tabLink.parentNode.classList.add('hidden')
+                        $tabLink.classList.add('hidden')
                     } else {
-                        $tabLink.parentNode.classList.remove('hidden')
+                        $tabLink.classList.remove('hidden')
                     }
                 }
             })

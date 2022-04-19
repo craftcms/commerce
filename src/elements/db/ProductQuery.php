@@ -215,7 +215,7 @@ class ProductQuery extends ElementQuery
      * ```
      *
      * ```php
-     * // Fetch {elements} of the  product default dimension of 1
+     * // Fetch {elements} of the product default dimension of 1
      * ${elements-var} = {php-method}
      *     ->defaultHeight(1)
      *     ->all();
