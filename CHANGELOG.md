@@ -237,6 +237,9 @@
 
 ## 3.4.14 - 2022-04-06
 
+### Changed
+- It’s now possible to disable the default variant on the Edit Product page.
+
 ### Fixed
 - Fixed a bug where eager-loaded line items weren’t getting returned in a consistent order. ([#2740](https://github.com/craftcms/commerce/issues/2740))
 - Fixed a bug where it wasn’t possible to remove an address on the Edit Order page. ([#2745](https://github.com/craftcms/commerce/issues/2745))

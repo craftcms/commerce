@@ -513,10 +513,11 @@
             },
 
             disable: function() {
-                if (this.isDefault()) {
-                    // Can't disable the default variant
-                    return false;
-                }
+                // TODO revisit in 5.0 with mult-store support
+                // if (this.isDefault()) {
+                //     // Can't disable the default variant
+                //     return false;
+                // }
 
                 this.$container.children('input[name$="[enabled]"]:first').val('');
                 this.$container.addClass('disabled');
@@ -550,8 +551,9 @@
                     .attr('title', '');
 
                 // Default variants must be enabled
-                this.enable();
-                this.$actionMenu.find('a[data-action=disable]:first').parent().addClass('disabled');
+                // TODO revisit in 5.0 with mult-store support
+                // this.enable();
+                // this.$actionMenu.find('a[data-action=disable]:first').parent().addClass('disabled');
             },
 
             unsetAsDefault: function() {
