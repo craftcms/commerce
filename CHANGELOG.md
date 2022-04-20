@@ -1,6 +1,8 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
+### Changed
+- It’s now possible to disable the default variant on the Edit Product page.
 
 ### Fixed
 - Fixed addresses not showing as primary on the Edit Address slideout. ([#2762](https://github.com/craftcms/commerce/issues/2762))
@@ -236,9 +238,6 @@
 - Removed `craft\commerce\services\States`.
 
 ## 3.4.14 - 2022-04-06
-
-### Changed
-- It’s now possible to disable the default variant on the Edit Product page.
 
 ### Fixed
 - Fixed a bug where eager-loaded line items weren’t getting returned in a consistent order. ([#2740](https://github.com/craftcms/commerce/issues/2740))
