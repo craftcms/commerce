@@ -39,9 +39,9 @@ class PaymentSourcesController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
 
         // Are we paying anonymously?
-        $userId = Craft::$app->getUser()->getId();
+        $customerId = Craft::$app->getUser()->getId();
 
-        if (!$userId) {
+        if (!$customerId) {
             throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
         }
 
@@ -61,7 +61,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $description = (string)$this->request->getBodyParam('description');
 
         try {
-            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
+            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customerId, $gateway, $paymentForm, $description);
         } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
             return $this->asModelFailure(
