@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed addresses not showing as primary. ([#2762](https://github.com/craftcms/commerce/issues/2762))
+- Fixed addresses not showing as primary on the Edit Address slideout. ([#2762](https://github.com/craftcms/commerce/issues/2762))
 - Fixed a bug that could occur causing field layout tabs not to show on the Edit Order page. ([#2770](https://github.com/craftcms/commerce/issues/2770))
 - Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
 
