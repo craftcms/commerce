@@ -1539,6 +1539,7 @@ class OrdersController extends Controller
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
                 'totalAddresses' => count($customer->getAddresses()),
+                'photoThumbUrl' => $customer->getThumbUrl(100),
             ];
     }
 

@@ -6,6 +6,7 @@
 - Fixed addresses not showing as primary. ([#2762](https://github.com/craftcms/commerce/issues/2762))
 - Fixed a bug that could occur causing field layout tabs not to show on the Edit Order page. ([#2770](https://github.com/craftcms/commerce/issues/2770))
 - Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
+- Fixed a bug where customer profile photos weren’t display correctly on the Edit Order page. ([#2776](https://github.com/craftcms/commerce/issues/2776))
 
 ## 4.0.0-beta.2 - 2022-04-06
 

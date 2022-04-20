@@ -6,7 +6,7 @@
                   class="customer-photo order-flex justify-center align-center"
                   :class="avatarClass"
               >
-                  <img v-if="customer.photo" class="w-full" :src="customer.photo" :alt="customer.email">
+                  <img v-if="customer.photo && customer.photoThumbUrl" class="w-full" :src="customer.photoThumbUrl" :alt="customer.email">
                   <div :class="getBgColor(initialChar)" v-else>{{initialChar}}</div>
               </div>
               <span class="status" :class="customer.status"></span>
