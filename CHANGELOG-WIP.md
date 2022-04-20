@@ -92,10 +92,10 @@
 - `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` now has an `$order` argument rather than `$orderId`.
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises a `craft\commerce\events\PdfRenderEvent` rather than a `\craft\commerce\events\PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises a `craft\commerce\events\PdfRenderEvent` rather than a `\craft\commerce\events\PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises a `craft\commerce\events\PdfEvent` rather than a `\craft\commerce\events\PdfSaveEvent`.
-- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises a `craft\commerce\events\PdfEvent` rather than a `\craft\commerce\events\PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
 - `craft\commerce\services\ShippingMethods::getAvailableShippingMethods()` has been renamed to `getMatchingShippingMethods()`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a `$includeDisabled` argument.
 
@@ -143,7 +143,7 @@
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\events\DefineAddressLinesEvent`. `craft\services\Addresses::formatAddress()` can be used instead.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
-- Removed `\craft\commerce\events\PdfSaveEvent`.
+- Removed `craft\commerce\events\PdfSaveEvent`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Country`.
 - Removed `craft\commerce\models\Discount::$code`.

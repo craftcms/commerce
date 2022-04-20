@@ -7,13 +7,13 @@
 - Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
 
 ## Changed
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises a `craft\commerce\events\PdfRenderEvent` rather than a `\craft\commerce\events\PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises a `craft\commerce\events\PdfRenderEvent` rather than a `\craft\commerce\events\PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises a `craft\commerce\events\PdfEvent` rather than a `\craft\commerce\events\PdfSaveEvent`.
-- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises a `craft\commerce\events\PdfEvent` rather than a `\craft\commerce\events\PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
 
 ### Removed
-- Removed `\craft\commerce\events\PdfSaveEvent`.
+- Removed `craft\commerce\events\PdfSaveEvent`.
  
 ### Fixed
 - Fixed addresses not showing as primary on the Edit Address slideout. ([#2762](https://github.com/craftcms/commerce/issues/2762))
