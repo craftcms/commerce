@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\events\PdfRenderEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
-use craft\commerce\events\PdfSaveEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -54,10 +53,10 @@ class Pdfs extends Component
     private ?array $_allPdfs = null;
 
     /**
-     * @event PdfSaveEvent The event that is triggered before an pdf is saved.
+     * @event PdfEvent The event that is triggered before an pdf is saved.
      *
      * ```php
-     * use craft\commerce\events\PdfSaveEvent;
+     * use craft\commerce\events\PdfEvent;
      * use craft\commerce\services\Pdfs;
      * use craft\commerce\models\Pdf;
      * use yii\base\Event;
@@ -65,7 +64,7 @@ class Pdfs extends Component
      * Event::on(
      *     Pdfs::class,
      *     Pdfs::EVENT_BEFORE_SAVE_PDF,
-     *     function(PdfSaveEvent $event) {
+     *     function(PdfEvent $event) {
      *         // @var Pdf $pdf
      *         $pdf = $event->pdf;
      *         // @var bool $isNew
@@ -79,10 +78,10 @@ class Pdfs extends Component
     public const EVENT_BEFORE_SAVE_PDF = 'beforeSavePdf';
 
     /**
-     * @event PdfSaveEvent The event that is triggered after an PDF is saved.
+     * @event PdfEvent The event that is triggered after an PDF is saved.
      *
      * ```php
-     * use craft\commerce\events\PdfSaveEvent;
+     * use craft\commerce\events\PdfEvent;
      * use craft\commerce\services\Pdfs;
      * use craft\commerce\models\Pdf;
      * use yii\base\Event;
@@ -90,7 +89,7 @@ class Pdfs extends Component
      * Event::on(
      *     Pdfs::class,
      *     Pdfs::EVENT_AFTER_SAVE_PDF,
-     *     function(PdfSaveEvent $event) {
+     *     function(PdfEvent $event) {
      *         // @var Pdf $pdf
      *         $pdf = $event->pdf;
      *         // @var bool $isNew
@@ -112,18 +111,18 @@ class Pdfs extends Component
      * | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
      * | `order`     | populated [Order](api:craft\commerce\elements\Order) model                                                                |
      * | `template`  | optional Twig template path (string) to be used for rendering                                                             |
-     * | `variables` | populated with the variables availble to the template used for rendering                                                  |
+     * | `variables` | populated with the variables available to the template used for rendering                                                  |
      * | `option`    | optional string for the template that can be used to show different details based on context (example: `receipt`, `ajax`) |
      *
      * ```php
-     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\events\PdfRenderEvent;
      * use craft\commerce\services\Pdf;
      * use yii\base\Event;
      *
      * Event::on(
      *     Pdf::class,
      *     Pdf::EVENT_BEFORE_RENDER_PDF,
-     *     function(PdfEvent $event) {
+     *     function(PdfRenderEvent $event) {
      *         // Modify `$event->order`, `$event->option`, `$event->template`,
      *         // and `$event->variables` to customize what gets rendered into a PDF
      *         // ...
@@ -139,14 +138,14 @@ class Pdfs extends Component
      * Event handlers can override Commerce’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF string. The event properties will be the same as those from `beforeRenderPdf`, but `pdf` will contain a rendered PDF string and is the only one for which setting a value will make any difference for the resulting PDF output.
      *
      * ```php
-     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\events\PdfRenderEvent;
      * use craft\commerce\services\Pdf;
      * use yii\base\Event;
      *
      * Event::on(
      *     Pdf::class,
      *     Pdf::EVENT_AFTER_RENDER_PDF,
-     *     function(PdfEvent $event) {
+     *     function(PdfRenderEvent $event) {
      *         // Add a watermark to the PDF or forward it to the accounting department
      *         // ...
      *     }
@@ -282,7 +281,7 @@ class Pdfs extends Component
 
         // Fire a 'beforeSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfSaveEvent([
+            $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfEvent([
                 'pdf' => $pdf,
                 'isNew' => $isNewPdf,
             ]));
@@ -350,7 +349,7 @@ class Pdfs extends Component
 
         // Fire a 'afterSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfSaveEvent([
+            $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfEvent([
                 'pdf' => $this->getPdfById($pdfRecord->id),
                 'isNew' => $isNewPdf,
             ]));
@@ -544,7 +543,6 @@ class Pdfs extends Component
 
         $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
 
-        // TODO add event
         $dompdf->loadHtml($html);
         $dompdf->render();
 
