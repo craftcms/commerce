@@ -412,22 +412,27 @@ class OrdersController extends Controller
         sort($orderFields);
 
         // Remove unneeded fields
-        ArrayHelper::removeValue($orderFields, 'hasDescendants');
-        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
-        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
-        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
-        ArrayHelper::removeValue($orderFields, 'tempId');
-        ArrayHelper::removeValue($orderFields, 'resaving');
-        ArrayHelper::removeValue($orderFields, 'duplicateOf');
-        ArrayHelper::removeValue($orderFields, 'totalDescendants');
-        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
-        ArrayHelper::removeValue($orderFields, 'contentId');
-        ArrayHelper::removeValue($orderFields, 'trashed');
-        ArrayHelper::removeValue($orderFields, 'structureId');
-        ArrayHelper::removeValue($orderFields, 'url');
-        ArrayHelper::removeValue($orderFields, 'ref');
-        ArrayHelper::removeValue($orderFields, 'title');
-        ArrayHelper::removeValue($orderFields, 'slug');
+        $removeProps = [
+            'hasDescendants',
+            'makePrimaryShippingAddress',
+            'shippingSameAsBilling',
+            'billingSameAsShipping',
+            'tempId',
+            'resaving',
+            'duplicateOf',
+            'totalDescendants',
+            'fieldLayoutId',
+            'contentId',
+            'trashed',
+            'structureId',
+            'url',
+            'ref',
+            'title',
+            'slug',
+        ];
+        foreach ($removeProps as $removeProp) {
+            ArrayHelper::removeValue($orderFields, $removeProp);
+        }
 
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getCustomFields() as $field) {
@@ -1541,7 +1546,7 @@ class OrdersController extends Controller
      * @param Order $order
      * @throws ForbiddenHttpException
      */
-    protected function enforceManageOrderPermissions(Order $order)
+    protected function enforceManageOrderPermissions(Order $order): void
     {
         if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User not authorized to view this order.');
