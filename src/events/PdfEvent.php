@@ -18,6 +18,5 @@ use yii\base\Event;
  */
 class PdfEvent extends Event
 {
-
     public Pdf $pdf;
 }

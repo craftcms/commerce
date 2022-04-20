@@ -372,7 +372,7 @@ class Pdfs extends Component
             // Fire a 'beforeDeletePdf' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
-                    'pdf' => $pdf
+                    'pdf' => $pdf,
                 ]));
             }
             Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
