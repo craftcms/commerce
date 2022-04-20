@@ -1,9 +1,11 @@
 # Release Notes for Craft Commerce
 
-## 3.4.14 - 2022-04-06
+## Unreleased
 
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
+
+## 3.4.14 - 2022-04-06
 
 ### Fixed
 - Fixed a bug where eager-loaded line items weren’t getting returned in a consistent order. ([#2740](https://github.com/craftcms/commerce/issues/2740))
