@@ -39,6 +39,7 @@
 - Added `craft\commerce\elements\actions\UpdateOrderStatus::$suppressEmails`.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
 - Added `craft\commerce\events\OrderStatusEmailsEvent`.
+- Added `craft\commerce\events\PdfRenderEvent`.
 - Added `craft\commerce\fieldlayoutelements\UserAddressSettings`.
 - Added `craft\commerce\helpers\DebugPanel`.
 - Added `craft\commerce\helpers\PaymentForm`.
@@ -64,6 +65,7 @@
 - Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
+- Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypes()`.
 - Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`.
@@ -90,6 +92,10 @@
 - `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` now has an `$order` argument rather than `$orderId`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
 - `craft\commerce\services\ShippingMethods::getAvailableShippingMethods()` has been renamed to `getMatchingShippingMethods()`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a `$includeDisabled` argument.
 
@@ -137,6 +143,7 @@
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\events\DefineAddressLinesEvent`. `craft\services\Addresses::formatAddress()` can be used instead.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
+- Removed `craft\commerce\events\PdfSaveEvent`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Country`.
 - Removed `craft\commerce\models\Discount::$code`.
