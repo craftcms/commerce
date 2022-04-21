@@ -592,11 +592,11 @@ class Sales extends Component
     /**
      * Reorder Sales based on a list of ids.
      *
-     * @param $ids
+     * @param int[] $ids
      * @return bool
      * @throws \yii\db\Exception
      */
-    public function reorderSales($ids): bool
+    public function reorderSales(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
@@ -612,11 +612,11 @@ class Sales extends Component
     /**
      * Delete a sale by its id.
      *
-     * @param $id
+     * @param int $id
      * @return bool
      * @throws StaleObjectException
      */
-    public function deleteSaleById($id): bool
+    public function deleteSaleById(int $id): bool
     {
         $saleRecord = SaleRecord::findOne($id);
 
