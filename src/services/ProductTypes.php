@@ -551,10 +551,11 @@ class ProductTypes extends Component
 
             $sitesNowWithoutUrls = [];
             $sitesWithNewUriFormats = [];
+            /** @var array<int, ProductTypeSiteRecord> $allOldSiteSettingsRecords */
             $allOldSiteSettingsRecords = [];
 
             if (!$isNewProductType) {
-                // Get the old product type site settings
+                /** @var array<int, ProductTypeSiteRecord> $allOldSiteSettingsRecords */
                 $allOldSiteSettingsRecords = ProductTypeSiteRecord::find()
                     ->where(['productTypeId' => $productTypeRecord->id])
                     ->indexBy('siteId')
