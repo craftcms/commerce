@@ -18,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property bool $enabled
  * @property int $id
+ * @property bool $isLite
  * @property ShippingMethod $method
  * @property int $methodId
  * @property string $orderConditionFormula
