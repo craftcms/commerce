@@ -25,22 +25,23 @@ use yii\db\ActiveQueryInterface;
  * @property string $optionsSignature
  * @property Order $order
  * @property int $orderId
- * @property int|null lineItemStatusId
+ * @property int|null $lineItemStatusId
  * @property float $price
- * @property ActiveQueryInterface $purchasable
+ * @property-read ActiveQueryInterface $purchasable
  * @property int $purchasableId
  * @property int $qty
  * @property float $saleAmount
  * @property float $salePrice
  * @property string $sku
- * @property ActiveQueryInterface $shippingCategory
+ * @property-read ActiveQueryInterface $shippingCategory
  * @property int $shippingCategoryId
  * @property string $snapshot
- * @property TaxCategory $taxCategory
+ * @property-read TaxCategory $taxCategory
  * @property int $taxCategoryId
  * @property float $total
  * @property float $subtotal
  * @property float $weight
+ * @property-read ActiveQueryInterface $lineItemStatus
  * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
