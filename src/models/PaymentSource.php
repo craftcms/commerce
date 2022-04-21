@@ -108,7 +108,7 @@ class PaymentSource extends Model
      */
     public function getGateway(): ?GatewayInterface
     {
-        if (isset($this->_gateway)) {
+        if ($this->_gateway === null && $this->gatewayId) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
