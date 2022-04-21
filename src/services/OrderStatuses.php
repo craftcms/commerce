@@ -544,11 +544,8 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        /** @var OrderStatusRecord $orderStatus */
-        if ($orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one()) {
-            return $orderStatus;
-        }
-
-        return new OrderStatusRecord();
+        /** @var ?OrderStatusRecord $orderStatus */
+        $orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one();
+        return $orderStatus ?: new OrderStatusRecord();
     }
 }
