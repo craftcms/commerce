@@ -232,11 +232,11 @@ class TaxCategories extends Component
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
      * @throws InvalidConfigException
      */
-    public function getTaxCategoriesByProductTypeId($productTypeId): array
+    public function getTaxCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
