@@ -100,8 +100,8 @@ class TopPurchasablesTest extends Unit
                         'purchasableId' => $variant->id ?? null,
                         'description' => $variant ? $variant->getDescription() : null,
                         'sku' => 'hct-blue',
-                        'qty' => 2,
-                        'revenue' => 43.98,
+                        'qty' => 4,
+                        'revenue' => 87.96,
                     ];
                 },
             ],

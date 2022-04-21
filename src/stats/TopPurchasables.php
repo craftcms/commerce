@@ -73,6 +73,7 @@ class TopPurchasables extends Stat
             ->andWhere(['pt.id' => $editableProductTypeIds])
             ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
+            ->addOrderBy('sku ASC')
             ->limit($this->limit);
 
         return $topPurchasables->all();

@@ -93,8 +93,8 @@ class TopCustomersTest extends Unit
                 function() {
                     $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
                     return [
-                        'total' => 83.96,
-                        'average' => 41.98,
+                        'total' => 127.94,
+                        'average' => 63.97,
                         'customerId' => $user->id,
                         'email' => $user->email,
                         'count' => 2,
