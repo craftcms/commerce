@@ -266,11 +266,11 @@ class PaymentCurrencies extends Component
     /**
      * Delete a payment currency by its ID.
      *
-     * @param $id
+     * @param int $id
      * @return bool
      * @throws StaleObjectException
      */
-    public function deletePaymentCurrencyById($id): bool
+    public function deletePaymentCurrencyById(int $id): bool
     {
         $paymentCurrency = PaymentCurrencyRecord::findOne($id);
 
