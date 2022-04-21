@@ -232,11 +232,11 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
      * @throws InvalidConfigException
      */
-    public function getShippingCategoriesByProductTypeId($productTypeId): array
+    public function getShippingCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
