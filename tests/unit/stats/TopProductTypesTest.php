@@ -89,8 +89,8 @@ class TopProductTypesTest extends Unit
                 [
                     'id' => 2001,
                     'name' => 'T-Shirts',
-                    'qty' => 4,
-                    'revenue' => 83.96,
+                    'qty' => 6,
+                    'revenue' => 127.94,
                 ],
             ],
             [

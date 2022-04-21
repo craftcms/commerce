@@ -73,7 +73,7 @@ class TotalRevenueTest extends Unit
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
-                83.96,
+                127.94,
             ],
         ];
     }
