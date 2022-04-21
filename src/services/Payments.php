@@ -474,14 +474,14 @@ class Payments extends Component
      * Handles a redirect.
      *
      * @param RequestResponseInterface $response
-     * @param                          $redirect
+     * @param string|null $redirect
      * @throws ExitException
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \yii\base\Exception
      */
-    private function _handleRedirect(RequestResponseInterface $response, &$redirect): void
+    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect): void
     {
         // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
