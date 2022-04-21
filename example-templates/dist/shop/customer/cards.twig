@@ -5,7 +5,7 @@
 {% extends 'shop/_private/layouts' %}
 
 {# @var paymentSources \craft\commerce\models\PaymentSource[] #}
-{% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
+{% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id) %}
 
 {# @var gateways \craft\commerce\base\GatewayInterface[] #}
 {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
@@ -22,7 +22,9 @@
           <div class="card flex justify-between bg-gray-100 border-blue-300 border-b-2 p-6">
             <div>
               <strong>{{ paymentSource.description }}</strong>
-              <div class="text-grey-dark">{{ paymentSource.gateway.name }}</div>
+              {% if paymentSource.gateway %}
+                <div class="text-grey-dark">{{ paymentSource.gateway.name }}</div>
+              {% endif %}
             </div>
 
             <div>
