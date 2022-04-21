@@ -563,7 +563,7 @@ class ProductTypes extends Component
 
             $siteIdMap = Db::idsByUids('{{%sites}}', array_keys($siteData));
 
-            /** @var ProductTypeSiteRecord $siteSettings */
+            /** @var array $siteSettings */
             foreach ($siteData as $siteUid => $siteSettings) {
                 $siteId = $siteIdMap[$siteUid];
 
