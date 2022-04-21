@@ -5,6 +5,9 @@
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
 
+### Fixed
+- Fixed an issue on address page example templates where adding required attribute to input elements in form throws an error of "field is not focusable".
+
 ## 3.4.14 - 2022-04-06
 
 ### Fixed

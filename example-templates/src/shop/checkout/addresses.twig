@@ -147,6 +147,12 @@ Outputs a form for collecting an order’s shipping and billing address.
     $billingSameAs.addEventListener('change', function(ev) {
       var $billingFieldSet = document.querySelector('.js-address-fieldset.BillingAddress');
       $billingFieldSet.classList.toggle('hidden');
+
+      for (let input of document.querySelector('.js-address-fieldset.BillingAddress').querySelectorAll('input')) {
+        if (input.hasAttribute('required')) {
+          input.removeAttribute('required');
+        }
+      }
     });
   }
   {% endjs %}
