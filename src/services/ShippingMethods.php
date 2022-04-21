@@ -247,7 +247,7 @@ class ShippingMethods extends Component
     /**
      * Delete a shipping method by its ID.
      *
-     * @param $shippingMethodId int
+     * @param int $shippingMethodId
      * @return bool
      * @throws Throwable
      */
