@@ -23,7 +23,7 @@
 - Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
 - Fixed a bug where customer profile photos weren’t display correctly on the Edit Order page. ([#2776](https://github.com/craftcms/commerce/issues/2776))
 - Fixed a bug where creating a payment source via `craft\commerce\controllers\PaymentSourcesController` would always fail.
-- Fixed a bug where it wasn't possible to update the email address on a guest customer’s cart. ([#2780](https://github.com/craftcms/commerce/issues/2780)) 
+- Fixed a bug where it wasn't possible to update the email address on a guest customer’s cart. ([#2782](https://github.com/craftcms/commerce/issues/2782)) 
 
 ## 4.0.0-beta.2 - 2022-04-06
 
