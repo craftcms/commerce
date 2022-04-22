@@ -200,7 +200,8 @@ class CartController extends BaseFrontEndController
         $this->_setAddresses();
 
         // Set guest email address onto guest customers order.
-        if (($email = $this->request->getParam('email')) && $this->_cart->getEmail() === null) {
+        $email = $this->request->getParam('email');
+        if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
             try {
                 $this->_cart->setEmail($email);
             } catch (\Exception $e) {
