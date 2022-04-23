@@ -65,7 +65,7 @@ JS;
         $countriesField = Cp::multiSelectFieldHtml([
             'class' => 'selectize',
             'label' => Craft::t('commerce', 'Country List'),
-            'instructions' => Craft::t('commerce', 'The list of countries available and allowed for selection by customers for orders.'),
+            'instructions' => Craft::t('commerce', 'The countries that orders are allowed to be placed from.'),
             'id' => 'countries',
             'name' => 'countries',
             'values' => $store->getCountries(),

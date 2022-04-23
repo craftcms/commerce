@@ -53,9 +53,10 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
           label: Craft.t('commerce', 'Generated Coupon Format'),
           name: 'couponFormat',
           type: 'text',
-          instructions: Craft.t('commerce', 'The format used to generate new coupons.'),
+          instructions: Craft.t('commerce', 'The format used to generate new coupons, e.g. {example}. Any `#` characters will be replaced with a random letter.', {
+            example: '`summer_####`',
+          }),
           value: this.settings.couponFormat,
-          tip: Craft.t('commerce','e.g. summer_####. # characters will be replaced with a random letter.'),
         });
 
         this.$generateHudBody.append(this.$hudFormatField);
