@@ -37,9 +37,9 @@ class MailEvent extends CancelableEvent
     public Order $order;
 
     /**
-     * @var OrderHistory The order history
+     * @var OrderHistory|null The order history
      */
-    public OrderHistory $orderHistory;
+    public ?OrderHistory $orderHistory = null;
 
     /**
      * @var array Order data at the time the email sends.
