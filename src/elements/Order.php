@@ -2167,6 +2167,7 @@ class Order extends Element
      * Sets the orders user based on the email address provided.
      *
      * @param string|null $email
+     * @throws Exception
      */
     public function setEmail(?string $email): void
     {
