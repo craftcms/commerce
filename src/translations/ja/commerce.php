@@ -270,7 +270,7 @@ return [
     'Create discounts' => 'ディスカウントを作成',
     'Create discount…' => 'ディスカウントを作成…',
     'Create products' => '商品を作成',
-    'Create rules that allow this discount to match the order.' => 'Create rules that allow this discount to match the order.',
+    'Create rules that allow this discount to match the order.' => 'このディスカウントを注文に一致させるルールを作成します。',
     'Create rules that allow this discount to match the order’s billing address.' => 'Create rules that allow this discount to match the order’s billing address.',
     'Create rules that allow this discount to match the order’s customer.' => 'Create rules that allow this discount to match the order’s customer.',
     'Create rules that allow this discount to match the order’s shipping address.' => 'Create rules that allow this discount to match the order’s shipping address.',
