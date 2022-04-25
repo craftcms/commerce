@@ -44,14 +44,14 @@ class ProductTypeSite extends Model
     public bool $hasUrls = false;
 
     /**
-     * @var string URL Format
+     * @var string|null URL Format
      */
-    public string $uriFormat;
+    public ?string $uriFormat = null;
 
     /**
-     * @var string Template Path
+     * @var string|null Template Path
      */
-    public string $template;
+    public ?string $template = null;
 
     /**
      * @var ProductType|null
