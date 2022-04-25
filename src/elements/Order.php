@@ -3355,7 +3355,7 @@ class Order extends Element
             if ($notice->id === null) {
 
                 $orderNoticeEvent = new OrderNoticeEvent([
-                    'orderNotice' => $notice
+                    'orderNotice' => $notice,
                 ]);
 
                 // Raising the 'beforeAddNoticeToOrder' event
