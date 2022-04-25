@@ -1091,11 +1091,11 @@ class Discounts extends Component
     }
 
     /**
-     * @param $discounts
+     * @param array $discounts
      * @return array
      * @since 2.2.14
      */
-    private function _populateDiscounts($discounts): array
+    private function _populateDiscounts(array $discounts): array
     {
         $allDiscountsById = [];
 
