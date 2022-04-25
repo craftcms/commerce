@@ -3353,7 +3353,6 @@ class Order extends Element
         // We are never updating a notice, just adding it or keeping it.
         foreach ($this->getNotices() as $notice) {
             if ($notice->id === null) {
-
                 $orderNoticeEvent = new OrderNoticeEvent([
                     'orderNotice' => $notice,
                 ]);
