@@ -56,11 +56,12 @@ class CustomerAddressBehavior extends Behavior
         $user = $this->owner->getOwner();
         $customersService = Plugin::getInstance()->getCustomers();
 
-        if (isset($this->_isPrimaryBilling)) {
+        $customer = $customersService->ensureCustomer($user);
+        if (isset($this->_isPrimaryBilling) && ($this->_isPrimaryBilling || $customer->primaryBillingAddressId === $this->owner->id)) {
             $customersService->savePrimaryBillingAddressId($user, $this->_isPrimaryBilling ? $this->owner->id : null);
         }
 
-        if (isset($this->_isPrimaryShipping)) {
+        if (isset($this->_isPrimaryShipping) && ($this->_isPrimaryShipping || $customer->primaryShippingAddressId === $this->owner->id)) {
             $customersService->savePrimaryShippingAddressId($user, $this->_isPrimaryShipping ? $this->owner->id : null);
         }
     }
