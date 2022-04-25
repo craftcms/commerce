@@ -27,6 +27,7 @@
 - Fixed a bug where it wasn't possible to update the email address on a guest customer’s cart. ([#2782](https://github.com/craftcms/commerce/issues/2782))
 - Fixed a PHP error that occurred when sending an email from the Edit Order page. ([#2784](https://github.com/craftcms/commerce/issues/2784))
 - Fixed a bug that could occur when saving an address. ([#2783](https://github.com/craftcms/commerce/issues/2783))
+- Fixed a bug that occurred when creating a new Product Type.
 
 ## 4.0.0-beta.2 - 2022-04-06
 
