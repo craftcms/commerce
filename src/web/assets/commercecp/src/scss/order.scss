@@ -49,11 +49,11 @@
 }
 
 .transaction-status.transaction-status-failed {
-  color: #D0021B;
+  color: #d0021b;
 }
 
 .transaction-status.transaction-status-success {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 .gateway-response {
@@ -74,7 +74,7 @@
   font-family: Menlo, monospace;
 }
 
-.transaction-refund input[type="text"] {
+.transaction-refund input[type='text'] {
   width: 100%;
   margin-bottom: 10px;
 }
