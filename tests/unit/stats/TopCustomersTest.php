@@ -86,8 +86,8 @@ class TopCustomersTest extends Unit
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
                 [
-                    'total' => 83.96,
-                    'average' => 41.98,
+                    'total' => 127.94,
+                    'average' => 63.97,
                     'customerId' => 1000,
                     'email' => 'support@craftcms.com',
                     'count' => 2,
