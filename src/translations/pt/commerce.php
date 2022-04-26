@@ -650,7 +650,7 @@ return [
     'No shipping rule exists with the ID “{id}”' => 'Não existe regra de envio com o ID “{id}”',
     'No shipping rules exist yet.' => 'Ainda não existem regras de envio.',
     'No shipping zone exists with the ID “{id}”' => 'Não existe zona de envio com a ID “{id}”',
-    'No stats available.' => 'Não estão disponíveis estatísticas.',
+    'No stats available.' => 'Não há estatísticas disponíveis.',
     'No subscription plan exists with the ID “{id}”' => 'Não existe um plano de subscrição com a ID “{id}”',
     'No subscription plans exist yet.' => 'Ainda não existem planos de subscrição.',
     'No subscriptions exist for this user yet.' => 'Ainda não existem subscrições para este utilizador.',
