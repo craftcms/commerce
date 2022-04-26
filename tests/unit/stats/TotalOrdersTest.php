@@ -80,7 +80,7 @@ class TotalOrdersTest extends Unit
     public function getDataDataProvider(): array
     {
         return [
-            [
+            'today' => [
                 TotalOrders::DATE_RANGE_TODAY,
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
@@ -89,7 +89,7 @@ class TotalOrdersTest extends Unit
                     ->diff((new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
                     ->days,
             ],
-            [
+            'custom' => [
                 TotalOrders::DATE_RANGE_CUSTOM,
                 (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
