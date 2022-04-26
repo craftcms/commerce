@@ -63,7 +63,7 @@ class TotalOrdersTest extends Unit
         self::assertIsArray($data['chart']);
         self::assertArrayHasKey($startDate->format('Y-m-d'), $data['chart']);
         self::assertArrayHasKey($endDate->format('Y-m-d'), $data['chart']);
-        self::assertCount($daysDiff + 1, $data['chart']);
+        self::assertCount($daysDiff, $data['chart']);
 
         $firstItem = array_shift($data['chart']);
         self::assertArrayHasKey('total', $firstItem);
@@ -84,23 +84,19 @@ class TotalOrdersTest extends Unit
     public function getDataDataProvider(): array
     {
         return [
-            [
+            'today' => [
                 TotalOrders::DATE_RANGE_TODAY,
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
-                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
-                    ->diff((new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
-                    ->days,
+                1,
             ],
-            [
+            'custom' => [
                 TotalOrders::DATE_RANGE_CUSTOM,
                 (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
-                    ->diff((new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
-                    ->days,
+                3,
             ],
         ];
     }
