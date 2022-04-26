@@ -9,11 +9,15 @@ module.exports = getConfig({
     plugins: [
       new CopyWebpackPlugin({
         patterns: [
-          { from: require.resolve('chart.js/dist/Chart.bundle.min.js'), },
-          { from: require.resolve('moment/min/moment-with-locales.min.js'), },
-          { from: require.resolve('chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js'), },
+          {from: require.resolve('chart.js/dist/Chart.bundle.min.js')},
+          {from: require.resolve('moment/min/moment-with-locales.min.js')},
+          {
+            from: require.resolve(
+              'chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js'
+            ),
+          },
         ],
       }),
-    ]
-  }
+    ],
+  },
 });

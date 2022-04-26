@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      CommerceProductIndex: './CommerceProductIndex.js'
+      CommerceProductIndex: './CommerceProductIndex.js',
     },
-  }
+  },
 });
