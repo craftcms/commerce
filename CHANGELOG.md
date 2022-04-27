@@ -1,6 +1,7 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
+
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
 
