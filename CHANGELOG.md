@@ -5,6 +5,9 @@
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
 
+### Fixed
+- Fixed a bug where it wasn’t possible to navigate the color field with the keyboard on the Edit Order Status page. ([#2601](https://github.com/craftcms/commerce/issues/2601))
+
 ## 3.4.14 - 2022-04-06
 
 ### Fixed
