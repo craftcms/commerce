@@ -412,7 +412,7 @@ class Order extends Element
      *
      * Event::on(
      *     Order::class,
-     *     Order::EVENT_BEFORE_ADD_NOTICE,
+     *     Order::EVENT_BEFORE_APPLY_ADD_NOTICE,
      *     function(OrderNoticeEvent $event) {
      *         // @var OrderNotice $orderNotice
      *         $orderNotice = $event->orderNotice;
@@ -421,7 +421,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_BEFORE_ADD_NOTICE = 'beforeAddNoticeToOrder';
+    const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -3358,8 +3358,8 @@ class Order extends Element
                 ]);
 
                 // Raising the 'beforeAddNoticeToOrder' event
-                if ($this->hasEventHandlers(self::EVENT_BEFORE_ADD_NOTICE)) {
-                    $this->trigger(self::EVENT_BEFORE_ADD_NOTICE, $orderNoticeEvent);
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
+                    $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
 
                     if ($orderNoticeEvent->isValid === false) {
                         continue;

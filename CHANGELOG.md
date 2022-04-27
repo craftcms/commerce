@@ -6,7 +6,7 @@
 - It’s now possible to disable the default variant on the Edit Product page.
 
 ### Added
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
 
 ## 3.4.14 - 2022-04-06
 
