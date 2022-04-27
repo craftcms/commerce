@@ -2,14 +2,11 @@
 
 ## Unreleased
 
-### Changed
-- It’s now possible to disable the default variant on the Edit Product page.
-
 ### Added
 - Added `craft\commerce\events\PdfRenderEvent`.
 - Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
 
-## Changed
+### Changed
 - `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
 - `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
 - `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
@@ -257,6 +254,14 @@
 - Removed `craft\commerce\services\Payments::getTotalRefundedForOrder()`.
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
+
+## Unreleased (3.4.x)
+
+### Changed
+- It’s now possible to disable the default variant on the Edit Product page.
+
+### Fixed
+- Fixed a bug where it wasn’t possible to navigate the color field with the keyboard on the Edit Order Status page. ([#2601](https://github.com/craftcms/commerce/issues/2601))
 
 ## 3.4.14 - 2022-04-06
 

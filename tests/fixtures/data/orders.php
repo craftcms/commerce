@@ -28,6 +28,7 @@ $hctBlueLineItem = !array_key_exists('hct-blue', $variants) ? [] : [
 $orderStatuses = OrderStatus::find()->select(['id', 'handle'])->indexBy('handle')->column();
 
 $yesterday = new DateTime();
+$yesterday->setTimezone(new DateTimeZone('America/Los_Angeles'));
 $yesterday->sub(new DateInterval('P1D'));
 $yesterday->setTime(23, 59, 59);
 
