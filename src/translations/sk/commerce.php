@@ -561,7 +561,7 @@ return [
     'Match Shipping Address' => 'Zhoda dodacej adresy',
     'Matching Items' => 'Položky so zhodou',
     'Matching items are those items that are used to match this discount’s conditions. Those on the \'Matching Items\' tab.' => 'Položky v zhode sú také položky, ktoré sa zhodujú s podmienkami zľavy. Sú to položky na záložke „Zhodné položky“.',
-    'Max Uses' => 'Maximálne použitie',
+    'Max Uses' => 'Maximálny počet použití',
     'Maximum Order Quantity' => 'Maximálne Množstvo pre Objednanie',
     'Maximum Order Total Value' => 'Maximálna celková hodnota objednávky',
     'Maximum Order Total Weight' => 'Maximálna Celková Hmotnosť Objednávky',
