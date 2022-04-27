@@ -48,7 +48,7 @@ class Settings extends Model
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @since 2.2
@@ -123,7 +123,7 @@ class Settings extends Model
     /**
      * @var string|null Default email address Commerce system messages should be sent from.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
      *
      * @group System
      */
@@ -132,7 +132,7 @@ class Settings extends Model
     /**
      * @var string|null Placeholder value displayed for the sender address control panel settings field.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
      *
      * @group System
      */
@@ -141,7 +141,7 @@ class Settings extends Model
     /**
      * @var string|null Default from name used for Commerce system emails.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
      *
      * @group System
      */
@@ -150,7 +150,7 @@ class Settings extends Model
     /**
      * @var string|null Placeholder value displayed for the sender name control panel settings field.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
      *
      * @group System
      */
@@ -207,7 +207,7 @@ class Settings extends Model
     /**
      * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
-     * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
+     * If `null` (default), Craft’s default [`siteUrl`](config4:siteUrl) will be used.
      *
      * @group Cart
      * @since 3.1
@@ -219,7 +219,7 @@ class Settings extends Model
      *
      * Options:
      *
-     * - `'default'` [rounds](commerce3:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
+     * - `'default'` [rounds](commerce4:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
      * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
      * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
      *
@@ -283,7 +283,7 @@ class Settings extends Model
     /**
      * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @defaultAlt 90 days

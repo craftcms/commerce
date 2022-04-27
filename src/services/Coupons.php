@@ -20,6 +20,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
+use yii\web\BadRequestHttpException;
 
 /**
  * Coupons service.
@@ -204,7 +205,7 @@ class Coupons extends Component
      * @param Coupon $coupon
      * @param bool $runValidation
      * @return bool
-     * @throws Exception
+     * @throws BadRequestHttpException
      */
     public function saveCoupon(Coupon $coupon, bool $runValidation = true): bool
     {
@@ -212,7 +213,7 @@ class Coupons extends Component
             $record = CouponRecord::findOne($coupon->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No coupon exists with the ID “{id}”', ['id' => $coupon->id]));
+                throw new BadRequestHttpException("Invalid coupon ID: $coupon->id");
             }
         } else {
             $record = new CouponRecord();

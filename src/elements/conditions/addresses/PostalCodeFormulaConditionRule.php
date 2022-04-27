@@ -23,7 +23,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
 {
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Post Code Formula');
+        return Craft::t('commerce', 'Postal Code Formula');
     }
 
     public function getExclusiveQueryParams(): array

@@ -61,7 +61,7 @@ class SubscriptionsController extends BaseController
         }
 
         if (!$subscription) {
-            throw new NotFoundHttpException(Craft::t('commerce', 'Subscription not found'));
+            throw new NotFoundHttpException('Subscription not found');
         }
 
         $this->enforceManageSubscriptionPermissions($subscription);
