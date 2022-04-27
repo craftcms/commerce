@@ -20,7 +20,7 @@ $hctWhiteLineItem = !array_key_exists('hct-white', $variants) ? [] : [
 $hctBlueLineItem = !array_key_exists('hct-blue', $variants) ? [] : [
     'purchasableId' => $variants['hct-blue']->id,
     'options' => ['giftWrapped' => 'yes'],
-    'qty' => 2,
+    'qty' => 4,
     'note' => '',
 ];
 $orderStatuses = OrderStatus::find()->select(['id', 'handle'])->indexBy('handle')->column();

@@ -68,6 +68,7 @@ class TopPurchasables extends Stat
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
+            ->addOrderBy('sku ASC')
             ->limit($this->limit);
 
         return $topPurchasables->all();

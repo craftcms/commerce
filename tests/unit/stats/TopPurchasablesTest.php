@@ -86,14 +86,14 @@ class TopPurchasablesTest extends Unit
                 2,
                 function(VariantQuery $query) {
                     /** @var Purchasable $purchasable */
-                    $variant = $query->sku('hct-white')->one();
+                    $variant = $query->sku('hct-blue')->one();
 
                     return [
                         'purchasableId' => $variant->id ?? null,
                         'description' => $variant ? $variant->getDescription() : null,
-                        'sku' => 'hct-white',
-                        'qty' => 2,
-                        'revenue' => 39.98,
+                        'sku' => 'hct-blue',
+                        'qty' => 4,
+                        'revenue' => 87.96,
                     ];
                 },
             ],
