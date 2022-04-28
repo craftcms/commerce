@@ -32,17 +32,21 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
     var $body = $('<div class="body"></div>').appendTo($form);
     var $inputs = $('<div/>', {
       class: 'content',
-    }).append($('<h2/>', {
-      class: 'first',
-      text: Craft.t('commerce', 'Update Order Status'),
-    })).appendTo($body);
+    })
+      .append(
+        $('<h2/>', {
+          class: 'first',
+          text: Craft.t('commerce', 'Update Order Status'),
+        })
+      )
+      .appendTo($body);
 
     // Build menu button
     this.$statusSelect = $('<a/>', {
-        class: 'btn menubtn',
-        href: '#',
-        html: $('<span class="status ' + currentStatus.color + '"/>'),
-      })
+      class: 'btn menubtn',
+      href: '#',
+      html: $('<span class="status ' + currentStatus.color + '"/>'),
+    })
       .append(currentStatus.name)
       .appendTo($inputs);
     var $menu = $('<div class="menu"/>').appendTo($inputs);
@@ -72,29 +76,36 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
 
     // Build message input
     this.$message = $('<div/>', {
-        class: 'field',
+      class: 'field',
     })
-      .append($('<div/>', {
+      .append(
+        $('<div/>', {
           class: 'heading',
         })
-        .append($('<label/>', {
-          text: Craft.t('commerce', 'Message'),
-        }))
-        .append($('<div/>', {
-          class: 'instructions',
-          text: Craft.t('commerce', 'Status change message'),
-        }))
+          .append(
+            $('<label/>', {
+              text: Craft.t('commerce', 'Message'),
+            })
+          )
+          .append(
+            $('<div/>', {
+              class: 'instructions',
+              text: Craft.t('commerce', 'Status change message'),
+            })
+          )
       )
-      .append($('<div/>', {
+      .append(
+        $('<div/>', {
           class: 'input ltr',
-        })
-          .append($('<textarea/>', {
+        }).append(
+          $('<textarea/>', {
             name: 'message',
             rows: 2,
             cols: 50,
             maxlength: 10000,
             class: 'text fullwidth',
-          }))
+          })
+        )
       )
       .appendTo($inputs);
 
@@ -150,12 +161,15 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
       color: $(status).data('color'),
     };
 
-    console.log($(status).data('id'), $(status).data('name'), $(status).data('color'));
+    console.log(
+      $(status).data('id'),
+      $(status).data('name'),
+      $(status).data('color')
+    );
 
     var newHtml = $('<span/>', {
-        html: $('<span class="status ' + this.currentStatus.color + '"/>')
-      })
-      .append(Craft.uppercaseFirst(this.currentStatus.name));
+      html: $('<span class="status ' + this.currentStatus.color + '"/>'),
+    }).append(Craft.uppercaseFirst(this.currentStatus.name));
     this.$statusSelect.html(newHtml);
 
     if (this.originalStatusId === this.currentStatus.id) {

@@ -27,8 +27,7 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend({
       for (var i = 0; i < info.length; i++) {
         var $tr = $('<tr />').appendTo($tbody);
         var $label = $('<td/>')
-          .append($('<strong />')
-            .text(Craft.t('commerce', info[i].label)))
+          .append($('<strong />').text(Craft.t('commerce', info[i].label)))
           .appendTo($tr);
 
         var value = info[i].value;

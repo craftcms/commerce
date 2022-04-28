@@ -20,16 +20,20 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
     ).appendTo(Garnish.$bod);
     var $body = $('<div class="body"></div>').appendTo(this.$form);
     var $inputs = $('<div/>', {class: 'content'})
-      .append($('<h2/>', {
-        class: 'first',
-        text: Craft.t('commerce', 'Add Product to Sale'),
-      }))
-      .append($('<p/>', {
-        text: Craft.t(
-          'commerce',
-          'Add this product to an existing sale. This will change the conditions of the sale, please review the sale.'
-        ),
-      }))
+      .append(
+        $('<h2/>', {
+          class: 'first',
+          text: Craft.t('commerce', 'Add Product to Sale'),
+        })
+      )
+      .append(
+        $('<p/>', {
+          text: Craft.t(
+            'commerce',
+            'Add this product to an existing sale. This will change the conditions of the sale, please review the sale.'
+          ),
+        })
+      )
       .appendTo($body);
 
     if (this.settings.purchasables.length) {
@@ -51,16 +55,15 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
             value: purchasable.id,
             checked: true,
           });
-          var $checkboxContainer = $('<div/>')
-            .append(
-              $('<label/>', {
-                for: 'add-to-sale-purchasable-' + purchasable.id,
-                text: purchasable.title + ' ',
-              }).append('<span/>', {
-                class: 'extralight',
-                text: purchasable.sku,
-              })
-            );
+          var $checkboxContainer = $('<div/>').append(
+            $('<label/>', {
+              for: 'add-to-sale-purchasable-' + purchasable.id,
+              text: purchasable.title + ' ',
+            }).append('<span/>', {
+              class: 'extralight',
+              text: purchasable.sku,
+            })
+          );
 
           $pCheck.on(
             'change',
@@ -109,9 +112,11 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
 
       var $fieldContainer = $('<div class="field"/>');
       $('<div class="heading"/>')
-        .append($('<label/>', {
-          text: Craft.t('commerce', 'Sale'),
-        }))
+        .append(
+          $('<label/>', {
+            text: Craft.t('commerce', 'Sale'),
+          })
+        )
         .appendTo($fieldContainer);
 
       $container.appendTo($fieldContainer);
