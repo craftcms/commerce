@@ -22,6 +22,7 @@ use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\web\Cookie;
 use function count;
 
 /**
@@ -180,6 +181,14 @@ class Carts extends Component
     }
 
     /**
+     * @since 3.1
+     */
+    public function getCartName(): string
+    {
+        return $this->cartName;
+    }
+
+    /**
      * Returns whether there is a cart number in the session.
      *
      * @throws MissingComponentException
@@ -188,15 +197,16 @@ class Carts extends Component
     public function getHasSessionCartNumber(): bool
     {
         $session = Craft::$app->getSession();
-        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
-    }
+        $responseCookies = Craft::$app->getResponse()->cookies;
 
-    /**
-     * @since 3.1
-     */
-    public function getCartName(): string
-    {
-        return $this->cartName;
+        if (($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName)) {
+            $cartNumber = $session->get($this->cartName);
+            $cookie = $this->_getCartCookie($cartNumber);
+            $responseCookies->add($cookie);
+            $session->remove($this->cartName);
+        }
+
+        return $responseCookies->has($this->cartName);
     }
 
     /**
@@ -206,26 +216,26 @@ class Carts extends Component
      */
     private function getSessionCartNumber(): string
     {
-        $session = Craft::$app->getSession();
-        $cartNumber = $session->get($this->cartName);
+        $responseCookies = Craft::$app->getResponse()->cookies;
 
-        if (!$cartNumber) {
+        if (!$this->getHasSessionCartNumber()) {
             $cartNumber = $this->generateCartNumber();
-            $session->set($this->cartName, $cartNumber);
+            $cookie = $this->_getCartCookie($cartNumber);
+            $responseCookies->add($cookie);
         }
 
-        return $cartNumber;
+        return $responseCookies->getValue($this->cartName);
     }
 
     /**
      * Set the session cart number.
      *
-     * @throws MissingComponentException
      */
     private function setSessionCartNumber(string $cartNumber): void
     {
-        $session = Craft::$app->getSession();
-        $session->set($this->cartName, $cartNumber);
+        $responseCookies = Craft::$app->getResponse()->cookies;
+        $cookie = $this->_getCartCookie($cartNumber);
+        $responseCookies->add($cookie);
     }
 
     /**
@@ -290,6 +300,20 @@ class Carts extends Component
         }
 
         return 0;
+    }
+
+    /**
+     * @param string $cartNumber
+     * @return Cookie
+     */
+    private function _getCartCookie(string $cartNumber): Cookie
+    {
+        return new Cookie([
+            'name' => $this->cartName,
+            'value' => $cartNumber,
+            'expire' => time() + 86400,
+            'path' => '/',
+        ]);
     }
 
     /**
