@@ -75,7 +75,7 @@
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
 
 ### Changed
-- Craft Commerce now requires Craft CMS 4.0.0-beta.4 or newer.
+- Craft Commerce now requires Craft CMS 4.0.0-RC2 or later.
 - Tax rate inputs no longer require the percent symbol.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Addresses can no longer be related to both a user’s address book and an order at the same time. ([#2457](https://github.com/craftcms/commerce/discussions/2457))
