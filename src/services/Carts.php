@@ -48,11 +48,38 @@ class Carts extends Component
     private ?Order $_cart = null;
 
     /**
+     * @var string|null The current cart number
+     */
+    private ?string $_cartNumber = null;
+
+    /**
      * Useful for debugging how many times the cart is being requested during a request.
      *
      * @var int
      */
     private int $_getCartCount = 0;
+
+    /**
+     * Initializes the cart service
+     *
+     * @return void
+     * @throws MissingComponentException
+     */
+    public function init()
+    {
+        $session = Craft::$app->getSession();
+        $requestCookies = Craft::$app->getRequest()->cookies;
+
+        // If we have a cart cookie, assign it to the cart number.
+        // Also check pre Commerce 4.0 for a cart number in the session just in case.
+        if ($requestCookies->has($this->cartName)) {
+            $this->_cartNumber = $requestCookies->getValue($this->cartName);
+        } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName)) {
+            $this->_cartNumber = $session->get($this->cartName);
+            $session->remove($this->cartName);
+            $this->setSessionCartNumber($this->_cartNumber); // Sets the response cookie too
+        }
+    }
 
     /**
      * Get the current cart for this session.
@@ -123,14 +150,12 @@ class Carts extends Component
     private function _getCart(): ?Order
     {
         $cart = null;
-        $isNumberCartInSession = $this->getHasSessionCartNumber();
 
-        // Load the current cart if there is a cart number in the session
-        if ($isNumberCartInSession) {
+        if ($this->_cartNumber === null) {
             $number = $this->getSessionCartNumber();
-            // Get the cart based on the number in the session.
-            // It might be completed or trashed, but we still want to load it so we can determine this and forget it.
             $cart = Order::find()->number($number)->trashed(null)->status(null)->withLineItems()->withAdjustments()->one();
+        } else {
+            $cart = Order::find()->number($this->_cartNumber)->trashed(null)->status(null)->withLineItems()->withAdjustments()->one();
         }
 
         // If the cart is already completed or trashed, forget the cart and start again.
@@ -153,6 +178,7 @@ class Carts extends Component
     {
         $responseCookies = Craft::$app->getResponse()->cookies;
         $this->_cart = null;
+        $this->_cartNumber = null;
         $responseCookies->remove($this->cartName, true);
     }
 
@@ -197,45 +223,31 @@ class Carts extends Component
      */
     public function getHasSessionCartNumber(): bool
     {
-        $session = Craft::$app->getSession();
-        $responseCookies = Craft::$app->getResponse()->cookies;
-
-        if (($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName)) {
-            $cartNumber = $session->get($this->cartName);
-            $cookie = $this->_getCartCookie($cartNumber);
-            $responseCookies->add($cookie);
-            $session->remove($this->cartName);
-        }
-
-        return $responseCookies->has($this->cartName);
+        return ($this->_cartNumber !== null);
     }
 
     /**
      * Get the session cart number or generates one if none exists.
      *
-     * @throws MissingComponentException
      */
     private function getSessionCartNumber(): string
     {
-        $responseCookies = Craft::$app->getResponse()->cookies;
-
-        if (!$this->getHasSessionCartNumber()) {
-            $cartNumber = $this->generateCartNumber();
-            $cookie = $this->_getCartCookie($cartNumber);
-            $responseCookies->add($cookie);
+        if ($this->_cartNumber === null) {
+            $this->_cartNumber = $this->generateCartNumber();
         }
 
-        return $responseCookies->getValue($this->cartName);
+        return $this->_cartNumber;
     }
 
     /**
      * Set the session cart number.
      *
      */
-    private function setSessionCartNumber(string $cartNumber): void
+    public function setSessionCartNumber(string $cartNumber): void
     {
         $responseCookies = Craft::$app->getResponse()->cookies;
-        $cookie = $this->_getCartCookie($cartNumber);
+        $this->_cartNumber = $cartNumber;
+        $cookie = $this->_getCartCookie($this->_cartNumber);
         $responseCookies->add($cookie);
     }
 
@@ -256,6 +268,7 @@ class Carts extends Component
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
         if ($currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
+            $this->_cart = $previousCart;
             $this->setSessionCartNumber($previousCart->number);
         }
     }
