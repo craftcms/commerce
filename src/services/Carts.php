@@ -151,8 +151,9 @@ class Carts extends Component
      */
     public function forgetCart(): void
     {
+        $responseCookies = Craft::$app->getResponse()->cookies;
         $this->_cart = null;
-        Craft::$app->getSession()->remove($this->cartName);
+        $responseCookies->remove($this->cartName, true);
     }
 
     /**
