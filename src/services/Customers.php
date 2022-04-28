@@ -169,6 +169,8 @@ class Customers extends Component
             if (!$user->fullName) {
                 $user->fullName = $order->getBillingAddress()?->fullName ?? $order->getShippingAddress()?->fullName ?? '';
             }
+
+            $user->username = $order->email;
             $user->pending = true;
             $user->setScenario(Element::SCENARIO_ESSENTIALS);
 
