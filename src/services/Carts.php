@@ -325,7 +325,7 @@ class Carts extends Component
         return new Cookie([
             'name' => $this->cartName,
             'value' => $cartNumber,
-            'expire' => time() + 86400,
+            'expire' => time() + 31536000,
             'path' => '/',
         ]);
     }
