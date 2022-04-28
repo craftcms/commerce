@@ -16,11 +16,10 @@ jobs:
       php_version: '7.2'
   prettier:
     name: Prettier
-    needs: [ecs]
     uses: craftcms/.github/.github/workflows/prettier.yml@v2
   codecept:
     name: Codeception
-    needs: [ecs]
+    needs: [ecs, prettier]
     uses: craftcms/.github/.github/workflows/codecept.yml@v2
     with:
       php_versions: '["7.2", "7.3", "7.4", "8.0", "8.1"]'
