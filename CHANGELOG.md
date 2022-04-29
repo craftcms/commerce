@@ -4,14 +4,20 @@
 
 ### Added
 - Added `craft\commerce\events\PdfRenderEvent`.
+- Added `craft\commerce\services\Carts::$cartCookieDuration`.
+- Added `craft\commerce\services\Carts::$cartCookie`.
 - Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-RC2 or later.
+- The active cart number is now stored in a cookie rather than the PHP session data, so it can be retained across browser reboots. ([#2790](https://github.com/craftcms/commerce/pull/2790))
 - `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
 - `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
 - `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
 - `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
+
+### Deprecated
+- Deprecated `craft\commerce\services\Carts::getCartName()`. `$cartCookie['name']` should be used instead.
 
 ### Removed
 - Removed `craft\commerce\events\PdfSaveEvent`.

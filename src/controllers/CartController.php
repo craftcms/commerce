@@ -266,6 +266,8 @@ class CartController extends BaseFrontEndController
      */
     public function actionLoadCart(): ?Response
     {
+        $session = Craft::$app->getSession();
+        $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
 
@@ -293,10 +295,8 @@ class CartController extends BaseFrontEndController
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
-        $session = Craft::$app->getSession();
-        $carts = Plugin::getInstance()->getCarts();
         $carts->forgetCart();
-        $session->set($carts->getCartName(), $number);
+        $carts->setSessionCartNumber($number);
 
         if ($this->request->getAcceptsJson()) {
             return $this->asSuccess();
