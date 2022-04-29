@@ -64,7 +64,7 @@ class Carts extends Component
     /**
      * Useful for debugging how many times the cart is being requested during a request.
      *
-     * @var int
+     * @var int The number of times the cart was requested.
      */
     private int $_getCartCount = 0;
 
@@ -113,11 +113,10 @@ class Carts extends Component
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order();
+            $this->_cart->number = $this->getSessionCartNumber();
             if ($user && $user->email) {
                 $this->_cart->setEmail($user->email); // Will ensure the customer is also set
             }
-
-            $this->_cart->number = $this->getSessionCartNumber();
             $this->_cart->autoSetAddresses();
         }
 
@@ -136,11 +135,11 @@ class Carts extends Component
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
+        $this->_cart->origin = Order::ORIGIN_WEB;
 
         if (!$this->_cart->getCustomer() && $user) {
             $this->_cart->setCustomer($user);
         }
-        $this->_cart->origin = Order::ORIGIN_WEB;
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;
         $hasOrderLanguageChanged = $originalOrderLanguage != $this->_cart->orderLanguage;
@@ -158,6 +157,9 @@ class Carts extends Component
         return $this->_cart;
     }
 
+    /**
+     * Get the current cart for this session.
+     */
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
@@ -189,7 +191,7 @@ class Carts extends Component
     }
 
     /**
-     * Generate a new random cart number and returns it.
+     * Generates a new random cart number and returns it.
      *
      * @since 2.0
      */
@@ -248,7 +250,6 @@ class Carts extends Component
 
     /**
      * Set the session cart number.
-     *
      */
     public function setSessionCartNumber(string $cartNumber): void
     {
@@ -277,7 +278,10 @@ class Carts extends Component
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        if ($currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
+        if ($currentUser &&
+            $cart->getIsEmpty() &&
+            $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()
+        ) {
             $this->_cart = $previousCart;
             $this->setSessionCartNumber($previousCart->number);
         }
@@ -292,38 +296,35 @@ class Carts extends Component
      */
     public function purgeIncompleteCarts(): int
     {
-        $doPurge = Plugin::getInstance()->getSettings()->purgeInactiveCarts;
-        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
-
-        if ($doPurge) {
-            $edge = new DateTime();
-            $interval = DateTimeHelper::secondsToInterval($configInterval);
-            $edge->sub($interval);
-
-            $cartIds = (new Query())
-                ->select(['orders.id'])
-                ->where(['not', ['isCompleted' => true]])
-                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
-                ->from(['orders' => Table::ORDERS])
-                ->column();
-
-            // Taken from craft\services\Elements::deleteElement(); Using the method directly
-            // takes too many resources since it retrieves the order before deleting it.
-
-            // Delete the elements table rows, which will cascade across all other InnoDB tables
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%elements}}', ['id' => $cartIds])
-                ->execute();
-
-            // The searchindex table is probably MyISAM, though
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
-                ->execute();
-
-            return count($cartIds);
+        if (!Plugin::getInstance()->getSettings()->purgeInactiveCarts) {
+            return 0;
         }
 
-        return 0;
+        $configInterval = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->purgeInactiveCartsDuration);
+        $edge = new DateTime();
+        $interval = DateTimeHelper::secondsToInterval($configInterval);
+        $edge->sub($interval);
+
+        $cartIds = (new Query())
+            ->select(['orders.id'])
+            ->where(['not', ['isCompleted' => true]])
+            ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
+            ->from(['orders' => Table::ORDERS])
+            ->column();
+
+        // Taken from craft\services\Elements::deleteElement(); Using the method directly
+        // takes too many resources since it retrieves the order before deleting it.
+        // Delete the elements table rows, which will cascade across all other InnoDB tables
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%elements}}', ['id' => $cartIds])
+            ->execute();
+
+        // The searchindex table is probably MyISAM, though
+        Craft::$app->getDb()->createCommand()
+            ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+            ->execute();
+
+        return count($cartIds);
     }
 
     /**
@@ -337,7 +338,7 @@ class Carts extends Component
                 $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
                 $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
                 if (in_array($currency, $allCurrencies, false)) {
-                    return COMMERCE_PAYMENT_CURRENCY;
+                    return $currency;
                 }
             }
 
