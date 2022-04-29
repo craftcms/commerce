@@ -65,7 +65,7 @@
 
             $tabLinks.forEach(function ($tabLink) {
                 if (!$tabLink.classList.contains('static')) {
-                    $tabLink.classList.add('hidden')
+                    $tabLink.classList.add('hidden');
                 }
             });
 

@@ -47,11 +47,14 @@
                     maxlength="10000"
                 ></textarea>
 
-                <input id="orderedit-suppress-emails"
-                       class="checkbox"
-                       type="checkbox"
-                       v-model="suppressEmails"
-                ><label for="orderedit-suppress-emails">{{$options.filters.t('Suppress emails', 'commerce')}}</label>
+                <input
+                    id="orderedit-suppress-emails"
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="suppressEmails"
+                /><label for="orderedit-suppress-emails">{{
+                    $options.filters.t('Suppress emails', 'commerce')
+                }}</label>
             </div>
         </template>
     </div>
@@ -137,8 +140,8 @@
 
         watch: {
             suppressEmails(newVal, oldVal) {
-                this.$store.commit('updateDraftSuppressEmails', newVal)
-            }
+                this.$store.commit('updateDraftSuppressEmails', newVal);
+            },
         },
 
         methods: {

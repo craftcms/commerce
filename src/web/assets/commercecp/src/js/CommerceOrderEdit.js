@@ -1,3 +1,5 @@
+/* jshint esversion: 6, strict: false */
+/* globals Craft, Garnish, $ */
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
@@ -9,11 +11,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     paymentAmount: null,
     paymentCurrency: null,
 
-    $status: null,
-    $completion: null,
-    statusUpdateModal: null,
-    billingAddressBox: null,
-    shippingAddressBox: null,
+    $makePayment: null,
 
     init: function (settings) {
       this.setSettings(settings);
@@ -58,6 +56,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
       paymentForm: null,
       paymentAmount: null,
       paymentCurrency: null,
+      $makePayment: null,
     },
   }
 );

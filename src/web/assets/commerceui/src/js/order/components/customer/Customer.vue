@@ -1,27 +1,46 @@
 <template>
-  <div class="customer-wrapper">
-      <div class="order-flex align-center" :class="{ 'customer-display': display }" v-if="customer">
-          <div class="customer-photo-wrapper">
-              <div
-                  class="customer-photo order-flex justify-center align-center"
-                  :class="avatarClass"
-              >
-                  <img v-if="customer.photo && customer.photoThumbUrl" class="w-full" :src="customer.photoThumbUrl" :alt="customer.email">
-                  <div :class="getBgColor(initialChar)" v-else>{{initialChar}}</div>
-              </div>
-              <span class="status" :class="customer.status"></span>
-          </div>
-          <div class="customer-info-container ml-1">
-              <div v-if="getDisplayName(false)">{{getDisplayName(false)}}</div>
-              <div class="w-full light">{{customer.email}}</div>
-              <div class="w-full" v-if="display && customer.cpEditUrl">
-                  <a :href="customer.cpEditUrl"
-                     v-if="customer.cpEditUrl">{{$options.filters.t('View customer', 'commerce')}}</a>
-              </div>
-          </div>
-      </div>
-      <a class="customer-remove" v-if="showRemove" @click.prevent="$emit('remove')">&times;</a>
-  </div>
+    <div class="customer-wrapper">
+        <div
+            class="order-flex align-center"
+            :class="{'customer-display': display}"
+            v-if="customer"
+        >
+            <div class="customer-photo-wrapper">
+                <div
+                    class="customer-photo order-flex justify-center align-center"
+                    :class="avatarClass"
+                >
+                    <img
+                        v-if="customer.photo && customer.photoThumbUrl"
+                        class="w-full"
+                        :src="customer.photoThumbUrl"
+                        :alt="customer.email"
+                    />
+                    <div :class="getBgColor(initialChar)" v-else>
+                        {{ initialChar }}
+                    </div>
+                </div>
+                <span class="status" :class="customer.status"></span>
+            </div>
+            <div class="customer-info-container ml-1">
+                <div v-if="getDisplayName(false)">
+                    {{ getDisplayName(false) }}
+                </div>
+                <div class="w-full light">{{ customer.email }}</div>
+                <div class="w-full" v-if="display && customer.cpEditUrl">
+                    <a :href="customer.cpEditUrl" v-if="customer.cpEditUrl">{{
+                        $options.filters.t('View customer', 'commerce')
+                    }}</a>
+                </div>
+            </div>
+        </div>
+        <a
+            class="customer-remove"
+            v-if="showRemove"
+            @click.prevent="$emit('remove')"
+            >&times;</a
+        >
+    </div>
 </template>
 
 <script>
@@ -38,7 +57,7 @@
             showRemove: {
                 type: Boolean,
                 default: false,
-            }
+            },
         },
 
         data() {
@@ -52,7 +71,7 @@
                     'customer-avatar-purple',
                     'customer-avatar-blue',
                     'customer-avatar-turquoise',
-                ]
+                ],
             };
         },
 
@@ -104,7 +123,7 @@
 
             avatarClass() {
                 let cl = {
-                    'customer-photo--initial': !this.customer.photo
+                    'customer-photo--initial': !this.customer.photo,
                 };
 
                 if (!this.customer.photo) {
@@ -112,119 +131,119 @@
                 }
 
                 return cl;
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <style lang="scss">
-  @import '../../../../sass/order/app';
+    @import '../../../../sass/order/app';
 
-  .customer-info-container {
-    max-width: calc(100% - 30px - 6px);
-  }
-
-  .customer-display {
-    background-color: $bgColor;
-    border-radius: $largeBorderRadius;
-    border: 1px solid $lightGrey;
-    padding: 6px 24px 6px 14px;
-  }
-
-  .customer-photo {
-    border-radius: 50%;
-    height: 100%;
-    overflow: hidden;
-    width: 100%;
-
-    &--initial {
-      background-color: $lightGrey;
-      color: $lightTextColor;
+    .customer-info-container {
+        max-width: calc(100% - 30px - 6px);
     }
 
-    &--email {
-        background-color: $lightGrey;
-        color: $mediumTextColor;
-    }
-  }
-
-  .customer-photo-wrapper {
-    height: 30px;
-    min-height: 30px;
-    position: relative;
-    width: 30px;
-    min-width: 30px;
-
-    .status {
-      border: 2px solid #fff;
-      bottom: -2px;
-      box-sizing: border-box;
-      height: 10px;
-      position: absolute;
-      right: 2px;
-      width: 10px;
+    .customer-display {
+        background-color: $bgColor;
+        border-radius: $largeBorderRadius;
+        border: 1px solid $lightGrey;
+        padding: 6px 24px 6px 14px;
     }
 
-    .vs__dropdown-option--highlight & {
-      .status {
-        border-color: $bgColor;
-      }
-    }
-  }
+    .customer-photo {
+        border-radius: 50%;
+        height: 100%;
+        overflow: hidden;
+        width: 100%;
 
-  .customer-photo-wrapper .status {
-    body.ltr & {
-      margin-right: 0px;
+        &--initial {
+            background-color: $lightGrey;
+            color: $lightTextColor;
+        }
+
+        &--email {
+            background-color: $lightGrey;
+            color: $mediumTextColor;
+        }
     }
 
-    body.rtl & {
-      margin-left: 0px;
-    }
-  }
+    .customer-photo-wrapper {
+        height: 30px;
+        min-height: 30px;
+        position: relative;
+        width: 30px;
+        min-width: 30px;
 
-  .customer-wrapper {
-    position: relative;
-  }
+        .status {
+            border: 2px solid #fff;
+            bottom: -2px;
+            box-sizing: border-box;
+            height: 10px;
+            position: absolute;
+            right: 2px;
+            width: 10px;
+        }
 
-  .customer-remove {
-    color: $lightTextColor;
-    font-weight: bold;
-    font-size: 1.25em;
-    cursor: pointer;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 14px;
+        .vs__dropdown-option--highlight & {
+            .status {
+                border-color: $bgColor;
+            }
+        }
+    }
 
-    &:hover {
-      text-decoration: none;
-    }
-  }
+    .customer-photo-wrapper .status {
+        body.ltr & {
+            margin-right: 0px;
+        }
 
-  .customer-avatar {
-    &-green {
-      background-color: #e5f6e4;
+        body.rtl & {
+            margin-left: 0px;
+        }
     }
-    &-orange {
-      background-color: #f6ebe4;
+
+    .customer-wrapper {
+        position: relative;
     }
-    &-red {
-      background-color: #f6e4e4;
+
+    .customer-remove {
+        color: $lightTextColor;
+        font-weight: bold;
+        font-size: 1.25em;
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 14px;
+
+        &:hover {
+            text-decoration: none;
+        }
     }
-    &-yellow {
-      background-color: #f6f5e4;
+
+    .customer-avatar {
+        &-green {
+            background-color: #e5f6e4;
+        }
+        &-orange {
+            background-color: #f6ebe4;
+        }
+        &-red {
+            background-color: #f6e4e4;
+        }
+        &-yellow {
+            background-color: #f6f5e4;
+        }
+        &-pink {
+            background-color: #f6e4e9;
+        }
+        &-purple {
+            background-color: #efe4f6;
+        }
+        &-blue {
+            background-color: #e4e6f6;
+        }
+        &-turquoise {
+            background-color: #e4f1f6;
+        }
     }
-    &-pink {
-      background-color: #f6e4e9;
-    }
-    &-purple {
-      background-color: #efe4f6;
-    }
-    &-blue {
-      background-color: #e4e6f6;
-    }
-    &-turquoise {
-      background-color: #e4f1f6;
-    }
-  }
 </style>
