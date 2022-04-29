@@ -59,6 +59,8 @@
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\service\Store`.
+- Added `craft\commerce\services\Carts::$cartCookieDuration`.
+- Added `craft\commerce\services\Carts::$cartCookie`.
 - Added `craft\commerce\services\Coupons`.
 - Added `craft\commerce\services\Customers::ensureCustomer()`.
 - Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`.
@@ -80,6 +82,7 @@
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Addresses can no longer be related to both a user’s address book and an order at the same time. ([#2457](https://github.com/craftcms/commerce/discussions/2457))
 - Gateways’ `isFrontendEnabled` settings now support environment variables.
+- The active cart number is now stored in a cookie rather than the PHP session data, so it can be retained across browser reboots. ([#2790](https://github.com/craftcms/commerce/pull/2790))
 - The installer now archives any database tables that were left behind by a previous Craft Commerce installation.
 - `commerce/*` actions no longer accept `orderNumber` params. `number` can be used instead.
 - `commerce/cart/*` actions no longer accept `cartUpdatedNotice` params. `successMessage` can be used instead.
@@ -101,6 +104,7 @@
 
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getUser()`. `getCustomer()` should be used instead.
+- Deprecated `craft\commerce\services\Carts::getCartName()`. `$cartCookie['name']` should be used instead.
 - Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. `getPlansByGatewayId()` should be used instead.
 - Deprecated `craft\commerce\services\Subscriptions::doesUserHaveAnySubscriptions()`. `doesUserHaveSubscriptions()` should be used instead.
 - Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. `getSubscriptionCountByPlanId()` should be used instead.
