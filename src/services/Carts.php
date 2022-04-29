@@ -156,28 +156,21 @@ class Carts extends Component
         return $this->_cart;
     }
 
-    /**
-     * @throws Exception
-     * @throws MissingComponentException
-     * @throws Throwable
-     */
     private function _getCart(): ?Order
     {
-        $cart = null;
-
-        if ($this->_cartNumber === null) {
-            $number = $this->getSessionCartNumber();
-            $cart = Order::find()->number($number)->trashed(null)->status(null)->withLineItems()->withAdjustments()->one();
-        } else {
-            $cart = Order::find()->number($this->_cartNumber)->trashed(null)->status(null)->withLineItems()->withAdjustments()->one();
-        }
+        $number = $this->getSessionCartNumber();
+        $cart = Order::find()
+            ->number($number)
+            ->trashed(null)
+            ->status(null)
+            ->withLineItems()
+            ->withAdjustments()
+            ->one();
 
         // If the cart is already completed or trashed, forget the cart and start again.
-        if ($cart) {
-            if ($cart->isCompleted || $cart->trashed) {
-                $this->forgetCart();
-                $cart = null; // continue
-            }
+        if ($cart && ($cart->isCompleted || $cart->trashed)) {
+            $this->forgetCart();
+            return null;
         }
 
         return $cart;
