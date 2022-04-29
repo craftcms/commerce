@@ -35,6 +35,7 @@
 - Fixed a PHP error that could occur when saving a Product Type. ([#2781](https://github.com/craftcms/commerce/issues/2781))
 - Fixed a bug that occurred when creating a new Product Type.
 - Fixed a bug where it wasn’t possible to register a user during checkout. 
+- Fixed a bug where toggling the “Products of this type have multiple variants” checkbox within a product type’s settings wasn’t showing/hiding the “Variant Fields” tab.
 
 ## 4.0.0-beta.2 - 2022-04-06
 
