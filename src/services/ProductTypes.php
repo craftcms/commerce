@@ -127,7 +127,7 @@ class ProductTypes extends Component
      * @var int[]|null
      */
     private ?array $_editableProductTypeIds = null;
-    
+
     /**
      * @var int[]|null
      */
@@ -909,7 +909,7 @@ class ProductTypes extends Component
     {
         $productTypeSiteSettings = $productType->getSiteSettings();
 
-        if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls) {
+        if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls && $productTypeSiteSettings[$siteId]->template) {
             // Set Craft to the site template mode
             $view = Craft::$app->getView();
             $oldTemplateMode = $view->getTemplateMode();
@@ -1031,18 +1031,18 @@ class ProductTypes extends Component
         if ($user->admin == true) {
             return true;
         }
-      
+
         $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
-      
+
         $suffix = ':' . $productType->uid;
-       
+
         // Required for create and delete permission.
         $editProductType = strtolower('commerce-editProductType' . $suffix);
-        
+
         if ($checkPermissionName !== null) {
             $checkPermissionName = strtolower($checkPermissionName . $suffix);
         }
-        
+
         if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
             return false;
         }
