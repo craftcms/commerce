@@ -38,9 +38,18 @@ use function count;
 class Carts extends Component
 {
     /**
-     * @var string Session key for storing the cart number
+     * @var array The configuration of the cart cookie.
+     * @since 4.0.0
+     * @see setSessionCartNumber()
      */
-    protected string $cartName = 'commerce_cart';
+    public array $cartCookie = [];
+
+    /**
+     * @var int The expiration duration of the cart cookie, in seconds. (Defaults to one year.)
+     * @since 4.0.0
+     * @see setSessionCartNumber()
+     */
+    public int $cartCookieDuration = 31536000;
 
     /**
      * @var Order|null
@@ -67,17 +76,22 @@ class Carts extends Component
      */
     public function init()
     {
+        // Complete the cart cookie config
+        if (!isset($this->cartCookie['name'])) {
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
+        }
+        $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+
         $session = Craft::$app->getSession();
         $requestCookies = Craft::$app->getRequest()->cookies;
 
         // If we have a cart cookie, assign it to the cart number.
         // Also check pre Commerce 4.0 for a cart number in the session just in case.
-        if ($requestCookies->has($this->cartName)) {
-            $this->_cartNumber = $requestCookies->getValue($this->cartName);
-        } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName)) {
-            $this->_cartNumber = $session->get($this->cartName);
-            $session->remove($this->cartName);
-            $this->setSessionCartNumber($this->_cartNumber); // Sets the response cookie too
+        if ($requestCookies->has($this->cartCookie['name'])) {
+            $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+        } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
+            $this->setSessionCartNumber($session->get('commerce_cart'));
+            $session->remove('commerce_cart');
         }
     }
 
@@ -171,15 +185,12 @@ class Carts extends Component
 
     /**
      * Forgets the cart in the current session.
-     *
-     * @throws MissingComponentException
      */
     public function forgetCart(): void
     {
-        $responseCookies = Craft::$app->getResponse()->cookies;
         $this->_cart = null;
         $this->_cartNumber = null;
-        $responseCookies->remove($this->cartName, true);
+        Craft::$app->getResponse()->getCookies()->remove($this->cartCookie['name'], true);
     }
 
     /**
@@ -209,10 +220,11 @@ class Carts extends Component
 
     /**
      * @since 3.1
+     * @deprecated in 4.0.0. The cookie name is available via [[$cartCookie]] `['name']`.
      */
     public function getCartName(): string
     {
-        return $this->cartName;
+        return $this->cartCookie['name'];
     }
 
     /**
@@ -245,10 +257,13 @@ class Carts extends Component
      */
     public function setSessionCartNumber(string $cartNumber): void
     {
-        $responseCookies = Craft::$app->getResponse()->cookies;
         $this->_cartNumber = $cartNumber;
-        $cookie = $this->_getCartCookie($this->_cartNumber);
-        $responseCookies->add($cookie);
+        $cookie = Craft::createObject(array_merge($this->cartCookie, [
+            'class' => Cookie::class,
+            'value' => $cartNumber,
+            'expire' => time() + $this->cartCookieDuration,
+        ]));
+        Craft::$app->getResponse()->getCookies()->add($cookie);
     }
 
     /**
@@ -314,20 +329,6 @@ class Carts extends Component
         }
 
         return 0;
-    }
-
-    /**
-     * @param string $cartNumber
-     * @return Cookie
-     */
-    private function _getCartCookie(string $cartNumber): Cookie
-    {
-        return new Cookie([
-            'name' => $this->cartName,
-            'value' => $cartNumber,
-            'expire' => time() + 31536000,
-            'path' => '/',
-        ]);
     }
 
     /**
