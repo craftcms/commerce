@@ -76,6 +76,8 @@ class Carts extends Component
      */
     public function init()
     {
+        parent::init();
+
         // Complete the cart cookie config
         if (!isset($this->cartCookie['name'])) {
             $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
