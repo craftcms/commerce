@@ -24,7 +24,7 @@
                             <a
                                 :class="{disabled: !address}"
                                 :disabled="!address"
-                                @click.prevent="open('edit')"
+                                @click.prevent="handleEditAddress"
                             >
                                 {{
                                     $options.filters.t(
@@ -162,8 +162,9 @@
 
         methods: {
             _initAddressCard(newAdd = false) {
-                if (this.addressCard && (newAdd || !this.address)) {
-                    this.addressCard.destroy();
+                if (this.addressCard) {
+                    this.addressCard.$container.data('addresses').destroy();
+                    this.addressCard.$container.removeData('addresses');
                     this.addressCard = null;
                 }
 
@@ -175,6 +176,14 @@
                         {ownerId: this.address.ownerId, maxAddresses: 1}
                     );
                 }
+            },
+
+            handleEditAddress() {
+                if (!this.address || !this.addressCard) {
+                    return;
+                }
+
+                this.addressCard.$cards.eq(0).trigger('click');
             },
 
             handleNewAddress() {
@@ -218,12 +227,8 @@
             },
         },
 
-        watch: {
-            address(newAdd, oldAdd) {
-                if (newAdd && newAdd != oldAdd) {
-                    this._initAddressCard(true);
-                }
-            },
+        updated() {
+            this._initAddressCard();
         },
 
         mounted() {

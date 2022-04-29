@@ -266,16 +266,18 @@
             updateAddress(type, address, recalculate = true) {
                 let draft = this.draft;
                 let key = type + 'Address';
+                let sourceAddressKey =
+                    'source' +
+                    key.charAt(0).toUpperCase() +
+                    key.slice(1) +
+                    'Id';
 
                 draft.order[key] = address;
 
-                if (address.ownerId != draft.order.id) {
-                    draft.order[
-                        'source' +
-                            key.charAt(0).toUpperCase() +
-                            key.slice(1) +
-                            'Id'
-                    ] = address.id;
+                if (!address) {
+                    draft.order[sourceAddressKey] = null;
+                } else if (address.ownerId != draft.order.id) {
+                    draft.order[sourceAddressKey] = address.id;
                 }
 
                 this.draft = draft;

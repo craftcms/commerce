@@ -33,8 +33,9 @@
 - Fixed a PHP error that occurred when sending an email from the Edit Order page. ([#2784](https://github.com/craftcms/commerce/issues/2784))
 - Fixed a bug that could occur when saving an address. ([#2783](https://github.com/craftcms/commerce/issues/2783))
 - Fixed a PHP error that could occur when saving a Product Type. ([#2781](https://github.com/craftcms/commerce/issues/2781))
+- Fixed a bug that occurred when trying to remove an address on the Edit Order page. ([#2791](https://github.com/craftcms/commerce/issues/2791))
 - Fixed a bug that occurred when creating a new Product Type.
-- Fixed a bug where it wasn’t possible to register a user during checkout. 
+- Fixed a bug where it wasn’t possible to register a user during checkout.
 
 ## 4.0.0-beta.2 - 2022-04-06
 
