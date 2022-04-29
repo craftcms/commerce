@@ -1,10 +1,19 @@
 <template>
-  <div>
-    <h3 v-if="title" :class="{ 'address-title-padded': address.addressLines && !Object.keys(address.addressLines).length}">{{title}}</h3>
-    <div v-for="(val, key) in address.addressLines" :key="key">
-        {{val}}
+    <div>
+        <h3
+            v-if="title"
+            :class="{
+                'address-title-padded':
+                    address.addressLines &&
+                    !Object.keys(address.addressLines).length,
+            }"
+        >
+            {{ title }}
+        </h3>
+        <div v-for="(val, key) in address.addressLines" :key="key">
+            {{ val }}
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -12,7 +21,7 @@
         props: {
             address: {
                 type: [Object, null],
-                default: null
+                default: null,
             },
             title: {
                 type: [String, null],
@@ -30,14 +39,14 @@
                     return this.address.stateText;
                 }
 
-                return null
-            }
-        }
-    }
+                return null;
+            },
+        },
+    };
 </script>
 
 <style>
-.address-title-padded {
-    padding-bottom: 18px;
-}
+    .address-title-padded {
+        padding-bottom: 18px;
+    }
 </style>

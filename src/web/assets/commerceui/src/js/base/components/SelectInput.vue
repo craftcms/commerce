@@ -1,27 +1,27 @@
 <template>
     <div class="v-select-btn btn">
         <v-select
-                ref="vSelect"
-                :class="selectClass"
-                :clearable="clearable"
-                :clear-search-on-blur="clearOnBlur"
-                :create-option="createOption"
-                :components="{OpenIndicator}"
-                :disabled="disabled"
-                :filterable="filterable"
-                :filter-by="filterBy"
-                :label="label"
-                :options="options"
-                :taggable="taggable"
-                :value="value"
-                :placeholder="placeholder"
-                :searchInputQuerySelector="searchInputQuerySelector"
-                :clearSearchOnSelect="clearSearchOnSelect"
-                @input="$emit('input', $event)"
-                @search="onSearch"
+            ref="vSelect"
+            :class="selectClass"
+            :clearable="clearable"
+            :clear-search-on-blur="clearOnBlur"
+            :create-option="createOption"
+            :components="{OpenIndicator}"
+            :disabled="disabled"
+            :filterable="filterable"
+            :filter-by="filterBy"
+            :label="label"
+            :options="options"
+            :taggable="taggable"
+            :value="value"
+            :placeholder="placeholder"
+            :searchInputQuerySelector="searchInputQuerySelector"
+            :clearSearchOnSelect="clearSearchOnSelect"
+            @input="$emit('input', $event)"
+            @search="onSearch"
         >
             <template v-slot:option="option">
-                <slot name="option" :option="option">{{option.name}}</slot>
+                <slot name="option" :option="option">{{ option.name }}</slot>
             </template>
 
             <template v-slot:spinner="spinner">
@@ -35,27 +35,41 @@
             <template v-slot:selected-option="option">
                 <slot name="selected-option" :selected-option="option">
                     <div v-if="option" @click="onOptionClick">
-                        {{option[label]}}
+                        {{ option[label] }}
                     </div>
                 </slot>
             </template>
 
             <template v-slot:search="search">
                 <slot name="search" :search="search">
-                    <input class="vs__search" :name="searchInputName" type="text" v-bind="{...search.attributes,...{autocomplete: searchInputName}}" v-on="getSearchEvents(search.events)">
+                    <input
+                        class="vs__search"
+                        :name="searchInputName"
+                        type="text"
+                        v-bind="{
+                            ...search.attributes,
+                            ...{autocomplete: searchInputName},
+                        }"
+                        v-on="getSearchEvents(search.events)"
+                    />
                 </slot>
             </template>
 
             <template v-slot:no-options>
-                {{$options.filters.t('Sorry, no matching options.', 'commerce')}}
+                {{
+                    $options.filters.t(
+                        'Sorry, no matching options.',
+                        'commerce'
+                    )
+                }}
             </template>
         </v-select>
     </div>
 </template>
 
 <script>
-    import VSelect from 'vue-select'
-    import OpenIndicator from '../../order/components/meta/OpenIndicator'
+    import VSelect from 'vue-select';
+    import OpenIndicator from '../../order/components/meta/OpenIndicator';
 
     export default {
         components: {
@@ -77,7 +91,7 @@
                 type: Boolean,
                 default: true,
             },
-            clearSearchOnBlur : {
+            clearSearchOnBlur: {
                 type: Boolean,
                 default: true,
             },
@@ -95,11 +109,12 @@
             },
             searchInputName: {
                 type: String,
-                default: 'search-search-' + Math.random().toString(36).substring(7),
+                default:
+                    'search-search-' + Math.random().toString(36).substring(7),
             },
             searchInputQuerySelector: {
                 type: String,
-                default: '[type=text]'
+                default: '[type=text]',
             },
             taggable: {
                 type: Boolean,
@@ -117,8 +132,8 @@
 
         data() {
             return {
-                OpenIndicator
-            }
+                OpenIndicator,
+            };
         },
 
         methods: {
@@ -129,7 +144,10 @@
                     return true;
                 }
 
-                return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1;
+                return (
+                    (label || '').toLowerCase().indexOf(search.toLowerCase()) >
+                    -1
+                );
             },
 
             clearOnBlur() {
@@ -137,7 +155,7 @@
             },
 
             onSearch(searchText, loading) {
-                this.$emit('search', {searchText, loading})
+                this.$emit('search', {searchText, loading});
 
                 if (searchText) {
                     this.$refs.vSelect.open = true;
@@ -154,7 +172,7 @@
 
             getSearchEvents(events) {
                 // override focus event
-                events.focus = this.onSearchFocus
+                events.focus = this.onSearchFocus;
 
                 return events;
             },
@@ -166,9 +184,9 @@
                     this.$refs.vSelect.open = true;
                     this.$refs.vSelect.searchEl.focus();
                 }
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <style lang="scss">
@@ -178,7 +196,8 @@
         color: $mediumDarkTextColor !important;
     }
 
-    #main-container .v-select-btn .v-select .vs__actions .vs__spinner, .vs__actions .spinner-wrapper {
+    #main-container .v-select-btn .v-select .vs__actions .vs__spinner,
+    .vs__actions .spinner-wrapper {
         position: relative;
         right: -36px;
     }

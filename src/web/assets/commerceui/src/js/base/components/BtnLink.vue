@@ -1,5 +1,10 @@
 <template>
-    <button type="button" class="btn-link-default" :class="buttonClass" @click.prevent="$emit('click')">
+    <button
+        type="button"
+        class="btn-link-default"
+        :class="buttonClass"
+        @click.prevent="$emit('click')"
+    >
         <slot></slot>
     </button>
 </template>
@@ -10,13 +15,13 @@
             buttonClass: {
                 type: [String, Object],
                 default: 'btn-link',
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <style lang="scss">
-    @import "craftcms-sass/mixins";
+    @import 'craftcms-sass/mixins';
     .btn-link-default {
         font-size: 1em;
     }
