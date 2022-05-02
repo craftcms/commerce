@@ -10,6 +10,7 @@ namespace craft\commerce\gql\resolvers\elements;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\helpers\Gql as GqlHelper;
+use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
 
@@ -35,10 +36,10 @@ class Product extends ElementResolver
         }
 
         // If it's preloaded, it's preloaded.
-        if (is_array($query)) {
+        if (!$query instanceof ElementQuery) {
             return $query;
         }
-
+        
         foreach ($arguments as $key => $value) {
             if (method_exists($query, $key)) {
                 $query->$key($value);
