@@ -161,7 +161,7 @@
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. `getUser()` can be used instead.
 - Removed `craft\commerce\models\ProductType::getLineItemFormat()`.
 - Removed `craft\commerce\models\ProductType::setLineItemFormat()`.
-- Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. `$showEditUserCommerceTab` can be used instead. 
+- Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. `$showEditUserCommerceTab` can be used instead.
 - Removed `craft\commerce\models\ShippingAddressZone::getCountries()`.
 - Removed `craft\commerce\models\ShippingAddressZone::getCountriesNames()`.
 - Removed `craft\commerce\models\ShippingAddressZone::getCountryIds()`.
@@ -189,7 +189,7 @@
 - Removed `craft\commerce\records\ShippingZoneCountry`.
 - Removed `craft\commerce\records\ShippingZoneState`.
 - Removed `craft\commerce\records\State`.
-- Removed `craft\commerce\records\TaxZoneCountry`. 
+- Removed `craft\commerce\records\TaxZoneCountry`.
 - Removed `craft\commerce\records\TaxZoneState`.
 - Removed `craft\commerce\services\Addresses::purgeOrphanedAddresses()`.
 - Removed `craft\commerce\services\Addresses`.

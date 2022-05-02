@@ -21,23 +21,23 @@
 
 ### Removed
 - Removed `craft\commerce\events\PdfSaveEvent`.
- 
+
 ### Fixed
-- Fixed addresses not showing as primary on the Edit Address slideout. ([#2762](https://github.com/craftcms/commerce/issues/2762))
-- Fixed a bug that could occur causing field layout tabs not to show on the Edit Order page. ([#2770](https://github.com/craftcms/commerce/issues/2770))
+- Fixed a bug where addresses weren’t retaining their primary status when re-edited. ([#2762](https://github.com/craftcms/commerce/issues/2762))
+- Fixed a bug where secondary tabs weren’t visible on Edit Order pages. ([#2770](https://github.com/craftcms/commerce/issues/2770))
 - Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
-- Fixed a bug where customer profile photos weren’t display correctly on the Edit Order page. ([#2776](https://github.com/craftcms/commerce/issues/2776))
-- Fixed a bug where creating a payment source via `craft\commerce\controllers\PaymentSourcesController` would always fail.
+- Fixed a bug where customer profile photos weren’t displaying correctly on the Edit Order page. ([#2776](https://github.com/craftcms/commerce/issues/2776))
+- Fixed a bug where creating a payment source via the `commerce/payment-sources/add` controller action would always fail.
 - Fixed a bug where submitting an invalid email address would cause an exception to be thrown. ([#2771](https://github.com/craftcms/commerce/issues/2771))
 - Fixed a bug where it wasn't possible to update the email address on a guest customer’s cart. ([#2782](https://github.com/craftcms/commerce/issues/2782))
 - Fixed a PHP error that occurred when sending an email from the Edit Order page. ([#2784](https://github.com/craftcms/commerce/issues/2784))
 - Fixed a bug that could occur when saving an address. ([#2783](https://github.com/craftcms/commerce/issues/2783))
-- Fixed a PHP error that could occur when saving a Product Type. ([#2781](https://github.com/craftcms/commerce/issues/2781))
-- Fixed a bug that occurred when trying to remove an address on the Edit Order page. ([#2791](https://github.com/craftcms/commerce/issues/2791))
-- Fixed a bug that occurred when creating a new Product Type.
-- Fixed a bug where it wasn’t possible to register a user during checkout.
+- Fixed a PHP error that could occur when saving a product type. ([#2781](https://github.com/craftcms/commerce/issues/2781))
+- Fixed a bug where it wasn’t possible to remove an address from Edit Order pages. ([#2791](https://github.com/craftcms/commerce/issues/2791))
+- Fixed an error that could occur when creating a new product type.
+- Fixed a bug where it wasn’t possible to register users during checkout.
 - Fixed a bug where toggling the “Products of this type have multiple variants” checkbox within a product type’s settings wasn’t showing/hiding the “Variant Fields” tab.
-- Fixed a error that occured when querying products or variants with GraphQL. ([#2793](https://github.com/craftcms/commerce/issues/2793))
+- Fixed an error that occurred when querying products or variants via GraphQL. ([#2793](https://github.com/craftcms/commerce/issues/2793))
 
 ## 4.0.0-beta.2 - 2022-04-06
 
@@ -437,7 +437,7 @@
 ## 3.4.3 - 2021-09-22
 
 ### Fixed
-- Fixed a bug where discounts’ purchasable conditions weren’t applying to products when they were initially added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
+- Fixed a bug where discounts’ purchasable conditions weren’t applying to products when they were initially added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559))
 - Fixed a bug where carts weren’t getting recalculated when force-saved. ([#2560](https://github.com/craftcms/commerce/issues/2560))
 - Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
 - Fixed a bug where new Commerce installs were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
@@ -724,7 +724,7 @@
 
 ## 3.2.17 - 2021-03-03
 
-### Added 
+### Added
 - Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
 - Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
 
