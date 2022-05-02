@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.0.0-RC1 - 2022-05-02
 
 ### Added
 - Added `craft\commerce\events\PdfRenderEvent`.
