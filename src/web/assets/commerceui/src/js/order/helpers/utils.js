@@ -1,112 +1,145 @@
 /* global Craft */
 export default {
-    /**
-     * Builds draft data and makes sure values have the right type.
-     **/
-    buildDraftData(draft) {
-        const draftData = {
-            order: {
-                email: draft.order.email,
-                customerId: draft.order.customerId,
-                orderStatusId: draft.order.orderStatusId,
-                isCompleted: draft.order.isCompleted,
-                reference: draft.order.reference,
-                couponCode: draft.order.couponCode,
-                recalculationMode: draft.order.recalculationMode,
-                shippingMethodHandle: draft.order.shippingMethodHandle,
-                shippingAddressId: draft.order.shippingAddressId,
-                shippingAddress: null,
-                billingAddressId: draft.order.billingAddressId,
-                billingAddress: null,
-                message: draft.order.message,
-                dateOrdered: draft.order.dateOrdered,
-                lineItems: [],
-                orderAdjustments: [],
-                orderSiteId: draft.order.orderSiteId,
-                notices: draft.order.notices
-            }
-        }
+  /**
+   * Builds draft data and makes sure values have the right type.
+   **/
+  buildDraftData(draft) {
+    const draftData = {
+      order: {
+        email: draft.order.email,
+        customerId: draft.order.customerId,
+        orderStatusId: draft.order.orderStatusId,
+        isCompleted: draft.order.isCompleted,
+        reference: draft.order.reference,
+        couponCode: draft.order.couponCode,
+        recalculationMode: draft.order.recalculationMode,
+        shippingMethodHandle: draft.order.shippingMethodHandle,
+        shippingAddressId: draft.order.shippingAddressId,
+        shippingAddress: null,
+        billingAddressId: draft.order.billingAddressId,
+        billingAddress: null,
+        message: draft.order.message,
+        dateOrdered: draft.order.dateOrdered,
+        lineItems: [],
+        orderAdjustments: [],
+        orderSiteId: draft.order.orderSiteId,
+        notices: draft.order.notices,
+      },
+    };
 
-        if (draft.order.billingAddress) {
-            draftData.order.billingAddress = draft.order.billingAddress
-        }
+    if (draft.order.billingAddress) {
+      draftData.order.billingAddress = draft.order.billingAddress;
+    }
 
-        if (draft.order.shippingAddress) {
-            draftData.order.shippingAddress = draft.order.shippingAddress
-        }
+    if (draft.order.shippingAddress) {
+      draftData.order.shippingAddress = draft.order.shippingAddress;
+    }
 
-        if (draftData.order.dateOrdered && !draftData.order.dateOrdered.hasOwnProperty('timezone')) {
-            draftData.order.dateOrdered['timezone'] = Craft.timezone
-        }
+    if (
+      draftData.order.dateOrdered &&
+      !draftData.order.dateOrdered.hasOwnProperty('timezone')
+    ) {
+      draftData.order.dateOrdered['timezone'] = Craft.timezone;
+    }
 
-        draftData.order.id = this.parseInputValue('int', draft.order.id)
+    draftData.order.id = this.parseInputValue('int', draft.order.id);
 
-        draft.order.lineItems.forEach((lineItem, lineItemKey) => {
-            draftData.order.lineItems[lineItemKey] = {}
-            draftData.order.lineItems[lineItemKey].lineItemStatusId = this.parseInputValue('int', lineItem.lineItemStatusId)
-            draftData.order.lineItems[lineItemKey].id = this.parseInputValue('int', lineItem.id)
-            draftData.order.lineItems[lineItemKey].purchasableId = this.parseInputValue('int', lineItem.purchasableId)
-            draftData.order.lineItems[lineItemKey].shippingCategoryId = this.parseInputValue('int', lineItem.shippingCategoryId)
-            draftData.order.lineItems[lineItemKey].salePrice = this.parseInputValue('float', lineItem.salePrice)
-            draftData.order.lineItems[lineItemKey].qty = this.parseInputValue('int', lineItem.qty)
-            draftData.order.lineItems[lineItemKey].note = lineItem.note
-            draftData.order.lineItems[lineItemKey].privateNote = lineItem.privateNote
-            draftData.order.lineItems[lineItemKey].orderId = lineItem.orderId
-            draftData.order.lineItems[lineItemKey].options = lineItem.options
-            draftData.order.lineItems[lineItemKey].adjustments = []
-            draftData.order.lineItems[lineItemKey].uid = lineItem.uid
+    draft.order.lineItems.forEach((lineItem, lineItemKey) => {
+      let _lineItem = {};
+      _lineItem.lineItemStatusId = this.parseInputValue(
+        'int',
+        lineItem.lineItemStatusId
+      );
+      _lineItem.id = this.parseInputValue('int', lineItem.id);
+      _lineItem.purchasableId = this.parseInputValue(
+        'int',
+        lineItem.purchasableId
+      );
+      _lineItem.shippingCategoryId = this.parseInputValue(
+        'int',
+        lineItem.shippingCategoryId
+      );
+      _lineItem.salePrice = this.parseInputValue('float', lineItem.salePrice);
+      _lineItem.qty = this.parseInputValue('int', lineItem.qty);
+      _lineItem.note = lineItem.note;
+      _lineItem.privateNote = lineItem.privateNote;
+      _lineItem.orderId = lineItem.orderId;
+      _lineItem.options = lineItem.options;
+      _lineItem.adjustments = [];
+      _lineItem.uid = lineItem.uid;
 
-            lineItem.adjustments.forEach((adjustment, adjustmentKey) => {
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey] = {}
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].id = this.parseInputValue('int', adjustment.id)
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].amount = this.parseInputValue('float', adjustment.amount)
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].included = this.parseInputValue('bool', adjustment.included)
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].orderId = this.parseInputValue('int', adjustment.orderId)
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].lineItemId = this.parseInputValue('int', adjustment.lineItemId)
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].name = adjustment.name
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].description = adjustment.description
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].type = adjustment.type
-                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].sourceSnapshot = adjustment.sourceSnapshot
-            })
-        })
+      lineItem.adjustments.forEach((adjustment, adjustmentKey) => {
+        let _adjustment = {};
+        _adjustment.id = this.parseInputValue('int', adjustment.id);
+        _adjustment.amount = this.parseInputValue('float', adjustment.amount);
+        _adjustment.included = this.parseInputValue(
+          'bool',
+          adjustment.included
+        );
+        _adjustment.orderId = this.parseInputValue('int', adjustment.orderId);
+        _adjustment.lineItemId = this.parseInputValue(
+          'int',
+          adjustment.lineItemId
+        );
+        _adjustment.name = adjustment.name;
+        _adjustment.description = adjustment.description;
+        _adjustment.type = adjustment.type;
+        _adjustment.sourceSnapshot = adjustment.sourceSnapshot;
 
-        draft.order.orderAdjustments.forEach((adjustment, adjustmentKey) => {
-            draftData.order.orderAdjustments[adjustmentKey] = {}
-            draftData.order.orderAdjustments[adjustmentKey].id = this.parseInputValue('int', adjustment.id)
-            draftData.order.orderAdjustments[adjustmentKey].amount = this.parseInputValue('float', adjustment.amount)
-            draftData.order.orderAdjustments[adjustmentKey].included = this.parseInputValue('bool', adjustment.included)
-            draftData.order.orderAdjustments[adjustmentKey].orderId = this.parseInputValue('int', adjustment.orderId)
-            draftData.order.orderAdjustments[adjustmentKey].name = adjustment.name
-            draftData.order.orderAdjustments[adjustmentKey].description = adjustment.description
-            draftData.order.orderAdjustments[adjustmentKey].type = adjustment.type
-            draftData.order.orderAdjustments[adjustmentKey].sourceSnapshot = adjustment.sourceSnapshot
-        })
+        _lineItem.adjustments[adjustmentKey] = _adjustment;
+      });
 
-        return draftData;
-    },
+      draftData.order.lineItems[lineItemKey] = _lineItem;
+    });
 
-    /**
-     * Parse input value.
-     **/
-    parseInputValue(type, value) {
-        let parsedValue = null
+    draft.order.orderAdjustments.forEach((adjustment, adjustmentKey) => {
+      let _orderAdjustment = {};
+      _orderAdjustment.id = this.parseInputValue('int', adjustment.id);
+      _orderAdjustment.amount = this.parseInputValue(
+        'float',
+        adjustment.amount
+      );
+      _orderAdjustment.included = this.parseInputValue(
+        'bool',
+        adjustment.included
+      );
+      _orderAdjustment.orderId = this.parseInputValue(
+        'int',
+        adjustment.orderId
+      );
+      _orderAdjustment.name = adjustment.name;
+      _orderAdjustment.description = adjustment.description;
+      _orderAdjustment.type = adjustment.type;
+      _orderAdjustment.sourceSnapshot = adjustment.sourceSnapshot;
 
-        switch (type) {
-            case 'int':
-                parsedValue = parseInt(value)
-                break;
-            case 'float':
-                parsedValue = parseFloat(value)
-                break;
-            case 'bool':
-                parsedValue = !!value
-                break;
-        }
+      draftData.order.orderAdjustments[adjustmentKey] = _orderAdjustment;
+    });
 
-        if (isNaN(parsedValue)) {
-            return value
-        }
+    return draftData;
+  },
 
-        return parsedValue
-    },
-}
+  /**
+   * Parse input value.
+   **/
+  parseInputValue(type, value) {
+    let parsedValue = null;
+
+    switch (type) {
+      case 'int':
+        parsedValue = parseInt(value);
+        break;
+      case 'float':
+        parsedValue = parseFloat(value);
+        break;
+      case 'bool':
+        parsedValue = !!value;
+        break;
+    }
+
+    if (isNaN(parsedValue)) {
+      return value;
+    }
+
+    return parsedValue;
+  },
+};

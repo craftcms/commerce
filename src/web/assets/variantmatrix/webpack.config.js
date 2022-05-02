@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      VariantMatrix: './VariantMatrix.js'
+      VariantMatrix: './VariantMatrix.js',
     },
-  }
+  },
 });
