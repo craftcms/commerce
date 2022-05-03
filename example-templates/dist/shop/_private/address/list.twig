@@ -1,7 +1,7 @@
 {% set addresses = addresses ?? [] %}
 {% set selectable = selectable ?? false %}
-{% set primaryBillingAddressId = primiaryBillingAddressId ?? null %}
-{% set primaryShippingAddressId = primiaryShippingAddressId ?? null %}
+{% set primaryBillingAddressId = primaryBillingAddressId ?? null %}
+{% set primaryShippingAddressId = primaryShippingAddressId ?? null %}
 {% set cardWidth = cardWidth ?? 'md:w-1/2' %}
 {% set showDelete = showDelete ?? false %}
 
@@ -19,7 +19,7 @@
           <span class="js-radio flex py-2">
             {% if selectable %}
               {{ input('radio', name ~ 'Id', address.id, {
-                checked: attribute(cart, sourceIdName) == address.id,
+                checked: (attribute(cart, sourceIdName) == address.id) or (not attribute(cart, sourceIdName) and address.id == attribute(_context, primaryIdName)),
               }) }}
             {% endif %}
             <span class="-mt-2 ml-3 mb-2">
