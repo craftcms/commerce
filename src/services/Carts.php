@@ -136,9 +136,8 @@ class Carts extends Component
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
-
-        if (!$this->_cart->getCustomer() && $user) {
-            $this->_cart->setCustomer($user);
+        if ($user && $user->email && $user->email !== $this->_cart->email) {
+            $this->_cart->setEmail($user->email);
         }
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;
