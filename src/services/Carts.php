@@ -108,14 +108,14 @@ class Carts extends Component
     public function getCart(bool $forceSave = false): Order
     {
         $this->_getCartCount++; //useful when debugging
-        $user = Craft::$app->getUser()->getIdentity();
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
-            if ($user && $user->email) {
-                $this->_cart->setEmail($user->email); // Will ensure the customer is also set
+            if ($currentUser && $currentUser->email) {
+                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
             }
             $this->_cart->autoSetAddresses();
         }
@@ -136,8 +136,11 @@ class Carts extends Component
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
-        if ($user && $user->email && $user->email !== $this->_cart->email) {
-            $this->_cart->setEmail($user->email);
+
+        if ($currentUser) {
+            if ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->email)) {
+                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
+            }
         }
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;
