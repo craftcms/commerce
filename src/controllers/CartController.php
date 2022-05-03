@@ -201,7 +201,7 @@ class CartController extends BaseFrontEndController
         $this->_setAddresses();
 
         // Setting email only allowed for guest customers
-        if(!$currentUser) {
+        if (!$currentUser) {
             // Set guest email address onto guest customers order.
             $email = $this->request->getParam('email');
             if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
