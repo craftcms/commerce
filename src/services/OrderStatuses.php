@@ -12,10 +12,10 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
@@ -29,6 +29,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
 use function count;
@@ -38,6 +39,7 @@ use function count;
  *
  * @property OrderStatus|null $defaultOrderStatus default order status from the DB
  * @property OrderStatus[]|array $allOrderStatuses all Order Statuses
+ * @property-read array $orderCountByStatus
  * @property null|int $defaultOrderStatusId default order status ID from the DB
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -71,29 +73,56 @@ class OrderStatuses extends Component
      * );
      * ```
      */
-    const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+    public const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
 
-    const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
+    /**
+     * @event OrderStatusEmailsEvent The email event that is triggered when an order status is changed.
+     *
+     * Plugins can get notified when an order status is changed
+     *
+     * ```php
+     * use craft\commerce\events\OrderStatusEmailsEvent;
+     * use craft\commerce\services\OrderStatuses;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrderStatuses::class,
+     *     OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS,
+     *     function(OrderStatusEmailsEvent $event) {
+     *         // @var OrderHistory $orderHistory
+     *         $orderHistory = $event->orderHistory;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *
+     *         // Let the delivery department know the order’s ready to be delivered
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_ORDER_STATUS_CHANGE_EMAILS = 'orderStatusChangeEmails';
 
+    public const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
     /**
      * @var OrderStatus[]|null
      */
-    private $_orderStatusesWithTrashed;
+    private ?array $_orderStatusesWithTrashed = null;
 
     /**
      * @var OrderStatus[]|null
      */
-    private $_orderStatuses;
+    private ?array $_orderStatuses = null;
 
     /**
      * Returns all Order Statuses
      *
-     * @param bool $withTrashed
      * @return OrderStatus[]
      * @since 2.2
      */
-    public function getAllOrderStatuses($withTrashed = false): array
+    public function getAllOrderStatuses(bool $withTrashed = false): array
     {
         if ($this->_orderStatuses !== null && !$withTrashed) {
             return $this->_orderStatuses;
@@ -128,32 +157,24 @@ class OrderStatuses extends Component
 
     /**
      * Get an order status by ID
-     *
-     * @param int $id
-     * @return OrderStatus|null
      */
-    public function getOrderStatusById($id)
+    public function getOrderStatusById(int $id): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'id', $id);
     }
 
     /**
      * Get order status by its handle.
-     *
-     * @param string $handle
-     * @return OrderStatus|null
      */
-    public function getOrderStatusByHandle($handle)
+    public function getOrderStatusByHandle(string $handle): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'handle', $handle, false);
     }
 
     /**
      * Get default order status from the DB
-     *
-     * @return OrderStatus|null
      */
-    public function getDefaultOrderStatus()
+    public function getDefaultOrderStatus(): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'default', true, false);
     }
@@ -161,23 +182,20 @@ class OrderStatuses extends Component
     /**
      * Get default order status ID from the DB
      *
-     * @return int|null
+     * @noinspection PhpUnused
      */
-    public function getDefaultOrderStatusId()
+    public function getDefaultOrderStatusId(): ?int
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
-        return $orderStatus ? $orderStatus->id : null;
+        return $orderStatus->id ?? null;
     }
 
 
     /**
      * Get the default order status for a particular order. Defaults to the CP configured default order status.
-     *
-     * @param Order $order
-     * @return OrderStatus|null
      */
-    public function getDefaultOrderStatusForOrder(Order $order)
+    public function getDefaultOrderStatusForOrder(Order $order): ?OrderStatus
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
@@ -194,10 +212,9 @@ class OrderStatuses extends Component
     }
 
     /**
-     * @return array
      * @since 3.0.11
      */
-    public function getOrderCountByStatus()
+    public function getOrderCountByStatus(): array
     {
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
@@ -229,10 +246,7 @@ class OrderStatuses extends Component
     /**
      * Save the order status.
      *
-     * @param OrderStatus $orderStatus
-     * @param array $emailIds
      * @param bool $runValidation should we validate this order status before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true): bool
@@ -270,8 +284,8 @@ class OrderStatuses extends Component
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
                 'description' => $orderStatus->description,
-                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
-                'default' => (bool)$orderStatus->default,
+                'sortOrder' => $orderStatus->sortOrder ?? 99,
+                'default' => $orderStatus->default,
                 'emails' => array_combine($emails, $emails),
             ];
         }
@@ -292,7 +306,6 @@ class OrderStatuses extends Component
     /**
      * Handle order status change.
      *
-     * @param ConfigEvent $event
      * @return void
      * @throws Throwable if reasons
      */
@@ -351,8 +364,6 @@ class OrderStatuses extends Component
     /**
      * Delete an order status by it's id.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      */
     public function deleteOrderStatusById(int $id): bool
@@ -373,7 +384,6 @@ class OrderStatuses extends Component
     /**
      * Handle order status being deleted
      *
-     * @param ConfigEvent $event
      * @return void
      * @throws Throwable if reasons
      */
@@ -401,8 +411,6 @@ class OrderStatuses extends Component
 
     /**
      * Prune a deleted email from order statuses.
-     *
-     * @param EmailEvent $event
      */
     public function pruneDeletedEmail(EmailEvent $event)
     {
@@ -424,43 +432,61 @@ class OrderStatuses extends Component
      *
      * @param Order $order
      * @param OrderHistory $orderHistory
+     * @throws InvalidConfigException
      */
-    public function statusChangeHandler($order, $orderHistory)
+    public function statusChangeHandler(Order $order, OrderHistory $orderHistory): void
     {
-        if ($order->orderStatusId) {
-            $status = $this->getOrderStatusById($order->orderStatusId);
-            if ($status && count($status->emails)) {
-                $originalLanguage = Craft::$app->language;
+        $status = $this->getOrderStatusById($order->orderStatusId);
 
-                foreach ($status->emails as $email) {
-                    if ($email->enabled) {
-
-                        // Set language by email's set locale
-                        // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
-                        $language = $email->getRenderLanguage($order);
-                        Locale::switchAppLanguage($language);
-
-                        Queue::push(new SendEmail([
-                            'orderId' => $order->id,
-                            'commerceEmailId' => $email->id,
-                            'orderHistoryId' => $orderHistory->id,
-                            'orderData' => $order->toArray(),
-                        ]), 100);
-                    }
-                }
-
-                // Set previous language back
-                Craft::$app->language = $originalLanguage;
-                Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
-            }
+        if ($status === null) {
+            return;
         }
+
+        // Raising 'beforeOrderStatusChange' event
+        $event = new OrderStatusEmailsEvent([
+            'orderHistory' => $orderHistory,
+            'order' => $order,
+            'emails' => $status->getEmails(),
+            'isValid' => !$order->suppressEmails,
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
+            $this->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
+        }
+
+        if (!$event->isValid || empty($event->emails)) {
+            // Don't send emails
+            return;
+        }
+
+        $originalLanguage = Craft::$app->language;
+
+        foreach ($event->emails as $email) {
+            if (!$email->enabled) {
+                continue;
+            }
+
+            // Set language by email's set locale
+            // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
+            $language = $email->getRenderLanguage($event->order);
+            Locale::switchAppLanguage($language);
+
+            Queue::push(new SendEmail([
+                'orderId' => $event->order->id,
+                'commerceEmailId' => $email->id,
+                'orderHistoryId' => $event->orderHistory->id,
+                'orderData' => $event->order->toArray(),
+            ]), 100);
+        }
+
+        // Set previous language back
+        Craft::$app->language = $originalLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
     }
 
     /**
      * Reorders the order statuses.
      *
-     * @param array $ids
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -489,46 +515,37 @@ class OrderStatuses extends Component
      * @param bool $withTrashed
      * @return Query
      */
-    private function _createOrderStatusesQuery($withTrashed = false): Query
+    private function _createOrderStatusesQuery(bool $withTrashed = false): Query
     {
         $query = (new Query())
             ->select([
+                'color',
+                'dateDeleted',
+                'default',
+                'description',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
-                'description',
                 'sortOrder',
-                'default',
-                'dateDeleted',
                 'uid',
             ])
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES]);
 
-        // todo: remove schema version condition after next beakpoint
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '2.1.09', '>=')) {
-            if (!$withTrashed) {
-                $query->where(['dateDeleted' => null]);
-            }
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
         }
+
         return $query;
     }
 
     /**
      * Gets an order status' record by uid.
-     *
-     * @param string $uid
-     * @return OrderStatusRecord
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        /** @var OrderStatusRecord $orderStatus */
-        if ($orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one()) {
-            return $orderStatus;
-        }
-
-        return new OrderStatusRecord();
+        /** @var ?OrderStatusRecord $orderStatus */
+        $orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one();
+        return $orderStatus ?: new OrderStatusRecord();
     }
 }

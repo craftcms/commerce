@@ -1,6 +1,6 @@
 {% extends 'shop/_private/layouts' %}
 
-{% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
+{% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id ?? null) %}
 {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
 {% block main %}

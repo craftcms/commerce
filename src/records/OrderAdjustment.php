@@ -15,7 +15,7 @@ use yii\db\ActiveQueryInterface;
  * Order adjustment record.
  *
  * @property float $amount
- * @property string $description
+ * @property string|null $description
  * @property int $id
  * @property bool $included
  * @property int|null $lineItemId
@@ -38,9 +38,6 @@ class OrderAdjustment extends ActiveRecord
         return Table::ORDERADJUSTMENTS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);

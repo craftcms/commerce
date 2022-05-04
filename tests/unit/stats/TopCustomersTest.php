@@ -8,10 +8,13 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
-use craft\commerce\models\Customer;
+use Craft;
 use craft\commerce\stats\TopCustomers;
+use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -25,7 +28,7 @@ class TopCustomersTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -48,6 +51,7 @@ class TopCustomersTest extends Unit
      * @param DateTime $endDate
      * @param mixed $count
      * @param $customerData
+     * @throws \yii\base\Exception
      */
     public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, $count, $customerData): void
     {
@@ -65,9 +69,9 @@ class TopCustomersTest extends Unit
                 self::assertArrayHasKey($testKey, $topCustomer);
 
                 if ($testKey === 'customer') {
-                    self::assertInstanceOf(Customer::class, $topCustomer[$testKey]);
+                    self::assertInstanceOf(User::class, $topCustomer[$testKey]);
                 } else {
-                    self::assertEquals($customerData[$testKey], $topCustomer[$testKey]);
+                    self::assertEquals($customerData()[$testKey], $topCustomer[$testKey]);
                 }
             }
         }
@@ -75,6 +79,7 @@ class TopCustomersTest extends Unit
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
@@ -82,22 +87,25 @@ class TopCustomersTest extends Unit
             [
                 TopCustomers::DATE_RANGE_TODAY,
                 'total',
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
-                [
-                    'total' => 83.96,
-                    'average' => 41.98,
-                    'customerId' => 1000,
-                    'email' => 'support@craftcms.com',
-                    'count' => 2,
-                ],
+                function() {
+                    $user = Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com');
+                    return [
+                        'total' => 127.94,
+                        'average' => 63.97,
+                        'customerId' => $user->id,
+                        'email' => $user->email,
+                        'count' => 2,
+                    ];
+                },
             ],
             [
                 TopCustomers::DATE_RANGE_CUSTOM,
                 'total',
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
                 [],
             ],

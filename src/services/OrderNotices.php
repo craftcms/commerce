@@ -9,11 +9,13 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderNotice;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use yii\base\InvalidConfigException;
 
 /**
  * Order adjustment service.
@@ -27,6 +29,7 @@ class OrderNotices extends Component
     /**
      * @param array|Order[] $orders
      * @return Order[]
+     * @throws InvalidConfigException
      * @since 3.3
      */
     public function eagerLoadOrderNoticesForOrders(array $orders): array
@@ -67,11 +70,11 @@ class OrderNotices extends Component
     {
         return (new Query())
             ->select([
+                'attribute',
                 'id',
+                'message',
                 'orderId',
                 'type',
-                'attribute',
-                'message',
             ])
             ->from([Table::ORDERNOTICES]);
     }

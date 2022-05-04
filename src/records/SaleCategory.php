@@ -36,24 +36,18 @@ class SaleCategory extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['saleId', 'categoryId'], 'unique', 'targetAttribute' => ['saleId', 'categoryId']],
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSale(): ActiveQueryInterface
     {
         return $this->hasOne(Sale::class, ['saleId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCategory(): ActiveQueryInterface
     {
         return $this->hasOne(Category::class, ['saleId' => 'id']);

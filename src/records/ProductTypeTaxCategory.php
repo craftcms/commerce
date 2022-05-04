@@ -31,17 +31,11 @@ class ProductTypeTaxCategory extends ActiveRecord
         return Table::PRODUCTTYPES_TAXCATEGORIES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategory(): ActiveQueryInterface
     {
         return $this->hasOne(TaxCategory::class, ['id', 'taxCategoryId']);

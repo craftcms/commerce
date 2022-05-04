@@ -21,5 +21,5 @@ class TaxEngineEvent extends Event
     /**
      * @var TaxEngineInterface The tax engine
      */
-    public $engine;
+    public TaxEngineInterface $engine;
 }

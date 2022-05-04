@@ -21,5 +21,5 @@ class PlanEvent extends Event
     /**
      * @var Plan Plan
      */
-    public $plan;
+    public Plan $plan;
 }

@@ -2,7 +2,7 @@
 
 {# @var orders \craft\commerce\elements\Order[] #}
 {% set orders = craft.orders()
-  .customer(craft.commerce.customers.customer)
+  .customer(currentUser)
   .isCompleted(true)
   .orderBy('dateOrdered DESC')
   .all() %}
@@ -22,11 +22,15 @@
     </h1>
     {% if currentUser %}
     <div>
-      <a href="{{ url('/[[folderName]]/customer/cards') }}" class="lg:mr-6 [[classes.a]]">
+      <a href="{{ url('/[[folderName]]/customer/addresses') }}" class="lg:mr-6 inline-block [[classes.a]]">
+        {{- 'Manage Addresses'|t -}}
+      </a>
+
+      <a href="{{ url('/[[folderName]]/customer/cards') }}" class="lg:mr-6 inline-block [[classes.a]]">
         {{- 'Manage Stored Cards'|t -}}
       </a>
 
-      <a href="{{ logoutUrl }}" class="[[classes.a]]">
+      <a href="{{ logoutUrl }}" class="inline-block [[classes.a]]">
         {{- 'Sign Out'|t -}}
       </a>
     </div>

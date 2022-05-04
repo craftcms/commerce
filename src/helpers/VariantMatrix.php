@@ -13,7 +13,11 @@ use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Class VariantMatrix
@@ -29,17 +33,21 @@ class VariantMatrix
      * @param ProductElement $product The product model
      * @param string $name The input name (sans namespace). Default is 'variants'.
      * @return string The variant matrix HTML
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     * @throws InvalidConfigException
      */
-    public static function getVariantMatrixHtml(ProductElement $product, $name = 'variants'): string
+    public static function getVariantMatrixHtml(ProductElement $product, string $name = 'variants'): string
     {
-        /** @var View $viewService */
         $viewService = Craft::$app->getView();
         $id = Html::id($name);
 
         $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,
             'name' => $name,
-            'variants' => $product->getVariants(),
+            'variants' => $product->getVariants(true),
             'product' => $product,
         ]);
 
@@ -72,14 +80,18 @@ class VariantMatrix
      *
      * @param ProductElement $product The product model
      * @param string $namespace The input namespace
-     * @return array
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     private static function _getVariantFieldHtml(ProductElement $product, string $namespace): array
     {
         $variant = new Variant();
         $variant->setProduct($product);
 
-        $variantFields = $variant->getFieldLayout()->getFields();
+        $variantFields = $variant->getFieldLayout()->getCustomFields();
 
         foreach ($variantFields as $fieldLayoutField) {
             $fieldLayoutField->setIsFresh(true);
@@ -96,7 +108,7 @@ class VariantMatrix
 
         $footHtml = $templatesService->clearJsBuffer();
 
-        // Reset $_isFresh's
+        // Reset variant field's $_isFresh
         foreach ($variantFields as $field) {
             $field->setIsFresh();
         }

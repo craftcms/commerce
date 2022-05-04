@@ -18,11 +18,9 @@ use craft\helpers\Json;
 class LineItem
 {
     /**
-     * @param array $options
-     *
      * @return string The generated options signature
      */
-    public static function generateOptionsSignature(array $options = [])
+    public static function generateOptionsSignature(array $options = []): string
     {
         ksort($options);
         return md5(Json::encode($options));

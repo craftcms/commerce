@@ -21,10 +21,10 @@ class AddLineItemEvent extends CancelableEvent
     /**
      * @var LineItem The line item model.
      */
-    public $lineItem;
+    public LineItem $lineItem;
 
     /**
      * @var bool If this is a new line item.
      */
-    public $isNew = false;
+    public bool $isNew = false;
 }

@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -26,17 +27,17 @@ class LineItemsTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var LineItems
      */
-    protected $service;
+    protected LineItems $service;
 
     /**
      * @var OrdersFixture
      */
-    protected $fixtureData;
+    protected OrdersFixture $fixtureData;
 
     /**
      * @return array
@@ -50,7 +51,7 @@ class LineItemsTest extends Unit
         ];
     }
 
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -58,7 +59,7 @@ class LineItemsTest extends Unit
         $this->fixtureData = $this->tester->grabFixture('orders');
     }
 
-    public function testGetAllLineItemsByOrderId()
+    public function testGetAllLineItemsByOrderId(): void
     {
         $lineItems = $this->service->getAllLineItemsByOrderId(9999);
 
@@ -71,13 +72,13 @@ class LineItemsTest extends Unit
         self::assertCount(2, $lineItems);
     }
 
-    public function testResolveLineItemExisting()
+    public function testResolveLineItemExisting(): void
     {
+        /** @var Order $order */
         $order = $this->fixtureData->getElement('completed-new');
-        /** @var LineItem $orderLineItem */
         $orderLineItem = $order->getLineItems()[0];
 
-        $resolvedLineItem = $this->service->resolveLineItem($order->id, $orderLineItem->purchasableId, $orderLineItem->getOptions());
+        $resolvedLineItem = $this->service->resolveLineItem($order, $orderLineItem->purchasableId, $orderLineItem->getOptions());
 
         self::assertInstanceOf(LineItem::class, $resolvedLineItem);
         // Test that resolving line items without saving is consistent
@@ -88,18 +89,31 @@ class LineItemsTest extends Unit
         self::assertEquals($orderLineItem->orderId, $resolvedLineItem->orderId);
     }
 
-    public function testResolveLineItemNew()
+    public function testResolveLineItemNew(): void
     {
-        $lineItem = $this->fixtureData->getElement('completed-new')->getLineItems()[1];
+        /** @var Order $order */
+        $order = $this->fixtureData->getElement('completed-new');
+        $lineItem = $order->getLineItems()[1];
         $variant = Variant::find()->id($lineItem->purchasableId)->one();
 
-        $resolvedLineItem = $this->service->resolveLineItem($this->fixtureData->getElement('completed-shipped')->id, $lineItem->purchasableId, $lineItem->getOptions());
+        $resolvedLineItem = $this->service->resolveLineItem($order, $lineItem->purchasableId, $lineItem->getOptions());
 
         self::assertInstanceOf(LineItem::class, $resolvedLineItem);
         self::assertEquals($variant->getPrice(), $resolvedLineItem->getPrice());
     }
 
-    public function testGetLineItemById()
+    public function testResolveLineItemUnsavedOrder(): void
+    {
+        $order = new Order();
+        $variant = Variant::find()->sku('hct-blue')->one();
+
+        $resolvedLineItem = $this->service->resolveLineItem($order, $variant->id, ['giftWrapped' => 'no']);
+
+        self::assertInstanceOf(LineItem::class, $resolvedLineItem);
+        self::assertEquals($variant->getPrice(), $resolvedLineItem->getPrice());
+    }
+
+    public function testGetLineItemById(): void
     {
         $lineItems = $this->fixtureData->getElement('completed-new')->getLineItems();
         $lineItem = $this->service->getLineItemById($lineItems[0]->id);
@@ -108,12 +122,14 @@ class LineItemsTest extends Unit
         self::assertEquals($lineItems[0]->qty, $lineItem->qty);
     }
 
-    public function testCreateLineItem()
+    public function testCreateLineItem(): void
     {
-        $lineItem = $this->fixtureData->getElement('completed-new')->getLineItems()[0];
+        /** @var Order $order */
+        $order = $this->fixtureData->getElement('completed-new');
+        $lineItem = $order->getLineItems()[0];
         $qty = 4;
         $note = 'My note';
-        $lineItem = $this->service->createLineItem($this->fixtureData->getElement('completed-new')->id, $lineItem->purchasableId, $lineItem->options, $qty, $note);
+        $lineItem = $this->service->createLineItem($order, $lineItem->purchasableId, $lineItem->options, $qty, $note);
 
         self::assertInstanceOf(LineItem::class, $lineItem);
         self::assertEquals($this->fixtureData->getElement('completed-new')->id, $lineItem->orderId);

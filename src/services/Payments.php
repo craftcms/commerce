@@ -10,8 +10,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\SubscriptionException;
@@ -25,11 +25,14 @@ use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
+use yii\base\ExitException;
+use yii\base\InvalidConfigException;
 
 /**
  * Payments service.
@@ -63,7 +66,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
+    public const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
 
     /**
      * @event TransactionEvent The event that is triggered before a payment transaction is captured.
@@ -87,7 +90,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
+    public const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a payment transaction is captured.
@@ -111,7 +114,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
+    public const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered before a transaction is refunded.
@@ -134,7 +137,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
+    public const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction is refunded.
@@ -157,7 +160,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
+    public const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
 
     /**
      * @event ProcessPaymentEvent The event that is triggered before a payment is processed.
@@ -192,7 +195,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
+    public const EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
 
     /**
      * @event ProcessPaymentEvent The event that is triggered after a payment is processed.
@@ -225,7 +228,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
+    public const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
 
     /**
      * Process a payment.
@@ -234,11 +237,13 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
-     * @return void|null
+     * @return void
+     * @throws InvalidConfigException
      * @throws PaymentException if the payment was unsuccessful
-     * @throws Throwable if reasons
+     * @throws TransactionException
+     * @throws CurrencyException
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));
@@ -280,17 +285,11 @@ class Payments extends Component
         $transaction = Plugin::getInstance()->getTransactions()->createTransaction($order, null, $defaultAction);
 
         try {
-            /** @var RequestResponseInterface $response */
-            switch ($defaultAction) {
-                case TransactionRecord::TYPE_PURCHASE:
-                    $response = $gateway->purchase($transaction, $form);
-                    break;
-                case TransactionRecord::TYPE_AUTHORIZE:
-                    $response = $gateway->authorize($transaction, $form);
-                    break;
-                default:
-                    throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.'));
-            }
+            $response = match ($defaultAction) {
+                TransactionRecord::TYPE_PURCHASE => $gateway->purchase($transaction, $form),
+                TransactionRecord::TYPE_AUTHORIZE => $gateway->authorize($transaction, $form),
+                default => throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.')),
+            };
 
             $this->_updateTransaction($transaction, $response);
 
@@ -301,7 +300,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return null;
+                return;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -328,7 +327,6 @@ class Payments extends Component
      * Capture a transaction.
      *
      * @param Transaction $transaction the transaction to capture.
-     * @return Transaction
      * @throws TransactionException if something went wrong when saving the transaction
      */
     public function captureTransaction(Transaction $transaction): Transaction
@@ -358,10 +356,9 @@ class Payments extends Component
      * @param Transaction $transaction the transaction to refund.
      * @param float|null $amount the amount to refund or null for full amount.
      * @param string $note the administrators note on the refund
-     * @return Transaction
      * @throws RefundException if something went wrong during the refund.
      */
-    public function refundTransaction(Transaction $transaction, $amount = null, $note = ''): Transaction
+    public function refundTransaction(Transaction $transaction, ?float $amount = null, string $note = ''): Transaction
     {
         // Raise 'beforeRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_REFUND_TRANSACTION)) {
@@ -384,8 +381,19 @@ class Payments extends Component
      * @param Transaction $transaction
      * @param string|null &$customError
      * @return bool
+     * @throws CurrencyException
+     * @throws ExitException
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Throwable
+     * @throws TransactionException
+     * @throws \craft\commerce\errors\OrderStatusException
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
      */
-    public function completePayment(Transaction $transaction, &$customError): bool
+    public function completePayment(Transaction $transaction, ?string &$customError): bool
     {
         // Only transactions with the status of "redirect" can be completed
         if (!in_array($transaction->status, [TransactionRecord::STATUS_REDIRECT, TransactionRecord::STATUS_SUCCESS], true)) {
@@ -398,7 +406,7 @@ class Payments extends Component
         $mutex = Craft::$app->getMutex();
 
         if (!$mutex->acquire($transactionLockName, 15)) {
-            throw new \Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
 
         // If it's successful already, we're good.
@@ -463,82 +471,17 @@ class Payments extends Component
     }
 
     /**
-     * Gets the total transactions amount really paid (not authorized).
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated 3.1.11. Use getTotalPaid() instead.
-     */
-    public function getTotalPaidForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalPaidForOrder()', '`Payments::getTotalPaidForOrder()` has been deprecated. Use `Order::getTotalPaid()` instead.');
-
-        return $order->getTotalPaid();
-    }
-
-    /**
-     * Gets the total transactions amount refunded.
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalRefundedForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalRefundedForOrder()', '`Payments::getTotalRefundedForOrder()` has been deprecated.');
-
-        // Since this method was only used by getTotalPaidForOrder, we don't need to move this to the order model since the logic is inside Order::getTotalPaid()
-        $transactions = ArrayHelper::where($order->getTransactions(), static function(Transaction $transaction) {
-            return ($transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND);
-        });
-
-        return array_sum(ArrayHelper::getColumn($transactions, 'amount', false));
-    }
-
-    /**
-     * Gets the total transactions amount with authorized.
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalAuthorizedOnlyForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedOnlyForOrder()', '`Payments::getTotalAuthorizedOnlyForOrder()` has been deprecated. Use `Order::getTotalAuthorized()` instead.');
-
-        return $order->getTotalAuthorized();
-    }
-
-    /**
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalAuthorizedForOrder(Order $order): float
-    {
-        // At time of deprecation this method has no internal uses.
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedForOrder()', '`Payments::getTotalAuthorizedForOrder()` has been deprecated. It is not an accurate result since it does not take the amount paid from the authorized. Use `Order::getTotalAuthorized()` instead.');
-
-        return (float)(new Query())
-            ->from([Table::TRANSACTIONS])
-            ->where([
-                'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE],
-            ])
-            ->sum('amount');
-    }
-
-
-    /**
      * Handles a redirect.
      *
      * @param RequestResponseInterface $response
-     * @param                          $redirect
-     * @return mixed
+     * @param string|null $redirect
+     * @throws ExitException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws \yii\base\Exception
      */
-    private function _handleRedirect(RequestResponseInterface $response, &$redirect)
+    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect): void
     {
         // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
@@ -576,19 +519,16 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
-            // Let the gateways response redirect us
+            // Let the gateway's response redirect us
             $response->redirect();
         }
-
-        return null;
     }
 
     /**
      * Process a capture or refund exception.
      *
-     * @param Transaction $parent
-     * @return Transaction
      * @throws TransactionException if unable to save transaction
+     * @throws InvalidConfigException
      */
     private function _capture(Transaction $parent): Transaction
     {
@@ -613,13 +553,11 @@ class Payments extends Component
     /**
      * Process a capture or refund exception.
      *
-     * @param Transaction $parent
      * @param float|null $amount
      * @param string $note the administrators note on the refund
-     * @return Transaction
      * @throws RefundException if anything goes wrong during a refund
      */
-    private function _refund(Transaction $parent, float $amount = null, $note = ''): Transaction
+    private function _refund(Transaction $parent, float $amount = null, string $note = ''): Transaction
     {
         try {
             $gateway = $parent->getGateway();
@@ -666,7 +604,7 @@ class Payments extends Component
      * @param Transaction $child
      * @throws TransactionException
      */
-    private function _saveTransaction($child)
+    private function _saveTransaction(Transaction $child): void
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
             throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
@@ -675,11 +613,8 @@ class Payments extends Component
 
     /**
      * Updates a transaction.
-     *
-     * @param Transaction $transaction
-     * @param RequestResponseInterface $response
      */
-    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response): void
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;

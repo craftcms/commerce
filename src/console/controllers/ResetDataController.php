@@ -13,6 +13,7 @@ use craft\commerce\db\Table;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\Console;
+use Exception;
 use yii\console\ExitCode;
 
 /**
@@ -25,9 +26,6 @@ class ResetDataController extends Controller
 {
     /**
      * Reset Commerce data.
-     *
-     * @return int
-     * @throws \yii\db\Exception
      */
     public function actionIndex(): int
     {
@@ -89,22 +87,6 @@ class ResetDataController extends Controller
 
                 $this->stdout($count . ' payment sources deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
-                // Customers
-                $this->stdout('Deleting customers ...' . PHP_EOL, Console::FG_GREEN);
-                $count = Craft::$app->getDb()->createCommand()
-                    ->delete(Table::CUSTOMERS, ['userId' => null])
-                    ->execute();
-
-                $this->stdout($count . ' customers deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-
-                // Address
-                $this->stdout('Deleting addresses ...' . PHP_EOL, Console::FG_GREEN);
-                $count = Craft::$app->getDb()->createCommand()
-                    ->delete(Table::ADDRESSES, ['not', ['isStoreLocation' => true]])
-                    ->execute();
-
-                $this->stdout($count . ' addresses deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-
                 // Discount usage
                 $this->stdout('Resetting discount usage data ...' . PHP_EOL, Console::FG_GREEN);
                 Craft::$app->getDb()->createCommand()
@@ -124,7 +106,7 @@ class ResetDataController extends Controller
                 $this->stdout('Finished.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 $transaction->commit();
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->stdout($e->getmessage() . PHP_EOL, Console::FG_RED);
                 $transaction->rollBack();
             }

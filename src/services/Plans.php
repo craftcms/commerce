@@ -20,6 +20,7 @@ use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * Plans service.
@@ -48,7 +49,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_ARCHIVE_PLAN = 'archivePlan';
+    public const EVENT_ARCHIVE_PLAN = 'archivePlan';
 
     /**
      * @event PlanEvent The event that is triggered before a plan is saved.
@@ -65,7 +66,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
+    public const EVENT_BEFORE_SAVE_PLAN = 'beforeSavePlan';
 
     /**
      * @event PlanEvent The event that is triggered after a plan is saved.
@@ -82,7 +83,7 @@ class Plans extends Component
      * });
      * ```
      */
-    const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
+    public const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
 
     /**
      * Memoized array of plans.
@@ -90,7 +91,7 @@ class Plans extends Component
      * @var Plan[]|null
      * @since 3.2.8
      */
-    private $_allPlans;
+    private ?array $_allPlans = null;
 
     /**
      * Returns all subscription plans
@@ -106,6 +107,7 @@ class Plans extends Component
      * Returns all enabled subscription plans
      *
      * @return Plan[]
+     * @noinspection PhpUnused
      */
     public function getAllEnabledPlans(): array
     {
@@ -115,21 +117,30 @@ class Plans extends Component
     /**
      * Return all subscription plans for a gateway.
      *
-     * @param int $gatewayId
      * @return Plan[]
+     */
+    public function getPlansByGatewayId(int $gatewayId): array
+    {
+        return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
+    }
+
+    /**
+     * Return all subscription plans for a gateway.
+     *
+     * @return Plan[]
+     * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {
-        return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
+        return $this->getPlansByGatewayId($gatewayId);
     }
 
     /**
      * Returns a subscription plan by its id.
      *
      * @param int $planId The plan id.
-     * @return Plan|null
      */
-    public function getPlanById(int $planId)
+    public function getPlanById(int $planId): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'id', $planId);
     }
@@ -138,9 +149,8 @@ class Plans extends Component
      * Returns a subscription plan by its uid.
      *
      * @param string $planUid The plan uid.
-     * @return Plan|null
      */
-    public function getPlanByUid(string $planUid)
+    public function getPlanByUid(string $planUid): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'uid', $planUid);
     }
@@ -149,9 +159,9 @@ class Plans extends Component
      * Returns a subscription plan by its handle.
      *
      * @param string $handle the plan handle
-     * @return Plan|null
+     * @noinspection PhpUnused
      */
-    public function getPlanByHandle(string $handle)
+    public function getPlanByHandle(string $handle): ?Plan
     {
         return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllPlans(), ['handle' => $handle, 'isArchived' => false]));
     }
@@ -160,9 +170,8 @@ class Plans extends Component
      * Returns a subscription plan by its reference.
      *
      * @param string $reference the plan reference
-     * @return Plan|null
      */
-    public function getPlanByReference(string $reference)
+    public function getPlanByReference(string $reference): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'reference', $reference);
     }
@@ -172,6 +181,7 @@ class Plans extends Component
      *
      * @param int $entryId The Entry ID to search by
      * @return Plan[]
+     * @noinspection PhpUnused
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
@@ -245,7 +255,6 @@ class Plans extends Component
      * Archive a subscription plan by its id.
      *
      * @param int $id The id
-     * @return bool
      * @throws InvalidConfigException
      */
     public function archivePlanById(int $id): bool
@@ -274,6 +283,7 @@ class Plans extends Component
      *
      * @param array $ids Array of plans.
      * @return bool Always true.
+     * @throws Exception
      */
     public function reorderPlans(array $ids): bool
     {
@@ -299,19 +309,19 @@ class Plans extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'gatewayId',
-                'name',
-                'handle',
-                'planInformationId',
-                'reference',
-                'planData',
-                'enabled',
-                'isArchived',
                 'dateArchived',
-                'sortOrder',
                 'dateCreated',
                 'dateUpdated',
+                'enabled',
+                'gatewayId',
+                'handle',
+                'id',
+                'isArchived',
+                'name',
+                'planData',
+                'planInformationId',
+                'reference',
+                'sortOrder',
                 'uid',
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
@@ -321,7 +331,6 @@ class Plans extends Component
     /**
      * Populate an array of plans from their database table rows
      *
-     * @param array $results
      * @return Plan[]
      */
     private function _populatePlans(array $results): array
@@ -331,7 +340,7 @@ class Plans extends Component
         foreach ($results as $result) {
             try {
                 $plans[] = $this->_populatePlan($result);
-            } catch (InvalidConfigException $exception) {
+            } catch (InvalidConfigException) {
                 continue; // Just skip this
             }
         }
@@ -342,8 +351,6 @@ class Plans extends Component
     /**
      * Populate a payment plan model from database table row.
      *
-     * @param array $result
-     * @return Plan
      * @throws InvalidConfigException if the gateway does not support subscriptions
      */
     private function _populatePlan(array $result): Plan
@@ -364,10 +371,10 @@ class Plans extends Component
     /**
      * Get all plans memoized.
      *
-     * @return array
+     * @return array|null
      * @since 3.2.8
      */
-    private function _getAllPlans()
+    private function _getAllPlans(): ?array
     {
         if ($this->_allPlans === null) {
             $plans = $this->_createPlansQuery()->all();

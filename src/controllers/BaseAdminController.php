@@ -7,6 +7,8 @@
 
 namespace craft\commerce\controllers;
 
+use yii\web\ForbiddenHttpException;
+
 /**
  * Class Base Admin Controller
  *
@@ -17,8 +19,9 @@ class BaseAdminController extends BaseCpController
 {
     /**
      * @inheritdoc
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requireAdmin();

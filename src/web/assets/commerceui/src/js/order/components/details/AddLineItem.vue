@@ -1,69 +1,108 @@
 <template>
     <div>
-        <hr>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">
-                    <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
+                    <btn-link
+                        @click="showForm = true"
+                        button-class="btn icon add"
+                        >{{ 'Add a line item' | t('commerce') }}</btn-link
+                    >
                 </div>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
-                    <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
+                    <h2>{{ 'Your order is empty' | t('commerce') }}</h2>
+                    <btn-link
+                        @click="showForm = true"
+                        button-class="btn icon add"
+                        >{{ 'Add a line item' | t('commerce') }}</btn-link
+                    >
                 </div>
             </template>
         </template>
         <template v-else>
             <div>
-                <div class="flex add-line-item-table-header">
-                    <h2>{{ $options.filters.t('Add a line item', 'commerce') }}</h2>
-                    <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
+                <div class="flex add-line-item-table-header pb">
+                    <h2>
+                        {{ $options.filters.t('Add a line item', 'commerce') }}
+                    </h2>
+                    <form
+                        @submit.prevent="lineItemAdd()"
+                        class="add-line-item-form"
+                    >
                         <div class="buttons buttons--add-line-item">
-                            <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled"
-                                   :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false"/>
-                            <input type="submit" class="btn secondary" :class="{disabled: submitDisabled}"
-                                   :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" @click.prevent="lineItemAdd()"/>
+                            <input
+                                type="button"
+                                class="btn"
+                                :class="{disabled: formDisabled}"
+                                :disabled="formDisabled"
+                                :value="
+                                    $options.filters.t('Cancel', 'commerce')
+                                "
+                                @click="showForm = false"
+                            />
+                            <input
+                                type="submit"
+                                class="btn secondary"
+                                :class="{disabled: submitDisabled}"
+                                :disabled="submitDisabled"
+                                :value="$options.filters.t('Add', 'commerce')"
+                                @click.prevent="lineItemAdd()"
+                            />
                         </div>
                     </form>
                 </div>
                 <admin-table
-                        :allow-multiple-selections="true"
-                        table-data-endpoint="commerce/orders/purchasables-table"
-                        :checkboxes="true"
-                        :checkbox-status="isCheckboxEnabled"
-                        :columns="purchasableTableColumns"
-                        :padded="true"
-                        per-page="10"
-                        search="true"
-                        @onSelect="handleCheckboxSelect"
-                        @data="handleTableData"
+                    :allow-multiple-selections="true"
+                    table-data-endpoint="commerce/orders/purchasables-table"
+                    :checkboxes="true"
+                    :checkbox-status="isCheckboxEnabled"
+                    :columns="purchasableTableColumns"
+                    :padded="true"
+                    per-page="10"
+                    search="true"
+                    @onSelect="handleCheckboxSelect"
+                    @data="handleTableData"
                 ></admin-table>
 
-                <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
+                <form
+                    @submit.prevent="lineItemAdd()"
+                    class="add-line-item-form"
+                >
                     <div class="buttons buttons--add-line-item">
-                        <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled"
-                               :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false"/>
-                        <input type="submit" class="btn secondary" :class="{disabled: submitDisabled}"
-                               :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" @click.prevent="lineItemAdd()"/>
+                        <input
+                            type="button"
+                            class="btn"
+                            :class="{disabled: formDisabled}"
+                            :disabled="formDisabled"
+                            :value="$options.filters.t('Cancel', 'commerce')"
+                            @click="showForm = false"
+                        />
+                        <input
+                            type="submit"
+                            class="btn secondary"
+                            :class="{disabled: submitDisabled}"
+                            :disabled="submitDisabled"
+                            :value="$options.filters.t('Add', 'commerce')"
+                            @click.prevent="lineItemAdd()"
+                        />
                     </div>
                 </form>
-
             </div>
-
         </template>
     </div>
 </template>
 
 <script>
-    import {mapActions, mapGetters, mapState} from 'vuex'
-    import _find from 'lodash.find'
-    import AdminTable from 'Craft/admintable/src/App'
+    import {mapActions, mapGetters, mapState} from 'vuex';
+    import _find from 'lodash.find';
+    import AdminTable from 'Craft/admintable/src/App';
 
     export default {
         components: {
-            AdminTable
+            AdminTable,
         },
 
         data() {
@@ -72,41 +111,67 @@
                 selectedPurchasables: [],
                 currentTableData: null,
                 purchasableTableColumns: [
-                    { name: 'description', title: this.$options.filters.t('Description', 'commerce'), sortField: 'description' },
-                    { name: 'sku', title: this.$options.filters.t('SKU', 'commerce'), sortField: 'sku' },
-                    { name: 'priceAsCurrency', title: this.$options.filters.t('Price', 'commerce'), sortField: 'price' },
-                    { name: 'isAvailable', title: this.$options.filters.t('Available?', 'commerce'), callback: function(value) {
-                        if (value) {
-                            return '<span data-icon="check" title=""></span>'
-                        }
-                    } },
-                    { name: '__slot:detail', title: '', titleClass: 'thin', callback: function(value) {
-                        if (value && (Object.keys(value).length || value.length)) {
-                            return '<textarea>' + value + '</textarea>';
-                        }
-                    } }
+                    {
+                        name: 'description',
+                        title: this.$options.filters.t(
+                            'Description',
+                            'commerce'
+                        ),
+                        sortField: 'description',
+                    },
+                    {
+                        name: 'sku',
+                        title: this.$options.filters.t('SKU', 'commerce'),
+                        sortField: 'sku',
+                    },
+                    {
+                        name: 'priceAsCurrency',
+                        title: this.$options.filters.t('Price', 'commerce'),
+                        sortField: 'price',
+                    },
+                    {
+                        name: 'isAvailable',
+                        title: this.$options.filters.t(
+                            'Available?',
+                            'commerce'
+                        ),
+                        callback: function (value) {
+                            if (value) {
+                                return '<span data-icon="check" title=""></span>';
+                            }
+                        },
+                    },
+                    {
+                        name: '__slot:detail',
+                        title: '',
+                        titleClass: 'thin',
+                        callback: function (value) {
+                            if (
+                                value &&
+                                (Object.keys(value).length || value.length)
+                            ) {
+                                return '<textarea>' + value + '</textarea>';
+                            }
+                        },
+                    },
                 ],
-            }
+            };
         },
 
         computed: {
             ...mapState({
-                purchasables: state => state.purchasables,
+                purchasables: (state) => state.purchasables,
             }),
 
-            ...mapGetters([
-                'getErrors',
-                'canAddLineItem',
-                'orderId',
-            ]),
+            ...mapGetters(['getErrors', 'canAddLineItem', 'orderId']),
 
             formDisabled() {
-                return !this.canAddLineItem
+                return !this.canAddLineItem;
             },
 
             submitDisabled() {
                 if (!this.canAddLineItem || !this.selectedPurchasables.length) {
-                    return true
+                    return true;
                 }
 
                 return false;
@@ -114,17 +179,20 @@
 
             lineItems() {
                 return this.$store.state.draft.order.lineItems;
-            }
+            },
         },
 
         methods: {
-            ...mapActions([
-                'displayError',
-            ]),
+            ...mapActions(['displayError']),
 
             lineItemAdd() {
                 if (!this.canAddLineItem) {
-                    this.displayError(this.$options.filters.t("You are not allowed to add a line item.", 'commerce'));
+                    this.displayError(
+                        this.$options.filters.t(
+                            'You are not allowed to add a line item.',
+                            'commerce'
+                        )
+                    );
                     return;
                 }
 
@@ -152,7 +220,12 @@
                                 isNew: true,
                                 uid: purchasable.newLineItemUid,
                             });
-                            this.$store.commit('updateRecentlyAddedLineItems', purchasable.id + '-' + purchasable.newLineItemOptionsSignature);
+                            this.$store.commit(
+                                'updateRecentlyAddedLineItems',
+                                purchasable.id +
+                                    '-' +
+                                    purchasable.newLineItemOptionsSignature
+                            );
                         }
                     }
 
@@ -172,8 +245,8 @@
             handleCheckboxSelect(ids) {
                 if (ids && ids.length) {
                     let $this = this;
-                    this.selectedPurchasables = ids.map(id => {
-                        return _find($this.currentTableData, { id: id });
+                    this.selectedPurchasables = ids.map((id) => {
+                        return _find($this.currentTableData, {id: id});
                     });
                 } else {
                     this.selectedPurchasables = [];
@@ -184,11 +257,11 @@
                 this.currentTableData = data;
             },
         },
-    }
+    };
 </script>
 
 <style lang="scss">
-    @import "craftcms-sass/mixins";
+    @import 'craftcms-sass/mixins';
 
     /* Starter */
 
@@ -201,7 +274,6 @@
         }
     }
 
-
     /* Add line item form */
 
     .add-line-item-form {
@@ -210,8 +282,12 @@
 
     .add-line-item-table-header {
         justify-content: space-between;
-    }
+        align-items: center;
 
+        h2 {
+            margin: 0;
+        }
+    }
 
     /* Purchasable select option */
 
@@ -227,7 +303,7 @@
             @include margin-right(20px);
         }
 
-        &.notAvailable{
+        &.notAvailable {
             .description {
                 color: $lightTextColor;
             }

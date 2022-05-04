@@ -31,17 +31,11 @@ class ProductTypeShippingCategory extends ActiveRecord
         return Table::PRODUCTTYPES_SHIPPINGCATEGORIES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id', 'shippingCategoryId']);

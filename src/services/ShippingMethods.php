@@ -19,6 +19,7 @@ use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -51,14 +52,13 @@ class ShippingMethods extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
+    public const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
 
     /**
      * @var null|ShippingMethod[]
      */
-    private $_allShippingMethods;
-
+    private ?array $_allShippingMethods = null;
 
     /**
      * Returns the Commerce managed shipping methods stored in the database.
@@ -76,7 +76,7 @@ class ShippingMethods extends Component
 
         foreach ($results as $result) {
             $shippingMethod = new ShippingMethod($result);
-            $shippingMethod->typecastAttributes();
+
             $this->_allShippingMethods[] = $shippingMethod;
         }
 
@@ -85,22 +85,16 @@ class ShippingMethods extends Component
 
     /**
      * Get a shipping method by its handle.
-     *
-     * @param string $shippingMethodHandle
-     * @return ShippingMethod|null
      */
-    public function getShippingMethodByHandle(string $shippingMethodHandle)
+    public function getShippingMethodByHandle(string $shippingMethodHandle): ?ShippingMethod
     {
         return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'handle', $shippingMethodHandle);
     }
 
     /**
      * Get a shipping method by its ID.
-     *
-     * @param int $shippingMethodId
-     * @return ShippingMethod|null
      */
-    public function getShippingMethodById(int $shippingMethodId)
+    public function getShippingMethodById(int $shippingMethodId): ?ShippingMethod
     {
         return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'id', $shippingMethodId);
     }
@@ -108,13 +102,11 @@ class ShippingMethods extends Component
     /**
      * Get all available shipping methods to the order.
      *
-     * @param Order $order
      * @return ShippingMethod[]
-     * @TODO rename to matchingShippingMethods in 4.0
      */
-    public function getAvailableShippingMethods(Order $order): array
+    public function getMatchingShippingMethods(Order $order): array
     {
-        $availableMethods = [];
+        $matchingMethods = [];
 
         $methods = $this->getAllShippingMethods();
 
@@ -132,7 +124,7 @@ class ShippingMethods extends Component
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
-                $availableMethods[$method->getHandle()] = [
+                $matchingMethods[$method->getHandle()] = [
                     'method' => $method,
                     'price' => $totalPrice, // Store the price so we can sort on it before returning
                 ];
@@ -140,12 +132,12 @@ class ShippingMethods extends Component
         }
 
         // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
-        uasort($availableMethods, function($a, $b) {
+        uasort($matchingMethods, static function($a, $b) {
             return $a['price'] - $b['price'];
         });
 
         $shippingMethods = [];
-        foreach ($availableMethods as $shippingMethod) {
+        foreach ($matchingMethods as $shippingMethod) {
             $method = $shippingMethod['method'];
             $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
         }
@@ -156,11 +148,9 @@ class ShippingMethods extends Component
     /**
      * Get a matching shipping rule for Order and shipping method.
      *
-     * @param Order $order
-     * @param ShippingMethodInterface $method
-     * @return bool|ShippingRuleInterface
+     * @noinspection PhpUnused
      */
-    public function getMatchingShippingRule(Order $order, $method)
+    public function getMatchingShippingRule(Order $order, ShippingMethodInterface $method): ?ShippingRuleInterface
     {
         return $method->getMatchingShippingRule($order);
     }
@@ -168,9 +158,7 @@ class ShippingMethods extends Component
     /**
      * Save a shipping method.
      *
-     * @param ShippingMethod $model
      * @param bool $runValidation should we validate this method before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
@@ -214,9 +202,7 @@ class ShippingMethods extends Component
     /**
      * Save a lite shipping method.
      *
-     * @param ShippingMethod $model
      * @param bool $runValidation should we validate this method before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
@@ -239,9 +225,7 @@ class ShippingMethods extends Component
     }
 
     /**
-     * Gets the the lite shipping method or returns a new one.
-     *
-     * @return ShippingMethod
+     * Gets the lite shipping method or returns a new one.
      */
     public function getLiteShippingMethod(): ShippingMethod
     {
@@ -263,10 +247,11 @@ class ShippingMethods extends Component
     /**
      * Delete a shipping method by its ID.
      *
-     * @param $shippingMethodId int
+     * @param int $shippingMethodId
      * @return bool
+     * @throws Throwable
      */
-    public function deleteShippingMethodById($shippingMethodId): bool
+    public function deleteShippingMethodById(int $shippingMethodId): bool
     {
         // Delete all rules first.
         $db = Craft::$app->getDb();
@@ -285,7 +270,7 @@ class ShippingMethods extends Component
             $transaction->commit();
             $this->_allShippingMethods = null; //clear the cache
             return true;
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $transaction->rollBack();
 
             return false;
@@ -294,20 +279,18 @@ class ShippingMethods extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping methods.
-     *
-     * @return Query
      */
     private function _createShippingMethodQuery(): Query
     {
         $query = (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
-                'enabled',
-                'isLite',
                 'dateCreated',
                 'dateUpdated',
+                'enabled',
+                'handle',
+                'id',
+                'isLite',
+                'name',
             ])
             ->from([Table::SHIPPINGMETHODS]);
 

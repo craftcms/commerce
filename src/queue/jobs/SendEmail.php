@@ -18,25 +18,25 @@ class SendEmail extends BaseJob
     /**
      * @var int Order ID
      */
-    public $orderId;
+    public int $orderId;
 
     /**
      * @var array Order Data at time of order status change
      */
-    public $orderData;
+    public array $orderData;
 
     /**
      * @var int The commerce email ID
      */
-    public $commerceEmailId;
+    public int $commerceEmailId;
 
     /**
      * @var int the order history ID
      */
-    public $orderHistoryId;
+    public int $orderHistoryId;
 
 
-    public function execute($queue)
+    public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
 
@@ -58,7 +58,7 @@ class SendEmail extends BaseJob
     }
 
 
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return 'Sending email for order #' . $this->orderId;
     }

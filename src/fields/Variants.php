@@ -22,6 +22,8 @@ use GraphQL\Type\Definition\Type;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read array $contentGqlType
  */
 class Variants extends BaseRelationField
 {
@@ -45,7 +47,7 @@ class Variants extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|Type
     {
         return [
             'name' => $this->handle,
@@ -59,7 +61,7 @@ class Variants extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Variant::class;
     }

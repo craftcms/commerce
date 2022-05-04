@@ -1,16 +1,3 @@
-.order-details .paidLogo {
-  font-weight: bold;
-  position: absolute;
-  top: 40px;
-  right: 60px;
-  font-family: 'Helvetica', serif;
-  color: rgba(211, 65, 50, 0.5);
-  font-size: 48px;
-  -ms-transform: rotate(-20deg); /* IE 9 */
-  -webkit-transform: rotate(-20deg); /* Safari */
-  transform: rotate(-20deg);
-}
-
 @media only screen and (max-width: 768px) {
   .commerceordersedit #action-button {
     flex-direction: column-reverse;
@@ -49,11 +36,11 @@
 }
 
 .transaction-status.transaction-status-failed {
-  color: #D0021B;
+  color: #d0021b;
 }
 
 .transaction-status.transaction-status-success {
-  color: #27AE60;
+  color: #27ae60;
 }
 
 .gateway-response {
@@ -74,7 +61,7 @@
   font-family: Menlo, monospace;
 }
 
-.transaction-refund input[type="text"] {
+.transaction-refund input[type='text'] {
   width: 100%;
   margin-bottom: 10px;
 }

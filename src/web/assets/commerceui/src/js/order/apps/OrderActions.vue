@@ -1,7 +1,11 @@
 <template>
     <div v-if="canEdit" class="order-flex">
         <div class="order-edit-action-buttons">
-            <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
+            <div
+                v-if="saveLoading"
+                id="order-save-spinner"
+                class="spinner"
+            ></div>
 
             <template v-if="!editing">
                 <input
@@ -30,89 +34,97 @@
 </template>
 
 <script>
-    import {mapActions, mapGetters, mapState} from 'vuex'
-    import UpdateOrderBtn from '../components/actions/UpdateOrderBtn'
+    import {mapActions, mapGetters, mapState} from 'vuex';
+    import UpdateOrderBtn from '../components/actions/UpdateOrderBtn';
 
     export default {
         components: {
-            UpdateOrderBtn
+            UpdateOrderBtn,
         },
 
         computed: {
             ...mapState({
-                saveLoading: state => state.saveLoading,
-                editing: state => state.editing,
+                saveLoading: (state) => state.saveLoading,
+                editing: (state) => state.editing,
             }),
-            ...mapGetters([
-                'forceEdit',
-                'canEdit',
-                'canDelete',
-            ]),
+            ...mapGetters(['forceEdit', 'canEdit', 'canDelete']),
         },
 
         methods: {
-            ...mapActions([
-                'edit',
-            ]),
+            ...mapActions(['edit']),
 
             cancel() {
-                window.location.reload()
-            }
+                window.location.reload();
+            },
         },
 
         mounted() {
             // Disable non-static custom field tabs
-            const $tabLinks = window.document.querySelectorAll('#tabs a.custom-tab')
+            const $tabLinks =
+                window.document.querySelectorAll('#tabs a.custom-tab');
 
-            $tabLinks.forEach(function($tabLink) {
+            $tabLinks.forEach(function ($tabLink) {
                 if (!$tabLink.classList.contains('static')) {
-                    $tabLink.parentNode.classList.add('hidden')
+                    $tabLink.classList.add('hidden');
                 }
-            })
+            });
 
             // For custom tabs, if the selected tab is dynamic, find corresponding static tab and select it instead.
-            const $selectedTabLink = window.document.querySelector('#tabs a.custom-tab.sel')
+            const $selectedTabLink = window.document.querySelector(
+                '#tabs a.custom-tab.sel'
+            );
 
             if ($selectedTabLink) {
-                const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')
+                const $selectedTabLinkHash =
+                    $selectedTabLink.getAttribute('href');
 
                 if (!$selectedTabLinkHash.includes('static')) {
-                    const $newSelectedTabHash = '#static-' + $selectedTabLinkHash.substring(1)
+                    const $newSelectedTabHash =
+                        '#static-' + $selectedTabLinkHash.substring(1);
 
-                    $tabLinks.forEach(function($tabLink) {
-                        if ($tabLink.getAttribute('href') === $newSelectedTabHash) {
-                            $tabLink.click()
+                    $tabLinks.forEach(function ($tabLink) {
+                        if (
+                            $tabLink.getAttribute('href') ===
+                            $newSelectedTabHash
+                        ) {
+                            $tabLink.click();
                         }
-                    })
+                    });
                 }
             }
 
             // Force edit
             if (this.forceEdit && this.canEdit) {
                 // Set timeout to wait for Prism editor to be initialized
-                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized
-                setTimeout(function() {
-                    this.edit()
-                }.bind(this), 50)
+                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized #COM-55
+                setTimeout(
+                    function () {
+                        this.edit();
+                    }.bind(this),
+                    50
+                );
             }
         },
 
         created() {
-            window.document.addEventListener('keydown', function(event) {
-                if((event.ctrlKey || event.metaKey) && event.which == 83) {
-                    event.preventDefault()
+            window.document.addEventListener(
+                'keydown',
+                function (event) {
+                    if ((event.ctrlKey || event.metaKey) && event.which == 83) {
+                        event.preventDefault();
 
-                    if (!this.editing) {
-                        return false
+                        if (!this.editing) {
+                            return false;
+                        }
+
+                        this.$refs.updateOrderBtn.save();
+
+                        return false;
                     }
-
-                    this.$refs.updateOrderBtn.save()
-
-                    return false
-                }
-            }.bind(this))
-        }
-    }
+                }.bind(this)
+            );
+        },
+    };
 </script>
 
 <style lang="scss">

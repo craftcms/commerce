@@ -30,7 +30,7 @@ class Discount extends Component implements AdjusterInterface
     /**
      * The discount adjustment type.
      */
-    const ADJUSTMENT_TYPE = 'discount';
+    public const ADJUSTMENT_TYPE = 'discount';
 
     /**
      * @event DiscountAdjustmentsEvent The event that is triggered after a discount has matched the order and before it returns its adjustments.
@@ -60,40 +60,30 @@ class Discount extends Component implements AdjusterInterface
      * );
      * ```
      */
-    const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
+    public const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
     /**
      * @var Order
      */
-    private $_order;
-
-    /**
-     * @var
-     */
-    private $_discount;
-
-    /**
-     * @var array
-     */
-    private $_appliedDiscounts = [];
+    private Order $_order;
 
     /**
      * @var float
      */
-    private $_discountTotal = 0;
+    private float $_discountTotal = 0;
 
     /**
      * Temporary feature flag for testing
      *
      * @var bool
      */
-    private $_spreadBaseOrderDiscountsToLineItems = true;
+    private bool $_spreadBaseOrderDiscountsToLineItems = true;
 
     /**
      * @var array
      */
-    private $_discountUnitPricesByLineItem = [];
+    private array $_discountUnitPricesByLineItem = [];
 
     /**
      * @inheritdoc
@@ -150,7 +140,6 @@ class Discount extends Component implements AdjusterInterface
                 }
             }
             $this->_order->setAdjustments($allAdjustments);
-
 
             // Our adjustments
             foreach ($adjustments as $key => $adjustment) {
@@ -227,10 +216,6 @@ class Discount extends Component implements AdjusterInterface
     }
 
 
-    /**
-     * @param DiscountModel $discount
-     * @return OrderAdjustment
-     */
     private function _createOrderAdjustment(DiscountModel $discount): OrderAdjustment
     {
         //preparing model
@@ -247,20 +232,17 @@ class Discount extends Component implements AdjusterInterface
     }
 
     /**
-     * @param DiscountModel $discount
      * @return OrderAdjustment[]|false
      */
-    private function _getAdjustments(DiscountModel $discount)
+    private function _getAdjustments(DiscountModel $discount): array|false
     {
         $adjustments = [];
-
-        $this->_discount = $discount;
 
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
             // Order is already a match to this discount, or we wouldn't get here.
-            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount, false)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, false)) {
                 $matchingLineIds[] = $lineItemHashId;
             }
         }
@@ -268,13 +250,13 @@ class Discount extends Component implements AdjusterInterface
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
             if ($matchingLineIds && in_array($lineItemHashId, $matchingLineIds, false)) {
-                $adjustment = $this->_createOrderAdjustment($this->_discount);
+                $adjustment = $this->_createOrderAdjustment($discount);
                 $adjustment->setLineItem($item);
                 $discountAmountPerItemPreDiscounts = 0;
-                $amountPerItem = Currency::round($this->_discount->perItemDiscount);
+                $amountPerItem = Currency::round($discount->perItemDiscount);
 
-                if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
-                    $discountAmountPerItemPreDiscounts = ($this->_discount->percentDiscount * $item->salePrice);
+                if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
+                    $discountAmountPerItemPreDiscounts = ($discount->percentDiscount * $item->salePrice);
                 }
 
                 $unitPrice = $this->_discountUnitPricesByLineItem[$lineItemHashId] ?? $item->salePrice;
@@ -284,10 +266,10 @@ class Discount extends Component implements AdjusterInterface
                 $unitPrice = max($unitPrice + $amountPerItem, 0);
 
                 if ($unitPrice > 0) {
-                    if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
+                    if ($discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
                         $discountedUnitPrice = $unitPrice + $discountAmountPerItemPreDiscounts;
                     } else {
-                        $discountedUnitPrice = $unitPrice + ($this->_discount->percentDiscount * $unitPrice);
+                        $discountedUnitPrice = $unitPrice + ($discount->percentDiscount * $unitPrice);
                     }
 
                     $discountedSubtotal = Currency::round($discountedUnitPrice * $item->qty);
@@ -333,11 +315,7 @@ class Discount extends Component implements AdjusterInterface
         return $event->adjustments;
     }
 
-    /**
-     * @param DiscountModel $discount
-     * @return float|int
-     */
-    private function _getBaseDiscountAmount(DiscountModel $discount)
+    private function _getBaseDiscountAmount(DiscountModel $discount): float|int
     {
         if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
             return $discount->baseDiscount;

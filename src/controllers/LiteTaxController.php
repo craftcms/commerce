@@ -14,6 +14,9 @@ use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
 use craft\i18n\Locale;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -26,8 +29,10 @@ class LiteTaxController extends BaseStoreSettingsController
 {
     /**
      * @throws WrongEditionException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -59,15 +64,16 @@ class LiteTaxController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response|null
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSaveSettings()
+    public function actionSaveSettings(): ?Response
     {
         $this->requirePostRequest();
 
         $settings = new LiteTaxSettings();
-        $settings->taxName = Craft::$app->getRequest()->getBodyParam('taxName');
-        $settings->taxInclude = (bool)Craft::$app->getRequest()->getBodyParam('taxInclude');
+        $settings->taxName = $this->request->getBodyParam('taxName');
+        $settings->taxInclude = (bool)$this->request->getBodyParam('taxInclude');
         $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {

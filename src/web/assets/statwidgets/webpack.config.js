@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      CommerceChart: './CommerceChart.js'
+      CommerceChart: './CommerceChart.js',
     },
-  }
+  },
 });

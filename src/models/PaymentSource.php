@@ -14,6 +14,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment source model
@@ -26,44 +27,44 @@ use craft\validators\UniqueValidator;
 class PaymentSource extends Model
 {
     /**
-     * @var int Payment source ID
+     * @var int|null Payment source ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var int The user ID
+     * @var int The customer element ID
      */
-    public $userId;
+    public int $customerId;
 
     /**
      * @var int The gateway ID.
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var string Token
      */
-    public $token;
+    public string $token;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var string Response data
      */
-    public $response;
+    public string $response;
 
     /**
      * @var User|null $_user
      */
-    private $_user;
+    private ?User $_customer = null;
 
     /**
      * @var GatewayInterface|null $_gateway
      */
-    private $_gateway;
+    private ?GatewayInterface $_gateway = null;
 
 
     /**
@@ -81,23 +82,33 @@ class PaymentSource extends Model
      *
      * @return User|null
      */
-    public function getUser()
+    public function getCustomer(): ?User
     {
-        if (null === $this->_user) {
-            $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
+        if (!isset($this->_customer)) {
+            $this->_customer = Craft::$app->getUsers()->getUserById($this->customerId);
         }
 
-        return $this->_user;
+        return $this->_customer;
+    }
+
+    /**
+     * @deprecated in 4.0.0. Use [[getCustomer()]] instead.
+     */
+    public function getUser(): ?User
+    {
+        Craft::$app->getDeprecator()->log('PaymentSource::getUser()', 'The `PaymentSource::getUser()` is deprecated, use the `PaymentSource::getCustomer()` instead.');
+        return $this->getCustomer();
     }
 
     /**
      * Returns the gateway associated with this payment source.
      *
      * @return GatewayInterface|null
+     * @throws InvalidConfigException
      */
-    public function getGateway()
+    public function getGateway(): ?GatewayInterface
     {
-        if (null === $this->_gateway) {
+        if ($this->_gateway === null && $this->gatewayId) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -111,7 +122,7 @@ class PaymentSource extends Model
     {
         return [
             [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
-            [['gatewayId', 'userId', 'token', 'description'], 'required'],
+            [['gatewayId', 'customerId', 'token', 'description'], 'required'],
         ];
     }
 }
