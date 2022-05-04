@@ -108,14 +108,14 @@ class Carts extends Component
     public function getCart(bool $forceSave = false): Order
     {
         $this->_getCartCount++; //useful when debugging
-        $user = Craft::$app->getUser()->getIdentity();
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
-            if ($user && $user->email) {
-                $this->_cart->setEmail($user->email); // Will ensure the customer is also set
+            if ($currentUser) {
+                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
             $this->_cart->autoSetAddresses();
         }
