@@ -616,10 +616,10 @@ class OrderQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `en` | with an order language that is 'en'.
-     * | `'not en'` | not with an order language that is no 'en'.
-     * | `['en', 'en-us']` | with an order language that is 'en' or 'en-us'.
-     * | `['not', 'en']` | not with an order language that is not 'en'.
+     * | `en` | with an order language that is `'en'`.
+     * | `'not en'` | not with an order language that is not `'en'`.
+     * | `['en', 'en-us']` | with an order language that is `'en'` or `'en-us'`.
+     * | `['not', 'en']` | not with an order language that is not `'en'`.
      *
      * ---
      *
