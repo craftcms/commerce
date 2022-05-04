@@ -242,7 +242,7 @@ export default new Vuex.Store({
 
     disableTransactionsTab() {
       const $transactionsTab = window.document.querySelector(
-        '#tabs > ul > li > a[href="#transactionsTab"]'
+        '#tabs > div > a[href="#transactionsTab"]'
       );
 
       if (!$transactionsTab) {
