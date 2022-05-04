@@ -2106,6 +2106,7 @@ class Order extends Element
             $this->_customerId = reset($customerId) ?: null;
         } else {
             $this->_customerId = $customerId;
+
         }
 
         $this->_customer = null;
@@ -2151,7 +2152,10 @@ class Order extends Element
     public function setCustomer(?User $customer = null): void
     {
         $this->_customer = $customer;
-        $this->setCustomerId($customer?->id);
+        if ($this->_customer) {
+            $this->_customerId = $this->_customer->id;
+            $this->_email = $this->_customer->email;
+        }
     }
 
     /**

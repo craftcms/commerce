@@ -114,8 +114,8 @@ class Carts extends Component
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
-            if ($currentUser && $currentUser->email) {
-                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
+            if ($currentUser) {
+                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
             $this->_cart->autoSetAddresses();
         }

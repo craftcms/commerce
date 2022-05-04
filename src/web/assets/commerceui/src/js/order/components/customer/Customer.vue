@@ -34,12 +34,14 @@
                 </div>
             </div>
         </div>
-        <a
-            class="customer-remove"
+        <button
             v-if="showRemove"
+            class="customer-remove delete icon"
+            type="button"
+            :title="$options.filters.t('Remove', 'commerce')"
+            :aria-label="removeButtonLabel"
             @click.prevent="$emit('remove')"
-            >&times;</a
-        >
+        ></button>
     </div>
 </template>
 
@@ -132,6 +134,12 @@
 
                 return cl;
             },
+
+            removeButtonLabel() {
+                return this.$options.filters.t('Remove {label}', 'app', {
+                    label: this.$options.filters.t('Customer', 'commerce'),
+                });
+            },
         },
     };
 </script>
@@ -206,18 +214,11 @@
     }
 
     .customer-remove {
-        color: $lightTextColor;
-        font-weight: bold;
-        font-size: 1.25em;
         cursor: pointer;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
         right: 14px;
-
-        &:hover {
-            text-decoration: none;
-        }
     }
 
     .customer-avatar {

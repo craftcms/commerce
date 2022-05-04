@@ -32,7 +32,7 @@
 
         <div
             class="order-flex order-box-sizing px-4 -mx-4"
-            :class="{pt: hasCustomer}"
+            :class="{pt: hasCustomer || hasAnAddress}"
         >
             <div class="w-1/2 pr" v-show="!editing || !editMode">
                 <template v-if="draft && draft.order.billingAddressHtml">
@@ -158,6 +158,7 @@
                 'autoSetNewCartAddresses',
                 'hasCustomer',
                 'hasAddresses',
+                'hasAnAddress',
                 'originalCustomer',
             ]),
 

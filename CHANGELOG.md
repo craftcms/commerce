@@ -273,6 +273,7 @@
 
 ### Fixed
 - Fixed a bug where it wasn’t possible to navigate the color field with the keyboard on the Edit Order Status page. ([#2601](https://github.com/craftcms/commerce/issues/2601))
+- Fixed a bug where it was possible to attempt a payment for a cart with unsaved changes on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
 
 ## 3.4.14 - 2022-04-06
 
