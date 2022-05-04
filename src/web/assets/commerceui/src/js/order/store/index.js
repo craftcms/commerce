@@ -232,7 +232,36 @@ export default new Vuex.Store({
       Craft.cp.displayNotice(msg);
     },
 
-    edit({commit, state}) {
+    disableTransactionsTab() {
+      const $transactionsTab = window.document.querySelector(
+        '#tabs > ul > li > a[href="#transactionsTab"]'
+      );
+
+      if (!$transactionsTab) {
+        return;
+      }
+
+      $transactionsTab.classList.add('disabled');
+      $transactionsTab.href = '';
+      $transactionsTab.classList.remove('sel');
+
+      const $transactionsTabClone = $transactionsTab.cloneNode(true);
+
+      $transactionsTabClone.addEventListener('click', function (ev) {
+        ev.preventDefault();
+      });
+
+      $transactionsTab.parentNode.replaceChild(
+        $transactionsTabClone,
+        $transactionsTab
+      );
+
+      let $transactionsTabContent =
+        window.document.querySelector('#transactionsTab');
+      $transactionsTabContent.classList.add('hidden');
+    },
+
+    edit({commit, state, dispatch}) {
       const $tabLinks = window.document.querySelectorAll('#tabs > div > a');
       let $selectedLink = null;
       let $detailsLink = null;
@@ -252,21 +281,7 @@ export default new Vuex.Store({
           state.draft.order.isCompleted
         ) {
           switchToDetailsTab = $tabLink.classList.contains('sel');
-          $tabLink.classList.add('disabled');
-          $tabLink.href = '';
-          $tabLink.classList.remove('sel');
-
-          const $tabLinkClone = $tabLink.cloneNode(true);
-
-          $tabLinkClone.addEventListener('click', function (ev) {
-            ev.preventDefault();
-          });
-
-          $tabLink.parentNode.replaceChild($tabLinkClone, $tabLink);
-
-          let $transactionsTab =
-            window.document.querySelector('#transactionsTab');
-          $transactionsTab.classList.add('hidden');
+          dispatch('disableTransactionsTab');
         }
 
         // Custom tabs

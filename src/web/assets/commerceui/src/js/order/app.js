@@ -67,6 +67,15 @@ window.OrderDetailsApp = new Vue({
 
   mounted() {
     this.$store.dispatch('getOrder');
+
+    this.$store.watch(
+      (state, getters) => getters.hasOrderChanged,
+      (newVal, oldVal) => {
+        if (newVal) {
+          this.$store.dispatch('disableTransactionsTab');
+        }
+      }
+    );
   },
 }).$mount('#order-details-app');
 
