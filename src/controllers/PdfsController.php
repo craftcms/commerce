@@ -8,14 +8,19 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
 use craft\helpers\Json;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Pdfs Controller
@@ -26,7 +31,6 @@ use yii\web\Response;
 class PdfsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @since 3.2
      */
     public function actionIndex(): Response
@@ -38,7 +42,6 @@ class PdfsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Pdf|null $pdf
-     * @return Response
      * @throws HttpException
      * @since 3.2
      */
@@ -70,15 +73,20 @@ class PdfsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
+
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
     }
 
     /**
-     * @return null|Response
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      * @since 3.2
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -95,14 +103,14 @@ class PdfsController extends BaseAdminController
         }
 
         // Shared attributes
-        $pdf->name = Craft::$app->getRequest()->getBodyParam('name');
-        $pdf->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $pdf->description = Craft::$app->getRequest()->getBodyParam('description');
-        $pdf->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
-        $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
-        $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
-        $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
-        $pdf->language = Craft::$app->getRequest()->getBodyParam('language');
+        $pdf->name = $this->request->getBodyParam('name');
+        $pdf->handle = $this->request->getBodyParam('handle');
+        $pdf->description = $this->request->getBodyParam('description');
+        $pdf->templatePath = $this->request->getBodyParam('templatePath');
+        $pdf->fileNameFormat = $this->request->getBodyParam('fileNameFormat');
+        $pdf->enabled = $this->request->getBodyParam('enabled');
+        $pdf->isDefault = $this->request->getBodyParam('isDefault');
+        $pdf->language = $this->request->getBodyParam('language');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
@@ -127,14 +135,13 @@ class PdfsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getPdfs()->deletePdfById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 3.2
@@ -143,12 +150,12 @@ class PdfsController extends BaseAdminController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder PDFs.')]);
+        return $this->asSuccess();
     }
 }

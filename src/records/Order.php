@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\elements\User;
 use craft\records\Element;
 use DateTime;
 use yii\db\ActiveQueryInterface;
@@ -16,7 +17,6 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property Address $billingAddress
  * @property int $billingAddressId
  * @property string $cancelUrl
  * @property string $couponCode
@@ -51,7 +51,6 @@ use yii\db\ActiveQueryInterface;
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
- * @property Address $shippingAddress
  * @property int $shippingAddressId
  * @property string $shippingMethodHandle
  * @property string $shippingMethodName
@@ -65,6 +64,8 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
+ * @property int $sourceBillingAddressId
+ * @property int $sourceShippingAddressId
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -79,89 +80,56 @@ class Order extends ActiveRecord
         return Table::ORDERS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getLineItems(): ActiveQueryInterface
     {
         return $this->hasMany(LineItem::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTransactions(): ActiveQueryInterface
     {
         return $this->hasMany(Transaction::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getHistories(): ActiveQueryInterface
     {
         return $this->hasMany(OrderHistory::class, ['orderId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getBillingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'billingAddressId']);
+        return $this->hasOne(Element::class, ['id' => 'billingAddressId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'shippingAddressId']);
+        return $this->hasOne(Element::class, ['id' => 'shippingAddressId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['code' => 'couponCode']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGateway(): ActiveQueryInterface
     {
         return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPaymentSource(): ActiveQueryInterface
     {
         return $this->hasOne(PaymentSource::class, ['id' => 'paymentSourceId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCustomer(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'customerId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrderStatus(): ActiveQueryInterface
     {
         return $this->hasOne(OrderStatus::class, ['id' => 'orderStatusId']);

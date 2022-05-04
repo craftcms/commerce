@@ -10,6 +10,7 @@ namespace craft\commerce\gql\resolvers\elements;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
+use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
 
@@ -24,7 +25,7 @@ class Variant extends ElementResolver
     /**
      * @inheritdoc
      */
-    public static function prepareQuery($source, array $arguments, $fieldName = null)
+    public static function prepareQuery(mixed $source, array $arguments, $fieldName = null): mixed
     {
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
@@ -35,7 +36,7 @@ class Variant extends ElementResolver
         }
 
         // If it's preloaded, it's preloaded.
-        if (is_array($query)) {
+        if (!$query instanceof ElementQuery) {
             return $query;
         }
 
@@ -50,7 +51,7 @@ class Variant extends ElementResolver
             }
         }
 
-        $pairs = GqlHelper::extractAllowedEntitiesFromSchema('read');
+        $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
 
         if (!GqlHelper::canQueryProducts()) {
             return [];

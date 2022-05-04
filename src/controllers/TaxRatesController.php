@@ -8,13 +8,21 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\i18n\Locale;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -27,9 +35,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -47,8 +52,12 @@ class TaxRatesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxRate|null $taxRate
-     * @return Response
+     * @throws ForbiddenHttpException
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
@@ -78,6 +87,8 @@ class TaxRatesController extends BaseTaxSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
@@ -115,11 +126,18 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
 
+
+        $newZone = new TaxAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $view->renderTemplate('commerce/tax/taxzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
@@ -137,15 +155,15 @@ class TaxRatesController extends BaseTaxSettingsController
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
-        $view->setNamespace();
-
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -156,16 +174,16 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate = new TaxRate();
 
         // Shared attributes
-        $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
-        $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
-        $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
-        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
-        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
-        $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
-        $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
-        $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
+        $taxRate->id = $this->request->getBodyParam('taxRateId');
+        $taxRate->name = $this->request->getBodyParam('name');
+        $taxRate->code = $this->request->getBodyParam('code');
+        $taxRate->include = (bool)$this->request->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)$this->request->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)$this->request->getBodyParam('removeVatIncluded');
+        $taxRate->isVat = (bool)$this->request->getBodyParam('isVat');
+        $taxRate->taxable = $this->request->getBodyParam('taxable');
+        $taxRate->taxCategoryId = (int)$this->request->getBodyParam('taxCategoryId') ?: null;
+        $taxRate->taxZoneId = (int)$this->request->getBodyParam('taxZoneId') ?: null;
         $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
@@ -183,9 +201,10 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -194,9 +213,9 @@ class TaxRatesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

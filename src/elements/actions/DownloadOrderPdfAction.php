@@ -17,8 +17,11 @@ use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use iio\libmergepdf\Merger;
+use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\web\HttpException;
+use yii\web\RangeNotSatisfiableHttpException;
 use ZipArchive;
 
 /**
@@ -43,14 +46,14 @@ class DownloadOrderPdfAction extends ElementAction
     }
 
     /**
-     * @var int
+     * @var int|null
      */
-    public $pdfId;
+    public ?int $pdfId = null;
 
     /**
-     * @var bool
+     * @var string
      */
-    public $downloadType = 'pdfCollated';
+    public string $downloadType = 'pdfCollated';
 
     /**
      * @inheritdoc
@@ -63,7 +66,7 @@ class DownloadOrderPdfAction extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
 
@@ -81,7 +84,7 @@ class DownloadOrderPdfAction extends ElementAction
         if (count($allPdfs) > 0) {
             $js = <<<JS
 (() => {
-    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'),{$pdfOptions}, {$typeOptions});
+    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions);
 })();
 JS;
             Craft::$app->getView()->registerJs($js);
@@ -93,13 +96,21 @@ JS;
 
     /**
      * @inheritdoc
+     * @throws Exception
+     * @throws HttpException
      * @throws InvalidConfigException
+     * @throws RangeNotSatisfiableHttpException
+     * @throws Throwable
      */
     public function performAction(ElementQueryInterface $query): bool
     {
         $pdfsService = Plugin::getInstance()->getPdfs();
 
         $pdfId = $this->pdfId;
+        if ($pdfId === null) {
+            throw new InvalidConfigException("Invalid PDF ID");
+        }
+
         $pdf = $pdfsService->getPdfById($pdfId);
 
         if (!$pdf) {
@@ -160,15 +171,16 @@ JS;
     /**
      * Returns a PDF’s file name
      *
-     * @param Pdf $pdf
-     * @param Order $order
+     * @throws Exception
+     * @throws Throwable
      */
     private function _pdfFileName(Pdf $pdf, Order $order): string
     {
-        $fileName = Craft::$app->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+        $fileName = Craft::$app->getView()->renderObjectTemplate($pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }
-        return "$fileName.pdf";
+
+        return $fileName . '.pdf';
     }
 }

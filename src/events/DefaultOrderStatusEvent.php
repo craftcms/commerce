@@ -22,10 +22,10 @@ class DefaultOrderStatusEvent extends Event
     /**
      * @var OrderStatus The default order status based on the order
      */
-    public $orderStatus;
+    public OrderStatus $orderStatus;
 
     /**
      * @var Order The order used to determine the order status.
      */
-    public $order;
+    public Order $order;
 }

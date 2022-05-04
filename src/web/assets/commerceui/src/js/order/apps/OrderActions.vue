@@ -65,7 +65,7 @@
 
             $tabLinks.forEach(function ($tabLink) {
                 if (!$tabLink.classList.contains('static')) {
-                    $tabLink.parentNode.classList.add('hidden');
+                    $tabLink.classList.add('hidden');
                 }
             });
 
@@ -96,7 +96,7 @@
             // Force edit
             if (this.forceEdit && this.canEdit) {
                 // Set timeout to wait for Prism editor to be initialized
-                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized
+                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized #COM-55
                 setTimeout(
                     function () {
                         this.edit();

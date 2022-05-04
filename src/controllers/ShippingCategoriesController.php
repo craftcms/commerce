@@ -8,9 +8,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
-use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -25,9 +25,6 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseShippingSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
@@ -37,7 +34,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     /**
      * @param int|null $id
      * @param ShippingCategory|null $shippingCategory
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, ShippingCategory $shippingCategory = null): Response
@@ -66,6 +62,8 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingCategory'], prepend: true);
+
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
             $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
@@ -80,25 +78,26 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws Exception
      * @noinspection Duplicates
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
         $shippingCategory = new ShippingCategory();
 
         // Shared attributes
-        $shippingCategory->id = Craft::$app->getRequest()->getBodyParam('shippingCategoryId');
-        $shippingCategory->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingCategory->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $shippingCategory->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingCategory->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $shippingCategory->id = $this->request->getBodyParam('shippingCategoryId');
+        $shippingCategory->name = $this->request->getBodyParam('name');
+        $shippingCategory->handle = $this->request->getBodyParam('handle');
+        $shippingCategory->description = $this->request->getBodyParam('description');
+        $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
         $productTypes = [];
-        foreach (Craft::$app->getRequest()->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
@@ -108,38 +107,22 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         // Save it
         if (!Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'errors' => $shippingCategory->getErrors(),
-                ]);
-            }
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping category.'));
-
-            // Send the shipping category back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
-                'shippingCategory' => $shippingCategory,
-            ]);
-
-            return null;
+            return $this->asModelFailure(
+                $shippingCategory,
+                Craft::t('commerce', 'Couldn’t save shipping category.'),
+                'shippingCategory'
+            );
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asModelSuccess(
+            $shippingCategory,
+            Craft::t('commerce', 'Shipping category saved.'),
+            'shippingCategory',
+            data: [
                 'id' => $shippingCategory->id,
                 'name' => $shippingCategory->name,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Shipping category saved.'));
-        $this->redirectToPostedUrl($shippingCategory);
-
-        // Send the shipping category back to the template
-        Craft::$app->getUrlManager()->setRouteParams([
-            'shippingCategory' => $shippingCategory,
-        ]);
-
-        return null;
+            ]
+        );
     }
 
     /**
@@ -150,26 +133,25 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping category'));
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping category'));
+        return $this->asSuccess();
     }
 
     /**
-     * @throws MissingComponentException
-     * @throws Exception
      * @throws BadRequestHttpException
+     * @throws Exception
      * @since 3.2.9
      */
-    public function actionSetDefaultCategory()
+    public function actionSetDefaultCategory(): ?Response
     {
         $this->requirePostRequest();
 
-        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $ids = $this->request->getRequiredBodyParam('ids');
 
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);
@@ -185,5 +167,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $this->setFailFlash(Craft::t('commerce', 'Unable to set default shipping category.'));
+        return null;
     }
 }

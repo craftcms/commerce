@@ -16,30 +16,33 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
-use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
-use craft\errors\MissingComponentException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
@@ -48,6 +51,8 @@ use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
 use craft\web\View;
+use DateTime;
+use DateTimeZone;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -72,7 +77,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -82,8 +87,6 @@ class OrdersController extends Controller
     /**
      * Index of orders
      *
-     * @param string $orderStatusHandle
-     * @return Response
      * @throws Throwable
      */
     public function actionOrderIndex(string $orderStatusHandle = ''): Response
@@ -92,9 +95,11 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
+            'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
             'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
             'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
+
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
@@ -103,27 +108,33 @@ class OrdersController extends Controller
 
     /**
      * Create an order
+     *
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws Throwable
      */
-    public function actionNewOrder(): Response
+    public function actionCreate(): Response
     {
-        $this->requirePermission('commerce-editOrders');
+        $this->requirePermission('commerce-manageOrders');
 
-        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+        $userId = $this->request->getParam('customerId');
+        $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
+
+        if ($userId && !$user) {
+            throw new BadRequestHttpException("Invalid user ID: $userId");
+        }
 
         $order = new Order();
+        if ($user) {
+            $order->setCustomer($user);
+
+            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+                $order->autoSetAddresses();
+            }
+        }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-
-        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            $customer = new Customer();
-            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
-        }
-
-        $order->setCustomer($customer);
         $order->origin = Order::ORIGIN_CP;
-
-        if ($customer && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $order->autoSetAddresses();
-        }
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -133,16 +144,19 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param int $orderId
-     * @param Order $order
-     * @return Response
+     * @param Order|null $order
+     * @param null $paymentForm
+     * @throws CurrencyException
+     * @throws Exception
+     * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
+    public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
     {
-        $this->requirePermission('commerce-editOrders');
-
         $plugin = Plugin::getInstance();
         $variables = [];
 
@@ -154,7 +168,12 @@ class OrdersController extends Controller
             }
         }
 
+        $this->enforceManageOrderPermissions($order);
+
         $variables['order'] = $order;
+
+        DebugPanel::prependOrAppendModelTab(model: $order, prepend: true);
+
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
@@ -169,18 +188,20 @@ class OrdersController extends Controller
     }
 
     /**
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws OrderStatusException
+     * @throws Throwable
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
-        $this->requirePermission('commerce-editOrders');
         $this->requirePostRequest();
 
-        $data = Craft::$app->getRequest()->getBodyParam('orderData');
+        $data = $this->request->getBodyParam('orderData');
 
         $orderRequestData = Json::decodeIfJson($data);
 
@@ -189,6 +210,8 @@ class OrdersController extends Controller
         if (!$order) {
             throw new HttpException(400, Craft::t('commerce', 'Invalid Order ID'));
         }
+
+        $this->enforceManageOrderPermissions($order);
 
         // Set custom field values
         $order->setFieldValuesFromRequest('fields');
@@ -229,56 +252,55 @@ class OrdersController extends Controller
             $order->markAsComplete();
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
      * Deletes an order.
      *
-     * @return Response|null
-     * @throws Exception if you try to edit a non existing Id.
+     * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
-    public function actionDeleteOrder()
+    public function actionDeleteOrder(): ?Response
     {
         $this->requirePostRequest();
-        $this->requirePermission('commerce-deleteOrders');
 
-        $orderId = (int)Craft::$app->getRequest()->getRequiredBodyParam('orderId');
+        $orderId = (int)$this->request->getRequiredBodyParam('orderId');
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
 
         if (!$order) {
             throw new HttpException(404, Craft::t('commerce', 'Can not find order.'));
         }
 
-        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            return $this->asJson(['success' => false]);
+        if (!$order->canDelete(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to view this address.');
         }
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Order deleted.'));
+        if (!Craft::$app->getElements()->deleteElementById($order->id)) {
+            return $this->asFailure();
+        }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess(Craft::t('commerce', 'Order deleted.'));
     }
 
     /**
      * The refresh action accepts a json representation of an order, recalculates it depending on the mode submitted,
      * and returns the order as json with any validation errors.
      *
-     * @return Response
      * @throws Exception
      */
-    public function actionRefresh()
+    public function actionRefresh(): Response
     {
-        $this->requirePermission('commerce-editOrders');
-
-        $data = Craft::$app->getRequest()->getRawBody();
+        $data = $this->request->getRawBody();
         $orderRequestData = Json::decodeIfJson($data);
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
 
         if (!$order) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
+            return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
         }
+
+        $this->enforceManageOrderPermissions($order);
 
         $this->_updateOrder($order, $orderRequestData);
 
@@ -292,21 +314,24 @@ class OrdersController extends Controller
             $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         }
 
-        $response = [];
-        $response['order'] = $this->_orderToArray($order);
-
         if ($order->hasErrors()) {
-            $response['order']['errors'] = $order->getErrors();
-            $response['error'] = Craft::t('commerce', 'The order is not valid.');
+            return $this->asModelFailure(
+                $order,
+                Craft::t('commerce', 'The order is not valid.'),
+                'order',
+                [
+                    'order' => $this->_orderToArray($order),
+                ]
+            );
         }
 
-        return $this->asJson($response);
+        return $this->asSuccess(data: [
+            'order' => $this->_orderToArray($order),
+        ]);
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
-     * @throws InvalidConfigException
      * @throws ForbiddenHttpException
      */
     public function actionUserOrdersTable(): Response
@@ -314,23 +339,22 @@ class OrdersController extends Controller
         $this->requirePermission('commerce-manageOrders');
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort', null);
-        $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search', null);
+        $page = $this->request->getParam('page', 1);
+        $sort = $this->request->getParam('sort');
+        $limit = $this->request->getParam('per_page', 10);
+        $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
-        $customerId = $request->getQueryParam('customerId', null);
+        $customerId = $this->request->getQueryParam('customerId');
 
         if (!$customerId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Customer ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+        $customer = Craft::$app->getUsers()->getUserById($customerId);
 
         if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve customer.'));
         }
 
         $orderQuery = Order::find()
@@ -369,7 +393,7 @@ class OrdersController extends Controller
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);
@@ -380,7 +404,7 @@ class OrdersController extends Controller
      * @param Order $order
      * @return array
      */
-    private function _orderToArray($order)
+    private function _orderToArray(Order $order): array
     {
         // Remove custom fields
         $orderFields = array_keys($order->fields());
@@ -388,32 +412,34 @@ class OrdersController extends Controller
         sort($orderFields);
 
         // Remove unneeded fields
-        ArrayHelper::removeValue($orderFields, 'hasDescendants');
-        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
-        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
-        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
-        ArrayHelper::removeValue($orderFields, 'tempId');
-        ArrayHelper::removeValue($orderFields, 'resaving');
-        ArrayHelper::removeValue($orderFields, 'duplicateOf');
-        ArrayHelper::removeValue($orderFields, 'totalDescendants');
-        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
-        ArrayHelper::removeValue($orderFields, 'contentId');
-        ArrayHelper::removeValue($orderFields, 'trashed');
-        ArrayHelper::removeValue($orderFields, 'structureId');
-        ArrayHelper::removeValue($orderFields, 'url');
-        ArrayHelper::removeValue($orderFields, 'ref');
-        ArrayHelper::removeValue($orderFields, 'title');
-        ArrayHelper::removeValue($orderFields, 'slug');
+        $removeProps = [
+            'hasDescendants',
+            'makePrimaryShippingAddress',
+            'shippingSameAsBilling',
+            'billingSameAsShipping',
+            'tempId',
+            'resaving',
+            'duplicateOf',
+            'totalDescendants',
+            'fieldLayoutId',
+            'contentId',
+            'trashed',
+            'structureId',
+            'url',
+            'ref',
+            'title',
+            'slug',
+        ];
+        foreach ($removeProps as $removeProp) {
+            ArrayHelper::removeValue($orderFields, $removeProp);
+        }
 
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 /** @var Field $field */
                 ArrayHelper::removeValue($orderFields, $field->handle);
             }
         }
-
-        // Typecast order attributes
-        $order->typeCastAttributes();
 
         $extraFields = [
             'lineItems.snapshot',
@@ -437,9 +463,23 @@ class OrdersController extends Controller
             $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
         }
 
+        $billingAddress = $order->getBillingAddress();
+        $shippingAddress = $order->getShippingAddress();
+
         $orderArray = $order->toArray($orderFields, $extraFields);
 
-        // TODO merge this and the above line items loop into one.
+        if ($orderArray['customer'] && $orderArray['customer']['id'] && $customer = Craft::$app->getUsers()->getUserById($orderArray['customer']['id'])) {
+            $orderArray['customer'] = $this->_customerToArray($customer);
+        }
+
+        if ($billingAddress) {
+            $orderArray['billingAddressHtml'] = Cp::addressCardHtml(address: $billingAddress);
+        }
+
+        if ($shippingAddress) {
+            $orderArray['shippingAddressHtml'] = Cp::addressCardHtml(address: $shippingAddress);
+        }
+
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
@@ -452,84 +492,19 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param null $query
-     * @return Response
-     * @throws InvalidConfigException
-     * @deprecated in 3.5.0. Use [[actionPurchasablesTable()]] instead.
-     */
-    public function actionPurchasableSearch($query = null)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'The `orders/purchasable-search` action is deprecated. Use `orders/purchasables-table` instead.');
-
-        if ($query === null) {
-            $results = (new Query())
-                ->select(['id', 'price', 'description', 'sku'])
-                ->from('{{%commerce_purchasables}}')
-                ->limit(10)
-                ->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Prepare purchasables query
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $sqlQuery = (new Query())
-            ->select(['id', 'price', 'description', 'sku'])
-            ->from(Table::PURCHASABLES);
-
-        // Are they searching for a purchasable ID?
-        if (is_numeric($query)) {
-            $results = $sqlQuery->where(['id' => $query])->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Are they searching for a SKU or purchasable description?
-        if ($query) {
-            $sqlQuery->where([
-                'or',
-                [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
-                [$likeOperator, 'sku', $query],
-            ]);
-        }
-
-        $results = $sqlQuery->limit(30)->all();
-
-        if (!$results) {
-            return $this->asJson([]);
-        }
-
-        $purchasables = $this->_addLivePurchasableInfo($results);
-
-        return $this->asJson($purchasables);
-    }
-
-    /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws InvalidConfigException
      */
-    public function actionPurchasablesTable()
+    public function actionPurchasablesTable(): Response
     {
-        $this->requirePermission('commerce-editOrders');
+        $this->requirePermission('commerce-manageOrders');
         $this->requireAcceptsJson();
 
-        $request = Craft::$app->getRequest();
-        $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort', null);
-        $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search', null);
+        $page = $this->request->getParam('page', 1);
+        $sort = $this->request->getParam('sort');
+        $limit = $this->request->getParam('per_page', 10);
+        $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
@@ -553,7 +528,7 @@ class OrdersController extends Controller
         }
 
         // Do not return any purchasables with temp SKUs
-        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
         // Do not return soft deleted purchasables
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);
@@ -561,7 +536,7 @@ class OrdersController extends Controller
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
             [$column, $direction] = explode('|', $sort);
-            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+            if ($column && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
         } else {
@@ -576,18 +551,23 @@ class OrdersController extends Controller
 
         $purchasables = $this->_addLivePurchasableInfo($result);
 
-        return $this->asJson([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $purchasables,
         ]);
     }
 
     /**
-     * @param null $query
      * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
      */
-    public function actionCustomerSearch($query = null)
+    public function actionCustomerSearch(): Response
     {
+        $this->requireAcceptsJson();
+
+        $query = $this->request->getQueryParam('query');
+
         $limit = 30;
         $customers = [];
 
@@ -595,41 +575,158 @@ class OrdersController extends Controller
             return $this->asJson($customers);
         }
 
-        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($query);
+        $userQuery = User::find()->status(null)->limit($limit);
 
-        $customersQuery->limit($limit);
+        if ($query) {
+            $userQuery->search(urldecode($query));
+        }
 
-        $customers = $customersQuery->all();
+        $customers = $userQuery->collect()->map(function(User $user) {
+            return $this->_customerToArray($user);
+        });
 
-        $customers = $this->_prepCustomersArray($customers);
+        return $this->asSuccess(data: compact('customers'));
+    }
 
-        return $this->asJson($customers);
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
+     */
+    public function actionGetCustomerAddresses(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $id = $this->request->getRequiredParam('id');
+        $page = $this->request->getParam('page', 1);
+        $limit = $this->request->getParam('per_page', 10);
+        $offset = ($page - 1) * $limit;
+
+        $user = Craft::$app->getUsers()->getUserById($id);
+
+        if (!$user) {
+            return $this->asFailure(message: Craft::t('commerce', 'User not found.'));
+        }
+
+        $addressElements = Address::find()
+            ->ownerId($user->id)
+            ->limit($limit)
+            ->offset($offset)
+            ->collect();
+
+        $total = $addressElements->count();
+
+        $addresses = $addressElements->map(function(Address $address) {
+            return $address->toArray() + [
+                    'html' => Cp::addressCardHtml(address: $address),
+                ];
+        });
+
+        return $this->asSuccess(data: compact('addresses', 'total'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.0
+     */
+    public function actionGetOrderAddress(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = $this->request->getRequiredParam('orderId');
+        $addressId = $this->request->getRequiredParam('addressId');
+
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+
+        if (!$order) {
+            return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
+        }
+
+        $address = Address::find()
+            ->id($addressId)
+            ->ownerId($order->id)
+            ->one();
+
+        if (!$address) {
+            return $this->asFailure(message: Craft::t('commerce', 'Address not found.'));
+        }
+
+        return $this->asSuccess(data: [
+            'address' => $address->toArray() + [
+                    'html' => Cp::addressCardHtml(address: $address),
+                ],
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
+    public function actionValidateAddress(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $requestAddress = $this->request->getRequiredParam('address');
+
+        $address = Craft::createObject(Address::class, ['config' => ['attributes' => $requestAddress]]);
+
+        if (!$address->validate()) {
+            return $this->asModelFailure(model: $address, message: Craft::t('commerce', 'Unable to validate address.'), modelName: 'address');
+        }
+
+        return $this->asSuccess();
     }
 
     /**
      * @return Response
      * @throws BadRequestHttpException
      */
-    public function actionSendEmail()
+    public function actionCreateCustomer(): Response
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $email = $this->request->getRequiredParam('email');
+
+        try {
+            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+            $user = $this->_customerToArray($user);
+        } catch (\Exception $e) {
+            return $this->asFailure(message: $e->getMessage());
+        }
+
+        return $this->asSuccess(data: compact('user'));
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
+    public function actionSendEmail(): Response
     {
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getParam('id');
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
+        $id = $this->request->getParam('id');
+        $orderId = $this->request->getParam('orderId');
 
         if ($id === null || $orderId === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad Request'));
+            return $this->asFailure(Craft::t('commerce', 'Bad Request'));
         }
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
         if ($email === null || !$email->enabled) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         if ($order === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find order'));
         }
 
         // Set language by email's set locale
@@ -644,68 +741,67 @@ class OrdersController extends Controller
             if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, null, $orderData, $error)) {
                 $success = false;
             }
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             $success = false;
         }
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
-            return $this->asErrorJson($error);
+            return $this->asFailure($error);
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
      * Updates an order address
      *
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    public function actionUpdateOrderAddress()
+    public function actionUpdateOrderAddress(): Response
     {
         $this->requireAcceptsJson();
 
-        $orderId = Craft::$app->getRequest()->getParam('orderId');
-        $addressId = Craft::$app->getRequest()->getParam('addressId');
-        $type = Craft::$app->getRequest()->getParam('addressType');
+        $orderId = $this->request->getParam('orderId');
+        $addressId = $this->request->getParam('addressId');
+        $type = $this->request->getParam('addressType');
 
         // Validate Address Type
         if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
+            $this->asFailure(Craft::t('commerce', 'Not a valid address type'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         if (!$order) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad order ID.'));
+            $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
         }
 
         // Return early if the address is already set.
         if ($order->{$type . 'Id'} == $addressId) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         // Validate Address Id
-        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
+        $address = $addressId ? Address::find()->id($addressId)->one() : null;
         if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
+            return $this->asFailure(Craft::t('commerce', 'Bad address ID.'));
         }
 
         $order->{$type . 'Id'} = $address->id;
 
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
+        if (!Craft::$app->getElements()->saveElement($order)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not update orders address.'));
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      * @since 3.0.11
      */
     public function actionGetIndexSourcesBadgeCounts(): Response
@@ -718,14 +814,14 @@ class OrdersController extends Controller
             return $sum + (int)$thing['orderCount'];
         }, 0);
 
-        return $this->asJson(compact('counts', 'total'));
+        return $this->asSuccess(data: compact('counts', 'total'));
     }
 
     /**
      * Returns Payment Modal
      *
-     * @return Response
      * @throws BadRequestHttpException
+     * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -735,18 +831,17 @@ class OrdersController extends Controller
         $this->requireAcceptsJson();
         $view = $this->getView();
 
-        $request = Craft::$app->getRequest();
-        $orderId = $request->getParam('orderId');
-        $paymentFormData = $request->getParam('paymentForm');
+        $orderId = $this->request->getParam('orderId');
+        $paymentFormData = $this->request->getParam('paymentForm');
 
         $plugin = Plugin::getInstance();
         $order = $plugin->getOrders()->getOrderById($orderId);
         $gateways = $plugin->getGateways()->getAllGateways();
 
-        if ($paymentAmount = $request->getParam('paymentAmount')) {
+        if ($paymentAmount = $this->request->getParam('paymentAmount')) {
             $order->setPaymentAmount($paymentAmount);
         }
-        if ($paymentCurrency = $request->getParam('paymentCurrency')) {
+        if ($paymentCurrency = $this->request->getParam('paymentCurrency')) {
             $order->setPaymentCurrency($paymentCurrency);
         }
 
@@ -790,6 +885,8 @@ class OrdersController extends Controller
                 'order' => $order,
             ]);
 
+            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
+
             $formHtml .= $paymentFormHtml;
         }
 
@@ -799,8 +896,7 @@ class OrdersController extends Controller
             'paymentForms' => $formHtml,
         ]);
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'modalHtml' => $modalHtml,
             'headHtml' => $view->getHeadHtml(),
             'footHtml' => $view->getBodyHtml(),
@@ -810,16 +906,15 @@ class OrdersController extends Controller
     /**
      * Captures Transaction
      *
-     * @return Response
-     * @throws TransactionException
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws TransactionException
      */
     public function actionTransactionCapture(): Response
     {
         $this->requirePermission('commerce-capturePayment');
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         if ($transaction->canCapture()) {
@@ -848,26 +943,25 @@ class OrdersController extends Controller
     /**
      * Refunds transaction.
      *
-     * @return Response
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionTransactionRefund()
+    public function actionTransactionRefund(): Response
     {
         $this->requirePermission('commerce-refundPayment');
         $this->requirePostRequest();
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
-        $amount = Craft::$app->getRequest()->getParam('amount');
+        $amount = $this->request->getParam('amount');
         $amount = Localization::normalizeNumber($amount);
-        $note = Craft::$app->getRequest()->getRequiredBodyParam('note');
+        $note = $this->request->getRequiredBodyParam('note');
 
         if (!$transaction) {
             $error = Craft::t('commerce', 'Can not find the transaction to refund');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -880,8 +974,8 @@ class OrdersController extends Controller
 
         if ($amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+            if ($this->request->getAcceptsJson()) {
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -915,10 +1009,11 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    /*
+    /**
      * @throws BadRequestHttpException
+     * @throws CurrencyException
      */
-    public function actionPaymentAmountData()
+    public function actionPaymentAmountData(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
@@ -942,24 +1037,20 @@ class OrdersController extends Controller
             $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
         }
 
-        return $this->asJson([
+        return $this->asSuccess($message, data: [
             'paymentCurrency' => $paymentCurrency,
             'paymentAmount' => $paymentAmount,
             'outstandingBalance' => $outstandingBalance,
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-            'message' => $message,
         ]);
     }
 
     /**
      * Modifies the variables of the request.
-     *
-     * @param $variables
-     * @throws InvalidConfigException
      */
-    private function _updateTemplateVariables(&$variables)
+    private function _updateTemplateVariables(array &$variables): void
     {
         /** @var Order $order */
         $order = $variables['order'];
@@ -1042,10 +1133,10 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $variables
+     * @throws Exception
      * @throws InvalidConfigException
      */
-    private function _registerJavascript(array $variables)
+    private function _registerJavascript(array $variables): void
     {
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
@@ -1072,12 +1163,13 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
-            'commerce-editOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-editOrders'),
-            'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
+            'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
+            'commerce-editOrders' => $currentUser->can('commerce-editOrders'),
+            'commerce-deleteOrders' => $currentUser->can('commerce-deleteOrders'),
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-        $currentUser = Craft::$app->getUser()->getIdentity();
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserId = ' . Json::encode($currentUser->id) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
@@ -1085,35 +1177,12 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = null;
-        if ($variables['order']->customerId) {
-            $customerQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery()->andWhere(['customers.id' => $variables['order']->customerId]);
-            $customers = $this->_prepCustomersArray($customerQuery->all());
-
-            if (!empty($customers)) {
-                $customer = ArrayHelper::firstValue($customers);
-            }
+        $customer = $variables['order']->customerId ? $variables['order']->getCustomer() : null;
+        if ($customer) {
+            $customer = $this->_customerToArray($customer);
         }
+
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
-
-        $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
-
-        if (!empty($statesList)) {
-            foreach ($statesList as &$states) {
-                foreach ($states as $key => &$state) {
-                    $state = [
-                        'id' => $key,
-                        'name' => $state,
-                    ];
-                }
-                $states = array_values($states);
-            }
-        }
-
-        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode($statesList), View::POS_BEGIN);
-        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
-        $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
-        Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         $pdfUrls = [];
@@ -1147,19 +1216,21 @@ class OrdersController extends Controller
     /**
      * @param Order $order
      * @param $orderRequestData
-     * @throws Exception
      * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
      */
-    private function _updateOrder(Order $order, $orderRequestData)
+    private function _updateOrder(Order $order, $orderRequestData): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
-        $order->email = $orderRequestData['order']['email'] ?? '';
+
         $customerId = $orderRequestData['order']['customerId'] ?? null;
-        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+        if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
             $order->setCustomer($customer);
         } else {
-            $order->setCustomer(null);
+            $order->setCustomer();
         }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
@@ -1167,6 +1238,34 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+        $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
+
+        $getAddress = static function($address, $orderId, $title) {
+            if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+                if (isset($address['_copy'])) {
+                    unset($address['_copy']);
+                }
+                $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
+                $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+            } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                $address = Address::find()->id($address['id'])->ownerId($address['ownerId'])->one();
+            }
+
+            return $address;
+        };
+        $billingAddress = $getAddress($orderRequestData['order']['billingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+        $order->setBillingAddress($billingAddress);
+
+        $shippingAddress = $getAddress($orderRequestData['order']['shippingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+        $order->setShippingAddress($shippingAddress);
+
+        if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+            $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
+        }
+
+        if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+            $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+        }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
         $order->shippingMethodName = $shippingMethod->name ?? null;
@@ -1186,7 +1285,7 @@ class OrdersController extends Controller
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
             if ($orderRequestData['order']['dateOrdered']['time'] == '') {
-                $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
+                $dateTime = (new DateTime('now', new DateTimeZone($dateOrdered['timezone'])));
                 $dateOrdered['time'] = $dateTime->format('H:i');
             }
 
@@ -1201,96 +1300,13 @@ class OrdersController extends Controller
             $order->dateOrdered = null;
         }
 
-        // Only email set on the order
-        if ($order->getCustomer() == null && $order->email) {
-            // See if there is a user with that email
-            $user = User::find()->email($order->email)->one();
-            $customer = null;
-            if ($user) {
-                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
-            }
-            // If no user or customer
-            if ($customer == null) {
-                $customer = new Customer();
-                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
-            }
-
-            $order->setCustomer($customer);
-        }
-
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
         try {
             $order->getPaymentSource();
             $order->getGateway();
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             $order->paymentSourceId = null;
             $order->gatewayId = null;
-        }
-
-        // Addresses
-        $billingAddressId = $orderRequestData['order']['billingAddressId'];
-        $shippingAddressId = $orderRequestData['order']['shippingAddressId'];
-        $billingAddress = null;
-        $shippingAddress = null;
-
-        // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
-                ->where(['addressId' => $billingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $billingAddressId = 'new';
-            }
-        }
-
-        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
-                ->where(['addressId' => $shippingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $shippingAddressId = 'new';
-            }
-        }
-
-        if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
-            $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
-            $billingAddress['isEstimated'] = false;
-
-            $billingAddress = new Address($billingAddress);
-
-            $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
-
-            // TODO figure out if we need to validate at this point;
-            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
-            $billingAddressId = $billingAddress->id;
-        }
-
-        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
-            $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
-            $shippingAddress['isEstimated'] = false;
-
-            $shippingAddress = new Address($shippingAddress);
-
-            $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
-
-            // TODO figure out if we need to validate at this point;
-            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
-            $shippingAddressId = $shippingAddress->id;
-        }
-
-        $order->billingAddressId = $billingAddressId;
-        $order->shippingAddressId = $shippingAddressId;
-
-        if ($billingAddress) {
-            $order->setBillingAddress($billingAddress);
-        }
-
-        if ($shippingAddress) {
-            $order->setShippingAddress($shippingAddress);
         }
 
         $lineItems = [];
@@ -1307,11 +1323,11 @@ class OrdersController extends Controller
             $qty = $lineItemData['qty'] ?? 1;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
-            $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-            if (!$lineItem) {
+            if ($lineItemId) {
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
+            } else {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order, $uid);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
@@ -1400,8 +1416,6 @@ class OrdersController extends Controller
 
     /**
      * @param Transaction[] $transactions
-     * @param int $level
-     * @return array
      * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
@@ -1409,7 +1423,7 @@ class OrdersController extends Controller
      * @throws CurrencyException
      * @since 3.0
      */
-    private function _getTransactionsWithLevelsTableArray($transactions, $level = 0): array
+    private function _getTransactionsWithLevelsTableArray(array $transactions, int $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -1484,10 +1498,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $results
-     * @param string $baseCurrency
-     * @param array $purchasables
-     * @return array
      * @throws InvalidConfigException
      */
     private function _addLivePurchasableInfo(array $results): array
@@ -1495,7 +1505,7 @@ class OrdersController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
         foreach ($results as $row) {
-            /** @var PurchasableInterface $purchasable */
+            /** @var PurchasableInterface|PurchasableElement $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
@@ -1518,30 +1528,29 @@ class OrdersController extends Controller
         return $purchasables;
     }
 
+
     /**
-     * @param array $customers
+     * @param User $customer
      * @return array
-     * @since 3.1.4
+     * @since 4.0
      */
-    private function _prepCustomersArray(array $customers): array
+    private function _customerToArray(User $customer): array
     {
-        if (empty($customers)) {
-            return [];
+        return $customer->toArray(expand: ['photo']) + [
+                'cpEditUrl' => $customer->getCpEditUrl(),
+                'totalAddresses' => count($customer->getAddresses()),
+                'photoThumbUrl' => $customer->getThumbUrl(100),
+            ];
+    }
+
+    /**
+     * @param Order $order
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceManageOrderPermissions(Order $order): void
+    {
+        if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User not authorized to view this order.');
         }
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
-        foreach ($customers as &$customer) {
-            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
-            $customer['user'] = $user ? [
-                'title' => $user ? $user->__toString() : null,
-                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
-                'status' => $user ? $user->getStatus() : null,
-            ] : null;
-            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
-            $customer['url'] = $currentUser->can('commerce-manageCustomers') ? UrlHelper::cpUrl('commerce/customers/' . $customer['id']) : null;
-        }
-
-        return $customers;
     }
 }

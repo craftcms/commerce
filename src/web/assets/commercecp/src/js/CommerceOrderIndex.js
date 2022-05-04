@@ -1,3 +1,5 @@
+/* jshint esversion: 6, strict: false */
+/* globals Craft, Garnish, $ */
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
@@ -31,7 +33,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       // Add the New Order button
       var $btn = $('<a/>', {
         class: 'btn submit icon add',
-        href: Craft.getUrl('commerce/orders/create-new'),
+        href: Craft.getUrl('commerce/orders/create'),
         text: Craft.t('commerce', 'New Order'),
       });
       this.addButton($btn);

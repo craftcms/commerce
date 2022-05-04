@@ -10,7 +10,7 @@ Outputs the global site footer.
       {{ 'You’re limited to one cart item at a time with Craft Commerce <span class="{classes}"> {edition}</span>. <a href="{url}" class="underline">Learn more</a>.'|t({
         classes: 'bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded',
         edition: craft.commerce.edition|upper,
-        url: 'https://craftcms.com/docs/commerce/3.x/editions.html',
+        url: 'https://craftcms.com/docs/commerce/4.x/editions.html',
       })|raw }}
     </div>
   </div>
@@ -57,10 +57,11 @@ Outputs the global site footer.
           {{- 'Example Templates'|t -}}
         </h3>
         <p class="pb-3">
-          {{ 'These Craft Commerce 3.4 example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
+          {{ 'These Craft Commerce {version} example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
       running the {edition} edition of Craft Commerce.'|t({
             url: 'https://tailwindcss.com',
-            edition: craft.commerce.edition|upper
+            edition: craft.commerce.edition|upper,
+            version: craft.commerce.version,
           })|raw }}
         </p>
         <p>
@@ -73,26 +74,26 @@ Outputs the global site footer.
         </h5>
         <ul class="list-disc list-inside pb-2">
           <li>
-            <a href="https://craftcms.com/docs/commerce/3.x/" class="[[classes.a]] underline">
-              {{- 'Craft Commerce Documentation'|t -}}
-            </a>.
-          </li>
-          <li>
-            <a href="https://craftcms.com/docs/3.x/" class="[[classes.a]] underline">
-              {{- 'Craft CMS Documentation'|t -}}
-            </a>.
+            <a href="https://craftcms.com/docs/4.x/" class="[[classes.a]] underline">
+              {{- 'Craft'|t -}}
+            </a>
+            &
+            <a href="https://craftcms.com/docs/commerce/4.x/" class="[[classes.a]] underline">
+              {{- 'Commerce'|t -}}
+            </a>
+            Documentation.
           </li>
           <li>
             <a href="http://craftcms.stackexchange.com" class="[[classes.a]] underline">
               {{- 'Craft CMS Stack Exchange'|t -}}
             </a>.
-            Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
+            <span class="text-xs">Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.</span>
           </li>
           <li>
             <a href="https://craftcms.com/discord" class="[[classes.a]] underline">
               {{- 'Craft Discord Community'|t -}}
             </a>.
-            Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
+            <span class="text-xs">Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.</span>
           </li>
         </ul>
       </div>

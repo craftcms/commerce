@@ -23,7 +23,7 @@ class CategoriesFixture extends CategoryFixture
 
     public $depends = [FieldLayoutFixture::class, ProductFixture::class];
 
-    public function init()
+    public function init(): void
     {
         // TODO: remove this when category fixtures are updated in Craft core.
         $structure = new Structure(['maxLevels' => 1]);

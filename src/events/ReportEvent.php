@@ -17,11 +17,11 @@ use yii\base\Event;
  */
 class ReportEvent extends Event
 {
-    public $startDate;
-    public $endDate;
-    public $status;
-    public $orderQuery;
-    public $columns;
-    public $orders;
-    public $format;
+    public mixed $startDate = null;
+    public mixed $endDate = null;
+    public mixed $status = null;
+    public mixed $orderQuery = null;
+    public mixed $columns = null;
+    public mixed $orders = null;
+    public mixed $format = null;
 }

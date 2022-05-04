@@ -25,50 +25,52 @@ class TopProducts extends Stat
 {
     /**
      * Stat returned based on quantity.
+     *
      * @since 3.4
      */
-    const TYPE_QTY = 'qty';
+    public const TYPE_QTY = 'qty';
 
     /**
      * Stat returned based on revenue.
+     *
      * @since 3.4
      */
-    const TYPE_REVENUE = 'revenue';
+    public const TYPE_REVENUE = 'revenue';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_DISCOUNT = 'discount';
+    public const REVENUE_OPTION_DISCOUNT = 'discount';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX = 'tax';
+    public const REVENUE_OPTION_TAX = 'tax';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
+    public const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
 
     /**
      * @since 3.4
      */
-    const REVENUE_OPTION_SHIPPING = 'shipping';
+    public const REVENUE_OPTION_SHIPPING = 'shipping';
 
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topProducts';
+    protected string $_handle = 'topProducts';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
      */
-    public $type = self::TYPE_QTY;
+    public string $type = self::TYPE_QTY;
 
     /**
      * @var int Number of products to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * Options to be used when when calculating revenue total.
@@ -76,7 +78,7 @@ class TopProducts extends Stat
      * @var string[]
      * @since 3.4
      */
-    public $revenueOptions = [];
+    public array $revenueOptions = [];
 
     /**
      * Default options for calculating revenue total.
@@ -84,7 +86,7 @@ class TopProducts extends Stat
      * @var string[]
      * @since 3.4
      */
-    private $_defaultRevenueOptions = [
+    private array $_defaultRevenueOptions = [
         self::REVENUE_OPTION_DISCOUNT,
         self::REVENUE_OPTION_TAX,
         self::REVENUE_OPTION_TAX_INCLUDED,
@@ -96,12 +98,12 @@ class TopProducts extends Stat
      *
      * @var string
      */
-    private $_ifNullDbFunc;
+    private string $_ifNullDbFunc;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null, $revenueOptions = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null)
     {
         $this->_ifNullDbFunc = Craft::$app->getDb()->getIsPgsql() ? 'COALESCE' : 'IFNULL';
 
@@ -111,7 +113,7 @@ class TopProducts extends Stat
 
         // Set defaults
         $this->revenueOptions = $this->_defaultRevenueOptions;
-        if ($revenueOptions !== null && is_array($revenueOptions)) {
+        if (is_array($revenueOptions)) {
             $this->revenueOptions = $revenueOptions;
         }
 
@@ -121,7 +123,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
 
@@ -139,6 +141,8 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
             ->leftJoin(CraftTable::CONTENT . ' content', [
                 'and',
                 '[[content.elementId]] = [[v.productId]]',
@@ -170,7 +174,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         if (!empty($data)) {
             foreach ($data as &$row) {
@@ -186,10 +190,9 @@ class TopProducts extends Stat
     /**
      * Create select statement for a stat type `custom` based on the options chosen.
      *
-     * @return Expression
      * @since 3.4
      */
-    protected function getAdjustmentsSelect()
+    protected function getAdjustmentsSelect(): Expression
     {
         $select = 'SUM([[li.subtotal]])';
 
@@ -219,24 +222,23 @@ class TopProducts extends Stat
     /**
      * Create the adjustments sub query for use with revenue calculation.
      *
-     * @return Query
      * @since 3.4
      */
     protected function createAdjustmentsSubQuery(): Query
     {
         $types = [];
         foreach ($this->revenueOptions as $revenueOption) {
-            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax' : $revenueOption;
+            $types[] = str_starts_with($revenueOption, 'tax') ? 'tax' : $revenueOption;
         }
         $types = array_unique($types);
 
         return (new Query())
             ->select([
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0) as discount'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0) as tax'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0) as tax_included'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0) as shipping'),
                 '[[v.productId]]',
+                'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0)'),
+                'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0)'),
+                'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0)'),
+                'tax_included' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0)'),
             ])
             ->from(Table::ORDERADJUSTMENTS)
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.id]] = [[lineItemId]]')
@@ -250,10 +252,9 @@ class TopProducts extends Stat
     /**
      * Return the order by clause for the data query.
      *
-     * @return Expression
      * @since 3.4
      */
-    protected function getOrderBy()
+    protected function getOrderBy(): Expression
     {
         if ($this->type === self::TYPE_QTY) {
             return new Expression('SUM([[li.qty]]) DESC');
@@ -270,10 +271,9 @@ class TopProducts extends Stat
     /**
      * Return group by statement based on state type.
      *
-     * @return string
      * @since 3.4
      */
-    protected function getGroupBy()
+    protected function getGroupBy(): string
     {
         $groupBy = '[[v.productId]], [[content.title]]';
 

@@ -1,0 +1,28 @@
+{% import "_includes/forms" as forms %}
+
+{% do view.registerTranslations('commerce', [
+    "Example"
+]) %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "What this shipping zone will be called in the control panel."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: shippingZone is defined ? shippingZone.name,
+        errors: shippingZone is defined ? shippingZone.getErrors('name'),
+        autofocus: true,
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Description"|t('commerce'),
+        instructions: "Describe this shipping zone."|t('commerce'),
+        id: 'description',
+        name: 'description',
+        value: shippingZone is defined ? shippingZone.description,
+        errors: shippingZone is defined ? shippingZone.getErrors('description'),
+    }) }}
+
+    {{ conditionField|raw }}

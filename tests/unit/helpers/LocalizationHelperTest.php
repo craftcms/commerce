@@ -59,30 +59,4 @@ class LocalizationHelperTest extends Unit
             [0.005, " $pct 0.5 "],
         ];
     }
-
-    /**
-     * @param string $expected
-     * @param mixed $value
-     * @param int|null $decimals
-     * @dataProvider formatAsPercentageDataProvider
-     */
-    public function testFormatAsPercentage(string $expected, $value, ?int $decimals = null): void
-    {
-        self::assertEquals($expected, Localization::formatAsPercentage($value, $decimals));
-    }
-
-    /**
-     * @return array
-     */
-    public function formatAsPercentageDataProvider(): array
-    {
-        $pct = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        return [
-            ["0$pct", 0],
-            ["5$pct", 0.05],
-            ["0.5$pct", 0.005],
-            ["0.05$pct", 0.0005],
-            ["5.00$pct", 0.05, 2],
-        ];
-    }
 }

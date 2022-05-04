@@ -29,7 +29,7 @@ class OrderExport extends ElementExporter
     /**
      * @inheritDoc
      */
-    public function export(ElementQueryInterface $query): array
+    public function export(ElementQueryInterface $query): mixed
     {
         $orderIds = $query->ids();
 
@@ -79,12 +79,10 @@ class OrderExport extends ElementExporter
             'shippingMethodHandle',
         ];
 
-        $orders = (new CraftQuery())
+        return (new CraftQuery())
             ->select($columns)
             ->from(Table::ORDERS)
             ->where(['id' => $orderIds])
             ->all();
-
-        return $orders;
     }
 }

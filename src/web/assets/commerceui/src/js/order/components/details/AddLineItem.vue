@@ -1,6 +1,5 @@
 <template>
     <div>
-        <hr />
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">
@@ -25,7 +24,7 @@
         </template>
         <template v-else>
             <div>
-                <div class="flex add-line-item-table-header">
+                <div class="flex add-line-item-table-header pb">
                     <h2>
                         {{ $options.filters.t('Add a line item', 'commerce') }}
                     </h2>
@@ -283,6 +282,11 @@
 
     .add-line-item-table-header {
         justify-content: space-between;
+        align-items: center;
+
+        h2 {
+            margin: 0;
+        }
     }
 
     /* Purchasable select option */

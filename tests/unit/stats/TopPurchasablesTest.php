@@ -8,12 +8,15 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Variant;
 use craft\commerce\stats\TopPurchasables;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -27,7 +30,7 @@ class TopPurchasablesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -50,9 +53,13 @@ class TopPurchasablesTest extends Unit
      * @param DateTime $endDate
      * @param int $count
      * @param $getVariantData
+     * @throws \yii\base\Exception
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $getVariantData): void
     {
+        Craft::$app->getUser()->setIdentity(
+            Craft::$app->getUsers()->getUserById('1')
+        );
         $stat = new TopPurchasables($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
 
@@ -67,22 +74,23 @@ class TopPurchasablesTest extends Unit
             foreach ($testKeys as $testKey) {
                 self::assertArrayHasKey($testKey, $topPurchasable);
 
-                self::assertEquals($purchasableData[$testKey], $topPurchasable[$testKey]);
+                self::assertEquals($purchasableData[$testKey], $topPurchasable[$testKey], 'Assert ' . $testKey);
             }
         }
     }
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
         return [
-            [
+            'date-today' => [
                 TopPurchasables::DATE_RANGE_TODAY,
-                'qty',
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                'revenue',
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
                 function(VariantQuery $query) {
                     /** @var Purchasable $purchasable */
@@ -97,11 +105,11 @@ class TopPurchasablesTest extends Unit
                     ];
                 },
             ],
-            [
+            'date-custom' => [
                 TopPurchasables::DATE_RANGE_CUSTOM,
                 'qty',
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
                 null,
             ],

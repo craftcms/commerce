@@ -28,7 +28,7 @@ use craft\db\ActiveRecord;
  */
 class Pdf extends ActiveRecord
 {
-    const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
+    public const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
 
     /**
      * @inheritdoc

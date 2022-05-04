@@ -21,5 +21,5 @@ class PdfRenderOptionsEvent extends Event
     /**
      * @var Options
      */
-    public $options;
+    public Options $options;
 }

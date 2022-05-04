@@ -7,11 +7,11 @@
 
 namespace craft\commerce\gql\interfaces\elements;
 
+use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\types\generators\ProductType;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
-use craft\gql\TypeManager;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
@@ -67,7 +67,7 @@ class Product extends Element
      */
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),

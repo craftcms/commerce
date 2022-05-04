@@ -15,14 +15,17 @@ use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping category service.
  *
  * @property array|ShippingCategory[] $allShippingCategories all Shipping Categories
+ * @property-read array $allShippingCategoriesAsList
  * @property null|ShippingCategory $defaultShippingCategory the default shipping category
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -32,7 +35,7 @@ class ShippingCategories extends Component
     /**
      * @var ShippingCategory[]|null
      */
-    private $_allShippingCategories = null;
+    private ?array $_allShippingCategories = null;
 
     /**
      * Returns all Shipping Categories
@@ -56,8 +59,6 @@ class ShippingCategories extends Component
 
     /**
      * Returns all Shipping category names, by ID.
-     *
-     * @return array
      */
     public function getAllShippingCategoriesAsList(): array
     {
@@ -68,11 +69,8 @@ class ShippingCategories extends Component
 
     /**
      * Get a shipping category by its ID.
-     *
-     * @param int $shippingCategoryId
-     * @return ShippingCategory|null
      */
-    public function getShippingCategoryById(int $shippingCategoryId)
+    public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
     {
         $categories = $this->getAllShippingCategories();
 
@@ -82,10 +80,9 @@ class ShippingCategories extends Component
     /**
      * Get a shipping category by its handle.
      *
-     * @param string $shippingCategoryHandle
-     * @return ShippingCategory|null
+     * @noinspection PhpUnused
      */
-    public function getShippingCategoryByHandle(string $shippingCategoryHandle)
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
     {
         $categories = $this->getAllShippingCategories();
 
@@ -95,7 +92,6 @@ class ShippingCategories extends Component
     /**
      * Returns the default shipping category.
      *
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getDefaultShippingCategory(): ShippingCategory
@@ -116,9 +112,7 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param ShippingCategory $shippingCategory
      * @param bool $runValidation should we validate this before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -200,10 +194,8 @@ class ShippingCategories extends Component
 
     /**
      * Re-save products by product type id
-     *
-     * @param int $productTypeId
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId)
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
             'elementType' => Product::class,
@@ -212,16 +204,15 @@ class ShippingCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-                'enabledForSite' => false,
             ],
         ]));
     }
 
     /**
-     * @param int $id
-     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteShippingCategoryById($id): bool
+    public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
         if (count($all) === 1) {
@@ -241,10 +232,11 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
+     * @throws InvalidConfigException
      */
-    public function getShippingCategoriesByProductTypeId($productTypeId): array
+    public function getShippingCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
@@ -276,20 +268,18 @@ class ShippingCategories extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping categories.
-     *
-     * @return Query
      */
     private function _createShippingCategoryQuery(): Query
     {
         return (new Query())
             ->select([
-                'shippingCategories.id',
-                'shippingCategories.name',
-                'shippingCategories.handle',
-                'shippingCategories.description',
-                'shippingCategories.default',
                 'shippingCategories.dateCreated',
                 'shippingCategories.dateUpdated',
+                'shippingCategories.default',
+                'shippingCategories.description',
+                'shippingCategories.handle',
+                'shippingCategories.id',
+                'shippingCategories.name',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }

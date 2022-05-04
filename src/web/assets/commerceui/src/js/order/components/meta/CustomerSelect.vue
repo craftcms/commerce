@@ -67,16 +67,7 @@
                 </template>
                 <template v-else-if="slotProps.option.id">
                     <div>
-                        <customer
-                            :customer="{
-                                photo: slotProps.option.photo,
-                                user: slotProps.option.user,
-                                email: slotProps.option.email,
-                                fullName: slotProps.option.billingFullName,
-                                firstName: slotProps.option.billingFirstName,
-                                lastName: slotProps.option.billingLastName,
-                            }"
-                        ></customer>
+                        <customer :customer="slotProps.option"></customer>
                     </div>
                 </template>
             </div>
@@ -147,19 +138,47 @@
                     });
 
                     return {
-                        customerId: this.customerId,
-                        email: this.order.email,
+                        id: this.customerId,
+                        email: this.order.customer
+                            ? this.order.customer.email
+                            : null,
                     };
                 }
 
-                return {
-                    customerId: null,
-                    email: searchText,
-                    totalOrders: 0,
-                    userId: null,
-                    firstName: null,
-                    lastName: null,
-                };
+                this.$store.commit('updateRecalculateLoading', true);
+
+                const data = {email: searchText};
+                // Create a new customer if there is a valid email and no customer found
+                Craft.sendActionRequest(
+                    'POST',
+                    'commerce/orders/create-customer',
+                    {data}
+                )
+                    .then((response) => {
+                        this.selectedCustomer = response.data.user;
+
+                        this.onChange();
+                        return this.selectedCustomer;
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch(
+                            'displayError',
+                            error.response.data.message
+                        );
+                        this.$nextTick(() => {
+                            this.$refs.vSelect.$children[0].search = searchText;
+                        });
+
+                        return {
+                            id: this.customerId,
+                            email: this.order.customer
+                                ? this.order.customer.email
+                                : null,
+                        };
+                    })
+                    .finally(() => {
+                        this.$store.commit('updateRecalculateLoading', false);
+                    });
             },
 
             onSearch({searchText, loading}) {
@@ -193,18 +212,16 @@
             }, 500),
 
             onChange() {
-                if (this.selectedCustomer && this.selectedCustomer.email) {
+                if (this.selectedCustomer) {
                     this.$emit('update', this.selectedCustomer);
                 }
             },
         },
 
         mounted() {
-            if (this.order.email) {
-                const customer = {
-                    customerId: this.customerId,
-                    email: this.order.email,
-                };
+            if (this.order.customerId) {
+                let customer = {customerId: this.order.customer.id};
+
                 this.$store.commit('updateCustomers', [customer]);
                 this.selectedCustomer = customer;
             }

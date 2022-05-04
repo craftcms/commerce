@@ -132,12 +132,25 @@ export default new Vuex.Store({
       );
     },
 
+    hasAnAddress(state) {
+      if (!state.draft) {
+        return false;
+      }
+
+      return (
+        state.draft.order.billingAddressId ||
+        state.draft.order.shippingAddressId ||
+        state.draft.order.billingAddress ||
+        state.draft.order.shippingAddress
+      );
+    },
+
     hasCustomer(state) {
       if (!state.draft) {
         return false;
       }
 
-      return state.draft.order.customerId && state.draft.order.email;
+      return state.draft.order.customerId;
     },
 
     hasLineItems(state) {
@@ -229,7 +242,7 @@ export default new Vuex.Store({
 
     disableTransactionsTab() {
       const $transactionsTab = window.document.querySelector(
-        '#tabs > ul > li > a[href="#transactionsTab"]'
+        '#tabs > div > a[href="#transactionsTab"]'
       );
 
       if (!$transactionsTab) {
@@ -257,7 +270,7 @@ export default new Vuex.Store({
     },
 
     edit({commit, state, dispatch}) {
-      const $tabLinks = window.document.querySelectorAll('#tabs > ul > li > a');
+      const $tabLinks = window.document.querySelectorAll('#tabs > div > a');
       let $selectedLink = null;
       let $detailsLink = null;
       let switchToDetailsTab = false;
@@ -288,9 +301,9 @@ export default new Vuex.Store({
 
           // Disable static custom field tabs
           if ($tabLink.classList.contains('static')) {
-            $tabLink.parentNode.classList.add('hidden');
+            $tabLink.classList.add('hidden');
           } else {
-            $tabLink.parentNode.classList.remove('hidden');
+            $tabLink.classList.remove('hidden');
           }
         }
       });
@@ -366,7 +379,7 @@ export default new Vuex.Store({
 
     customerSearch({commit}, query) {
       return ordersApi.customerSearch(query).then((response) => {
-        commit('updateCustomers', response.data);
+        commit('updateCustomers', response.data.customers);
       });
     },
 
@@ -476,6 +489,10 @@ export default new Vuex.Store({
 
     updateDraft(state, draft) {
       state.draft = draft;
+    },
+
+    updateDraftSuppressEmails(state, suppressEmails) {
+      state.draft.order.suppressEmails = suppressEmails;
     },
 
     updateDraftOrderMessage(state, message) {
