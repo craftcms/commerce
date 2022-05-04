@@ -1,62 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.0.0-RC1 - 2022-05-02
-
-### Added
-- Added `craft\commerce\events\PdfRenderEvent`.
-- Added `craft\commerce\services\Carts::$cartCookieDuration`.
-- Added `craft\commerce\services\Carts::$cartCookie`.
-- Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
-
-### Changed
-- Craft Commerce now requires Craft CMS 4.0.0-RC2 or later.
-- The active cart number is now stored in a cookie rather than the PHP session data, so it can be retained across browser reboots. ([#2790](https://github.com/craftcms/commerce/pull/2790))
-- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
-- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
-
-### Deprecated
-- Deprecated `craft\commerce\services\Carts::getCartName()`. `$cartCookie['name']` should be used instead.
-
-### Removed
-- Removed `craft\commerce\events\PdfSaveEvent`.
-
-### Fixed
-- Fixed a bug where addresses weren’t retaining their primary status when re-edited. ([#2762](https://github.com/craftcms/commerce/issues/2762))
-- Fixed a bug where secondary tabs weren’t visible on Edit Order pages. ([#2770](https://github.com/craftcms/commerce/issues/2770))
-- Fixed a PHP that occurred when making a payment on a gateway with no form parameters.
-- Fixed a bug where customer profile photos weren’t displaying correctly on the Edit Order page. ([#2776](https://github.com/craftcms/commerce/issues/2776))
-- Fixed a bug where creating a payment source via the `commerce/payment-sources/add` controller action would always fail.
-- Fixed a bug where submitting an invalid email address would cause an exception to be thrown. ([#2771](https://github.com/craftcms/commerce/issues/2771))
-- Fixed a bug where it wasn't possible to update the email address on a guest customer’s cart. ([#2782](https://github.com/craftcms/commerce/issues/2782))
-- Fixed a PHP error that occurred when sending an email from the Edit Order page. ([#2784](https://github.com/craftcms/commerce/issues/2784))
-- Fixed a bug that could occur when saving an address. ([#2783](https://github.com/craftcms/commerce/issues/2783))
-- Fixed a PHP error that could occur when saving a product type. ([#2781](https://github.com/craftcms/commerce/issues/2781))
-- Fixed a bug where it wasn’t possible to remove an address from Edit Order pages. ([#2791](https://github.com/craftcms/commerce/issues/2791))
-- Fixed an error that could occur when creating a new product type.
-- Fixed a bug where it wasn’t possible to register users during checkout.
-- Fixed a bug where toggling the “Products of this type have multiple variants” checkbox within a product type’s settings wasn’t showing/hiding the “Variant Fields” tab.
-- Fixed an error that occurred when querying products or variants via GraphQL. ([#2793](https://github.com/craftcms/commerce/issues/2793))
-
-## 4.0.0-beta.2 - 2022-04-06
-
-### Changed
-- Craft Commerce now requires Craft CMS 4.0.0-beta.4 or newer.
-- Gateways’ `isFrontendEnabled` settings now support environment variables.
-- The installer now archives any database tables that were left behind by a previous Craft Commerce installation.
-
-### Fixed
-- Fixed a bug where `craft\commerce\elements\Order::getAvailableShippingMethodOptions()` wasn’t returning custom shipping method options.
-- Fixed a bug where the “New Order” button wasn’t visible.
-- Fixed a PHP error that occurred when calling `craft\commerce\elements\Order::getHistories()` for new orders. ([#2748](https://github.com/craftcms/commerce/issues/2748))
-- Fixed a PHP error that could occur when saving a new sale. ([#2748](https://github.com/craftcms/commerce/issues/2748))
-- Fixed a PHP error that could occur when saving an order from the Edit Order page. ([#2743](https://github.com/craftcms/commerce/issues/2743))
-- Fixed a bug where the Edit Product page was showing related sales without accounting for permissions.
-- Fixed a PHP error that could occur when updating cart addresses.
-- Fixed a PHP error that could occur when saving a tax rate.
-
-## 4.0.0-beta.1 - 2022-03-16
+## 4.0.0 - 2022-05-03
 
 ### Added
 - Customers are now native Craft user elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
@@ -95,6 +39,7 @@
 - Added `craft\commerce\elements\actions\UpdateOrderStatus::$suppressEmails`.
 - Added `craft\commerce\events\CommerceDebugPanelDataEvent`.
 - Added `craft\commerce\events\OrderStatusEmailsEvent`.
+- Added `craft\commerce\events\PdfRenderEvent`.
 - Added `craft\commerce\fieldlayoutelements\UserAddressSettings`.
 - Added `craft\commerce\helpers\DebugPanel`.
 - Added `craft\commerce\helpers\PaymentForm`.
@@ -114,12 +59,15 @@
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\service\Store`.
+- Added `craft\commerce\services\Carts::$cartCookieDuration`.
+- Added `craft\commerce\services\Carts::$cartCookie`.
 - Added `craft\commerce\services\Coupons`.
 - Added `craft\commerce\services\Customers::ensureCustomer()`.
 - Added `craft\commerce\services\Customers::savePrimaryBillingAddressId()`.
 - Added `craft\commerce\services\Customers::savePrimaryShippingAddressId()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
+- Added `craft\commerce\services\Pdfs::EVENT_BEFORE_DELETE_PDF`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypeIds()`.
 - Added `craft\commerce\services\ProductTypes::getCreatableProductTypes()`.
 - Added `craft\commerce\services\ProductTypes::getEditableProductTypeIds()`.
@@ -129,10 +77,13 @@
 - Added `craft\commerce\web\assets\coupons\CouponsAsset`.
 
 ### Changed
-- Craft Commerce now requires Craft CMS 4.0.0-beta.2 or newer.
+- Craft Commerce now requires Craft CMS 4.0.0-RC2 or later.
 - Tax rate inputs no longer require the percent symbol.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 - Addresses can no longer be related to both a user’s address book and an order at the same time. ([#2457](https://github.com/craftcms/commerce/discussions/2457))
+- Gateways’ `isFrontendEnabled` settings now support environment variables.
+- The active cart number is now stored in a cookie rather than the PHP session data, so it can be retained across browser reboots. ([#2790](https://github.com/craftcms/commerce/pull/2790))
+- The installer now archives any database tables that were left behind by a previous Craft Commerce installation.
 - `commerce/*` actions no longer accept `orderNumber` params. `number` can be used instead.
 - `commerce/cart/*` actions no longer accept `cartUpdatedNotice` params. `successMessage` can be used instead.
 - `commerce/cart/*` actions no longer include `availableShippingMethods` in their JSON responses. `availableShippingMethodOptions` can be used instead.
@@ -144,11 +95,16 @@
 - `craft\commerce\models\TaxRate::getRateAsPercent()` now returns a localized value.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` now has an `$order` argument rather than `$orderId`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` now raises `craft\commerce\events\PdfRenderEvent` rather than `PdfEvent`.
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF` now raises `craft\commerce\events\PdfEvent` rather than `PdfSaveEvent`.
 - `craft\commerce\services\ShippingMethods::getAvailableShippingMethods()` has been renamed to `getMatchingShippingMethods()`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a `$includeDisabled` argument.
 
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getUser()`. `getCustomer()` should be used instead.
+- Deprecated `craft\commerce\services\Carts::getCartName()`. `$cartCookie['name']` should be used instead.
 - Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. `getPlansByGatewayId()` should be used instead.
 - Deprecated `craft\commerce\services\Subscriptions::doesUserHaveAnySubscriptions()`. `doesUserHaveSubscriptions()` should be used instead.
 - Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. `getSubscriptionCountByPlanId()` should be used instead.
@@ -191,6 +147,7 @@
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\events\DefineAddressLinesEvent`. `craft\services\Addresses::formatAddress()` can be used instead.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
+- Removed `craft\commerce\events\PdfSaveEvent`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Country`.
 - Removed `craft\commerce\models\Discount::$code`.
