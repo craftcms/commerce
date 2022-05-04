@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - develop
+      - 'v3'
   pull_request:
 concurrency:
   group: ci-${{ github.ref }}
