@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Component;
 use craft\base\Element;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
@@ -152,6 +153,31 @@ class Customers extends Component
         }
 
         return $customerRecord;
+    }
+
+    /**
+     * @return void
+     */
+    public function migrateCustomerDataToCustomer(User $fromCustomer, User $toCustomer): void
+    {
+        $fromId = $fromCustomer->id;
+        $toId = $toCustomer->id;
+
+        $userIdTable = [Table::ORDERHISTORIES, Table::SUBSCRIPTIONS, Table::TRANSACTIONS];
+        foreach ($userIdTable as $table) {
+            Craft::$app->getDb()->createCommand()->update($table,
+                ['userId' => $toId],
+                ['userId' => $fromId]
+            )->execute();
+        }
+
+        $userIdTable = [Table::ORDERS, Table::PAYMENTSOURCES, Table::CUSTOMERS, Table::CUSTOMER_DISCOUNTUSES];
+        foreach ($userIdTable as $table) {
+            Craft::$app->getDb()->createCommand()->update($table,
+                ['customerId' => $toId],
+                ['customerId' => $fromId]
+            )->execute();
+        }
     }
 
     /**
