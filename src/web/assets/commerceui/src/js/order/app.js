@@ -1,3 +1,5 @@
+/* jshint esversion: 6, strict: false */
+/* globals Craft, process */
 import Vue from 'vue';
 import App from './apps/OrderDetails';
 import 'prismjs/themes/prism.css';
@@ -66,7 +68,11 @@ window.OrderDetailsApp = new Vue({
   },
 
   mounted() {
-    this.$store.dispatch('getOrder');
+    this.$store.dispatch('getOrder').finally(() => {
+      if (!this.$store.getters.hasLineItems) {
+        this.$store.dispatch('disableTransactionsTab');
+      }
+    });
 
     this.$store.watch(
       (state, getters) => getters.hasOrderChanged,
