@@ -90,6 +90,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $isSiteRequest = $this->request->getIsSiteRequest();
+        $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
@@ -199,13 +200,16 @@ class CartController extends BaseFrontEndController
 
         $this->_setAddresses();
 
-        // Set guest email address onto guest customers order.
-        $email = $this->request->getParam('email');
-        if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
-            try {
-                $this->_cart->setEmail($email);
-            } catch (\Exception $e) {
-                $this->_cart->addError('email', $e->getMessage());
+        // Setting email only allowed for guest customers
+        if (!$currentUser) {
+            // Set guest email address onto guest customers order.
+            $email = $this->request->getParam('email');
+            if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
+                try {
+                    $this->_cart->setEmail($email);
+                } catch (\Exception $e) {
+                    $this->_cart->addError('email', $e->getMessage());
+                }
             }
         }
 

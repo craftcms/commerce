@@ -2106,7 +2106,6 @@ class Order extends Element
             $this->_customerId = reset($customerId) ?: null;
         } else {
             $this->_customerId = $customerId;
-
         }
 
         $this->_customer = null;
