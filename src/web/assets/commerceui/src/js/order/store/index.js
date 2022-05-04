@@ -1,4 +1,4 @@
-/* jshint esversion: 6 */
+/* jshint esversion: 6, strict: false */
 /* globals Craft */
 import Vue from 'vue';
 import Vuex from 'vuex';
@@ -153,6 +153,14 @@ export default new Vuex.Store({
       return state.draft.order.customerId;
     },
 
+    hasLineItems(state) {
+      if (!state.draft || !state.draft.order || !state.draft.order.lineItems) {
+        return false;
+      }
+
+      return state.draft.order.lineItems.length > 0;
+    },
+
     lineItemStatuses() {
       return window.orderEdit.lineItemStatuses;
     },
@@ -269,7 +277,7 @@ export default new Vuex.Store({
 
       $tabLinks.forEach(function ($tabLink) {
         if (
-          $tabLink.getAttribute('href') == '#orderDetailsTab' &&
+          $tabLink.getAttribute('href') === '#orderDetailsTab' &&
           state.draft.order.isCompleted
         ) {
           $detailsLink = $tabLink;
