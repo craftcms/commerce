@@ -3,7 +3,7 @@
 ## Unreleased - 2022-05-06
 
 ### Fixed
-- Fixed a PHP error that occurred when making a payment on the Edit Order page.
+- Fixed a PHP error that occurred when making a payment on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
 
 ## 4.0.0 - 2022-05-04
 
