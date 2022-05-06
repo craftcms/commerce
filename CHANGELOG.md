@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-## 4.0.0 - 2022-05-03
+## Unreleased - 2022-05-06
+
+### Fixed
+- Fixed a PHP error that occurred when making a payment on the Edit Order page.
+
+## 4.0.0 - 2022-05-04
 
 ### Added
 - Customers are now native Craft user elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
