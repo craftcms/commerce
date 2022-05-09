@@ -10,6 +10,7 @@
     "fix-prettier": "prettier --write ."
   },
   "devDependencies": {
+    "@craftcms/vue": "^1.0.0",
     "@craftcms/webpack": "^0.3.0",
     "axios": "^0.26.1",
     "chart.js": "^2.9.4",

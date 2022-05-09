@@ -45,7 +45,7 @@
     /* global Garnish, Craft */
     import {mapGetters} from 'vuex';
     import _find from 'lodash.find';
-    import AdminTable from 'Craft/admintable/src/App';
+    import AdminTable from '@craftcms/vue/admintable/App';
 
     export default {
         components: {
