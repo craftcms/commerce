@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a PHP error that occurred when making a payment on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
+- Fixed a bug when submitting a custom field on address namespace doesn't save the field. ([2809](https://github.com/craftcms/commerce/pull/2809))
 
 ## 4.0.0 - 2022-05-04
 
