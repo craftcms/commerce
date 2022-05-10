@@ -504,7 +504,8 @@ class CartController extends BaseFrontEndController
         $estimatedShippingAddress = $this->request->getParam('estimatedShippingAddress');
         $billingAddress = $this->request->getParam('billingAddress');
         $estimatedBillingAddress = $this->request->getParam('estimatedBillingAddress');
-
+        $fieldsLocationShippingAddress = $this->request->getParam('shippingAddress.fieldsLocation') ?? 'shippingAddress.fields';
+        $fieldsLocationBillingAddress = $this->request->getParam('billingAddress.fieldsLocation') ?? 'billingAddress.fields';
 
         // Use an address ID from the customer address book to populate the address
         $shippingAddressId = $this->request->getParam('shippingAddressId');
@@ -594,5 +595,9 @@ class CartController extends BaseFrontEndController
             $this->_cart->sourceShippingAddressId = $this->_cart->sourceBillingAddressId;
             $this->_cart->shippingAddressId = $billingAddressId;
         }
+
+        // Custom fields
+        $this->_cart->getShippingAddress()->setFieldValuesFromRequest($fieldsLocationShippingAddress);
+        $this->_cart->getBillingAddress()->setFieldValuesFromRequest($fieldsLocationBillingAddress);
     }
 }
