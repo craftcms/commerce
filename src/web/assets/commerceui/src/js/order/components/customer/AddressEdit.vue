@@ -280,7 +280,6 @@
                         hasErrors: false,
                     },
                 },
-                menuBtn: null,
                 modal: null,
                 isVisible: false,
                 save: false,
@@ -458,10 +457,6 @@
         created() {
             this._setAddress();
             this._setBlankNewAddress();
-        },
-
-        mounted() {
-            this.menuBtn = new Garnish.MenuBtn(this.$refs.updateMenuBtn);
         },
     };
 </script>
