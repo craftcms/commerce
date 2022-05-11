@@ -144,7 +144,6 @@
         data() {
             return {
                 addressCard: null,
-                menuBtn: null,
             };
         },
 
@@ -232,7 +231,6 @@
         },
 
         mounted() {
-            this.menuBtn = new Garnish.MenuBtn(this.$refs.updateMenuBtn);
             this._initAddressCard();
         },
     };
