@@ -8,9 +8,9 @@
 return [
     '{pct} off the discounted item price' => '{pct} sur le prix remisé de l\'article',
     '{pct} off the original item price' => '{pct} sur le prix original de l\'article',
-    '{pct} off total discounted price (Deprecated)' => '{pct} sur le prix réduit (obsolète)',
+    '{pct} off total discounted price (Deprecated)' => '{pct} de réduction sur le prix réduit (obsolète)',
     '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} de réduction sur le prix réduit et le total de la livraison (obsolète)',
-    '{pct} off total original price (Deprecated)' => '{pct} sur le prix original (obsolète)',
+    '{pct} off total original price (Deprecated)' => '{pct} de réduction sur le prix original (obsolète)',
     '{pct} off total original price and shipping total (Deprecated)' => '{pct} de réduction sur le prix original et le total de la livraison (obsolète)',
     '(Purchasable)' => '(Achetable)',
     '(Trashed)' => '(Détruit)',
