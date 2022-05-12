@@ -287,8 +287,8 @@ class CartTest extends Unit
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $field = new Number();
-        $field->name = 'phone';
-        $field->handle = 'phone';
+        $field->name = 'Test Phone';
+        $field->handle = 'testPhone';
         $field->uid = 'uidxx';
         Craft::$app->getFields()->saveField($field);
 
@@ -312,7 +312,7 @@ class CartTest extends Unit
         Craft::$app->getAddresses()->saveLayout($fieldLayout);
 
         $customAddressFields = [
-            'fields' => ['phone' => '12345'],
+            'fields' => ['testPhone' => '12345'],
         ];
         $this->request->setBodyParams([
             'shippingAddress' => $customAddressFields,
@@ -323,8 +323,8 @@ class CartTest extends Unit
 
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $shippingPhone = $cart->getShippingAddress()->getFieldValue('phone');
-        $billingPhone = $cart->getBillingAddress()->getFieldValue('phone');
+        $shippingPhone = $cart->getShippingAddress()->getFieldValue('testPhone');
+        $billingPhone = $cart->getBillingAddress()->getFieldValue('testPhone');
 
         self::assertEquals('12345', $shippingPhone);
         self::assertEquals('12345', $billingPhone);
