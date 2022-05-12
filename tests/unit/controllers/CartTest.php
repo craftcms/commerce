@@ -10,10 +10,15 @@ namespace craftcommercetests\unit\controllers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\controllers\CartController;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidPluginException;
+use craft\fieldlayoutelements\CustomField;
+use craft\fields\Number;
+use craft\fields\PlainText;
+use craft\gql\types\elements\Address;
 use craft\web\Request;
 use craftcommercetests\fixtures\SalesFixture;
 use Throwable;
@@ -267,5 +272,64 @@ class CartTest extends Unit
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
         self::assertCount(2, $cart->getLineItems(), 'Has all items in the car');
+    }
+
+    /**
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidPluginException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @throws \craft\errors\InvalidFieldException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function testAddAddressCustomFieldsOnUpdateCart(): void
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $field = new Number();
+        $field->name = 'phone';
+        $field->handle = 'phone';
+        $field->uid = 'uidxx';
+        Craft::$app->getFields()->saveField($field);
+
+        $layoutElements[] = new CustomField($field);
+
+        $layout = array (
+            'tabs' =>
+                array (
+                    0 =>
+                        array (
+                            'name' => 'Content',
+                            'elements' =>
+                                $layoutElements
+                        ),
+                ),
+        );
+
+        $fieldLayout = Craft::$app->getFields()->createLayout($layout);
+
+        $fieldLayout->type = Address::class;
+
+        Craft::$app->getAddresses()->saveLayout($fieldLayout);
+
+        $customAddressFields = [
+            'fields' => ['phone' => '12345']
+        ];
+        $this->request->setBodyParams([
+            'shippingAddress' => $customAddressFields,
+            'billingAddress' => $customAddressFields
+        ]);
+
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        $shippingPhone = $cart->getShippingAddress()->getFieldValue('phone');
+        $billingPhone = $cart->getBillingAddress()->getFieldValue('phone');
+
+        self::assertEquals('12345', $shippingPhone);
+        self::assertEquals('12345', $billingPhone);
     }
 }
