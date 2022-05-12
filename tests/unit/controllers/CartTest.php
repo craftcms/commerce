@@ -10,14 +10,12 @@ namespace craftcommercetests\unit\controllers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\controllers\CartController;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidPluginException;
 use craft\fieldlayoutelements\CustomField;
 use craft\fields\Number;
-use craft\fields\PlainText;
 use craft\gql\types\elements\Address;
 use craft\web\Request;
 use craftcommercetests\fixtures\SalesFixture;
@@ -296,17 +294,16 @@ class CartTest extends Unit
 
         $layoutElements[] = new CustomField($field);
 
-        $layout = array (
+        $layout = [
             'tabs' =>
-                array (
-                    0 =>
-                        array (
-                            'name' => 'Content',
-                            'elements' =>
-                                $layoutElements
-                        ),
-                ),
-        );
+                [
+                    [
+                        'name' => 'Content',
+                        'elements' =>
+                            $layoutElements,
+                    ],
+                ],
+        ];
 
         $fieldLayout = Craft::$app->getFields()->createLayout($layout);
 
@@ -315,11 +312,11 @@ class CartTest extends Unit
         Craft::$app->getAddresses()->saveLayout($fieldLayout);
 
         $customAddressFields = [
-            'fields' => ['phone' => '12345']
+            'fields' => ['phone' => '12345'],
         ];
         $this->request->setBodyParams([
             'shippingAddress' => $customAddressFields,
-            'billingAddress' => $customAddressFields
+            'billingAddress' => $customAddressFields,
         ]);
 
         $this->cartController->runAction('update-cart');
