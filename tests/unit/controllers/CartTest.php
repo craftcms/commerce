@@ -311,22 +311,30 @@ class CartTest extends Unit
 
         Craft::$app->getAddresses()->saveLayout($fieldLayout);
 
-        $customAddressFields = [
+        $shippingAddress = [
+            'addressLine1' => '1 Main Street',
             'fields' => ['testPhone' => '12345'],
         ];
+        $billingAddress = [
+            'addressLine1' => '100 Main Street',
+            'fields' => ['testPhone' => '67890'],
+        ];
+
         $this->request->setBodyParams([
-            'shippingAddress' => $customAddressFields,
-            'billingAddress' => $customAddressFields,
+            'shippingAddress' => $shippingAddress,
+            'billingAddress' => $billingAddress,
         ]);
 
         $this->cartController->runAction('update-cart');
 
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $shippingPhone = $cart->getShippingAddress()->getFieldValue('testPhone');
-        $billingPhone = $cart->getBillingAddress()->getFieldValue('testPhone');
+        $cartShippingAddress = $cart->getShippingAddress();
+        $cartBillingAddress = $cart->getBillingAddress();
 
-        self::assertEquals('12345', $shippingPhone);
-        self::assertEquals('12345', $billingPhone);
+        self::assertEquals($shippingAddress['addressLine1'], $cartShippingAddress->addressLine1);
+        self::assertEquals($shippingAddress['fields']['testPhone'], $cartShippingAddress->testPhone);
+        self::assertEquals($billingAddress['addressLine1'], $cartBillingAddress->addressLine1);
+        self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
     }
 }
