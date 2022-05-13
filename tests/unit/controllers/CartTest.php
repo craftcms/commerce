@@ -268,4 +268,45 @@ class CartTest extends Unit
 
         self::assertCount(2, $cart->getLineItems(), 'Has all items in the car');
     }
+
+    /**
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidPluginException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @throws \craft\errors\InvalidFieldException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function testAddAddressCustomFieldsOnUpdateCart(): void
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $shippingAddress = [
+            'addressLine1' => '1 Main Street',
+            'fields' => ['testPhone' => '12345'],
+        ];
+        $billingAddress = [
+            'addressLine1' => '100 Main Street',
+            'fields' => ['testPhone' => '67890'],
+        ];
+
+        $this->request->setBodyParams([
+            'shippingAddress' => $shippingAddress,
+            'billingAddress' => $billingAddress,
+        ]);
+
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        $cartShippingAddress = $cart->getShippingAddress();
+        $cartBillingAddress = $cart->getBillingAddress();
+
+        self::assertEquals($shippingAddress['addressLine1'], $cartShippingAddress->addressLine1);
+        self::assertEquals($shippingAddress['fields']['testPhone'], $cartShippingAddress->testPhone);
+        self::assertEquals($billingAddress['addressLine1'], $cartBillingAddress->addressLine1);
+        self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
+    }
 }
