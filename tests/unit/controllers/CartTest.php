@@ -286,31 +286,6 @@ class CartTest extends Unit
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
-        $field = new Number();
-        $field->name = 'Test Phone';
-        $field->handle = 'testPhone';
-        $field->uid = 'uidxx';
-        Craft::$app->getFields()->saveField($field);
-
-        $layoutElements[] = new CustomField($field);
-
-        $layout = [
-            'tabs' =>
-                [
-                    [
-                        'name' => 'Content',
-                        'elements' =>
-                            $layoutElements,
-                    ],
-                ],
-        ];
-
-        $fieldLayout = Craft::$app->getFields()->createLayout($layout);
-
-        $fieldLayout->type = Address::class;
-
-        Craft::$app->getAddresses()->saveLayout($fieldLayout);
-
         $shippingAddress = [
             'addressLine1' => '1 Main Street',
             'fields' => ['testPhone' => '12345'],
