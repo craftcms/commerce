@@ -8,10 +8,10 @@
 return [
     '{pct} off the discounted item price' => '{pct} Nachlass vom reduzierten Artikelpreis',
     '{pct} off the original item price' => '{pct} Nachlass vom ursprünglichen Artikelpreis',
-    '{pct} off total discounted price (Deprecated)' => '{pct} Rabatt vom gesamten reduzierten Preis (Veraltet)',
+    '{pct} off total discounted price (Deprecated)' => '{pct} Rabatt vom gesamten reduzierten Preis (veraltet)',
     '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} Rabatt auf den reduzierten Preis und die Gesamtversandkosten (veraltet)',
     '{pct} off total original price (Deprecated)' => '{pct} Rabatt auf den Originalpreis (veraltet)',
-    '{pct} off total original price and shipping total (Deprecated)' => '{pct} Rabatt auf den Originalpreis und die Gesamtversandkosten (Veraltet)',
+    '{pct} off total original price and shipping total (Deprecated)' => '{pct} Rabatt auf den Originalpreis und die Gesamtversandkosten (veraltet)',
     '(Purchasable)' => '(Kaufoption)',
     '(Trashed)' => '(Verworfen)',
     '(new price)' => '(neuer Preis)',
