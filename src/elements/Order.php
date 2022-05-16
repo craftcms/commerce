@@ -1443,30 +1443,26 @@ class Order extends Element
             return false;
         }
 
+        /** @var User|CustomerBehavior|null $user */
         $user = $this->getCustomer();
-        $autoSetOccurred = false;
-
-        if (!$this->_shippingAddress && $user) {
-            /** @var User|CustomerBehavior $user */
-            if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
-                if ($userShippingAddress = Address::find()->id($primaryShippingAddressId)->ownerId($user->id)->one()) {
-                    $this->sourceShippingAddressId = $primaryShippingAddressId;
-                    $billingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->id]);
-                    $this->setShippingAddress($billingAddress);
-                    $autoSetOccurred = true;
-                }
-            }
+        if (!$user) {
+            return false;
         }
 
-        if (!$this->_billingAddress && $user) {
-            if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
-                if ($userBillingAddress = Address::find()->id($primaryBillingAddressId)->ownerId($user->id)->one()) {
-                    $this->sourceBillingAddressId = $primaryBillingAddressId;
-                    $billingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->id]);
-                    $this->setBillingAddress($billingAddress);
-                    $autoSetOccurred = true;
-                }
-            }
+        $autoSetOccurred = false;
+
+        if (!$this->_shippingAddress && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+            $this->sourceShippingAddressId = $primaryShippingAddress->id;
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $this->setShippingAddress($shippingAddress);
+            $autoSetOccurred = true;
+        }
+
+        if (!$this->_billingAddress && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
+            $this->sourceBillingAddressId = $primaryBillingAddress->id;
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $this->setBillingAddress($billingAddress);
+            $autoSetOccurred = true;
         }
 
         return $autoSetOccurred;
