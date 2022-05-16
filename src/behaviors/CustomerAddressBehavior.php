@@ -55,7 +55,7 @@ class CustomerAddressBehavior extends Behavior
         /** @var User $user */
         $user = $this->owner->getOwner();
 
-        if($user === null || !$user instanceof User) {
+        if ($user === null || !$user instanceof User) {
             return;
         }
 
