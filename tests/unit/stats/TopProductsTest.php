@@ -12,6 +12,8 @@ use craft\commerce\elements\Product;
 use craft\commerce\stats\TopProducts;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -25,7 +27,7 @@ class TopProductsTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -48,6 +50,7 @@ class TopProductsTest extends Unit
      * @param DateTime $endDate
      * @param int $count
      * @param $productDataFunction
+     * @throws \yii\base\Exception
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $productDataFunction): void
     {
@@ -76,6 +79,7 @@ class TopProductsTest extends Unit
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
@@ -83,8 +87,8 @@ class TopProductsTest extends Unit
             [
                 TopProducts::DATE_RANGE_TODAY,
                 'revenue',
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
                 function() {
                     $product = Product::find()->title('Hypercolor T-shirt')->one();
@@ -100,8 +104,8 @@ class TopProductsTest extends Unit
             [
                 TopProducts::DATE_RANGE_CUSTOM,
                 'revenue',
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
                 function() {
                     return [];

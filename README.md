@@ -4,11 +4,11 @@
 
 Craft Commerce is an amazingly powerful and flexible ecommerce platform for [Craft CMS](https://craftcms.com).
 
-You can learn all about it at [craftcms.com/commerce](https://craftcms.com/commerce), and documentation is available at [craftcms.com](https://craftcms.com/docs/commerce/3.x/).
+You can learn all about it at [craftcms.com/commerce](https://craftcms.com/commerce), and documentation is available at [craftcms.com](https://craftcms.com/docs/commerce/4.x/).
 
 ## Requirements
 
-This plugin requires Craft CMS 3.7.0 or later.
+This plugin requires Craft CMS 4.0 or later.
 
 ## Installation
 
@@ -40,14 +40,14 @@ php craft commerce/example-templates
 
 We highly recommend you check out these resources as you’re getting started with Craft Commerce:
 
-- **[Craft Commerce Docs](https://craftcms.com/docs/commerce/3.x/)** – the official documentation.
+- **[Craft Commerce Docs](https://craftcms.com/docs/commerce/4.x/)** – the official documentation.
 - **[Craft Discord](https://craftcms.com/discord)** – one of the most friendly and helpful Discords on the planet.
 - **[Craft Stack Exchange](http://craftcms.stackexchange.com/)** – community-run Q&A for Craft developers.
 
 ---
 
 <p>
-<a href="https://app.travis-ci.com/github/craftcms/commerce"><img src="https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=build" alt="Build Status"></a>
+<img src="https://github.com/craftcms/cms/workflows/ci/badge.svg?branch=main" alt="Build Status">
 <a href="https://packagist.org/packages/craftcms/commerce"><img src="https://img.shields.io/packagist/dt/craftcms/commerce.svg?label=downloads" alt="Total Packagist Downloads"></a>
 <a href="https://github.com/craftcms/commerce/releases"><img src="https://img.shields.io/github/tag/craftcms/commerce.svg?label=stable" alt="Latest Stable Version"></a>
 </p>

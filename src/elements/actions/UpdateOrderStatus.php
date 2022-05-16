@@ -25,15 +25,19 @@ use craft\helpers\Json;
 class UpdateOrderStatus extends ElementAction
 {
     /**
-     * @var int
+     * @var int|null
      */
-    public $orderStatusId;
+    public ?int $orderStatusId = null;
 
     /**
      * @var string
      */
-    public $message;
+    public string $message = '';
 
+    /**
+     * @var bool Whether to suppress the sending of related order status emails
+     */
+    public bool $suppressEmails = false;
 
     /**
      * @inheritdoc
@@ -46,7 +50,7 @@ class UpdateOrderStatus extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
         $type = Json::encode(static::class);
@@ -55,14 +59,14 @@ class UpdateOrderStatus extends ElementAction
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        type: {$type},
+        type: $type,
         batch: true,
         activate: function(\$selectedItems)
         {
             Craft.elementIndex.setIndexBusy();
             var currentSourceStatusHandle = Craft.elementIndex.sourceKey.split(':')[1];
             var currentOrderStatus = null;
-            var orderStatuses = {$orderStatuses};
+            var orderStatuses = $orderStatuses;
             for (i = 0; i < orderStatuses.length; i++) {
                 if(orderStatuses[i].handle == currentSourceStatusHandle){
                     currentOrderStatus = orderStatuses[i];
@@ -70,7 +74,7 @@ class UpdateOrderStatus extends ElementAction
             }
             var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
-                   Craft.elementIndex.submitAction({$type}, data);
+                   Craft.elementIndex.submitAction($type, data);
                    modal.hide();
                    return false;
                 }
@@ -96,6 +100,7 @@ EOT;
             /** @var Order $order */
             $order->orderStatusId = $this->orderStatusId;
             $order->message = $this->message;
+            $order->suppressEmails = $this->suppressEmails;
             Craft::$app->getElements()->saveElement($order);
         }
 

@@ -8,14 +8,20 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Emails Controller
@@ -26,7 +32,7 @@ use yii\web\Response;
 class EmailsController extends BaseAdminController
 {
     /**
-     * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -37,7 +43,6 @@ class EmailsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Email|null $email
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Email $email = null): Response
@@ -62,6 +67,8 @@ class EmailsController extends BaseAdminController
             $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
+
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
@@ -77,10 +84,13 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -97,27 +107,27 @@ class EmailsController extends BaseAdminController
         }
 
         // Shared attributes
-        $email->name = Craft::$app->getRequest()->getBodyParam('name');
-        $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
-        $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
-        $email->to = Craft::$app->getRequest()->getBodyParam('to');
-        $email->bcc = Craft::$app->getRequest()->getBodyParam('bcc');
-        $email->cc = Craft::$app->getRequest()->getBodyParam('cc');
-        $email->replyTo = Craft::$app->getRequest()->getBodyParam('replyTo');
-        $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
-        $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
-        $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
-        $email->language = Craft::$app->getRequest()->getBodyParam('language');
+        $email->name = $this->request->getBodyParam('name');
+        $email->subject = $this->request->getBodyParam('subject');
+        $email->recipientType = $this->request->getBodyParam('recipientType');
+        $email->to = $this->request->getBodyParam('to');
+        $email->bcc = $this->request->getBodyParam('bcc');
+        $email->cc = $this->request->getBodyParam('cc');
+        $email->replyTo = $this->request->getBodyParam('replyTo');
+        $email->enabled = (bool)$this->request->getBodyParam('enabled');
+        $email->templatePath = $this->request->getBodyParam('templatePath');
+        $email->plainTextTemplatePath = $this->request->getBodyParam('plainTextTemplatePath');
+        $pdfId = $this->request->getBodyParam('pdfId');
+        $email->pdfId = $pdfId ?: null;
+        $email->language = $this->request->getBodyParam('language');
 
         // Save it
         if ($emailsService->saveEmail($email)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Email saved.'));
             return $this->redirectToPostedUrl($email);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         }
 
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['email' => $email]);
 
@@ -132,9 +142,9 @@ class EmailsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

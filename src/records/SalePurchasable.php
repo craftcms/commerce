@@ -36,24 +36,18 @@ class SalePurchasable extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['saleId', 'purchasableId'], 'unique', 'targetAttribute' => ['saleId', 'purchasableId']],
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSale(): ActiveQueryInterface
     {
         return $this->hasOne(Sale::class, ['saleId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Purchasable::class, ['saleId' => 'id']);

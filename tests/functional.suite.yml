@@ -6,7 +6,7 @@
 
 class_name: FunctionalTester
 modules:
-    enabled:
-        - Asserts
-        - \craft\test\Craft
-        - \Helper\Functional
+  enabled:
+    - Asserts
+    - \craft\test\Craft
+    - \Helper\Functional

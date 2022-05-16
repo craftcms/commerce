@@ -22,10 +22,10 @@ class OrderStatusEvent extends Event
     /**
      * @var OrderHistory The order history
      */
-    public $orderHistory;
+    public OrderHistory $orderHistory;
 
     /**
      * @var Order The order
      */
-    public $order;
+    public Order $order;
 }

@@ -22,7 +22,7 @@ class SubscriptionForm extends Model
      *
      * @var int
      */
-    public $trialDays;
+    public int $trialDays;
 
     /**
      * @inheritdoc

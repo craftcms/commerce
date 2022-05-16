@@ -18,62 +18,62 @@ use DateTime;
 trait PlanTrait
 {
     /**
-     * @var int Plan ID
+     * @var int|null Plan ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var int The gateway ID.
+     * @var int|null The gateway ID.
      */
-    public $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
-     * @var string plan name
+     * @var string|null plan name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string plan handle
+     * @var string|null plan handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
-     * @var int ID of the entry containing plan information
+     * @var int|null ID of the entry containing plan information
      */
-    public $planInformationId;
+    public ?int $planInformationId = null;
 
     /**
-     * @var string plan reference on the gateway
+     * @var string|null plan reference on the gateway
      */
-    public $reference;
+    public ?string $reference = null;
 
     /**
      * @var bool whether the plan is enabled on site
      */
-    public $enabled;
+    public bool $enabled = false;
 
     /**
      * @var bool whether the plan is archived
      */
-    public $isArchived;
+    public bool $isArchived = false;
 
     /**
-     * @var DateTime when the plan was archived
+     * @var DateTime|null when the plan was archived
      */
-    public $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
-     * @var string gateway response
+     * @var string|null gateway response
      */
-    public $planData;
+    public ?string $planData = null;
 
     /**
-     * @var string plan uid
+     * @var string|null plan uid
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
-     * @var int sort order
+     * @var int|null sort order
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 }

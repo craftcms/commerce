@@ -3,25 +3,34 @@
         <div>
             <a class="btn menubtn order-status-btn" ref="orderStatus">
                 <template v-if="orderStatus.color">
-                    <span class="status" :class="{[orderStatus.color]: true}"></span>
+                    <span
+                        class="status"
+                        :class="{[orderStatus.color]: true}"
+                    ></span>
                 </template>
                 <template v-else>
                     <span class="status"></span>
                 </template>
 
-                <span class="order-status-btn-name">{{orderStatus.name}}</span>
+                <span class="order-status-btn-name">{{
+                    orderStatus.name
+                }}</span>
             </a>
 
             <div class="menu">
                 <ul class="padded" role="listbox">
                     <li v-for="(status, key) in orderStatuses" :key="key">
                         <a
-                                :data-id="status.id"
-                                :data-color="status.color"
-                                :data-name="status.name"
-                                :class="{sel: orderStatus.id === status.value}">
-                            <span class="status" :class="{[status.color]: true}"></span>
-                            <span>{{status.name}}</span>
+                            :data-id="status.id"
+                            :data-color="status.color"
+                            :data-name="status.name"
+                            :class="{sel: orderStatus.id === status.value}"
+                        >
+                            <span
+                                class="status"
+                                :class="{[status.color]: true}"
+                            ></span>
+                            <span>{{ status.name }}</span>
                         </a>
                     </li>
                 </ul>
@@ -37,6 +46,15 @@
                     v-model="message"
                     maxlength="10000"
                 ></textarea>
+
+                <input
+                    id="orderedit-suppress-emails"
+                    class="checkbox"
+                    type="checkbox"
+                    v-model="suppressEmails"
+                /><label for="orderedit-suppress-emails">{{
+                    $options.filters.t('Suppress emails', 'commerce')
+                }}</label>
             </div>
         </template>
     </div>
@@ -45,7 +63,7 @@
 <script>
     /* global Garnish */
 
-    import {mapGetters} from 'vuex'
+    import {mapGetters} from 'vuex';
 
     export default {
         props: {
@@ -55,6 +73,10 @@
             originalOrderStatusId: {
                 type: Number,
             },
+            suppressEmails: {
+                type: Boolean,
+                default: false,
+            },
         },
 
         data() {
@@ -63,31 +85,34 @@
                 textareaHasFocus: false,
                 orderMessage: '',
                 originalMessage: null,
-            }
+            };
         },
 
         computed: {
-            ...mapGetters([
-                'orderStatuses',
-            ]),
+            ...mapGetters(['orderStatuses']),
 
             orderStatus() {
                 if (this.orderStatusId !== 0) {
                     for (let orderStatusesKey in this.orderStatuses) {
-                        const orderStatus = this.orderStatuses[orderStatusesKey]
+                        const orderStatus =
+                            this.orderStatuses[orderStatusesKey];
 
                         if (orderStatus.id == this.orderStatusId) {
-                            return orderStatus
+                            return orderStatus;
                         }
                     }
                 }
 
-                return {id: 0, name: this.$options.filters.t("None", 'commerce'), color: null}
+                return {
+                    id: 0,
+                    name: this.$options.filters.t('None', 'commerce'),
+                    color: null,
+                };
             },
 
             orderStatusId: {
                 get() {
-                    return this.order.orderStatusId
+                    return this.order.orderStatusId;
                 },
 
                 set(value) {
@@ -95,31 +120,37 @@
                         this.message = this.originalMessage;
                     }
 
-                    const order = JSON.parse(JSON.stringify(this.order))
-                    order.orderStatusId = value
-                    this.$emit('updateOrder', order)
-                }
+                    const order = JSON.parse(JSON.stringify(this.order));
+                    order.orderStatusId = value;
+                    this.$emit('updateOrder', order);
+                },
             },
 
             message: {
                 get() {
-                    return this.orderMessage
+                    return this.orderMessage;
                 },
 
                 set(value) {
-                    this.orderMessage = value
-                    this.$store.commit('updateDraftOrderMessage', value)
+                    this.orderMessage = value;
+                    this.$store.commit('updateDraftOrderMessage', value);
                 },
+            },
+        },
+
+        watch: {
+            suppressEmails(newVal, oldVal) {
+                this.$store.commit('updateDraftSuppressEmails', newVal);
             },
         },
 
         methods: {
             onSelectStatus(status) {
                 if (status.dataset.id === 0) {
-                    this.orderStatusId = null
+                    this.orderStatusId = null;
                 } else {
                     this.message = null;
-                    this.orderStatusId = parseInt(status.dataset.id)
+                    this.orderStatusId = parseInt(status.dataset.id);
                 }
             },
         },
@@ -127,10 +158,10 @@
         mounted() {
             this.originalMessage = this.order.message;
             new Garnish.MenuBtn(this.$refs.orderStatus, {
-                onOptionSelect: this.onSelectStatus
-            })
-        }
-    }
+                onOptionSelect: this.onSelectStatus,
+            });
+        },
+    };
 </script>
 
 <style lang="scss">

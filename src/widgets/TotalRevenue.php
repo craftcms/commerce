@@ -14,13 +14,16 @@ use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Total Revenue widget
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -28,37 +31,37 @@ use craft\helpers\StringHelper;
 class TotalRevenue extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var bool
      */
-    public $showOrderCount = false;
+    public bool $showOrderCount = false;
 
     /**
      * @var TotalRevenueStat
      */
-    private $_stat;
+    private TotalRevenueStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,
@@ -86,7 +89,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         $stats = $this->_stat->get();
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
@@ -100,7 +103,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -108,7 +111,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -116,7 +119,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -129,8 +132,7 @@ class TotalRevenue extends Widget
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         if (empty($stats)) {
-            // TODO no stats available message
-            return '';
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
         }
 
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);
@@ -169,7 +171,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

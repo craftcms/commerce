@@ -21,10 +21,10 @@ class SaleEvent extends Event
     /**
      * @var Sale sale
      */
-    public $sale;
+    public Sale $sale;
 
     /**
      * @var bool Whether the sale is brand new
      */
-    public $isNew = false;
+    public bool $isNew = false;
 }

@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      OrdersWidgetSettings: './OrdersWidgetSettings.js'
+      OrdersWidgetSettings: './OrdersWidgetSettings.js',
     },
-  }
+  },
 });

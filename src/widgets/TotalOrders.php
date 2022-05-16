@@ -13,7 +13,9 @@ use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Total Orders widget
@@ -27,34 +29,34 @@ use craft\helpers\StringHelper;
 class TotalOrders extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var int|bool
      */
-    public $showChart;
+    public mixed $showChart = null;
 
     /**
      * @var null|TotalOrdersStat
      */
-    private $_stat;
+    private ?TotalOrdersStat $_stat = null;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersStat(
             $this->dateRange,
@@ -82,7 +84,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -90,7 +92,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -103,7 +105,7 @@ class TotalOrders extends Widget
         return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         if (!$this->showChart) {
             return '';
@@ -115,10 +117,15 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
@@ -147,7 +154,7 @@ class TotalOrders extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }
@@ -155,7 +162,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

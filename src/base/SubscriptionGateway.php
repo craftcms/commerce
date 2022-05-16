@@ -18,6 +18,11 @@ use craft\commerce\models\subscriptions\SwitchPlansForm;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read Plan $planModel
+ * @property-read CancelSubscriptionForm $cancelSubscriptionFormModel
+ * @property-read SwitchPlansForm $switchPlansFormModel
+ * @property-read SubscriptionForm $subscriptionFormModel
  */
 abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
@@ -25,15 +30,11 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      * Returns the cancel subscription form HTML
      *
      * @param Subscription $subscription the subscription to cancel
-     *
-     * @return string
      */
     abstract public function getCancelSubscriptionFormHtml(Subscription $subscription): string;
 
     /**
      * Returns the cancel subscription form model
-     *
-     * @return CancelSubscriptionForm
      */
     abstract public function getCancelSubscriptionFormModel(): CancelSubscriptionForm;
 
@@ -43,28 +44,20 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
      * @param array $params
      * @return string|null
      */
-    abstract public function getPlanSettingsHtml(array $params = []);
+    abstract public function getPlanSettingsHtml(array $params = []): ?string;
 
     /**
      * Returns the subscription plan model.
-     *
-     * @return Plan
      */
     abstract public function getPlanModel(): Plan;
 
     /**
      * Returns the subscription form model
-     *
-     * @return SubscriptionForm
      */
     abstract public function getSubscriptionFormModel(): SubscriptionForm;
 
     /**
      * Returns the html form to use when switching between two plans
-     *
-     * @param PlanInterface $originalPlan
-     * @param PlanInterface $targetPlan
-     * @return string
      */
     public function getSwitchPlansFormHtml(PlanInterface $originalPlan, PlanInterface $targetPlan): string
     {
@@ -73,8 +66,6 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
 
     /**
      * Returns the form model used for switching plans.
-     *
-     * @return SwitchPlansForm
      */
     abstract public function getSwitchPlansFormModel(): SwitchPlansForm;
 
@@ -89,7 +80,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     /**
      * @inheritdoc
      */
-    public function refreshPaymentHistory(Subscription $subscription)
+    public function refreshPaymentHistory(Subscription $subscription): void
     {
     }
 }

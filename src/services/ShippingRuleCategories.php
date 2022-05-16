@@ -12,7 +12,9 @@ use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping rule categories service.
@@ -25,8 +27,7 @@ class ShippingRuleCategories extends Component
     /**
      * @var ShippingRuleCategory[][]
      */
-    private $_shippingRuleCategoriesByRuleId = [];
-
+    private array $_shippingRuleCategoriesByRuleId = [];
 
     /**
      * Returns an array of shipping rules categories per the rule's ID.
@@ -94,6 +95,9 @@ class ShippingRuleCategories extends Component
      *
      * @param int $id the shipping rule category ID.
      * @return bool Whether the category was deleted successfully.
+     * @throws Throwable
+     * @throws StaleObjectException
+     * @noinspection PhpUnused
      */
     public function deleteShippingRuleCategoryById(int $id): bool
     {
@@ -106,7 +110,6 @@ class ShippingRuleCategories extends Component
         return false;
     }
 
-
     /**
      * Returns a Query object prepped for retrieving shipping rule categories.
      *
@@ -116,13 +119,13 @@ class ShippingRuleCategories extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'shippingRuleId',
-                'shippingCategoryId',
                 'condition',
-                'perItemRate',
-                'weightRate',
+                'id',
                 'percentageRate',
+                'perItemRate',
+                'shippingCategoryId',
+                'shippingRuleId',
+                'weightRate',
             ])
             ->from([Table::SHIPPINGRULE_CATEGORIES]);
     }

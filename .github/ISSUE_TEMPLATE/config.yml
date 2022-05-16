@@ -4,7 +4,7 @@ contact_links:
     url: https://github.com/craftcms/commerce/discussions/new?category=ideas
     about: Start a new discussion about your idea
   - name: Documentation
-    url: https://craftcms.com/docs/commerce/3.x/
+    url: https://craftcms.com/docs/commerce/4.x/
     about: Read the official documentation
   - name: Knowledge Base
     url: https://craftcms.com/knowledge-base

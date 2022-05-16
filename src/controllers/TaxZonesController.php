@@ -8,8 +8,14 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -21,9 +27,6 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
@@ -33,7 +36,6 @@ class TaxZonesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxAddressZone|null $taxZone
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
@@ -58,74 +60,52 @@ class TaxZonesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
+        $condition = $variables['taxZone']->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
 
     /**
-     * @return null|Response
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
         $taxZone = new TaxAddressZone();
 
-        // Shared attributes
-        $taxZone->id = Craft::$app->getRequest()->getBodyParam('taxZoneId');
-        $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
-        $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
-
-        $countries = [];
-        foreach ($countryIds as $id) {
-            $country = $id ? Plugin::getInstance()->getCountries()->getCountryById($id) : null;
-            if ($country) {
-                $countries[] = $country;
-            }
-        }
-        $taxZone->setCountries($countries);
-
-        $states = [];
-        foreach ($stateIds as $id) {
-            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
-            if ($state) {
-                $states[] = $state;
-            }
-        }
-        $taxZone->setStates($states);
+        $taxZone->id = $this->request->getBodyParam('taxZoneId');
+        $taxZone->name = $this->request->getBodyParam('name');
+        $taxZone->description = $this->request->getBodyParam('description');
+        $taxZone->default = (bool)$this->request->getBodyParam('default');
+        $taxZone->setCondition($this->request->getBodyParam('condition'));
 
         if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => true,
+            return $this->asModelSuccess(
+                $taxZone,
+                Craft::t('commerce', 'Tax zone saved.'),
+                'taxZone',
+                data: [
                     'id' => $taxZone->id,
                     'name' => $taxZone->name,
-                ]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Tax zone saved.'));
-            $this->redirectToPostedUrl($taxZone);
-        } else {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'errors' => $taxZone->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax zone.'));
+                ]
+            );
         }
 
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['taxZone' => $taxZone]);
-
-        return null;
+        return $this->asModelFailure(
+            $taxZone,
+            Craft::t('commerce', 'Couldn’t save tax zone.'),
+            'taxZone'
+        );
     }
 
     /**
@@ -136,30 +116,31 @@ class TaxZonesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
+     * @throws LoaderError
+     * @throws SyntaxError
      * @since 2.2
      */
-    public function actionTestZip()
+    public function actionTestZip(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
-        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+        $zipCodeFormula = (string)$this->request->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)$this->request->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asFailure('failed');
         }
 
-        return $this->asErrorJson('failed');
+        return $this->asSuccess();
     }
 }

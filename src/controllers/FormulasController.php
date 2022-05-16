@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\Plugin;
 use craft\web\Controller;
+use yii\web\BadRequestHttpException;
+use yii\web\Response;
 
 /**
  * Class BaseCp
@@ -20,52 +22,46 @@ use craft\web\Controller;
 class FormulasController extends Controller
 {
     /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionValidateCondition()
+    public function actionValidateCondition(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $condition = $request->getBodyParam('condition');
-        $params = $request->getBodyParam('params');
+        $condition = $this->request->getBodyParam('condition');
+        $params = $this->request->getBodyParam('params');
 
         if ($condition == '') {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($condition, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid condition syntax'));
+            return $this->asFailure(Craft::t('commerce', 'Invalid condition syntax'));
         }
 
-        return $this->asJson(['success' => 'true']);
+        return $this->asSuccess();
     }
 
     /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionValidateFormula()
+    public function actionValidateFormula(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
-
-        $formula = $request->getBodyParam('formula');
-        $params = $request->getBodyParam('params');
+        $formula = $this->request->getBodyParam('formula');
+        $params = $this->request->getBodyParam('params');
 
         if ($formula == '') {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateFormulaSyntax($formula, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid formula syntax'));
+            return $this->asFailure(Craft::t('commerce', 'Invalid formula syntax'));
         }
 
-        return $this->asJson(['success' => 'true']);
+        return $this->asSuccess();
     }
 }

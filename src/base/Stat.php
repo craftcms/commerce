@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
+use DateInterval;
 use DateTime;
 use yii\base\Exception;
 use yii\db\Expression;
@@ -31,13 +32,13 @@ abstract class Stat implements StatInterface
      * Stat constructor.
      *
      * @param string|null $dateRange
-     * @param DateTime|null $startDate
-     * @param DateTime|null $endDate
+     * @param DateTime|bool|null $startDate
+     * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null)
     {
-        $this->dateRange = $dateRange;
+        $this->dateRange = $dateRange ?? $this->dateRange;
         if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
             $this->_setDates();
         } else {
@@ -47,12 +48,12 @@ abstract class Stat implements StatInterface
 
         $user = Craft::$app->getUser()->getIdentity();
         if ($user) {
-            $this->weekStartDay = $user->getPreference('weekStartDay');
+            $this->weekStartDay = $user->getPreference('weekStartDay') ?? $this->weekStartDay;
         }
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getHandle(): string
     {
@@ -60,10 +61,10 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @return array|false|mixed|null
+     * @return mixed
      * @throws Exception
      */
-    public function get()
+    public function get(): mixed
     {
         $this->_setDates();
 
@@ -89,17 +90,17 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         return $data;
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function setStartDate($date)
+    public function setStartDate(?DateTime $date): void
     {
         if (!$date) {
             $this->_startDate = $this->_getFirstCompletedOrderDate();
@@ -109,9 +110,9 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function setEndDate($date)
+    public function setEndDate(?DateTime $date): void
     {
         if (!$date) {
             $this->_endDate = new DateTime();
@@ -121,23 +122,23 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function getStartDate()
+    public function getStartDate(): mixed
     {
         return $this->_startDate;
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function getEndDate()
+    public function getEndDate(): mixed
     {
         return $this->_endDate;
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getDateRangeWording(): string
     {
@@ -145,47 +146,38 @@ abstract class Stat implements StatInterface
             case self::DATE_RANGE_ALL:
             {
                 return Craft::t('commerce', 'All');
-                break;
             }
             case self::DATE_RANGE_TODAY:
             {
                 return Craft::t('commerce', 'Today');
-                break;
             }
             case self::DATE_RANGE_THISWEEK:
             {
                 return Craft::t('commerce', 'This week');
-                break;
             }
             case self::DATE_RANGE_THISMONTH:
             {
                 return Craft::t('commerce', 'This month');
-                break;
             }
             case self::DATE_RANGE_THISYEAR:
             {
                 return Craft::t('commerce', 'This year');
-                break;
             }
             case self::DATE_RANGE_PAST7DAYS:
             {
                 return Craft::t('commerce', 'Past {num} days', ['num' => 7]);
-                break;
             }
             case self::DATE_RANGE_PAST30DAYS:
             {
                 return Craft::t('commerce', 'Past {num} days', ['num' => 30]);
-                break;
             }
             case self::DATE_RANGE_PAST90DAYS:
             {
                 return Craft::t('commerce', 'Past {num} days', ['num' => 90]);
-                break;
             }
             case self::DATE_RANGE_PASTYEAR:
             {
                 return Craft::t('commerce', 'Past year');
-                break;
             }
             case self::DATE_RANGE_CUSTOM:
             {
@@ -201,12 +193,10 @@ abstract class Stat implements StatInterface
                 }
 
                 return $startDate . ' - ' . $endDate;
-                break;
             }
             default:
             {
                 return '';
-                break;
             }
         }
     }
@@ -214,7 +204,7 @@ abstract class Stat implements StatInterface
     /**
      * @throws Exception
      */
-    private function _setDates()
+    private function _setDates(): void
     {
         if (!$this->dateRange) {
             throw new Exception('A date range string must be specified to set stat dates.');
@@ -233,11 +223,9 @@ abstract class Stat implements StatInterface
     /**
      * Based on the date range return the start date.
      *
-     * @param string $dateRange
-     * @return bool|DateTime|false
      * @throws \Exception
      */
-    private function _getStartDate(string $dateRange)
+    private function _getStartDate(string $dateRange): bool|DateTime
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;
@@ -275,29 +263,28 @@ abstract class Stat implements StatInterface
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P' . $number . 'D');
+                $interval = new DateInterval('P' . $number . 'D');
                 $date->sub($interval);
                 break;
             }
             case self::DATE_RANGE_PASTYEAR:
             {
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P1Y');
+                $interval = new DateInterval('P1Y');
                 $date->sub($interval);
-                $date->add(new \DateInterval('P1M'));
+                $date->modify('first day of next month');
                 break;
             }
         }
 
-        $date->setTime(0, 0, 0);
+        $date->setTime(0, 0);
         return $date;
     }
 
     /**
-     * @return DateTime|false
      * @throws \Exception
      */
-    private function _getFirstCompletedOrderDate()
+    private function _getFirstCompletedOrderDate(): DateTime|false
     {
         $firstCompletedOrder = (new Query())
             ->select(['dateOrdered'])
@@ -312,11 +299,9 @@ abstract class Stat implements StatInterface
     /**
      * Based on the date range return the end date.
      *
-     * @param string $dateRange
-     * @return bool|DateTime|false
      * @throws \Exception
      */
-    private function _getEndDate(string $dateRange)
+    private function _getEndDate(string $dateRange): bool|DateTime
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;
@@ -346,10 +331,9 @@ abstract class Stat implements StatInterface
     /**
      * Generate cache key.
      *
-     * @return string|null
      * @throws \Exception
      */
-    private function _getCacheKey()
+    private function _getCacheKey(): ?string
     {
         $orderLastUpdatedString = 'never';
 
@@ -366,11 +350,7 @@ abstract class Stat implements StatInterface
         return implode('-', [$this->getHandle(), $this->dateRange, $this->_startDate->format('U'), $this->_endDate->format('U'), $orderLastUpdatedString]);
     }
 
-    /**
-     * @param string $interval
-     * @return array|null
-     */
-    public function getChartQueryOptionsByInterval(string $interval)
+    public function getChartQueryOptionsByInterval(string $interval): ?array
     {
         if (Craft::$app->getDb()->getIsMysql()) {
             // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
@@ -413,10 +393,7 @@ abstract class Stat implements StatInterface
         return null;
     }
 
-    /**
-     * @return mixed|string
-     */
-    public function getDateRangeInterval()
+    public function getDateRangeInterval(): string
     {
         if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
             $interval = date_diff($this->_startDate, $this->_endDate);
@@ -428,13 +405,10 @@ abstract class Stat implements StatInterface
 
     /**
      * Generate base stat query
-     *
-     * @return \yii\db\Query
      */
-    protected function _createStatQuery()
+    protected function _createStatQuery(): \yii\db\Query
     {
         // Make sure the end time is always the last point on that day.
-        // @TODO adjust this when stats can deal with time and not just whole days
         if ($this->_endDate instanceof DateTime) {
             $this->_endDate->setTime(23, 59, 59);
         }
@@ -455,7 +429,7 @@ abstract class Stat implements StatInterface
      * @return array|null
      * @throws \Exception
      */
-    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null)
+    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], ?Query $query = null): ?array
     {
         // Allow the passing in of a custom query in case we need to add extra logic
         $query = $query ?: $this->_createStatQuery();
@@ -471,7 +445,6 @@ abstract class Stat implements StatInterface
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('Y-m-d'), true);
         $endDate = $this->getEndDate();
         while ($dateKeyDate <= $endDate) {
-
             // If we are looking monthly make sure we get every month by using the 1st day
             if ($dateRangeInterval == 'month') {
                 $dateKeyDate->setDate($dateKeyDate->format('Y'), $dateKeyDate->format('m'), 1);
@@ -484,7 +457,7 @@ abstract class Stat implements StatInterface
             $tmp['datekey'] = $key;
 
             $defaults[$key] = $tmp;
-            $dateKeyDate->add(new \DateInterval($options['interval']));
+            $dateKeyDate->add(new DateInterval($options['interval']));
         }
 
         // Add defaults to select
@@ -500,22 +473,5 @@ abstract class Stat implements StatInterface
         ksort($return, SORT_NATURAL);
 
         return $return;
-    }
-
-    /**
-     * @param int $days
-     * @return mixed
-     */
-    private function _getCustomDateChartQueryOptions(int $days)
-    {
-        if ($days > 90) {
-            return $this->getChartQueryOptionsByInterval('month');
-        }
-
-        if ($days > 27) {
-            return $this->getChartQueryOptionsByInterval('week');
-        }
-
-        return $this->getChartQueryOptionsByInterval('day');
     }
 }

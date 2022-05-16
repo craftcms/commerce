@@ -7,8 +7,9 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
-use craft\commerce\Plugin;
+use craft\db\Table;
 use yii\db\Expression;
 
 /**
@@ -22,22 +23,22 @@ class TopCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topCustomers';
+    protected string $_handle = 'topCustomers';
 
     /**
      * @var string Type of start either 'total' or 'average'.
      */
-    public $type = 'total';
+    public string $type = 'total';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
         if ($type) {
             $this->type = $type;
@@ -49,17 +50,18 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $topCustomers = $this->_createStatQuery()
             ->select([
-                new Expression('SUM([[total]]) as total'),
-                new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4) as average'),
+                'average' => new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4)'),
+                'count' => new Expression('COUNT([[orders.id]])'),
                 'customerId',
-                '[[orders.email]] as email',
-                new Expression('COUNT([[orders.id]]) as count'),
+                'total' => new Expression('SUM([[total]])'),
+                'users.email',
             ])
-            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
+            ->innerJoin(Table::USERS . ' users', '[[orders.customerId]] = [[users.id]]')
+            ->groupBy(['[[orders.customerId]]', '[[users.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {
@@ -82,15 +84,10 @@ class TopCustomers extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         foreach ($data as &$topCustomer) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerById((int)$topCustomer['customerId']);
-            $topCustomer['customer'] = $customer;
-
-            if ($customer && $user = $customer->getUser()) {
-                $topCustomer['email'] = $user->email;
-            }
+            $topCustomer['customer'] = Craft::$app->getUsers()->getUserById($topCustomer['customerId']);
         }
 
         return $data;

@@ -12,6 +12,7 @@ use craft\db\ActiveRecord;
 use craft\records\Category;
 use craft\records\UserGroup;
 use DateTime;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -31,21 +32,22 @@ use yii\db\ActiveQueryInterface;
  * @property bool $enabled
  * @property UserGroup[] $groups
  * @property int $id
+ * @property-read ActiveQueryInterface $categories
+ * @property-read ActiveQueryInterface $purchasables
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Sale extends ActiveRecord
 {
-    const APPLY_BY_PERCENT = 'byPercent';
-    const APPLY_BY_FLAT = 'byFlat';
-    const APPLY_TO_PERCENT = 'toPercent';
-    const APPLY_TO_FLAT = 'toFlat';
+    public const APPLY_BY_PERCENT = 'byPercent';
+    public const APPLY_BY_FLAT = 'byFlat';
+    public const APPLY_TO_PERCENT = 'toPercent';
+    public const APPLY_TO_FLAT = 'toFlat';
 
-    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
-    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
-    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
-
+    public const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
     /**
      * @inheritdoc
@@ -56,7 +58,7 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @throws InvalidConfigException
      */
     public function getGroups(): ActiveQueryInterface
     {
@@ -64,7 +66,7 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @throws InvalidConfigException
      */
     public function getPurchasables(): ActiveQueryInterface
     {
@@ -72,7 +74,7 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @throws InvalidConfigException
      */
     public function getCategories(): ActiveQueryInterface
     {

@@ -1,98 +1,132 @@
 <template>
-  <div v-if="draft" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
-    <div>
-      <div class="order-flex justify-between align-center pb">
-        <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
-        <template v-if="hasCustomer && (!editing || !editMode)">
-          <btn-link @click="enableEditMode()">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
-        </template>
-      </div>
-      <div class="customer-select-wrapper">
-        <customer
-          v-if="hasCustomer"
-          :customer="{
-            email: draft.order.email,
-            photo: photo,
-            fullName: draft.order.billingAddress && draft.order.billingAddress.fullName ? draft.order.billingAddress.fullName : null,
-            firstName: draft.order.billingAddress && draft.order.billingAddress.firstName ? draft.order.billingAddress.firstName : null,
-            lastName: draft.order.billingAddress && draft.order.billingAddress.lastName ? draft.order.billingAddress.lastName : null,
-            user: user,
-            url: customerUrl,
-          }"
-          :display="true"
-          :show-remove="editing && editMode"
-          @remove="removeCustomer"
-        ></customer>
-        <customer-select
-            :order="draft.order"
-            @update="updateCustomer"
-            v-if="!hasCustomer"
-        ></customer-select>
-      </div>
+    <div
+        v-if="draft"
+        :class="{'order-opacity-50': recalculateLoading || saveLoading}"
+    >
+        <div>
+            <div class="order-flex justify-between align-center pb">
+                <h3 class="m-0">
+                    {{ $options.filters.t('Customer', 'commerce') }}
+                </h3>
+                <template v-if="hasCustomer && (!editing || !editMode)">
+                    <btn-link @click="enableEditMode()">{{
+                        $options.filters.t('Edit', 'commerce')
+                    }}</btn-link>
+                </template>
+            </div>
+            <div class="customer-select-wrapper">
+                <customer
+                    v-if="hasCustomer"
+                    :customer="customer"
+                    :display="true"
+                    :show-remove="editing && editMode"
+                    @remove="removeCustomer"
+                ></customer>
+                <customer-select
+                    :order="draft.order"
+                    @update="updateCustomer"
+                    v-if="!hasCustomer"
+                ></customer-select>
+            </div>
+        </div>
+
+        <div
+            class="order-flex order-box-sizing px-4 -mx-4"
+            :class="{pt: hasCustomer || hasAnAddress}"
+        >
+            <div class="w-1/2 pr" v-show="!editing || !editMode">
+                <template v-if="draft && draft.order.billingAddressHtml">
+                    <div v-html="draft.order.billingAddressHtml"></div>
+                </template>
+                <template v-else>
+                    <div class="zilch">
+                        {{
+                            $options.filters.t('No billing address', 'commerce')
+                        }}
+                    </div>
+                </template>
+            </div>
+            <div class="w-1/2 pl" v-show="!editing || !editMode">
+                <template v-if="draft && draft.order.shippingAddressHtml">
+                    <div v-html="draft.order.shippingAddressHtml"></div>
+                </template>
+                <template v-else>
+                    <div class="zilch">
+                        {{
+                            $options.filters.t(
+                                'No shipping address',
+                                'commerce'
+                            )
+                        }}
+                    </div>
+                </template>
+            </div>
+
+            <div
+                class="w-1/2 pr"
+                v-show="
+                    ((!hasCustomer && draft.order.isCompleted) ||
+                        hasCustomer) &&
+                    editing &&
+                    editMode
+                "
+            >
+                <address-edit
+                    :title="titles.billingAddress"
+                    model-name="billing"
+                    :address="draft.order.billingAddressHtml"
+                    :copy-to-address="
+                        $options.filters.t('shipping address', 'commerce')
+                    "
+                    :customer-id="draft.order.customerId"
+                    :empty-message="
+                        $options.filters.t('No billing address', 'commerce')
+                    "
+                    :customer-updated="customerUpdatedTime"
+                    @update="updateBillingAddress"
+                    @copy="copyAddress('shipping')"
+                    @remove="removeBillingAddress"
+                ></address-edit>
+            </div>
+
+            <div
+                class="w-1/2 pl"
+                v-show="
+                    ((!hasCustomer && draft.order.isCompleted) ||
+                        hasCustomer) &&
+                    editing &&
+                    editMode
+                "
+            >
+                <address-edit
+                    :title="titles.shippingAddress"
+                    model-name="shipping"
+                    :address="draft.order.shippingAddressHtml"
+                    :copy-to-address="
+                        $options.filters.t('billing address', 'commerce')
+                    "
+                    :customer-id="draft.order.customerId"
+                    :empty-message="
+                        $options.filters.t('No shipping address', 'commerce')
+                    "
+                    :customer-updated="customerUpdatedTime"
+                    @update="updateShippingAddress"
+                    @copy="copyAddress('billing')"
+                    @remove="removeShippingAddress"
+                ></address-edit>
+            </div>
+        </div>
     </div>
-
-    <hr v-if="!(editing && editMode && !hasCustomer && !draft.order.isCompleted)">
-
-    <div class="order-flex order-box-sizing -mx-4 pb">
-      <div class="w-1/2 px-4" v-show="!editing || !editMode">
-        <template v-if="draft && draft.order.billingAddress">
-          <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
-        </template>
-        <template v-else>
-          <div class="zilch">{{$options.filters.t('No billing address', 'commerce')}}</div>
-        </template>
-      </div>
-      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="!editing || !editMode">
-        <template v-if="draft && draft.order.shippingAddress">
-          <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
-        </template>
-        <template v-else>
-          <div class="zilch">{{$options.filters.t('No shipping address', 'commerce')}}</div>
-        </template>
-      </div>
-
-      <div class="w-1/2 px-4" v-show="((!hasCustomer && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
-        <address-edit
-          :title="titles.billingAddress"
-          :address="draft.order.billingAddress"
-          :copy-to-address="$options.filters.t('shipping address', 'commerce')"
-          :customer-id="draft.order.customerId"
-          :empty-message="$options.filters.t('No billing address', 'commerce')"
-          :customer-updated="customerUpdatedTime"
-          @update="updateBillingAddress"
-          @copy="copyAddress('shipping')"
-          @remove="removeBillingAddress"
-        ></address-edit>
-      </div>
-
-      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="((!hasCustomer && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
-        <address-edit
-          :title="titles.shippingAddress"
-          :address="draft.order.shippingAddress"
-          :copy-to-address="$options.filters.t('billing address', 'commerce')"
-          :customer-id="draft.order.customerId"
-          :empty-message="$options.filters.t('No shipping address', 'commerce')"
-          :customer-updated="customerUpdatedTime"
-          @update="updateShippingAddress"
-          @copy="copyAddress('billing')"
-          @remove="removeShippingAddress"
-        ></address-edit>
-      </div>
-
-    </div>
-  </div>
 </template>
 
 <script>
     import {mapGetters, mapState, mapActions} from 'vuex';
-    import AddressDisplay from '../components/customer/Address';
     import AddressEdit from '../components/customer/AddressEdit';
     import CustomerSelect from '../components/meta/CustomerSelect';
     import Customer from '../components/customer/Customer';
 
     export default {
         components: {
-            AddressDisplay,
             AddressEdit,
             Customer,
             CustomerSelect,
@@ -103,28 +137,20 @@
                 customerId: null,
                 customerUpdatedTime: null,
                 customerUrl: null,
+                customer: null,
                 editMode: false,
                 titles: {
-                    billingAddress: this.$options.filters.t('Billing Address', 'commerce'),
-                    shippingAddress: this.$options.filters.t('Shipping Address', 'commerce'),
+                    billingAddress: this.$options.filters.t(
+                        'Billing Address',
+                        'commerce'
+                    ),
+                    shippingAddress: this.$options.filters.t(
+                        'Shipping Address',
+                        'commerce'
+                    ),
                 },
-
-                modal: null,
-                modals: {
-                    addresses: {
-                        billing: {
-                            isVisible: false,
-                            modal: null,
-                        },
-                        shipping: {
-                            isVisible: false,
-                            modal: null,
-                        }
-                    }
-                },
-                user: null,
                 photo: null,
-            }
+            };
         },
 
         computed: {
@@ -132,41 +158,44 @@
                 'autoSetNewCartAddresses',
                 'hasCustomer',
                 'hasAddresses',
+                'hasAnAddress',
                 'originalCustomer',
             ]),
 
             ...mapState({
-                recalculateLoading: state => state.recalculateLoading,
-                saveLoading: state => state.saveLoading,
-                editing: state => state.editing,
-                originalDraft: state => state.originalDraft
+                recalculateLoading: (state) => state.recalculateLoading,
+                saveLoading: (state) => state.saveLoading,
+                editing: (state) => state.editing,
+                originalDraft: (state) => state.originalDraft,
             }),
 
             draft: {
                 get() {
-                    return JSON.parse(JSON.stringify(this.$store.state.draft))
+                    return JSON.parse(JSON.stringify(this.$store.state.draft));
                 },
 
                 set(draft) {
-                    this.$store.commit('updateDraft', draft)
-                }
+                    this.$store.commit('updateDraft', draft);
+                },
             },
 
             hasBillingAddress() {
-                return (this.draft.order.billingAddressId != null);
+                return (
+                    this.draft.order.billingAddressId != null ||
+                    this.draft.order.billingAddress
+                );
             },
 
             hasShippingAddress() {
-                return (this.draft.order.shippingAddressId != null);
-            }
+                return (
+                    this.draft.order.shippingAddressId != null ||
+                    this.draft.order.shippingAddress
+                );
+            },
         },
 
         methods: {
-            ...mapActions([
-                'edit',
-                'getAddressById',
-                'recalculateOrder',
-            ]),
+            ...mapActions(['edit', 'getAddressById', 'recalculateOrder']),
 
             enableEditMode() {
                 this.editMode = true;
@@ -174,29 +203,56 @@
             },
 
             copyAddress(destinationAddress) {
-                if (destinationAddress == 'shipping'
-                    && this.hasShippingAddress
-                    && !confirm(this.$options.filters.t('Are you sure you want to overwrite the shipping address?', 'commerce'))
+                if (
+                    destinationAddress == 'shipping' &&
+                    this.hasShippingAddress &&
+                    !confirm(
+                        this.$options.filters.t(
+                            'Are you sure you want to overwrite the shipping address?',
+                            'commerce'
+                        )
+                    )
                 ) {
                     return;
-                } else if (destinationAddress == 'billing'
-                    && this.hasBillingAddress
-                    && !confirm(this.$options.filters.t('Are you sure you want to overwrite the billing address?', 'commerce'))
+                } else if (
+                    destinationAddress == 'billing' &&
+                    this.hasBillingAddress &&
+                    !confirm(
+                        this.$options.filters.t(
+                            'Are you sure you want to overwrite the billing address?',
+                            'commerce'
+                        )
+                    )
                 ) {
                     return;
                 }
 
-                let addressToCopy = (destinationAddress == 'shipping') ? this.draft.order.billingAddress : this.draft.order.shippingAddress;
-                addressToCopy['id'] = 'new';
-
-                this.updateAddress(destinationAddress, addressToCopy);
+                if (destinationAddress == 'shipping') {
+                    this.updateShippingAddress({
+                        ...this.draft.order.billingAddress,
+                        _copy: true,
+                    });
+                } else {
+                    this.updateBillingAddress({
+                        ...this.draft.order.shippingAddress,
+                        _copy: true,
+                    });
+                }
             },
 
             updateBillingAddress(address) {
+                if (address) {
+                    address.title = this.titles.billingAddress;
+                }
+
                 this.updateAddress('billing', address);
             },
 
             updateShippingAddress(address) {
+                if (address) {
+                    address.title = this.titles.shippingAddress;
+                }
+
                 this.updateAddress('shipping', address);
             },
 
@@ -211,20 +267,24 @@
             updateAddress(type, address, recalculate = true) {
                 let draft = this.draft;
                 let key = type + 'Address';
-                let idKey = key + 'Id'
+                let sourceAddressKey =
+                    'source' +
+                    key.charAt(0).toUpperCase() +
+                    key.slice(1) +
+                    'Id';
 
-                if (address) {
-                    draft.order[key] = address;
-                    draft.order[idKey] = address.id;
-                } else {
-                    draft.order[key] = null;
-                    draft.order[idKey] = null;
+                draft.order[key] = address;
+
+                if (!address) {
+                    draft.order[sourceAddressKey] = null;
+                } else if (address.ownerId != draft.order.id) {
+                    draft.order[sourceAddressKey] = address.id;
                 }
 
                 this.draft = draft;
 
                 if (recalculate && this.hasCustomer) {
-                  this.recalculate();
+                    this.recalculate();
                 }
             },
 
@@ -233,38 +293,53 @@
                     let $this = this;
                     let draft = JSON.parse(JSON.stringify(this.draft));
                     draft.order.customerId = customer.id;
-                    draft.order.email = customer.email;
-                    this.user = customer.user;
+                    this.customer = customer;
                     this.photo = customer.photo;
-                    this.customerUrl = customer.url;
                     this.draft = draft;
 
-                    if (!draft.order.isCompleted && this.autoSetNewCartAddresses && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
+                    if (
+                        !draft.order.isCompleted &&
+                        this.autoSetNewCartAddresses &&
+                        (customer.primaryBillingAddressId ||
+                            customer.primaryShippingAddressId)
+                    ) {
                         let billingPromise = true;
                         if (customer.primaryBillingAddressId) {
-                            billingPromise = this.getAddressById(customer.primaryBillingAddressId)
-                                .then((address) => {
-                                    if (address) {
-                                        address['id'] = 'new';
-                                        $this.updateAddress('billing', address, false);
-                                    }
-                                });
+                            billingPromise = this.getAddressById(
+                                customer.primaryBillingAddressId
+                            ).then((address) => {
+                                if (address) {
+                                    address['id'] = 'new';
+                                    $this.updateAddress(
+                                        'billing',
+                                        address,
+                                        false
+                                    );
+                                }
+                            });
                         }
 
                         let shippingPromise = true;
                         if (customer.primaryShippingAddressId) {
-                            shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
-                                .then((address) => {
-                                    if (address) {
-                                        address['id'] = 'new';
-                                        $this.updateAddress('shipping', address, false);
-                                    }
-                                });
+                            shippingPromise = this.getAddressById(
+                                customer.primaryShippingAddressId
+                            ).then((address) => {
+                                if (address) {
+                                    address['id'] = 'new';
+                                    $this.updateAddress(
+                                        'shipping',
+                                        address,
+                                        false
+                                    );
+                                }
+                            });
                         }
 
-                        Promise.all([billingPromise, shippingPromise]).then(() => {
-                            $this.recalculate();
-                        });
+                        Promise.all([billingPromise, shippingPromise]).then(
+                            () => {
+                                $this.recalculate();
+                            }
+                        );
                     } else {
                         this.recalculate();
                     }
@@ -272,18 +347,24 @@
             },
 
             removeCustomer() {
-                if (confirm(this.$options.filters.t('Are you sure you want to remove this customer?', 'commerce'))) {
+                if (
+                    confirm(
+                        this.$options.filters.t(
+                            'Are you sure you want to remove this customer?',
+                            'commerce'
+                        )
+                    )
+                ) {
                     let draft = this.draft;
                     draft.order.customerId = null;
                     draft.order.email = null;
-                    this.user = null;
                     this.photo = null;
 
                     if (!draft.order.isCompleted) {
-                      draft.order.billingAddressId = null;
-                      draft.order.billingAddress = null;
-                      draft.order.shippingAddressId = null;
-                      draft.order.shippingAddress = null;
+                        draft.order.billingAddressId = null;
+                        draft.order.billingAddress = null;
+                        draft.order.shippingAddressId = null;
+                        draft.order.shippingAddress = null;
                     }
 
                     this.draft = draft;
@@ -293,17 +374,20 @@
             recalculate() {
                 this.recalculateOrder(this.draft)
                     .then(() => {
-                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                        this.$store.dispatch(
+                            'displayNotice',
+                            'Order recalculated.'
+                        );
                     })
                     .catch((error) => {
                         this.$store.dispatch('displayError', error);
-                    })
+                    });
             },
         },
 
         mounted() {
             if (this.draft) {
-              this.customerId = this.draft.order.customerId;
+                this.customerId = this.draft.order.customerId;
             }
 
             if (!this.hasCustomer) {
@@ -311,8 +395,7 @@
             }
 
             if (this.originalCustomer) {
-                this.customerUrl = this.originalCustomer.url;
-                this.user = this.originalCustomer.user;
+                this.customer = this.originalCustomer;
             }
         },
 
@@ -323,31 +406,17 @@
                 this.customerUpdatedTime = date.getTime();
             }
         },
-    }
+    };
 </script>
 
 <style lang="scss">
-  @import "../../../sass/order/app";
+    @import '../../../sass/order/app';
 
-  .order-edit-address-left-border {
-    position: relative;
+    .customer-select-wrapper {
+        width: 50%;
 
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: -1px;
-      border-left: 1px solid $lightGrey;
+        @media only screen and (max-width: 767px) {
+            width: 100%;
+        }
     }
-  }
-
-  .customer-select-wrapper {
-    width: 50%;
-
-    @media only screen and (max-width: 767px) {
-      width: 100%;
-    }
-  }
 </style>

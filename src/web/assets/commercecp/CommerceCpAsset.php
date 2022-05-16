@@ -23,7 +23,7 @@ class CommerceCpAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
@@ -42,7 +42,7 @@ class CommerceCpAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function registerAssetFiles($view)
+    public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);
 
@@ -54,8 +54,8 @@ class CommerceCpAsset extends AssetBundle
                 'Address Line 2',
                 'Address Updated.',
                 'Alternative Phone',
-                'Business Name',
-                'Business Tax ID',
+                'Organization Name',
+                'Organization Tax ID',
                 'Cancel',
                 'City',
                 'Country',

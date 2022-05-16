@@ -1,0 +1,73 @@
+{% set addresses = addresses ?? [] %}
+{% set selectable = selectable ?? false %}
+{% set primaryBillingAddressId = primaryBillingAddressId ?? null %}
+{% set primaryShippingAddressId = primaryShippingAddressId ?? null %}
+{% set cardWidth = cardWidth ?? 'md:w-1/2' %}
+{% set showDelete = showDelete ?? false %}
+
+{% if addresses and currentUser %}
+  <div class="md:flex md:flex-wrap md:-mx-2 pb-4">
+    {% for address in addresses %}
+      {% set editUrl = '/shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
+      <div class="pb-2 my-4 md:px-2 {{ cardWidth }} md:my-0">
+        {% tag selectable ? 'label' : 'div' with {
+          class: 'block relative address-select js-address-select border-blue-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg',
+          data: {
+            'address-id': address.id,
+          },
+        } %}
+          <span class="js-radio flex py-2">
+            {% if selectable %}
+              {{ input('radio', name ~ 'Id', address.id, {
+                checked: (attribute(cart, sourceIdName) == address.id) or (not attribute(cart, sourceIdName) and address.id == attribute(_context, primaryIdName)),
+              }) }}
+            {% endif %}
+            <span class="-mt-2 ml-3 mb-2">
+              {{ address|address }}
+            </span>
+          </span>
+          <span class="block mb-1">
+            <a href="{{ url(editUrl) }}" class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+              {{- 'Edit'|t -}}
+            </a>
+            {% if showDelete and not selectable %}
+              <form method="post" action="" class="js-address-delete inline-block">
+                {{ csrfInput() }}
+                {{ actionInput('users/delete-address') }}
+                {{ redirectInput('shop/customer/addresses') }}
+                {{ hiddenInput('addressId', address.id) }}
+                {{ tag('button', {
+                  type: 'submit',
+                  class: 'cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
+                  text: 'Delete'|t
+                }) }}
+              </form>
+            {% endif %}
+          </span>
+
+          {% if primaryBillingAddressId == address.id or primaryShippingAddressId == address.id %}
+            <span class="absolute top-4 right-4">
+              {% if primaryBillingAddressId == address.id %}
+                <span title="{{ 'Primary billing address'|t }}">💳</span>
+              {% endif %}
+              {% if primaryShippingAddressId == address.id %}
+                <span title="{{ 'Primary shipping address'|t }}">📦</span>
+              {% endif %}
+            </span>
+          {% endif %}
+        {% endtag %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+{% js %}
+const addressDeletes = document.querySelectorAll('.js-address-delete');
+for (let i = 0; i < addressDeletes.length; i++) {
+  addressDeletes[i].addEventListener('submit', ev => {
+    if (!confirm('{{ 'Are you sure you want to delete this address?'|t }}')) {
+      ev.preventDefault();
+    }
+  });
+}
+{% endjs %}

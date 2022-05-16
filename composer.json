@@ -15,30 +15,30 @@
     "issues": "https://github.com/craftcms/commerce/issues?state=open",
     "forum": "https://craftcms.stackexchange.com/",
     "source": "https://github.com/craftcms/commerce",
-    "docs": "https://craftcms.com/docs/commerce/3.x/",
+    "docs": "https://craftcms.com/docs/commerce/4.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "craftcms/cms": "^3.7.25",
+    "php": "^8.0.2",
+    "craftcms/cms": "^4.0.0-RC2",
     "dompdf/dompdf": "^1.0.2",
-    "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
   },
   "require-dev": {
-    "vlucas/phpdotenv": "^3.4",
     "codeception/codeception": "^4.0.0",
-    "fzaninotto/faker": "^1.8",
-    "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-asserts": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-rest": "^1.0.0",
     "codeception/module-yii2": "^1.0.0",
     "craftcms/ecs": "dev-main",
     "craftcms/phpstan": "dev-main",
-    "craftcms/redactor": "*"
+    "craftcms/rector": "dev-main",
+    "craftcms/redactor": "*",
+    "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {
     "psr-4": {
@@ -48,11 +48,10 @@
   },
   "extra": {
     "handle": "commerce",
-    "version": "3.4.14",
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
-    "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
+    "documentationUrl": "https://craftcms.com/docs/commerce/4.x/"
   },
   "scripts": {
     "check-cs": "ecs check --ansi",
@@ -66,7 +65,7 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php": "7.2.5"
+      "php": "8.0.2"
     },
     "allow-plugins": {
       "yiisoft/yii2-composer": true,

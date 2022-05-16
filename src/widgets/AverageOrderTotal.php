@@ -13,6 +13,7 @@ use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Average Order Total widget
@@ -26,33 +27,31 @@ use craft\helpers\StringHelper;
 class AverageOrderTotal extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
-     * @var string|null
+     * @var string
      */
-    public $dateRange;
+    public string $dateRange = AverageOrderTotalStat::DATE_RANGE_TODAY;
 
     /**
      * @var null|AverageOrderTotalStat
      */
-    private $_stat;
+    private ?AverageOrderTotalStat $_stat = null;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-
-        $this->dateRange = !$this->dateRange ? AverageOrderTotalStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new AverageOrderTotalStat(
             $this->dateRange,
@@ -80,7 +79,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -88,7 +87,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return '';
     }
@@ -96,7 +95,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $number = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -110,7 +109,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }
@@ -118,7 +117,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'average-order-total' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

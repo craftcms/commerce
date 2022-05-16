@@ -1,0 +1,144 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: 'Commerce ' ~ 'Settings'|t('commerce'), url: url('commerce/settings') },
+    { label: 'Order Statuses'|t('commerce'), url: url('commerce/settings/orderstatuses') }
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/order-statuses/save">
+    {{ redirectInput('commerce/settings/orderstatuses') }}
+    {% if orderStatus.id %}
+        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
+        <input type="hidden" name="id" value="{{ orderStatus.id }}">
+    {% endif %}
+
+    {{ forms.textField({
+        label: "Name"|t('commerce'),
+        first: true,
+        instructions: "What this status will be called in the control panel."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: orderStatus.name,
+        errors: orderStatus.getErrors('name'),
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t('commerce'),
+        instructions: "How you’ll refer to this status in the templates."|t('commerce'),
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: orderStatus.handle,
+        errors: orderStatus.getErrors('handle'),
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Description"|t('commerce'),
+        instructions: "Order Status description."|t('commerce'),
+        id: 'description',
+        name: 'description',
+        value: orderStatus.description,
+        errors: orderStatus.getErrors('description'),
+    }) }}
+
+    {{ forms.hidden({
+        id: 'color',
+        name: 'color',
+        value: orderStatus.color
+    }) }}
+
+    {% set colorField %}
+        <div>
+            <a id="color-menu-btn" class="btn menubtn" href="#">
+                <span class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t('commerce')|title }}
+            </a>
+            <div class="menu">
+                <ul class="padded">
+                    {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                        <li>
+                            <a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#">
+                                <span class="status {{ color }}"></span>{{ color|t('commerce')|title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endset %}
+    {{ forms.field({
+        label: 'Color'|t('commerce'),
+        instructions: 'Choose a color to represent the order’s status'|t('commerce')
+    },colorField) }}
+
+
+    {% if not emails|length %}
+        {{ forms.field({
+            label: 'Status Emails'|t('commerce'),
+            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t('commerce')~'</span>',
+            disabled: true
+        }) }}
+    {% else %}
+        {{ forms.multiselectField({
+            label: 'Status Emails'|t('commerce'),
+            instructions: 'Select the emails that will be sent when transitioning to this status.'|t('commerce'),
+            id: 'emails',
+            name: 'emails',
+            options: emails,
+            values: emailIds is defined ? emailIds : orderStatus.getEmailIds(),
+            errors: orderStatus.getErrors('emails'),
+            class: 'selectize fullwidth',
+        }) }}
+    {% endif %}
+
+    {% set orderStatuses = craft.commerce.orderStatuses.getAllOrderStatuses() %}
+
+    {% if orderStatuses|length == 0 %}
+        {% set isDefault = true %}
+        {% else %}
+        {% set isDefault = orderStatus.default %}
+    {% endif %}
+
+    {% if orderStatus.default %}
+        <input type="hidden" name="default" value="1">
+    {% else %}
+        {{ forms.checkboxField({
+            label: "New orders get this status by default"|t('commerce'),
+            name: 'default',
+            value: 1,
+            checked: isDefault,
+            errors: orderStatus.getErrors('default')
+        }) }}
+    {% endif %}
+
+{% endblock %}
+{% js %}
+    {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+    $(function () {
+        $colorSelect = $('#color-menu-btn');
+        let menuBtn = $colorSelect.data('menubtn');
+        if (!menuBtn) {
+          menuBtn = new Garnish.MenuBtn($colorSelect);
+        }
+        menuBtn.on('optionSelect', ev => {
+          var val = $(ev.option).data('val');
+          $('#color').val(val);
+          var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+          $colorSelect.html(html);
+        })
+
+        $('#emails').selectize({
+            plugins: ['remove_button'],
+            dropdownParent: 'body'
+        });
+    });
+{% endjs %}

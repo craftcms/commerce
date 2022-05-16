@@ -73,7 +73,9 @@
               {% endif %}
 
               <div class="gateway-payment-form max-w-3/4">
-                {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
+                    {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+                {% endnamespace %}
               </div>
 
               {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
@@ -93,8 +95,8 @@
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
             {% endif %}
 
-            {% set user = craft.users.email(cart.email ?? 'NULL').one() %}
-            {% if not user %}
+            {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
+            {% if not user or not user.getIsCredentialed() %}
               <div class="mt-3">
                 <label for="registerUserOnOrderComplete">
                   {{ hiddenInput('registerUserOnOrderComplete', false) }}

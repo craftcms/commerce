@@ -33,28 +33,27 @@ abstract class Plan extends Model implements PlanInterface
 {
     use PlanTrait;
 
-
     /**
      * @var SubscriptionGatewayInterface|null the gateway
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
      * @var mixed the plan data.
      */
-    private $_data;
+    private mixed $_data = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * Returns the billing plan friendly name
@@ -63,18 +62,17 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
      * Returns the gateway for this subscription plan.
      *
-     * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
      */
-    public function getGateway()
+    public function getGateway(): ?SubscriptionGatewayInterface
     {
-        if (null === $this->_gateway) {
+        if (!isset($this->_gateway)) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -90,7 +88,7 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return mixed
      */
-    public function getPlanData()
+    public function getPlanData(): mixed
     {
         if ($this->_data === null) {
             $this->_data = Json::decodeIfJson($this->planData);
@@ -101,10 +99,8 @@ abstract class Plan extends Model implements PlanInterface
 
     /**
      * Returns the plan's related Entry element, if any.
-     *
-     * @return Entry|null
      */
-    public function getInformation()
+    public function getInformation(): ?Entry
     {
         if ($this->planInformationId) {
             return Entry::find()->id($this->planInformationId)->one();
@@ -115,19 +111,14 @@ abstract class Plan extends Model implements PlanInterface
 
     /**
      * Returns the subscription count for this plan.
-     *
-     * @return int
      */
     public function getSubscriptionCount(): int
     {
-        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
+        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountByPlanId($this->id);
     }
 
     /**
      * Returns whether there exists an active subscription for this plan for this user.
-     *
-     * @param int $userId
-     * @return bool
      */
     public function hasActiveSubscription(int $userId): bool
     {
@@ -160,14 +151,14 @@ abstract class Plan extends Model implements PlanInterface
         return Subscription::find()
             ->userId($userId)
             ->planId($this->id)
-            ->anyStatus()
+            ->status(null)
             ->all();
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [

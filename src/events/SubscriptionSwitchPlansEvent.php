@@ -23,20 +23,20 @@ class SubscriptionSwitchPlansEvent extends CancelableEvent
     /**
      * @var Plan The plan user is switching from
      */
-    public $oldPlan;
+    public Plan $oldPlan;
 
     /**
      * @var Subscription Subscription
      */
-    public $subscription;
+    public Subscription $subscription;
 
     /**
      * @var Plan The plan user is switching to
      */
-    public $newPlan;
+    public Plan $newPlan;
 
     /**
      * @var SwitchPlansForm parameters
      */
-    public $parameters;
+    public SwitchPlansForm $parameters;
 }

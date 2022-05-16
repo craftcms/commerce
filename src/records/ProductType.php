@@ -29,7 +29,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
  * @property bool $hasVariantTitleField
- * @property string $titleFormat
+ * @property string $variantTitleFormat
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
@@ -47,50 +47,35 @@ class ProductType extends ActiveRecord
         return Table::PRODUCTTYPES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductTypesShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ShippingCategory::class, ['id' => 'shippingCategoryId'])
             ->via('productTypesShippingCategories');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductTypesTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(TaxCategory::class, ['id' => 'taxCategoryId'])
             ->via('productTypesTaxCategories');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getFieldLayout(): ActiveQueryInterface
     {
         return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getVariantFieldLayout(): ActiveQueryInterface
     {
