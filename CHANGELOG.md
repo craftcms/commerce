@@ -6,8 +6,11 @@
 - Example templates address forms now show plain text custom fields.
 
 ### Fixed
+- Fixed a bug where the `autoSetNewCartAddresses` setting did not work. ([#2804](https://github.com/craftcms/commerce/issues/2804))
 - Fixed a PHP error that occurred when making a payment on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
-- Fixed a bug when submitting a custom field on address namespace doesn't save the field. ([2809](https://github.com/craftcms/commerce/pull/2809))
+- Fixed a PHP error that occurred when duplicating addresses that are not owned by Users.
+- Fixed a bug when submitting a custom field on address namespace doesn't save the field. ([#2809](https://github.com/craftcms/commerce/pull/2809))
+- Fixed a bug where a HTML5 address validation error was raised incorrectly in the example templates. ([#2777](https://github.com/craftcms/commerce/pull/2777))
 
 ## 4.0.0 - 2022-05-04
 
@@ -232,7 +235,7 @@
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
 
-## Unreleased (3.4.x)
+## 3.4.15 - 2022-05-16
 
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
