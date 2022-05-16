@@ -426,7 +426,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
+    public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
