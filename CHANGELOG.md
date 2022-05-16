@@ -232,7 +232,7 @@
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
 
-## Unreleased (3.4.x)
+## 3.4.15 - 2022-05-16
 
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.
