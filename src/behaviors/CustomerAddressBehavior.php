@@ -54,6 +54,11 @@ class CustomerAddressBehavior extends Behavior
 
         /** @var User $user */
         $user = $this->owner->getOwner();
+
+        if($user === null || !$user instanceof User) {
+            return;
+        }
+
         $customersService = Plugin::getInstance()->getCustomers();
 
         $customer = $customersService->ensureCustomer($user);
