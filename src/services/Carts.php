@@ -121,7 +121,11 @@ class Carts extends Component
             if ($currentUser) {
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
-            $this->_cart->autoSetAddresses();
+        }
+
+        if ($this->_cart->autoSetAddresses()) {
+            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+            $forceSave = true;
         }
 
         // Ensure the session knows what the current cart is.
