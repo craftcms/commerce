@@ -28,22 +28,22 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @return array
@@ -60,7 +60,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testOrderPaymentAmounts()
+    public function testOrderPaymentAmounts(): void
     {
         $this->order = new Order();
         $this->order->id = 1000;
@@ -171,7 +171,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -185,7 +185,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

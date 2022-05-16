@@ -27,27 +27,27 @@ class OrderTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
+
+    /**
+     * @var Plugin|null
+     */
+    protected ?Plugin $pluginInstance;
 
     /**
      *
      */
-    protected $pluginInstance;
-
-    /**
-     *
-     */
-    public function testOrderSumTotalPrice()
+    public function testOrderSumTotalPrice(): void
     {
         $lineItem1 = new LineItem();
         $lineItem1->qty = 2;
@@ -97,9 +97,9 @@ class OrderTest extends Unit
     }
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -111,9 +111,9 @@ class OrderTest extends Unit
     }
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

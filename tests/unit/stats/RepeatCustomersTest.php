@@ -11,6 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\stats\RepeatCustomers;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -24,7 +26,7 @@ class RepeatCustomersTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -44,9 +46,12 @@ class RepeatCustomersTest extends Unit
      * @param string $dateRange
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @param mixed $count
+     * @param int $total
+     * @param int $repeat
+     * @param int $percentage
+     * @throws \yii\base\Exception
      */
-    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, $total, $repeat, $percentage): void
+    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $repeat, int $percentage): void
     {
         $stat = new RepeatCustomers($dateRange, $startDate, $endDate);
         $data = $stat->get();
@@ -59,22 +64,23 @@ class RepeatCustomersTest extends Unit
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
         return [
             [
                 RepeatCustomers::DATE_RANGE_TODAY,
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
                 1,
                 100,
             ],
             [
                 RepeatCustomers::DATE_RANGE_CUSTOM,
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
                 0,
                 0,

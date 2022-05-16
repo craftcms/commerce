@@ -1,5 +1,5 @@
-/* global Craft */
-
+/* jshint esversion: 6, strict: false */
+/* globals Craft */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import ordersApi from '../api/orders';
@@ -132,12 +132,33 @@ export default new Vuex.Store({
       );
     },
 
+    hasAnAddress(state) {
+      if (!state.draft) {
+        return false;
+      }
+
+      return (
+        state.draft.order.billingAddressId ||
+        state.draft.order.shippingAddressId ||
+        state.draft.order.billingAddress ||
+        state.draft.order.shippingAddress
+      );
+    },
+
     hasCustomer(state) {
       if (!state.draft) {
         return false;
       }
 
-      return state.draft.order.customerId && state.draft.order.email;
+      return state.draft.order.customerId;
+    },
+
+    hasLineItems(state) {
+      if (!state.draft || !state.draft.order || !state.draft.order.lineItems) {
+        return false;
+      }
+
+      return state.draft.order.lineItems.length > 0;
     },
 
     lineItemStatuses() {
@@ -219,15 +240,44 @@ export default new Vuex.Store({
       Craft.cp.displayNotice(msg);
     },
 
-    edit({commit, state}) {
-      const $tabLinks = window.document.querySelectorAll('#tabs > ul > li > a');
+    disableTransactionsTab() {
+      const $transactionsTab = window.document.querySelector(
+        '#tabs > div > a[href="#transactionsTab"]'
+      );
+
+      if (!$transactionsTab) {
+        return;
+      }
+
+      $transactionsTab.classList.add('disabled');
+      $transactionsTab.href = '';
+      $transactionsTab.classList.remove('sel');
+
+      const $transactionsTabClone = $transactionsTab.cloneNode(true);
+
+      $transactionsTabClone.addEventListener('click', function (ev) {
+        ev.preventDefault();
+      });
+
+      $transactionsTab.parentNode.replaceChild(
+        $transactionsTabClone,
+        $transactionsTab
+      );
+
+      let $transactionsTabContent =
+        window.document.querySelector('#transactionsTab');
+      $transactionsTabContent.classList.add('hidden');
+    },
+
+    edit({commit, state, dispatch}) {
+      const $tabLinks = window.document.querySelectorAll('#tabs > div > a');
       let $selectedLink = null;
       let $detailsLink = null;
       let switchToDetailsTab = false;
 
       $tabLinks.forEach(function ($tabLink) {
         if (
-          $tabLink.getAttribute('href') == '#orderDetailsTab' &&
+          $tabLink.getAttribute('href') === '#orderDetailsTab' &&
           state.draft.order.isCompleted
         ) {
           $detailsLink = $tabLink;
@@ -239,21 +289,7 @@ export default new Vuex.Store({
           state.draft.order.isCompleted
         ) {
           switchToDetailsTab = $tabLink.classList.contains('sel');
-          $tabLink.classList.add('disabled');
-          $tabLink.href = '';
-          $tabLink.classList.remove('sel');
-
-          const $tabLinkClone = $tabLink.cloneNode(true);
-
-          $tabLinkClone.addEventListener('click', function (ev) {
-            ev.preventDefault();
-          });
-
-          $tabLink.parentNode.replaceChild($tabLinkClone, $tabLink);
-
-          let $transactionsTab =
-            window.document.querySelector('#transactionsTab');
-          $transactionsTab.classList.add('hidden');
+          dispatch('disableTransactionsTab');
         }
 
         // Custom tabs
@@ -265,9 +301,9 @@ export default new Vuex.Store({
 
           // Disable static custom field tabs
           if ($tabLink.classList.contains('static')) {
-            $tabLink.parentNode.classList.add('hidden');
+            $tabLink.classList.add('hidden');
           } else {
-            $tabLink.parentNode.classList.remove('hidden');
+            $tabLink.classList.remove('hidden');
           }
         }
       });
@@ -343,7 +379,7 @@ export default new Vuex.Store({
 
     customerSearch({commit}, query) {
       return ordersApi.customerSearch(query).then((response) => {
-        commit('updateCustomers', response.data);
+        commit('updateCustomers', response.data.customers);
       });
     },
 
@@ -453,6 +489,10 @@ export default new Vuex.Store({
 
     updateDraft(state, draft) {
       state.draft = draft;
+    },
+
+    updateDraftSuppressEmails(state, suppressEmails) {
+      state.draft.order.suppressEmails = suppressEmails;
     },
 
     updateDraftOrderMessage(state, message) {

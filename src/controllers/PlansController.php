@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
@@ -28,9 +29,6 @@ use function is_array;
  */
 class PlansController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
@@ -40,11 +38,12 @@ class PlansController extends BaseStoreSettingsController
     /**
      * @param int|null $planId
      * @param Plan|null $plan
-     * @return Response
      * @throws HttpException
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
+        $this->requirePermission('commerce-manageSubscriptions');
+        
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
@@ -54,7 +53,7 @@ class PlansController extends BaseStoreSettingsController
                 $planId = $variables['planId'];
                 try {
                     $variables['plan'] = Plugin::getInstance()->getPlans()->getPlanById($planId);
-                } catch (InvalidConfigException $exception) {
+                } catch (InvalidConfigException) {
                     throw new HttpException(404);
                 }
 
@@ -68,9 +67,11 @@ class PlansController extends BaseStoreSettingsController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
+            DebugPanel::prependOrAppendModelTab(model: $variables['plan'], prepend: true);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
+
 
         $variables['entryElementType'] = Entry::class;
 
@@ -91,13 +92,14 @@ class PlansController extends BaseStoreSettingsController
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSavePlan()
+    public function actionSavePlan(): void
     {
-        $request = Craft::$app->getRequest();
+        $this->requirePermission('commerce-manageSubscriptions');
+
         $this->requirePostRequest();
 
-        $gatewayId = $request->getBodyParam('gatewayId');
-        $reference = $request->getBodyParam("gateway.{$gatewayId}.reference", '');
+        $gatewayId = $this->request->getBodyParam('gatewayId');
+        $reference = $this->request->getBodyParam("gateway.$gatewayId.reference", '');
 
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
@@ -107,28 +109,28 @@ class PlansController extends BaseStoreSettingsController
             throw new InvalidConfigException('This gateway does not support subscription plans.');
         }
 
-        $planInformationIds = $request->getBodyParam('planInformation');
+        $planInformationIds = $this->request->getBodyParam('planInformation');
 
         $planService = Plugin::getInstance()->getPlans();
-        $planId = $request->getParam('planId');
+        $planId = $this->request->getParam('planId');
 
         $plan = null;
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
-
-        if (null === $plan) {
+        
+        if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }
 
         // Shared attributes
         $plan->id = $planId;
         $plan->gatewayId = $gatewayId;
-        $plan->name = $request->getParam('name');
-        $plan->handle = $request->getParam('handle');
+        $plan->name = $this->request->getParam('name');
+        $plan->handle = $this->request->getParam('handle');
         $plan->planInformationId = is_array($planInformationIds) ? reset($planInformationIds) : null;
         $plan->reference = $reference;
-        $plan->enabled = (bool)$request->getParam('enabled');
+        $plan->enabled = (bool)$this->request->getParam('enabled');
         $plan->planData = $planData;
         $plan->isArchived = false;
 
@@ -147,7 +149,6 @@ class PlansController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws HttpException if request does not match requirements
      */
     public function actionArchivePlan(): Response
@@ -155,15 +156,17 @@ class PlansController extends BaseStoreSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $planId = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $this->requirePermission('commerce-manageSubscriptions');
+
+        $planId = $this->request->getRequiredBodyParam('id');
 
         try {
             Plugin::getInstance()->getPlans()->archivePlanById($planId);
         } catch (Exception $exception) {
-            return $this->asErrorJson($exception->getMessage());
+            return $this->asFailure($exception->getMessage());
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -173,34 +176,12 @@ class PlansController extends BaseStoreSettingsController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPlans()->reorderPlans($ids)) {
-            return $this->asJson(['success' => $success]);
-        }
+        $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
-    }
-
-    /**
-     * Temporary redirect function after subscriptions plans were moved.
-     *
-     * @param int|null $planId
-     * @return Response
-     * @deprecated 3.2.11
-     */
-    public function actionRedirect($planId = null): Response
-    {
-        $request = Craft::$app->getRequest();
-
-        if ($request->getSegment(5) == 'new') {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/new', 301);
-        }
-
-        if ($request->getSegment(5) && $planId) {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/' . $planId, 301);
-        }
-
-        return $this->redirect('commerce/store-settings/subscription-plans', 301);
+        return $success ?
+            $this->asSuccess() :
+            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'));
     }
 }

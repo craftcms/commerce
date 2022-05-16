@@ -1,4 +1,5 @@
-/* global Craft */
+/* jshint esversion: 6 */
+/* globals Craft */
 export default {
   /**
    * Builds draft data and makes sure values have the right type.
@@ -6,7 +7,6 @@ export default {
   buildDraftData(draft) {
     const draftData = {
       order: {
-        email: draft.order.email,
         customerId: draft.order.customerId,
         orderStatusId: draft.order.orderStatusId,
         isCompleted: draft.order.isCompleted,
@@ -35,11 +35,25 @@ export default {
       draftData.order.shippingAddress = draft.order.shippingAddress;
     }
 
+    if (draft.order.sourceBillingAddressId != undefined) {
+      draftData.order.sourceBillingAddressId =
+        draft.order.sourceBillingAddressId;
+    }
+
+    if (draft.order.sourceShippingAddressId != undefined) {
+      draftData.order.sourceShippingAddressId =
+        draft.order.sourceShippingAddressId;
+    }
+
+    if (draft.order.suppressEmails != undefined) {
+      draftData.order.suppressEmails = draft.order.suppressEmails;
+    }
+
     if (
       draftData.order.dateOrdered &&
       !draftData.order.dateOrdered.hasOwnProperty('timezone')
     ) {
-      draftData.order.dateOrdered['timezone'] = Craft.timezone;
+      draftData.order.dateOrdered.timezone = Craft.timezone;
     }
 
     draftData.order.id = this.parseInputValue('int', draft.order.id);

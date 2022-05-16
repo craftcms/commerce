@@ -11,13 +11,13 @@ use craft\commerce\base\Model;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order status model.
  *
  * @property string $cpEditUrl
  * @property array $emailIds
+ * @property-read array $config
  * @property string $labelHtml
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -25,71 +25,49 @@ use yii\behaviors\AttributeTypecastBehavior;
 class LineItemStatus extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Color
      */
-    public $color = 'green';
+    public string $color = 'green';
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
      */
-    public $default;
+    public bool $default = false;
 
     /**
      * @var bool Whether the order status is archived.
      */
-    public $isArchived = false;
+    public bool $isArchived = false;
 
     /**
-     * @var DateTime Archived Date
+     * @var DateTime|null Archived Date
      */
-    public $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public $uid;
-
-
-    public function behaviors(): array
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'handle' => AttributeTypecastBehavior::TYPE_STRING,
-                'color' => AttributeTypecastBehavior::TYPE_STRING,
-                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ],
-        ];
-
-        return $behaviors;
-    }
+    public ?string $uid = null;
 
     /**
      * @return string
@@ -99,9 +77,6 @@ class LineItemStatus extends Model
         return (string)$this->name;
     }
 
-    /**
-     * @return array
-     */
     protected function defineRules(): array
     {
         return [
@@ -110,16 +85,21 @@ class LineItemStatus extends Model
     }
 
     /**
-     * @return string
+     * @inerhitdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getLabelHtml(): string
     {
         return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
@@ -128,7 +108,6 @@ class LineItemStatus extends Model
     /**
      * Returns the config for this status.
      *
-     * @return array
      * @since 3.2.2
      */
     public function getConfig(): array
@@ -137,8 +116,8 @@ class LineItemStatus extends Model
             'name' => $this->name,
             'handle' => $this->handle,
             'color' => $this->color,
-            'sortOrder' => (int)$this->sortOrder ?: 9999,
-            'default' => (bool)$this->default,
+            'sortOrder' => $this->sortOrder ?: 9999,
+            'default' => $this->default,
         ];
     }
 }

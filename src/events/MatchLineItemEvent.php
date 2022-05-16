@@ -22,10 +22,10 @@ class MatchLineItemEvent extends CancelableEvent
     /**
      * @var LineItem The matched line item.
      */
-    public $lineItem;
+    public LineItem $lineItem;
 
     /**
      * @var Discount The discount that matched.
      */
-    public $discount;
+    public Discount $discount;
 }

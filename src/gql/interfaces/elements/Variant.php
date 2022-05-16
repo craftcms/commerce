@@ -7,12 +7,12 @@
 
 namespace craft\commerce\gql\interfaces\elements;
 
+use Craft;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\gql\types\generators\VariantType;
 use craft\commerce\gql\types\SaleType;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
-use craft\gql\TypeManager;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
@@ -68,7 +68,7 @@ class Variant extends Element
      */
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
             'isDefault' => [
                 'name' => 'isDefault',
                 'type' => Type::boolean(),

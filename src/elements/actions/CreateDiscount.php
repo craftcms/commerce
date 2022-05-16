@@ -33,14 +33,14 @@ class CreateDiscount extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);
         $js = <<<EOT
 (function()
 {
     var trigger = new Craft.ElementActionTrigger({
-        type: {$type},
+        type: $type,
         batch: true,
         activate: function(\$selectedItems)
         {
@@ -51,5 +51,7 @@ class CreateDiscount extends ElementAction
 EOT;
 
         Craft::$app->getView()->registerJs($js);
+
+        return null;
     }
 }

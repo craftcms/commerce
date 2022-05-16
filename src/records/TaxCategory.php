@@ -23,9 +23,6 @@ use craft\db\ActiveRecord;
  */
 class TaxCategory extends ActiveRecord
 {
-    /**
-     * @return string
-     */
     public static function tableName(): string
     {
         return Table::TAXCATEGORIES;
@@ -34,7 +31,7 @@ class TaxCategory extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['handle'], 'required'],

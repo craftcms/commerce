@@ -105,6 +105,7 @@
                                 originalDraft.order.orderStatusId
                             "
                             :original-message="originalDraft.order.message"
+                            :suppress-emails="draft.order.suppressEmails"
                             :order="order"
                             @updateOrder="updateOrder"
                         ></order-status>

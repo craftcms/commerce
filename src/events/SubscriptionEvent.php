@@ -21,5 +21,5 @@ class SubscriptionEvent extends CancelableEvent
     /**
      * @var Subscription Subscription
      */
-    public $subscription;
+    public Subscription $subscription;
 }

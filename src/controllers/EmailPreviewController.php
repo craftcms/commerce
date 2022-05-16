@@ -15,6 +15,8 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\View;
+use yii\base\Exception;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -26,20 +28,18 @@ use yii\web\Response;
 class EmailPreviewController extends Controller
 {
     /**
-     * @return Response
+     * @throws Exception
+     * @throws ForbiddenHttpException
      */
     public function actionRender(): Response
     {
         $this->requireAdmin();
 
-        $emailId = Craft::$app->getRequest()->getParam('emailId');
+        $emailId = $this->request->getParam('emailId');
         $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
 
-        // TODO Remove `orderNumber` param in 4.0
-        $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
-        $orderNumber = Craft::$app->getRequest()->getParam('number', $orderNumber);
+        $orderNumber = $this->request->getParam('number');
 
-        $order = null;
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
         } else {

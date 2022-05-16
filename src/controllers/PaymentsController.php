@@ -12,11 +12,16 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
-use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use craft\helpers\App;
+use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -28,9 +33,12 @@ use yii\web\Response;
  */
 class PaymentsController extends BaseFrontEndController
 {
-    private $_cartVariableName;
+    /**
+     * @var string
+     */
+    private string $_cartVariableName;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
@@ -50,12 +58,15 @@ class PaymentsController extends BaseFrontEndController
     }
 
     /**
-     * @return Response|null
-     * @throws HttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws CurrencyException
+     * @throws Exception
      * @throws NotSupportedException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
-    public function actionPay()
+    public function actionPay(): ?Response
     {
         $this->requirePostRequest();
 
@@ -64,12 +75,11 @@ class PaymentsController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
-        $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
+        $isSiteRequest = $this->request->getIsSiteRequest();
+        $isCpRequest = $this->request->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
-        $number = $this->request->getParam('orderNumber');
+        $number = $this->request->getParam('number');
 
         if ($number !== null) {
             /** @var Order $order */
@@ -79,8 +89,7 @@ class PaymentsController extends BaseFrontEndController
                 $error = Craft::t('commerce', 'Can not find an order to pay.');
 
                 if ($this->request->getAcceptsJson()) {
-                    return $this->asJson([
-                        'error' => $error,
+                    return $this->asFailure($error, data: [
                         $this->_cartVariableName => null,
                     ]);
                 }
@@ -90,7 +99,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
-            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
+            // TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed. #COM-36
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
         } else {
             $order = $plugin->getCarts()->getCart();
@@ -107,62 +116,30 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
             $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error, data: [
+                $this->_cartVariableName => $this->cartArray($order),
+            ]);
         }
 
         if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error, data: [
+                $this->_cartVariableName => $this->cartArray($order),
+            ]);
         }
 
         if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
             $error = Craft::t('commerce', 'Billing address required.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error, data: [
+                $this->_cartVariableName => $this->cartArray($order),
+            ]);
         }
 
         if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
             $error = Craft::t('commerce', 'Order can not be empty.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error, data: [
+                $this->_cartVariableName => $this->cartArray($order),
+            ]);
         }
 
         // Set if the customer should be registered on order completion
@@ -188,24 +165,18 @@ class PaymentsController extends BaseFrontEndController
                 Craft::$app->getErrorHandler()->logException($exception);
 
                 $error = $exception->getMessage();
-                if ($this->request->getAcceptsJson()) {
-                    return $this->asJson([
-                        'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order),
-                    ]);
-                }
-
                 $order->addError('paymentCurrency', $exception->getMessage());
-                $this->setFailFlash($exception->getMessage());
 
-                return null;
+                return $this->asFailure($error, data: [
+                    $this->_cartVariableName => $this->cartArray($order),
+                ]);
             }
         }
 
         // Set Payment Gateway on cart
         // Same as CartController::updateCart()
         if ($gatewayId = $this->request->getParam('gatewayId')) {
-            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+            if ($plugin->getGateways()->getGatewayById($gatewayId)) {
                 $order->setGatewayId($gatewayId);
             }
         }
@@ -215,8 +186,8 @@ class PaymentsController extends BaseFrontEndController
         if ($paymentSourceId = $this->request->getParam('paymentSourceId')) {
             if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
-                $cartUserId = $order->getUser() ? $order->getUser()->id : null;
-                $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
+                $cartUserId = $order->getCustomer()?->id;
+                $paymentSourceUserId = $paymentSource->getCustomer()?->id;
                 $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
                 if ($allowedToUsePaymentSource) {
                     $order->setPaymentSource($paymentSource);
@@ -227,15 +198,8 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->isFrontendEnabled && !$isCpRequest)) {
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!App::parseBooleanEnv($gateway->isFrontendEnabled) && !$isCpRequest)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
 
             if ($order->gatewayId) {
                 $order->addError('gatewayId', $error);
@@ -245,9 +209,9 @@ class PaymentsController extends BaseFrontEndController
                 $order->addError('paymentSourceId', $error);
             }
 
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error, data: [
+                $this->_cartVariableName => $this->cartArray($order),
+            ]);
         }
 
         // We need the payment form whether we are populating it from the request or from the payment source.
@@ -276,7 +240,11 @@ class PaymentsController extends BaseFrontEndController
         if ($order->gatewayId && !$order->paymentSourceId) {
 
             // Populate the payment form from the params
-            $paymentForm->setAttributes($this->request->getBodyParams(), false);
+            $paymentFormParams = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle));
+
+            if ($paymentFormParams) {
+                $paymentForm->setAttributes($paymentFormParams, false);
+            }
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
@@ -287,18 +255,18 @@ class PaymentsController extends BaseFrontEndController
 
                     $error = $exception->getMessage();
 
-                    if ($this->request->getAcceptsJson()) {
-                        return $this->asJson([
-                            'error' => $error,
-                            'paymentFormErrors' => $paymentForm->getErrors(),
+                    return $this->asModelFailure(
+                        $paymentForm,
+                        $error,
+                        'paymentForm',
+                        [
                             $this->_cartVariableName => $this->cartArray($order),
-                        ]);
-                    }
-
-                    $this->setFailFlash($error);
-                    Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-                    return null;
+                            'paymentFormErrors' => $paymentForm->getErrors(),
+                        ],
+                        [
+                            $this->_cartVariableName => $order,
+                        ]
+                    );
                 }
 
                 $order->setPaymentSource($paymentSource);
@@ -315,35 +283,32 @@ class PaymentsController extends BaseFrontEndController
         if (!$order->email) {
             $error = Craft::t('commerce', 'No customer email address exists on this cart.');
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+            return $this->asModelFailure(
+                $paymentForm,
+                $error,
+                'paymentForm',
+                [
                     $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-            return null;
+                    'paymentFormErrors' => $paymentForm->getErrors(),
+                ],
+                [
+                    $this->_cartVariableName => $order,
+                ]
+            );
         }
 
         // Does the order require shipping
         if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
+            return $this->asModelFailure(
+                $paymentForm,
+                $error,
+                'paymentForm',
+                [
                     $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
-
-            return null;
+                ]
+            );
         }
 
         // Save the return and cancel URLs to the order
@@ -385,18 +350,18 @@ class PaymentsController extends BaseFrontEndController
 
                 $error = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
-                if ($this->request->getAcceptsJson()) {
-                    return $this->asJson([
-                        'error' => $error,
-                        'paymentFormErrors' => $paymentForm->getErrors(),
+                return $this->asModelFailure(
+                    $paymentForm,
+                    $error,
+                    'paymentForm',
+                    [
                         $this->_cartVariableName => $this->cartArray($order),
-                    ]);
-                }
-
-                $this->setFailFlash($error);
-                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-                return null;
+                        'paymentFormErrors' => $paymentForm->getErrors(),
+                    ],
+                    [
+                        $this->_cartVariableName => $order,
+                    ]
+                );
             }
         }
 
@@ -424,18 +389,18 @@ class PaymentsController extends BaseFrontEndController
         if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+            return $this->asModelFailure(
+                $paymentForm,
+                $error,
+                'paymentForm',
+                [
                     $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-            return null;
+                    'paymentFormErrors' => $paymentForm->getErrors(),
+                ],
+                [
+                    $this->_cartVariableName => $order,
+                ]
+            );
         }
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
@@ -452,38 +417,34 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if (!$success) {
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    'paymentFormErrors' => $paymentForm->getErrors(),
+            return $this->asModelFailure(
+                $paymentForm,
+                $error,
+                'paymentForm',
+                [
                     $this->_cartVariableName => $this->cartArray($order),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-
-            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-            return null;
+                    'paymentFormErrors' => $paymentForm->getErrors(),
+                ],
+                [
+                    $this->_cartVariableName => $order,
+                ]
+            );
         }
 
+
         if ($this->request->getAcceptsJson()) {
-            $response = [
-                'success' => true,
-                $this->_cartVariableName => $this->cartArray($order),
-            ];
-
-            if ($redirect) {
-                $response['redirect'] = $redirect;
-            }
-
-            if ($transaction) {
-                /** @var Transaction $transaction */
-                $response['transactionId'] = $transaction->reference;
-                $response['transactionHash'] = $transaction->hash;
-            }
-
-            return $this->asJson($response);
+            return $this->asModelSuccess(
+                $paymentForm,
+                $error,
+                'paymentForm',
+                [
+                    $this->_cartVariableName => $this->cartArray($order),
+                    'redirect' => $redirect,
+                    'transactionId' => $transaction->reference ?? null,
+                    'transactionHash' => $transaction->hash ?? null,
+                ],
+                $redirect
+            );
         }
 
         if ($redirect) {
@@ -492,9 +453,9 @@ class PaymentsController extends BaseFrontEndController
 
         if ($order->returnUrl) {
             return $this->redirect($order->returnUrl);
-        } else {
-            return $this->redirectToPostedUrl($order);
         }
+
+        return $this->redirectToPostedUrl($order);
     }
 
     /**
@@ -508,7 +469,7 @@ class PaymentsController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
-        $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
+        $hash = $this->request->getParam('commerceTransactionHash');
 
         $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
 
@@ -519,31 +480,29 @@ class PaymentsController extends BaseFrontEndController
         $error = '';
         $success = $plugin->getPayments()->completePayment($transaction, $error);
 
-        if ($success) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $response = [
-                    'success' => true,
-                    'url' => $transaction->order->returnUrl,
+        if (!$success) {
+            $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
+            $this->setFailFlash($errorMessage);
+
+            if ($this->request->getAcceptsJson()) {
+                $data = [
+                    'url' => $transaction->order->cancelUrl,
                 ];
 
-                return $this->asJson($response);
+                return $this->asFailure($errorMessage, data: $data);
             }
 
-            return $this->redirect($transaction->order->returnUrl);
+            return $this->redirect($transaction->order->cancelUrl);
         }
 
-        $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
-        $this->setFailFlash($errorMessage);
-
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $response = [
-                'error' => $errorMessage,
-                'url' => $transaction->order->cancelUrl,
+        if ($this->request->getAcceptsJson()) {
+            $data = [
+                'url' => $transaction->order->returnUrl,
             ];
 
-            return $this->asJson($response);
+            return $this->asSuccess(data: $data);
         }
 
-        return $this->redirect($transaction->order->cancelUrl);
+        return $this->redirect($transaction->order->returnUrl);
     }
 }

@@ -8,13 +8,13 @@ return [
         'title' => 'Commerce Category',
 
         'fieldLayoutType' => 'commerce_categories_fieldlayout',
-        'field:commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
+        'commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
     ],
     [
         'groupId' => $this->groupIds['categories'],
         'title' => 'Commerce Category #2',
 
         'fieldLayoutType' => 'commerce_categories_fieldlayout',
-        'field:commerceProductVariants' => [],
+        'commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
     ],
 ];

@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
@@ -16,7 +15,9 @@ use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
+use Throwable;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 
 /**
  * Product type service.
@@ -49,7 +50,7 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
+    public const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
 
     /**
      * @event PurchasableShippableEvent The event that is triggered when determining whether a purchasable may be shipped.
@@ -72,7 +73,7 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
+    public const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
@@ -93,13 +94,11 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
+    public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @param User|null $currentUser
-     * @return bool
      * @since 3.3.1
      */
     public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
@@ -119,10 +118,8 @@ class Purchasables extends Component
     }
 
     /**
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @param User|null $currentUser
-     * @return bool
      * @since 3.3.2
      */
     public function isPurchasableShippable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
@@ -144,8 +141,8 @@ class Purchasables extends Component
     /**
      * Delete a purchasable by its ID.
      *
-     * @param int $purchasableId
-     * @return bool
+     * @throws Throwable
+     * @noinspection PhpUnused
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
@@ -156,11 +153,16 @@ class Purchasables extends Component
      * Get a purchasable by its ID.
      *
      * @param int $purchasableId
-     * @return ElementInterface|null
+     * @return PurchasableInterface|null
+     * @throws InvalidArgumentException if $purchasableId is an element ID but not a purchasable
      */
-    public function getPurchasableById(int $purchasableId)
+    public function getPurchasableById(int $purchasableId): ?PurchasableInterface
     {
-        return Craft::$app->getElements()->getElementById($purchasableId);
+        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        if ($purchasable && !$purchasable instanceof PurchasableInterface) {
+            throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
+        }
+        return $purchasable;
     }
 
     /**

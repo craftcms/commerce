@@ -21,12 +21,12 @@ class TotalOrders extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalOrders';
+    protected string $_handle = 'totalOrders';
 
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $query = $this->_createStatQuery();
         $query->select([new Expression('COUNT([[orders.id]]) as total')]);

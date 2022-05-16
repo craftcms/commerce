@@ -20,8 +20,6 @@ interface ShippingMethodInterface
     /**
      * Returns the type of Shipping Method. This might be the name of the plugin or provider.
      * The core shipping methods have type: `Custom`. This is shown in the control panel only.
-     *
-     * @return string
      */
     public function getType(): string;
 
@@ -30,27 +28,21 @@ interface ShippingMethodInterface
      *
      * @return int|null The shipping method ID, or null if it is not managed by Craft Commerce
      */
-    public function getId();
+    public function getId(): ?int;
 
     /**
      * Returns the name of this Shipping Method as displayed to the customer and in the control panel.
-     *
-     * @return string
      */
     public function getName(): string;
 
     /**
      * Returns the unique handle of this Shipping Method.
-     *
-     * @return string
      */
     public function getHandle(): string;
 
     /**
      * Returns the control panel URL to manage this method and its rules.
      * An empty string will result in no link.
-     *
-     * @return string
      */
     public function getCpEditUrl(): string;
 
@@ -63,30 +55,18 @@ interface ShippingMethodInterface
 
     /**
      * Returns whether this shipping method is enabled for listing and selection by customers.
-     *
-     * @return bool
      */
     public function getIsEnabled(): bool;
 
-    /**
-     * @param Order $order
-     * @return float
-     */
-    public function getPriceForOrder(Order $order);
+    public function getPriceForOrder(Order $order): float;
 
     /**
      * The first matching shipping rule for this shipping method
-     *
-     * @param Order $order
-     * @return null|ShippingRuleInterface
      */
-    public function getMatchingShippingRule(Order $order);
+    public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface;
 
     /**
      * Is this shipping method available to the order?
-     *
-     * @param Order $order
-     * @return bool
      */
     public function matchOrder(Order $order): bool;
 }

@@ -1,5 +1,6 @@
-import './product.css';
+/* jshint esversion: 6 */
 /* globals Craft, Garnish, $, Map */
+import './product.css';
 /**
  * Product Edit Class
  */
@@ -144,16 +145,18 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     $spinner.data('loading', true);
 
     element.empty();
-
-    Craft.postActionRequest(
+    Craft.sendActionRequest(
+      'POST',
       'commerce/sales/get-sales-by-purchasable-id',
-      data,
-      function (response) {
+      {data}
+    )
+      .then((response) => {
         $spinner.addClass('hidden');
         $spinner.data('loading', false);
-        if (response && response.success && response.sales.length) {
-          for (var i = 0; i < response.sales.length; i++) {
-            var sale = response.sales[i];
+        const {data} = response;
+        if (data.sales && data.sales.length) {
+          for (var i = 0; i < data.sales.length; i++) {
+            var sale = data.sales[i];
             if (_this.saleIdsByVariantId[id] === undefined) {
               _this.saleIdsByVariantId[id] = [];
             }
@@ -162,15 +165,20 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
             var $saleLink = $('<a/>', {
               href: sale.cpEditUrl,
             });
-            $('<span>' + sale.name + '</span>').appendTo($saleLink);
+            $('<span>' + Craft.escapeHtml(sale.name) + '</span>').appendTo(
+              $saleLink
+            );
 
             var $saleItem = $('<li>');
             $saleItem.append($saleLink);
             $saleItem.appendTo(element);
           }
         }
-      }
-    );
+      })
+      .catch(({response}) => {
+        $spinner.addClass('hidden');
+        $spinner.data('loading', false);
+      });
   },
 
   populateDiscountList: function () {
@@ -185,31 +193,33 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
 
         element.empty();
 
-        Craft.postActionRequest(
+        Craft.sendActionRequest(
+          'POST',
           'commerce/discounts/get-discounts-by-purchasable-id',
-          data,
-          function (response) {
-            if (response && response.success && response.discounts.length) {
-              for (var i = 0; i < response.discounts.length; i++) {
-                var discount = response.discounts[i];
-                if (_this.discountIdsByVariantId[id] === undefined) {
-                  _this.discountIdsByVariantId[id] = [];
-                }
-                _this.discountIdsByVariantId[id].push(discount.id);
-
-                $(
-                  '<li>\n' +
-                    '<a href="' +
-                    discount.cpEditUrl +
-                    '"><span>' +
-                    Craft.escapeHtml(discount.name) +
-                    '</span></a>\n' +
-                    '</li>'
-                ).appendTo(element);
+          {data}
+        ).then((response) => {
+          const {data} = response;
+          if (data && data.discounts.length) {
+            for (var i = 0; i < data.discounts.length; i++) {
+              var discount = data.discounts[i];
+              if (_this.discountIdsByVariantId[id] === undefined) {
+                _this.discountIdsByVariantId[id] = [];
               }
+              _this.discountIdsByVariantId[id].push(discount.id);
+
+              var $discountLink = $('<a/>', {
+                href: discount.cpEditUrl,
+              });
+              $(
+                '<span>' + Craft.escapeHtml(discount.name) + '</span>'
+              ).appendTo($discountLink);
+
+              var $discountItem = $('<li>');
+              $discountItem.append($discountLink);
+              $discountItem.appendTo(element);
             }
           }
-        );
+        });
       });
     }
   },

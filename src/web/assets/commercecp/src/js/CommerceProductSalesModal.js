@@ -1,3 +1,5 @@
+/* jshint esversion: 6 */
+/* globals Craft, Garnish, $ */
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
@@ -38,11 +40,14 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
 
     if (this.settings.purchasables.length) {
       var $checkboxField = $('<div class="field" />');
-      $(
-        '<div class="heading"><label>' +
-          Craft.t('commerce', 'Select Variants') +
-          '</label></div>'
-      ).appendTo($checkboxField);
+      $('<div/>', {class: 'heading'})
+        .append(
+          $('<label/>', {
+            text: Craft.t('commerce', 'Select Variants'),
+          })
+        )
+        .appendTo($checkboxField);
+
       var $inputContainer = $('<div class="input ltr" />');
       $.each(
         this.settings.purchasables,
@@ -55,6 +60,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
             value: purchasable.id,
             checked: true,
           });
+
           var $checkboxContainer = $('<div/>').append(
             $('<label/>', {
               for: 'add-to-sale-purchasable-' + purchasable.id,
@@ -217,19 +223,19 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend({
       saleId: saleId,
     };
 
-    Craft.postActionRequest(
-      'commerce/sales/add-purchasable-to-sale',
+    Craft.sendActionRequest('POST', 'commerce/sales/add-purchasable-to-sale', {
       data,
-      $.proxy(function (response) {
-        if (response && response.error) {
-          Craft.cp.displayError(response.error);
-        } else if (response && response.success) {
-          Craft.cp.displayNotice(Craft.t('commerce', 'Added to Sale.'));
-          this.hide();
-        }
+    })
+      .then((response) => {
+        Craft.cp.displayNotice(Craft.t('commerce', 'Added to Sale.'));
+        this.hide();
+      })
+      .catch(({response}) => {
+        Craft.cp.displayError(response.data && response.data.message);
+      })
+      .finally(() => {
         this.$spinner.addClass('hidden');
-      }, this)
-    );
+      });
   },
 
   handleSaleChange: function (ev) {

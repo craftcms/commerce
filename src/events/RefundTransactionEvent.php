@@ -20,10 +20,10 @@ class RefundTransactionEvent extends TransactionEvent
     /**
      * @var float The amount to refund
      */
-    public $amount;
+    public float $amount;
 
     /**
      * @var Transaction The transaction created which is the refund
      */
-    public $refundTransaction;
+    public Transaction $refundTransaction;
 }

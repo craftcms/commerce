@@ -8,34 +8,34 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Shipping Zones Controller
+ * Class Shipping Zone Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class ShippingZonesController extends BaseShippingSettingsController
 {
-    /**
-     * @throws HttpException
-     */
     public function actionIndex(): Response
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/shipping/shippingzones/index', [
-            'shippingZones' => $shippingZones,
-        ]);
+        return $this->renderTemplate('commerce/shipping/shippingzones/index', compact('shippingZones'));
     }
 
     /**
      * @param int|null $id
-     * @param ShippingAddressZone $shippingZone
-     * @return Response
+     * @param ShippingAddressZone|null $shippingZone
      * @throws HttpException
      */
     public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
@@ -60,78 +60,52 @@ class ShippingZonesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
+        $condition = $variables['shippingZone']->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingZone'], prepend: true);
 
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
         $shippingZone = new ShippingAddressZone();
 
         // Shared attributes
-        $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
-        $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $shippingZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
-        $shippingZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
+        $shippingZone->id = $this->request->getBodyParam('shippingZoneId');
+        $shippingZone->name = $this->request->getBodyParam('name');
+        $shippingZone->description = $this->request->getBodyParam('description');
+        $shippingZone->setCondition($this->request->getBodyParam('condition'));
 
-        $countries = [];
-        foreach ($countryIds as $id) {
-            $country = $id ? Plugin::getInstance()->getCountries()->getCountryById($id) : null;
-            if ($country) {
-                $countries[] = $country;
-            }
-        }
-        $shippingZone->setCountries($countries);
-
-        $states = [];
-        foreach ($stateIds as $id) {
-            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
-            if ($state) {
-                $states[] = $state;
-            }
-        }
-        $shippingZone->setStates($states);
-
-        // Save it
-        if (!$shippingZone->validate() || !Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'errors' => $shippingZone->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping zone.'));
-            Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
-
-            return null;
+        if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+            return $this->asModelSuccess(
+                $shippingZone,
+                Craft::t('commerce', 'Shipping zone saved.'),
+                'shippingZone',
+                data: [
+                    'id' => $shippingZone->id,
+                    'name' => $shippingZone->name,
+                ]
+            );
         }
 
-        // Success
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
-                'id' => $shippingZone->id,
-                'name' => $shippingZone->name,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Shipping zone saved.'));
-        $this->redirectToPostedUrl($shippingZone);
-
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
-
-        return null;
+        return $this->asModelFailure(
+            $shippingZone,
+            Craft::t('commerce', 'Couldn’t save shipping zone.'),
+            'shippingZone'
+        );
     }
 
     /**
@@ -142,33 +116,35 @@ class ShippingZonesController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping zone'));
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping zone'));
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
+     * @throws LoaderError
+     * @throws SyntaxError
      * @since 2.2
      */
-    public function actionTestZip()
+    public function actionTestZip(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
-        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+        $zipCodeFormula = (string)$this->request->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)$this->request->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-            return $this->asJson(['success' => true]);
+
+        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asFailure('failed');
         }
 
-        return $this->asErrorJson('failed');
+        return $this->asSuccess();
     }
 }

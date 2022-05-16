@@ -27,7 +27,6 @@ class MissingGateway extends Gateway implements MissingComponentInterface
 {
     use MissingComponentTrait;
 
-
     public function __set($name, $value)
     {
     }
@@ -35,7 +34,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): ?string
     {
         throw new NotSupportedException();
     }
@@ -91,7 +90,7 @@ class MissingGateway extends Gateway implements MissingComponentInterface
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token): bool
+    public function deletePaymentSource(string $token): bool
     {
         throw new NotSupportedException();
     }

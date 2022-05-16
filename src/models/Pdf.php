@@ -17,63 +17,65 @@ use yii\base\InvalidArgumentException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
+ *
+ * @property-read array $config
  */
 class Pdf extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Subject
+     * @var string|null Subject
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var bool Is default PDF for order
      */
-    public $isDefault;
+    public bool $isDefault = false;
 
     /**
-     * @var string Template path
+     * @var string|null Template path
      */
-    public $templatePath;
+    public ?string $templatePath = null;
 
     /**
-     * @var string Filename format
+     * @var string|null Filename format
      */
-    public $fileNameFormat;
+    public ?string $fileNameFormat = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
      * @var string locale language
      */
-    public $language;
+    public string $language = PdfRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
      * @inheritdoc
@@ -86,10 +88,20 @@ class Pdf extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'config';
+
+        return $fields;
+    }
+
+    /**
      * Determines the language this PDF
      *
      * @param Order|null $order
-     * @return string
      */
     public function getRenderLanguage(Order $order = null): string
     {
@@ -109,7 +121,6 @@ class Pdf extends Model
     /**
      * Returns the field layout config for this email.
      *
-     * @return array
      * @since 3.2.0
      */
     public function getConfig(): array
@@ -120,9 +131,9 @@ class Pdf extends Model
             'description' => $this->description,
             'templatePath' => $this->templatePath,
             'fileNameFormat' => $this->fileNameFormat,
-            'enabled' => (bool)$this->enabled,
-            'sortOrder' => (int)$this->sortOrder ?: 9999,
-            'isDefault' => (bool)$this->isDefault,
+            'enabled' => $this->enabled,
+            'sortOrder' => $this->sortOrder ?: 9999,
+            'isDefault' => $this->isDefault,
             'language' => $this->language,
         ];
     }

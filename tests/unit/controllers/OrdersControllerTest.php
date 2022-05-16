@@ -27,17 +27,17 @@ class OrdersControllerTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var  OrdersController
      */
-    protected $controller;
+    protected OrdersController $controller;
 
     /**
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * @return array
@@ -54,7 +54,7 @@ class OrdersControllerTest extends Unit
     /**
      * @inheritDoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -69,7 +69,7 @@ class OrdersControllerTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
-    public function testPurchasablesTable()
+    public function testPurchasablesTable(): void
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
@@ -80,8 +80,8 @@ class OrdersControllerTest extends Unit
         self::assertArrayHasKey('pagination', $response->data);
         self::assertArrayHasKey('data', $response->data);
 
-        self::assertSame(10, $response->data['pagination']['total']);
-        self::assertCount(10, $response->data['data']);
+        self::assertSame(4, $response->data['pagination']['total']);
+        self::assertCount(4, $response->data['data']);
 
         $purchasable = array_pop($response->data['data']);
 
@@ -93,7 +93,7 @@ class OrdersControllerTest extends Unit
         self::assertEquals('hct-blue', $purchasable['sku']);
     }
 
-    public function testPurchasablesTableSort()
+    public function testPurchasablesTableSort(): void
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
@@ -105,46 +105,37 @@ class OrdersControllerTest extends Unit
 
         $purchasable = array_pop($response->data['data']);
 
-        self::assertEquals('ANT-001', $purchasable['sku']);
+        self::assertEquals('DONATION-CC4', $purchasable['sku']);
     }
 
-    public function testCustomerSearch()
+    public function testCustomerSearch(): void
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
-        $response = $this->controller->runAction('customer-search', ['query' => 'support']);
+        Craft::$app->getRequest()->setQueryParams(['query' => 'customer1']);
+        $response = $this->controller->runAction('customer-search');
 
         self::assertEquals(200, $response->statusCode);
         self::assertIsArray($response->data);
         self::assertCount(1, $response->data);
-        $customer = $response->data[0] ?? [];
+        $customer = $response->data['customers'][0] ?? [];
         $keys = [
-            'id',
-            'userId',
+            'cpEditUrl',
             'email',
-            'primaryBillingAddressId',
-            'billingFirstName',
-            'billingLastName',
-            'billingFullName',
-            'billingAddress',
-            'shippingFirstName',
-            'shippingLastName',
-            'shippingFullName',
-            'shippingAddress',
-            'primaryShippingAddressId',
-            'user',
+            'id',
             'photo',
-            'url',
+            'status',
+            'totalAddresses',
         ];
 
         foreach ($keys as $key) {
             self::assertArrayHasKey($key, $customer);
         }
-        // self::assertArrayHasKey('');
-        self::assertEquals('support@craftcms.com', $customer['email']);
+
+        self::assertEquals('customer1@crafttest.com', $customer['email']);
     }
 
-    public function testGetIndexSourcesBadgeCounts()
+    public function testGetIndexSourcesBadgeCounts(): void
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 

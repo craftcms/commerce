@@ -24,11 +24,7 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-    /**
-     * @param array $variables
-     * @return Response
-     */
-    public function actionEdit(array $variables = []): Response
+    public function actionEdit(): Response
     {
         $donation = Donation::find()->status(null)->one();
 
@@ -40,14 +36,13 @@ class DonationsController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -58,9 +53,9 @@ class DonationsController extends BaseStoreSettingsController
             $donation = new Donation();
         }
 
-        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');
-        $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
-        $donation->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
+        $donation->sku = $this->request->getBodyParam('sku');
+        $donation->availableForPurchase = (bool)$this->request->getBodyParam('availableForPurchase');
+        $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
             return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
