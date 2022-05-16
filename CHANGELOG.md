@@ -1887,7 +1887,7 @@
 ## 2.2.4 - 2019-10-24
 
 ### Fixed
-- Fixed a PHP error when loading the order in the CP. ([#1079](https://github.com/craftcms/commerce/issues/1079))
+- Fixed a PHP error when loading the order in the control panel. ([#1079](https://github.com/craftcms/commerce/issues/1079))
 - Fixed a 404 error for missing JavaScript. ([#1078](https://github.com/craftcms/commerce/issues/1078))
 
 ## 2.2.3 - 2019-10-24
@@ -3305,7 +3305,7 @@
 ## 1.0.1183 - 2015-12-03
 
 ### Changed
-- Discounts are now entered as positive numbers in the CP (e.g. a 50% discount is defined as either “0.5” or “50%” rather than “-0.5” or “-50%”).
+- Discounts are now entered as positive numbers in the control panel (e.g. a 50% discount is defined as either “0.5” or “50%” rather than “-0.5” or “-50%”).
 - Added the `commerce_cart.onBeforeAddToCart` event.
 - Added the `commerce_discounts.onBeforeMatchLineItem` event, making it possible for plugins to perform additional checks when determining if a discount should be applied to a line item.
 - Added the `commerce_payments.onBeforeGatewayRequestSend` event.
