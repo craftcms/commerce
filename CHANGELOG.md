@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Added
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
-
 ### Changed
 - Example templates address forms now show plain text custom fields.
 
