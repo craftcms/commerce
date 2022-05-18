@@ -11,6 +11,7 @@
 - Fixed a PHP error that occurred when duplicating addresses that are not owned by Users.
 - Fixed a bug when submitting a custom field on address namespace doesn't save the field. ([#2809](https://github.com/craftcms/commerce/pull/2809))
 - Fixed a bug where a HTML5 address validation error was raised incorrectly in the example templates. ([#2777](https://github.com/craftcms/commerce/pull/2777))
+- Fixed a UI bug where completed order address cards were showing as editable on the Edit Order page. ([#2817](https://github.com/craftcms/commerce/issues/2817))
 
 ## 4.0.0 - 2022-05-04
 
