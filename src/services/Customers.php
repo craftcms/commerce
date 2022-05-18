@@ -158,10 +158,11 @@ class Customers extends Component
     }
 
     /**
-     * @return void
-     * @throws ElementNotFoundException
+     * @return bool Whether the data moved successfully
+     *
+     * @throws ElementNotFoundException|\yii\db\Exception
      */
-    public function migrateCustomerDataToCustomer(User $fromCustomer, User $toCustomer): void
+    public function moveCustomerDataToCustomer(User $fromCustomer, User $toCustomer): bool
     {
         $fromId = $fromCustomer->id;
         $toId = $toCustomer->id;
@@ -210,6 +211,8 @@ class Customers extends Component
                 $column => $fromEmail,
             ], [], false);
         }
+
+        return true;
     }
 
     /**
