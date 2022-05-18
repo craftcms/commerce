@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+
 ### Changed
 - Example templates address forms now show plain text custom fields.
 
@@ -10,7 +13,7 @@
 - Fixed a PHP error that occurred when making a payment on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
 - Fixed a PHP error that occurred when duplicating addresses that are not owned by Users.
 - Fixed a bug when submitting a custom field on address namespace doesn't save the field. ([#2809](https://github.com/craftcms/commerce/pull/2809))
-- Fixed a bug where a HTML5 address validation error was raised incorrectly in the example templates. ([#2777](https://github.com/craftcms/commerce/pull/2777))
+- Fixed a bug whe¡re a HTML5 address validation error was raised incorrectly in the example templates. ([#2777](https://github.com/craftcms/commerce/pull/2777))
 
 ## 4.0.0 - 2022-05-04
 
