@@ -1,6 +1,18 @@
 # Release Notes for Craft Commerce
 
-## 4.0.0 - 2022-05-03
+## 4.0.1 - 2022-05-18
+
+### Changed
+- Address forms in the example templates now include any Plain Text custom fields in the address field layout.
+
+### Fixed
+- Fixed a bug where the `autoSetNewCartAddresses` setting didn’t have any effect. ([#2804](https://github.com/craftcms/commerce/issues/2804))
+- Fixed a PHP error that occurred when making a payment on the Edit Order page. ([#2795](https://github.com/craftcms/commerce/issues/2795))
+- Fixed a PHP error that occurred when duplicating addresses that wasn’t owned by a user.
+- Fixed a bug where address cards appeared to be editable when viewing completed orders. ([#2817](https://github.com/craftcms/commerce/issues/2817))
+- Fixed a front-end validation error that was raised incorrectly on address inputs in the example templates. ([#2777](https://github.com/craftcms/commerce/pull/2777))
+
+## 4.0.0 - 2022-05-04
 
 ### Added
 - Customers are now native Craft user elements. ([#2524](https://github.com/craftcms/commerce/discussions/2524), [2385](https://github.com/craftcms/commerce/discussions/2385))
@@ -223,7 +235,7 @@
 - Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commerce\services\States`.
 
-## Unreleased (3.4.x)
+## 3.4.15 - 2022-05-16
 
 ### Changed
 - It’s now possible to disable the default variant on the Edit Product page.

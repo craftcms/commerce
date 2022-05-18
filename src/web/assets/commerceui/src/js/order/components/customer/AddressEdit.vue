@@ -96,6 +96,12 @@
             display: none;
         }
 
+        &--static .address-card:hover {
+            cursor: initial;
+            background-color: initial;
+            border-color: #eee;
+        }
+
         &-buttons {
             position: absolute;
             top: 1rem;
@@ -144,7 +150,6 @@
         data() {
             return {
                 addressCard: null,
-                menuBtn: null,
             };
         },
 
@@ -232,7 +237,6 @@
         },
 
         mounted() {
-            this.menuBtn = new Garnish.MenuBtn(this.$refs.updateMenuBtn);
             this._initAddressCard();
         },
     };
