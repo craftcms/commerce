@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.0.1 - 2022-05-18
 
 ### Changed
 - Address forms in the example templates now include any Plain Text custom fields in the address field layout.
