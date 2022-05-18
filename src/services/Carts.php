@@ -82,18 +82,22 @@ class Carts extends Component
         if (!isset($this->cartCookie['name'])) {
             $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
         }
-        $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
-        $session = Craft::$app->getSession();
-        $requestCookies = Craft::$app->getRequest()->cookies;
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
-        // If we have a cart cookie, assign it to the cart number.
-        // Also check pre Commerce 4.0 for a cart number in the session just in case.
-        if ($requestCookies->has($this->cartCookie['name'])) {
-            $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
-        } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
-            $this->setSessionCartNumber($session->get('commerce_cart'));
-            $session->remove('commerce_cart');
+            $session = Craft::$app->getSession();
+            $requestCookies = $request->getCookies();
+
+            // If we have a cart cookie, assign it to the cart number.
+            // Also check pre Commerce 4.0 for a cart number in the session just in case.
+            if ($requestCookies->has($this->cartCookie['name'])) {
+                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
+                $this->setSessionCartNumber($session->get('commerce_cart'));
+                $session->remove('commerce_cart');
+            }
         }
     }
 
@@ -117,7 +121,11 @@ class Carts extends Component
             if ($currentUser) {
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
-            $this->_cart->autoSetAddresses();
+        }
+
+        if ($this->_cart->autoSetAddresses()) {
+            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+            $forceSave = true;
         }
 
         // Ensure the session knows what the current cart is.
@@ -131,7 +139,7 @@ class Carts extends Component
         $originalUserId = $this->_cart->getCustomerId();
 
         // These values should always be kept up to date when a cart is retrieved from session.
-        $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
+        $this->_cart->lastIp = Craft::$app->getRequest()->getUserIP();
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
@@ -189,7 +197,9 @@ class Carts extends Component
     {
         $this->_cart = null;
         $this->_cartNumber = null;
-        Craft::$app->getResponse()->getCookies()->remove($this->cartCookie['name'], true);
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            Craft::$app->getResponse()->getCookies()->remove($this->cartCookie['name'], true);
+        }
     }
 
     /**
@@ -255,13 +265,15 @@ class Carts extends Component
      */
     public function setSessionCartNumber(string $cartNumber): void
     {
-        $this->_cartNumber = $cartNumber;
-        $cookie = Craft::createObject(array_merge($this->cartCookie, [
-            'class' => Cookie::class,
-            'value' => $cartNumber,
-            'expire' => time() + $this->cartCookieDuration,
-        ]));
-        Craft::$app->getResponse()->getCookies()->add($cookie);
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $this->_cartNumber = $cartNumber;
+            $cookie = Craft::createObject(array_merge($this->cartCookie, [
+                'class' => Cookie::class,
+                'value' => $cartNumber,
+                'expire' => time() + $this->cartCookieDuration,
+            ]));
+            Craft::$app->getResponse()->getCookies()->add($cookie);
+        }
     }
 
     /**

@@ -132,8 +132,12 @@
         },
 
         mounted() {
-            new Garnish.MenuBtn(this.$refs.downloadPdfMenuBtn);
-            new Garnish.MenuBtn(this.$refs.sendEmailMenuBtn);
+            if (this.$refs.downloadPdfMenuBtn) {
+                new Garnish.MenuBtn(this.$refs.downloadPdfMenuBtn);
+            }
+            if (this.$refs.sendEmailMenuBtn) {
+                new Garnish.MenuBtn(this.$refs.sendEmailMenuBtn);
+            }
         },
     };
 </script>

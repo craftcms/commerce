@@ -45,4 +45,20 @@ return [
             ],
         ],
     ],
+    [
+        'type' => 'craft\elements\Address',
+        'tabs' => [
+            [
+                'name' => 'Tab 1',
+                'fields' => [
+                    [
+                        'name' => 'Test Phone',
+                        'handle' => 'testPhone',
+                        'type' => \craft\fields\Number::class,
+                        'required' => false,
+                    ],
+                ],
+            ],
+        ],
+    ],
 ];

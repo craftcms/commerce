@@ -62,7 +62,7 @@ class LineItems extends Component
     public const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
-     * @event LineItemEvent The event that is triggeredd after a line item is saved.
+     * @event LineItemEvent The event that is triggered after a line item is saved.
      *
      * ```php
      * use craft\commerce\events\LineItemEvent;
