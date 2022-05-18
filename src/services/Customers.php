@@ -17,7 +17,9 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 
 /**
  * Customer service.
@@ -157,26 +159,56 @@ class Customers extends Component
 
     /**
      * @return void
+     * @throws ElementNotFoundException
      */
     public function migrateCustomerDataToCustomer(User $fromCustomer, User $toCustomer): void
     {
         $fromId = $fromCustomer->id;
         $toId = $toCustomer->id;
 
-        $userIdTable = [Table::ORDERHISTORIES, Table::SUBSCRIPTIONS, Table::TRANSACTIONS];
-        foreach ($userIdTable as $table) {
-            Craft::$app->getDb()->createCommand()->update($table,
-                ['userId' => $toId],
-                ['userId' => $fromId]
-            )->execute();
+        $fromUser = User::find()->id($fromId)->one();
+        $toUser = User::find()->id($toId)->one();
+
+        if ($fromUser === null) {
+            throw new ElementNotFoundException('User ID:', $fromId);
         }
 
-        $userIdTable = [Table::ORDERS, Table::PAYMENTSOURCES, Table::CUSTOMERS, Table::CUSTOMER_DISCOUNTUSES];
-        foreach ($userIdTable as $table) {
-            Craft::$app->getDb()->createCommand()->update($table,
-                ['customerId' => $toId],
-                ['customerId' => $fromId]
-            )->execute();
+        if ($toUser === null) {
+            throw new ElementNotFoundException('User ID:', $toId);
+        }
+
+        $userRefs = [
+            Table::ORDERHISTORIES => 'userId',
+            Table::SUBSCRIPTIONS => 'userId',
+            Table::TRANSACTIONS => 'userId',
+            Table::ORDERS => 'customerId',
+            Table::PAYMENTSOURCES => 'customerId',
+            Table::CUSTOMERS => 'customerId',
+            // The following are children on of the customers table and should be updated through the CASCADE UDPATE
+            // Table::CUSTOMER_DISCOUNTUSES => 'customerId'
+        ];
+
+        foreach ($userRefs as $table => $column) {
+            Db::update($table, [
+                $column => $toId,
+            ], [
+                $column => $fromId,
+            ], [], false);
+        }
+
+        $fromEmail = $fromUser->email;
+        $toEmail = $toUser->email;
+
+        $emailRefs = [
+            Table::ORDERS => 'email',
+        ];
+
+        foreach ($emailRefs as $table => $column) {
+            Db::update($table, [
+                $column => $toEmail,
+            ], [
+                $column => $fromEmail,
+            ], [], false);
         }
     }
 
