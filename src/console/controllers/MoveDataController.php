@@ -22,8 +22,6 @@ use yii\console\ExitCode;
  */
 class MoveDataController extends Controller
 {
-    public $defaultAction = 'transferUserData';
-
     /**
      * @var string|null The User ID of the user that is having their commerce content moved.
      * @since 3.3
@@ -50,7 +48,7 @@ class MoveDataController extends Controller
     /**
      * Move Commerce data.
      */
-    public function actionTransferUserData(): int
+    public function actionIndex(): int
     {
         $this->stdout("This command will transfer all commerce data from one user to another.\n");
 
@@ -89,7 +87,7 @@ class MoveDataController extends Controller
         }
 
         try {
-            Plugin::getInstance()->getCustomers()->migrateCustomerDataToCustomer($fromUser, $toUser);
+            Plugin::getInstance()->getCustomers()->moveCustomerDataToCustomer($fromUser, $toUser);
         } catch (Exception $e) {
             $this->stderr($e->getMessage() . "\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
