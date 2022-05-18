@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that occurred when setting a coupon’s `maxUses` to `0` on the Edit Discount page.
+
 ## 4.0.1 - 2022-05-18
 
 ### Changed
