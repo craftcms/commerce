@@ -1118,7 +1118,7 @@ return [
     'Transaction ID' => 'ID de la transaction',
     'Transaction captured successfully: {message}' => 'Transaction collectée avec succès : {message}',
     'Transaction refunded successfully: {message}' => 'Transaction remboursée avec succès : {message}',
-    'Transaction type not supported.' => 'Transaction type not supported.',
+    'Transaction type not supported.' => 'Type de transaction non pris en charge.',
     'Transactions' => 'Transactions',
     'Trial days credited' => 'Jours d’essai crédités',
     'Trial expiration' => 'Expiration de l\'essai',
