@@ -160,7 +160,7 @@ return [
     'Centimeters (cm)' => 'Centimeter (cm)',
     'Changing this value may affect your ability to refund existing transactions.' => 'Endring av verdien kan ha innvirkning på din mulighet til å tilbakebetale eksisterende transaksjoner.',
     'Choose a color to represent the order’s status' => 'Velg en farge som skal brukes på ordrens status',
-    'Choose adjustment values to include when calculating the product revenue total.' => 'Velg justeringsverdier å inkludere under beregning av samlet produktinntekt.',
+    'Choose adjustment values to include when calculating the product revenue total.' => 'Velg justeringsverdier som skal inkluderes under beregning av samlet produktinntekt.',
     'Choose the countries that this zone applies to.' => 'Velg landene denne sonen gjelder for.',
     'Choose the currency’s ISO code.' => 'Velg ISO-koden for valutaen.',
     'Choose the states that this zone applies to.' => 'Velg statene som tilhører denne sonen.',
