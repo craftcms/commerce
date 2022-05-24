@@ -32,8 +32,9 @@
 }) }}
 
 {% if not productTypesOptions %}
-    {% set warning = 'There aren’t any product types to select yet. <a href="{url}" target="_blank">Create a product type</a>'|t('commerce', {
-        url: url('commerce/settings/producttypes/new')
+    {% set warning = 'There aren’t any product types to select yet. <a href="{url}" target="_blank">Create a product type {rarr}</a>'|t('commerce', {
+        url: url('commerce/settings/producttypes/new'),
+        rarr: craft.'&rarr;'|raw
     }) %}
 {% else %}
     {% set warning = "" %}
