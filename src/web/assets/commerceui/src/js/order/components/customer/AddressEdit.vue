@@ -96,6 +96,12 @@
             display: none;
         }
 
+        &--static .address-card:hover {
+            cursor: initial;
+            background-color: initial;
+            border-color: #eee;
+        }
+
         &-buttons {
             position: absolute;
             top: 1rem;
