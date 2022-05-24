@@ -40,6 +40,12 @@
   values: taxCategory is defined ? taxCategory.productTypeIds : [],
   showAllOption: false,
 }) }}
+{% if not productTypesOptions %}
+    {{ forms.checkboxSelectField({
+        disabled: true,
+    }) }}
+    <span>{{ "There aren’t any product types to select yet."|t('commerce') }} {% if currentUser.admin %}<a href="{{ url('commerce/settings/producttypes/new') }}">Create a product type</a>.{% endif %}</span>
+{% endif %}
 
 {% set defaultInput %}
     {{ forms.checkboxField({
