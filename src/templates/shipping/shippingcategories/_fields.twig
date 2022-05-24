@@ -31,9 +31,18 @@
     errors: shippingCategory is defined ? shippingCategory.getErrors('description')
 }) }}
 
+{% if not productTypesOptions %}
+    {% set warning = 'There aren’t any product types to select yet. <a href="{url}" target="_blank">Create a product type</a>'|t('commerce', {
+        url: url('commerce/settings/producttypes/new')
+    }) %}
+{% else %}
+    {% set warning = "" %}
+{% endif %}
+
 {{ forms.checkboxSelectField({
   label: "Available to Product Types"|t('commerce'),
   instructions: "Which product types should this category be available to?"|t('commerce'),
+  warning: warning,
   id: 'productTypes',
   name: 'productTypes',
   options: productTypesOptions,
