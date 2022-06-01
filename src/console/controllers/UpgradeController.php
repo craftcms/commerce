@@ -944,7 +944,7 @@ SQL;
 
         // This gets us a unique list of order emails
         $allEmails = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['[[orders.email]]'])
+            ->select(['lower([[orders.email]])'])
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
             ->andWhere(['not', ['[[orders.email]]' => '']]);
