@@ -82,7 +82,7 @@ class DiscountsController extends BaseCpController
         } else {
             $this->requirePermission('commerce-editDiscounts');
         }
-        
+
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
 
@@ -120,13 +120,13 @@ class DiscountsController extends BaseCpController
         $discount = new Discount();
 
         $discount->id = $this->request->getBodyParam('id');
-        
+
         if ($discount->id === null) {
             $this->requirePermission('commerce-createDiscounts');
         } else {
             $this->requirePermission('commerce-editDiscounts');
         }
-        
+
         $discount->name = $this->request->getBodyParam('name');
         $discount->description = $this->request->getBodyParam('description');
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
@@ -247,7 +247,7 @@ class DiscountsController extends BaseCpController
                         'discountId' => null,
                         'code' => $c['code'],
                         'uses' => $c['uses'] ?: 0,
-                        'maxUses' => $c['maxUses'] ?: null,
+                        'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
                     ],
                 ],
             ]);
