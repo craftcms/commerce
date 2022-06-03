@@ -16,10 +16,12 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use yii\db\Expression;
 
 /**
  * Customer service.
@@ -184,9 +186,6 @@ class Customers extends Component
             Table::TRANSACTIONS => 'userId',
             Table::ORDERS => 'customerId',
             Table::PAYMENTSOURCES => 'customerId',
-            Table::CUSTOMERS => 'customerId',
-            // The following are children on of the customers table and should be updated through the CASCADE UDPATE
-            // Table::CUSTOMER_DISCOUNTUSES => 'customerId'
         ];
 
         foreach ($userRefs as $table => $column) {
@@ -196,6 +195,46 @@ class Customers extends Component
                 $column => $fromId,
             ], [], false);
         }
+
+        $previousUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $fromId])->pairs();
+        $toUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $toId])->pairs();
+
+        foreach ($previousUses as $discountId => $uses) {
+            if (isset($toUses[$discountId])) {
+                Db::update(
+                    table: Table::CUSTOMER_DISCOUNTUSES,
+                    columns: ['uses' => new Expression("uses + $uses")],
+                    condition: [
+                        'customerId' => $toId,
+                        'discountId' => $discountId,
+                    ],
+                    params: [],
+                    updateTimestamp: false
+                );
+            } else {
+                Db::insert(
+                    table: Table::CUSTOMER_DISCOUNTUSES,
+                    columns: [
+                        'uses' => $uses,
+                        'customerId' => $toId,
+                        'discountId' => $discountId,
+                    ]
+                );
+            }
+
+            // Remove uses from fromCustomer
+            Db::update(
+                table: Table::CUSTOMER_DISCOUNTUSES,
+                columns: ['uses' => 0],
+                condition: [
+                    'customerId' => $fromId,
+                    'discountId' => $discountId,
+                ],
+                params: [],
+                updateTimestamp: false
+            );
+        }
+
 
         $fromEmail = $fromUser->email;
         $toEmail = $toUser->email;
