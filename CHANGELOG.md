@@ -6,6 +6,7 @@
 - Fixed a bug that occurred when setting a coupon’s `maxUses` to `0` on the Edit Discount page.
 - Fixed a couple of UI bugs on the “Update Order Status” modal. ((#2821)[https://github.com/craftcms/commerce/issues/2821])
 - Fixed a bug where the `commerce/upgrade` console command that caused customer discount uses to be reset.
+- Fixed a bug where the `commerce/upgrade` console command would fail when the same email existed multiple times with different casing.
 
 ## 4.0.1 - 2022-05-18
 
