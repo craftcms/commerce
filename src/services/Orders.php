@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ConfigEvent;
-use craft\events\FieldEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
@@ -59,27 +58,10 @@ class Orders extends Component
 
 
     /**
-     * Prune a deleted field from order field layouts.
+     * @deprecated in 4.0.3. Unused fields will be pruned automatically as field layouts are resaved.
      */
-    public function pruneDeletedField(FieldEvent $event): void
+    public function pruneDeletedField(): void
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
-
-        // Prune the UID from field layouts.
-        if (is_array($layoutData)) {
-            foreach ($layoutData as $layoutUid => $layout) {
-                if (!empty($layout['tabs'])) {
-                    foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                    }
-                }
-            }
-        }
     }
 
     /**

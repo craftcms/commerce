@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\services\Orders::pruneDeletedField()`.
+- Deprecated `craft\commerce\services\ProductType::pruneDeletedField()`.
+- Deprecated `craft\commerce\services\Subscriptions::pruneDeletedField()`.
+
 ## 4.0.2 - 2022-06-03
 
 ### Fixed
