@@ -32,6 +32,7 @@ use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
+use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use Throwable;
@@ -281,6 +282,10 @@ class UpgradeController extends Controller
                 $this->stdout("Updating order histories…\n");
                 $this->_migrateOrderHistoryUser();
                 $this->stdout("\nDone.\n\n");
+
+                $this->stdout("Updating discount uses…\n");
+                $this->_migrateDiscountUses();
+                $this->stdout("\nDone.\n\n");
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
@@ -324,7 +329,7 @@ EOL
             );
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
-                $field = $this->_customField($oldAttribute, $label);
+                $field = $this->_customField($oldAttribute, $label, 'address');
                 $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = $field->handle;
                 if ($this->_allowAdminChanges && !$this->_addressFieldLayout->getFieldByHandle($field->handle)) {
                     $layoutElements[] = new CustomField($field);
@@ -345,7 +350,7 @@ EOL
      * @throws OperationAbortedException
      * @throws Throwable
      */
-    private function _customField(string $oldAttribute, string $label): FieldInterface
+    private function _customField(string $oldAttribute, string $label, ?string $prefix = null): FieldInterface
     {
         $fieldsService = Craft::$app->getFields();
         $handlePattern = sprintf('/^%s$/', HandleValidator::$handlePattern);
@@ -375,7 +380,7 @@ EOL
                     }
                     return true;
                 },
-                'default' => $fieldsService->getFieldByHandle($oldAttribute) === null ? $oldAttribute : null,
+                'default' => $fieldsService->getFieldByHandle($oldAttribute) === null ? StringHelper::toCamelCase("$prefix $oldAttribute") : null,
             ]);
             $field->name = $this->prompt('Field name:', [
                 'required' => true,
@@ -556,6 +561,33 @@ EOL
             Console::updateProgress($done++, count($taxZones));
         }
         Console::endProgress(count($taxZones) . ' tax zones migrated.');
+    }
+
+    /**
+     * @return void
+     */
+    public function _migrateDiscountUses()
+    {
+        $discountUses = '{{%commerce_customer_discountuses}}';
+        $customersTable = '{{%commerce_customers}}';
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
+
+        // Make all discount uses with their correct user
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $discountUses [[du]]
+    set [[customerId]] = [[cu.customerId]]
+    from $customersTable [[cu]]
+    where [[cu.id]] = [[du.v3customerId]]
+SQL;
+        } else {
+            $sql = <<<SQL
+update $discountUses [[du]]
+inner join $customersTable [[cu]] on
+    [[cu.id]] = [[du.v3customerId]]
+set [[du.customerId]] = [[cu.customerId]]
+SQL;
+        }
     }
 
     /**
@@ -943,7 +975,7 @@ SQL;
 
         // This gets us a unique list of order emails
         $allEmails = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['[[orders.email]]'])
+            ->select(['lower([[orders.email]]) AS email'])
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
             ->andWhere(['not', ['[[orders.email]]' => '']]);

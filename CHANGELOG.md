@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 4.0.2 - 2022-06-03
+
+### Fixed
+- Fixed a bug where it wasn’t possible to set a coupon’s Max Uses setting to `0`.
+- Fixed UI bugs in the “Update Order Status” modal. ([#2821](https://github.com/craftcms/commerce/issues/2821))
+- Fixed a bug where the `commerce/upgrade` console command caused customer discount uses to be reset.
+- Fixed a bug where the `commerce/upgrade` console command would fail when multiple orders used the same email address with different casing.
+
 ## 4.0.1 - 2022-05-18
 
 ### Changed
