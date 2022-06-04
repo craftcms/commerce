@@ -242,7 +242,7 @@
                         {{ forms.text({
                             id: 'applyAmount',
                             name: 'applyAmount',
-                            value: sale.applyAmount,
+                            value: sale.applyAmount|number,
                             class: 'code ltr',
                             size: 5,
                         }) }}

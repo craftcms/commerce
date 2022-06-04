@@ -447,9 +447,9 @@ class SalesController extends BaseCpController
         if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
                 $amount = -(float)$variables['sale']->applyAmount * 100;
-                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal($amount);
+                $variables['sale']->applyAmount = $amount;
             } else {
-                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal(-(float)$variables['sale']->applyAmount);
+                $variables['sale']->applyAmount = -(float)$variables['sale']->applyAmount;
             }
         }
 
