@@ -282,6 +282,10 @@ class UpgradeController extends Controller
                 $this->stdout("Updating order histories…\n");
                 $this->_migrateOrderHistoryUser();
                 $this->stdout("\nDone.\n\n");
+
+                $this->stdout("Updating discount uses…\n");
+                $this->_migrateDiscountUses();
+                $this->stdout("\nDone.\n\n");
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
@@ -557,6 +561,33 @@ EOL
             Console::updateProgress($done++, count($taxZones));
         }
         Console::endProgress(count($taxZones) . ' tax zones migrated.');
+    }
+
+    /**
+     * @return void
+     */
+    public function _migrateDiscountUses()
+    {
+        $discountUses = '{{%commerce_customer_discountuses}}';
+        $customersTable = '{{%commerce_customers}}';
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
+
+        // Make all discount uses with their correct user
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $discountUses [[du]]
+    set [[customerId]] = [[cu.customerId]]
+    from $customersTable [[cu]]
+    where [[cu.id]] = [[du.v3customerId]]
+SQL;
+        } else {
+            $sql = <<<SQL
+update $discountUses [[du]]
+inner join $customersTable [[cu]] on
+    [[cu.id]] = [[du.v3customerId]]
+set [[du.customerId]] = [[cu.customerId]]
+SQL;
+        }
     }
 
     /**
