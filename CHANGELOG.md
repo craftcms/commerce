@@ -9,6 +9,7 @@
 
 ### Fixed
 - Fixed a PHP error that could occur when saving a shipping rule. ([#2824](https://github.com/craftcms/commerce/issues/2824))
+- Fixed a PHP error that could occur when saving a sale. ([#2827](https://github.com/craftcms/commerce/issues/2827))
 
 ## 4.0.2 - 2022-06-03
 
