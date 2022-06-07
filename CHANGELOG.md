@@ -7,6 +7,9 @@
 - Deprecated `craft\commerce\services\ProductType::pruneDeletedField()`.
 - Deprecated `craft\commerce\services\Subscriptions::pruneDeletedField()`.
 
+### Fixed
+- Fixed a PHP error that could occur when saving a shipping rule. ([#2824](https://github.com/craftcms/commerce/issues/2824))
+
 ## 4.0.2 - 2022-06-03
 
 ### Fixed
