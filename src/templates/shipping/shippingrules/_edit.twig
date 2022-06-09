@@ -374,7 +374,7 @@
                     {{ commerceForms.numberField({
                         name: 'maxWeight',
                         label: 'Maximum'|t('commerce'),
-                        value: |numbershippingRule.maxWeight,
+                        value: shippingRule.maxWeight|number,
                         type: 'number',
                         min: 0,
                         step: 'any',
