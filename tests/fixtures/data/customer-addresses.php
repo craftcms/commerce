@@ -1,11 +1,11 @@
 <?php
 $addresses = [
     'box' => [
-        'firstName' => 'Bobx',
-        'lastName' => 'Belcherx',
-        'addressLine1' => '101 Ocean Avenuex',
-        'addressLine2' => '',
-        'locality' => 'Long Islandx',
+        'firstName' => 'Bob',
+        'lastName' => 'Belcher',
+        'addressLine1' => '101 Ocean Avenue',
+        'addressLine2' => 'Seaside',
+        'locality' => 'Long Island',
         'postalCode' => '12345',
         'title' => 'TV Show',
         'countryCode' => 'US',

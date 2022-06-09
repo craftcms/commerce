@@ -9,19 +9,16 @@ namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
-use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidPluginException;
 use craft\web\Request;
-use craftcommercetests\fixtures\AddressFixture;
 use craftcommercetests\fixtures\CustomerAddressFixture;
-use craftcommercetests\fixtures\CustomerAddressFixtureOld;
 use craftcommercetests\fixtures\CustomerFixture;
-use craftcommercetests\fixtures\OrdersFixture;
 use craftcommercetests\fixtures\SalesFixture;
 use Throwable;
 use UnitTester;
@@ -322,63 +319,48 @@ class CartTest extends Unit
         self::assertEquals($billingAddress['addressLine1'], $cartBillingAddress->addressLine1);
         self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
     }
-//
-//    public function testAutoSetNewCartAddresses(): void
-//    {
-//        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
-//        $this->request->headers->set('X-Http-Method-Override', 'POST');
-//
-//        /** @var User $customer */
-//        $customer = $this->tester->grabFixture('customer')->getElement('customer1');
-//
-//        Plugin::getInstance()->getCustomers()->ensureCustomer($customer);
-//
-//        Craft::$app->getUser()->setIdentity(
-//            Craft::$app->getUsers()->getUserById($customer->id)
-//        );
-//
-//        $address = new Address();
-//        $address->title = 'Shipping Address';
-//        $address->countryCode = 'US';
-//        $address->administrativeArea = 'CA';
-//        $address->addressLine1 = 'Hells kitchen';
-//        $address->addressLine1 = 'Hells kitchen';
-//        $address->ownerId = $customer->id;
-//
-//        if (!Craft::$app->getElements()->saveElement($address)) {
-//            $errors = $address->getErrors();
-//        }
-//        Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($customer, $address->id);
-//
-//        $variant = Variant::find()->sku('rad-hood')->one();
-//        $this->request->setBodyParams([
-//            'purchasableId' => $variant->id,
-//            'qty' => 2,
-//        ]);
-//
-//        $this->cartController->runAction('update-cart');
-//
-//        $cart = Plugin::getInstance()->getCarts()->getCart();
-//        $shippingAddress = $cart->getShippingAddress();
-//
-//        $this->assertEquals($address->addressLine1, $shippingAddress->addressLine1);
-//
-//        Plugin::getInstance()->getCarts()->forgetCart();
-//
-//        $variant = Variant::find()->sku('rad-hood')->one();
-//        $this->request->setBodyParams([
-//            'purchasableId' => $variant->id,
-//            'qty' => 2,
-//        ]);
-//
-//        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = false;
-//
-//        $this->cartController->runAction('update-cart');
-//
-//        $cart = Plugin::getInstance()->getCarts()->getCart();
-//        $shippingAddress = $cart->getShippingAddress();
-//
-//        $this->assertNull($shippingAddress);
-//        Plugin::getInstance()->getCarts()->forgetCart();
-//    }
+
+    public function testAutoSetNewCartAddresses(): void
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $customer = \Craft::$app->getUsers()->getUserByUsernameOrEmail('customer3@crafttest.com');
+        Craft::$app->getUser()->setIdentity(
+            Craft::$app->getUsers()->getUserById($customer->id)
+        );
+        /** @var User|CustomerBehavior $customer */
+        $customerShippingAddress = $customer->getPrimaryShippingAddress();
+
+        $variant = Variant::find()->sku('rad-hood')->one();
+        $this->request->setBodyParams([
+            'purchasableId' => $variant->id,
+            'qty' => 2,
+        ]);
+
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+        $shippingAddress = $cart->getShippingAddress();
+
+        $this->assertEquals($customerShippingAddress->addressLine2, $shippingAddress->addressLine1);
+
+        Plugin::getInstance()->getCarts()->forgetCart();
+
+        $variant = Variant::find()->sku('rad-hood')->one();
+        $this->request->setBodyParams([
+            'purchasableId' => $variant->id,
+            'qty' => 2,
+        ]);
+
+        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = false;
+
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+        $shippingAddress = $cart->getShippingAddress();
+
+        $this->assertNull($shippingAddress);
+        Plugin::getInstance()->getCarts()->forgetCart();
+    }
 }
