@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
+
 ## 4.0.3 - 2022-06-09
 
 ### Deprecated
