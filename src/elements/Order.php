@@ -44,7 +44,6 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
-use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -1340,7 +1339,7 @@ class Order extends Element
         $datetimeAttributes = array_unique(array_merge($datetimeAttributes, $this->datetimeAttributes()));
 
         foreach ($datetimeAttributes as $attribute) {
-            $fields[$attribute] = static function($model, $attribute) {
+            $fields[$attribute] = static function ($model, $attribute) {
                 if (!empty($model->$attribute)) {
                     $formatter = Craft::$app->getFormatter();
 
@@ -1404,7 +1403,7 @@ class Order extends Element
             // Are the addresses both being set to each other.
             [
                 ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
-                'when' => function($model) {
+                'when' => function ($model) {
                     /** @var Order $model */
                     return !$model->isCompleted;
                 },
@@ -1988,8 +1987,13 @@ class Order extends Element
         }
 
         if ($billingAddress = $this->getBillingAddress()) {
-            $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
-            Craft::$app->getElements()->saveElement($billingAddress, false);
+            // If these were set to the same address element, we don't want the same address IDs
+            if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
+                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id]);
+            } else {
+                $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+                Craft::$app->getElements()->saveElement($billingAddress, false);
+            }
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
             // Set primary billing if asked
@@ -2418,11 +2422,11 @@ class Order extends Element
             $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
         }
 
-        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+        $paidTransactions = ArrayHelper::where($this->_transactions, static function (Transaction $transaction) {
             return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
         });
 
-        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+        $refundedTransactions = ArrayHelper::where($this->_transactions, static function (Transaction $transaction) {
             return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
         });
 
@@ -2761,6 +2765,7 @@ class Order extends Element
         }
 
         if (is_array($address)) {
+            unset($address['id']);
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $addressElement->ownerId = $this->id;
@@ -2774,6 +2779,12 @@ class Order extends Element
         // Ensure that address can only belong to this order
         if ($address->ownerId != $this->id) {
             throw new InvalidArgumentException('Can not set a shipping address on the order that is is not owned by the order.');
+        }
+
+        if ($currentId = $address->id) {
+            if (AddressElement::find()->id($currentId)->ownerId(['not', $this->id])->exists()) {
+                throw new InvalidArgumentException('Can not set a shipping address on the order that belongs to another element via ownerId');
+            }
         }
 
         $this->shippingAddressId = $address->id;
@@ -2849,6 +2860,7 @@ class Order extends Element
         }
 
         if (is_array($address)) {
+            unset($address['id']); // only ever allow setting of the address data
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $addressElement->ownerId = $this->id;
@@ -2863,6 +2875,13 @@ class Order extends Element
         if ($address->ownerId !== $this->id) {
             throw new InvalidArgumentException('Can not set a billing address on the order that is is not owned by the order.');
         }
+
+        if ($currentId = $address->id) {
+            if (Address::find()->id($currentId)->ownerId(['not', $this->id])->exists()) {
+                throw new InvalidArgumentException('Can not set a billing address on the order that belongs to another element via ownerId');
+            }
+        }
+
 
         $address->ownerId = $this->id;
         $this->billingAddressId = $address->id;
@@ -2958,7 +2977,8 @@ class Order extends Element
      */
     public function setPaymentCurrency(
         string $value,
-    ): void {
+    ): void
+    {
         $this->_paymentCurrency = $value;
     }
 
@@ -2990,7 +3010,8 @@ class Order extends Element
      */
     public function setPaymentSource(
         ?PaymentSource $paymentSource,
-    ): void {
+    ): void
+    {
         if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
             throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
         }
@@ -3016,7 +3037,8 @@ class Order extends Element
      */
     public function setGatewayId(
         int $gatewayId,
-    ): void {
+    ): void
+    {
         $this->gatewayId = $gatewayId;
         $this->paymentSourceId = null;
     }
@@ -3313,7 +3335,7 @@ class Order extends Element
             $orphanedAddresses->id($safeIds);
         }
 
-        ($orphanedAddresses->collect())->each(function(AddressElement $address) {
+        ($orphanedAddresses->collect())->each(function (AddressElement $address) {
             Craft::$app->getElements()->deleteElement($address, true);
         });
     }
