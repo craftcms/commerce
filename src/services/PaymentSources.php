@@ -193,12 +193,14 @@ class PaymentSources extends Component
     }
 
     /**
+     * @param int|null $gatewayId the gateway's ID
+     * @param int|null $userId the user's ID
      * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
      */
-    public function getAllGatewayPaymentSourcesByUserId(): array
+    public function getAllGatewayPaymentSourcesByUserId(?int $gatewayId = null, ?int $userId = null): array
     {
         Craft::$app->getDeprecator()->log('PaymentSources::getAllGatewayPaymentSourcesByUserId()', 'The `PaymentSources::getAllGatewayPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` instead.');
-        return $this->getAllPaymentSourcesByCustomerId();
+        return $this->getAllPaymentSourcesByCustomerId($userId);
     }
 
     /**
