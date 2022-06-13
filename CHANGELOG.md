@@ -5,6 +5,9 @@
 ### Added
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 
+### Fixed
+- Fixed a bug where it was possible to save an order with the same address IDs. ([#2841](https://github.com/craftcms/commerce/issues/2841)) 
+
 ## 4.0.3 - 2022-06-09
 
 ### Deprecated
