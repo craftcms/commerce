@@ -1,7 +1,9 @@
 <?php
 
-$addresses = [
+return [
     'box' => [
+        '_owner' => 'customer3',
+        '_primary' => ['shipping'],
         'firstName' => 'John',
         'lastName' => 'Doe',
         'addressLine1' => '23 Woodworth ',
@@ -11,14 +13,5 @@ $addresses = [
         'title' => 'TV Show',
         'countryCode' => 'US',
         'administrativeArea' => 'NY',
-    ],
-];
-
-return [
-    'customer3' => [
-        'active' => true,
-        'username' => 'customer3',
-        'email' => 'customer3@crafttest.com',
-        '_shippingAddress' => $addresses['box'],
     ],
 ];

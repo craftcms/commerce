@@ -11,6 +11,7 @@ use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\elements\User;
@@ -19,10 +20,12 @@ use craft\errors\InvalidPluginException;
 use craft\web\Request;
 use craftcommercetests\fixtures\CustomerAddressFixture;
 use craftcommercetests\fixtures\CustomerFixture;
+use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\SalesFixture;
 use Throwable;
 use UnitTester;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
 use yii\web\Response;
 
@@ -55,6 +58,9 @@ class CartTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'products' => [
+                'class' => ProductFixture::class,
+            ],
             'sales' => [
                 'class' => SalesFixture::class,
             ],
@@ -286,7 +292,7 @@ class CartTest extends Unit
      * @throws InvalidRouteException
      * @throws Throwable
      * @throws \craft\errors\InvalidFieldException
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function testAddAddressCustomFieldsOnUpdateCart(): void
     {
@@ -320,40 +326,50 @@ class CartTest extends Unit
         self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
     }
 
+    /**
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidPluginException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @throws InvalidConfigException
+     */
     public function testAutoSetNewCartAddresses(): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
-        $customer = \Craft::$app->getUsers()->getUserByUsernameOrEmail('customer3@crafttest.com');
+        $customerFixture = $this->tester->grabFixture('customer');
+        /** @var User|CustomerBehavior $customer */
+        $customer = $customerFixture->getElement('customer3');
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById($customer->id)
         );
-        /** @var User|CustomerBehavior $customer */
         $customerShippingAddress = $customer->getPrimaryShippingAddress();
 
-        $variant = Variant::find()->sku('rad-hood')->one();
-        $this->request->setBodyParams([
-            'purchasableId' => $variant->id,
+        $productsFixture = $this->tester->grabFixture('products');
+        /** @var Product $product */
+        $product = $productsFixture->getElement('rad-hoodie');
+        $bodyParams = [
+            'purchasableId' => $product->getDefaultVariant()->id,
             'qty' => 2,
-        ]);
+        ];
+        $this->request->setBodyParams($bodyParams);
 
         $this->cartController->runAction('update-cart');
 
         $cart = Plugin::getInstance()->getCarts()->getCart();
         $shippingAddress = $cart->getShippingAddress();
 
-        $this->assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
+        self::assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
 
         Plugin::getInstance()->getCarts()->forgetCart();
-        Craft::$app->getElements()->deleteElement($cart);
-        Craft::$app->getElements()->deleteElement($cart->getCustomer());
+        Craft::$app->getElements()->deleteElement($cart, true);
 
-        $variant = Variant::find()->sku('rad-hood')->one();
-        $this->request->setBodyParams([
-            'purchasableId' => $variant->id,
-            'qty' => 2,
-        ]);
+        $this->request->setBodyParams($bodyParams);
+
+        $originalSettingValue = Plugin::getInstance()->getSettings()->autoSetNewCartAddresses;
 
         Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = false;
 
@@ -362,9 +378,10 @@ class CartTest extends Unit
         $cart = Plugin::getInstance()->getCarts()->getCart();
         $shippingAddress = $cart->getShippingAddress();
 
-        $this->assertNull($shippingAddress);
+        self::assertNull($shippingAddress);
         Plugin::getInstance()->getCarts()->forgetCart();
-        Craft::$app->getElements()->deleteElement($cart);
-        Craft::$app->getElements()->deleteElement($cart->getCustomer());
+        Craft::$app->getElements()->deleteElement($cart, true);
+
+        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $originalSettingValue;
     }
 }
