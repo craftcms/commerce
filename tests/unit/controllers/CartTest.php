@@ -343,9 +343,11 @@ class CartTest extends Unit
         $cart = Plugin::getInstance()->getCarts()->getCart();
         $shippingAddress = $cart->getShippingAddress();
 
-        $this->assertEquals($customerShippingAddress->addressLine2, $shippingAddress->addressLine1);
+        $this->assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
 
         Plugin::getInstance()->getCarts()->forgetCart();
+        Craft::$app->getElements()->deleteElement($cart);
+        Craft::$app->getElements()->deleteElement($cart->getCustomer());
 
         $variant = Variant::find()->sku('rad-hood')->one();
         $this->request->setBodyParams([
@@ -362,5 +364,7 @@ class CartTest extends Unit
 
         $this->assertNull($shippingAddress);
         Plugin::getInstance()->getCarts()->forgetCart();
+        Craft::$app->getElements()->deleteElement($cart);
+        Craft::$app->getElements()->deleteElement($cart->getCustomer());
     }
 }

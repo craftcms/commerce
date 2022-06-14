@@ -39,10 +39,7 @@ class CustomerAddressFixture extends BaseElementFixture
         // Do an initial save to get an ID
         parent::saveElement($element);
 
-
-
         $user = \Craft::$app->getUsers()->getUserByUsernameOrEmail('customer3@crafttest.com');
-        Plugin::getInstance()->getCustomers()->ensureCustomer($user);
 
         $address = new Address();
         $address->ownerId = $user->id;
