@@ -8,7 +8,6 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\BaseElementFixture;
-use craft\test\fixtures\elements\UserFixture;
 
 class CustomerAddressFixture extends BaseElementFixture
 {

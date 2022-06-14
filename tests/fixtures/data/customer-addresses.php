@@ -1,4 +1,5 @@
 <?php
+
 $addresses = [
     'box' => [
         'firstName' => 'John',
@@ -10,7 +11,7 @@ $addresses = [
         'title' => 'TV Show',
         'countryCode' => 'US',
         'administrativeArea' => 'NY',
-    ]
+    ],
 ];
 
 return [
