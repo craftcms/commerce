@@ -291,7 +291,7 @@ class Discounts extends Component
 
             $codeWhere = ['code' => $order->couponCode];
             if (Craft::$app->getDb()->getIsPgsql()) {
-                ArrayHelper::prependOrAppend($codeWhere, 'ilike', true);
+                $codeWhere = ['ilike', 'code', $order->couponCode];
             }
 
             $discountQuery->andWhere([

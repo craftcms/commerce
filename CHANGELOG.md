@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
+- Fixed an error that could occur when using a discount with a coupon code.
 
 ## 4.0.3 - 2022-06-09
 
