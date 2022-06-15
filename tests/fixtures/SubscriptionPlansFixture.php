@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-use Craft;
 use craft\commerce\records\Plan;
 use craft\test\ActiveFixture;
 
