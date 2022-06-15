@@ -367,6 +367,23 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @return void
+     * @throws \Exception
+     */
+    public function testGetAllActiveDiscounts(): void
+    {
+        $activeDiscounts = $this->discounts->getAllActiveDiscounts();
+        $activeDiscountsCodeExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'discount_1']));
+        $activeDiscountsCodeDoesntExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'coupon_code_doesnt_exist']));
+
+        self::assertNotEmpty($activeDiscounts);
+        self::assertCount(1, $activeDiscounts);
+        self::assertNotEmpty($activeDiscountsCodeExists);
+        self::assertCount(1, $activeDiscountsCodeExists);
+        self::assertEmpty($activeDiscountsCodeDoesntExists);
+    }
+
+    /**
      * @param array $orderConfig
      * @param array $lineItemConfig
      * @param array $discountConfig
