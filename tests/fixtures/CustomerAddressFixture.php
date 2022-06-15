@@ -17,7 +17,7 @@ use craft\test\fixtures\elements\BaseElementFixture;
  * Class CustomerAddressFixture.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0.5
+ * @since 4.0.5
  */
 class CustomerAddressFixture extends BaseElementFixture
 {
