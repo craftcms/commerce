@@ -334,6 +334,7 @@ class CartTest extends Unit
      * @throws InvalidRouteException
      * @throws Throwable
      * @throws InvalidConfigException
+     * @since 4.0.5
      */
     public function testAutoSetNewCartAddresses(): void
     {
