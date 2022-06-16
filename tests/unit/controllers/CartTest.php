@@ -327,23 +327,26 @@ class CartTest extends Unit
     }
 
     /**
+     * @param string $customerHandle
+     * @param bool $autoSet
      * @return void
      * @throws ElementNotFoundException
      * @throws Exception
+     * @throws InvalidConfigException
      * @throws InvalidPluginException
      * @throws InvalidRouteException
      * @throws Throwable
-     * @throws InvalidConfigException
+     * @dataProvider autoSetNewCartAddressesDataProvider
      * @since 4.0.4
      */
-    public function testAutoSetNewCartAddresses(): void
+    public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $customerFixture = $this->tester->grabFixture('customer');
         /** @var User|CustomerBehavior $customer */
-        $customer = $customerFixture->getElement('customer3');
+        $customer = $customerFixture->getElement($customerHandle);
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById($customer->id)
         );
@@ -356,33 +359,44 @@ class CartTest extends Unit
             'purchasableId' => $product->getDefaultVariant()->id,
             'qty' => 2,
         ];
-        $this->request->setBodyParams($bodyParams);
-
-        $this->cartController->runAction('update-cart');
-
-        $cart = Plugin::getInstance()->getCarts()->getCart();
-        $shippingAddress = $cart->getShippingAddress();
-
-        self::assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
-
-        Plugin::getInstance()->getCarts()->forgetCart();
-        Craft::$app->getElements()->deleteElement($cart, true);
 
         $this->request->setBodyParams($bodyParams);
-
         $originalSettingValue = Plugin::getInstance()->getSettings()->autoSetNewCartAddresses;
-
-        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = false;
+        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $autoSet;
 
         $this->cartController->runAction('update-cart');
 
         $cart = Plugin::getInstance()->getCarts()->getCart();
+
         $shippingAddress = $cart->getShippingAddress();
 
-        self::assertNull($shippingAddress);
+        if ($autoSet === true) {
+            self::assertEquals($customerShippingAddress->addressLine1, $shippingAddress->addressLine1);
+        } else {
+            self::assertNull($shippingAddress);
+        }
+
         Plugin::getInstance()->getCarts()->forgetCart();
         Craft::$app->getElements()->deleteElement($cart, true);
 
         Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $originalSettingValue;
+    }
+
+    /**
+     * @return array[]
+     * @since 4.0.4
+     */
+    public function autoSetNewCartAddressesDataProvider(): array
+    {
+        return [
+            'auto-set' => [
+                'customer3', // customer
+                true, // auto set
+            ],
+            'dont-auto-set' => [
+                'customer3', // customer
+                true, // auto set
+            ]
+        ];
     }
 }
