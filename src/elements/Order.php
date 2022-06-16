@@ -2783,13 +2783,6 @@ class Order extends Element
             throw new InvalidArgumentException('Can not set a shipping address on the order that is is not owned by the order.');
         }
 
-        if ($address->id) {
-            $existingAddress = AddressElement::find()->id($address->id)->one();
-            if ($existingAddress->ownerId != $this->id) {
-                throw new InvalidArgumentException('Can not set a shipping address on the order that belongs to another element via ownerId');
-            }
-        }
-
         $this->shippingAddressId = $address->id;
         $address->title = Craft::t('commerce', 'Shipping Address');
         $this->_shippingAddress = $address;
