@@ -6,7 +6,11 @@
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 
 ### Fixed
+- Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
+- Fixed an error that could occur when using a discount with a coupon code.
+- Fixed a bug where it wasn’t possible to subscribe and create a payment source simultaneously. ([#2834](https://github.com/craftcms/commerce/pull/2834))
 - Fixed a bug where it was possible to save an order with the same address IDs. ([#2841](https://github.com/craftcms/commerce/issues/2841)) 
+- Fixed errors that could occur when expiring, cancelling or suspending a subscription. ([#2831](https://github.com/craftcms/commerce/issues/2831))
 
 ## 4.0.3 - 2022-06-09
 
