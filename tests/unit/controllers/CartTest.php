@@ -396,7 +396,7 @@ class CartTest extends Unit
             'dont-auto-set' => [
                 'customer3', // customer
                 true, // auto set
-            ]
+            ],
         ];
     }
 }
