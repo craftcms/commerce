@@ -9,9 +9,11 @@ namespace craftcommercetests\unit\elements\order;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
+use craftcommercetests\fixtures\OrdersFixture;
 use craftcommercetests\fixtures\SubscriptionsFixture;
 use DateTime;
 use DateTimeZone;
@@ -37,8 +39,48 @@ class SubscriptionTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'orders' => [
+                'class' => OrdersFixture::class,
+            ],
             'subscriptions' => [
                 'class' => SubscriptionsFixture::class,
+            ],
+        ];
+    }
+
+    /**
+     * @param array $attributes
+     * @param Order|null $order
+     * @return void
+     * @throws InvalidConfigException
+     * @dataProvider getOrderDataProvider
+     */
+    public function testGetOrder(?string $orderFixtureHandle): void
+    {
+        $subscription = Craft::createObject(Subscription::class);
+
+        if ($orderFixtureHandle) {
+            $orderFixture = $this->tester->grabFixture('orders')->getElement($orderFixtureHandle);
+            $subscription->orderId = $orderFixture->id;
+            $order = Plugin::getInstance()->getOrders()->getOrderById($orderFixture->id);
+
+            self::assertEquals($order->toArray(), $subscription->getOrder()->toArray());
+        } else {
+            self::assertEquals(null, $subscription->getOrder());
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public function getOrderDataProvider(): array
+    {
+        return [
+            'no-order' => [
+                null,
+            ],
+            'order' => [
+                'completed-new',
             ],
         ];
     }
