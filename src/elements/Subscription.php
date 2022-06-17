@@ -95,7 +95,7 @@ class Subscription extends Element
     /**
      * @var int Trial days granted
      */
-    public int $trialDays;
+    public int $trialDays = 0;
 
     /**
      * @var DateTime|null Date of next payment
@@ -125,12 +125,12 @@ class Subscription extends Element
     /**
      * @var bool Whether the subscription has started
      */
-    public bool $hasStarted;
+    public bool $hasStarted = false;
 
     /**
      * @var bool Whether the subscription is on hold due to payment issues
      */
-    public bool $isSuspended;
+    public bool $isSuspended = false;
 
     /**
      * @var DateTime|null Time when subscription was put on hold
@@ -158,9 +158,9 @@ class Subscription extends Element
     private Order $_order;
 
     /**
-     * @var array The subscription data from gateway
+     * @var array|null The subscription data from gateway
      */
-    public array $_subscriptionData;
+    public ?array $_subscriptionData = null;
 
 
     /**
@@ -271,6 +271,10 @@ class Subscription extends Element
 
     public function getSubscriptionData(): array
     {
+        if ($this->_subscriptionData === null) {
+            return [];
+        }
+
         return $this->_subscriptionData;
     }
 
