@@ -7,6 +7,8 @@
 - Fixed an error that could occur when using a discount with a coupon code.
 - Fixed a bug where it wasn’t possible to subscribe and create a payment source simultaneously. ([#2834](https://github.com/craftcms/commerce/pull/2834))
 - Fixed Subscription element type declaration bugs.
+- Fixed errors that could occur when expiring, cancelling or suspending a subscription. ([#2831](https://github.com/craftcms/commerce/issues/2831))
+- Fixed a bug where the Order Value condition rule did not work.
 
 ## 4.0.3 - 2022-06-09
 
