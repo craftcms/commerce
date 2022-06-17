@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;

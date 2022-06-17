@@ -12,7 +12,6 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
-use craft\helpers\DateTimeHelper;
 use craftcommercetests\fixtures\OrdersFixture;
 use craftcommercetests\fixtures\SubscriptionsFixture;
 use DateTime;
