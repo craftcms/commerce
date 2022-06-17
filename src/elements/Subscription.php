@@ -271,11 +271,7 @@ class Subscription extends Element
 
     public function getSubscriptionData(): array
     {
-        if ($this->_subscriptionData === null) {
-            return [];
-        }
-
-        return $this->_subscriptionData;
+        return $this->_subscriptionData ?? [];
     }
 
     public function setSubscriptionData(array|string $data): void
@@ -311,7 +307,7 @@ class Subscription extends Element
      */
     public function getOrder(): ?Order
     {
-        if ($this->_order instanceof Order) {
+        if ($this->_order) {
             return $this->_order;
         }
 
