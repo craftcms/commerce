@@ -86,6 +86,84 @@ class SubscriptionTest extends Unit
 
     /**
      * @param array $attributes
+     * @param string $expected
+     * @return void
+     * @throws InvalidConfigException
+     * @dataProvider getGatewayDataProvider
+     */
+    public function testGetGateway(array $attributes, ?string $expected): void
+    {
+        $subscription = Craft::createObject(Subscription::class, [
+            'config' => [
+                'attributes' => $attributes,
+            ],
+        ]);
+
+        if ($expected === null) {
+            self::assertNull($subscription->getGateway());
+        } else {
+            self::assertEquals($expected, $subscription->getGateway()->handle);
+        }
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getGatewayDataProvider(): array
+    {
+        return [
+            'no-gateway' => [
+                [],
+                null,
+            ],
+            'gateway' => [
+                ['gatewayId' => 1],
+                'dummy',
+            ],
+        ];
+    }
+
+    /**
+     * @param array $attributes
+     * @param array|null $expected
+     * @return void
+     * @throws InvalidConfigException
+     * @dataProvider getAlternativePlansDataProvider
+     */
+    public function testGetAlternativePlans(array $attributes, ?array $expected): void
+    {
+        $subscription = Craft::createObject(Subscription::class, [
+            'config' => [
+                'attributes' => $attributes,
+            ],
+        ]);
+
+        if ($expected === null) {
+            self::assertNull($subscription->getAlternativePlans());
+        } else {
+            self::assertEquals($expected, $subscription->getAlternativePlans());
+        }
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getAlternativePlansDataProvider(): array
+    {
+        return [
+            'no-gateway' => [
+                [],
+                [],
+            ],
+            'gateway' => [
+                ['gatewayId' => 1],
+                [],
+            ],
+        ];
+    }
+
+    /**
+     * @param array $attributes
      * @param bool $expected
      * @return void
      * @throws InvalidConfigException
