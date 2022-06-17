@@ -153,9 +153,9 @@ class Subscription extends Element
     private User $_user;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private Order $_order;
+    private ?Order $_order = null;
 
     /**
      * @var array|null The subscription data from gateway
@@ -311,7 +311,7 @@ class Subscription extends Element
      */
     public function getOrder(): ?Order
     {
-        if ($this->_order) {
+        if ($this->_order instanceof Order) {
             return $this->_order;
         }
 
