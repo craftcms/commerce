@@ -289,9 +289,10 @@ class Discounts extends Component
                 ->from(Table::COUPONS)
                 ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
-            $codeWhere = ['code' => $order->couponCode];
             if (Craft::$app->getDb()->getIsPgsql()) {
-                ArrayHelper::prependOrAppend($codeWhere, 'ilike', true);
+                $codeWhere = ['ilike', 'code', $order->couponCode];
+            } else {
+                $codeWhere = ['code' => $order->couponCode];
             }
 
             $discountQuery->andWhere([

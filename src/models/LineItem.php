@@ -302,6 +302,9 @@ class LineItem extends Model
         }
     }
 
+    /**
+     * @return string
+     */
     public function getDescription(): string
     {
         if (!$this->_description) {
@@ -312,6 +315,10 @@ class LineItem extends Model
         return $this->_description;
     }
 
+    /**
+     * @param string $description
+     * @return void
+     */
     public function setDescription(string $description): void
     {
         $this->_description = $description;

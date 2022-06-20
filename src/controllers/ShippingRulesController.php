@@ -108,39 +108,6 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        if ($variables['shippingRule'] instanceof ShippingRule) {
-            $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
-            // Localize numbers
-            $localizeAttributes = [
-                'minTotal',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
-                'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
-                'maxRate',
-            ];
-
-            foreach ($localizeAttributes as $attr) {
-                if (isset($variables['shippingRule']->{$attr}) && $variables['shippingRule']->{$attr} !== null) {
-                    $variables['shippingRule']->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$variables['shippingRule']->{$attr});
-                }
-
-                if (!empty($categoryModels)) {
-                    foreach ($categoryModels as $categoryModel) {
-                        if (isset($categoryModel->{$attr}) && $categoryModel->{$attr} !== null) {
-                            $categoryModel->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$categoryModel->{$attr});
-                        }
-                    }
-                }
-            }
-
-            $variables['shippingRule']->setShippingRuleCategories($categoryModels);
-        }
-
         return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
 
