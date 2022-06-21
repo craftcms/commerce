@@ -214,7 +214,7 @@ class ShippingRulesController extends BaseShippingSettingsController
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
-        if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
+        if (!Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 
