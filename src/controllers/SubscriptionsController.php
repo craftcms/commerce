@@ -206,7 +206,7 @@ class SubscriptionsController extends BaseController
 
             try {
                 $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)), false);
+                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
 
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
