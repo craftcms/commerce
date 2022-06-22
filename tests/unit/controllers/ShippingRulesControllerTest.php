@@ -16,7 +16,6 @@ use craft\db\Query;
 use craft\helpers\Json;
 use craft\web\Request;
 use craftcommercetests\fixtures\ShippingFixture;
-use craftcommercetests\fixtures\ShippingMethodsFixture;
 use UnitTester;
 use yii\base\InvalidRouteException;
 
@@ -176,7 +175,8 @@ class ShippingRulesControllerTest extends Unit
      * @return void
      * @throws InvalidRouteException
      */
-    public function testDelete(): void    {
+    public function testDelete(): void
+    {
         $originalEdition = Plugin::getInstance()->edition;
         Plugin::getInstance()->edition = Plugin::EDITION_PRO;
 

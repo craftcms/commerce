@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\models\Sale;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 

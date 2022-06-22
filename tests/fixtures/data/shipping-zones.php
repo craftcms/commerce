@@ -16,7 +16,7 @@ return [
                     'class' => CountryConditionRule::class,
                     'uid' => '03bfbb2a-341d-4d2b-905c-c56ec130546f',
                     'operator' => 'in',
-                    'values' => ['US']
+                    'values' => ['US'],
                 ],
             ],
         ],
@@ -33,7 +33,7 @@ return [
                     'class' => CountryConditionRule::class,
                     'uid' => '03bfbb2a-341d-4d2b-905c-c56ec130546Z',
                     'operator' => 'in',
-                    'values' => ['GB', 'FR']
+                    'values' => ['GB', 'FR'],
                 ],
             ],
         ],
