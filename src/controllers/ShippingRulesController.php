@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
@@ -18,12 +17,14 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -202,26 +203,38 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
-     * @throws ProductTypeNotFoundException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        if (!$id = $this->request->getRequiredBodyParam('id')) {
-            throw new BadRequestHttpException('Product Type ID not submitted');
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            $this->requireAcceptsJson();
         }
 
-        if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
-            throw new ProductTypeNotFoundException('Can not find product type to delete');
+        if (!$id = $this->request->getRequiredBodyParam('id')) {
+            throw new BadRequestHttpException('Shipping rule ID not submitted');
+        }
+
+        $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        if (!$rule) {
+            throw new Exception('Cannot find shipping rule to delete');
         }
 
         if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asSuccess();
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            return $this->asSuccess();
+        }
+
+        return $this->redirectToPostedUrl($rule);
     }
 }
