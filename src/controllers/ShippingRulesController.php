@@ -209,6 +209,10 @@ class ShippingRulesController extends BaseShippingSettingsController
     {
         $this->requirePostRequest();
 
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            $this->requireAcceptsJson();
+        }
+
         if (!$id = $this->request->getRequiredBodyParam('id')) {
             throw new BadRequestHttpException('Shipping rule ID not submitted');
         }
