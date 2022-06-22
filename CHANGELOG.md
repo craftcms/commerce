@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+> {note} If migration from version 3 had happened before release please review coupon max uses values in discounts.
+
 ### Fixed
 - Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
 - Fixed an error that could occur when using a discount with a coupon code.
@@ -10,6 +12,7 @@
 - Fixed Subscription element type declaration bugs.
 - Fixed errors that could occur when expiring, cancelling or suspending a subscription. ([#2831](https://github.com/craftcms/commerce/issues/2831))
 - Fixed a bug where the Order Value condition rule did not work.
+- Fixed a bug where coupon max uses were set incorrectly during migration.
 
 ## 4.0.3 - 2022-06-09
 
