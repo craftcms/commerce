@@ -211,7 +211,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requireAcceptsJson();
 
         if (!$id = $this->request->getRequiredBodyParam('id')) {
-            throw new BadRequestHttpException('Product Type ID not submitted');
+            throw new BadRequestHttpException('Shipping rule ID not submitted');
         }
 
         if (!Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
