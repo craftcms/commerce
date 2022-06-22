@@ -68,19 +68,19 @@ class Subscription extends Element
     public const STATUS_SUSPENDED = 'suspended';
 
     /**
-     * @var int User id
+     * @var int|null User id
      */
-    public int $userId;
+    public ?int $userId = null;
 
     /**
-     * @var int Plan id
+     * @var int|null Plan id
      */
-    public int $planId;
+    public ?int $planId = null;
 
     /**
-     * @var int Gateway id
+     * @var int|null Gateway id
      */
-    public int $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
      * @var int|null Order id
@@ -90,12 +90,12 @@ class Subscription extends Element
     /**
      * @var string Subscription reference on the gateway
      */
-    public string $reference;
+    public string $reference = '';
 
     /**
      * @var int Trial days granted
      */
-    public int $trialDays;
+    public int $trialDays = 0;
 
     /**
      * @var DateTime|null Date of next payment
@@ -125,12 +125,12 @@ class Subscription extends Element
     /**
      * @var bool Whether the subscription has started
      */
-    public bool $hasStarted;
+    public bool $hasStarted = false;
 
     /**
      * @var bool Whether the subscription is on hold due to payment issues
      */
-    public bool $isSuspended;
+    public bool $isSuspended = false;
 
     /**
      * @var DateTime|null Time when subscription was put on hold
@@ -143,24 +143,24 @@ class Subscription extends Element
     private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
-     * @var Plan
+     * @var Plan|null
      */
-    private Plan $_plan;
+    private ?Plan $_plan = null;
 
     /**
-     * @var User
+     * @var User|null
      */
-    private User $_user;
+    private ?User $_user = null;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private Order $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var array The subscription data from gateway
+     * @var array|null The subscription data from gateway
      */
-    public array $_subscriptionData;
+    public ?array $_subscriptionData = null;
 
 
     /**
@@ -248,9 +248,9 @@ class Subscription extends Element
     /**
      * Returns the subscription plan for this subscription
      */
-    public function getPlan(): PlanInterface
+    public function getPlan(): ?PlanInterface
     {
-        if (!isset($this->_plan)) {
+        if (!isset($this->_plan) && $this->planId) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
         }
 
@@ -262,7 +262,7 @@ class Subscription extends Element
      */
     public function getSubscriber(): User
     {
-        if (!isset($this->_user)) {
+        if (!isset($this->_user) && $this->userId) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
@@ -271,7 +271,7 @@ class Subscription extends Element
 
     public function getSubscriptionData(): array
     {
-        return $this->_subscriptionData;
+        return $this->_subscriptionData ?? [];
     }
 
     public function setSubscriptionData(array|string $data): void
@@ -323,9 +323,9 @@ class Subscription extends Element
      *
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function getGateway(): SubscriptionGatewayInterface
+    public function getGateway(): ?SubscriptionGatewayInterface
     {
-        if (!isset($this->_gateway)) {
+        if (!isset($this->_gateway) && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
             if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
                 throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');
@@ -347,6 +347,10 @@ class Subscription extends Element
      */
     public function getAlternativePlans(): array
     {
+        if ($this->gatewayId === null) {
+            return [];
+        }
+
         $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
         /** @var Plan $currentPlan */
@@ -356,7 +360,7 @@ class Subscription extends Element
 
         foreach ($plans as $plan) {
             // For all plans that are not the current plan
-            if ($plan->id !== $currentPlan->id && $plan->canSwitchFrom($currentPlan)) {
+            if ($currentPlan && $plan->id !== $currentPlan->id && $plan->canSwitchFrom($currentPlan)) {
                 $alternativePlans[] = $plan;
             }
         }

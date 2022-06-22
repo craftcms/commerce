@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -205,7 +206,7 @@ class SubscriptionsController extends BaseController
 
             try {
                 $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParams(), false);
+                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
 
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
