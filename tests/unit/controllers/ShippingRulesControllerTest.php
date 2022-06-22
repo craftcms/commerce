@@ -156,6 +156,7 @@ class ShippingRulesControllerTest extends Unit
         $originalEdition = Plugin::getInstance()->edition;
         Plugin::getInstance()->edition = Plugin::EDITION_PRO;
         // Test Ajax delete
+        $this->request->headers->set('X-Requested-With', 'XMLHttpRequest');
         $this->request->headers->set('Accept', 'application/json');
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $shippingFixture = $this->tester->grabFixture('shipping');
@@ -196,16 +197,19 @@ class ShippingRulesControllerTest extends Unit
         Plugin::getInstance()->edition = $originalEdition;
     }
 
+    /**
+     * @return void
+     * @throws InvalidRouteException
+     */
     public function testDuplicate(): void
     {
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $shippingFixture = $this->tester->grabFixture('shipping');
         $rule = $shippingFixture->data['us-only'];
-        $newName = $rule['name'] . ' saved';
 
         $this->request->setBodyParams([
             'id' => $rule['id'],
-            'name' => $newName,
+            'name' => $rule['name'],
             'methodId' => $rule['methodId'],
             'enabled' => $rule['enabled'],
             'orderConditionFormula' => '',
@@ -230,10 +234,10 @@ class ShippingRulesControllerTest extends Unit
         // Check rules have been reordered
         $result = (new Query())
             ->from(Table::SHIPPINGRULES)
-            ->select(['name'])
-            ->where(['id' => $rule['id']])
-            ->scalar();
+            ->select(['id'])
+            ->where(['name' => $rule['name']])
+            ->count();
 
-        self::assertEquals($newName, $result);
+        self::assertEquals(2, $result);
     }
 }
