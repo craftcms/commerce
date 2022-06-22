@@ -215,7 +215,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         }
 
         if (!Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
-            throw new ProductTypeNotFoundException('Can not find product type to delete');
+            throw new ProductTypeNotFoundException('Can not find shipping rule to delete');
         }
 
         if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
