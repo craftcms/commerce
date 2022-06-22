@@ -208,13 +208,13 @@ class ShippingRulesController extends BaseShippingSettingsController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
         if (!$id = $this->request->getRequiredBodyParam('id')) {
             throw new BadRequestHttpException('Shipping rule ID not submitted');
         }
 
-        if (!Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
+        $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        if (!$rule) {
             throw new ProductTypeNotFoundException('Can not find shipping rule to delete');
         }
 
@@ -222,6 +222,10 @@ class ShippingRulesController extends BaseShippingSettingsController
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asSuccess();
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            return $this->asSuccess();
+        }
+
+        return $this->redirectToPostedUrl($rule);
     }
 }
