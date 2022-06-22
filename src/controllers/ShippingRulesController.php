@@ -18,12 +18,14 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -202,8 +204,12 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
-     * @throws ProductTypeNotFoundException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete(): Response
     {
@@ -219,7 +225,7 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
         if (!$rule) {
-            throw new ProductTypeNotFoundException('Can not find shipping rule to delete');
+            throw new Exception('Cannot find shipping rule to delete');
         }
 
         if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
