@@ -447,7 +447,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCacheTags(): array
+    protected function cacheTags(): array
     {
         return [
             "productType:$this->typeId",
