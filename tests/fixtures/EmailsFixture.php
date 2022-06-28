@@ -46,11 +46,6 @@ class EmailsFixture extends BaseModelFixture
     public $service = 'emails';
 
     /**
-     * @var bool
-     */
-    private bool $_muteEvents;
-
-    /**
      * @inheritDoc
      */
     public function init(): void
