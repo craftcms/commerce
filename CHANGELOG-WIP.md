@@ -2,6 +2,8 @@
 
 ### Added
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
+- Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
+- Added the `commerce/transfer-customer-data` command.
 
 ### Changed
 - `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
