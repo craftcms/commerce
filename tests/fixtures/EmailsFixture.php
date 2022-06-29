@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 
@@ -46,11 +45,6 @@ class EmailsFixture extends BaseModelFixture
     public $service = 'emails';
 
     /**
-     * @var bool
-     */
-    private bool $_muteEvents;
-
-    /**
      * @inheritDoc
      */
     public function init(): void
@@ -58,27 +52,5 @@ class EmailsFixture extends BaseModelFixture
         $this->service = Plugin::getInstance()->get($this->service);
 
         parent::init();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function beforeUnload(): void
-    {
-        parent::beforeUnload();
-
-        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
-        $this->_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
-        Craft::$app->getProjectConfig()->muteEvents = true;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function afterUnload(): void
-    {
-        parent::afterUnload();
-
-        Craft::$app->getProjectConfig()->muteEvents = $this->_muteEvents;
     }
 }
