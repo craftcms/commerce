@@ -17,7 +17,6 @@ use craft\test\fixtures\elements\UserFixture;
  * Class CustomerFixture.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since 2.1
  */
 class CustomerFixture extends UserFixture

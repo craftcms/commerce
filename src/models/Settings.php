@@ -384,6 +384,16 @@ class Settings extends Model
      */
     public bool $validateCartCustomFieldsOnSubmission = false;
 
+
+    /**
+     * @inheritDoc
+     */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        unset($values['orderPdfFilenameFormat'], $values['orderPdfPath']);
+        parent::setAttributes($values, $safeOnly);
+    }
+
     /**
      * @inheritdoc
      */

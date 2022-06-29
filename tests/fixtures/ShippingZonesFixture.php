@@ -7,46 +7,47 @@
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\models\Email;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 
 /**
- * Class EmailsFixture.
+ * Shipping Zones Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
- * @since 3.2.14.1
+ * @since 4.0.4
  */
-class EmailsFixture extends BaseModelFixture
+class ShippingZonesFixture extends BaseModelFixture
 {
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__ . '/data/emails.php';
+    public $dataFile = __DIR__ . '/data/shipping-zones.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = Email::class;
+    public $modelClass = ShippingAddressZone::class;
+
+    /**
+     * @var string[]
+     */
+    public $depends = [];
 
     /**
      * @inheritDoc
      */
-    public string $saveMethod = 'saveEmail';
+    public string $saveMethod = 'saveShippingZone';
 
     /**
      * @inheritDoc
      */
-    public string $deleteMethod = 'deleteEmailById';
+    public string $deleteMethod = 'deleteShippingZoneById';
 
     /**
      * @inheritDoc
      */
-    public $service = 'emails';
+    public $service = 'shippingZones';
 
-    /**
-     * @inheritDoc
-     */
     public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);

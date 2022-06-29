@@ -213,7 +213,8 @@
                 unit: percentSymbol,
             }) }}
         </div>
-        <div>
+        {# TODO: stop using shameful `style` tag here #}
+        <div style="margin-top: 7px;">
             {{ forms.checkboxField({
                 label: "Included in price?"|t('commerce'),
                 name: 'include',

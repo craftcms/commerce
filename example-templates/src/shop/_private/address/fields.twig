@@ -219,7 +219,7 @@ document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}
 
   if (states[countryCode] && Object.keys(states[countryCode]).length) {
     stateSelect.classList.remove('hidden');
-    stateSelect.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+    stateSelect.setAttribute('name', '{{ addressName ? 'administrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
     stateText.classList.add('hidden');
     stateText.removeAttribute('name');
     stateSelect.innerHTML = '<option value="">Select state...</option>';
@@ -231,7 +231,7 @@ document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}
     stateSelect.classList.add('hidden');
     stateSelect.removeAttribute('name');
     stateText.classList.remove('hidden');
-    stateText.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+    stateText.setAttribute('name', '{{ addressName ? 'administrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
   }
 });
 
