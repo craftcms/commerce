@@ -2,6 +2,9 @@
   "name": "craftcommerce",
   "private": true,
   "main": "webpack.config.js",
+  "browserslist": [
+    "extends @craftcms/browserslist-config"
+  ],
   "scripts": {
     "prebuild": "npm run fix-prettier",
     "build": "webpack --node-env=production --progress",
