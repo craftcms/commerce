@@ -22,7 +22,7 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.0.2",
-    "craftcms/cms": "^4.0.0-RC2",
+    "craftcms/cms": "4.1.x-dev as 4.1.0",
     "dompdf/dompdf": "^1.0.2",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
@@ -38,6 +38,7 @@
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",
+    "symplify/easy-coding-standard": "10.2.3",
     "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {
