@@ -878,14 +878,14 @@ class OrdersController extends Controller
                 'order' => $order,
             ]);
 
+            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
+
             $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
                 'formHtml' => $paymentFormHtml,
                 'gateway' => $gateway,
                 'paymentForm' => $paymentFormModel,
                 'order' => $order,
             ]);
-
-            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
             $formHtml .= $paymentFormHtml;
         }

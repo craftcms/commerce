@@ -7,8 +7,6 @@ import './scss/subscriptions.scss';
 
 // JS
 import './js/Commerce';
-import './js/CommerceAddressBox';
-import './js/CommerceEditAddressModal';
 import './js/CommerceOrderEdit';
 import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';

@@ -2,10 +2,11 @@
     <div>
         <btn-link @click="showSnapshot = !showSnapshot">
             <template v-if="!showSnapshot">
-                {{"Snapshot"|t('commerce')}} <i data-icon="downangle"></i>
+                {{ 'Snapshot' | t('commerce') }} <i data-icon="downangle"></i>
             </template>
             <template v-else>
-                {{"Hide snapshot"|t('commerce')}} <i data-icon="upangle"></i>
+                {{ 'Hide snapshot' | t('commerce') }}
+                <i data-icon="upangle"></i>
             </template>
         </btn-link>
 
@@ -23,13 +24,13 @@
             show: {
                 type: Boolean,
                 default: false,
-            }
+            },
         },
 
         data() {
             return {
                 showSnapshot: false,
-            }
+            };
         },
 
         mounted() {
@@ -37,11 +38,11 @@
                 this.showSnapshot = true;
             }
         },
-    }
+    };
 </script>
 
 <style lang="scss">
-    @import "craftcms-sass/mixins";
+    @import 'craftcms-sass/mixins';
     @import '../../../../sass/order/app';
 
     .snapshot {

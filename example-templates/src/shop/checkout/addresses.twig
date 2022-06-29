@@ -39,6 +39,7 @@ Outputs a form for collecting an order’s shipping and billing address.
             title: 'Shipping Address'|t,
             classes: 'ShippingAddress',
             name: 'shippingAddress',
+            primaryIdName: 'primaryShippingAddressId',
             sourceIdName: 'sourceShippingAddressId',
           }) }}
 
@@ -72,6 +73,7 @@ Outputs a form for collecting an order’s shipping and billing address.
               title: 'Billing Address'|t,
               classes: 'BillingAddress hidden',
               name: 'billingAddress',
+              primaryIdName: 'primaryBillingAddressId',
               sourceIdName: 'sourceBillingAddressId',
             }) }}
           </div>
@@ -153,6 +155,14 @@ Outputs a form for collecting an order’s shipping and billing address.
     $billingSameAs.addEventListener('change', function(ev) {
       var $billingFieldSet = document.querySelector('.js-address-fieldset.BillingAddress');
       $billingFieldSet.classList.toggle('hidden');
+
+      for (let input of document.querySelector('.js-address-box.BillingAddress').querySelectorAll('input')) {
+        if ($billingSameAs.checked === true) {
+          input.setAttribute('disabled', '');
+        } else if (input.hasAttribute('disabled')) {
+          input.removeAttribute('disabled');
+        }
+      }
     });
   }
   {% endjs %}

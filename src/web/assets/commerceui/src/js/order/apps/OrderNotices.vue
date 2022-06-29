@@ -3,15 +3,17 @@
         <div class="meta read-only warning">
             <div class="order-flex order-notices-header">
                 <div>
-                    {{ 'Customer Notices'|t('commerce') }}
+                    {{ 'Customer Notices' | t('commerce') }}
                 </div>
                 <div>
-                    <button @click.prevent="clearNotices" class="btn small">{{ 'Clear notices'|t('commerce') }}</button>
+                    <button @click.prevent="clearNotices" class="btn small">
+                        {{ 'Clear notices' | t('commerce') }}
+                    </button>
                 </div>
             </div>
             <div class="order-notices-items">
                 <div v-for="notice in draft.order.notices" :key="notice.id">
-                    <hr>
+                    <hr />
                     <div class="order-notices-item">
                         {{ notice.message }}
                     </div>
@@ -22,25 +24,28 @@
 </template>
 
 <script>
-
     export default {
         name: 'order-notices-app',
 
         computed: {
-
             draft: {
                 get() {
-                    return JSON.parse(JSON.stringify(this.$store.state.draft))
+                    return JSON.parse(JSON.stringify(this.$store.state.draft));
                 },
 
                 set(draft) {
-                    this.$store.commit('updateDraft', draft)
-                }
+                    this.$store.commit('updateDraft', draft);
+                },
             },
 
             showNotices() {
-                return this.draft && this.draft.order && this.draft.order.notices && Object.keys(this.draft.order.notices).length
-            }
+                return (
+                    this.draft &&
+                    this.draft.order &&
+                    this.draft.order.notices &&
+                    Object.keys(this.draft.order.notices).length
+                );
+            },
         },
 
         methods: {
@@ -48,13 +53,13 @@
                 let draft = this.draft;
                 draft.order.notices = [];
                 this.draft = draft;
-            }
-        }
-    }
+            },
+        },
+    };
 </script>
 
 <style lang="scss">
-    @import "craftcms-sass/mixins";
+    @import 'craftcms-sass/mixins';
 
     .order-notices-header {
         align-items: center;

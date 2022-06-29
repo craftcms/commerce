@@ -8,7 +8,7 @@ You can learn all about it at [craftcms.com/commerce](https://craftcms.com/comme
 
 ## Requirements
 
-This plugin requires Craft CMS 4.0.0-beta.4 or later.
+This plugin requires Craft CMS 4.0 or later.
 
 ## Installation
 

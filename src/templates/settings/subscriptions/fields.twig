@@ -6,6 +6,7 @@
 {% set fullPageForm = true %}
 
 {% block content %}
+    <h2>{{ "Subscription Fields"|t('commerce') }}</h2>
 
     <input type="hidden" name="action" value="commerce/settings/save-subscription-field-layout">
     {{ redirectInput('commerce/settings/general') }}

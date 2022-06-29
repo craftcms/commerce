@@ -90,6 +90,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $isSiteRequest = $this->request->getIsSiteRequest();
+        $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
@@ -199,13 +200,16 @@ class CartController extends BaseFrontEndController
 
         $this->_setAddresses();
 
-        // Set guest email address onto guest customers order.
-        $email = $this->request->getParam('email');
-        if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
-            try {
-                $this->_cart->setEmail($email);
-            } catch (\Exception $e) {
-                $this->_cart->addError('email', $e->getMessage());
+        // Setting email only allowed for guest customers
+        if (!$currentUser) {
+            // Set guest email address onto guest customers order.
+            $email = $this->request->getParam('email');
+            if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
+                try {
+                    $this->_cart->setEmail($email);
+                } catch (\Exception $e) {
+                    $this->_cart->addError('email', $e->getMessage());
+                }
             }
         }
 
@@ -266,6 +270,8 @@ class CartController extends BaseFrontEndController
      */
     public function actionLoadCart(): ?Response
     {
+        $session = Craft::$app->getSession();
+        $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
 
@@ -293,10 +299,8 @@ class CartController extends BaseFrontEndController
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
-        $session = Craft::$app->getSession();
-        $carts = Plugin::getInstance()->getCarts();
         $carts->forgetCart();
-        $session->set($carts->getCartName(), $number);
+        $carts->setSessionCartNumber($number);
 
         if ($this->request->getAcceptsJson()) {
             return $this->asSuccess();
@@ -501,7 +505,6 @@ class CartController extends BaseFrontEndController
         $billingAddress = $this->request->getParam('billingAddress');
         $estimatedBillingAddress = $this->request->getParam('estimatedBillingAddress');
 
-
         // Use an address ID from the customer address book to populate the address
         $shippingAddressId = $this->request->getParam('shippingAddressId');
         $billingAddressId = $this->request->getParam('billingAddressId');
@@ -522,6 +525,10 @@ class CartController extends BaseFrontEndController
         } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->sourceShippingAddressId = null;
             $this->_cart->setShippingAddress($shippingAddress);
+
+            if (!empty($shippingAddress['fields']) && $this->_cart->getShippingAddress()) {
+                $this->_cart->getShippingAddress()->setFieldValues($shippingAddress['fields']);
+            }
         }
 
         // Billing address
@@ -540,6 +547,10 @@ class CartController extends BaseFrontEndController
         } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->sourceBillingAddressId = null;
             $this->_cart->setBillingAddress($billingAddress);
+
+            if (!empty($billingAddress['fields']) && $this->_cart->getBillingAddress()) {
+                $this->_cart->getBillingAddress()->setFieldValues($billingAddress['fields']);
+            }
         }
 
         // Estimated Shipping Address

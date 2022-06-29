@@ -6,7 +6,7 @@
  */
 
 return [
-    [
+    'rad-hoodie' => [
         'typeId' => '2000',
         'title' => 'Rad Hoodie',
         'slug' => 'rad-hoodie',
@@ -34,7 +34,7 @@ return [
             ],
         ],
     ],
-    [
+    'hypercolor-tshirt' => [
         'typeId' => '2001',
         'title' => 'Hypercolor T-Shirt',
         'slug' => 'hypercolor-tshirt',

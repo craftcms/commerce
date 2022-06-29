@@ -197,6 +197,8 @@ class Pdfs extends Component
      *     }
      * );
      * ```
+     *
+     * @since 4.0.0
      */
     public const EVENT_BEFORE_DELETE_PDF = 'beforeDeletePdf';
 

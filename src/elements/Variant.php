@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\variants\VariantCondition;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
@@ -26,6 +27,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
@@ -336,6 +338,15 @@ class Variant extends Purchasable
     public static function refHandle(): ?string
     {
         return 'variant';
+    }
+
+    /**
+     * @inheritdoc
+     * @return VariantCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(VariantCondition::class, [static::class]);
     }
 
     /**

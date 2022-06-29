@@ -45,9 +45,9 @@ class SalesController extends BaseCpController
         if (!parent::beforeAction($action)) {
             return false;
         }
-        
+
         $this->requirePermission('commerce-managePromotions');
-        
+
         return true;
     }
 
@@ -73,7 +73,7 @@ class SalesController extends BaseCpController
         } else {
             $this->requirePermission('commerce-editSales');
         }
-        
+
         $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
@@ -115,7 +115,7 @@ class SalesController extends BaseCpController
         } else {
             $this->requirePermission('commerce-editSales');
         }
-        
+
         $sale->id = $this->request->getBodyParam('id');
         $sale->name = $this->request->getBodyParam('name');
         $sale->description = $this->request->getBodyParam('description');
@@ -444,12 +444,13 @@ class SalesController extends BaseCpController
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencySymbol'] = Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
+        $variables['saleApplyAmount'] = '';
         if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
                 $amount = -(float)$variables['sale']->applyAmount * 100;
-                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal($amount);
+                $variables['saleApplyAmount'] = Craft::$app->getFormatter()->asDecimal($amount);
             } else {
-                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal(-(float)$variables['sale']->applyAmount);
+                $variables['saleApplyAmount'] = Craft::$app->getFormatter()->asDecimal(-(float)$variables['sale']->applyAmount);
             }
         }
 

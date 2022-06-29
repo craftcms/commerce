@@ -5,21 +5,34 @@
                 <div ref="address" v-html="address"></div>
             </template>
             <template v-else>
-                <div class="zilch">{{emptyMsg}}</div>
+                <div class="zilch">{{ emptyMsg }}</div>
             </template>
 
-            <div class="order-address-display-buttons order-flex" v-show="hasCustomer">
-                <div class="btn menubtn"
-                     data-icon="settings"
-                     :title="$options.filters.t('Actions', 'commerce')"
-                     ref="addressmenubtn"></div>
+            <div
+                class="order-address-display-buttons order-flex"
+                v-show="hasCustomer"
+            >
+                <div
+                    class="btn menubtn"
+                    data-icon="settings"
+                    :title="$options.filters.t('Actions', 'commerce')"
+                    ref="addressmenubtn"
+                ></div>
                 <div class="menu">
                     <ul>
                         <li>
                             <a
-                                :class="{ disabled: !address }"
+                                :class="{disabled: !address}"
                                 :disabled="!address"
-                                @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
+                                @click.prevent="handleEditAddress"
+                            >
+                                {{
+                                    $options.filters.t(
+                                        'Edit address',
+                                        'commerce'
+                                    )
+                                }}
+                            </a>
                         </li>
                         <li>
                             <address-select
@@ -28,23 +41,40 @@
                             ></address-select>
                         </li>
                         <li>
-                            <a @click.prevent="handleNewAddress">{{$options.filters.t('New address', 'commerce')}}</a>
+                            <a @click.prevent="handleNewAddress">{{
+                                $options.filters.t('New address', 'commerce')
+                            }}</a>
                         </li>
                         <li v-if="copyToAddress">
                             <a
-                                :class="{ disabled: !address }"
+                                :class="{disabled: !address}"
                                 :disabled="!address"
-                                @click.prevent="$emit('copy')">{{$options.filters.t('Copy to {location}', 'commerce', { location: copyToAddress })}}</a>
+                                @click.prevent="$emit('copy')"
+                                >{{
+                                    $options.filters.t(
+                                        'Copy to {location}',
+                                        'commerce',
+                                        {location: copyToAddress}
+                                    )
+                                }}</a
+                            >
                         </li>
                     </ul>
-                    <hr>
+                    <hr />
                     <ul>
                         <li>
                             <a
-                                :class="{ disabled: !address }"
+                                :class="{disabled: !address}"
                                 :disabled="!address"
-                                class="error" @click.prevent="$emit('remove')">{{$options.filters.t('Remove address',
-                                'commerce')}}</a>
+                                class="error"
+                                @click.prevent="$emit('remove')"
+                                >{{
+                                    $options.filters.t(
+                                        'Remove address',
+                                        'commerce'
+                                    )
+                                }}</a
+                            >
                         </li>
                     </ul>
                 </div>
@@ -54,28 +84,34 @@
 </template>
 
 <style lang="scss">
-  .order-address-display {
-    position: relative;
+    .order-address-display {
+        position: relative;
 
-    .zilch {
-        padding-bottom: 5rem;
-        padding-top: 5rem;
+        .zilch {
+            padding-bottom: 5rem;
+            padding-top: 5rem;
+        }
+
+        .address-card .address-card-header-actions {
+            display: none;
+        }
+
+        &--static .address-card:hover {
+            cursor: initial;
+            background-color: initial;
+            border-color: #eee;
+        }
+
+        &-buttons {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+
+            *:not(:last-child) {
+                margin-right: 4px;
+            }
+        }
     }
-
-    .address-card .address-card-header-actions {
-        display: none;
-    }
-
-    &-buttons {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-
-      *:not(:last-child) {
-        margin-right: 4px;
-      }
-    }
-  }
 </style>
 
 <script>
@@ -114,14 +150,11 @@
         data() {
             return {
                 addressCard: null,
-                menuBtn: null,
             };
         },
 
         computed: {
-            ...mapGetters([
-                'hasCustomer',
-            ]),
+            ...mapGetters(['hasCustomer']),
 
             emptyMsg() {
                 if (!this.emptyMessage) {
@@ -134,16 +167,28 @@
 
         methods: {
             _initAddressCard(newAdd = false) {
-                if (this.addressCard && (newAdd || !this.address)) {
-                    this.addressCard.destroy();
+                if (this.addressCard) {
+                    this.addressCard.$container.data('addresses').destroy();
+                    this.addressCard.$container.removeData('addresses');
                     this.addressCard = null;
                 }
 
                 if (this.address) {
                     // Remove the included menubtn from the address card
                     $(this.$refs.address).find('.menubtn').remove();
-                    this.addressCard = new Craft.AddressesInput(this.$refs.address, {ownerId: this.address.ownerId, maxAddresses: 1});
+                    this.addressCard = new Craft.AddressesInput(
+                        this.$refs.address,
+                        {ownerId: this.address.ownerId, maxAddresses: 1}
+                    );
                 }
+            },
+
+            handleEditAddress() {
+                if (!this.address || !this.addressCard) {
+                    return;
+                }
+
+                this.addressCard.$cards.eq(0).trigger('click');
             },
 
             handleNewAddress() {
@@ -153,23 +198,31 @@
                         ownerId: this.$store.state.draft.order.id,
                         title: this.title,
                     },
-                }).then(response => {
-                    const slideout = Craft.createElementEditor('craft\\elements\\Address', null, {
-                        elementId: response.data.element.id,
-                        draftId: response.data.element.draftId,
-                    });
+                }).then((response) => {
+                    const slideout = Craft.createElementEditor(
+                        'craft\\elements\\Address',
+                        null,
+                        {
+                            elementId: response.data.element.id,
+                            draftId: response.data.element.draftId,
+                        }
+                    );
 
-                    slideout.on('submit', ev => {
-                        Craft.sendActionRequest('POST', 'commerce/orders/get-order-address', {
-                            data: {
-                                orderId: this.$store.state.draft.order.id,
-                                addressId: ev.data.id,
+                    slideout.on('submit', (ev) => {
+                        Craft.sendActionRequest(
+                            'POST',
+                            'commerce/orders/get-order-address',
+                            {
+                                data: {
+                                    orderId: this.$store.state.draft.order.id,
+                                    addressId: ev.data.id,
+                                },
                             }
-                        }).then(response => {
+                        ).then((response) => {
                             this.$emit('update', response.data.address);
                         });
                     });
-                })
+                });
             },
 
             handleSelect(address) {
@@ -179,17 +232,12 @@
             },
         },
 
-        watch: {
-            address(newAdd, oldAdd) {
-                if (newAdd && newAdd != oldAdd) {
-                    this._initAddressCard(true);
-                }
-            },
+        updated() {
+            this._initAddressCard();
         },
 
         mounted() {
-            this.menuBtn = new Garnish.MenuBtn(this.$refs.updateMenuBtn);
             this._initAddressCard();
         },
-    }
+    };
 </script>

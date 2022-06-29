@@ -44,6 +44,7 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
+use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -1433,29 +1434,38 @@ class Order extends Element
     /**
      * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
      *
-     * @return void
+     * @return bool
      * @since 3.4.14
      */
-    public function autoSetAddresses(): void
+    public function autoSetAddresses(): bool
     {
         if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            return;
+            return false;
         }
 
+        /** @var User|CustomerBehavior|null $user */
         $user = $this->getCustomer();
-
-        if (!$this->_shippingAddress && $user) {
-            /** @var User|CustomerBehavior $user */
-            if ($primaryShippingAddressId = $user->getPrimaryShippingAddressId()) {
-                $this->shippingAddressId = $primaryShippingAddressId;
-            }
+        if (!$user) {
+            return false;
         }
 
-        if (!$this->_billingAddress && $user) {
-            if ($primaryBillingAddressId = $user->getPrimaryBillingAddressId()) {
-                $this->billingAddressId = $primaryBillingAddressId;
-            }
+        $autoSetOccurred = false;
+
+        if (!$this->_shippingAddress && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+            $this->sourceShippingAddressId = $primaryShippingAddress->id;
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $this->setShippingAddress($shippingAddress);
+            $autoSetOccurred = true;
         }
+
+        if (!$this->_billingAddress && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
+            $this->sourceBillingAddressId = $primaryBillingAddress->id;
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $this->setBillingAddress($billingAddress);
+            $autoSetOccurred = true;
+        }
+
+        return $autoSetOccurred;
     }
 
     /**
@@ -1964,6 +1974,7 @@ class Order extends Element
         $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
 
         if ($shippingAddress = $this->getShippingAddress()) {
+            $shippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
@@ -1977,6 +1988,7 @@ class Order extends Element
         }
 
         if ($billingAddress = $this->getBillingAddress()) {
+            $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($billingAddress, false);
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
@@ -1990,6 +2002,7 @@ class Order extends Element
         }
 
         if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
+            $estimatedShippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
             $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
             $this->setEstimatedShippingAddress($estimatedShippingAddress);
@@ -2002,6 +2015,7 @@ class Order extends Element
         }
 
         if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
+            $estimatedBillingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
             $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
             $this->setEstimatedBillingAddress($estimatedBillingAddress);
@@ -2151,7 +2165,10 @@ class Order extends Element
     public function setCustomer(?User $customer = null): void
     {
         $this->_customer = $customer;
-        $this->setCustomerId($customer?->id);
+        if ($this->_customer) {
+            $this->_customerId = $this->_customer->id;
+            $this->_email = $this->_customer->email;
+        }
     }
 
     /**

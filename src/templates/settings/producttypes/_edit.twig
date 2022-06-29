@@ -291,6 +291,7 @@
 
 {% js %}
     $('#hasVariants').on('change', function() {
-        Craft.cp.$tabs.filter($("[data-id='variantFields'")).find("#tab-variantFields").toggleClass('hidden');
+        $("#tab-variantFields").toggleClass('hidden');
+        Craft.cp.tabManager.updateMenuBtn();
     });
 {% endjs %}

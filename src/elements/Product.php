@@ -14,6 +14,7 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
+use craft\commerce\elements\conditions\products\ProductCondition;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
@@ -28,6 +29,7 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -242,6 +244,15 @@ class Product extends Element
     public static function refHandle(): ?string
     {
         return 'product';
+    }
+
+    /**
+     * @inheritdoc
+     * @return ProductCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(ProductCondition::class, [static::class]);
     }
 
     /**

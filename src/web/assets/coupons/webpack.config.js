@@ -6,7 +6,7 @@ module.exports = getConfig({
   context: __dirname,
   config: {
     entry: {
-      coupons: './js/coupons.js'
+      coupons: './js/coupons.js',
     },
-  }
+  },
 });
