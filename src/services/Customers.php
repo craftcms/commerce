@@ -164,7 +164,7 @@ class Customers extends Component
      *
      * @throws ElementNotFoundException|\yii\db\Exception
      */
-    public function moveCustomerDataToCustomer(User $fromCustomer, User $toCustomer): bool
+    public function transferCustomerData(User $fromCustomer, User $toCustomer): bool
     {
         $fromId = $fromCustomer->id;
         $toId = $toCustomer->id;
