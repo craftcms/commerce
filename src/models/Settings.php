@@ -393,7 +393,7 @@ class Settings extends Model
         unset($values['orderPdfFilenameFormat'], $values['orderPdfPath']);
         parent::setAttributes($values, $safeOnly);
     }
-    
+
     /**
      * Returns a key-value array of weight unit options and labels.
      */
