@@ -1,9 +1,12 @@
 # Release Notes for Craft Commerce
 
+
+### Fixed
+- Fixed a bug where disabling all variants throws an error on Edit Product Page.
+
 ## 4.0.4 - 2022-06-22
 
 > {note} If you’ve already upgraded a site to Commerce 4, please go to **Commerce** → **Promotions** → **Discounts** and review your discounts’ coupons’ Max Uses values, as the `commerce/upgrade` command wasn’t migrating those values properly before this release.
-
 ### Fixed
 - Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
 - Fixed an error that could occur when using a discount with a coupon code.

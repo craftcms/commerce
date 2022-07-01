@@ -7,14 +7,18 @@
 
 namespace craftcommercetests\unit\services;
 
+use _generated\UnitTesterActions;
 use Codeception\Test\Unit;
+use craft\commerce\base\Plan;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\services\Plans;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\SubscriptionPlansFixture;
 use UnitTester;
-use yii\helpers\ArrayHelper;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * StoreTest
@@ -25,7 +29,7 @@ use yii\helpers\ArrayHelper;
 class PlansTest extends Unit
 {
     /**
-     * @var UnitTester
+     * @var UnitTester|UnitTesterActions
      */
     protected UnitTester $tester;
 
@@ -46,6 +50,9 @@ class PlansTest extends Unit
         ];
     }
 
+    /**
+     * @return void
+     */
     public function testGetAllPlans(): void
     {
         $plans = $this->service->getAllPlans();
@@ -54,6 +61,9 @@ class PlansTest extends Unit
         self::assertEquals(['monthlySubscription', 'weeklySubscription'], ArrayHelper::getColumn($plans, 'handle', false));
     }
 
+    /**
+     * @return void
+     */
     public function testGetAllEnabledPlans(): void
     {
         $plans = $this->service->getAllEnabledPlans();
@@ -75,6 +85,9 @@ class PlansTest extends Unit
         self::assertCount($count, $plans);
     }
 
+    /**
+     * @return \int[][]
+     */
     public function getPlansByGatewayIdDataProvider(): array
     {
         return [
@@ -83,8 +96,35 @@ class PlansTest extends Unit
         ];
     }
 
-    // TODO implement tets for `getPlanyById` and `getPlanByUid`
+    /**
+     * @return void
+     */
+    public function testGetPlanById(): void
+    {
+        /** @var Plan $monthlyPlan */
+        $monthlyPlan = $this->tester->grabFixture('plans', 'monthly');
+        $plan = $this->service->getPlanById($monthlyPlan->id);
 
+        self::assertInstanceOf(Plan::class, $plan);
+        self::assertEquals($monthlyPlan->name, $plan->name);
+    }
+
+    /**
+     * @return void
+     */
+    public function testGetPlanByUid(): void
+    {
+        /** @var Plan $monthlyPlan */
+        $monthlyPlan = $this->tester->grabFixture('plans', 'monthly');
+        $plan = $this->service->getPlanByUid($monthlyPlan->uid);
+
+        self::assertInstanceOf(Plan::class, $plan);
+        self::assertEquals($monthlyPlan->name, $plan->name);
+    }
+
+    /**
+     * @return void
+     */
     public function testGetPlanByHandle(): void
     {
         $plan = $this->service->getPlanByHandle('monthlySubscription');
@@ -94,6 +134,9 @@ class PlansTest extends Unit
         self::assertEquals('Weekly Subscription', $plan->name);
     }
 
+    /**
+     * @return void
+     */
     public function testGetPlanByReference(): void
     {
         $plan = $this->service->getPlanByReference('monthly_sub');
@@ -103,9 +146,13 @@ class PlansTest extends Unit
         self::assertEquals('Weekly Subscription', $plan->name);
     }
 
+    /**
+     * @return void
+     * @throws InvalidConfigException
+     */
     public function testSavePlan(): void
     {
-        $plan = $this->service->getPlanByHandle('monthlySubscription');
+        $plan = $this->tester->grabFixture('plans', 'monthly');
 
         $plan->name .= ' foo';
 
@@ -122,9 +169,55 @@ class PlansTest extends Unit
         self::assertEquals($plan->id, $dbRow['id']);
     }
 
-    // TODO implement `archivePlanById` test
 
-    // TODO implement `reorderPlans` test
+    /**
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function testArchivePlanById(): void
+    {
+        /** @var Plan $monthlyPlan */
+        $monthlyPlan = $this->tester->grabFixture('plans', 'monthly');
+        $result = $this->service->archivePlanById($monthlyPlan->id);
+
+        self::assertTrue($result);
+        $dbRow = (new Query())
+            ->from(Table::PLANS)
+            ->select(['id', 'name', 'isArchived'])
+            ->where(['isArchived' => true])
+            ->andWhere(['id' => $monthlyPlan->id])
+            ->one();
+        self::assertEquals('Monthly Subscription', $dbRow['name']);
+        self::assertEquals($monthlyPlan->id, $dbRow['id']);
+        self::assertTrue($dbRow['isArchived']);
+
+        $allPlans = $this->service->getAllPlans();
+        $allEnabledPlans = $this->service->getAllEnabledPlans();
+        self::assertNull(ArrayHelper::firstWhere($allPlans, 'name', $monthlyPlan->name));
+        self::assertNull(ArrayHelper::firstWhere($allEnabledPlans, 'name', $monthlyPlan->name));
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    public function testReorderPlans(): void
+    {
+        $plans = ArrayHelper::getColumn($this->service->getAllPlans(), 'id', false);
+
+        $result = $this->service->reorderPlans(array_reverse($plans));
+        self::assertTrue($result);
+        $dbRows = (new Query())
+            ->from(Table::PLANS)
+            ->select(['id', 'sortOrder'])
+            ->all();
+        $previousSortOrder = -1;
+        foreach (array_reverse($plans) as $key => $id) {
+            self::assertEquals($id, $dbRows[$key]['id']);
+            self::assertGreaterThan($previousSortOrder, $dbRows[$key]['sortOrder']);
+            $previousSortOrder = $dbRows[$key]['sortOrder'];
+        }
+    }
 
     /**
      *
