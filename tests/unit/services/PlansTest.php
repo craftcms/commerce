@@ -210,6 +210,7 @@ class PlansTest extends Unit
         $dbRows = (new Query())
             ->from(Table::PLANS)
             ->select(['id', 'sortOrder'])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->all();
         $previousSortOrder = -1;
         foreach (array_reverse($plans) as $key => $id) {
