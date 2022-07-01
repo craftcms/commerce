@@ -11,3 +11,4 @@
 
 ### Fixed
 - Fixed a bug where it was possible to save an order with the same address IDs. ([#2841](https://github.com/craftcms/commerce/issues/2841))
+- Fixed a PHP error that occurred when editing a subscription with custom fields.
