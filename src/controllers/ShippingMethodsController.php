@@ -134,7 +134,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
             ->where(['id' => $ids])
             ->all();
 
-        /** @var ShippingMethodRecord $discount */
+        /** @var ShippingMethodRecord $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
             $shippingMethod->enabled = ($status == 'enabled');
             $shippingMethod->save();
