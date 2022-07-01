@@ -152,7 +152,7 @@ class PlansTest extends Unit
      */
     public function testSavePlan(): void
     {
-        $plan = $this->tester->grabFixture('plans', 'monthly');
+        $plan = $this->service->getPlanByHandle('monthlySubscription');
 
         $plan->name .= ' foo';
 
