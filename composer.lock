@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2dc55f0c0cec6cab0d5857f81280be92",
+    "content-hash": "0cbd49d4415c299c930741f0c133cdd8",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -7702,22 +7702,23 @@
         },
         {
             "name": "craftcms/ecs",
-            "version": "dev-feature/ecs-update",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/ecs.git",
-                "reference": "4b580d193772fb5312d419d055b42f0bcfa14ec1"
+                "reference": "b4ef13140cd808feed5bfb857b3083d6c44ca2b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/ecs/zipball/4b580d193772fb5312d419d055b42f0bcfa14ec1",
-                "reference": "4b580d193772fb5312d419d055b42f0bcfa14ec1",
+                "url": "https://api.github.com/repos/craftcms/ecs/zipball/b4ef13140cd808feed5bfb857b3083d6c44ca2b4",
+                "reference": "b4ef13140cd808feed5bfb857b3083d6c44ca2b4",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2.5|^8.0.2",
-                "symplify/easy-coding-standard": "^10.0"
+                "symplify/easy-coding-standard": "^10.3.3"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -7728,9 +7729,9 @@
             "description": "Easy Coding Standard configurations for Craft CMS projects",
             "support": {
                 "issues": "https://github.com/craftcms/ecs/issues",
-                "source": "https://github.com/craftcms/ecs/tree/feature/ecs-update"
+                "source": "https://github.com/craftcms/ecs/tree/main"
             },
-            "time": "2022-06-28T11:08:06+00:00"
+            "time": "2022-06-30T16:27:12+00:00"
         },
         {
             "name": "craftcms/html-field",
