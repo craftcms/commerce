@@ -116,7 +116,7 @@ class Formulas extends Component
      * @param array $params data passed into the condition
      * @param string|null $setType the type of the response data, passing nothing will leave as a string. Uses \settype().
      * @param string|null $name The name of the formula, useful for locating template errors in logs and exceptions
-     * @return mixed
+     * @return bool
      * @throws SyntaxError
      * @throws LoaderError
      */
