@@ -189,7 +189,7 @@ class PlansTest extends Unit
             ->one();
         self::assertEquals('Monthly Subscription', $dbRow['name']);
         self::assertEquals($monthlyPlan->id, $dbRow['id']);
-        self::assertTrue($dbRow['isArchived']);
+        self::assertEquals(true, $dbRow['isArchived']);
 
         $allPlans = $this->service->getAllPlans();
         $allEnabledPlans = $this->service->getAllEnabledPlans();
