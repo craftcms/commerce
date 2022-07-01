@@ -791,7 +791,7 @@ class Variant extends Purchasable
      * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): VariantQuery
     {
         return new VariantQuery(static::class);
     }

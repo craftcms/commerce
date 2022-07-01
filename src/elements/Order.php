@@ -3201,6 +3201,7 @@ class Order extends Element
      */
     private function _saveAdjustments(): void
     {
+        /** @var null|array|OrderAdjustmentRecord[] $previousAdjustments */
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
@@ -3266,6 +3267,7 @@ class Order extends Element
     private function _saveLineItems(): void
     {
         // Line items that are currently in the DB
+        /** @var null|array|LineItemRecord[] $previousLineItems */
         $previousLineItems = LineItemRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
