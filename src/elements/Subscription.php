@@ -561,7 +561,7 @@ class Subscription extends Element
      * @inheritdoc
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): SubscriptionQuery
     {
         return new SubscriptionQuery(static::class);
     }
