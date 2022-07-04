@@ -69,33 +69,15 @@ class SubscriptionsController extends BaseController
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables['tabs'] = [];
-
-        $variables['tabs'][] = [
+        $form = $fieldLayout->createForm($subscription);
+        $tabMenu = $form->getTabMenu();
+        $tabMenu['tab--subscriptionManageTab'] = [
             'label' => Craft::t('commerce', 'Manage'),
-            'url' => '#subscriptionManageTab',
+            'url' => '#tab--subscriptionManageTab',
             'class' => null,
         ];
-
-        foreach ($fieldLayout->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-
-            if ($subscription->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($subscription->getErrors($field->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null,
-            ];
-        }
+        $variables['tabs'] = $tabMenu;
+        $variables['fieldsHtml'] = $form->render();
 
         $variables['continueEditingUrl'] = $subscription->cpEditUrl;
         $variables['subscriptionId'] = $subscriptionId;
