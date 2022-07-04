@@ -9,11 +9,9 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
-use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
