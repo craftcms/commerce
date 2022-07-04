@@ -18,7 +18,9 @@ use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
 /**
- * @property Order $this
+ * OrderValidatorsTrait implements the methods used in Order validation.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  */
 trait OrderValidatorsTrait
 {
@@ -54,7 +56,6 @@ trait OrderValidatorsTrait
      * @param string $attribute
      * @param $params
      * @param Validator $validator
-     * @throws CurrencyException
      * @noinspection PhpUnused
      */
     public function validatePaymentCurrency(string $attribute, $params, Validator $validator): void

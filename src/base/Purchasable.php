@@ -28,6 +28,8 @@ use craft\validators\UniqueValidator;
  * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the base price the item will be added to the line item with
  * @property-read float $salePrice the base price the item will be added to the line item with
+ * @property-read string $priceAsCurrency the base price the item will be added to the line item with
+ * @property-read string $salePriceAsCurrency the base price the item will be added to the line item with
  * @property-read Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table

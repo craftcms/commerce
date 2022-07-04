@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\SavableComponentTrait;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
@@ -231,6 +232,7 @@ class Gateways extends Component
             $gatewayUid = $gateway->uid;
         }
 
+        /** @var Gateway $existingGateway */
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {

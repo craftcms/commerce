@@ -249,7 +249,7 @@ class Subscription extends Element
     /**
      * Returns the subscription plan for this subscription
      */
-    public function getPlan(): ?PlanInterface
+    public function getPlan(): ?Plan
     {
         if (!isset($this->_plan) && $this->planId) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
@@ -338,7 +338,7 @@ class Subscription extends Element
 
     public function getPlanName(): string
     {
-        return (string)$this->getPlan();
+        return $this->getPlan()?->__toString() ?? '';
     }
 
     /**
