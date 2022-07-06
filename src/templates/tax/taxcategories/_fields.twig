@@ -31,9 +31,20 @@
     errors: taxCategory is defined ? taxCategory.getErrors('description')
 }) }}
 
+{% if not productTypesOptions %}
+    {% set warning = 'There aren’t any product types to select yet.'|t('commerce') ~ ' ' ~ tag('a', {
+        text: 'Create a product type'|t('commerce'),
+        href: url('commerce/settings/producttypes/new'),
+        class: 'go',
+    }) %}
+{% else %}
+    {% set warning = "" %}
+{% endif %}
+
 {{ forms.checkboxSelectField({
   label: "Available to Product Types"|t('commerce'),
   instructions: "Which product types should this category be available to?"|t('commerce'),
+  warning: warning,
   id: 'productTypes',
   name: 'productTypes',
   options: productTypesOptions,

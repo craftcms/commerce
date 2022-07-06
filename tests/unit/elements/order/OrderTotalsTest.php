@@ -16,13 +16,13 @@ use craft\commerce\Plugin;
 use UnitTester;
 
 /**
- * OrderTest
+ * OrderTotalsTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since 2.1
  */
-class OrderTest extends Unit
+class OrderTotalsTest extends Unit
 {
     /**
      * @var UnitTester

@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
@@ -18,12 +17,14 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidRouteException;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -107,39 +108,6 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Allow'), 'value' => ShippingRuleCategoryRecord::CONDITION_ALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
-
-        if ($variables['shippingRule'] instanceof ShippingRule) {
-            $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
-            // Localize numbers
-            $localizeAttributes = [
-                'minTotal',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
-                'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
-                'maxRate',
-            ];
-
-            foreach ($localizeAttributes as $attr) {
-                if (isset($variables['shippingRule']->{$attr}) && $variables['shippingRule']->{$attr} !== null) {
-                    $variables['shippingRule']->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$variables['shippingRule']->{$attr});
-                }
-
-                if (!empty($categoryModels)) {
-                    foreach ($categoryModels as $categoryModel) {
-                        if (isset($categoryModel->{$attr}) && $categoryModel->{$attr} !== null) {
-                            $categoryModel->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$categoryModel->{$attr});
-                        }
-                    }
-                }
-            }
-
-            $variables['shippingRule']->setShippingRuleCategories($categoryModels);
-        }
 
         return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
@@ -235,26 +203,38 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
-     * @throws ProductTypeNotFoundException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        if (!$id = $this->request->getRequiredBodyParam('id')) {
-            throw new BadRequestHttpException('Product Type ID not submitted');
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            $this->requireAcceptsJson();
         }
 
-        if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
-            throw new ProductTypeNotFoundException('Can not find product type to delete');
+        if (!$id = $this->request->getRequiredBodyParam('id')) {
+            throw new BadRequestHttpException('Shipping rule ID not submitted');
+        }
+
+        $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        if (!$rule) {
+            throw new Exception('Cannot find shipping rule to delete');
         }
 
         if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
             return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asSuccess();
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            return $this->asSuccess();
+        }
+
+        return $this->redirectToPostedUrl($rule);
     }
 }

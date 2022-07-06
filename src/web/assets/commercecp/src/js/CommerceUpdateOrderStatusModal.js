@@ -116,16 +116,6 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
       )
       .appendTo($inputs);
 
-    this.$suppress = $(
-      '<div class="field">' +
-        '<div class="input">' +
-        '<input id="order-action-suppress-emails" name="suppressEmails" type="checkbox" class="checkbox" value="1">' +
-        '<label for="order-action-suppress-emails">' +
-        Craft.t('commerce', 'Suppress emails') +
-        '</label>' +
-        '</div></div>'
-    ).appendTo($inputs);
-
     var $suppressInput = $('<div/>', {class: 'input'})
       .append(
         $('<input/>', {
@@ -151,7 +141,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
 
     // Footer and buttons
     var $footer = $('<div class="footer"/>').appendTo($form);
-    var $mainBtnGroup = $('<div class="btngroup right"/>').appendTo($footer);
+    var $mainBtnGroup = $('<div class="buttons right"/>').appendTo($footer);
     this.$cancelBtn = $('<input/>', {
       type: 'button',
       class: 'btn',

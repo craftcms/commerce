@@ -310,7 +310,7 @@
                     {{ commerceForms.numberField({
                         name: 'minTotal',
                         label: 'Minimum'|t('commerce'),
-                        value: shippingRule.minTotal,
+                        value: shippingRule.minTotal|number,
                         type: 'number',
                         min: 0,
                         step: 'any',
@@ -322,7 +322,7 @@
                     {{ commerceForms.numberField({
                         name: 'maxTotal',
                         label: 'Maximum'|t('commerce'),
-                        value: shippingRule.maxTotal,
+                        value: shippingRule.maxTotal|number,
                         type: 'number',
                         min: 0,
                         step: 'any',
@@ -362,7 +362,7 @@
                     {{ commerceForms.numberField({
                         name: 'minWeight',
                         label: 'Minimum'|t('commerce'),
-                        value: shippingRule.minWeight,
+                        value: shippingRule.minWeight|number,
                         type: 'number',
                         min: 0,
                         step: 'any',
@@ -374,7 +374,7 @@
                     {{ commerceForms.numberField({
                         name: 'maxWeight',
                         label: 'Maximum'|t('commerce'),
-                        value: shippingRule.maxWeight,
+                        value: shippingRule.maxWeight|number,
                         type: 'number',
                         min: 0,
                         step: 'any',
@@ -430,7 +430,7 @@
             label: "Base Rate"|t('commerce'),
             name: 'baseRate',
             instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate. The whole rule, including this base rate, will not match and apply if the cart only contains non-shippable items like digital products."|t('commerce'),
-            value: shippingRule.baseRate,
+            value: shippingRule.baseRate|number,
             type: 'number',
             min: 0,
             step: 'any',
@@ -442,7 +442,7 @@
             label: "Minimum Total Shipping Cost"|t('commerce'),
             name: 'minRate',
             instructions: "The minimum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
-            value: shippingRule.minRate,
+            value: shippingRule.minRate|number,
             type: 'number',
             min: 0,
             step: 'any',
@@ -454,7 +454,7 @@
             label: "Maximum Total Shipping Cost"|t('commerce'),
             instructions: "The maximum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
             name: 'maxRate',
-            value: shippingRule.maxRate,
+            value: shippingRule.maxRate|number,
             type: 'number',
             min: 0,
             step: 'any',
@@ -483,7 +483,7 @@
                     <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'perItemRate',
-                            value: shippingRule.perItemRate,
+                            value: shippingRule.perItemRate|number,
                             type: 'number',
                             min: 0,
                             step: 'any',
@@ -494,7 +494,7 @@
                     <td class="topalign" data-title="{{ 'Weight Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'weightRate',
-                            value: shippingRule.weightRate,
+                            value: shippingRule.weightRate|number,
                             type: 'number',
                             min: 0,
                             step: 'any',
@@ -505,7 +505,7 @@
                     <td class="topalign" data-title="{{ 'Percentage Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'percentageRate',
-                            value: shippingRule.percentageRate,
+                            value: shippingRule.percentageRate|number,
                             type: 'number',
                             min: 0,
                             step: 'any',
@@ -522,9 +522,9 @@
                 </tr>
                 {% for shippingCategory in shippingCategories %}
                     {% set shippingCategoryRule = shippingRule.getShippingRuleCategories[shippingCategory.id] ?? null %}
-                    {% set perItemRate = shippingCategoryRule ? shippingCategoryRule.perItemRate : '' %}
-                    {% set weightRate = shippingCategoryRule ? shippingCategoryRule.weightRate : '' %}
-                    {% set percentageRate = shippingCategoryRule ? shippingCategoryRule.percentageRate : '' %}
+                    {% set perItemRate = shippingCategoryRule and not shippingCategoryRule.perItemRate is same as(null) ? shippingCategoryRule.perItemRate|number : '' %}
+                    {% set weightRate = shippingCategoryRule and not shippingCategoryRule.weightRate is same as(null) ? shippingCategoryRule.weightRate|number : '' %}
+                    {% set percentageRate = shippingCategoryRule and not shippingCategoryRule.percentageRate is same as(null) ? shippingCategoryRule.percentageRate|number : '' %}
                     {% set categoryCondition = shippingCategoryRule ? shippingCategoryRule.condition : '' %}
 
                     {% set id = shippingCategory.id %}
@@ -536,7 +536,7 @@
                         <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
-                                placeholder: shippingRule.perItemRate,
+                                placeholder: shippingRule.perItemRate|number,
                                 class: 'categoryPerItemRate',
                                 value: perItemRate,
                                 type: 'number',
@@ -548,7 +548,7 @@
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
                                 class: 'categoryWeightRate',
-                                placeholder: shippingRule.weightRate,
+                                placeholder: shippingRule.weightRate|number,
                                 value: weightRate,
                                 type: 'number',
                                 step: 'any',
@@ -559,7 +559,7 @@
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
                                 class: 'categoryPercentageRate',
-                                placeholder: shippingRule.percentageRate,
+                                placeholder: shippingRule.percentageRate|number,
                                 value: percentageRate,
                                 type: 'number',
                                 step: 'any',

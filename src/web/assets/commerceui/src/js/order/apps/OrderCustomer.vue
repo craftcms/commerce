@@ -36,7 +36,10 @@
         >
             <div class="w-1/2 pr" v-show="!editing || !editMode">
                 <template v-if="draft && draft.order.billingAddressHtml">
-                    <div v-html="draft.order.billingAddressHtml"></div>
+                    <div
+                        class="order-address-display order-address-display--static"
+                        v-html="draft.order.billingAddressHtml"
+                    ></div>
                 </template>
                 <template v-else>
                     <div class="zilch">
@@ -48,7 +51,10 @@
             </div>
             <div class="w-1/2 pl" v-show="!editing || !editMode">
                 <template v-if="draft && draft.order.shippingAddressHtml">
-                    <div v-html="draft.order.shippingAddressHtml"></div>
+                    <div
+                        class="order-address-display order-address-display--static"
+                        v-html="draft.order.shippingAddressHtml"
+                    ></div>
                 </template>
                 <template v-else>
                     <div class="zilch">
