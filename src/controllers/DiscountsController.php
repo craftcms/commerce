@@ -82,7 +82,7 @@ class DiscountsController extends BaseCpController
         } else {
             $this->requirePermission('commerce-editDiscounts');
         }
-        
+
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
 
@@ -120,13 +120,13 @@ class DiscountsController extends BaseCpController
         $discount = new Discount();
 
         $discount->id = $this->request->getBodyParam('id');
-        
+
         if ($discount->id === null) {
             $this->requirePermission('commerce-createDiscounts');
         } else {
             $this->requirePermission('commerce-editDiscounts');
         }
-        
+
         $discount->name = $this->request->getBodyParam('name');
         $discount->description = $this->request->getBodyParam('description');
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
@@ -247,7 +247,7 @@ class DiscountsController extends BaseCpController
                         'discountId' => null,
                         'code' => $c['code'],
                         'uses' => $c['uses'] ?: 0,
-                        'maxUses' => $c['maxUses'] ?: null,
+                        'maxUses' => is_numeric($c['maxUses']) ? (int)$c['maxUses'] : null,
                     ],
                 ],
             ]);
@@ -423,20 +423,14 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
-        foreach ($localizedNumberAttributes as $attr) {
+        foreach ($flipNegativeNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
                 continue;
             }
 
             if ($variables['discount']->{$attr} != 0) {
-                $number = (float)$variables['discount']->{$attr};
-                if (in_array($attr, $flipNegativeNumberAttributes, false)) {
-                    $number *= -1;
-                }
-
-                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal($number);
+                $variables['discount']->{$attr} *= -1;
             } else {
                 $variables['discount']->{$attr} = 0;
             }

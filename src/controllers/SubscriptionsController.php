@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -68,33 +69,15 @@ class SubscriptionsController extends BaseController
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables['tabs'] = [];
-
-        $variables['tabs'][] = [
+        $form = $fieldLayout->createForm($subscription);
+        $tabMenu = $form->getTabMenu();
+        $tabMenu['tab--subscriptionManageTab'] = [
             'label' => Craft::t('commerce', 'Manage'),
-            'url' => '#subscriptionManageTab',
+            'url' => '#tab--subscriptionManageTab',
             'class' => null,
         ];
-
-        foreach ($fieldLayout->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-
-            if ($subscription->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($subscription->getErrors($field->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null,
-            ];
-        }
+        $variables['tabs'] = $tabMenu;
+        $variables['fieldsHtml'] = $form->render();
 
         $variables['continueEditingUrl'] = $subscription->cpEditUrl;
         $variables['subscriptionId'] = $subscriptionId;
@@ -205,7 +188,7 @@ class SubscriptionsController extends BaseController
 
             try {
                 $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParams(), false);
+                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
 
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);

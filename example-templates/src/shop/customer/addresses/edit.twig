@@ -6,9 +6,9 @@
 
 {% block main %}
 
-    {% set addressId = craft.app.request.param('addressId') %}
-    {% set redirect = craft.app.request.param('redirect') %}
-    {% set countryCode = craft.app.request.param('countryCode') %}
+    {% set addressId = craft.app.request.queryParam('addressId') %}
+    {% set redirect = craft.app.request.queryParam('redirect') %}
+    {% set countryCode = craft.app.request.queryParam('countryCode') %}
 
     {% if addressId %}
         {% set address = collect(currentUser.addresses).firstWhere('id', addressId) %}
