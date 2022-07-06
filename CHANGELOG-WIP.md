@@ -1,10 +1,10 @@
 # Release Notes for Craft Commerce 4.1 (WIP)
 
 ### Added
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
-- Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 - Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
 - Added the `commerce/transfer-customer-data` command.
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+- Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 
 ### Changed
 - Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
