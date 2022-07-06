@@ -32,9 +32,9 @@ class LiteTaxSettings extends Model
     public string $taxName;
 
     /**
-     * @var string Tax include
+     * @var bool Tax include
      */
-    public string $taxInclude;
+    public bool $taxInclude;
 
     /**
      * @return array

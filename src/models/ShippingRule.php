@@ -153,7 +153,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ShippingCategory[]|null
+     * @var ShippingRuleCategory[]|null
      */
     private ?array $_shippingRuleCategories = null;
 

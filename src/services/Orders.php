@@ -74,6 +74,9 @@ class Orders extends Component
 
     /**
      * Get an order by its ID.
+     *
+     * @param int $id
+     * @return Order|null
      */
     public function getOrderById(int $id): ?Order
     {

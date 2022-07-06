@@ -23,7 +23,7 @@ use craft\db\ActiveRecord;
  * @property string $subject
  * @property string $templatePath
  * @property string $plainTextTemplatePath
- * @property string $pdfId
+ * @property int|null $pdfId
  * @property string $to
  * @property string $language
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

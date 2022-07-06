@@ -572,7 +572,9 @@ class LineItem extends Model
     public function getPurchasable(): ?PurchasableInterface
     {
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
-            $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            /** @var PurchasableInterface|null $purchasble */
+            $purchasble = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $this->_purchasable = $purchasble;
         }
 
         return $this->_purchasable;

@@ -28,6 +28,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
@@ -45,6 +46,8 @@ use yii\validators\Validator;
  * @property Product $product the product associated with this variant
  * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
+ * @property DateTime|null $dateUpdated
+ * @property DateTime|null $dateCreated
  * @property-read string[] $cacheTags
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText

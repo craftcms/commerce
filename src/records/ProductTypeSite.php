@@ -21,8 +21,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $productTypeId
  * @property Site $site
  * @property int $siteId
- * @property string $template
- * @property string $uriFormat
+ * @property string|null $template
+ * @property string|null $uriFormat
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

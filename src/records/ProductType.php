@@ -17,7 +17,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property string $descriptionFormat
  * @property FieldLayout $fieldLayout
- * @property int $fieldLayoutId
+ * @property int|null $fieldLayoutId
  * @property string $handle
  * @property bool $hasDimensions
  * @property bool $hasVariants
@@ -33,7 +33,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
- * @property int $variantFieldLayoutId
+ * @property int|null $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

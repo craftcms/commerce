@@ -185,10 +185,10 @@ class Gateways extends Component
     /**
      * Returns a gateway by its ID.
      *
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
-    public function getGatewayById(int $id): ?GatewayInterface
+    public function getGatewayById(int $id): ?Gateway
     {
         return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
     }
@@ -196,10 +196,10 @@ class Gateways extends Component
     /**
      * Returns a gateway by its handle.
      *
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
-    public function getGatewayByHandle(string $handle): ?GatewayInterface
+    public function getGatewayByHandle(string $handle): ?Gateway
     {
         return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }

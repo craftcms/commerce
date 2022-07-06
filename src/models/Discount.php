@@ -291,6 +291,7 @@ class Discount extends Model
 
         if (!$condition instanceof ElementConditionInterface) {
             $condition['class'] = DiscountOrderCondition::class;
+            /** @var DiscountOrderCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;
@@ -322,6 +323,7 @@ class Discount extends Model
 
         if (!$condition instanceof ElementConditionInterface) {
             $condition['class'] = DiscountCustomerCondition::class;
+            /** @var DiscountCustomerCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;
@@ -354,6 +356,7 @@ class Discount extends Model
 
         if (!$condition instanceof ElementConditionInterface) {
             $condition['class'] = DiscountAddressCondition::class;
+            /** @var DiscountAddressCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;
@@ -386,6 +389,7 @@ class Discount extends Model
 
         if (!$condition instanceof ElementConditionInterface) {
             $condition['class'] = DiscountAddressCondition::class;
+            /** @var DiscountAddressCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;
