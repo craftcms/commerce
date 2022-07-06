@@ -79,7 +79,7 @@ class SubscriptionsController extends BaseController
         $variables['tabs'] = $tabMenu;
         $variables['fieldsHtml'] = $form->render();
 
-        $variables['continueEditingUrl'] = $subscription->cpEditUrl;
+        $variables['continueEditingUrl'] = $subscription->getCpEditUrl();
         $variables['subscriptionId'] = $subscriptionId;
         $variables['subscription'] = $subscription;
         $variables['fieldLayout'] = $fieldLayout;
@@ -140,6 +140,7 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
+        /** @var Subscription $subscription */
         $gateway = $subscription->getGateway();
         $gateway->refreshPaymentHistory($subscription);
 
@@ -245,6 +246,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
 
             $validData = $subscriptionUid && $subscription;
@@ -291,6 +293,7 @@ class SubscriptionsController extends BaseController
         $error = false;
 
         try {
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanByUid($planUid);
 
@@ -353,6 +356,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
             $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());

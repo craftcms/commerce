@@ -200,7 +200,8 @@ class Subscription extends Element
      */
     public function __toString(): string
     {
-        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
+        $plan = $this->getPlan();
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $plan->name ?? '']);
     }
 
     public function canView(User $user): bool
@@ -248,7 +249,7 @@ class Subscription extends Element
     /**
      * Returns the subscription plan for this subscription
      */
-    public function getPlan(): ?PlanInterface
+    public function getPlan(): ?Plan
     {
         if (!isset($this->_plan) && $this->planId) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
@@ -337,7 +338,7 @@ class Subscription extends Element
 
     public function getPlanName(): string
     {
-        return (string)$this->getPlan();
+        return $this->getPlan()?->__toString() ?? '';
     }
 
     /**
@@ -560,7 +561,7 @@ class Subscription extends Element
      * @inheritdoc
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): SubscriptionQuery
     {
         return new SubscriptionQuery(static::class);
     }

@@ -16,6 +16,7 @@ use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
@@ -1015,6 +1016,7 @@ class Product extends Element
             return false;
         }
 
+        /** @var Variant[] $variants */
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
             ->status(null)
@@ -1044,9 +1046,11 @@ class Product extends Element
     public function afterRestore(): void
     {
         // Also restore any variants for this element
+        /** @var VariantQuery $variantsQuery */
         $variantsQuery = Variant::find()
             ->status(null)
-            ->siteId($this->siteId)
+            ->siteId($this->siteId);
+        $variantsQuery
             ->productId($this->id)
             ->trashed()
             ->andWhere(['commerce_variants.deletedWithProduct' => true]);
@@ -1529,8 +1533,9 @@ class Product extends Element
      */
     public function afterPropagate(bool $isNew): void
     {
-        /** @var Product $original */
-        if ($original = $this->duplicateOf) {
+        /** @var Product|null $original */
+        $original = $this->duplicateOf;
+        if ($original) {
             $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($original->id, $original->siteId);
             $newVariants = [];
             foreach ($variants as $variant) {

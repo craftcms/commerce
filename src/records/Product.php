@@ -16,13 +16,13 @@ use yii\db\ActiveQueryInterface;
 /**
  * Product record.
  *
- * @property float defaultHeight
- * @property float defaultLength
- * @property float defaultPrice
- * @property string defaultSku
- * @property int defaultVariantId
- * @property float defaultWeight
- * @property float defaultWidth
+ * @property float $defaultHeight
+ * @property float $defaultLength
+ * @property float $defaultPrice
+ * @property string $defaultSku
+ * @property int $defaultVariantId
+ * @property float $defaultWeight
+ * @property float $defaultWidth
  * @property ActiveQueryInterface $element
  * @property DateTime $expiryDate
  * @property bool $freeShipping
