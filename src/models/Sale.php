@@ -7,9 +7,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
-use craft\commerce\helpers\Localization;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
@@ -30,119 +30,106 @@ use DateTime;
 class Sale extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var DateTime|null Date From
      */
-    public $dateFrom;
+    public ?DateTime $dateFrom = null;
 
     /**
      * @var DateTime|null Date To
      */
-    public $dateTo;
+    public ?DateTime $dateTo = null;
 
     /**
      * @var string How the sale should be applied
      */
-    public $apply;
+    public string $apply = SaleRecord::APPLY_BY_PERCENT;
 
     /**
-     * @var float The amount field used by the apply option
+     * @var float|null The amount field used by the apply option
      */
-    public $applyAmount;
+    public ?float $applyAmount = null;
 
     /**
      * @var bool ignore the previous sales that affect the purchasable
      */
-    public $ignorePrevious;
+    public bool $ignorePrevious = false;
 
     /**
      * @var bool should the sales system stop processing other sales after this one
      */
-    public $stopProcessing;
+    public bool $stopProcessing = false;
 
     /**
      * @var bool Match all groups
      */
-    public $allGroups = false;
+    public bool $allGroups = false;
 
     /**
      * @var bool Match all purchasables
      */
-    public $allPurchasables = false;
+    public bool $allPurchasables = false;
 
     /**
      * @var bool Match all categories
      */
-    public $allCategories = false;
+    public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
      */
-    public $categoryRelationshipType;
+    public string $categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
     /**
      * @var bool Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
-     * @var int The order index of the application of the sale
+     * @var int|null The order index of the application of the sale
      */
-    public $sortOrder;
-
-    /**
-     * @var DateTime|null
-     * @since 3.4
-     */
-    public $dateCreated;
+    public ?int $sortOrder = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateCreated = null;
 
     /**
-     * @var int[] Product Ids
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_purchasableIds;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int[] Product Type IDs
+     * @var int[]|null Product Ids
      */
-    private $_categoryIds;
+    private ?array $_purchasableIds = null;
 
     /**
-     * @var int[] Group IDs
+     * @var int[]|null Product Type IDs
      */
-    private $_userGroupIds;
-
+    private ?array $_categoryIds = null;
 
     /**
-     * @inheritDoc
+     * @var int[]|null Group IDs
      */
-    public function init()
-    {
-        if ($this->categoryRelationshipType === null) {
-            $this->categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
-        }
-
-        parent::init();
-    }
+    private ?array $_userGroupIds = null;
 
     /**
      * @inheritdoc
@@ -165,47 +152,35 @@ class Sale extends Model
         ];
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'dateFrom';
-        $attributes[] = 'dateTo';
-        return $attributes;
-    }
-
-    /**
-     * @return string|false
-     */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
 
     /**
-     * @return string
-     */
-    public function getApplyAmountAsPercent(): string
-    {
-        return Localization::formatAsPercentage(-($this->applyAmount ?? 0));
-    }
-
-    /**
-     * @return string
-     */
-    public function getApplyAmountAsFlat(): string
-    {
-        return $this->applyAmount !== 0 ? (string)($this->applyAmount * -1) : '0';
-    }
-
-    /**
      * @return array
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+
+        return $fields;
+    }
+
+    public function getApplyAmountAsPercent(): string
+    {
+        return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
+    }
+
+    public function getApplyAmountAsFlat(): string
+    {
+        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
+    }
+
     public function getCategoryIds(): array
     {
-        if (null === $this->_categoryIds) {
+        if (!isset($this->_categoryIds)) {
             $categoryIds = [];
             if ($this->id) {
                 $categoryIds = (new Query())->select(
@@ -224,12 +199,9 @@ class Sale extends Model
         return $this->_categoryIds;
     }
 
-    /**
-     * @return array
-     */
     public function getPurchasableIds(): array
     {
-        if (null === $this->_purchasableIds) {
+        if (!isset($this->_purchasableIds)) {
             $purchasableIds = [];
             if ($this->id) {
                 $purchasableIds = (new Query())->select(
@@ -248,12 +220,9 @@ class Sale extends Model
         return $this->_purchasableIds;
     }
 
-    /**
-     * @return array
-     */
     public function getUserGroupIds(): array
     {
-        if (null === $this->_userGroupIds) {
+        if (!isset($this->_userGroupIds)) {
             $userGroupIds = [];
             if ($this->id) {
                 $userGroupIds = (new Query())->select(
@@ -273,30 +242,24 @@ class Sale extends Model
 
     /**
      * Sets the related category ids
-     *
-     * @param array $ids
      */
-    public function setCategoryIds(array $ids)
+    public function setCategoryIds(array $ids): void
     {
         $this->_categoryIds = array_unique($ids);
     }
 
     /**
      * Sets the related purchasable ids
-     *
-     * @param array $purchasableIds
      */
-    public function setPurchasableIds(array $purchasableIds)
+    public function setPurchasableIds(array $purchasableIds): void
     {
         $this->_purchasableIds = array_unique($purchasableIds);
     }
 
     /**
      * Sets the related user group ids
-     *
-     * @param array $userGroupIds
      */
-    public function setUserGroupIds(array $userGroupIds)
+    public function setUserGroupIds(array $userGroupIds): void
     {
         $this->_userGroupIds = array_unique($userGroupIds);
     }

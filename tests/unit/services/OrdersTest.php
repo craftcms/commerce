@@ -11,6 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Orders;
+use craft\elements\User;
+use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
 
@@ -25,17 +27,17 @@ class OrdersTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Orders
      */
-    protected $service;
+    protected Orders $service;
 
     /**
      * @var OrdersFixture
      */
-    protected $fixtureData;
+    protected OrdersFixture $fixtureData;
 
     /**
      * @return array
@@ -43,13 +45,16 @@ class OrdersTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'orders' => [
                 'class' => OrdersFixture::class,
             ],
         ];
     }
 
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -57,7 +62,7 @@ class OrdersTest extends Unit
         $this->fixtureData = $this->tester->grabFixture('orders');
     }
 
-    public function testGetOrderById()
+    public function testGetOrderById(): void
     {
         $order = $this->service->getOrderById($this->fixtureData->getElement('completed-new')->id);
 
@@ -65,7 +70,7 @@ class OrdersTest extends Unit
         self::assertEquals($this->fixtureData->getElement('completed-new')->id, $order->id);
     }
 
-    public function testGetOrderByNumber()
+    public function testGetOrderByNumber(): void
     {
         $order = $this->service->getOrderByNumber($this->fixtureData->getElement('completed-new')->number);
 
@@ -78,9 +83,11 @@ class OrdersTest extends Unit
         self::assertNull($order);
     }
 
-    public function testGetOrdersByCustomer()
+    public function testGetOrdersByCustomer(): void
     {
-        $orders = $this->service->getOrdersByCustomer($this->fixtureData->getElement('completed-new')->customerId);
+        /** @var User $customer */
+        $customer = $this->tester->grabFixture('customer')->getElement('customer1');
+        $orders = $this->service->getOrdersByCustomer($customer->id);
 
         self::assertIsArray($orders);
         self::assertCount(3, $orders);
@@ -89,7 +96,7 @@ class OrdersTest extends Unit
         }
     }
 
-    public function testGetOrdersByEmail()
+    public function testGetOrdersByEmail(): void
     {
         $orders = $this->service->getOrdersByEmail($this->fixtureData->getElement('completed-new')->email);
 

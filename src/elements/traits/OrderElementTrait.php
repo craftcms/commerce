@@ -11,15 +11,18 @@ use Craft;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
+use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\db\OrderQuery;
-use craft\commerce\elements\Order;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\models\FieldLayout;
+use Exception;
 
 trait OrderElementTrait
 {
@@ -43,7 +46,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
@@ -96,13 +99,13 @@ trait OrderElementTrait
             {
                 return $this->getBillingAddress() ? $this->getBillingAddress()->lastName ?? '' : '';
             }
-            case 'shippingBusinessName':
+            case 'shippingOrganizationName':
             {
-                return $this->getShippingAddress()->businessName ?? '';
+                return $this->getShippingAddress()->organization ?? '';
             }
-            case 'billingBusinessName':
+            case 'billingOrganizationName':
             {
-                return $this->getBillingAddress()->businessName ?? '';
+                return $this->getBillingAddress()->organization ?? '';
             }
             case 'shippingMethodName':
             {
@@ -156,7 +159,6 @@ trait OrderElementTrait
             {
                 $miniTable = [];
 
-                /** @var Order $this */
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Items'),
@@ -222,26 +224,23 @@ trait OrderElementTrait
             'billingFirstName',
             'billingLastName',
             'billingFullName',
-            'billingPhone',
-            'billingAddressLines',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
-            'shippingPhone',
-            'shippingAddressLines',
             'shortNumber',
             'transactionReference',
             'username',
             'reference',
             'skus',
-            'lineItemDescriptions'
+            'lineItemDescriptions',
         ];
     }
 
     /**
      * @inheritdoc
+     * @noinspection PhpUnused
      */
     public function getSearchKeywords(string $attribute): string
     {
@@ -252,28 +251,22 @@ trait OrderElementTrait
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
                 return $this->billingAddress->fullName ?? '';
-            case 'billingPhone':
-                return $this->billingAddress->phone ?? '';
-            case 'billingAddressLines':
+            case 'billingAddress':
                 $address = $this->getBillingAddress();
-                $addressLines = $address ? $address->getAddressLines(true) : [];
-                return implode(' ', $addressLines);
+                return $address ? Craft::$app->getAddresses()->formatAddress($address) : '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
                 return $this->shippingAddress->fullName ?? '';
-            case 'shippingPhone':
-                return $this->shippingAddress->phone ?? '';
-            case 'shippingAddressLines':
+            case 'shippingAddress':
                 $address = $this->getShippingAddress();
-                $addressLines = $address ? $address->getAddressLines(true) : [];
-                return implode(' ', $addressLines);
+                return $address ? Craft::$app->getAddresses()->formatAddress($address) : '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
-                return $this->getUser()->username ?? '';
+                return $this->getCustomer()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
             case 'lineItemDescriptions':
@@ -286,6 +279,7 @@ trait OrderElementTrait
 
     /**
      * @inheritdoc
+     * @throws Exception
      */
     protected static function defineSources(string $context = null): array
     {
@@ -329,7 +323,7 @@ trait OrderElementTrait
         $updatedAfter = [];
         $updatedAfter[] = '>= ' . $edge;
 
-        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
+        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:active',
             'label' => Craft::t('commerce', 'Active Carts'),
@@ -343,7 +337,7 @@ trait OrderElementTrait
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
 
-        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
+        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:inactive',
             'label' => Craft::t('commerce', 'Inactive Carts'),
@@ -355,7 +349,7 @@ trait OrderElementTrait
             ],
         ];
 
-        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
+        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => false];
         $sources[] = [
             'key' => 'carts:attempted-payment',
             'label' => Craft::t('commerce', 'Attempted Payments'),
@@ -436,7 +430,7 @@ trait OrderElementTrait
         $default = parent::defineExporters($source);
         // Remove the standard expanded exporter and use our own
         ArrayHelper::removeValue($default, CraftExpanded::class);
-        ArrayHelper::append($default, Expanded::class);
+        $default[] = Expanded::class;
 
         return $default;
     }
@@ -447,7 +441,6 @@ trait OrderElementTrait
     protected static function defineTableAttributes(): array
     {
         return [
-            'order' => ['label' => Craft::t('commerce', 'Order')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -473,8 +466,8 @@ trait OrderElementTrait
             'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
             'billingFirstName' => ['label' => Craft::t('commerce', 'Billing First Name')],
             'billingLastName' => ['label' => Craft::t('commerce', 'Billing Last Name')],
-            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
-            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
+            'shippingOrganizationName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
+            'billingOrganizationName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
             'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
             'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
             'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
@@ -493,7 +486,7 @@ trait OrderElementTrait
         $attributes = [];
         $attributes[] = 'order';
 
-        if (0 !== strpos($source, 'carts:')) {
+        if (!str_starts_with($source, 'carts:')) {
             $attributes[] = 'reference';
             $attributes[] = 'orderStatus';
             $attributes[] = 'dateOrdered';
@@ -513,7 +506,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         /** @var OrderQuery $elementQuery */
 
@@ -537,8 +530,8 @@ trait OrderElementTrait
             case 'billingFullName':
             case 'billingFirstName':
             case 'billingLastName':
-            case 'shippingBusinessName':
-            case 'billingBusinessName':
+            case 'shippingOrganizationName':
+            case 'billingOrganizationName':
             case 'shippingMethodName':
                 $elementQuery->withAddresses();
                 break;
@@ -553,6 +546,15 @@ trait OrderElementTrait
             default:
                 parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @return OrderCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(OrderCondition::class, [static::class]);
     }
 
     /**
@@ -622,14 +624,11 @@ trait OrderElementTrait
     }
 
     /**
-     * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
-     *
-     * @return string
+     * @param array $miniTable Expects an array with rows of 'label', 'value' keys values.
      */
-    private function _miniTable($miniTable)
+    private function _miniTable(array $miniTable): string
     {
-        $output = '';
-        $output .= '<table style="padding: 0; width: 100%">';
+        $output = '<table style="padding: 0; width: 100%">';
         foreach ($miniTable as $row) {
             $output .= '<tr style="padding: 0">';
             $output .= '<td style="text-align: left; padding: 0px">' . $row['label'] . '</td>';

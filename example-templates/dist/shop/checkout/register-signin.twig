@@ -13,7 +13,7 @@
 {% endif %}
 
 {% set userExistsButCantLogin = craft.users
-  .email(cart.email)
+  .email(cart.email ?? 'NULL')
   .status(['locked','suspended','pending'])
   .one() %}
 
@@ -21,7 +21,7 @@
   {% redirect 'shop/checkout/addresses' %}
 {% endif %}
 
-{% set userExists = craft.users.email(cart.email).one() %}
+{% set userExists = craft.users.email(cart.email ?? 'NULL').one() %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
@@ -32,7 +32,7 @@
   <div class="flex -mx-8 pt-8">
     <div class="w-1/2 pl-8">
       <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
-        {% if userExists %}
+        {% if userExists and userExists.getIsCredentialed() %}
           <h2 class="mt-0 text-lg font-bold">
             {{- 'Sign In'|t -}}
           </h2>

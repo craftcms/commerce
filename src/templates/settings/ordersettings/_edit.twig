@@ -1,0 +1,19 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% set fullPageForm = true %}
+
+{% block content %}
+    <h2>{{ "Order Fields"|t('commerce') }}</h2>
+
+    <input type="hidden" name="action" value="commerce/order-settings/save">
+    {{ redirectInput('commerce/settings/ordersettings') }}
+
+    {{ csrfInput() }}
+
+    {{ forms.fieldLayoutDesignerField({
+        fieldLayout: fieldLayout,
+    }) }}
+{% endblock %}

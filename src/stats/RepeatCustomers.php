@@ -21,12 +21,12 @@ class RepeatCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'repeatingCustomers';
+    protected string $_handle = 'repeatingCustomers';
 
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $total = (int)$this->_createStatQuery()
             ->select(['customerId'])
@@ -39,11 +39,11 @@ class RepeatCustomers extends Stat
             ->column();
 
 
-        $repeat = (int)count(array_filter($repeatRows, static function($row) {
+        $repeat = count(array_filter($repeatRows, static function($row) {
             return $row > 1;
         }));
 
-        $percentage = round($total ? ($repeat / $total) * 100 : 0, 0);
+        $percentage = round($total ? ($repeat / $total) * 100 : 0);
 
         return compact('total', 'repeat', 'percentage');
     }

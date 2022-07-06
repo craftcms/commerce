@@ -29,9 +29,9 @@ class LocaleHelperTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
-    public function testPdfGetRenderLanguageException()
+    public function testPdfGetRenderLanguageException(): void
     {
         $this->tester->expectThrowable(InvalidArgumentException::class, function() {
             $pdf = new Pdf();
@@ -40,7 +40,7 @@ class LocaleHelperTest extends Unit
         });
     }
 
-    public function testPdfGetOrderLanguage()
+    public function testPdfGetOrderLanguage(): void
     {
         $order = new Order();
         $order->orderLanguage = 'nl';
@@ -60,7 +60,7 @@ class LocaleHelperTest extends Unit
         self::assertEquals('ph', $language);
     }
 
-    public function testEmailGetRenderLanguageException()
+    public function testEmailGetRenderLanguageException(): void
     {
         $this->tester->expectThrowable(InvalidArgumentException::class, function() {
             $email = new Email();
@@ -69,7 +69,7 @@ class LocaleHelperTest extends Unit
         });
     }
 
-    public function testEmailGetOrderLanguage()
+    public function testEmailGetOrderLanguage(): void
     {
         $order = new Order();
         $order->orderLanguage = 'nl';
@@ -89,7 +89,7 @@ class LocaleHelperTest extends Unit
         self::assertEquals('ph', $language);
     }
 
-    public function testSwitchLanguage()
+    public function testSwitchLanguage(): void
     {
         Locale::switchAppLanguage('nl');
 

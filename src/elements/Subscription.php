@@ -24,6 +24,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -44,6 +45,7 @@ use yii\base\InvalidConfigException;
  * @property User $subscriber
  * @property string $eagerLoadedElements
  * @property DateTime $trialExpires datetime of trial expiry
+ * @property array $subscriptionData
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @copyright Copyright (c) 2015, Pixel & Tonic, Inc.
  * @since 2.0
@@ -53,113 +55,112 @@ class Subscription extends Element
     /**
      * @var string
      */
-    const STATUS_ACTIVE = 'active';
+    public const STATUS_ACTIVE = 'active';
 
     /**
      * @var string
      */
-    const STATUS_EXPIRED = 'expired';
+    public const STATUS_EXPIRED = 'expired';
 
     /**
      * @var string
      */
-    const STATUS_SUSPENDED = 'suspended';
-
-
-    /**
-     * @var int User id
-     */
-    public $userId;
+    public const STATUS_SUSPENDED = 'suspended';
 
     /**
-     * @var int Plan id
+     * @var int|null User id
      */
-    public $planId;
+    public ?int $userId = null;
 
     /**
-     * @var int Gateway id
+     * @var int|null Plan id
      */
-    public $gatewayId;
+    public ?int $planId = null;
+
+    /**
+     * @var int|null Gateway id
+     */
+    public ?int $gatewayId = null;
 
     /**
      * @var int|null Order id
      */
-    public $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var string Subscription reference on the gateway
      */
-    public $reference;
+    public string $reference = '';
 
     /**
      * @var int Trial days granted
      */
-    public $trialDays;
+    public int $trialDays = 0;
 
     /**
-     * @var DateTime Date of next payment
+     * @var DateTime|null Date of next payment
      */
-    public $nextPaymentDate;
+    public ?DateTime $nextPaymentDate = null;
 
     /**
      * @var bool Whether the subscription is canceled
      */
-    public $isCanceled;
+    public bool $isCanceled = false;
 
     /**
-     * @var DateTime Time when subscription was canceled
+     * @var DateTime|null Time when subscription was canceled
      */
-    public $dateCanceled;
+    public ?DateTime $dateCanceled = null;
 
     /**
      * @var bool Whether the subscription has expired
      */
-    public $isExpired;
+    public bool $isExpired = false;
 
     /**
-     * @var DateTime Time when subscription expired
+     * @var DateTime|null Time when subscription expired
      */
-    public $dateExpired;
+    public ?DateTime $dateExpired = null;
 
     /**
      * @var bool Whether the subscription has started
      */
-    public $hasStarted;
+    public bool $hasStarted = false;
 
     /**
      * @var bool Whether the subscription is on hold due to payment issues
      */
-    public $isSuspended;
+    public bool $isSuspended = false;
 
     /**
-     * @var DateTime Time when subscription was put on hold
+     * @var DateTime|null Time when subscription was put on hold
      */
-    public $dateSuspended;
+    public ?DateTime $dateSuspended = null;
 
     /**
-     * @var SubscriptionGatewayInterface
+     * @var SubscriptionGatewayInterface|null
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
-     * @var Plan
+     * @var Plan|null
      */
-    private $_plan;
+    private ?Plan $_plan = null;
 
     /**
-     * @var User
+     * @var User|null
      */
-    private $_user;
+    private ?User $_user = null;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var array The subscription data from gateway
+     * @var array|null The subscription data from gateway
      */
-    public $_subscriptionData;
+    public ?array $_subscriptionData = null;
 
 
     /**
@@ -195,37 +196,29 @@ class Subscription extends Element
     }
 
     /**
-     * @return null|string
+     * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function isEditable(): bool
+    public function canView(User $user): bool
     {
-        $user = Craft::$app->getUser()->getIdentity();
+        return parent::canView($user) || $user->can('commerce-manageSubscriptions');
+    }
 
-        if (!$user) {
-            return false;
-        }
-
-        return (
-            ($this->userId && $this->userId == $user->id) ||
-            $user->can('commerce-manageSubscriptions')
-        );
+    public function canSave(User $user): bool
+    {
+        return parent::canView($user) || $user->can('commerce-manageSubscriptions');
     }
 
     /**
      * Returns whether this subscription can be reactivated.
      *
-     * @return bool
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function canReactivate()
+    public function canReactivate(): bool
     {
         return $this->isCanceled && !$this->isExpired && $this->getGateway()->supportsReactivation();
     }
@@ -233,7 +226,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -241,9 +234,9 @@ class Subscription extends Element
     /**
      * Returns whether this subscription is on trial.
      *
-     * @return bool
+     * @throws Exception
      */
-    public function getIsOnTrial()
+    public function getIsOnTrial(): bool
     {
         if ($this->isExpired) {
             return false;
@@ -254,12 +247,10 @@ class Subscription extends Element
 
     /**
      * Returns the subscription plan for this subscription
-     *
-     * @return PlanInterface
      */
-    public function getPlan(): PlanInterface
+    public function getPlan(): ?PlanInterface
     {
-        if (null === $this->_plan) {
+        if (!isset($this->_plan) && $this->planId) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
         }
 
@@ -268,31 +259,22 @@ class Subscription extends Element
 
     /**
      * Returns the User that is subscribed.
-     *
-     * @return User
      */
     public function getSubscriber(): User
     {
-        if (null === $this->_user) {
+        if (!isset($this->_user) && $this->userId) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
         return $this->_user;
     }
 
-    /**
-     * @return array
-     */
     public function getSubscriptionData(): array
     {
-        return $this->_subscriptionData;
+        return $this->_subscriptionData ?? [];
     }
 
-    /**
-     *
-     * @param string|array $data
-     */
-    public function setSubscriptionData($data)
+    public function setSubscriptionData(array|string $data): void
     {
         $data = Json::decodeIfJson($data);
 
@@ -302,10 +284,9 @@ class Subscription extends Element
     /**
      * Returns the datetime of trial expiry.
      *
-     * @return DateTime
      * @throws Exception
      */
-    public function getTrialExpires(): DateTIme
+    public function getTrialExpires(): ?DateTIme
     {
         $created = clone $this->dateCreated;
         return $created->add(new DateInterval('P' . $this->trialDays . 'D'));
@@ -314,7 +295,6 @@ class Subscription extends Element
     /**
      * Returns the next payment amount with currency code as a string.
      *
-     * @return string
      * @throws InvalidConfigException
      */
     public function getNextPaymentAmount(): string
@@ -324,10 +304,8 @@ class Subscription extends Element
 
     /**
      * Returns the order that included this subscription, if any.
-     *
-     * @return null|Order
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         if ($this->_order) {
             return $this->_order;
@@ -343,12 +321,11 @@ class Subscription extends Element
     /**
      * Returns the product type for the product tied to the license.
      *
-     * @return SubscriptionGatewayInterface
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function getGateway(): SubscriptionGatewayInterface
+    public function getGateway(): ?SubscriptionGatewayInterface
     {
-        if (null === $this->_gateway) {
+        if (!isset($this->_gateway) && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
             if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
                 throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');
@@ -358,9 +335,6 @@ class Subscription extends Element
         return $this->_gateway;
     }
 
-    /**
-     * @return string
-     */
     public function getPlanName(): string
     {
         return (string)$this->getPlan();
@@ -373,7 +347,11 @@ class Subscription extends Element
      */
     public function getAlternativePlans(): array
     {
-        $plans = Plugin::getInstance()->getPlans()->getAllGatewayPlans($this->gatewayId);
+        if ($this->gatewayId === null) {
+            return [];
+        }
+
+        $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
         /** @var Plan $currentPlan */
         $currentPlan = $this->getPlan();
@@ -382,7 +360,7 @@ class Subscription extends Element
 
         foreach ($plans as $plan) {
             // For all plans that are not the current plan
-            if ($plan->id !== $currentPlan->id && $plan->canSwitchFrom($currentPlan)) {
+            if ($currentPlan && $plan->id !== $currentPlan->id && $plan->canSwitchFrom($currentPlan)) {
                 $alternativePlans[] = $plan;
             }
         }
@@ -393,15 +371,13 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }
 
     /**
      * Returns the link for editing the order that purchased this license.
-     *
-     * @return string
      */
     public function getOrderEditUrl(): string
     {
@@ -423,10 +399,7 @@ class Subscription extends Element
         return $this->getGateway()->getSubscriptionPayments($this);
     }
 
-    /**
-     * @return null|string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
     }
@@ -442,7 +415,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         if ($this->isExpired) {
             return self::STATUS_EXPIRED;
@@ -522,7 +495,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 
@@ -545,7 +518,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'order') {
             $this->_order = $elements[0] ?? null;
@@ -585,19 +558,6 @@ class Subscription extends Element
 
     /**
      * @inheritdoc
-     */
-    public function datetimeAttributes(): array
-    {
-        $attributes = parent::datetimeAttributes();
-        $attributes[] = 'nextPaymentDate';
-        $attributes[] = 'dateExpired';
-        $attributes[] = 'dateCanceled';
-        $attributes[] = 'dateSuspended';
-        return $attributes;
-    }
-
-    /**
-     * @inheritdoc
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
     public static function find(): ElementQueryInterface
@@ -608,7 +568,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $subscriptionRecord = SubscriptionRecord::findOne($this->id);
@@ -653,10 +613,10 @@ class Subscription extends Element
     /**
      * Return a description of the billing issue (if any) with this subscription.
      *
-     * @return mixed
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueDescription()
+    public function getBillingIssueDescription(): string
     {
         return $this->getGateway()->getBillingIssueDescription($this);
     }
@@ -664,10 +624,10 @@ class Subscription extends Element
     /**
      * Return the form HTML for resolving the billing issue (if any) with this subscription.
      *
-     * @return mixed
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueResolveFormHtml()
+    public function getBillingIssueResolveFormHtml(): string
     {
         return $this->getGateway()->getBillingIssueResolveFormHtml($this);
     }
@@ -675,10 +635,9 @@ class Subscription extends Element
     /**
      * Return whether this subscription has billing issues.
      *
-     * @return mixed
      * @throws InvalidConfigException if not a subscription gateway anymore
      */
-    public function getHasBillingIssues()
+    public function getHasBillingIssues(): bool
     {
         return $this->getGateway()->getHasBillingIssues($this);
     }
@@ -775,7 +734,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         switch ($attribute) {
             case 'subscriber':

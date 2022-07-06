@@ -84,15 +84,14 @@ class Manual implements RequestResponseInterface
     /**
      * @inheritdoc
      */
-    public function redirect()
+    public function redirect(): void
     {
-        return null;
     }
 
     /**
      * @inheritdoc
      */
-    public function getData()
+    public function getData(): mixed
     {
         return '';
     }

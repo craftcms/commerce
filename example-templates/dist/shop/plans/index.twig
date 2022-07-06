@@ -8,6 +8,7 @@
   <h1 class="text-3xl block sm:inline">
     {{- 'Plans'|t -}}
   </h1>
+  {% if currentUser and currentUser.admin %}<a href="{{cpUrl('commerce/store-settings/subscription-plans')}}" class="p-1">✍️</a>{% endif %}
 
   {% if not plans|length %}
     <h2 class="text-lg font-semibold text-gray-600 mt-4">

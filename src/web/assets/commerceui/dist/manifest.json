@@ -1,1 +1,6 @@
-{"order.css":"/css/order.css","order.js":"/js/app.js","order.css.map":"/css/order.css.map","app.js.map":"/js/app.js.map"}
+{
+  "order.css": "/css/order.css",
+  "order.js": "/js/app.js",
+  "order.css.map": "/css/order.css.map",
+  "app.js.map": "/js/app.js.map"
+}

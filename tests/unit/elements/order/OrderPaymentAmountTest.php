@@ -28,22 +28,22 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @return array
@@ -60,7 +60,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testOrderPaymentAmounts()
+    public function testOrderPaymentAmounts(): void
     {
         $this->order = new Order();
         $this->order->id = 1000;
@@ -115,7 +115,7 @@ class OrderPaymentAmountTest extends Unit
     {
         foreach ($lineItems as &$item) {
             $item = Craft::createObject(LineItem::class, [
-                'config' => ['attributes' => $item]
+                'config' => ['attributes' => $item],
             ]);
         }
         unset($item);
@@ -151,19 +151,19 @@ class OrderPaymentAmountTest extends Unit
                 $lineItems,
                 10,
                 'AUD',
-                true
+                true,
             ],
             'full-payment-specified' => [
                 array_merge($lineItems, ['second' => ['salePrice' => 7.75, 'qty' => 1]]),
                 23.08,
                 'AUD',
-                false
+                false,
             ],
             'currency-specified-but-no-amount' => [
                 $lineItems,
                 null,
                 'AUD',
-                false
+                false,
             ],
         ];
     }
@@ -171,7 +171,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -185,7 +185,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

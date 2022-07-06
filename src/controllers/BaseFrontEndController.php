@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
 use craft\commerce\events\ModifyCartInfoEvent;
-use craft\commerce\Plugin;
 
 /**
  * Class BaseFrontEndController
@@ -20,7 +19,7 @@ use craft\commerce\Plugin;
 class BaseFrontEndController extends BaseController
 {
     /**
-     * @event Event The event that’s triggered when a cart is returned as an array for AJAX cart update requests.
+     * @event Event The event that’s triggered when a cart is returned as an array for Ajax cart update requests.
      *
      * ---
      * ```php
@@ -39,24 +38,16 @@ class BaseFrontEndController extends BaseController
      * );
      * ```
      */
-    const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
+    public const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
 
 
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
-
-    /**
-     * @param Order $cart
-     * @return array
-     */
     protected function cartArray(Order $cart): array
     {
-        // Typecast order attributes
-        $cart->typeCastAttributes();
-
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
@@ -64,11 +55,6 @@ class BaseFrontEndController extends BaseController
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);
-
-        // This is to avoid deprecation error with calling `getAvailableShippingMethods` method on the order
-        // TODO Remove this at 4.0
-        $availableShippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
-        $cartInfo['availableShippingMethods'] = $availableShippingMethods;
 
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([

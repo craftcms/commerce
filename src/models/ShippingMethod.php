@@ -56,7 +56,7 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -90,7 +90,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getIsEnabled(): bool
     {
-        return (bool)$this->enabled;
+        return $this->enabled;
     }
 
     /**
@@ -111,5 +111,16 @@ class ShippingMethod extends BaseShippingMethod
             [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
             [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRules';
+
+        return $fields;
     }
 }

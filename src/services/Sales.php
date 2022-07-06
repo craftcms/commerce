@@ -16,17 +16,17 @@ use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\records\SaleCategory as SaleCategoryRecord;
 use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\helpers\ArrayHelper;
 use DateTime;
-use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use function get_class;
 use function in_array;
@@ -70,7 +70,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
+    public const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
     /**
      * @event SaleEvent The event that is triggered before a sale is saved.
@@ -95,7 +95,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
+    public const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is saved.
@@ -120,7 +120,7 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
+    public const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is deleted.
@@ -144,32 +144,27 @@ class Sales extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
-
-
-    /**
-     * @var Sale[]
-     */
-    private $_allSales;
+    public const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
 
     /**
-     * @var Sale[]
+     * @var Sale[]|null
      */
-    private $_allActiveSales;
+    private ?array $_allSales = null;
+
+    /**
+     * @var Sale[]|null
+     */
+    private ?array $_allActiveSales = null;
 
     /**
      * @var array
      */
-    private $_purchasableSaleMatch = [];
-
+    private array $_purchasableSaleMatch = [];
 
     /**
      * Get a sale by its ID.
-     *
-     * @param int $id
-     * @return Sale|null
      */
-    public function getSaleById($id)
+    public function getSaleById(int $id): ?Sale
     {
         foreach ($this->getAllSales() as $sale) {
             if ($sale->id == $id) {
@@ -187,7 +182,7 @@ class Sales extends Component
      */
     public function getAllSales(): array
     {
-        if (null === $this->_allSales) {
+        if (!isset($this->_allSales)) {
             $sales = (new Query())->select([
                 'sales.id',
                 'sales.name',
@@ -256,53 +251,11 @@ class Sales extends Component
     }
 
     /**
-     * Populates a sale's relations.
-     *
-     * @param Sale $sale
-     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
-     */
-    public function populateSaleRelations(Sale $sale)
-    {
-        $rows = (new Query())->select(
-            'sp.purchasableId,
-            spt.categoryId,
-            sug.userGroupId')
-            ->from(Table::SALES . ' sales')
-            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
-            ->where(['sales.id' => $sale->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
-            }
-        }
-
-        $sale->setPurchasableIds($purchasableIds);
-        $sale->setCategoryIds($categoryIds);
-        $sale->setUserGroupIds($userGroupIds);
-    }
-
-    /**
      * Returns the sales that match the purchasable.
      *
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @return Sales[]
+     * @throws InvalidConfigException
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
     {
@@ -322,10 +275,6 @@ class Sales extends Component
     }
 
 
-    /**
-     * @param PurchasableInterface $purchasable
-     * @return array
-     */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
         $sales = [];
@@ -353,9 +302,7 @@ class Sales extends Component
     /**
      * Returns the salePrice of the purchasable based on all the sales.
      *
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
-     * @return float
      */
     public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
     {
@@ -403,7 +350,7 @@ class Sales extends Component
         $salePrice = ($originalPrice + $takeOffAmount);
 
         // A newPrice has been set so use it.
-        if (null !== $newPrice) {
+        if ($newPrice !== null) {
             $salePrice = $newPrice;
         }
 
@@ -417,10 +364,8 @@ class Sales extends Component
     /**
      * Match a product and a sale and return the result.
      *
-     * @param PurchasableInterface $purchasable
-     * @param Sale $sale
-     * @param Order $order
-     * @return bool
+     * @param Order|null $order
+     * @throws InvalidConfigException
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
@@ -471,7 +416,7 @@ class Sales extends Component
         }
 
         if ($order) {
-            $user = $order->getUser();
+            $user = $order->getCustomer();
 
             if (!$sale->allGroups) {
                 // User group condition means we have to have a real user
@@ -479,7 +424,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
+                $userGroups = ArrayHelper::getColumn($user->getGroups(),'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -489,7 +434,11 @@ class Sales extends Component
         // Are we dealing with the current session outside of any cart/order context
         if (!$order && !$sale->allGroups) {
             // User groups of the currently logged in user
-            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            $userGroups = null;
+            if ($currentUser = Craft::$app->getUser()->getIdentity()) {
+                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(),'id');
+            }
+
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                 return false;
             }
@@ -526,9 +475,7 @@ class Sales extends Component
     /**
      * Save a Sale.
      *
-     * @param Sale $model
      * @param bool $runValidation should we validate this before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -569,13 +516,13 @@ class Sales extends Component
             $record->$field = $model->$field;
         }
 
-        if($record->allGroups = $model->allGroups){
+        if ($record->allGroups = $model->allGroups) {
             $model->setUserGroupIds([]);
         }
-        if($record->allCategories = $model->allCategories){
+        if ($record->allCategories = $model->allCategories) {
             $model->setCategoryIds([]);
         }
-        if($record->allPurchasables = $model->allPurchasables){
+        if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
         }
 
@@ -606,7 +553,7 @@ class Sales extends Component
             }
 
             foreach ($model->getCategoryIds() as $categoryId) {
-                $relation = new SaleCategoryRecord;
+                $relation = new SaleCategoryRecord();
                 $relation->categoryId = $categoryId;
                 $relation->saleId = $model->id;
                 $relation->save();
@@ -645,10 +592,11 @@ class Sales extends Component
     /**
      * Reorder Sales based on a list of ids.
      *
-     * @param $ids
+     * @param int[] $ids
      * @return bool
+     * @throws \yii\db\Exception
      */
-    public function reorderSales($ids): bool
+    public function reorderSales(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
@@ -664,13 +612,11 @@ class Sales extends Component
     /**
      * Delete a sale by its id.
      *
-     * @param $id
+     * @param int $id
      * @return bool
-     * @throws \Exception
-     * @throws Throwable
      * @throws StaleObjectException
      */
-    public function deleteSaleById($id): bool
+    public function deleteSaleById(int $id): bool
     {
         $saleRecord = SaleRecord::findOne($id);
 
@@ -695,15 +641,14 @@ class Sales extends Component
         return $result;
     }
 
-
     /**
      * Get all enabled sales.
      *
-     * @return array|Sale[]
+     * @return array
      */
     private function _getAllEnabledSales(): array
     {
-        if (null === $this->_allActiveSales) {
+        if (!isset($this->_allActiveSales)) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {
@@ -723,7 +668,7 @@ class Sales extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         $this->_allActiveSales = null;
         $this->_allSales = null;

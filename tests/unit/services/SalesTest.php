@@ -8,17 +8,21 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\services\Customers;
 use craft\commerce\services\Sales;
 use craft\db\Query;
-use craft\elements\Category;
 use craft\helpers\ArrayHelper;
+use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\SalesFixture;
+use Throwable;
 use UnitTester;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * SalesTest
@@ -31,17 +35,22 @@ class SalesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Sales $sales
      */
-    protected $sales;
+    protected Sales $sales;
 
     /**
      * @var SalesFixture
      */
-    protected $salesData;
+    protected SalesFixture $salesData;
+
+    /**
+     * @var string|null
+     */
+    private ?string $_originalEdition = null;
 
     /**
      * @return array
@@ -49,6 +58,9 @@ class SalesTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'sales' => [
                 'class' => SalesFixture::class,
             ],
@@ -58,10 +70,12 @@ class SalesTest extends Unit
     /*
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
+        $this->_originalEdition = Craft::$app->getEdition();
+        Craft::$app->setEdition(Craft::Pro);
         $this->sales = Plugin::getInstance()->getSales();
         $this->salesData = $this->tester->grabFixture('sales');
     }
@@ -69,7 +83,18 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetAllSales()
+    protected function _after()
+    {
+        parent::_after();
+
+        Craft::$app->setEdition($this->_originalEdition);
+        $this->_originalEdition = null;
+    }
+
+    /**
+     *
+     */
+    public function testGetAllSales(): void
     {
         $sales = $this->sales->getAllSales();
         self::assertCount(2, $sales);
@@ -88,7 +113,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetSaleById()
+    public function testGetSaleById(): void
     {
         $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
         self::assertSame($this->salesData['percentageSale']['name'], $sale->name);
@@ -100,28 +125,9 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testPopulateSaleRelations()
+    public function testGetSalesForPurchasable(): void
     {
-        $sale = new Sale();
-        $sale->id = $this->salesData['allRelationships']['id'];
-
-        $this->sales->populateSaleRelations($sale);
-
-        $categoryIds = Category::find()->title(['Commerce Category', 'Commerce Category #2'])->ids();
-        $purchasableIds = Variant::find()->sku('hct-white')->ids();
-        $userGroupsIds = ['1002'];
-
-        self::assertEquals($categoryIds, $sale->getCategoryIds());
-        self::assertEquals($purchasableIds, $sale->getPurchasableIds());
-        self::assertEquals($userGroupsIds, $sale->getUserGroupIds());
-    }
-
-    /**
-     *
-     */
-    public function testGetSalesForPurchasable()
-    {
-        $variant  = Variant::find()->sku('rad-hood')->one();
+        $variant = Variant::find()->sku('rad-hood')->one();
         $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
 
         self::assertSame([$sale], $this->sales->getSalesForPurchasable($variant));
@@ -130,47 +136,46 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetSalesRelatedToPurchasable()
+    public function testGetSalesRelatedToPurchasable(): void
     {
-        $variant  = Variant::find()->sku('hct-white')->one();
+        $variant = Variant::find()->sku('hct-white')->one();
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
 
         self::assertSame([$sale], $this->sales->getSalesRelatedToPurchasable($variant));
     }
 
     /**
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
-    public function testGetSalePriceForPurchasable()
+    public function testGetSalePriceForPurchasable(): void
     {
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(
+            $this->tester->grabFixture('customer')->getElement('customer1')
+        );
+        Craft::$app->getUser()->getIdentity()->password = '$2y$13$tAtJfYFSRrnOkIbkruGGEu7TPh0Ixvxq0r.XgWqIgNWuWpxpA7SxK';
         $variant = Variant::find()->sku('rad-hood')->one();
         $salePrice = $this->sales->getSalePriceForPurchasable($variant);
 
         self::assertNotSame($variant->getPrice(), $salePrice);
-        self::assertSame(111.59, $salePrice);
-
-        $mockCustomersService = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => function () {
-                return ['1002'];
-            }
-        ]);
-        Plugin::getInstance()->set('customers', $mockCustomersService);
+        self::assertEquals(111.59, $salePrice);
 
         $variant = Variant::find()->sku('hct-white')->one();
         $salePrice = $this->sales->getSalePriceForPurchasable($variant);
 
         self::assertNotSame($variant->getPrice(), $salePrice);
-        self::assertSame(15.99, $salePrice);
+        self::assertEquals(15.99, $salePrice);
+        Craft::$app->getUser()->setIdentity($originalIdentity);
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testSaveSale()
+    public function testSaveSale(): void
     {
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
-        $originalDateUpdated = (new Query)
+        $originalDateUpdated = (new Query())
             ->select('dateUpdated')
             ->from(Table::SALES)
             ->where(['id' => $sale->id])
@@ -196,7 +201,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testReorderSales()
+    public function testReorderSales(): void
     {
         $sales = $this->sales->getAllSales();
         $originalOrder = ArrayHelper::getColumn($sales, 'id', false);
@@ -222,12 +227,13 @@ class SalesTest extends Unit
     }
 
     /**
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function testDeleteSaleById()
+    public function testDeleteSaleById(): void
     {
         // Pre-get sales to test the memoization
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $originalSales = $this->sales->getAllSales();
         $id = $this->salesData['percentageSale']['id'];
         $deleteResult = $this->sales->deleteSaleById($id);

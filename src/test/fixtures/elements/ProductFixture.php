@@ -30,12 +30,12 @@ class ProductFixture extends BaseElementFixture
     /**
      * @var array
      */
-    protected $productTypeIds = [];
+    protected array $productTypeIds = [];
 
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -52,14 +52,11 @@ class ProductFixture extends BaseElementFixture
     /**
      * @inheritdoc
      */
-    public function afterLoad()
+    public function afterLoad(): void
     {
         $this->productTypeIds = $this->_getProductTypeIds();
     }
 
-    /**
-     * @return ElementInterface
-     */
     protected function createElement(): ElementInterface
     {
         return new Product();
@@ -69,15 +66,14 @@ class ProductFixture extends BaseElementFixture
      * Get array of product type IDs indexed by handle.
      * This uses a raw query to avoid service level caching/memoization.
      *
-     * @return array
-     * @TODO review the necessity of this at the next breakpoint version.
+     * @TODO review the necessity of this at the next breakpoint version. #COM-54
      */
     private function _getProductTypeIds(): array
     {
         return (new Query())
             ->select([
-                'productTypes.id',
                 'productTypes.handle',
+                'productTypes.id',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->indexBy('handle')

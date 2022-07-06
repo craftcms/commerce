@@ -26,14 +26,14 @@ use craft\helpers\StringHelper;
 class Orders extends Widget
 {
     /**
-     * @var int|null
+     * @var int|string|null
      */
-    public $orderStatusId;
+    public mixed $orderStatusId = null;
 
     /**
      * @var int
      */
-    public $limit = 10;
+    public int $limit = 10;
 
     /**
      * @inheritdoc
@@ -54,7 +54,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -62,7 +62,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         if ($orderStatusId = $this->orderStatusId) {
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
@@ -78,7 +78,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $orders = $this->_getOrders();
 
@@ -97,7 +97,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
 

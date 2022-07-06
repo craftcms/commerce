@@ -7,7 +7,7 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
 use yii\base\Event;
 use yii\web\Response;
 
@@ -20,12 +20,12 @@ use yii\web\Response;
 class WebhookEvent extends Event
 {
     /**
-     * @var Gateway
+     * @var GatewayInterface
      */
-    public $gateway;
+    public GatewayInterface $gateway;
 
     /**
      * @var Response
      */
-    public $response;
+    public Response $response;
 }

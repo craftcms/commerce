@@ -15,6 +15,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
@@ -22,6 +23,7 @@ use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Product type model.
@@ -43,107 +45,101 @@ use craft\validators\UniqueValidator;
 class ProductType extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var bool Has dimension
      */
-    public $hasDimensions;
+    public bool $hasDimensions = false;
 
     /**
      * @var bool Has variants
      */
-    public $hasVariants;
+    public bool $hasVariants = false;
 
     /**
      * @var bool Has variant title field
      */
-    public $hasVariantTitleField = true;
+    public bool $hasVariantTitleField = true;
 
     /**
      * @var string Variant title format
-     * TODO: Rename to variantTitleFormat in 4.0
      */
-    public $titleFormat = '{product.title}';
+    public string $variantTitleFormat = '{product.title}';
 
     /**
      * @var bool Has product title field?
      */
-    public $hasProductTitleField = true;
+    public bool $hasProductTitleField = true;
 
     /**
      * @var string Product title format
      */
-    public $productTitleFormat = '';
+    public string $productTitleFormat = '';
 
     /**
-     * @var string SKU format
+     * @var string|null SKU format
      */
-    public $skuFormat;
+    public ?string $skuFormat = null;
 
     /**
      * @var string Description format
      */
-    public $descriptionFormat;
+    public string $descriptionFormat = '{product.title} - {title}';
 
     /**
-     * @var string Template
+     * @var string|null Template
      */
-    public $template;
+    public ?string $template = null;
 
     /**
-     * @var  int Field layout ID
+     * @var int|null Field layout ID
      */
-    public $fieldLayoutId;
+    public ?int $fieldLayoutId = null;
 
     /**
-     * @var int Variant layout ID
+     * @var int|null Variant layout ID
      */
-    public $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
-     * @var TaxCategory[]
+     * @var TaxCategory[]|null
      */
-    private $_taxCategories;
+    private ?array $_taxCategories = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private $_shippingCategories;
+    private ?array $_shippingCategories = null;
 
     /**
-     * @var ProductTypeSite[]
+     * @var ProductTypeSite[]|null
      */
-    private $_siteSettings;
-
-    /**
-     * @var string Line item format
-     */
-    private $_lineItemFormat;
+    private ?array $_siteSettings = null;
 
     /**
      * @return null|string
      */
     public function __toString()
     {
-        return $this->handle;
+        return (string)$this->handle;
     }
 
     /**
@@ -155,7 +151,7 @@ class ProductType extends Model
             [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
             [['name', 'handle'], 'required'],
             [
-                ['titleFormat'],
+                ['variantTitleFormat'],
                 'required',
                 'when' => static function($model) {
                     /** @var static $model */
@@ -178,30 +174,25 @@ class ProductType extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditVariantUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id . '/variant');
     }
 
     /**
-     * Returns the product types's site-specific settings.
+     * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]
+     * @throws InvalidConfigException
      */
     public function getSiteSettings(): array
     {
-        if ($this->_siteSettings !== null) {
+        if (isset($this->_siteSettings)) {
             return $this->_siteSettings;
         }
 
@@ -219,7 +210,7 @@ class ProductType extends Model
      *
      * @param ProductTypeSite[] $siteSettings
      */
-    public function setSiteSettings(array $siteSettings)
+    public function setSiteSettings(array $siteSettings): void
     {
         $this->_siteSettings = $siteSettings;
 
@@ -230,20 +221,22 @@ class ProductType extends Model
 
     /**
      * @return ShippingCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingCategories(): array
     {
-        if ($this->_shippingCategories === null) {
+        if ($this->_shippingCategories === null && $this->id) {
             $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($this->id);
         }
 
-        return $this->_shippingCategories;
+        return $this->_shippingCategories ?? [];
     }
 
     /**
      * @param int[]|ShippingCategory[] $shippingCategories
+     * @throws InvalidConfigException
      */
-    public function setShippingCategories($shippingCategories)
+    public function setShippingCategories(array $shippingCategories): void
     {
         $categories = [];
         foreach ($shippingCategories as $category) {
@@ -251,7 +244,7 @@ class ProductType extends Model
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category)) {
                     $categories[$category->id] = $category;
                 }
-            } else if ($category instanceof ShippingCategory) {
+            } elseif ($category instanceof ShippingCategory) {
                 // Make sure it exists
                 if ($category = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($category->id)) {
                     $categories[$category->id] = $category;
@@ -264,20 +257,22 @@ class ProductType extends Model
 
     /**
      * @return TaxCategory[]
+     * @throws InvalidConfigException
      */
     public function getTaxCategories(): array
     {
-        if ($this->_taxCategories === null) {
+        if ($this->_taxCategories === null && $this->id) {
             $this->_taxCategories = Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($this->id);
         }
 
-        return $this->_taxCategories;
+        return $this->_taxCategories ?? [];
     }
 
     /**
      * @param int[]|TaxCategory[] $taxCategories
+     * @throws InvalidConfigException
      */
-    public function setTaxCategories($taxCategories)
+    public function setTaxCategories(array $taxCategories): void
     {
         $categories = [];
         foreach ($taxCategories as $category) {
@@ -299,7 +294,7 @@ class ProductType extends Model
     }
 
     /**
-     * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
     {
@@ -314,7 +309,7 @@ class ProductType extends Model
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $layoutTabs[] = new FieldLayoutTab([
+            $contentTab = new FieldLayoutTab([
                 'name' => $variantTabName,
                 'elements' => [
                     [
@@ -322,6 +317,8 @@ class ProductType extends Model
                     ],
                 ],
             ]);
+            $contentTab->setLayout($fieldLayout);
+            $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
 
@@ -370,7 +367,7 @@ class ProductType extends Model
     }
 
     /**
-     * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout
     {
@@ -381,22 +378,24 @@ class ProductType extends Model
 
     /**
      * @return string
-     * @deprecated 3.4.7
+     * @deprecated 4.0.0
      */
-    public function getLineItemFormat(): string
+    public function getTitleFormat(): string
     {
-        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
-        return $this->_lineItemFormat;
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Getting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        return $this->variantTitleFormat;
     }
 
     /**
-     * @param $lineItemFormat
-     * @deprecated 3.4.7
+     * @param string $titleFormat
+     * @return void
+     * @throws DeprecationException
+     * @deprecated 4.0.0
      */
-    public function setLineItemFormat($lineItemFormat): void
+    public function setTitleFormat(string $titleFormat): void
     {
-        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
-        $this->_lineItemFormat = (string)$lineItemFormat;
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Setting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
+        $this->variantTitleFormat = $titleFormat;
     }
 
     /**
@@ -404,17 +403,32 @@ class ProductType extends Model
      */
     public function behaviors(): array
     {
-        return [
-            'productFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId',
-            ],
-            'variantFieldLayout' => [
-                'class' => FieldLayoutBehavior::class,
-                'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId',
-            ],
+        $behaviors = parent::behaviors();
+        $behaviors['productFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Product::class,
+            'idAttribute' => 'fieldLayoutId',
         ];
+
+        $behaviors['variantFieldLayout'] = [
+            'class' => FieldLayoutBehavior::class,
+            'elementType' => Variant::class,
+            'idAttribute' => 'variantFieldLayoutId',
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'taxCategories';
+        $fields[] = 'shippingCategories';
+        $fields[] = 'siteSettings';
+
+        return $fields;
     }
 }

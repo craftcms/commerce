@@ -23,7 +23,7 @@ class ProductFixture extends BaseProductFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/products.php';
+    public $dataFile = __DIR__ . '/data/products.php';
 
     /**
      * @inheritdoc
@@ -50,7 +50,7 @@ class ProductFixture extends BaseProductFixture
     protected function deleteElement(ElementInterface $element): bool
     {
         /** @var Product $element */
-        $variants = $element->getVariants();
+        $variants = $element->getVariants(true);
 
         foreach ($variants as $variant) {
             Craft::$app->getElements()->deleteElement($variant, true);

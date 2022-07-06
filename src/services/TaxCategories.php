@@ -18,6 +18,7 @@ use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Tax category service.
@@ -33,7 +34,7 @@ class TaxCategories extends Component
     /**
      * @var TaxCategory[]|null
      */
-    private $_allTaxCategories = null;
+    private ?array $_allTaxCategories = null;
 
     /**
      * Returns all Tax Categories
@@ -57,11 +58,8 @@ class TaxCategories extends Component
 
     /**
      * Get a tax category by its ID.
-     *
-     * @param int $taxCategoryId
-     * @return TaxCategory|null
      */
-    public function getTaxCategoryById($taxCategoryId): ?TaxCategory
+    public function getTaxCategoryById(int $taxCategoryId): ?TaxCategory
     {
         $categories = $this->getAllTaxCategories();
 
@@ -71,10 +69,9 @@ class TaxCategories extends Component
     /**
      * Get a tax category by its handle.
      *
-     * @param string $taxCategoryHandle
-     * @return TaxCategory|null
+     * @noinspection PhpUnused
      */
-    public function getTaxCategoryByHandle($taxCategoryHandle): ?TaxCategory
+    public function getTaxCategoryByHandle(string $taxCategoryHandle): ?TaxCategory
     {
         $categories = $this->getAllTaxCategories();
 
@@ -83,8 +80,6 @@ class TaxCategories extends Component
 
     /**
      * Returns all Tax category names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllTaxCategoriesAsList(): array
     {
@@ -96,7 +91,6 @@ class TaxCategories extends Component
     /**
      * Get the default tax category
      *
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getDefaultTaxCategory(): TaxCategory
@@ -119,9 +113,7 @@ class TaxCategories extends Component
     /**
      * Save a tax category.
      *
-     * @param TaxCategory $taxCategory
      * @param bool $runValidation should we validate this state before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -202,10 +194,8 @@ class TaxCategories extends Component
 
     /**
      * Re-save products by product type id
-     *
-     * @param int $productTypeId
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId)
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
             'elementType' => Product::class,
@@ -214,7 +204,6 @@ class TaxCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-                'enabledForSite' => false,
             ],
         ]));
     }
@@ -222,8 +211,9 @@ class TaxCategories extends Component
     /**
      * @param int $id
      * @return bool
+     * @throws StaleObjectException
      */
-    public function deleteTaxCategoryById($id): bool
+    public function deleteTaxCategoryById(int $id): bool
     {
         $all = $this->getAllTaxCategories();
 
@@ -242,10 +232,11 @@ class TaxCategories extends Component
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
+     * @throws InvalidConfigException
      */
-    public function getTaxCategoriesByProductTypeId($productTypeId): array
+    public function getTaxCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
@@ -274,34 +265,20 @@ class TaxCategories extends Component
         return $taxCategories;
     }
 
-
-    /**
-     * Memoize a tax category model by its ID and handle.
-     *
-     * @param TaxCategory $taxCategory
-     */
-    private function _memoizeTaxCategory(TaxCategory $taxCategory)
-    {
-        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
-        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
-    }
-
     /**
      * Returns a Query object prepped for retrieving tax categories.
-     *
-     * @return Query
      */
     private function _createTaxCategoryQuery(): Query
     {
         return (new Query())
             ->select([
-                'taxCategories.id',
-                'taxCategories.name',
-                'taxCategories.handle',
-                'taxCategories.description',
-                'taxCategories.default',
                 'taxCategories.dateCreated',
                 'taxCategories.dateUpdated',
+                'taxCategories.default',
+                'taxCategories.description',
+                'taxCategories.handle',
+                'taxCategories.id',
+                'taxCategories.name',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }

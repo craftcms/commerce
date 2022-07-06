@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * Stat Interface
  *
@@ -16,18 +18,18 @@ namespace craft\commerce\base;
  */
 interface StatInterface
 {
-    const DATE_RANGE_ALL = 'all';
-    const DATE_RANGE_TODAY = 'today';
-    const DATE_RANGE_THISWEEK = 'thisWeek';
-    const DATE_RANGE_THISMONTH = 'thisMonth';
-    const DATE_RANGE_THISYEAR = 'thisYear';
-    const DATE_RANGE_PAST7DAYS = 'past7Days';
-    const DATE_RANGE_PAST30DAYS = 'past30Days';
-    const DATE_RANGE_PAST90DAYS = 'past90Days';
-    const DATE_RANGE_PASTYEAR = 'pastYear';
-    const DATE_RANGE_CUSTOM = 'custom';
+    public const DATE_RANGE_ALL = 'all';
+    public const DATE_RANGE_TODAY = 'today';
+    public const DATE_RANGE_THISWEEK = 'thisWeek';
+    public const DATE_RANGE_THISMONTH = 'thisMonth';
+    public const DATE_RANGE_THISYEAR = 'thisYear';
+    public const DATE_RANGE_PAST7DAYS = 'past7Days';
+    public const DATE_RANGE_PAST30DAYS = 'past30Days';
+    public const DATE_RANGE_PAST90DAYS = 'past90Days';
+    public const DATE_RANGE_PASTYEAR = 'pastYear';
+    public const DATE_RANGE_CUSTOM = 'custom';
 
-    const START_DAY_INT_TO_DAY = [
+    public const START_DAY_INT_TO_DAY = [
         0 => 'Sunday',
         1 => 'Monday',
         2 => 'Tuesday',
@@ -37,7 +39,7 @@ interface StatInterface
         6 => 'Saturday',
     ];
 
-    const START_DAY_INT_TO_END_DAY = [
+    public const START_DAY_INT_TO_END_DAY = [
         0 => 'Saturday',
         1 => 'Sunday',
         2 => 'Monday',
@@ -47,7 +49,7 @@ interface StatInterface
         6 => 'Friday',
     ];
 
-    const DATE_RANGE_INTERVAL = [
+    public const DATE_RANGE_INTERVAL = [
         self::DATE_RANGE_TODAY => 'day',
         self::DATE_RANGE_THISWEEK => 'day',
         self::DATE_RANGE_THISMONTH => 'day',
@@ -59,51 +61,37 @@ interface StatInterface
         self::DATE_RANGE_ALL => 'month',
     ];
 
-    /**
-     * @return string
-     */
     public function getHandle(): string;
 
     /**
      * @return mixed
      */
-    public function get();
-
-    /**
-     * @return array|null|false
-     */
-    public function getData();
+    public function get(): mixed;
 
     /**
      * @return mixed
      */
-    public function getStartDate();
+    public function getData(): mixed;
 
     /**
      * @return mixed
      */
-    public function getEndDate();
+    public function getStartDate(): mixed;
 
     /**
-     * @param null|\DateTime $date
      * @return mixed
      */
-    public function setStartDate($date);
+    public function getEndDate(): mixed;
 
-    /**
-     * @param null|\DateTime $date
-     * @return mixed
-     */
-    public function setEndDate($date);
+    public function setStartDate(?DateTime $date): void;
+
+    public function setEndDate(?DateTime $date): void;
 
     /**
      * @param $data
      * @return mixed
      */
-    public function prepareData($data);
+    public function prepareData($data): mixed;
 
-    /**
-     * @return string
-     */
     public function getDateRangeWording(): string;
 }

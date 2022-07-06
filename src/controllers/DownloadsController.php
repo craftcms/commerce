@@ -27,7 +27,6 @@ use yii\web\Response;
 class DownloadsController extends BaseFrontEndController
 {
     /**
-     * @return Response
      * @throws HttpException
      * @throws Throwable
      * @throws Exception
@@ -48,8 +47,6 @@ class DownloadsController extends BaseFrontEndController
         if (!$order) {
             throw new HttpException('404', 'Order not found');
         }
-
-        $pdf = null;
 
         if ($pdfHandle) {
             $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
@@ -81,7 +78,7 @@ class DownloadsController extends BaseFrontEndController
             $fileName = $pdf->handle . '-' . $order->number;
         }
 
-        return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
+        return $this->response->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf',
         ]);
     }

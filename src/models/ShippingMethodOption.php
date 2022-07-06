@@ -10,7 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use yii\behaviors\AttributeTypecastBehavior;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping method option model.
@@ -27,31 +27,24 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var float Price of the shipping method option
      */
-    public $price;
+    public float $price;
 
     /**
      * @var boolean
      */
-    public $matchesOrder;
+    public bool $matchesOrder;
 
     /**
-     * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-            ],
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
@@ -64,8 +57,6 @@ class ShippingMethodOption extends ShippingMethod
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -74,27 +65,24 @@ class ShippingMethodOption extends ShippingMethod
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
+        return $this->_order->currency;
     }
 
-    /**
-     * @return float
-     */
-    public function getPrice()
+    public function getPrice(): float
     {
         return $this->price;
     }
 
     /**
-     * @param $order
      * @since 3.1.10
      */
-    public function setOrder($order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
     }

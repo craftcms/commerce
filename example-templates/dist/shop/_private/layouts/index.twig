@@ -118,3 +118,43 @@ Common, top-level layout template.
 </div>
 </body>
 </html>
+{% js at head %}
+let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+{% set usedFields = {} %}
+{% for countryCode in craft.app.addresses.getCountryRepository().getAll()|keys %}
+	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getAddressFormatRepository().get(countryCode).getUsedFields()|merge([
+      'fullName',
+      'latLong',
+      'organizationTaxId',
+      'organization',
+      'countryCode',
+    ]) }) %}
+{% endfor %}
+let usedAddressFieldsByCountryCode = {{ usedFields|json_encode|raw }};
+
+function hideAddressFields(selectorTemplate) {
+  const fields = document.querySelectorAll('.' + selectorTemplate.replace('placeHolder', 'js-address-field'));
+  if (!fields.length) {
+    return;
+  }
+
+  for (let i = 0; i < fields.length; i++) {
+    fields[i].classList.add('hidden');
+  }
+}
+
+function showAddressField(fieldName, selectorTemplate) {
+  const closestSelector = selectorTemplate;
+  const field = document.querySelector('#' + selectorTemplate.replace('placeHolder', fieldName));
+  if (!field) {
+    return;
+  }
+
+  const fieldWrapper = field.closest('.' + closestSelector.replace('placeHolder', 'js-address-field'));
+  if (!fieldWrapper) {
+    return;
+  }
+
+  fieldWrapper.classList.remove('hidden');
+}
+{% endjs %}

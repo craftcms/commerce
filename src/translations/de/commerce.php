@@ -6,6 +6,12 @@
  */
 
 return [
+    '{pct} off the discounted item price' => '{pct} Nachlass vom reduzierten Artikelpreis',
+    '{pct} off the original item price' => '{pct} Nachlass vom ursprünglichen Artikelpreis',
+    '{pct} off total discounted price (Deprecated)' => '{pct} Rabatt vom gesamten reduzierten Preis (veraltet)',
+    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} Rabatt auf den reduzierten Preis und die Gesamtversandkosten (veraltet)',
+    '{pct} off total original price (Deprecated)' => '{pct} Rabatt auf den Originalpreis (veraltet)',
+    '{pct} off total original price and shipping total (Deprecated)' => '{pct} Rabatt auf den Originalpreis und die Gesamtversandkosten (veraltet)',
     '(Purchasable)' => '(Kaufoption)',
     '(Trashed)' => '(Verworfen)',
     '(new price)' => '(neuer Preis)',
@@ -48,6 +54,7 @@ return [
     'All customers' => 'Alle Kunden',
     'All products' => 'Alle Produkte',
     'All purchasables' => 'Alle Kaufoptionen',
+    'All users' => 'Alle Benutzer',
     'All' => 'Alle',
     'Allow' => 'Zulassen',
     'Allowed Qty' => 'Höchstmenge',
@@ -650,6 +657,8 @@ return [
     'No shipping rule exists with the ID “{id}”' => 'Es gibt keine Versandregel mit der ID "{id}"',
     'No shipping rules exist yet.' => 'Es existieren noch keine Versandregeln.',
     'No shipping zone exists with the ID “{id}”' => 'Es existiert keine Versandzone mit der ID "{id}"',
+    'No state exists with the ID “{id}”' => 'Es gibt keinen Bundesstaat mit der ID "{id}"',
+    'No states exist yet.' => 'Es existieren noch keine Bundesstaaten.',
     'No stats available.' => 'Keine Statistik verfügbar.',
     'No subscription plan exists with the ID “{id}”' => 'Es ist kein Abonnementplan mit der ID "{id}" vorhanden',
     'No subscription plans exist yet.' => 'Es ist noch kein Abonnementplan vorhanden.',
@@ -979,8 +988,7 @@ return [
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Der Minimalbetrag, den der Kunde für den Versand ausgeben soll. Zum Deaktivieren auf Null setzen.',
     'The order is not valid.' => 'Die Bestellung ist nicht gültig.',
     'The payment gateway that will be used for the subscription plan.' => 'Der Zahlungs-Gateway, der für den Abonnementplan verwendet wird.',
-    'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B {ex1} für {ex2} Nachlass.
-Prozentwerte sind auf zwei Dezimalstellen gerundet.',
+    'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B {ex1} für {ex2} Nachlass. Prozentwerte sind auf zwei Dezimalstellen gerundet.',
     'The previously-selected shipping method is no longer available.' => 'Die zuvor gewählte Versandoption ist nicht mehr verfügbar.',
     'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'Der Preis von {description} wurde von {originalSalePriceAsCurrency} auf {newSalePriceAsCurrency} erhöht',
     'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'Der Preis von {description} wurde von {originalSalePriceAsCurrency} auf {newSalePriceAsCurrency} gesenkt',

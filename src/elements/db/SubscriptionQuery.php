@@ -15,7 +15,6 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\Db;
-use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
 use yii\db\Schema;
@@ -39,84 +38,84 @@ use yii\db\Schema;
 class SubscriptionQuery extends ElementQuery
 {
     /**
-     * @var int|int[] The user id of the subscriber
+     * @var mixed The user id of the subscriber
      */
-    public $userId;
+    public mixed $userId = null;
 
     /**
-     * @var int|int[] The subscription plan id
+     * @var mixed The subscription plan id
      */
-    public $planId;
+    public mixed $planId = null;
 
     /**
-     * @var int|int[] The gateway id
+     * @var mixed The gateway id
      */
-    public $gatewayId;
+    public mixed $gatewayId = null;
 
     /**
-     * @var int|int[] The id of the order that the license must be a part of.
+     * @var mixed The id of the order that the license must be a part of.
      */
-    public $orderId;
+    public mixed $orderId = null;
 
     /**
-     * @var string|string[] The gateway reference for subscription
+     * @var mixed The gateway reference for subscription
      */
-    public $reference;
+    public mixed $reference = null;
 
     /**
-     * @var int|int[] Number of trial days for the subscription
+     * @var mixed Number of trial days for the subscription
      */
-    public $trialDays;
+    public mixed $trialDays = null;
 
     /**
-     * @var bool Whether the subscription is currently on trial.
+     * @var bool|null Whether the subscription is currently on trial.
      */
-    public $onTrial;
+    public ?bool $onTrial = null;
 
     /**
-     * @var DateTime Time of next payment for the subscription
+     * @var mixed Time of next payment for the subscription
      */
-    public $nextPaymentDate;
+    public mixed $nextPaymentDate = null;
 
     /**
-     * @var bool Whether the subscription is canceled
+     * @var bool|null Whether the subscription is canceled
      */
-    public $isCanceled;
+    public ?bool $isCanceled = null;
 
     /**
-     * @var bool Whether the subscription is suspended
+     * @var bool|null Whether the subscription is suspended
      */
-    public $isSuspended;
+    public ?bool $isSuspended = null;
 
     /**
-     * @var DateTime The date the subscription ceased to be active
+     * @var mixed The date the subscription ceased to be active
      */
-    public $dateSuspended;
+    public mixed $dateSuspended = null;
 
     /**
-     * @var bool Whether the subscription has started
+     * @var bool|null Whether the subscription has started
      */
-    public $hasStarted;
+    public ?bool $hasStarted = null;
 
     /**
-     * @var DateTime The time the subscription was canceled
+     * @var mixed The time the subscription was canceled
      */
-    public $dateCanceled;
+    public mixed $dateCanceled = null;
 
     /**
-     * @var bool Whether the subscription has expired
+     * @var bool|null Whether the subscription has expired
      */
-    public $isExpired;
+    public ?bool $isExpired = null;
 
     /**
-     * @var DateTime The date the subscription ceased to be active
+     * @var mixed The date the subscription ceased to be active
      */
-    public $dateExpired;
+    public mixed $dateExpired = null;
 
     /**
      * @var array
      */
-    protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
+    protected array $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
 
     /**
      * @inheritdoc
@@ -181,11 +180,11 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function user($value)
+    public function user(mixed $value): SubscriptionQuery
     {
         if ($value instanceof User) {
             $this->userId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->userId = (new Query())
                 ->select(['id'])
                 ->from(['{{%users}}'])
@@ -228,11 +227,11 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function plan($value)
+    public function plan(mixed $value): SubscriptionQuery
     {
         if ($value instanceof Plan) {
             $this->planId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
                 ->from([Table::PLANS])
@@ -276,7 +275,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function userId($value)
+    public function userId(mixed $value): SubscriptionQuery
     {
         $this->userId = $value;
         return $this;
@@ -296,7 +295,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function planId($value)
+    public function planId(mixed $value): SubscriptionQuery
     {
         $this->planId = $value;
         return $this;
@@ -314,10 +313,10 @@ class SubscriptionQuery extends ElementQuery
      * | `[1, 2]` | with a gateway with an ID of 1 or 2.
      * | `['not', 1, 2]` | not with a gateway with an ID of 1 or 2.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function gatewayId($value)
+    public function gatewayId(mixed $value): SubscriptionQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -335,10 +334,10 @@ class SubscriptionQuery extends ElementQuery
      * | `[1, 2]` | with an order with an ID of 1 or 2.
      * | `['not', 1, 2]` | not with an order with an ID of 1 or 2.
      *
-     * @param int|int[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderId($value)
+    public function orderId(mixed $value): SubscriptionQuery
     {
         $this->orderId = $value;
         return $this;
@@ -347,10 +346,10 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Narrows the query results based on the reference.
      *
-     * @param string|string[] $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function reference($value)
+    public function reference(mixed $value): SubscriptionQuery
     {
         $this->reference = $value;
         return $this;
@@ -362,7 +361,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function trialDays($value)
+    public function trialDays(mixed $value): SubscriptionQuery
     {
         $this->trialDays = $value;
         return $this;
@@ -375,7 +374,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch trialed subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .onTrial()
      *   .all() %}
      * ```
@@ -387,10 +386,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function onTrial(bool $value = true)
+    public function onTrial(?bool $value = true): SubscriptionQuery
     {
         $this->onTrial = $value;
         return $this;
@@ -430,7 +429,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function nextPaymentDate($value)
+    public function nextPaymentDate(mixed $value): SubscriptionQuery
     {
         $this->nextPaymentDate = $value;
         return $this;
@@ -443,7 +442,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch canceled subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCanceled()
      *   .all() %}
      * ```
@@ -455,10 +454,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isCanceled(bool $value = true)
+    public function isCanceled(?bool $value = true): SubscriptionQuery
     {
         $this->isCanceled = $value;
         return $this;
@@ -498,7 +497,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateCanceled($value)
+    public function dateCanceled(mixed $value): SubscriptionQuery
     {
         $this->dateCanceled = $value;
         return $this;
@@ -511,7 +510,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch started subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasStarted()
      *   .all() %}
      * ```
@@ -523,10 +522,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasStarted(bool $value = true)
+    public function hasStarted(?bool $value = true): SubscriptionQuery
     {
         $this->hasStarted = $value;
         return $this;
@@ -539,7 +538,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch suspended subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isSuspended()
      *   .all() %}
      * ```
@@ -551,10 +550,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isSuspended(bool $value = true)
+    public function isSuspended(?bool $value = true): SubscriptionQuery
     {
         $this->isSuspended = $value;
         return $this;
@@ -593,7 +592,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateSuspended($value)
+    public function dateSuspended(mixed $value): SubscriptionQuery
     {
         $this->dateSuspended = $value;
         return $this;
@@ -606,7 +605,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isExpired()
      *   .all() %}
      * ```
@@ -618,10 +617,10 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isExpired(bool $value = true)
+    public function isExpired(?bool $value = true): SubscriptionQuery
     {
         $this->isExpired = $value;
 
@@ -662,7 +661,7 @@ class SubscriptionQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateExpired($value)
+    public function dateExpired(mixed $value): SubscriptionQuery
     {
         $this->dateExpired = $value;
 
@@ -683,7 +682,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('expired')
      *   .all() %}
      * ```
@@ -695,8 +694,11 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value)
+    public function status(array|string|null $value): SubscriptionQuery
     {
+        if ($value === null) {
+            unset($this->isSuspended, $this->hasStarted);
+        }
         return parent::status($value);
     }
 
@@ -714,83 +716,83 @@ class SubscriptionQuery extends ElementQuery
         $this->subQuery->innerJoin('{{%users}} users', '[[commerce_subscriptions.userId]] = [[users.id]]');
 
         $this->query->select([
-            'commerce_subscriptions.id',
-            'commerce_subscriptions.userId',
-            'commerce_subscriptions.planId',
+            'commerce_subscriptions.dateCanceled',
+            'commerce_subscriptions.dateExpired',
+            'commerce_subscriptions.dateSuspended',
             'commerce_subscriptions.gatewayId',
+            'commerce_subscriptions.hasStarted',
+            'commerce_subscriptions.id',
+            'commerce_subscriptions.isCanceled',
+            'commerce_subscriptions.isExpired',
+            'commerce_subscriptions.isSuspended',
+            'commerce_subscriptions.nextPaymentDate',
             'commerce_subscriptions.orderId',
+            'commerce_subscriptions.planId',
             'commerce_subscriptions.reference',
             'commerce_subscriptions.subscriptionData',
             'commerce_subscriptions.trialDays',
-            'commerce_subscriptions.nextPaymentDate',
-            'commerce_subscriptions.isCanceled',
-            'commerce_subscriptions.dateCanceled',
-            'commerce_subscriptions.isExpired',
-            'commerce_subscriptions.dateExpired',
-            'commerce_subscriptions.hasStarted',
-            'commerce_subscriptions.isSuspended',
-            'commerce_subscriptions.dateSuspended',
+            'commerce_subscriptions.userId',
         ]);
 
-        if ($this->userId) {
+        if (isset($this->userId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.userId', $this->userId));
         }
 
-        if ($this->planId) {
+        if (isset($this->planId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.planId', $this->planId));
         }
 
-        if ($this->gatewayId) {
+        if (isset($this->gatewayId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.gatewayId', $this->gatewayId));
         }
 
-        if ($this->orderId) {
+        if (isset($this->orderId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.orderId', $this->orderId));
         }
 
-        if ($this->reference) {
+        if (isset($this->reference)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.reference', $this->reference));
         }
 
-        if ($this->trialDays) {
+        if (isset($this->trialDays)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.trialDays', $this->trialDays));
         }
 
-        if ($this->nextPaymentDate) {
+        if (isset($this->nextPaymentDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.nextPaymentDate', $this->nextPaymentDate));
         }
 
-        if ($this->isCanceled !== null) {
+        if (isset($this->isCanceled)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isCanceled', $this->isCanceled, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->dateCanceled) {
+        if (isset($this->dateCanceled)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateCanceled', $this->dateCanceled));
         }
 
-        if ($this->hasStarted !== null) {
+        if (isset($this->hasStarted)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.hasStarted', $this->hasStarted, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->isSuspended !== null) {
+        if (isset($this->isSuspended)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isSuspended', $this->isSuspended, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->dateSuspended) {
+        if (isset($this->dateSuspended)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateSuspended', $this->dateSuspended));
         }
 
-        if ($this->isExpired !== null) {
+        if (isset($this->isExpired)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->dateExpired) {
+        if (isset($this->dateExpired)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateExpired', $this->dateExpired));
         }
 
-        if ($this->onTrial === true) {
+        if (isset($this->onTrial) && $this->onTrial === true) {
             $this->subQuery->andWhere($this->_getTrialCondition(true));
-        } else if ($this->onTrial === false) {
+        } elseif (isset($this->onTrial) && $this->onTrial === false) {
             $this->subQuery->andWhere($this->_getTrialCondition(false));
         }
 
@@ -800,31 +802,27 @@ class SubscriptionQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected function statusCondition(string $status)
+    protected function statusCondition(string $status): mixed
     {
-        switch ($status) {
-            case Subscription::STATUS_ACTIVE:
-                return [
-                    'commerce_subscriptions.isExpired' => '0',
-                ];
-            case Subscription::STATUS_EXPIRED:
-                return [
-                    'commerce_subscriptions.isExpired' => '1',
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Subscription::STATUS_ACTIVE => [
+                'commerce_subscriptions.isExpired' => '0',
+            ],
+            Subscription::STATUS_EXPIRED => [
+                'commerce_subscriptions.isExpired' => '1',
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
      * @inheritdoc
+     * @deprecated in 4.0.0. `status(null)` should be used instead.
      */
-
-    public function anyStatus()
+    public function anyStatus(): SubscriptionQuery
     {
-        $this->isSuspended = null;
-        $this->hasStarted = null;
-        return parent::anyStatus();
+        unset($this->isSuspended, $this->hasStarted);
+        return parent::status(null);
     }
 
     /**
@@ -833,7 +831,7 @@ class SubscriptionQuery extends ElementQuery
      * @param bool $onTrial
      * @return mixed
      */
-    private function _getTrialCondition(bool $onTrial)
+    private function _getTrialCondition(bool $onTrial): mixed
     {
         if ($onTrial) {
             if (Craft::$app->getDb()->getIsPgsql()) {

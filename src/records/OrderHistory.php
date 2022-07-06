@@ -9,14 +9,15 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\User;
 use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
  * Order history record.
  *
- * @property Customer $customer
- * @property int $customerId
+ * @property int $userId
+ * @property ?string $userName
  * @property DateTime $dateCreated
  * @property int $id
  * @property string $message
@@ -25,6 +26,7 @@ use yii\db\ActiveQueryInterface;
  * @property Order $order
  * @property int $orderId
  * @property OrderStatus $prevStatus
+ * @property-read User $user
  * @property int $prevStatusId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -39,16 +41,13 @@ class OrderHistory extends ActiveRecord
         return Table::ORDERHISTORIES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getPrevStatus(): ActiveQueryInterface
     {
@@ -56,7 +55,7 @@ class OrderHistory extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getNewStatus(): ActiveQueryInterface
     {
@@ -66,8 +65,8 @@ class OrderHistory extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getCustomer(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'userId']);
     }
 }

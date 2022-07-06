@@ -23,7 +23,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/emails.php';
+    public $dataFile = __DIR__ . '/data/emails.php';
 
     /**
      * @inheritdoc
@@ -33,24 +33,27 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveEmail';
+    public string $saveMethod = 'saveEmail';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteEmailById';
+    public string $deleteMethod = 'deleteEmailById';
 
     /**
      * @inheritDoc
      */
     public $service = 'emails';
 
-    private $_muteEvents;
+    /**
+     * @var bool
+     */
+    private bool $_muteEvents;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 
@@ -60,11 +63,11 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function beforeUnload()
+    public function beforeUnload(): void
     {
         parent::beforeUnload();
 
-        // TODO remove this when we figure out why things are being unlaoded twice
+        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
         $this->_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
         Craft::$app->getProjectConfig()->muteEvents = true;
     }
@@ -72,7 +75,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function afterUnload()
+    public function afterUnload(): void
     {
         parent::afterUnload();
 

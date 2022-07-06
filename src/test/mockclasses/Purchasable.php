@@ -18,29 +18,20 @@ use craft\commerce\base\Purchasable as BasePurchasable;
  */
 class Purchasable extends BasePurchasable
 {
-    public $isPromotable = true;
+    public bool $isPromotable = true;
 
-    public $price = 25.10;
+    public float $price = 25.10;
 
-    /**
-     * @return bool
-     */
     public function getIsPromotable(): bool
     {
         return $this->isPromotable;
     }
 
-    /**
-     * @return float
-     */
     public function getPrice(): float
     {
         return 25.10;
     }
 
-    /**
-     * @return string
-     */
     public function getSku(): string
     {
         return 'commerce_testing_unique_sku';

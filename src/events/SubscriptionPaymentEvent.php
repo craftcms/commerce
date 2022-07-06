@@ -23,15 +23,15 @@ class SubscriptionPaymentEvent extends Event
     /**
      * @var Subscription Subscription
      */
-    public $subscription;
+    public Subscription $subscription;
 
     /**
      * @var SubscriptionPayment Subscription payment
      */
-    public $payment;
+    public SubscriptionPayment $payment;
 
     /**
      * @var DateTime Date subscription paid until
      */
-    public $paidUntil;
+    public DateTime $paidUntil;
 }

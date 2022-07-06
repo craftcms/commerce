@@ -21,5 +21,5 @@ class PaymentSourceEvent extends CancelableEvent
     /**
      * @var PaymentSource Payment source
      */
-    public $paymentSource;
+    public PaymentSource $paymentSource;
 }

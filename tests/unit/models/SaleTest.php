@@ -9,8 +9,6 @@ namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
-use craft\commerce\services\Sales;
 
 /**
  * SaleTest
@@ -21,33 +19,9 @@ use craft\commerce\services\Sales;
 class SaleTest extends Unit
 {
     /**
-     * @todo Remove when populateSaleRelations is removed
-     */
-    public function testLoadRelationsCalledOnce()
-    {
-        $populateSaleRelationsRunCount = 0;
-        $sale = new Sale();
-
-        $mockSalesService = $this->make(Sales::class, [
-            'populateSaleRelations' => function() use (&$populateSaleRelationsRunCount, &$sale) {
-                $populateSaleRelationsRunCount++;
-                $sale->setPurchasableIds([]);
-                $sale->setCategoryIds([]);
-                $sale->setUserGroupIds([]);
-            }
-        ]);
-
-        Plugin::getInstance()->set('sales', $mockSalesService);
-        $sale->getPurchasableIds();
-        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-        $sale->getCategoryIds();
-        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-    }
-
-    /**
      *
      */
-    public function testSetCategoryIds()
+    public function testSetCategoryIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -61,7 +35,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testSetPurchasableIds()
+    public function testSetPurchasableIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -75,7 +49,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testSetUserGroupIds()
+    public function testSetUserGroupIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -89,7 +63,7 @@ class SaleTest extends Unit
     /**
      * @dataProvider getApplyAMountAsPercentDataProvider
      */
-    public function testGetApplyAmountAsPercent($applyAmount, $expected)
+    public function testGetApplyAmountAsPercent($applyAmount, $expected): void
     {
         $sale = new Sale();
         $sale->applyAmount = $applyAmount;
@@ -100,7 +74,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testGetApplyAmountAsFlat()
+    public function testGetApplyAmountAsFlat(): void
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1500';

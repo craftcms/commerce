@@ -24,7 +24,7 @@ class AverageOrderTotalTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -69,7 +69,7 @@ class AverageOrderTotalTest extends Unit
                 AverageOrderTotal::DATE_RANGE_TODAY,
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                41.98,
+                63.97,
             ],
             [
                 AverageOrderTotal::DATE_RANGE_CUSTOM,

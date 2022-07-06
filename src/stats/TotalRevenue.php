@@ -21,12 +21,12 @@ class TotalRevenue extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalRevenue';
+    protected string $_handle = 'totalRevenue';
 
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): ?array
     {
         return $this->_createChartQuery(
             [

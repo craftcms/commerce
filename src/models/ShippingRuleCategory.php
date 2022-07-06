@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -21,39 +22,39 @@ use craft\commerce\Plugin;
 class ShippingRuleCategory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int Shipping rule ID
      */
-    public $shippingRuleId;
+    public int $shippingRuleId;
 
     /**
      * @var int Shipping category ID
      */
-    public $shippingCategoryId;
+    public int $shippingCategoryId;
 
     /**
-     * @var float Per item rate
+     * @var float|null Per item rate
      */
-    public $perItemRate;
+    public ?float $perItemRate = null;
 
     /**
-     * @var float Weight rate
+     * @var float|null Weight rate
      */
-    public $weightRate;
+    public ?float $weightRate = null;
 
     /**
-     * @var float Percentage rate
+     * @var float|null Percentage rate
      */
-    public $percentageRate;
+    public ?float $percentageRate = null;
 
     /**
      * @var string Condition
      */
-    public $condition;
+    public string $condition;
 
     /**
      * @inheritdoc
@@ -78,7 +79,7 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return ShippingRule
+     * @throws InvalidConfigException
      */
     public function getRule(): ShippingRule
     {
@@ -86,7 +87,7 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getCategory(): ShippingCategory
     {

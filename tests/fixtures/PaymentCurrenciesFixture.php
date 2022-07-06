@@ -26,12 +26,12 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deletePaymentCurrencyById';
+    public string $deleteMethod = 'deletePaymentCurrencyById';
 
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'savePaymentCurrency';
+    public string $saveMethod = 'savePaymentCurrency';
 
     /**
      * @inheritDoc
@@ -41,12 +41,12 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $dataFile = __DIR__.'/data/payment-currencies.php';
+    public $dataFile = __DIR__ . '/data/payment-currencies.php';
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 

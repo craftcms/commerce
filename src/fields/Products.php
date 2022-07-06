@@ -24,6 +24,8 @@ use GraphQL\Type\Definition\Type;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read array $contentGqlType
  */
 class Products extends BaseRelationField
 {
@@ -50,7 +52,7 @@ class Products extends BaseRelationField
         return Craft::t('commerce', 'Add a product');
     }
 
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         Craft::$app->getView()->registerAssetBundle(EditProductAsset::class);
         return parent::getInputHtml($value, $element);
@@ -60,7 +62,7 @@ class Products extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|Type
     {
         return [
             'name' => $this->handle,
@@ -74,7 +76,7 @@ class Products extends BaseRelationField
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Product::class;
     }

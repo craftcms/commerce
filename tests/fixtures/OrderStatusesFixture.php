@@ -7,10 +7,9 @@
 
 namespace craftcommercetests\fixtures;
 
+use Craft;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
-use craft\commerce\records\OrderStatus as OrderStatusRecord;
-use yii\base\InvalidArgumentException;
 
 /**
  * OrderStatuses Fixture
@@ -23,7 +22,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/order-statuses.php';
+    public $dataFile = __DIR__ . '/data/order-statuses.php';
 
     /**
      * @inheritdoc
@@ -33,22 +32,22 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveOrderStatus';
+    public string $saveMethod = 'saveOrderStatus';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteOrderStatusById';
+    public string $deleteMethod = 'deleteOrderStatusById';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public $service = 'orderStatuses';
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 
@@ -58,8 +57,12 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function unload()
+    public function unload(): void
     {
+        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
+        $_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
+        Craft::$app->getProjectConfig()->muteEvents = false;
+
         if (!empty($this->ids)) {
             foreach ($this->ids as $id) {
                 if ($id == 1) {
@@ -67,14 +70,10 @@ class OrderStatusesFixture extends BaseModelFixture
                     continue;
                 }
 
-                $arInstance = OrderStatusRecord::find()
-                    ->where(['id' => $id])
-                    ->one();
-
-                if ($arInstance && !$arInstance->delete()) {
-                    throw new InvalidArgumentException('Unable to delete Order Status instance');
-                }
+                $this->service->{$this->deleteMethod}($id);
             }
         }
+
+        Craft::$app->getProjectConfig()->muteEvents = $_muteEvents;
     }
 }

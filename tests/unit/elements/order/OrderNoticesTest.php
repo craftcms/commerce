@@ -25,27 +25,27 @@ class OrderNoticesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @group OrderNotices
      */
-    public function testOrderNotices()
+    public function testOrderNotices(): void
     {
         /** @var OrderNotice $firstNotice */
         $firstNotice = Craft::createObject([
@@ -54,7 +54,7 @@ class OrderNoticesTest extends Unit
                 'type' => 'priceChange',
                 'attribute' => 'lineItems',
                 'message' => 'The Price of the product changed.',
-            ]
+            ],
         ]);
         $this->order->addNotice($firstNotice);
 
@@ -71,8 +71,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'lineItemRemoved',
                 'attribute' => 'lineItems',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         $this->order->addNotice($secondNotice);
@@ -87,15 +87,15 @@ class OrderNoticesTest extends Unit
     /**
      * @group OrderNotices
      */
-    public function testClearOrderNotices()
+    public function testClearOrderNotices(): void
     {
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [
                 'type' => 'priceChange',
                 'attribute' => 'lineItems',
-                'message' => 'The Price of the product changed.'
-            ]
+                'message' => 'The Price of the product changed.',
+            ],
         ]);
 
         $secondNotice = Craft::createObject([
@@ -103,8 +103,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'lineItemRemoved',
                 'attribute' => 'lineItems',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         $this->order->addNotices([$firstNotice, $secondNotice, $firstNotice, $secondNotice]);
@@ -122,8 +122,8 @@ class OrderNoticesTest extends Unit
             'attributes' => [
                 'type' => 'couponNotValid',
                 'attribute' => 'couponCode',
-                'message' => 'The x Product is no longer available and has been removed.'
-            ]
+                'message' => 'The x Product is no longer available and has been removed.',
+            ],
         ]);
 
         // Test clearing by attribute
@@ -152,7 +152,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -166,7 +166,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

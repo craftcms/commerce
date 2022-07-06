@@ -7,8 +7,8 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
-use craft\commerce\helpers\Localization;
 
 /**
  * Class Lite Tax Settings
@@ -24,20 +24,20 @@ class LiteTaxSettings extends Model
     /**
      * @var float Tax rate
      */
-    public $taxRate;
+    public float $taxRate;
 
     /**
      * @var string Tax name
      */
-    public $taxName;
+    public string $taxName;
 
     /**
      * @var string Tax include
      */
-    public $taxInclude;
+    public string $taxInclude;
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function safeAttributes(): array
     {
@@ -48,11 +48,8 @@ class LiteTaxSettings extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getTaxRateAsPercent(): string
     {
-        Localization::formatAsPercentage($this->taxRate);
+        return Craft::$app->getFormatter()->asPercent($this->taxRate);
     }
 }

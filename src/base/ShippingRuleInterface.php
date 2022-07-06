@@ -19,16 +19,11 @@ interface ShippingRuleInterface
 {
     /**
      * Returns whether this rule a match on the order. If false is returned, the shipping engine tries the next rule.
-     *
-     * @param Order $order
-     * @return bool
      */
     public function matchOrder(Order $order): bool;
 
     /**
      * Returns whether this shipping rule is enabled for listing and selection.
-     *
-     * @return bool
      */
     public function getIsEnabled(): bool;
 
@@ -37,48 +32,41 @@ interface ShippingRuleInterface
      *
      * @return mixed
      */
-    public function getOptions();
+    public function getOptions(): mixed;
 
     /**
      * Returns the percentage rate that is multiplied per line item subtotal.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     * @return float
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      */
-    public function getPercentageRate($shippingCategory): float;
+    public function getPercentageRate(?int $shippingCategoryId): float;
 
     /**
      * Returns the flat rate that is multiplied per qty.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     * @return float
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      */
-    public function getPerItemRate($shippingCategory): float;
+    public function getPerItemRate(?int $shippingCategoryId): float;
 
     /**
      * Returns the rate that is multiplied by the line item's weight.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
-     * @return float
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      */
-    public function getWeightRate($shippingCategory): float;
+    public function getWeightRate(?int $shippingCategoryId): float;
 
     /**
      * Returns a base shipping cost. This is added at the order level.
      * Zero will not make any changes.
-     *
-     * @return float
      */
     public function getBaseRate(): float;
 
     /**
      * Returns a max cost this rule should ever apply.
      * If the total of your rates as applied to the order are greater than this, an order level adjustment is made to reduce the shipping amount on the order.
-     *
-     * @return float
      */
     public function getMaxRate(): float;
 
@@ -87,16 +75,12 @@ interface ShippingRuleInterface
      * If the total of your rates as applied to the order are less than this, the baseShippingCost
      * on the order is modified to meet this min rate.
      * Zero will not make any changes.
-     *
-     * @return float
      */
     public function getMinRate(): float;
 
     /**
      * Returns a description of the rates applied by this rule;
      * Zero will not make any changes.
-     *
-     * @return string
      */
     public function getDescription(): string;
 }

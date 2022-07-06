@@ -18,9 +18,7 @@ use craft\commerce\elements\Order as OrderElement;
 class Order
 {
     /**
-     * @param OrderElement $order
-     *
-     * @return bool Were line items merged?
+     * @return bool Were any line items merged?
      */
     public static function mergeDuplicateLineItems(OrderElement $order): bool
     {
@@ -33,7 +31,7 @@ class Order
                 $lineItemsByKey[$key]->qty += $lineItem->qty;
                 // If a note already exists, merge it.
                 if ($lineItemsByKey[$key]->note && $lineItem->note) {
-                    $lineItemsByKey[$key]->note = $lineItemsByKey[$key]->note . ' - ' . $lineItem->note;
+                    $lineItemsByKey[$key]->note .= ' - ' . $lineItem->note;
                 } else {
                     $lineItemsByKey[$key]->note = $lineItem->note;
                 }
@@ -47,4 +45,3 @@ class Order
         return $lineItems > $lineItemsByKey;
     }
 }
-

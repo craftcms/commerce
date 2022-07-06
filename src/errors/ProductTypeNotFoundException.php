@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\errors;
+namespace craft\commerce\errors;
 
 use yii\base\Exception;
 

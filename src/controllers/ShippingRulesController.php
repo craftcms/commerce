@@ -8,13 +8,23 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
-use craft\errors\ProductTypeNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
+use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -31,8 +41,11 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param int|null $methodId
      * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
-     * @return Response
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
@@ -57,19 +70,21 @@ class ShippingRulesController extends BaseShippingSettingsController
             }
         }
 
-        // TODO: check if the following two lines can be removed
-        // $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
-        // $variables['states'] = $plugin->getStates()->getAllStatesAsList();
-
         $this->getView()->setNamespace('new');
 
         $this->getView()->startJsBuffer();
 
+        $newZone = new ShippingAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
 
@@ -78,6 +93,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
@@ -91,90 +109,56 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        if ($variables['shippingRule'] && $variables['shippingRule'] instanceof ShippingRule) {
-            $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
-            // Localize numbers
-            $localizeAttributes = [
-                'minTotal',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
-                'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
-                'maxRate',
-            ];
-
-            foreach ($localizeAttributes as $attr) {
-                if (isset($variables['shippingRule']->{$attr}) && $variables['shippingRule']->{$attr} !== null) {
-                    $variables['shippingRule']->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$variables['shippingRule']->{$attr});
-                }
-
-                if (!empty($categoryModels)) {
-                    foreach ($categoryModels as &$categoryModel) {
-                        if (isset($categoryModel->{$attr}) && $categoryModel->{$attr} !== null) {
-                            $categoryModel->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$categoryModel->{$attr});
-                        }
-                    }
-                }
-            }
-
-            $variables['shippingRule']->setShippingRuleCategories($categoryModels);
-        }
-
         return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
 
     /**
      * Duplicates a shipping rule.
      *
-     * @return Response|null
+     * @throws InvalidRouteException
      * @since 3.2
      */
-    public function actionDuplicate()
+    public function actionDuplicate(): ?Response
     {
         return $this->runAction('save', ['duplicate' => true]);
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws Exception
      */
-    public function actionSave($duplicate = false)
+    public function actionSave(bool $duplicate = false): void
     {
         $this->requirePostRequest();
-
-        $request = Craft::$app->getRequest();
 
         $shippingRule = new ShippingRule();
 
         if (!$duplicate) {
-            $shippingRule->id = $request->getBodyParam('id');
+            $shippingRule->id = $this->request->getBodyParam('id');
         }
 
-        $shippingRule->name = $request->getBodyParam('name');
-        $shippingRule->description = $request->getBodyParam('description');
-        $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
-        $shippingRule->methodId = $request->getBodyParam('methodId');
-        $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
-        $shippingRule->orderConditionFormula = trim($request->getBodyParam('orderConditionFormula', ''));
-        $shippingRule->minQty = $request->getBodyParam('minQty');
-        $shippingRule->maxQty = $request->getBodyParam('maxQty');
-        $shippingRule->minTotal = Localization::normalizeNumber($request->getBodyParam('minTotal'));
-        $shippingRule->maxTotal = Localization::normalizeNumber($request->getBodyParam('maxTotal'));
-        $shippingRule->minMaxTotalType = $request->getBodyParam('minMaxTotalType');
-        $shippingRule->minWeight = Localization::normalizeNumber($request->getBodyParam('minWeight'));
-        $shippingRule->maxWeight = Localization::normalizeNumber($request->getBodyParam('maxWeight'));
-        $shippingRule->baseRate = Localization::normalizeNumber($request->getBodyParam('baseRate'));
-        $shippingRule->perItemRate = Localization::normalizeNumber($request->getBodyParam('perItemRate'));
-        $shippingRule->weightRate = Localization::normalizeNumber($request->getBodyParam('weightRate'));
-        $shippingRule->percentageRate = Localization::normalizeNumber($request->getBodyParam('percentageRate'));
-        $shippingRule->minRate = Localization::normalizeNumber($request->getBodyParam('minRate'));
-        $shippingRule->maxRate = Localization::normalizeNumber($request->getBodyParam('maxRate'));
+        $shippingRule->name = $this->request->getBodyParam('name');
+        $shippingRule->description = $this->request->getBodyParam('description');
+        $shippingRule->shippingZoneId = $this->request->getBodyParam('shippingZoneId');
+        $shippingRule->methodId = $this->request->getBodyParam('methodId');
+        $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
+        $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
+        $shippingRule->minQty = $this->request->getBodyParam('minQty');
+        $shippingRule->maxQty = $this->request->getBodyParam('maxQty');
+        $shippingRule->minTotal = Localization::normalizeNumber($this->request->getBodyParam('minTotal'));
+        $shippingRule->maxTotal = Localization::normalizeNumber($this->request->getBodyParam('maxTotal'));
+        $shippingRule->minMaxTotalType = $this->request->getBodyParam('minMaxTotalType');
+        $shippingRule->minWeight = Localization::normalizeNumber($this->request->getBodyParam('minWeight'));
+        $shippingRule->maxWeight = Localization::normalizeNumber($this->request->getBodyParam('maxWeight'));
+        $shippingRule->baseRate = Localization::normalizeNumber($this->request->getBodyParam('baseRate'));
+        $shippingRule->perItemRate = Localization::normalizeNumber($this->request->getBodyParam('perItemRate'));
+        $shippingRule->weightRate = Localization::normalizeNumber($this->request->getBodyParam('weightRate'));
+        $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
+        $shippingRule->minRate = Localization::normalizeNumber($this->request->getBodyParam('minRate'));
+        $shippingRule->maxRate = Localization::normalizeNumber($this->request->getBodyParam('maxRate'));
 
         $ruleCategories = [];
-        $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');
+        $allRulesCategories = $this->request->getBodyParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
             $perItemRate = $ruleCategory['perItemRate'];
             $weightRate = $ruleCategory['weightRate'];
@@ -202,49 +186,55 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return null|Response
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
+        Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
-        return $this->asJson(['success' => $success]);
+        return $this->asSuccess();
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $request = Craft::$app->getRequest();
 
-        if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
-            throw new BadRequestHttpException('Product Type ID not submitted');
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            $this->requireAcceptsJson();
         }
 
-
-        if (!$shippingRule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
-            throw new ProductTypeNotFoundException('Can not find product type to delete');
+        if (!$id = $this->request->getRequiredBodyParam('id')) {
+            throw new BadRequestHttpException('Shipping rule ID not submitted');
         }
 
-        $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
-
-        if ($request->getAcceptsJson()) {
-            if ($deleted) {
-                return $this->asJson(['success' => true]);
-            } else {
-                return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
-            }
+        $rule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id);
+        if (!$rule) {
+            throw new Exception('Cannot find shipping rule to delete');
         }
 
-        if ($deleted) {
-            return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
+        if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
+
+        if (Craft::$app->getRequest()->getIsAjax()) {
+            return $this->asSuccess();
+        }
+
+        return $this->redirectToPostedUrl($rule);
     }
 }

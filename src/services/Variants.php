@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\Type;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 
 /**
  * Variant service.
@@ -28,7 +29,7 @@ class Variants extends Component
      * @var array
      * @since 3.1.4
      */
-    private $_contentFieldCache = [];
+    private array $_contentFieldCache = [];
 
     /**
      * Returns a product's variants, per the product's ID.
@@ -37,15 +38,15 @@ class Variants extends Component
      * @param int|null $siteId Site ID for which to return the variants. Defaults to `null` which is current site.
      * @return Variant[]
      */
-    public function getAllVariantsByProductId(int $productId, int $siteId = null): array
+    public function getAllVariantsByProductId(int $productId, int $siteId = null, bool $includeDisabled = true): array
     {
-        $variants = Variant::find()->productId($productId)->anyStatus()->limit(null)->siteId($siteId)->all();
+        $variantQuery = Variant::find()->productId($productId)->limit(null)->siteId($siteId);
 
-        foreach ($variants as $variant) {
-            $variant->typecastAttributes();
+        if ($includeDisabled) {
+            $variantQuery->status(null);
         }
 
-        return $variants;
+        return $variantQuery->all();
     }
 
     /**
@@ -53,21 +54,14 @@ class Variants extends Component
      *
      * @param int $variantId The variant’s ID.
      * @param int|null $siteId The site ID for which to fetch the variant. Defaults to `null` which is current site.
-     * @return Variant|null
      */
-    public function getVariantById(int $variantId, int $siteId = null)
+    public function getVariantById(int $variantId, int $siteId = null): ?Variant
     {
-        $variant = Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
-
-        if ($variant) {
-            $variant->typecastAttributes();
-        }
-
-        return $variant;
+        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
     }
 
     /**
-     * @return array
+     * @throws InvalidConfigException
      * @since 3.1.4
      */
     public function getVariantGqlContentArguments(): array
@@ -85,7 +79,7 @@ class Variants extends Component
                 }
 
                 $fieldLayout = $productType->getVariantFieldLayout();
-                foreach ($fieldLayout->getFields() as $contentField) {
+                foreach ($fieldLayout->getCustomFields() as $contentField) {
                     if (!$contentField instanceof GqlInlineFragmentFieldInterface) {
                         $contentArguments[$contentField->handle] = [
                             'name' => $contentField->handle,

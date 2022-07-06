@@ -9,9 +9,9 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
-use craft\errors\MissingComponentException;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -29,24 +29,20 @@ class PaymentSourcesController extends BaseFrontEndController
     /**
      * Adds a payment source.
      *
-     * @return Response|null
-     * @throws HttpException
-     * @throws MissingComponentException
-     * @throws InvalidConfigException
      * @throws BadRequestHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
      */
-    public function actionAdd()
+    public function actionAdd(): ?Response
     {
         $this->requirePostRequest();
-
-        $order = null;
 
         $plugin = Plugin::getInstance();
 
         // Are we paying anonymously?
-        $userId = Craft::$app->getUser()->getId();
+        $customerId = Craft::$app->getUser()->getId();
 
-        if (!$userId) {
+        if (!$customerId) {
             throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
         }
 
@@ -57,68 +53,45 @@ class PaymentSourcesController extends BaseFrontEndController
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
 
         if (!$gateway || !$gateway->supportsPaymentSources()) {
-            $error = Craft::t('commerce', 'There is no gateway selected that supports payment sources.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure(Craft::t('commerce', 'There is no gateway selected that supports payment sources.'));
         }
 
         // Get the payment method' gateway adapter's expected form model
         $paymentForm = $gateway->getPaymentFormModel();
-        $paymentForm->setAttributes($this->request->getBodyParams(), false);
+        $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)), false);
         $description = (string)$this->request->getBodyParam('description');
 
         try {
-            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
+            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customerId, $gateway, $paymentForm, $description);
         } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
-            $error = Craft::t('commerce', 'Could not create the payment source.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $error,
-                    // TODO remove `paymentForm` key at next breaking changing
-                    'paymentForm' => $paymentForm->getErrors(),
-                    'paymentFormErrors' => $paymentForm->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash($error);
-            Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
-
-            return null;
+            return $this->asModelFailure(
+                $paymentForm,
+                Craft::t('commerce', 'Could not create the payment source.'),
+                'paymentForm',
+                ['paymentFormErrors' => $paymentForm->getErrors()]
+            );
         }
 
-        if ($this->request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
-                'paymentSource' => $paymentSource,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Payment source created.'));
-
-        return $this->redirectToPostedUrl();
+        return $this->asModelSuccess(
+            $paymentSource,
+            Craft::t('commerce', 'Payment source created.'),
+            'paymentSource'
+        );
     }
 
     /**
      * Deletes a payment source.
      *
-     * @return Response|null
      * @throws Throwable if failed to delete the payment source on the gateway
      * @throws BadRequestHttpException if user not logged in
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
         $this->requireLogin();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         $paymentSources = Commerce::getInstance()->getPaymentSources();
         $paymentSource = $paymentSources->getPaymentSourceById($id);
@@ -129,26 +102,16 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $currentUser = Craft::$app->getUser()->getIdentity();
 
-        if ($paymentSource->userId != $currentUser->getId() && !$currentUser->can('commerce-manageOrders')) {
+        if ($paymentSource->getCustomer()?->id != $currentUser->getId() && !$currentUser->can('commerce-manageOrders')) {
             return null;
         }
 
         $result = $paymentSources->deletePaymentSourceById($id);
 
         if ($result) {
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => true]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Payment source deleted.'));
-        } else {
-            if ($this->request->getAcceptsJson()) {
-                return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+            return $this->asModelSuccess($paymentSource, Craft::t('commerce', 'Payment source deleted.'));
         }
 
-        return $this->redirectToPostedUrl();
+        return $this->asModelFailure($paymentSource, Craft::t('commerce', 'Couldn’t delete the payment source.'));
     }
 }

@@ -7,13 +7,13 @@
 
 namespace craftcommercetests\unit\services;
 
-use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
 use craft\commerce\services\PaymentCurrencies;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use UnitTester;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment Currencies Test
@@ -26,17 +26,17 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var PaymentCurrencies $pc
      */
-    protected $pc;
+    protected PaymentCurrencies $pc;
 
     /**
      * @var PaymentCurrenciesFixture
      */
-    protected $fixtureData;
+    protected PaymentCurrenciesFixture $fixtureData;
 
     /**
      * @return array
@@ -53,7 +53,7 @@ class PaymentCurrenciesTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -62,10 +62,11 @@ class PaymentCurrenciesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\InvalidConfigException
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      * @group PaymentCurrencies
      */
-    public function testGetPaymentCurrenciesData()
+    public function testGetPaymentCurrenciesData(): void
     {
         $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
         $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
@@ -88,7 +89,7 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testConvert()
+    public function testConvert(): void
     {
         $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
         $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
@@ -112,7 +113,7 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testConvertCurrency()
+    public function testConvertCurrency(): void
     {
         $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
         $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
@@ -132,14 +133,14 @@ class PaymentCurrenciesTest extends Unit
         // Converting from AUD to EUR and back
         $converted = $this->pc->convertCurrency(13, $audCurrencyModel->iso, $eurCurrencyModel->iso);
         self::assertEquals($converted, 5);
-        $converted = $this->pc->convertCurrency(5, $eurCurrencyModel->iso, $audCurrencyModel->iso );
+        $converted = $this->pc->convertCurrency(5, $eurCurrencyModel->iso, $audCurrencyModel->iso);
         self::assertEquals($converted, 13);
     }
 
     /**
      * @group PaymentCurrencies
      */
-    public function testConvertCurrencyException()
+    public function testConvertCurrencyException(): void
     {
         $this->expectException(CurrencyException::class);
         $this->pc->convertCurrency(20, 'aaa', 'bbb');
@@ -148,7 +149,7 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @group PaymentCurrencies
      */
-    public function testConvertException()
+    public function testConvertException(): void
     {
         $this->expectException(CurrencyException::class);
         $this->pc->convert(20, 'aaa');

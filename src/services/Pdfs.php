@@ -11,8 +11,8 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
+use craft\commerce\events\PdfRenderEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
-use craft\commerce\events\PdfSaveEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -26,10 +26,12 @@ use craft\helpers\StringHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
+use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -37,20 +39,24 @@ use yii\web\ServerErrorHttpException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read null|Pdf $defaultPdf
+ * @property-read Pdf[] $allEnabledPdfs
+ * @property-read bool $hasEnabledPdf
+ * @property-read null|Pdf[] $allPdfs
  */
 class Pdfs extends Component
 {
-
     /**
      * @var Pdf[]|null
      */
-    private $_allPdfs;
+    private ?array $_allPdfs = null;
 
     /**
-     * @event PdfSaveEvent The event that is triggered before an pdf is saved.
+     * @event PdfEvent The event that is triggered before an pdf is saved.
      *
      * ```php
-     * use craft\commerce\events\PdfSaveEvent;
+     * use craft\commerce\events\PdfEvent;
      * use craft\commerce\services\Pdfs;
      * use craft\commerce\models\Pdf;
      * use yii\base\Event;
@@ -58,7 +64,7 @@ class Pdfs extends Component
      * Event::on(
      *     Pdfs::class,
      *     Pdfs::EVENT_BEFORE_SAVE_PDF,
-     *     function(PdfSaveEvent $event) {
+     *     function(PdfEvent $event) {
      *         // @var Pdf $pdf
      *         $pdf = $event->pdf;
      *         // @var bool $isNew
@@ -69,13 +75,13 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_PDF = 'beforeSavePdf';
+    public const EVENT_BEFORE_SAVE_PDF = 'beforeSavePdf';
 
     /**
-     * @event PdfSaveEvent The event that is triggered after an PDF is saved.
+     * @event PdfEvent The event that is triggered after an PDF is saved.
      *
      * ```php
-     * use craft\commerce\events\PdfSaveEvent;
+     * use craft\commerce\events\PdfEvent;
      * use craft\commerce\services\Pdfs;
      * use craft\commerce\models\Pdf;
      * use yii\base\Event;
@@ -83,7 +89,7 @@ class Pdfs extends Component
      * Event::on(
      *     Pdfs::class,
      *     Pdfs::EVENT_AFTER_SAVE_PDF,
-     *     function(PdfSaveEvent $event) {
+     *     function(PdfEvent $event) {
      *         // @var Pdf $pdf
      *         $pdf = $event->pdf;
      *         // @var bool $isNew
@@ -94,7 +100,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_PDF = 'afterSavePdf';
+    public const EVENT_AFTER_SAVE_PDF = 'afterSavePdf';
 
     /**
      * @event PdfEvent The event that is triggered before an order’s PDF is rendered.
@@ -105,18 +111,18 @@ class Pdfs extends Component
      * | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
      * | `order`     | populated [Order](api:craft\commerce\elements\Order) model                                                                |
      * | `template`  | optional Twig template path (string) to be used for rendering                                                             |
-     * | `variables` | populated with the variables availble to the template used for rendering                                                  |
+     * | `variables` | populated with the variables available to the template used for rendering                                                  |
      * | `option`    | optional string for the template that can be used to show different details based on context (example: `receipt`, `ajax`) |
      *
      * ```php
-     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\events\PdfRenderEvent;
      * use craft\commerce\services\Pdf;
      * use yii\base\Event;
      *
      * Event::on(
      *     Pdf::class,
      *     Pdf::EVENT_BEFORE_RENDER_PDF,
-     *     function(PdfEvent $event) {
+     *     function(PdfRenderEvent $event) {
      *         // Modify `$event->order`, `$event->option`, `$event->template`,
      *         // and `$event->variables` to customize what gets rendered into a PDF
      *         // ...
@@ -124,7 +130,7 @@ class Pdfs extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
+    public const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
 
     /**
      * @event PdfEvent The event that is triggered after an order’s PDF has been rendered.
@@ -132,21 +138,21 @@ class Pdfs extends Component
      * Event handlers can override Commerce’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF string. The event properties will be the same as those from `beforeRenderPdf`, but `pdf` will contain a rendered PDF string and is the only one for which setting a value will make any difference for the resulting PDF output.
      *
      * ```php
-     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\events\PdfRenderEvent;
      * use craft\commerce\services\Pdf;
      * use yii\base\Event;
      *
      * Event::on(
      *     Pdf::class,
      *     Pdf::EVENT_AFTER_RENDER_PDF,
-     *     function(PdfEvent $event) {
+     *     function(PdfRenderEvent $event) {
      *         // Add a watermark to the PDF or forward it to the accounting department
      *         // ...
      *     }
      * );
      * ```
      */
-    const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+    public const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 
     /**
      * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
@@ -169,15 +175,40 @@ class Pdfs extends Component
      * );
      *```
      */
-    const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
-
-    const CONFIG_PDFS_KEY = 'commerce.pdfs';
+    public const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
 
     /**
-     * @return Pdf[]
+     * @event PdfEvent The event that is triggered before a pdf is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\services\Pdfs;
+     * use craft\commerce\models\Pdf;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdfs::class,
+     *     Pdfs::EVENT_BEFORE_DELETE_PDF,
+     *     function(PdfEvent $event) {
+     *         // @var Pdf $pdf
+     *         $pdf = $event->pdf;
+     *
+     *         // ...
+     *     }
+     * );
+     * ```
+     *
+     * @since 4.0.0
+     */
+    public const EVENT_BEFORE_DELETE_PDF = 'beforeDeletePdf';
+
+    public const CONFIG_PDFS_KEY = 'commerce.pdfs';
+
+    /**
+     * @return array|null
      * @since 3.2
      */
-    public function getAllPdfs()
+    public function getAllPdfs(): ?array
     {
         if ($this->_allPdfs === null) {
             $pdfResults = $this->_createPdfsQuery()->all();
@@ -193,7 +224,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @return bool
      * @since 3.2
      */
     public function getHasEnabledPdf(): bool
@@ -213,20 +243,17 @@ class Pdfs extends Component
     }
 
     /**
-     * @return Pdf|null
      * @since 3.2
      */
-    public function getDefaultPdf()
+    public function getDefaultPdf(): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'isDefault', true);
     }
 
     /**
-     * @param string $handle
-     * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfByHandle($handle)
+    public function getPdfByHandle(string $handle): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
     }
@@ -234,11 +261,9 @@ class Pdfs extends Component
     /**
      * Get an PDF by its ID.
      *
-     * @param int $id
-     * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfById($id)
+    public function getPdfById(int $id): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
     }
@@ -246,9 +271,6 @@ class Pdfs extends Component
     /**
      * Save an PDF.
      *
-     * @param Pdf $pdf
-     * @param bool $runValidation
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -261,7 +283,7 @@ class Pdfs extends Component
 
         // Fire a 'beforeSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
-            $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfSaveEvent([
+            $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfEvent([
                 'pdf' => $pdf,
                 'isNew' => $isNewPdf,
             ]));
@@ -290,12 +312,10 @@ class Pdfs extends Component
     /**
      * Handle PDF status change.
      *
-     * @param ConfigEvent $event
-     * @return void
-     * @throws Throwable if reasons
+     * @throws \yii\db\Exception
      * @since 3.2
      */
-    public function handleChangedPdf(ConfigEvent $event)
+    public function handleChangedPdf(ConfigEvent $event): void
     {
         $pdfUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -313,13 +333,7 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
-
-            /** @var Plugin $plugin */
-            $projectConfig = Craft::$app->getProjectConfig();
-            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
-            if (version_compare($schemaVersion, '3.2.13', '>=')) {
-                $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
-            }
+            $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -330,14 +344,14 @@ class Pdfs extends Component
             }
 
             $transaction->commit();
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
 
         // Fire a 'afterSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
-            $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfSaveEvent([
+            $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfEvent([
                 'pdf' => $this->getPdfById($pdfRecord->id),
                 'isNew' => $isNewPdf,
             ]));
@@ -349,15 +363,19 @@ class Pdfs extends Component
     /**
      * Delete an PDF by its ID.
      *
-     * @param int $id
-     * @return bool
      * @since 3.2
      */
-    public function deletePdfById($id): bool
+    public function deletePdfById(int $id): bool
     {
-        $pdf = PdfRecord::findOne($id);
+        $pdf = $this->getPdfById($id);
 
         if ($pdf) {
+            // Fire a 'beforeDeletePdf' event
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
+                $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
+                    'pdf' => $pdf,
+                ]));
+            }
             Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
         }
 
@@ -367,11 +385,11 @@ class Pdfs extends Component
     /**
      * Handle email getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
+     * @throws Throwable
+     * @throws StaleObjectException
      * @since 3.2
      */
-    public function handleDeletedPdf(ConfigEvent $event)
+    public function handleDeletedPdf(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $pdfRecord = $this->_getPdfRecord($uid);
@@ -384,13 +402,15 @@ class Pdfs extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
-     * @throws \yii\db\Exception
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      * @since 3.2
      */
     public function reorderPdfs(array $ids): bool
     {
+        // TODO Add event
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -409,15 +429,15 @@ class Pdfs extends Component
      *
      * @param Order $order The order you want passed into the PDFs `order` variable.
      * @param string $option A string you want passed into the PDFs `option` variable.
-     * @param string $templatePath The path to the template file in the site templates folder that DOMPDF will use to render the PDF.
+     * @param string|null $templatePath The path to the template file in the site templates folder that DOMPDF will use to render the PDF.
      * @param array $variables Variables available to the pdf html template. Available to template by the array keys.
      * @param Pdf|null $pdf The PDF you want to render. This will override the templatePath argument.
      * @return string The PDF data.
      * @throws Exception
      */
-    public function renderPdfForOrder(Order $order, $option = '', $templatePath = null, $variables = [], $pdf = null): string
+    public function renderPdfForOrder(Order $order, string $option = '', string $templatePath = null, array $variables = [], Pdf $pdf = null): string
     {
-        if ($pdf !== null && $pdf instanceof Pdf) {
+        if ($pdf instanceof Pdf) {
             $templatePath = $pdf->templatePath;
         }
 
@@ -426,7 +446,7 @@ class Pdfs extends Component
         }
 
         // Trigger a 'beforeRenderPdf' event
-        $event = new PdfEvent([
+        $event = new PdfRenderEvent([
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
@@ -446,6 +466,8 @@ class Pdfs extends Component
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
         $pdfLanguage = $pdf->getRenderLanguage($order);
+
+        // TODO add event
         Locale::switchAppLanguage($pdfLanguage);
 
         $oldTemplateMode = $view->getTemplateMode();
@@ -460,6 +482,7 @@ class Pdfs extends Component
         }
 
         try {
+            // TODO Add event
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
             Locale::switchAppLanguage($originalLanguage);
@@ -518,13 +541,15 @@ class Pdfs extends Component
         // Paper size and orientation
         $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
         $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
+
+
         $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
 
         $dompdf->loadHtml($html);
         $dompdf->render();
 
         // Trigger an 'afterRenderPdf' event
-        $afterEvent = new PdfEvent([
+        $afterEvent = new PdfRenderEvent([
             'order' => $event->order,
             'option' => $event->option,
             'template' => $event->template,
@@ -539,8 +564,6 @@ class Pdfs extends Component
     /**
      * Gets an PDF record by uid.
      *
-     * @param string $uid
-     * @return PdfRecord
      * @since 3.2
      */
     private function _getPdfRecord(string $uid): PdfRecord
@@ -555,33 +578,26 @@ class Pdfs extends Component
     /**
      * Returns a Query object prepped for retrieving PDFs.
      *
-     * @return Query
      * @since 3.2
      */
     private function _createPdfsQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
                 'description',
-                'templatePath',
-                'fileNameFormat',
                 'enabled',
-                'sortOrder',
+                'fileNameFormat',
+                'handle',
+                'id',
                 'isDefault',
+                'language',
+                'name',
+                'sortOrder',
+                'templatePath',
                 'uid',
             ])
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
-
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
-            $query->addSelect(['language']);
-        }
-
-        return $query;
     }
 }

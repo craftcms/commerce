@@ -12,8 +12,10 @@ use craft\base\Widget;
 use craft\commerce\stats\TopPurchasables as TopPurchasablesStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
+use DateTime;
 
 /**
  * Top Purchasables widget
@@ -27,56 +29,56 @@ use craft\web\assets\admintable\AdminTableAsset;
 class TopPurchasables extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
-     * @var string Options 'revenue', 'qty'.
+     * @var string|null Options 'revenue', 'qty'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var string options 'description', 'sku'.
      */
-    public $nameField;
+    public string $nameField;
 
     /**
-     * @var TopProductsStat
+     * @var TopPurchasablesStat
      */
-    private $_stat;
+    private TopPurchasablesStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @var array
      */
-    private $_nameFieldOptions;
+    private array $_nameFieldOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
-        $this->nameField = $this->nameField ?: 'description';
+        $this->nameField = isset($this->nameField) ?: 'description';
 
         $this->_nameFieldOptions = [
             'description' => Craft::t('commerce', 'Description'),
@@ -88,24 +90,13 @@ class TopPurchasables extends Widget
             'revenue' => Craft::t('commerce', 'Revenue'),
         ];
 
-        switch ($this->type) {
-            case 'revenue':
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables by Revenue');
-                break;
-            }
-            case 'qty':
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables by Qty Sold');
-                break;
-            }
-            default:
-            {
-                $this->_title = Craft::t('commerce', 'Top Purchasables');
-                break;
-            }
-        }
-        $this->dateRange = !$this->dateRange ? TopPurchasablesStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->_title = match ($this->type) {
+            'revenue' => Craft::t('commerce', 'Top Purchasables by Revenue'),
+            'qty' => Craft::t('commerce', 'Top Purchasables by Qty Sold'),
+            default => Craft::t('commerce', 'Top Purchasables'),
+        };
+
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopPurchasablesStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopPurchasablesStat(
             $this->dateRange,
@@ -122,7 +113,7 @@ class TopPurchasables extends Widget
      */
     public static function isSelectable(): bool
     {
-        return Craft::$app->getUser()->checkPermission('commerce-manageOrders') && Craft::$app->getUser()->checkPermission('commerce-manageProducts');
+        return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
     /**
@@ -136,7 +127,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -144,7 +135,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -152,7 +143,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -160,9 +151,13 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
@@ -181,7 +176,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-purchasables' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

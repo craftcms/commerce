@@ -35,20 +35,15 @@ class Variant extends ElementType
     /**
      * @inheritdoc
      */
-    protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
+    protected function resolve(mixed $source, array $arguments, mixed $context, ResolveInfo $resolveInfo): mixed
     {
         /** @var VariantElement $source */
         $fieldName = $resolveInfo->fieldName;
         $product = $source->getProduct();
-
-        switch ($fieldName) {
-            case 'productTitle':
-                return $product ? $product->title : '';
-            case 'productTypeId':
-                return $product ? $product->typeId : null;
-        }
-
-        return parent::resolve($source, $arguments, $context, $resolveInfo);
+        return match ($fieldName) {
+            'productTitle' => $product->title ?? '',
+            'productTypeId' => $product->typeId ?? null,
+            default => parent::resolve($source, $arguments, $context, $resolveInfo),
+        };
     }
-
 }

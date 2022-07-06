@@ -42,7 +42,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testPriceRounding()
+    public function testPriceRounding(): void
     {
         $lineItem = new LineItem();
         $lineItem->setPrice(1.239);
@@ -57,7 +57,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testPopulateFromPurchasable()
+    public function testPopulateFromPurchasable(): void
     {
         $purchasable = new Purchasable();
         $lineItem = new LineItem();
@@ -73,27 +73,27 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testAppliedSale()
+    public function testAppliedSale(): void
     {
         $variant = Variant::find()->sku('rad-hood')->one();
         $lineItem = new LineItem();
         $lineItem->populateFromPurchasable($variant);
 
-        self::assertSame(123.99, $lineItem->price);
-        self::assertSame(111.59, $lineItem->salePrice);
-        self::assertSame(12.40, $lineItem->saleAmount);
+        self::assertSame(123.99, round($lineItem->price, 2));
+        self::assertSame(111.59, round($lineItem->salePrice, 2));
+        self::assertSame(12.40, round($lineItem->saleAmount, 2));
         self::assertTrue($lineItem->getOnSale());
     }
 
     /**
      *
      */
-    public function testSetOptions()
+    public function testSetOptions(): void
     {
         $options = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => '❌'
+            'emoji' => '❌',
         ];
         $jsonOptions = Json::encode($options);
         $lineItem = new LineItem();
@@ -101,10 +101,10 @@ class LineItemTest extends Unit
         $output = [
             'foo' => 'bar',
             'numFoo' => 999,
-            'emoji' => ':x:'
+            'emoji' => ':x:',
         ];
 
-        // TODO change this when set options for emojis is refactored
+        // TODO change this when set options for emojis is refactored #COM-46
         $lineItem->setOptions($options);
         if (Craft::$app->getDb()->getSupportsMb4()) {
             self::assertSame($options, $lineItem->getOptions());
@@ -123,7 +123,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testConsistentOptionsSignatures()
+    public function testConsistentOptionsSignatures(): void
     {
         $options = ['Larry' => 'David'];
         $lineItem1 = new LineItem();
@@ -138,7 +138,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testUniqueOptionSignatures()
+    public function testUniqueOptionSignatures(): void
     {
         $lineItem = new LineItem();
         $lineItem->setOptions(['foo' => 1]);

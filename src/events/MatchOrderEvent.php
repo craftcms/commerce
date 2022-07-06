@@ -22,10 +22,10 @@ class MatchOrderEvent extends CancelableEvent
     /**
      * @var Order The matched order.
      */
-    public $order;
+    public Order $order;
 
     /**
      * @var Discount The discount that matched.
      */
-    public $discount;
+    public Discount $discount;
 }

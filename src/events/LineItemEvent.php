@@ -21,16 +21,10 @@ class LineItemEvent extends Event
     /**
      * @var LineItem The line item model.
      */
-    public $lineItem;
+    public LineItem $lineItem;
 
     /**
      * @var bool If this is a new line item.
      */
-    public $isNew = false;
-
-    /**
-     * @deprecated This event is not cancellable. This prop is here for backwards compatibility.
-     * TODO remove in 4.0
-     */
-    public $isValid = true;
+    public bool $isNew = false;
 }
