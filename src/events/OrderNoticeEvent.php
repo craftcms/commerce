@@ -14,7 +14,7 @@ use craft\events\CancelableEvent;
  * Class OrderNoticeEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.4.x
+ * @since 4.1.0
  */
 class OrderNoticeEvent extends CancelableEvent
 {
