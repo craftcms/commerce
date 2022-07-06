@@ -38,7 +38,6 @@
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",
-    "symplify/easy-coding-standard": "10.2.3",
     "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {

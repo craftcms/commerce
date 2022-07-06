@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -36,6 +35,7 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
+use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -643,8 +643,10 @@ class OrdersController extends Controller
             return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
         }
 
-        $address = Address::find()
-            ->id($addressId)
+        /** @var AddressQuery $addressQuery */
+        $addressQuery = Address::find()
+            ->id($addressId);
+        $address = $addressQuery
             ->ownerId($order->id)
             ->one();
 
@@ -1021,6 +1023,7 @@ class OrdersController extends Controller
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
+        /** @var Order $order */
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
@@ -1248,7 +1251,9 @@ class OrdersController extends Controller
                 $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                 $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
             } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
-                $address = Address::find()->id($address['id'])->ownerId($address['ownerId'])->one();
+                /** @var AddressQuery $addressQuery */
+                $addressQuery = Address::find()->id($address['id']);
+                $address = $addressQuery->ownerId($address['ownerId'])->one();
             }
 
             return $address;
@@ -1505,8 +1510,9 @@ class OrdersController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
         foreach ($results as $row) {
-            /** @var PurchasableInterface|PurchasableElement $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+            /** @var PurchasableElement|null $purchasable */
+            $purchasable = Craft::$app->getElements()->getElementById($row['id']);
+            if ($purchasable) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 } else {

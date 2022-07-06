@@ -39,7 +39,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
     public ?DateTime $dateCreated = null;
 
     /**
-     * @var ?DateTime|null
+     * @var DateTime|null
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;

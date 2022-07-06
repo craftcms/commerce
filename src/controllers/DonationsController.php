@@ -47,6 +47,7 @@ class DonationsController extends BaseStoreSettingsController
         $this->requirePostRequest();
 
         // Not using a service to save a donation yet. Always editing the only donation.
+        /** @var Donation|null $donation */
         $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {

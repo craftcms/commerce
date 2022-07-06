@@ -169,7 +169,9 @@ class Customers extends Component
         $fromId = $fromCustomer->id;
         $toId = $toCustomer->id;
 
+        /** @var User|null $fromUser */
         $fromUser = User::find()->id($fromId)->one();
+        /** @var User|null $toUser */
         $toUser = User::find()->id($toId)->one();
 
         if ($fromUser === null) {

@@ -156,6 +156,7 @@ class ProductTypesController extends BaseAdminController
         // Set the variant field layout
         $variantFieldLayout = Craft::$app->getFields()->assembleLayoutFromPost('variant-layout');
         $variantFieldLayout->type = Variant::class;
+        /** @var FieldLayoutBehavior $behavior */
         $behavior = $productType->getBehavior('variantFieldLayout');
         $behavior->setFieldLayout($variantFieldLayout);
 

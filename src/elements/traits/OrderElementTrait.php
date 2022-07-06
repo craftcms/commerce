@@ -38,7 +38,7 @@ trait OrderElementTrait
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): OrderQuery
     {
         return new OrderQuery(static::class);
     }

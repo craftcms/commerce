@@ -16,8 +16,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -229,7 +229,7 @@ class Plans extends Component
         $record->planData = $plan->planData;
         $record->enabled = $plan->enabled;
         $record->isArchived = $plan->isArchived;
-        $record->dateArchived = $plan->dateArchived;
+        $record->dateArchived = Db::prepareDateForDb($plan->dateArchived);
         $record->sortOrder = $plan->sortOrder ?? 99;
 
         // Save it!
@@ -273,7 +273,7 @@ class Plans extends Component
         }
 
         $plan->isArchived = true;
-        $plan->dateArchived = Db::prepareDateForDb(new DateTime());
+        $plan->dateArchived = DateTimeHelper::now();
 
         return $this->savePlan($plan);
     }

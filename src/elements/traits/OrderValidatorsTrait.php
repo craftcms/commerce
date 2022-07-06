@@ -9,7 +9,6 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
@@ -18,7 +17,9 @@ use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
 /**
- * @property Order $this
+ * OrderValidatorsTrait implements the methods used in Order validation.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  */
 trait OrderValidatorsTrait
 {
@@ -54,7 +55,6 @@ trait OrderValidatorsTrait
      * @param string $attribute
      * @param $params
      * @param Validator $validator
-     * @throws CurrencyException
      * @noinspection PhpUnused
      */
     public function validatePaymentCurrency(string $attribute, $params, Validator $validator): void
