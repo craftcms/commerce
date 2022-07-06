@@ -6,6 +6,7 @@ use Craft;
 use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\Plugin;
+use craft\elements\Address;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
@@ -44,6 +45,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
      */
     public function matchElement(ElementInterface $element): bool
     {
+        /** @var Address $address */
         $address = $element;
         $formulasService = Plugin::getInstance()->getFormulas();
         $formula = $this->value;

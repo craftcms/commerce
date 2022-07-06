@@ -13,6 +13,7 @@ use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
 use craft\commerce\gql\types\elements\Variant;
 use craft\commerce\helpers\Gql;
+use craft\commerce\models\ProductType as ProductTypeModel;
 use craft\commerce\Plugin;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
@@ -34,7 +35,7 @@ class VariantType implements GeneratorInterface
         $gqlTypes = [];
 
         foreach ($productTypes as $productType) {
-            /** @var ProductType $productType */
+            /** @var ProductTypeModel $productType */
             $typeName = VariantElement::gqlTypeNameByContext($productType);
             $requiredContexts = VariantElement::gqlScopesByContext($productType);
 

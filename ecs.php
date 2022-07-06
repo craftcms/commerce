@@ -3,16 +3,19 @@
 declare(strict_types=1);
 
 use craft\ecs\SetList;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symplify\EasyCodingStandard\ValueObject\Option;
+use Symplify\EasyCodingStandard\Config\ECSConfig;
 
-return static function(ContainerConfigurator $containerConfigurator): void {
-    $parameters = $containerConfigurator->parameters();
-    $parameters->set(Option::PATHS, [
+return static function(ECSConfig $ecsConfig): void {
+    $ecsConfig->parallel();
+    $ecsConfig->paths([
         __DIR__ . '/src',
         __DIR__ . '/tests',
         __FILE__,
     ]);
 
-    $containerConfigurator->import(SetList::CRAFT_CMS_4);
+    $ecsConfig->skip([
+        __DIR__ . '/tests/_craft/storage',
+    ]);
+
+    $ecsConfig->sets([SetList::CRAFT_CMS_4]);
 };

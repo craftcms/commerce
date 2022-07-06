@@ -150,12 +150,13 @@
   <div class="meta">
     {# Related Sales #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
-        {% if currentUser.can('commerce-editSales') and product.defaultVariant is not null %}
-            {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
+        {% set productDefaultVariant = product.getDefaultVariant(true) %}
+        {% if currentUser.can('commerce-editSales') and productDefaultVariant is not null %}
+            {{ productFields.relatedSales(productDefaultVariant.id, productType.hasVariants) }}
         {% endif %}
 
-      {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') and product.defaultVariant is not null %}
-        {{ productFields.relatedDiscounts(product.defaultVariant.id, product.defaultVariant) }}
+      {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') and productDefaultVariant is not null %}
+        {{ productFields.relatedDiscounts(productDefaultVariant.id, productDefaultVariant) }}
       {% endif %}
     {% endif %}
     <div class="data">

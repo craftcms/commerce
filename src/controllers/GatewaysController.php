@@ -43,6 +43,7 @@ class GatewaysController extends BaseAdminController
      */
     public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
     {
+        /** @var Gateway $gateway */
         $variables = compact('id', 'gateway');
 
         $gatewayService = Plugin::getInstance()->getGateways();

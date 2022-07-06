@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -173,10 +174,12 @@ class Carts extends Component
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
-        $cart = Order::find()
+        /** @var OrderQuery $orderQuery */
+        $orderQuery = Order::find()
             ->number($number)
             ->trashed(null)
-            ->status(null)
+            ->status(null);
+        $cart = $orderQuery
             ->withLineItems()
             ->withAdjustments()
             ->one();
@@ -292,9 +295,13 @@ class Carts extends Component
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
+        /** @var OrderQuery $orderQuery */
+        $orderQuery = Order::find()
+            ->trashed(false);
+        $previousCart = $orderQuery->customer($currentUser)->isCompleted(false)->hasLineItems()->one();
         if ($currentUser &&
             $cart->getIsEmpty() &&
-            $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()
+            $previousCart
         ) {
             $this->_cart = $previousCart;
             $this->setSessionCartNumber($previousCart->number);

@@ -28,7 +28,6 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
-use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
@@ -528,7 +527,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCacheTags(): array
+    protected function cacheTags(): array
     {
         return [
             "product:$this->productId",
@@ -791,7 +790,7 @@ class Variant extends Purchasable
      * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): VariantQuery
     {
         return new VariantQuery(static::class);
     }
