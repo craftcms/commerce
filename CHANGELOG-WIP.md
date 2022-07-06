@@ -7,6 +7,7 @@
 - Added the `commerce/transfer-customer-data` command.
 
 ### Changed
+- Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
 - `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 - `craft\commorce\elements\Variant` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 
