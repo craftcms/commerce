@@ -72,11 +72,15 @@ trait OrderValidatorsTrait
      *
      * @param string $attribute the attribute being validated
      * @noinspection PhpUnused
+     * @throws InvalidConfigException
      */
     public function validateAddress(string $attribute): void
     {
         /** @var Address $address */
         $address = $this->$attribute;
+
+        // Set live scenario for addresses to match CP
+        $address?->setScenario(Address::SCENARIO_LIVE);
 
         if ($address && !$address->validate()) {
             $this->addModelErrors($address, $attribute);
