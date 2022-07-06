@@ -14,6 +14,8 @@ use DateTime;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
+ * @todo remove ignore: https://github.com/phpstan/phpstan/issues/6778
+ * @phpstan-ignore-next-line
  * @mixin StatTrait
  */
 interface StatInterface

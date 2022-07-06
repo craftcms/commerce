@@ -47,6 +47,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address as AddressElement;
+use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -2747,7 +2748,9 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            $this->_shippingAddress = AddressElement::find()->id($this->shippingAddressId)->ownerId($this->id)->one();
+            /** @var AddressQuery $addressQuery */
+            $addressQuery = AddressElement::find()->id($this->shippingAddressId);
+            $this->_shippingAddress = $addressQuery->ownerId($this->id)->one();
         }
 
         return $this->_shippingAddress;
@@ -2836,7 +2839,9 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            $this->_billingAddress = AddressElement::find()->id($this->billingAddressId)->ownerId($this->id)->one();
+            /** @var AddressQuery $addressQuery */
+            $addressQuery = AddressElement::find()->id($this->billingAddressId);
+            $this->_billingAddress = $addressQuery->ownerId($this->id)->one();
         }
 
         return $this->_billingAddress;
@@ -3201,6 +3206,7 @@ class Order extends Element
      */
     private function _saveAdjustments(): void
     {
+        /** @var null|array|OrderAdjustmentRecord[] $previousAdjustments */
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
@@ -3266,6 +3272,7 @@ class Order extends Element
     private function _saveLineItems(): void
     {
         // Line items that are currently in the DB
+        /** @var null|array|LineItemRecord[] $previousLineItems */
         $previousLineItems = LineItemRecord::find()
             ->where(['orderId' => $this->id])
             ->all();
