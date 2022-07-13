@@ -2806,7 +2806,9 @@ class Order extends Element
     public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            $this->_estimatedShippingAddress = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
+            /** @var AddressQuery $addressQuery */
+            $addressQuery = AddressElement::find()->id($this->estimatedShippingAddressId);
+            $this->_estimatedShippingAddress = $addressQuery->owner($this)->one();
         }
 
         return $this->_estimatedShippingAddress;
@@ -2931,7 +2933,9 @@ class Order extends Element
     public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            $this->_estimatedBillingAddress = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
+            /** @var AddressQuery $addressQuery */
+            $addressQuery = AddressElement::find()->id($this->estimatedBillingAddressId);
+            $this->_estimatedBillingAddress = $addressQuery->owner($this)->one();
         }
 
         return $this->_estimatedBillingAddress;
