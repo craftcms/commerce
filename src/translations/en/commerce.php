@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'That handle is already in use',
     'That handle is already in use.' => 'That handle is already in use.',
     'The PDF to attach to this email.' => 'The PDF to attach to this email.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'The address provided is outside the store’s market.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.',
