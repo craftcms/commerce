@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'Dieser Identifikator wird bereits verwendet',
     'That handle is already in use.' => 'Dieser Identifikator wird bereits verwendet.',
     'The PDF to attach to this email.' => 'Die PDF, die an diese E-Mail angehängt werden soll.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'Die angegebene Adresse liegt außerhalb des Marktes des Shops.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'Die Rabattmenge, die auf die ganze Bestellung angewendet wird. Dieser Betrag wird auf die Posten verteilt, vom höchsten Preis bis zum niedrigsten, bis der Rabatt aufgebraucht ist.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'Der Basisrabatt kann Artikel im Warenkorb nur bis zu einem Preis von Null reduzieren, bis er aufgebraucht ist, und kann den Preis der Bestellung nicht negativ machen.',
