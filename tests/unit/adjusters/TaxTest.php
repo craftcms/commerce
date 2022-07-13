@@ -80,7 +80,7 @@ class TaxTest extends Unit
         foreach ($taxRateData as $item) {
             $rate = $this->make(TaxRate::class, [
                 'getIsEverywhere' => !isset($item['zone']),
-                'getTaxZone' => function () use ($item) {
+                'getTaxZone' => function() use ($item) {
                     if (isset($item['zone'])) {
                         $zone = $this->make(TaxAddressZone::class, []);
 
@@ -119,7 +119,7 @@ class TaxTest extends Unit
 
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => $taxRates,
-            'validateVatNumber' => function ($vatNum) use ($addressData) {
+            'validateVatNumber' => function($vatNum) use ($addressData) {
                 return $addressData['_validateVat'] ?? false;
             },
         ]);
