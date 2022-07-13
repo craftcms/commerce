@@ -650,8 +650,6 @@ return [
     'No shipping rule exists with the ID “{id}”' => 'Il n\'existe pas de règle de livraison avec l\'identifiant « {id} »',
     'No shipping rules exist yet.' => 'Aucune règle d’expédition n’a été créée.',
     'No shipping zone exists with the ID “{id}”' => 'Aucune zone de livraison avec l\'identifiant « {id} »',
-    'No state exists with the ID “{id}”' => 'Il n\'existe aucun État avec l\'identifiant « {id} »',
-    'No states exist yet.' => 'Aucun état n’a été créé.',
     'No stats available.' => 'Aucune statistique disponible.',
     'No subscription plan exists with the ID “{id}”' => 'Il n\'existe aucun d’abonnement avec l’identifiant « {id} »',
     'No subscription plans exist yet.' => 'Aucun plan d’abonnement n’existe encore.',
