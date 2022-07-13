@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'Deze ingang is al in gebruik',
     'That handle is already in use.' => 'Deze ingang is al in gebruik.',
     'The PDF to attach to this email.' => 'De pdf die in bijlage wordt toegevoegd aan deze e-mail.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'Het opgegeven adres is buiten het marktgebied van de winkel.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'Het kortingbedrag dat wordt toegepast op de hele bestelling. Dit bedrag is verdeeld over de lijnitems van de hoogste tot de laagste prijs, totdat de korting is opgebruikt.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'De basiskorting kan maar tot nul korting toepassen voor items in de winkelwagen en kan de bestelling niet negatief maken.',
