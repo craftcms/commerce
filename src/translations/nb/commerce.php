@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'Etiketten er allerede i bruk',
     'That handle is already in use.' => 'Etiketten er allerede i bruk.',
     'The PDF to attach to this email.' => 'PDF-en som skal legges til e-posten.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'Adressen som er oppgitt er utenfor butikkens marked.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'Rabattbeløpet som er brukt på hele ordren. Beløpet er spredt over linjevarene i rekkefølgen fra høyest til lavest pris til rabatten er brukt opp.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'Grunnrabatten gjelder bare for varer i handlekurven ned til null inntil den er brukt opp. Ordren kan ikke bli negativ.',
