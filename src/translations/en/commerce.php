@@ -6,12 +6,6 @@
  */
 
 return [
-    '{pct} off the discounted item price' => '{pct} off the discounted item price',
-    '{pct} off the original item price' => '{pct} off the original item price',
-    '{pct} off total discounted price (Deprecated)' => '{pct} off total discounted price (Deprecated)',
-    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} off total discounted price and shipping total (Deprecated)',
-    '{pct} off total original price (Deprecated)' => '{pct} off total original price (Deprecated)',
-    '{pct} off total original price and shipping total (Deprecated)' => '{pct} off total original price and shipping total (Deprecated)',
     '(Purchasable)' => '(Purchasable)',
     '(Trashed)' => '(Trashed)',
     '(new price)' => '(new price)',
@@ -1255,6 +1249,12 @@ return [
     '{description} only has {stock} in stock.' => '{description} only has {stock} in stock.',
     '{name} (Primary)' => '{name} (Primary)',
     '{number} more…' => '{number} more…',
+    '{pct} off the discounted item price' => '{pct} off the discounted item price',
+    '{pct} off the original item price' => '{pct} off the original item price',
+    '{pct} off total discounted price (Deprecated)' => '{pct} off total discounted price (Deprecated)',
+    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} off total discounted price and shipping total (Deprecated)',
+    '{pct} off total original price (Deprecated)' => '{pct} off total original price (Deprecated)',
+    '{pct} off total original price and shipping total (Deprecated)' => '{pct} off total original price and shipping total (Deprecated)',
     '{total} in total revenue' => '{total} in total revenue',
     '{total} orders' => '{total} orders',
     '{type} for which this discount will be applicable to.' => '{type} for which this discount will be applicable to.',
