@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'Tento popisovač sa už používa',
     'That handle is already in use.' => 'Tento popisovač sa už používa.',
     'The PDF to attach to this email.' => 'PDF pre priloženie do e-mailu.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'Uvedená adresa sa nachádza mimo trhu obchodu.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'Čiastka zľavy, ktorá je použitá na celú objednávku. Táto čiastka sa rozdelí medzi riadkové položky v poradí od najvyššej ceny po najnižšiu, až kým sa nevyužije celá zľava.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'Základná zľava môže zľaviť položky v košíku maximálne na hodnotu nula, až kým nebude celá využitá. Nie je možné dostať objednávku do záporného čísla.',
