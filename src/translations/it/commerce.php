@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'Handle già in uso',
     'That handle is already in use.' => 'Handle già in uso.',
     'The PDF to attach to this email.' => 'Il PDF da allegare a questa e-mail.',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => 'L\'indirizzo fornito è al di fuori del mercato dello store.',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => 'L\'importo dello sconto che viene applicato all\'intero ordine. Questo importo è ripartito tra le varie voci in ordine di prezzo da quello più elevato a quello più ridotto, fino ad esaurimento dello sconto.',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => 'Lo sconto di base può solo scontare fino a zero gli articoli nel carrello fino ad esaurimento; non può rendere negativo l\'ordine.',
