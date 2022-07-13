@@ -80,7 +80,7 @@ class TaxTest extends Unit
         foreach ($taxRateData as $item) {
             $rate = $this->make(TaxRate::class, [
                 'getIsEverywhere' => !isset($item['zone']),
-                'getTaxZone' => function() use ($item) {
+                'getTaxZone' => function () use ($item) {
                     if (isset($item['zone'])) {
                         $zone = $this->make(TaxAddressZone::class, []);
 
@@ -119,7 +119,7 @@ class TaxTest extends Unit
 
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => $taxRates,
-            'validateVatNumber' => function($vatNum) use ($addressData) {
+            'validateVatNumber' => function ($vatNum) use ($addressData) {
                 return $addressData['_validateVat'] ?? false;
             },
         ]);
@@ -564,6 +564,146 @@ class TaxTest extends Unit
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 9.09,
+                ],
+            ],
+
+            // Example 7) line item taxable VAT 20% tax
+            'tax-20pct-vat-not-included-taxable-line-item-price' => [
+                [ // Address
+                    'countryCode' => 'UK',
+                ],
+                [ // Line Items
+                    ['salePrice' => 49.17, 'qty' => 1], // 49.17 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'UK',
+                        'code' => 'VAT',
+                        'taxCategoryId' => 1,
+                        'rate' => 0.2,
+                        'include' => false,
+                        'isVat' => true,
+                        'taxable' => 'price',
+                    ],
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'amount' => 9.83,
+                            'included' => false,
+                            'description' => '20%',
+                        ],
+                    ],
+                    'orderTotalPrice' => 59,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 9.83,
+                    'orderTotalTaxIncluded' => 0,
+                ],
+            ],
+
+            // Example 8) Purchasable taxable VAT 20% tax
+            'tax-20pct-vat-not-included-taxable-purchasable-price' => [
+                [ // Address
+                    'countryCode' => 'UK',
+                ],
+                [ // Line Items
+                    ['salePrice' => 49.17, 'qty' => 1], // 49.17 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'UK',
+                        'code' => 'VAT',
+                        'taxCategoryId' => 1,
+                        'rate' => 0.2,
+                        'include' => false,
+                        'isVat' => true,
+                        'taxable' => 'purchasable',
+                    ],
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'amount' => 9.83,
+                            'included' => false,
+                            'description' => '20%',
+                        ],
+                    ],
+                    'orderTotalPrice' => 59,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 9.83,
+                    'orderTotalTaxIncluded' => 0,
+                ],
+            ],
+
+            // Example 9) Line Item taxable VAT 20% tax with qty 4
+            'tax-20pct-vat-not-included-taxable-line-item-price-qty-4' => [
+                [ // Address
+                    'countryCode' => 'UK',
+                ],
+                [ // Line Items
+                    ['salePrice' => 49.17, 'qty' => 4], // 49.17 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'UK',
+                        'code' => 'VAT',
+                        'taxCategoryId' => 1,
+                        'rate' => 0.2,
+                        'include' => false,
+                        'isVat' => true,
+                        'taxable' => 'price',
+                    ],
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'amount' => 39.34,
+                            'included' => false,
+                            'description' => '20%',
+                        ],
+                    ],
+                    'orderTotalPrice' => 236.02,
+                    'orderTotalQty' => 4,
+                    'orderTotalTax' => 39.34,
+                    'orderTotalTaxIncluded' => 0,
+                ],
+            ],
+
+            // Example 10) Purchasable taxable VAT 20% tax with qty 4
+            'tax-20pct-vat-not-included-taxable-purchasable-price-qty-4' => [
+                [ // Address
+                    'countryCode' => 'UK',
+                ],
+                [ // Line Items
+                    ['salePrice' => 49.17, 'qty' => 4], // 49.17 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'UK',
+                        'code' => 'VAT',
+                        'taxCategoryId' => 1,
+                        'rate' => 0.2,
+                        'include' => false,
+                        'isVat' => true,
+                        'taxable' => 'purchasable',
+                    ],
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'amount' => 39.32,
+                            'included' => false,
+                            'description' => '20%',
+                        ],
+                    ],
+                    'orderTotalPrice' => 236,
+                    'orderTotalQty' => 4,
+                    'orderTotalTax' => 39.32,
+                    'orderTotalTaxIncluded' => 0,
                 ],
             ],
         ];
