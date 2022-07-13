@@ -965,7 +965,7 @@ return [
     'That handle is already in use' => 'このハンドルはすでに使用されています',
     'That handle is already in use.' => 'このハンドルはすでに使用されています。',
     'The PDF to attach to this email.' => 'このメールに添付するPDF。',
-    'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The URL to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
+    'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.' => 'The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication.',
     'The address provided is outside the store’s market.' => '提供された住所はストア市場外です。',
     'The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up.' => '注文全体に適用される割引額。この金額は、割引を使い果たすまで、最高価格から最低価格の順にラインアイテム間で適用されます。',
     'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.' => '基本ディスカウントはカート内の商品の価格がゼロになるか、割引を使い果たすまで適用することができます。注文の金額をマイナスにすることはできません。',
