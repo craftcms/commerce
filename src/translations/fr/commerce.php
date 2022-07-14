@@ -977,7 +977,7 @@ return [
     'Subscription date' => 'Date d’abonnement',
     'Subscription fields saved.' => 'Champs d’abonnement enregistrés.',
     'Subscription for {user} to {plan} prevented by a plugin.' => 'La souscription de l’utilisateur {user} à l’abonnement {plan} a été empêchée par un plug-in.',
-    'Subscription not found' => 'Subscription not found',
+    'Subscription not found' => 'Abonnement introuvable',
     'Subscription plan saved.' => 'Abonnement enregistré.',
     'Subscription plan' => 'Abonnement',
     'Subscription plans' => 'Abonnements',
