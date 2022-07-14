@@ -76,7 +76,7 @@ class DebugPanel
         $label = $label ?: $attr;
 
         if (is_string($value)) {
-            if (str_contains($attr, 'html')) {
+            if (str_contains($attr, 'html') || str_contains($attr, 'Html')) {
                 $output = Html::encode($value);
             } else {
                 $output = $value;
