@@ -194,7 +194,7 @@ class CustomerBehavior extends Behavior
     public function getPrimaryShippingAddressId(): ?int
     {
         if (!isset($this->_primaryShippingAddressId)) {
-            /** @var Customer $customer */
+            /** @var Customer|null $customer */
             $customer = Customer::find()->where(['customerId' => $this->owner->id])->one();
             if ($customer) {
                 $this->_primaryShippingAddressId = $customer->primaryShippingAddressId;
