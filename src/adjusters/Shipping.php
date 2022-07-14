@@ -81,7 +81,6 @@ class Shipping extends Component implements AdjusterInterface
         $hasOrderLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForOrder', true, false);
         $hasLineItemLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForMatchingItems', true, false);
 
-        /** @var ShippingRule $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);
         if ($rule) {
             $itemTotalAmount = 0;

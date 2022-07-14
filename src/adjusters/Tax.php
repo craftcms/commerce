@@ -36,9 +36,9 @@ class Tax extends Component implements AdjusterInterface
     public const ADJUSTMENT_TYPE = 'tax';
 
     /**
-     * @var Validator
+     * @var Validator|null
      */
-    private Validator $_vatValidator;
+    private ?Validator $_vatValidator = null;
 
     /**
      * @var Order
