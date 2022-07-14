@@ -73,7 +73,7 @@ abstract class Plan extends Model implements PlanInterface
     public function getGateway(): ?SubscriptionGatewayInterface
     {
         if (!isset($this->_gateway)) {
-            /** @var Gateway|SubscriptionGatewayInterface $gateway */
+            /** @var Gateway|SubscriptionGatewayInterface|null $gateway */
             $gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
             $this->_gateway = $gateway;
         }
