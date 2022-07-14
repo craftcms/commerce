@@ -731,7 +731,8 @@ class ProductQuery extends ElementQuery
      */
     public function status(array|string|null $value): ProductQuery
     {
-        return parent::status($value);
+        parent::status($value);
+        return $this;
     }
 
 

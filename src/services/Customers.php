@@ -149,6 +149,7 @@ class Customers extends Component
      */
     public function ensureCustomer(User $user): CustomerRecord
     {
+        /** @var CustomerRecord|null $customerRecord */
         $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one();
         if (!$customerRecord) {
             $customerRecord = new CustomerRecord();

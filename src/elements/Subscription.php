@@ -327,10 +327,11 @@ class Subscription extends Element
     public function getGateway(): ?SubscriptionGatewayInterface
     {
         if (!isset($this->_gateway) && $this->gatewayId) {
-            $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
-            if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if (!$gateway instanceof SubscriptionGatewayInterface) {
                 throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');
             }
+            $this->_gateway = $gateway;
         }
 
         return $this->_gateway;
@@ -522,13 +523,15 @@ class Subscription extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'order') {
-            $this->_order = $elements[0] ?? null;
+            $order = $elements[0] ?? null;
+            $this->_order = $order instanceof Order ? $order : null;
 
             return;
         }
 
         if ($handle === 'subscriber') {
-            $this->_user = $elements[0] ?? null;
+            $user = $elements[0] ?? null;
+            $this->_user = $user instanceof User ? $user : null;
 
             return;
         }

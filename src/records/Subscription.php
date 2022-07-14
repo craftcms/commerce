@@ -31,7 +31,7 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $plan
  * @property int $planId
  * @property string $reference
- * @property string $subscriptionData
+ * @property array $subscriptionData
  * @property int $trialDays
  * @property ActiveQueryInterface $user
  * @property int $userId

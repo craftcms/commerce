@@ -14,8 +14,8 @@ use DateTime;
 /**
  * Gateway record.
  *
- * @property DateTime $dateArchived
- * @property bool $isFrontendEnabled
+ * @property string|DateTime|null $dateArchived
+ * @property string $isFrontendEnabled
  * @property string $handle
  * @property int $id
  * @property bool $isArchived

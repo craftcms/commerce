@@ -75,6 +75,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
+            /** @var ZoneAddressCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;

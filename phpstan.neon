@@ -2,7 +2,7 @@ includes:
     - vendor/craftcms/phpstan/phpstan.neon
 
 parameters:
-    level: 2
+    level: 3
     paths:
         - src
     ignoreErrors:

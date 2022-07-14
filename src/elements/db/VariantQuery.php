@@ -28,6 +28,8 @@ use yii\db\Schema;
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
+ * @method self siteId($value)
+ * @method self status(array|string|null $value)
  * @property-write Product $product
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
