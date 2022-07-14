@@ -74,7 +74,7 @@ class Customers extends Component
     }
 
     /**
-     * Add customer info tab to the Edit User page in the CP
+     * Add customer info tab to the Edit User page in the control panel.
      */
     public function addEditUserCommerceTab(array &$context): void
     {
@@ -88,7 +88,7 @@ class Customers extends Component
     }
 
     /**
-     * Add customer info to the Edit User page in the CP
+     * Add customer info to the Edit User page in the control panel.
      */
     public function addEditUserCommerceTabContent(array $context): string
     {

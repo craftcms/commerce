@@ -106,8 +106,8 @@ class PaymentsController extends BaseFrontEndController
 
         /**
          * Payments on completed orders can only be made if the order number and email
-         * address are passed to the payments controller. If this is via the CP it
-         * requires the user have the correct permission.
+         * address are passed to the payments controller. If this is via the control panel,
+         * it requires the user have the correct permission.
          */
         $isSiteRequestAndAllowed = $isSiteRequest && $order->getEmail() == $this->request->getParam('email');
         $isCpAndAllowed = $isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders');

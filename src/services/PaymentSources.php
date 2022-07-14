@@ -100,7 +100,6 @@ class PaymentSources extends Component
      */
     public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
-
     /**
      * Returns a customer's payment sources, per the customer's ID.
      *

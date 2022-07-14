@@ -168,7 +168,7 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
   {% js %}
-    {% if (cart.billingAddress and cart.billingAddress.hasErrors()) or not cart.hasMatchingAddresses() %}
+    {% if not cart.hasMatchingAddresses() or (cart.billingAddress and cart.billingAddress.hasErrors() and not cart.hasMatchingAddresses()) %}
       $billingSameAs.click();
     {% endif %}
   {% endjs %}

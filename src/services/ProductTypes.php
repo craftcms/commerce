@@ -138,7 +138,7 @@ class ProductTypes extends Component
     private array $_siteSettingsByProductId = [];
 
     /**
-     * @var array interim storage for product types being saved via CP
+     * @var array interim storage for product types being saved via control panel
      */
     private array $_savingProductTypes = [];
 

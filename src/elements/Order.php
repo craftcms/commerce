@@ -26,6 +26,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\LineItem;
@@ -406,6 +407,28 @@ class Order extends Element
      * ```
      */
     public const EVENT_AFTER_ORDER_AUTHORIZED = 'afterOrderAuthorized';
+
+    /**
+     * @event \yii\base\Event The event that is triggered before a notice has been added to the order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\OrderNotice;
+     * use craft\commerce\events\OrderNoticeEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_BEFORE_APPLY_ADD_NOTICE,
+     *     function(OrderNoticeEvent $event) {
+     *         // @var OrderNotice $orderNotice
+     *         $orderNotice = $event->orderNotice;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -1453,14 +1476,14 @@ class Order extends Element
 
         $autoSetOccurred = false;
 
-        if (!$this->_shippingAddress && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+        if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
             $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
         }
 
-        if (!$this->_billingAddress && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
+        if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
             $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
             $this->setBillingAddress($billingAddress);
@@ -3244,6 +3267,18 @@ class Order extends Element
         // We are never updating a notice, just adding it or keeping it.
         foreach ($this->getNotices() as $notice) {
             if ($notice->id === null) {
+                $orderNoticeEvent = new OrderNoticeEvent([
+                    'orderNotice' => $notice,
+                ]);
+
+                // Raising the 'beforeAddNoticeToOrder' event
+                if ($this->hasEventHandlers(self::EVENT_BEFORE_APPLY_ADD_NOTICE)) {
+                    $this->trigger(self::EVENT_BEFORE_APPLY_ADD_NOTICE, $orderNoticeEvent);
+
+                    if ($orderNoticeEvent->isValid === false) {
+                        continue;
+                    }
+                }
                 $noticeRecord = new OrderNoticeRecord();
                 $noticeRecord->orderId = $notice->orderId;
                 $noticeRecord->type = $notice->type;
