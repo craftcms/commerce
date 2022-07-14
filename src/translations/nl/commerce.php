@@ -977,7 +977,7 @@ return [
     'Subscription date' => 'Datum van abonnement',
     'Subscription fields saved.' => 'Abonnementsvelden opgeslagen.',
     'Subscription for {user} to {plan} prevented by a plugin.' => 'Abonnement van {user} voor {plan} is door een plug-in voorkomen.',
-    'Subscription not found' => 'Subscription not found',
+    'Subscription not found' => 'Abonnement niet gevonden',
     'Subscription plan saved.' => 'Abonnementsplan opgeslagen.',
     'Subscription plan' => 'Abonnementsplan',
     'Subscription plans' => 'Abonnementsplannen',
