@@ -977,7 +977,7 @@ return [
     'Subscription date' => 'Dátum prihlásenia na odber',
     'Subscription fields saved.' => 'Polia prihlásenia na odber uložené.',
     'Subscription for {user} to {plan} prevented by a plugin.' => 'Doplnok zabránil prihláseniu na odber plánu {plan} pre používateľa {user}.',
-    'Subscription not found' => 'Subscription not found',
+    'Subscription not found' => 'Predplatné nebolo nájdené',
     'Subscription plan saved.' => 'Plán prihlásení na odber bol uložený.',
     'Subscription plan' => 'Plán prihlásení na odber',
     'Subscription plans' => 'Plány prihlásení na odber',
