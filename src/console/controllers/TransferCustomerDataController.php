@@ -54,15 +54,15 @@ class TransferCustomerDataController extends Controller
 
         $this->fromUser = $this->prompt('Move Commerce data from user (email or username):', [
             'required' => true,
-            'default' => $this->fromUser,
+            'default' => $this->fromUser ?? '',
         ]);
 
         $this->toUser = $this->prompt('To user (email or username):', [
             'required' => true,
-            'default' => $this->toUser,
+            'default' => $this->toUser ?? '',
         ]);
 
-        if ($this->fromUser === null || $this->toUser === null) {
+        if ($this->fromUser === '' || $this->toUser === '') {
             $this->stderr("No 'fromUser' or 'toUser' specified.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }

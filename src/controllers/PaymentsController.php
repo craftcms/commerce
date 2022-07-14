@@ -82,7 +82,6 @@ class PaymentsController extends BaseFrontEndController
         $number = $this->request->getParam('number');
 
         if ($number !== null) {
-            /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
             if (!$order) {
