@@ -314,13 +314,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -332,13 +332,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -350,13 +350,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -368,13 +368,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-deleteProducts:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-deleteProducts:' . $productType->uid);
     }
 
     /**
@@ -1429,7 +1429,7 @@ class Product extends Element
         switch ($attribute) {
             case 'type':
             {
-                return ($productType ? Craft::t('site', $productType->name) : '');
+                return Craft::t('site', $productType->name);
             }
             case 'defaultSku':
             {
@@ -1439,13 +1439,13 @@ class Product extends Element
             {
                 $taxCategory = $this->getTaxCategory();
 
-                return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
+                return Craft::t('site', $taxCategory->name);
             }
             case 'shippingCategory':
             {
                 $shippingCategory = $this->getShippingCategory();
 
-                return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
+                return Craft::t('site', $shippingCategory->name);
             }
             case 'defaultPrice':
             {

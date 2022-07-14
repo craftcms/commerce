@@ -892,7 +892,13 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        if (!$product || !$productType = $product->getType()) {
+        if (!$product) {
+            return 'Variant';
+        }
+
+        try {
+            $productType = $product->getType();
+        } catch (Exception) {
             return 'Variant';
         }
 
