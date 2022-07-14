@@ -364,11 +364,11 @@ class Gateways extends Component
      * Creates a gateway with a given config
      *
      * @param string|array $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
-     * @return GatewayInterface The gateway
+     * @return Gateway The gateway
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function createGateway(string|array $config): GatewayInterface
+    public function createGateway(string|array $config): Gateway
     {
         if (is_string($config)) {
             $config = ['type' => $config];
