@@ -47,7 +47,7 @@ Outputs the checkout progress navigation using the request path and included `ch
         <span class="flex-1 pb-2">
           {% if isCurrentStep %}
             {# Calculate greatest thermometer width to use after this loop #}
-            {% set width = ((loop.index) * 100 / totalSteps - 10) %}
+            {% set width = ((1 + loop.index0 * 2) * 100 / (totalSteps * 2)) %}
             <span class="text-gray-800">
               {{- step.label|t -}}
             </span>
