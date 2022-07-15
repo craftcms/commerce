@@ -129,9 +129,9 @@ class ProductsPreviewController extends Controller
      */
     private function _showProduct(Product $product): Response
     {
-        $productType = $product->getType();
-
-        if (!$productType) {
+        try {
+            $productType = $product->getType();
+        } catch (InvalidConfigException) {
             throw new ServerErrorHttpException('Product type not found.');
         }
 

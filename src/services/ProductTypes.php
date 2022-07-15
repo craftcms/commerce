@@ -992,10 +992,10 @@ class ProductTypes extends Component
      *
      * @param User $user
      * @param ProductType $productType
-     * @param null $checkPermissionName detailed product type permission.
+     * @param string|null $checkPermissionName detailed product type permission.
      * @return bool
      */
-    public function hasPermission(User $user, ProductType $productType, $checkPermissionName = null): bool
+    public function hasPermission(User $user, ProductType $productType, ?string $checkPermissionName = null): bool
     {
         if ($user->admin == true) {
             return true;

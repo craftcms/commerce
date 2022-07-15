@@ -2511,7 +2511,7 @@ class Order extends Element
     {
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        return ($cart && $cart->id == $this->id);
+        return $cart->id == $this->id;
     }
 
     /**
@@ -3063,24 +3063,19 @@ class Order extends Element
      */
     public function setPaymentSource(?PaymentSource $paymentSource): void
     {
-        if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
-            throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
-        }
-
         // Setting the payment source to null clears it
         if ($paymentSource === null) {
             $this->paymentSourceId = null;
         }
 
-        if ($paymentSource instanceof PaymentSource) {
-            $customer = $this->getCustomer();
-            if ($customer?->id && $paymentSource->getCustomer()?->id !== $customer->id) {
-                throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
-            }
-
-            $this->paymentSourceId = $paymentSource->id;
-            $this->gatewayId = null;
+        // We are now dealing with a PaymentSource
+        $customer = $this->getCustomer();
+        if ($customer?->id && $paymentSource->getCustomer()?->id !== $customer->id) {
+            throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
         }
+
+        $this->paymentSourceId = $paymentSource->id;
+        $this->gatewayId = null;
     }
 
     /**
@@ -3209,10 +3204,10 @@ class Order extends Element
         $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
 
         $orderSite = $this->getOrderSite();
-        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite?->getName() ?? '';
 
         $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod?->getName() ?? '';
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();

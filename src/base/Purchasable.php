@@ -290,13 +290,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     public function getOnSale(): bool
     {
-        $salePrice = $this->getSalePrice();
-
-        if ($salePrice === null) {
-            return false;
-        }
-
-        return Currency::round($salePrice) !== Currency::round($this->getPrice());
+        return Currency::round($this->getSalePrice()) !== Currency::round($this->getPrice());
     }
 
     /**

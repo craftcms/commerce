@@ -165,7 +165,13 @@ class DebugPanelHelperTest extends Unit
                 'modelAttr',
                 $discountVarDump,
                 null,
-                '<tr><th>modelAttr</th><td><code>' . Html::encode($discountVarDump) . '</code></td></tr>',
+                '<tr><th>modelAttr</th><td><code>' . $discountVarDump . '</code></td></tr>',
+            ],
+            [
+                'attrHtml',
+                '<span class="foo">Extra & useful HTML</span>',
+                null,
+                '<tr><th>attrHtml</th><td><code>' . Html::encode('<span class="foo">Extra & useful HTML</span>') . '</code></td></tr>',
             ],
         ];
     }

@@ -468,7 +468,7 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    private function _getCart(bool $forceSave = false): ?Order
+    private function _getCart(bool $forceSave = false): Order
     {
         $orderNumber = $this->request->getBodyParam('number');
 
@@ -511,7 +511,7 @@ class CartController extends BaseFrontEndController
 
         // Shipping address
         if ($shippingAddressId && !$shippingIsBilling) {
-            /** @var Address $userShippingAddress */
+            /** @var Address|null $userShippingAddress */
             $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
 
             // If a user's address ID has been submitted duplicate the address to the order
@@ -543,7 +543,7 @@ class CartController extends BaseFrontEndController
 
         // Billing address
         if ($billingAddressId && !$billingIsShipping) {
-            /** @var Address $userBillingAddress */
+            /** @var Address|null $userBillingAddress */
             $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
 
             // If a user's address ID has been submitted duplicate the address to the order

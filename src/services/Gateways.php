@@ -231,7 +231,6 @@ class Gateways extends Component
             $gatewayUid = $gateway->uid;
         }
 
-        /** @var Gateway $existingGateway */
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
@@ -365,11 +364,11 @@ class Gateways extends Component
      * Creates a gateway with a given config
      *
      * @param string|array $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
-     * @return GatewayInterface The gateway
+     * @return Gateway The gateway
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function createGateway(string|array $config): GatewayInterface
+    public function createGateway(string|array $config): Gateway
     {
         if (is_string($config)) {
             $config = ['type' => $config];
@@ -464,10 +463,11 @@ class Gateways extends Component
     }
 
     /**
-     * @return array|null
+     * @return array
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    private function _getAllGateways(): ?array
+    private function _getAllGateways(): array
     {
         if ($this->_allGateways === null) {
             $gateways = $this->_createGatewayQuery()

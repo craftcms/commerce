@@ -71,12 +71,13 @@ trait OrderValidatorsTrait
      * Validates addresses, and also adds prefixed validation errors to order
      *
      * @param string $attribute the attribute being validated
+     * @throws InvalidConfigException
      * @noinspection PhpUnused
      * @throws InvalidConfigException
      */
     public function validateAddress(string $attribute): void
     {
-        /** @var Address $address */
+        /** @var Address|null $address */
         $address = $this->$attribute;
 
         // Set live scenario for addresses to match CP

@@ -355,7 +355,6 @@ class Subscription extends Element
 
         $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
-        /** @var Plan $currentPlan */
         $currentPlan = $this->getPlan();
 
         $alternativePlans = [];

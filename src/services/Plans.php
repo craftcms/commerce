@@ -371,16 +371,16 @@ class Plans extends Component
     /**
      * Get all plans memoized.
      *
-     * @return array|null
+     * @return array
      * @since 3.2.8
      */
-    private function _getAllPlans(): ?array
+    private function _getAllPlans(): array
     {
         if ($this->_allPlans === null) {
             $plans = $this->_createPlansQuery()->all();
 
-            $this->_allPlans = [];
             if (!empty($plans)) {
+                $this->_allPlans = [];
                 $plans = $this->_populatePlans($plans);
                 foreach ($plans as $plan) {
                     $this->_allPlans[$plan->id] = $plan;
@@ -388,6 +388,6 @@ class Plans extends Component
             }
         }
 
-        return $this->_allPlans;
+        return $this->_allPlans ?? [];
     }
 }

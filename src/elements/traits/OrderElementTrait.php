@@ -69,7 +69,7 @@ trait OrderElementTrait
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() : '';
             }
             case 'customer':
             {
