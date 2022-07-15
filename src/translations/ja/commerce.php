@@ -977,7 +977,7 @@ return [
     'Subscription date' => '定期支払い作成日',
     'Subscription fields saved.' => '定期支払いフィールドは保存されました。',
     'Subscription for {user} to {plan} prevented by a plugin.' => '{user} の {plan} への定期支払いは、プラグインによって阻止されました。',
-    'Subscription not found' => 'Subscription not found',
+    'Subscription not found' => '定期支払いが見つかりません',
     'Subscription plan saved.' => '定期支払いプランは保存されました。',
     'Subscription plan' => '定期支払いプラン',
     'Subscription plans' => '定期支払いプラン',
