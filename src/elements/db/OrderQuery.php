@@ -1147,6 +1147,7 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
+        /** @var Order[] $orders */
         $orders = parent::populate($rows);
 
         // Eager-load anything?

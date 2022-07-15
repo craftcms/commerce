@@ -1044,7 +1044,7 @@ class Variant extends Purchasable
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
-            if ($product) {
+            if ($product instanceof Product) {
                 $this->setProduct($product);
             }
         } else {

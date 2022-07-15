@@ -255,7 +255,7 @@ class Discounts extends Component
         } else {
             // We use a round the time so we can have a cache within the same request (rounded to 1 minute flat, no seconds)
             $date = new DateTime();
-            $date->setTime($date->format('H'), round($date->format('i') / 1) * 1);
+            $date->setTime((int)$date->format('H'), (int)(round($date->format('i') / 1) * 1));
         }
 
         // Coupon condition key
