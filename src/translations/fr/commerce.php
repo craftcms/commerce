@@ -6,12 +6,6 @@
  */
 
 return [
-    '{pct} off the discounted item price' => '{pct} sur le prix remisé de l\'article',
-    '{pct} off the original item price' => '{pct} sur le prix original de l\'article',
-    '{pct} off total discounted price (Deprecated)' => '{pct} de réduction sur le prix réduit (obsolète)',
-    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} de réduction sur le prix réduit et le total de la livraison (obsolète)',
-    '{pct} off total original price (Deprecated)' => '{pct} de réduction sur le prix original (obsolète)',
-    '{pct} off total original price and shipping total (Deprecated)' => '{pct} de réduction sur le prix original et le total de la livraison (obsolète)',
     '(Purchasable)' => '(Achetable)',
     '(Trashed)' => '(Détruit)',
     '(new price)' => '(nouveau prix)',
@@ -54,7 +48,6 @@ return [
     'All customers' => 'Tous les clients',
     'All products' => 'Tous les produits',
     'All purchasables' => 'Tous les achetables',
-    'All users' => 'Tous les utilisateurs',
     'All' => 'Tous',
     'Allow' => 'Autoriser',
     'Allowed Qty' => 'Quantité autorisée',
@@ -657,8 +650,6 @@ return [
     'No shipping rule exists with the ID “{id}”' => 'Il n\'existe pas de règle de livraison avec l\'identifiant « {id} »',
     'No shipping rules exist yet.' => 'Il n\'y a pas encore de règle de livraison.',
     'No shipping zone exists with the ID “{id}”' => 'Aucune zone de livraison ne porte l\'identifiant « {id} »',
-    'No state exists with the ID “{id}”' => 'Il n\'existe aucun état avec l\'identifiant « {id} »',
-    'No states exist yet.' => 'Il n\'existe pas encore d\'État.',
     'No stats available.' => 'Aucune statistique disponible.',
     'No subscription plan exists with the ID “{id}”' => 'Aucun abonnement n’existe avec l’ID « {id} »',
     'No subscription plans exist yet.' => 'Il n’existe pas encore d’abonnement.',

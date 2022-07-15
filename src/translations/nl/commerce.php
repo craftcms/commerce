@@ -6,12 +6,6 @@
  */
 
 return [
-    '{pct} off the discounted item price' => '{pct} korting op de itemprijs met korting',
-    '{pct} off the original item price' => '{pct} korting op de oorspronkelijke itemprijs',
-    '{pct} off total discounted price (Deprecated)' => '{pct} korting op de totale kortingprijs (afgeschaft)',
-    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} korting op de totale kortingsprijs en het verzendtotaal (afgeschaft)',
-    '{pct} off total original price (Deprecated)' => '{pct} korting op de oorspronkelijke prijs (afgeschaft)',
-    '{pct} off total original price and shipping total (Deprecated)' => '{pct} korting op de oorspronkelijke prijs en het verzendtotaal (afgeschaft)',
     '(Purchasable)' => '(Koopbaar)',
     '(Trashed)' => '(Verwijderd)',
     '(new price)' => '(nieuwe prijs)',
@@ -54,7 +48,6 @@ return [
     'All customers' => 'Alle klanten',
     'All products' => 'Alle producten',
     'All purchasables' => 'Alle koopbare artikelen',
-    'All users' => 'Alle gebruikers',
     'All' => 'Alle',
     'Allow' => 'Toestaan',
     'Allowed Qty' => 'Toegestaan ​​aantal',
@@ -657,8 +650,6 @@ return [
     'No shipping rule exists with the ID “{id}”' => 'Er bestaat geen verzendingsregel met ID “{id}”',
     'No shipping rules exist yet.' => 'Er bestaan nog geen verzendingsregels.',
     'No shipping zone exists with the ID “{id}”' => 'Verzendingszone met ID “{id}” bestaat niet',
-    'No state exists with the ID “{id}”' => 'Er bestaat geen provincie met ID “{id}”',
-    'No states exist yet.' => 'Er bestaan nog geen staten.',
     'No stats available.' => 'Geen statistieken beschikbaar.',
     'No subscription plan exists with the ID “{id}”' => 'Er bestaat geen abonnementsplan met ID “{id}”',
     'No subscription plans exist yet.' => 'Er bestaan nog geen abonnementsplannen.',
