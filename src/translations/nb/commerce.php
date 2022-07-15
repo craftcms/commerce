@@ -977,7 +977,7 @@ return [
     'Subscription date' => 'Abonnementsdato',
     'Subscription fields saved.' => 'Abonnementsfelt er lagret.',
     'Subscription for {user} to {plan} prevented by a plugin.' => 'Abonnement for {user} til {plan} forhindret av en programutvidelse.',
-    'Subscription not found' => 'Subscription not found',
+    'Subscription not found' => 'Abonnement ble ikke funnet',
     'Subscription plan saved.' => 'Abonnementsplan er lagret.',
     'Subscription plan' => 'Abonnementsplan',
     'Subscription plans' => 'Abonnementsplaner',
