@@ -1267,7 +1267,7 @@ class OrderQuery extends ElementQuery
 
         // Allow true ot false but not null
         if (isset($this->isCompleted) && $this->isCompleted !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_orders.isCompleted', $this->isCompleted, false));
         }
 
         if (isset($this->dateAuthorized)) {

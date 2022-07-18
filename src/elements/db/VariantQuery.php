@@ -590,7 +590,7 @@ class VariantQuery extends ElementQuery
         }
 
         if (isset($this->isDefault) && $this->isDefault !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_variants.isDefault', $this->isDefault, false));
         }
 
         if (isset($this->minQty)) {

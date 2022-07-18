@@ -140,6 +140,7 @@ class Orders extends Component
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
 
+        /** @var Address[] $addresses */
         $addresses = Address::find()->id($ids)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {
