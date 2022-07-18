@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;

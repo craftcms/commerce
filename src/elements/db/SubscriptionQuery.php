@@ -17,7 +17,6 @@ use craft\elements\User;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
-use yii\db\Schema;
 
 /**
  * SubscriptionQuery represents a SELECT SQL statement for subscriptions in a way that is independent of DBMS.

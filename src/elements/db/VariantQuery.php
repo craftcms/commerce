@@ -20,7 +20,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
-use yii\db\Schema;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.

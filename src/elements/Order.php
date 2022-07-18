@@ -49,7 +49,6 @@ use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
-use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
