@@ -9,6 +9,7 @@
 
 ### Changed
 - Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
+- Garbage collection now removes any orphaned variants, as well as partial donation, order, product, subscription, and variant data.
 - `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 - `craft\commorce\elements\Variant` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 
