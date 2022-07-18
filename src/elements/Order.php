@@ -1975,6 +1975,7 @@ class Order extends Element
 
         if ($shippingAddress = $this->getShippingAddress()) {
             $shippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
@@ -1989,6 +1990,7 @@ class Order extends Element
 
         if ($billingAddress = $this->getBillingAddress()) {
             $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
             Craft::$app->getElements()->saveElement($billingAddress, false);
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
