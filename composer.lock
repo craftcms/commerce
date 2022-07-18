@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba91a9139828c83ec5cd5f9db2414a21",
+    "content-hash": "610280cb76956f22d4d32ec873763445",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -678,16 +678,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "4.1.4",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "c9080fb7265d5e52f1ca81ec6b1ca28a305813a7"
+                "reference": "b64daec1146a348e72df330b1eab92c59a1b6e82"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/c9080fb7265d5e52f1ca81ec6b1ca28a305813a7",
-                "reference": "c9080fb7265d5e52f1ca81ec6b1ca28a305813a7",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/b64daec1146a348e72df330b1eab92c59a1b6e82",
+                "reference": "b64daec1146a348e72df330b1eab92c59a1b6e82",
                 "shasum": ""
             },
             "require": {
@@ -760,6 +760,7 @@
                 "ext-iconv": "Adds support for more character encodings than PHP’s built-in mb_convert_encoding() function, which Craft will take advantage of when converting strings to UTF-8.",
                 "ext-imagick": "Adds support for more image processing formats and options."
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -792,7 +793,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2022-07-12T18:08:33+00:00"
+            "time": "2022-07-17T15:11:18+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -10519,9 +10520,17 @@
             "time": "2021-12-12T23:02:06+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "craftcms/cms",
+            "version": "dev-develop",
+            "alias": "4.1.4",
+            "alias_normalized": "4.1.4.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
+        "craftcms/cms": 20,
         "craftcms/ecs": 20,
         "craftcms/phpstan": 20,
         "craftcms/rector": 20
