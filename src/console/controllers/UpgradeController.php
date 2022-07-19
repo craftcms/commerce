@@ -160,7 +160,6 @@ class UpgradeController extends Controller
      *     }>
      */
     private array $_allStatesByV3StateId = [];
-    private array $_addressIdByV3AddressId = [];
 
     private bool $_allowAdminChanges;
     private FieldLayout $_addressFieldLayout;

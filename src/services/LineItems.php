@@ -335,7 +335,7 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        /** @var PurchasableInterface $purchasable */
+        /** @var PurchasableInterface|null $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
         if ($purchasable instanceof PurchasableInterface) {

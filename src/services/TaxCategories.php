@@ -234,7 +234,6 @@ class TaxCategories extends Component
     /**
      * @param int $productTypeId
      * @return array
-     * @throws InvalidConfigException
      */
     public function getTaxCategoriesByProductTypeId(int $productTypeId): array
     {
@@ -244,13 +243,11 @@ class TaxCategories extends Component
             ->all();
 
         if (empty($rows)) {
-            $category = $this->getDefaultTaxCategory();
-
-            if (!$category) {
+            try {
+                $taxCategory = $this->getDefaultTaxCategory();
+            } catch (InvalidConfigException) {
                 return [];
             }
-
-            $taxCategory = $this->getDefaultTaxCategory();
 
             return [$taxCategory->id => $taxCategory];
         }

@@ -18,6 +18,15 @@ use yii\db\Expression;
  */
 class TotalRevenue extends Stat
 {
+    public const TYPE_TOTAL = 'total';
+    public const TYPE_TOTAL_PAID = 'totalPaid';
+
+    /**
+     * @var string
+     * @since 4.1
+     */
+    public string $type = self::TYPE_TOTAL;
+
     /**
      * @inheritdoc
      */
@@ -30,7 +39,7 @@ class TotalRevenue extends Stat
     {
         return $this->_createChartQuery(
             [
-                new Expression('SUM([[total]]) as revenue'),
+                new Expression(sprintf('SUM([[%s]]) as revenue', $this->type)),
                 new Expression('COUNT([[orders.id]]) as count'),
             ],
             [

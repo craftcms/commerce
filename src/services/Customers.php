@@ -11,12 +11,17 @@ use Craft;
 use craft\base\Component;
 use craft\base\Element;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use craft\db\Query;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
+use yii\db\Expression;
 
 /**
  * Customer service.
@@ -69,7 +74,7 @@ class Customers extends Component
     }
 
     /**
-     * Add customer info tab to the Edit User page in the CP
+     * Add customer info tab to the Edit User page in the control panel.
      */
     public function addEditUserCommerceTab(array &$context): void
     {
@@ -83,7 +88,7 @@ class Customers extends Component
     }
 
     /**
-     * Add customer info to the Edit User page in the CP
+     * Add customer info to the Edit User page in the control panel.
      */
     public function addEditUserCommerceTabContent(array $context): string
     {
@@ -144,6 +149,7 @@ class Customers extends Component
      */
     public function ensureCustomer(User $user): CustomerRecord
     {
+        /** @var CustomerRecord|null $customerRecord */
         $customerRecord = CustomerRecord::find()->where(['customerId' => $user->id])->one();
         if (!$customerRecord) {
             $customerRecord = new CustomerRecord();
@@ -152,6 +158,103 @@ class Customers extends Component
         }
 
         return $customerRecord;
+    }
+
+    /**
+     * @return bool Whether the data moved successfully
+     *
+     * @throws ElementNotFoundException|\yii\db\Exception
+     */
+    public function transferCustomerData(User $fromCustomer, User $toCustomer): bool
+    {
+        $fromId = $fromCustomer->id;
+        $toId = $toCustomer->id;
+
+        /** @var User|null $fromUser */
+        $fromUser = User::find()->id($fromId)->one();
+        /** @var User|null $toUser */
+        $toUser = User::find()->id($toId)->one();
+
+        if ($fromUser === null) {
+            throw new ElementNotFoundException('User ID:', $fromId);
+        }
+
+        if ($toUser === null) {
+            throw new ElementNotFoundException('User ID:', $toId);
+        }
+
+        $userRefs = [
+            Table::ORDERHISTORIES => 'userId',
+            Table::SUBSCRIPTIONS => 'userId',
+            Table::TRANSACTIONS => 'userId',
+            Table::ORDERS => 'customerId',
+            Table::PAYMENTSOURCES => 'customerId',
+        ];
+
+        foreach ($userRefs as $table => $column) {
+            Db::update($table, [
+                $column => $toId,
+            ], [
+                $column => $fromId,
+            ], [], false);
+        }
+
+        $previousUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $fromId])->pairs();
+        $toUses = (new Query())->select(['discountId', 'uses'])->from(Table::CUSTOMER_DISCOUNTUSES)->where(['customerId' => $toId])->pairs();
+
+        foreach ($previousUses as $discountId => $uses) {
+            if (isset($toUses[$discountId])) {
+                Db::update(
+                    table: Table::CUSTOMER_DISCOUNTUSES,
+                    columns: ['uses' => new Expression("uses + $uses")],
+                    condition: [
+                        'customerId' => $toId,
+                        'discountId' => $discountId,
+                    ],
+                    params: [],
+                    updateTimestamp: false
+                );
+            } else {
+                Db::insert(
+                    table: Table::CUSTOMER_DISCOUNTUSES,
+                    columns: [
+                        'uses' => $uses,
+                        'customerId' => $toId,
+                        'discountId' => $discountId,
+                    ]
+                );
+            }
+
+            // Remove uses from fromCustomer
+            Db::update(
+                table: Table::CUSTOMER_DISCOUNTUSES,
+                columns: ['uses' => 0],
+                condition: [
+                    'customerId' => $fromId,
+                    'discountId' => $discountId,
+                ],
+                params: [],
+                updateTimestamp: false
+            );
+        }
+
+
+        $fromEmail = $fromUser->email;
+        $toEmail = $toUser->email;
+
+        $emailRefs = [
+            Table::ORDERS => 'email',
+        ];
+
+        foreach ($emailRefs as $table => $column) {
+            Db::update($table, [
+                $column => $toEmail,
+            ], [
+                $column => $fromEmail,
+            ], [], false);
+        }
+
+        return true;
     }
 
     /**

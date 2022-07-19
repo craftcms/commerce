@@ -72,7 +72,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormModel(): BasePaymentForm
+    public function getPaymentFormModel(): DummyPaymentForm
     {
         return new DummyPaymentForm();
     }

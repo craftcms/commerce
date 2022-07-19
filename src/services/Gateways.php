@@ -185,10 +185,10 @@ class Gateways extends Component
     /**
      * Returns a gateway by its ID.
      *
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
-    public function getGatewayById(int $id): ?GatewayInterface
+    public function getGatewayById(int $id): ?Gateway
     {
         return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
     }
@@ -196,10 +196,10 @@ class Gateways extends Component
     /**
      * Returns a gateway by its handle.
      *
-     * @return GatewayInterface|null The gateway or null if not found.
+     * @return Gateway|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
-    public function getGatewayByHandle(string $handle): ?GatewayInterface
+    public function getGatewayByHandle(string $handle): ?Gateway
     {
         return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }
@@ -363,12 +363,12 @@ class Gateways extends Component
     /**
      * Creates a gateway with a given config
      *
-     * @template T
-     * @param class-string<T>|array{type: class-string<T>} $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
-     * @return T The gateway
+     * @param string|array $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
+     * @return Gateway The gateway
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function createGateway(string|array $config): GatewayInterface
+    public function createGateway(string|array $config): Gateway
     {
         if (is_string($config)) {
             $config = ['type' => $config];
@@ -463,10 +463,11 @@ class Gateways extends Component
     }
 
     /**
-     * @return array|null
+     * @return array
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    private function _getAllGateways(): ?array
+    private function _getAllGateways(): array
     {
         if ($this->_allGateways === null) {
             $gateways = $this->_createGatewayQuery()

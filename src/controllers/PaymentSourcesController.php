@@ -49,7 +49,6 @@ class PaymentSourcesController extends BaseFrontEndController
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $this->request->getRequiredBodyParam('gatewayId');
 
-        /** @var Gateway $gateway */
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
 
         if (!$gateway || !$gateway->supportsPaymentSources()) {

@@ -377,6 +377,11 @@ class CartTest extends Unit
         }
 
         Plugin::getInstance()->getCarts()->forgetCart();
+
+        if ($autoSet === true) {
+            Craft::$app->getElements()->deleteElement($cart->getShippingAddress(), true);
+        }
+
         Craft::$app->getElements()->deleteElement($cart, true);
 
         Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $originalSettingValue;

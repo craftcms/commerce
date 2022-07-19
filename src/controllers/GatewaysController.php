@@ -13,8 +13,10 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
+use craft\errors\DeprecationException;
 use craft\helpers\Json;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -39,10 +41,14 @@ class GatewaysController extends BaseAdminController
     /**
      * @param int|null $id
      * @param GatewayInterface|null $gateway
+     * @return Response
      * @throws HttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
+    public function actionEdit(int $id = null, ?GatewayInterface $gateway = null): Response
     {
+        /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
 
         $gatewayService = Plugin::getInstance()->getGateways();

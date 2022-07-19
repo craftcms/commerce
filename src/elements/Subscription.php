@@ -200,7 +200,8 @@ class Subscription extends Element
      */
     public function __toString(): string
     {
-        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
+        $plan = $this->getPlan();
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $plan->name ?? '']);
     }
 
     public function canView(User $user): bool
@@ -248,7 +249,7 @@ class Subscription extends Element
     /**
      * Returns the subscription plan for this subscription
      */
-    public function getPlan(): ?PlanInterface
+    public function getPlan(): ?Plan
     {
         if (!isset($this->_plan) && $this->planId) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
@@ -326,10 +327,11 @@ class Subscription extends Element
     public function getGateway(): ?SubscriptionGatewayInterface
     {
         if (!isset($this->_gateway) && $this->gatewayId) {
-            $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
-            if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
+            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if (!$gateway instanceof SubscriptionGatewayInterface) {
                 throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');
             }
+            $this->_gateway = $gateway;
         }
 
         return $this->_gateway;
@@ -337,7 +339,7 @@ class Subscription extends Element
 
     public function getPlanName(): string
     {
-        return (string)$this->getPlan();
+        return $this->getPlan()?->__toString() ?? '';
     }
 
     /**
@@ -353,7 +355,6 @@ class Subscription extends Element
 
         $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
-        /** @var Plan $currentPlan */
         $currentPlan = $this->getPlan();
 
         $alternativePlans = [];
@@ -521,13 +522,15 @@ class Subscription extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'order') {
-            $this->_order = $elements[0] ?? null;
+            $order = $elements[0] ?? null;
+            $this->_order = $order instanceof Order ? $order : null;
 
             return;
         }
 
         if ($handle === 'subscriber') {
-            $this->_user = $elements[0] ?? null;
+            $user = $elements[0] ?? null;
+            $this->_user = $user instanceof User ? $user : null;
 
             return;
         }
@@ -560,7 +563,7 @@ class Subscription extends Element
      * @inheritdoc
      * @return SubscriptionQuery The newly created [[SubscriptionQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): SubscriptionQuery
     {
         return new SubscriptionQuery(static::class);
     }
