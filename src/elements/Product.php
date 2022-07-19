@@ -390,7 +390,7 @@ class Product extends Element
      */
     public function canCreateDrafts(User $user): bool
     {
-        return $this->canSave($user);
+        return false;
     }
 
     /**
