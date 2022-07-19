@@ -28,7 +28,7 @@
                                 v-model="selectedAddress"
                                 :value="address"
                             />
-                            <div v-html="address.html"></div>
+                            <ul v-html="address.html"></ul>
                         </label>
                     </div>
                 </div>

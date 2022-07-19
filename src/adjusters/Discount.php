@@ -315,7 +315,11 @@ class Discount extends Component implements AdjusterInterface
         return $event->adjustments;
     }
 
-    private function _getBaseDiscountAmount(DiscountModel $discount): float|int
+    /**
+     * @param DiscountModel $discount
+     * @return float
+     */
+    private function _getBaseDiscountAmount(DiscountModel $discount): float
     {
         if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
             return $discount->baseDiscount;

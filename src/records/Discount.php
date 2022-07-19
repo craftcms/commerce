@@ -37,14 +37,14 @@ use yii\db\ActiveQueryInterface;
  * @property string $percentageOffSubject
  * @property float $percentDiscount
  * @property string $appliedTo
- * @property string $perEmailLimit
+ * @property int $perEmailLimit
  * @property float $perItemDiscount
  * @property int $perUserLimit
  * @property int $purchaseQty
- * @property string|null $orderCondition
- * @property string|null $customerCondition
- * @property string|null $shippingAddressCondition
- * @property string|null $billingAddressCondition
+ * @property array|null $orderCondition
+ * @property array|null $customerCondition
+ * @property array|null $shippingAddressCondition
+ * @property array|null $billingAddressCondition
  * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing

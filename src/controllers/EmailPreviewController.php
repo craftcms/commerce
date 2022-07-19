@@ -58,7 +58,7 @@ class EmailPreviewController extends Controller
             $order = new Order();
         }
 
-        if ($email && $order && $template = $email->templatePath) {
+        if ($email && $template = $email->templatePath) {
             if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
                 // use the order's language for template rendering the email.
                 $orderLanguage = $order->orderLanguage ?: Craft::$app->language;

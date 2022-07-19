@@ -72,7 +72,7 @@ class Formulas extends Component
     public function validateFormulaSyntax(string $formula, array $params): bool
     {
         try {
-            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, null, Craft::t('commerce', 'Validating formula syntax'));
         } catch (Exception) {
             return false;
         }
@@ -83,7 +83,7 @@ class Formulas extends Component
     /**
      * @param array $params data passed into the condition
      * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
-     * @return mixed
+     * @return bool
      * @throws SyntaxError
      * @throws LoaderError
      */
@@ -120,7 +120,7 @@ class Formulas extends Component
      * @throws SyntaxError
      * @throws LoaderError
      */
-    public function evaluateFormula(string $formula, array $params, ?string $setType = null, ?string $name = 'Inline formula'): bool
+    public function evaluateFormula(string $formula, array $params, ?string $setType = null, ?string $name = 'Inline formula'): mixed
     {
         $formula = trim($formula);
 

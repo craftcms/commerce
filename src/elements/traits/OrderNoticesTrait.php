@@ -14,7 +14,6 @@ use craft\helpers\ArrayHelper;
 /**
  * Adds order notice getters and setters.
  *
- * @property Order $this
  * @since 3.3
  */
 trait OrderNoticesTrait

@@ -38,7 +38,7 @@ trait OrderElementTrait
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): OrderQuery
     {
         return new OrderQuery(static::class);
     }
@@ -69,7 +69,7 @@ trait OrderElementTrait
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() : '';
             }
             case 'customer':
             {

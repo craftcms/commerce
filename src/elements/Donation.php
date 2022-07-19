@@ -22,8 +22,8 @@ use yii\validators\Validator;
 /**
  * Donation purchasable.
  *
- * @property-read $priceAsCurrency
- * @property-read $salePriceAsCurrency
+ * @property-read string $priceAsCurrency
+ * @property-read string $salePriceAsCurrency
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

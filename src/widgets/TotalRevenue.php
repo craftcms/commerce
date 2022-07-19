@@ -46,6 +46,12 @@ class TotalRevenue extends Widget
     public ?string $dateRange = null;
 
     /**
+     * @var string
+     * @since 4.1.0
+     */
+    public string $type = TotalRevenueStat::TYPE_TOTAL;
+
+    /**
      * @var bool
      */
     public bool $showOrderCount = false;
@@ -68,6 +74,8 @@ class TotalRevenue extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        $this->_stat->type = $this->type;
     }
 
     /**
@@ -180,6 +188,10 @@ class TotalRevenue extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
+            'types' => [
+                TotalRevenueStat::TYPE_TOTAL => Craft::t('commerce', 'Total'),
+                TotalRevenueStat::TYPE_TOTAL_PAID => Craft::t('commerce', 'Total Paid'),
+            ],
         ]);
     }
 }

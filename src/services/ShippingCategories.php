@@ -245,13 +245,11 @@ class ShippingCategories extends Component
 
         // Always need at least the default category
         if (empty($rows)) {
-            $category = $this->getDefaultShippingCategory();
-
-            if (!$category) {
+            try {
+                $shippingCategory = $this->getDefaultShippingCategory();
+            } catch (InvalidConfigException) {
                 return [];
             }
-
-            $shippingCategory = $this->getDefaultShippingCategory();
 
             return [$shippingCategory->id => $shippingCategory];
         }

@@ -333,7 +333,7 @@ abstract class Stat implements StatInterface
      *
      * @throws \Exception
      */
-    private function _getCacheKey(): ?string
+    private function _getCacheKey(): string
     {
         $orderLastUpdatedString = 'never';
 

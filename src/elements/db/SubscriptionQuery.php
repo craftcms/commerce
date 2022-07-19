@@ -696,10 +696,12 @@ class SubscriptionQuery extends ElementQuery
      */
     public function status(array|string|null $value): SubscriptionQuery
     {
+        parent::status($value);
         if ($value === null) {
             unset($this->isSuspended, $this->hasStarted);
         }
-        return parent::status($value);
+
+        return $this;
     }
 
     /**
@@ -821,8 +823,10 @@ class SubscriptionQuery extends ElementQuery
      */
     public function anyStatus(): SubscriptionQuery
     {
+        parent::status(null);
         unset($this->isSuspended, $this->hasStarted);
-        return parent::status(null);
+
+        return $this;
     }
 
     /**

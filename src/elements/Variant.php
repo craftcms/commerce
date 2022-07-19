@@ -28,7 +28,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
-use craft\elements\db\ElementQueryInterface;
+use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
@@ -46,6 +46,8 @@ use yii\validators\Validator;
  * @property Product $product the product associated with this variant
  * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
+ * @property DateTime|null $dateUpdated
+ * @property DateTime|null $dateCreated
  * @property-read string[] $cacheTags
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
@@ -528,7 +530,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCacheTags(): array
+    protected function cacheTags(): array
     {
         return [
             "product:$this->productId",
@@ -791,7 +793,7 @@ class Variant extends Purchasable
      * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): VariantQuery
     {
         return new VariantQuery(static::class);
     }
@@ -890,7 +892,13 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        if (!$product || !$productType = $product->getType()) {
+        if (!$product) {
+            return 'Variant';
+        }
+
+        try {
+            $productType = $product->getType();
+        } catch (Exception) {
             return 'Variant';
         }
 

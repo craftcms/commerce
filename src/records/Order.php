@@ -17,7 +17,7 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order or Cart record.
  *
- * @property int $billingAddressId
+ * @property int|null $billingAddressId
  * @property string $cancelUrl
  * @property string $couponCode
  * @property string $currency
@@ -40,18 +40,18 @@ use yii\db\ActiveQueryInterface;
  * @property string $message
  * @property string $number
  * @property string $orderLanguage
- * @property string $orderSiteId
+ * @property int $orderSiteId
  * @property string $origin
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId
  * @property string $paidStatus
  * @property string $paymentCurrency
  * @property int $paymentSourceId
- * @property string $registerUserOnOrderComplete
+ * @property bool $registerUserOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
- * @property int $shippingAddressId
+ * @property int|null $shippingAddressId
  * @property string $shippingMethodHandle
  * @property string $shippingMethodName
  * @property float $total

@@ -146,7 +146,8 @@ class ShippingRules extends Component
 
         // Generate a rule category record for all categories regardless of data submitted
         foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
-            if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
+            $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id] ?? null;
+            if ($ruleCategory) {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,

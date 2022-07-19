@@ -12,6 +12,8 @@ namespace craft\commerce\base;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @todo remove ignore: https://github.com/phpstan/phpstan/issues/6778
+ * @phpstan-ignore-next-line
  * @mixin PlanTrait
  */
 interface PlanInterface

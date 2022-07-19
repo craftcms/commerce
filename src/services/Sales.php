@@ -254,7 +254,7 @@ class Sales extends Component
      * Returns the sales that match the purchasable.
      *
      * @param Order|null $order
-     * @return Sales[]
+     * @return Sale[]
      * @throws InvalidConfigException
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
