@@ -13,6 +13,7 @@
 - Added `craft\commerce\widgets\TotalRevenue::$type`.
 
 ### Changed
+- Craft Commerce now requires Dompdf 2.0.0 or later. ([#2879](https://github.com/craftcms/commerce/pull/2879))
 - Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
 - Garbage collection now removes any orphaned variants, as well as partial donation, order, product, subscription, and variant data.
 - `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
