@@ -2,10 +2,15 @@
 
 ### Added
 - Added a new "Unit price" taxable subject option to Tax Rates. ([#2883](https://github.com/craftcms/commerce/pull/2883))
+- Added the ability to show the total revenue widget by “Total” or “Total Paid”. ([#2852](https://github.com/craftcms/commerce/issues/2852))
 - Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
 - Added the `commerce/transfer-customer-data` command.
 - Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
+- Added `craft\commerce\stats\TotalRevenue::TYPE_TOTAL`.
+- Added `craft\commerce\stats\TotalRevenue::TYPE_TOTAL_PAID`.
+- Added `craft\commerce\stats\TotalRevenue::$type`.
+- Added `craft\commerce\widgets\TotalRevenue::$type`.
 
 ### Changed
 - Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
