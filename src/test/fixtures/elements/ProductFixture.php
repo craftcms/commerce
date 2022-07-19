@@ -72,8 +72,8 @@ class ProductFixture extends BaseElementFixture
     {
         return (new Query())
             ->select([
-                'productTypes.handle',
                 'productTypes.id',
+                'productTypes.handle',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->indexBy('handle')

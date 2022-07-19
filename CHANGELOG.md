@@ -1,8 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
 
 ### Fixed
 - Fixed a bug where disabling all variants throws an error on Edit Product Page.
+- Fixed a bug where order address titles weren’t being updated correctly.
 
 ## 4.0.4 - 2022-06-22
 
