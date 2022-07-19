@@ -18,12 +18,19 @@ use yii\db\Expression;
  */
 class TotalRevenue extends Stat
 {
+    /**
+     * @since 4.1.0
+     */
     public const TYPE_TOTAL = 'total';
+
+    /**
+     * @since 4.1.0
+     */
     public const TYPE_TOTAL_PAID = 'totalPaid';
 
     /**
      * @var string
-     * @since 4.1
+     * @since 4.1.0
      */
     public string $type = self::TYPE_TOTAL;
 

@@ -430,6 +430,8 @@ class Order extends Element
      *     }
      * );
      * ```
+     *
+     * @since 4.1.0
      */
     public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
@@ -2945,7 +2947,7 @@ class Order extends Element
      * Returns whether the billing and shipping addresses' data matches
      *
      * @return bool
-     * @since 4.0.4
+     * @since 4.1.0
      */
     public function hasMatchingAddresses(): bool
     {

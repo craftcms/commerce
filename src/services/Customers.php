@@ -162,8 +162,8 @@ class Customers extends Component
 
     /**
      * @return bool Whether the data moved successfully
-     *
      * @throws ElementNotFoundException|\yii\db\Exception
+     * @since 4.1.0
      */
     public function transferCustomerData(User $fromCustomer, User $toCustomer): bool
     {

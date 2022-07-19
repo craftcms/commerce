@@ -47,7 +47,7 @@ class TotalRevenue extends Widget
 
     /**
      * @var string
-     * @since 4.1
+     * @since 4.1.0
      */
     public string $type = TotalRevenueStat::TYPE_TOTAL;
 
