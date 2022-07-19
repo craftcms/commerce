@@ -29,6 +29,9 @@ use yii\db\Schema;
  * @method Order[]|array all($db = null)
  * @method Order|array|null one($db = null)
  * @method Order|array|null nth(int $n, Connection $db = null)
+ * @method self id($value)
+ * @method self orderBy($columns)
+ * @method self status(array|string|null $value)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  * @doc-path orders-carts.md

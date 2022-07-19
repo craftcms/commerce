@@ -394,7 +394,7 @@ class Pdfs extends Component
         $uid = $event->tokenMatches[0];
         $pdfRecord = $this->_getPdfRecord($uid);
 
-        if (!$pdfRecord) {
+        if (!$pdfRecord->id) {
             return;
         }
 

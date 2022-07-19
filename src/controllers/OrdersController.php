@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -36,6 +35,7 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
+use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -129,9 +129,9 @@ class OrdersController extends Controller
         if ($user) {
             $order->setCustomer($user);
 
-            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                $order->autoSetAddresses();
-            }
+            // Try to set defaults
+            $order->autoSetAddresses();
+            $order->autoSetShippingMethod();
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
@@ -454,7 +454,7 @@ class OrdersController extends Controller
         $lineItems = $order->getLineItems();
         $purchasableCpEditUrlByPurchasableId = [];
         foreach ($lineItems as $lineItem) {
-            /** @var PurchasableElement $purchasable */
+            /** @var Purchasable|PurchasableElement|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
                 continue;
@@ -643,8 +643,10 @@ class OrdersController extends Controller
             return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
         }
 
-        $address = Address::find()
-            ->id($addressId)
+        /** @var AddressQuery $addressQuery */
+        $addressQuery = Address::find()
+            ->id($addressId);
+        $address = $addressQuery
             ->ownerId($order->id)
             ->one();
 
@@ -1021,6 +1023,7 @@ class OrdersController extends Controller
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
+        /** @var Order $order */
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
@@ -1113,7 +1116,6 @@ class OrdersController extends Controller
         $variables['paymentMethodsAvailable'] = false;
 
         if (empty($variables['paymentForm'])) {
-            /** @var Gateway $gateway */
             $gateway = $order->getGateway();
 
             if ($gateway && !$gateway instanceof MissingGateway) {
@@ -1248,7 +1250,9 @@ class OrdersController extends Controller
                 $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                 $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
             } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
-                $address = Address::find()->id($address['id'])->ownerId($address['ownerId'])->one();
+                /** @var AddressQuery $addressQuery */
+                $addressQuery = Address::find()->id($address['id']);
+                $address = $addressQuery->ownerId($address['ownerId'])->one();
             }
 
             return $address;
@@ -1476,7 +1480,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Craft::t('commerce', 'Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
-                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note) ?? ''],
+                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
@@ -1505,8 +1509,9 @@ class OrdersController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
         foreach ($results as $row) {
-            /** @var PurchasableInterface|PurchasableElement $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+            /** @var PurchasableElement|null $purchasable */
+            $purchasable = Craft::$app->getElements()->getElementById($row['id']);
+            if ($purchasable) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 } else {

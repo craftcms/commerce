@@ -376,7 +376,7 @@ class Emails extends Component
         $uid = $event->tokenMatches[0];
         $emailRecord = $this->_getEmailRecord($uid);
 
-        if (!$emailRecord || !$emailRecord->id) {
+        if (!$emailRecord->id) {
             return;
         }
 

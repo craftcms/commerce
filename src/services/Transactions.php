@@ -170,12 +170,12 @@ class Transactions extends Component
      *
      * @param Order|null $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
      * @param Transaction|null $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
-     * @param null $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
+     * @param string|null $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, $typeOverride = null): Transaction
+    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
     {
         if (!$order && !$parentTransaction) {
             throw new TransactionException('Tried to create a transaction without order or parent transaction');

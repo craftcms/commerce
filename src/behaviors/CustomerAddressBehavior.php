@@ -52,10 +52,10 @@ class CustomerAddressBehavior extends Behavior
             return;
         }
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->owner->getOwner();
 
-        if ($user === null || !$user instanceof User) {
+        if (!$user instanceof User) {
             return;
         }
 

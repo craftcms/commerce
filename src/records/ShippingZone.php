@@ -14,7 +14,7 @@ use craft\db\ActiveRecord;
  * Shipping zone record.
  *
  * @property string $description
- * @property string $condition
+ * @property array $condition
  * @property int $id
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

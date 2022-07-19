@@ -95,7 +95,8 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * Returns the html to use when paying with a stored payment source.
      *
-     * @return mixed
+     * @param array $params
+     * @return string
      */
     public function getPaymentConfirmationFormHtml(array $params): string
     {

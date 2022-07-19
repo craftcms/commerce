@@ -108,6 +108,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     {
         $str = '';
         foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {
+            /** @var int $c */
             $str .= ($i % 2) ? $c * 2 : $c;
         }
 

@@ -2,6 +2,9 @@
   "name": "craftcommerce",
   "private": true,
   "main": "webpack.config.js",
+  "browserslist": [
+    "extends @craftcms/browserslist-config"
+  ],
   "scripts": {
     "prebuild": "npm run fix-prettier",
     "build": "webpack --node-env=production --progress",
@@ -11,7 +14,7 @@
   },
   "devDependencies": {
     "@craftcms/vue": "^1.0.0",
-    "@craftcms/webpack": "^1.0.0",
+    "@craftcms/webpack": "^1.1.0",
     "axios": "^0.26.1",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
