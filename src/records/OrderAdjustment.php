@@ -15,14 +15,14 @@ use yii\db\ActiveQueryInterface;
  * Order adjustment record.
  *
  * @property float $amount
- * @property string $description
+ * @property string|null $description
  * @property int $id
  * @property bool $included
  * @property int|null $lineItemId
  * @property string $name
  * @property Order $order
  * @property int $orderId
- * @property string $sourceSnapshot
+ * @property array $sourceSnapshot
  * @property string $type
  * @property bool $isEstimated
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -38,9 +38,6 @@ class OrderAdjustment extends ActiveRecord
         return Table::ORDERADJUSTMENTS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);

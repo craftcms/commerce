@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
@@ -18,7 +20,13 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Transaction service.
@@ -43,14 +51,14 @@ class Transactions extends Component
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     *         
+     *
      *         // Run custom logic for failed transactions
      *         // ...
      *     }
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
+    public const EVENT_AFTER_SAVE_TRANSACTION = 'afterSaveTransaction';
 
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been created.
@@ -60,28 +68,27 @@ class Transactions extends Component
      * use craft\commerce\services\Transactions;
      * use craft\commerce\models\Transaction;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Transactions::class,
      *     Transactions::EVENT_AFTER_CREATE_TRANSACTION,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     * 
+     *
      *         // Run custom logic depending on the transaction type
      *         // ...
      *     }
      * );
      * ```
      */
-    const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
+    public const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
 
     /**
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     * @return bool
      */
     public function canCaptureTransaction(Transaction $transaction): bool
     {
@@ -106,7 +113,7 @@ class Transactions extends Component
                 'type' => TransactionRecord::TYPE_CAPTURE,
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'orderId' => $transaction->orderId,
-                'parentId' => $transaction->id
+                'parentId' => $transaction->id,
             ])
             ->exists();
     }
@@ -115,7 +122,6 @@ class Transactions extends Component
      * Returns true if a specific transaction can be refunded.
      *
      * @param Transaction $transaction the transaction
-     * @return bool
      */
     public function canRefundTransaction(Transaction $transaction): bool
     {
@@ -143,9 +149,6 @@ class Transactions extends Component
 
     /**
      * Return the refundable amount for a transaction.
-     *
-     * @param Transaction $transaction
-     * @return float
      */
     public function refundableAmountForTransaction(Transaction $transaction): float
     {
@@ -154,7 +157,7 @@ class Transactions extends Component
                 'type' => TransactionRecord::TYPE_REFUND,
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'orderId' => $transaction->orderId,
-                'parentId' => $transaction->id
+                'parentId' => $transaction->id,
             ])
             ->from([Table::TRANSACTIONS])
             ->sum('[[paymentAmount]]');
@@ -165,13 +168,14 @@ class Transactions extends Component
     /**
      * Create a transaction either from an order or a parent transaction. At least one must be present.
      *
-     * @param Order $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
-     * @param Transaction $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
-     * @param string $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
-     * @return Transaction
+     * @param Order|null $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
+     * @param Transaction|null $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
+     * @param string|null $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
-    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, $typeOverride = null): Transaction
+    public function createTransaction(Order $order = null, Transaction $parentTransaction = null, ?string $typeOverride = null): Transaction
     {
         if (!$order && !$parentTransaction) {
             throw new TransactionException('Tried to create a transaction without order or parent transaction');
@@ -195,17 +199,25 @@ class Transactions extends Component
         } else {
             $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
-            $paymentAmount = $order->getOutstandingBalance() * $paymentCurrency->rate;
 
             /** @var Gateway $gateway */
             $gateway = $order->getGateway();
-
             $transaction->gatewayId = $gateway->id;
-            $transaction->amount = $order->getOutstandingBalance();
+
+            // Gets the outstanding balance, unless the order had a paymentAmount set in this request
             $transaction->currency = $currency->iso;
-            $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
             $transaction->paymentCurrency = $paymentCurrency->iso;
+
+            // Payment amount is the amount in the paymentCurrency
+            $transaction->paymentAmount = Currency::round($order->getPaymentAmount(), $paymentCurrency);
+
+            // Amount is always in the base currency
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($transaction->paymentAmount, $transaction->paymentCurrency, $transaction->currency);
+            $transaction->amount = Currency::round($amount, $currency);
+
+            // Capture historical rate
             $transaction->paymentRate = $paymentCurrency->rate;
+
             $transaction->setOrder($order);
         }
 
@@ -222,7 +234,7 @@ class Transactions extends Component
         // Raise 'afterCreateTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -233,9 +245,9 @@ class Transactions extends Component
      * Delete a transaction.
      *
      * @param Transaction $transaction the transaction to delete
-     * @return bool
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
+     * @deprecated in 4.0. Use [[deleteTransactionById]] instead.
      */
     public function deleteTransaction(Transaction $transaction): bool
     {
@@ -249,10 +261,29 @@ class Transactions extends Component
     }
 
     /**
-     * @param int $orderId the order's ID
-     * @return array|Transaction[]
+     * Delete a transaction by id.
+     *
+     * @param int $id the transaction ID
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function getAllTopLevelTransactionsByOrderId($orderId)
+    public function deleteTransactionById(int $id): bool
+    {
+        $record = TransactionRecord::findOne($id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int $orderId the order's ID
+     * @return array
+     * @noinspection PhpUnused
+     */
+    public function getAllTopLevelTransactionsByOrderId(int $orderId): array
     {
         $transactions = $this->getAllTransactionsByOrderId($orderId);
 
@@ -291,7 +322,6 @@ class Transactions extends Component
      * Get all children transactions, per a parent transaction's ID.
      *
      * @param int $transactionId the parent transaction's ID
-     * @return array
      */
     public function getChildrenByTransactionId(int $transactionId): array
     {
@@ -312,9 +342,8 @@ class Transactions extends Component
      * Get a transaction by its hash.
      *
      * @param string $hash the hash of transaction
-     * @return Transaction|null
      */
-    public function getTransactionByHash(string $hash)
+    public function getTransactionByHash(string $hash): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(['hash' => $hash])
@@ -328,9 +357,8 @@ class Transactions extends Component
      *
      * @param string $reference the transaction reference
      * @param string $status the transaction status
-     * @return Transaction|null
      */
-    public function getTransactionByReferenceAndStatus(string $reference, string $status)
+    public function getTransactionByReferenceAndStatus(string $reference, string $status): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(compact('reference', 'status'))
@@ -340,12 +368,26 @@ class Transactions extends Component
     }
 
     /**
+     * Get a transaction by its reference.
+     *
+     * @param string $reference the transaction reference
+     * @return Transaction|null
+     */
+    public function getTransactionByReference(string $reference): ?Transaction
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(compact('reference'))
+            ->one();
+
+        return $result ? new Transaction($result) : null;
+    }
+
+    /**
      * Get a transaction by its ID.
      *
      * @param int $id the ID of transaction
-     * @return Transaction|null
      */
-    public function getTransactionById(int $id)
+    public function getTransactionById(int $id): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(['id' => $id])
@@ -356,9 +398,6 @@ class Transactions extends Component
 
     /**
      * Returns true if a transaction or a direct child of the transaction is successful.
-     *
-     * @param Transaction $transaction
-     * @return bool
      */
     public function isTransactionSuccessful(Transaction $transaction): bool
     {
@@ -370,7 +409,7 @@ class Transactions extends Component
             ->where([
                 'parentId' => $transaction->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
+                'orderId' => $transaction->orderId,
             ])
             ->exists();
     }
@@ -380,8 +419,11 @@ class Transactions extends Component
      *
      * @param Transaction $model the transaction model
      * @param bool $runValidation should we validate this transaction before saving.
-     * @return bool
+     * @throws Throwable
      * @throws TransactionException if an attempt is made to modify an existing transaction
+     * @throws OrderStatusException
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function saveTransaction(Transaction $model, bool $runValidation = true): bool
     {
@@ -412,7 +454,7 @@ class Transactions extends Component
             'code',
             'response',
             'userId',
-            'parentId'
+            'parentId',
         ];
 
         $record = new TransactionRecord();
@@ -432,14 +474,44 @@ class Transactions extends Component
             $model->order->markAsComplete();
         }
 
+        $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
+
         // Raise 'afterSaveTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
-                'transaction' => $model
+                'transaction' => $model,
             ]));
         }
 
         return true;
+    }
+
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadTransactionsForOrders(array $orders): array
+    {
+        $orderIds = array_filter(ArrayHelper::getColumn($orders, 'id'));
+        $transactionResults = $this->_createTransactionQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $transactions = [];
+
+        foreach ($transactionResults as $result) {
+            $transaction = new Transaction($result);
+            $transactions[$transaction->orderId] = $transactions[$transaction->orderId] ?? [];
+            $transactions[$transaction->orderId][] = $transaction;
+        }
+
+        foreach ($orders as $key => $order) {
+            if (isset($transactions[$order->id])) {
+                $order->setTransactions($transactions[$order->id]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
     }
 
     /**
@@ -451,26 +523,26 @@ class Transactions extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'orderId',
-                'hash',
-                'gatewayId',
-                'type',
-                'status',
                 'amount',
+                'code',
                 'currency',
+                'dateCreated',
+                'dateUpdated',
+                'gatewayId',
+                'hash',
+                'id',
+                'message',
+                'note',
+                'orderId',
+                'parentId',
                 'paymentAmount',
                 'paymentCurrency',
                 'paymentRate',
                 'reference',
-                'message',
-                'note',
-                'code',
                 'response',
+                'status',
+                'type',
                 'userId',
-                'parentId',
-                'dateCreated',
-                'dateUpdated',
             ])
             ->from([Table::TRANSACTIONS])
             ->orderBy(['id' => SORT_ASC]);

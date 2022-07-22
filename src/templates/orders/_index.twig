@@ -1,0 +1,35 @@
+{% extends "_layouts/elementindex" %}
+
+{% set title = "Orders"|t('commerce') %}
+{% set elementType = 'craft\\commerce\\elements\\Order' %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
+
+{% do craft.app.view.registerTranslations('commerce', [
+    "Apply",
+    "Copy the URL",
+    "Custom Range",
+    "Export",
+    "Last 30 days",
+    "Last 7 days",
+    "Last Month",
+    "Last Week",
+    "New Order",
+    "This URL will load the cart into the user’s session, making it the active cart.",
+    "Total Revenue",
+]) %}
+
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#page-container'), {
+        elementTypeName: '{{ elementInstance.displayName()|e("js") }}',
+        elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
+        context: '{{ context }}',
+        storageKey: 'elementindex.{{ elementType|e("js") }}',
+        toolbarSelector: '#toolbar'
+    });
+{% endblock %}
+
+{% if orderStatusHandle is defined and orderStatusHandle %}
+    {% js %}
+        window.defaultStatusHandle = '{{ orderStatusHandle }}';
+    {% endjs %}
+{% endif %}

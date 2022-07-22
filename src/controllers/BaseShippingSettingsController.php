@@ -18,11 +18,11 @@ class BaseShippingSettingsController extends BaseCpController
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
+        parent::init();
+
         // All system setting actions require access to commerce
         $this->requirePermission('commerce-manageShipping');
-
-        parent::init();
     }
 }

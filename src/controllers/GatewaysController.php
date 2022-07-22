@@ -11,8 +11,13 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
+use craft\errors\DeprecationException;
 use craft\helpers\Json;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -24,15 +29,12 @@ use yii\web\Response;
  */
 class GatewaysController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
 
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => $gateways
+            'gateways' => $gateways,
         ]);
     }
 
@@ -41,9 +43,12 @@ class GatewaysController extends BaseAdminController
      * @param GatewayInterface|null $gateway
      * @return Response
      * @throws HttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
+    public function actionEdit(int $id = null, ?GatewayInterface $gateway = null): Response
     {
+        /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
 
         $gatewayService = Plugin::getInstance()->getGateways();
@@ -77,7 +82,7 @@ class GatewaysController extends BaseAdminController
 
                 $gatewayOptions[] = [
                     'value' => $class,
-                    'label' => $class::displayName()
+                    'label' => $class::displayName(),
                 ];
             }
         }
@@ -89,37 +94,39 @@ class GatewaysController extends BaseAdminController
         if ($variables['gateway']->id) {
             $variables['title'] = $variables['gateway']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new gateway');
+            $variables['title'] = Craft::t('commerce', 'Create a new gateway');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['gateway'], prepend: true);
+
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }
 
     /**
-     * @return Response|null
-     * @throws HttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
-        $request = Craft::$app->getRequest();
         $gatewayService = Plugin::getInstance()->getGateways();
 
-        $type = $request->getRequiredParam('type');
-        $gatewayId = $request->getBodyParam('id');
+        $type = $this->request->getRequiredParam('type');
+        $gatewayId = $this->request->getBodyParam('id');
 
         $config = [
             'id' => $gatewayId,
             'type' => $type,
-            'name' => $request->getBodyParam('name'),
-            'handle' => $request->getBodyParam('handle'),
-            'paymentType' => $request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
-            'isFrontendEnabled' => (bool)$request->getParam('isFrontendEnabled'),
-            'settings' => $request->getBodyParam('types.' . $type),
+            'name' => $this->request->getBodyParam('name'),
+            'handle' => $this->request->getBodyParam('handle'),
+            'paymentType' => $this->request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
+            'isFrontendEnabled' => $this->request->getParam('isFrontendEnabled'),
+            'settings' => $this->request->getBodyParam('types.' . $type),
         ];
 
         // For new gateway avoid NULL value.
-        if (!$request->getBodyParam('id')) {
+        if (!$this->request->getBodyParam('id')) {
             $config['isArchived'] = false;
         }
 
@@ -134,21 +141,19 @@ class GatewaysController extends BaseAdminController
         /** @var Gateway $gateway */
         $gateway = $gatewayService->createGateway($config);
 
-        $session = Craft::$app->getSession();
-
         // Save it
         if (!Plugin::getInstance()->getGateways()->saveGateway($gateway)) {
-            $session->setError(Plugin::t('Couldn’t save gateway.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save gateway.'));
 
             // Send the volume back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'gateway' => $gateway
+                'gateway' => $gateway,
             ]);
 
             return null;
         }
 
-        $session->setNotice(Plugin::t('Gateway saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Gateway saved.'));
         return $this->redirectToPostedUrl($gateway);
     }
 
@@ -160,13 +165,13 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getGateways()->archiveGatewayById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!$id || !Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
         }
 
-        return $this->asErrorJson(Plugin::t('Could not archive gateway.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -177,11 +182,12 @@ class GatewaysController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
-            return $this->asJson(['success' => $success]);
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
+
+        if (!Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder gateways.')]);
+        return $this->asSuccess();
     }
 }

@@ -9,10 +9,16 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\commerce\services\Orders;
+use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Order Settings Controller
@@ -22,30 +28,65 @@ use yii\web\Response;
  */
 class OrderSettingsController extends BaseAdminController
 {
-    /**
-     * @param array $variables
-     * @return Response
-     */
     public function actionEdit(array $variables = []): Response
     {
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
 
         $variables['fieldLayout'] = $fieldLayout;
-        $variables['title'] = Plugin::t('Order Settings');
+        $variables['title'] = Craft::t('commerce', 'Order Settings');
 
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
 
-    public function actionSave()
+    /**
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     */
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
-        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
 
+        $fieldLayout->reservedFieldHandles = [
+            'billingAddress',
+            'customer',
+            'estimatedBillingAddress',
+            'estimatedShippingAddress',
+            'paymentAmount',
+            'paymentCurrency',
+            'paymentSource',
+            'recalculationMode',
+            'shippingAddress',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            Craft::info('Field layout not saved due to validation error.', __METHOD__);
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'variables' => [
+                    'fieldLayout' => $fieldLayout,
+                ],
+            ]);
+
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order fields.'));
+            return null;
+        }
+
+        if ($currentOrderFieldLayout = Craft::$app->getProjectConfig()->get(Orders::CONFIG_FIELDLAYOUT_KEY)) {
+            $uid = ArrayHelper::firstKey($currentOrderFieldLayout);
+        } else {
+            $uid = StringHelper::UUID();
+        }
+
+        $configData = [$uid => $fieldLayout->getConfig()];
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Order fields saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Order fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

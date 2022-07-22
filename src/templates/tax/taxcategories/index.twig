@@ -1,0 +1,103 @@
+{% extends "commerce/_layouts/tax" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Default?',
+    'Description',
+    'Handle',
+    'Name',
+    'Set default category',
+    'Used By Tax Rates',
+    'Used by Tax Rates',
+]) %}
+
+{% block actionButton %}
+    {{ craft.commerce.taxes.taxCategoryActionHtml()|raw }}
+
+    {% if craft.commerce.taxes.createTaxCategories() %}
+        <a href="{{ url('commerce/tax/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="tax-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for taxCategory in taxCategories %}
+    {% set taxRates = [] %}
+    {% for taxRate in taxCategory.taxRates %}
+    	{% set taxRates = taxRates|merge([{
+            label: taxRate.name|t('site')|e,
+            url: taxRate.cpEditUrl,
+        }]) %}
+    {% endfor %}
+
+    {% set tableData = tableData|merge([{
+        id: taxCategory.id,
+        title: taxCategory.name|t('site'),
+        url: taxCategory.cpEditUrl,
+        handle: taxCategory.handle,
+        description: taxCategory.description|t('site')|e,
+        taxRates: taxRates,
+        default: taxCategory.default ? true : false,
+
+        _showDelete: not taxCategory.taxRates|length and (taxCategories|length > 1 and not taxCategory.default)
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        {
+            name: 'taxRates',
+            title: Craft.t('commerce', 'Used By Tax Rates'),
+            callback: function(value) {
+                var output = '';
+                if (value && value.length) {
+                    for (var i = 0; i < value.length; i++) {
+                        output += '<a href="'+value[i].url+'">'+value[i].label+'</a><br>';
+                    }
+                }
+
+                return output;
+            }
+        },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+    ];
+
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set default category'),
+                    action: 'commerce/tax-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        checkboxes: true,
+        actions: actions,
+        padded: true,
+        container: '#tax-vue-admin-table',
+        deleteAction: {{ craft.commerce.taxes.deleteTaxCategories() ? 'commerce/tax-categories/delete'|json_encode|raw : 'null' }},
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

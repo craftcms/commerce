@@ -1,17 +1,33 @@
 <template>
-    <order-block v-if="Object.keys(lineItem.options).length || editing" class="order-flex">
+    <order-block
+        v-if="Object.keys(lineItem.options).length || editing"
+        class="order-flex"
+    >
         <div class="w-1/5">
-            <h3>{{"Options"|t('commerce')}}</h3>
+            <h3>{{ 'Options' | t('commerce') }}</h3>
         </div>
 
         <div class="w-4/5">
             <template v-if="Object.keys(lineItem.options).length">
                 <template v-if="lineItem.showForm">
                     <template v-for="(option, key) in lineItem.options">
-                        <div class="order-flex" :key="'option-'+key">
-                            <div class="line-item-option-key" :key="'option-'+key">{{key}}:</div>
-                            <div class="line-item-option-value" :key="'option-'+key">
-                                <template v-if="Array.isArray(option) || isObjectLike(option)">
+                        <div class="order-flex" :key="'option-' + key">
+                            <div
+                                class="line-item-option-key"
+                                :key="'option-' + key"
+                            >
+                                {{ key }}:
+                            </div>
+                            <div
+                                class="line-item-option-value"
+                                :key="'option-' + key"
+                            >
+                                <template
+                                    v-if="
+                                        Array.isArray(option) ||
+                                        isObjectLike(option)
+                                    "
+                                >
                                     <code>{{ option }}</code>
                                 </template>
 
@@ -21,83 +37,151 @@
                     </template>
                 </template>
                 <template v-else>
-                    <template v-if="Array.isArray(lineItem.options) && lineItem.options.length">
+                    <template
+                        v-if="
+                            Array.isArray(lineItem.options) &&
+                            lineItem.options.length
+                        "
+                    >
                         <ul class="line-item-options-list bullets">
-                            <li v-for="(row, key) in lineItem.options" :key="key">{{row}}</li>
+                            <li
+                                v-for="(row, key) in lineItem.options"
+                                :key="key"
+                            >
+                                {{ row }}
+                            </li>
                         </ul>
                     </template>
                     <template v-else>
-                        <code>{{lineItem.options}}</code>
+                        <code>{{ lineItem.options }}</code>
                     </template>
                 </template>
             </template>
 
-            <div :class="{ pt: Object.keys(lineItem.options).length || lineItem.options.length }" v-if="editing">
-                <btn-link :button-class="'btn edit icon'"
-                          ref="editButton"
-                          @click="onEditOptions">{{$options.filters.t('Edit options', 'commerce')}}
+            <div
+                :class="{
+                    pt:
+                        Object.keys(lineItem.options).length ||
+                        lineItem.options.length,
+                }"
+                v-if="editing"
+            >
+                <btn-link
+                    :button-class="'btn edit icon'"
+                    ref="editButton"
+                    @click="onEditOptions"
+                    >{{ $options.filters.t('Edit options', 'commerce') }}
                 </btn-link>
             </div>
         </div>
 
-        <modal :show-footer="true" :show="showModal" :hide="hideModal" @onHide="onModalHide" @onShow="onModalShow">
+        <modal
+            :show-footer="true"
+            :show="showModal"
+            :hide="hideModal"
+            @onHide="onModalHide"
+            @onShow="onModalShow"
+        >
             <template v-slot:body>
                 <template v-if="lineItem.showForm">
                     <div class="options-form">
                         <template v-for="(option, key) in options">
-                            <div class="order-flex order-box-sizing pb"
-                                 :class="{'align-center': option.type == 'string' || (option.type == 'prism' && !isObjectLike(lineItem.options[option.key]))}"
-                                 :key="key">
-                                <field class="w-1/3"
-                                       v-slot:default="slotProps">
+                            <div
+                                class="order-flex order-box-sizing pb"
+                                :class="{
+                                    'align-center':
+                                        option.type == 'string' ||
+                                        (option.type == 'prism' &&
+                                            !isObjectLike(
+                                                lineItem.options[option.key]
+                                            )),
+                                }"
+                                :key="key"
+                            >
+                                <field class="w-1/3" v-slot:default="slotProps">
                                     <div class="options-field-pad-side">
-                                        <input :ref="'option-key-' + key"
-                                               :id="slotProps.id"
-                                               type="text"
-                                               class="text fullwidth"
-                                               :class="{ error: (errorKeys.indexOf(options[key]['key']) >= 0) }"
-                                               v-model="options[key]['key']"
-                                               @input="onOptionsChange"/>
+                                        <input
+                                            :ref="'option-key-' + key"
+                                            :id="slotProps.id"
+                                            type="text"
+                                            class="text fullwidth"
+                                            :class="{
+                                                error:
+                                                    errorKeys.indexOf(
+                                                        options[key]['key']
+                                                    ) >= 0,
+                                            }"
+                                            v-model="options[key]['key']"
+                                            @input="onOptionsChange"
+                                        />
                                     </div>
                                 </field>
-                                <field class="w-2/3"
-                                       :input-class="{'force-height': option.type == 'prism' && !isObjectLike(option.value)}"
-                                       v-slot:default="slotProps">
+                                <field
+                                    class="w-2/3"
+                                    :input-class="{
+                                        'force-height':
+                                            option.type == 'prism' &&
+                                            !isObjectLike(option.value),
+                                    }"
+                                    v-slot:default="slotProps"
+                                >
                                     <template v-if="option.type == 'string'">
-                                        <input :id="slotProps.id"
-                                               type="text"
-                                               class="text fullwidth"
-                                               v-model="options[key]['value']"
-                                               @input="onOptionsChange"/>
+                                        <input
+                                            :id="slotProps.id"
+                                            type="text"
+                                            class="text fullwidth"
+                                            v-model="options[key]['value']"
+                                            @input="onOptionsChange"
+                                        />
                                     </template>
-                                    <template v-else-if="option.type == 'prism'">
-                                        <prism-editor v-if="renderPrism" class="text"
-                                                      :class="{ 'force-height': option.type == 'prism' && !isObjectLike(option.value), error: (errorValues.indexOf(options[key]['key']) >= 0) }"
-                                                      ref="prismEditor"
-                                                      v-model="options[key]['value']"
-                                                      language="js"
-                                                      @change="onOptionsChange"></prism-editor>
+                                    <template
+                                        v-else-if="option.type == 'prism'"
+                                    >
+                                        <prism-editor
+                                            v-if="renderPrism"
+                                            class="text"
+                                            :class="{
+                                                'force-height':
+                                                    option.type == 'prism' &&
+                                                    !isObjectLike(option.value),
+                                                error:
+                                                    errorValues.indexOf(
+                                                        options[key]['key']
+                                                    ) >= 0,
+                                            }"
+                                            ref="prismEditor"
+                                            v-model="options[key]['value']"
+                                            language="js"
+                                            @change="onOptionsChange"
+                                        ></prism-editor>
                                     </template>
                                 </field>
                                 <div class="pl">
-                                    <a href="#"
-                                       class="icon delete"
-                                       @click.prevent="onRemoveOption(key)"></a>
+                                    <a
+                                        href="#"
+                                        class="icon delete"
+                                        @click.prevent="onRemoveOption(key)"
+                                    ></a>
                                 </div>
                             </div>
                         </template>
                     </div>
                 </template>
                 <template v-else>
-                    <prism-editor v-if="renderPrism" class="text"
-                                  ref="prismEditor"
-                                  v-model="options"
-                                  language="js"
-                                  @change="onOptionsChange"></prism-editor>
+                    <prism-editor
+                        v-if="renderPrism"
+                        class="text"
+                        ref="prismEditor"
+                        v-model="options"
+                        language="js"
+                        @change="onOptionsChange"
+                    ></prism-editor>
                 </template>
 
                 <ul v-if="errors.length > 0" class="errors">
-                    <li v-for="(error, key) in errors" :key="key">{{error}}</li>
+                    <li v-for="(error, key) in errors" :key="key">
+                        {{ error }}
+                    </li>
                 </ul>
             </template>
             <template v-slot:footer>
@@ -105,22 +189,42 @@
                     <div class="order-flex justify-between w-full">
                         <div>
                             <div class="order-flex align-center">
-                                <btn-link v-if="lineItem.showForm"
-                                          :button-class="'btn add icon'"
-                                          ref="addButton"
-                                          @click="onAddOption">{{$options.filters.t('Add an option', 'commerce')}}
+                                <btn-link
+                                    v-if="lineItem.showForm"
+                                    :button-class="'btn add icon'"
+                                    ref="addButton"
+                                    @click="onAddOption"
+                                    >{{
+                                        $options.filters.t(
+                                            'Add an option',
+                                            'commerce'
+                                        )
+                                    }}
                                 </btn-link>
-                                <div class="pl"
-                                     :class="{hidden: !isWaiting}">
+                                <div class="pl" :class="{hidden: !isWaiting}">
                                     <span class="spinner"></span>
                                 </div>
                             </div>
                         </div>
                         <div class="order-flex">
                             <div class="options-field-pad-side">
-                                <btn-link button-class="btn" @click="closeModal">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
+                                <btn-link
+                                    button-class="btn"
+                                    @click="closeModal"
+                                    >{{
+                                        $options.filters.t('Cancel', 'commerce')
+                                    }}</btn-link
+                                >
                             </div>
-                            <btn-link button-class="btn submit" @click="updateLineItem" :class="{ 'disabled': hasErrors }" :disabled="hasErrors">{{$options.filters.t('Done', 'commerce')}}</btn-link>
+                            <btn-link
+                                button-class="btn submit"
+                                @click="updateLineItem"
+                                :class="{disabled: hasErrors}"
+                                :disabled="hasErrors"
+                                >{{
+                                    $options.filters.t('Done', 'commerce')
+                                }}</btn-link
+                            >
                         </div>
                     </div>
                 </div>
@@ -163,7 +267,7 @@
                 renderPrism: false,
                 showModal: false,
                 showPrismEditor: false,
-            }
+            };
         },
 
         watch: {
@@ -176,16 +280,22 @@
 
         computed: {
             hasErrors() {
-                return this.errors.length || this.errorKeys.length || this.errorValues.length || this.isWaiting;
+                return (
+                    this.errors.length ||
+                    this.errorKeys.length ||
+                    this.errorValues.length ||
+                    this.isWaiting
+                );
             },
         },
 
         methods: {
             hasDuplicateKeys(keys) {
-                var uniq = keys.map((key) => {
+                var uniq = keys
+                    .map((key) => {
                         return {
                             count: 1,
-                            key: key
+                            key: key,
                         };
                     })
                     .reduce((a, b) => {
@@ -197,7 +307,12 @@
 
                 if (dupes.length) {
                     this.errorKeys = [...this.errorKeys, ...dupes];
-                    this.errors.push(this.$options.filters.t('Duplicate options exist', 'commerce'));
+                    this.errors.push(
+                        this.$options.filters.t(
+                            'Duplicate options exist',
+                            'commerce'
+                        )
+                    );
                     return true;
                 }
 
@@ -217,7 +332,10 @@
             },
 
             normalizeOptions(options) {
-                if (!_isObjectLike(options) || (Array.isArray(options) && options.length === 0)) {
+                if (
+                    !_isObjectLike(options) ||
+                    (Array.isArray(options) && options.length === 0)
+                ) {
                     options = {};
                 }
 
@@ -245,12 +363,16 @@
                 this.renderPrism = true;
 
                 this.$nextTick(() => {
-                    if (this.showPrismEditor && this.$refs.prismEditor && this.$refs.prismEditor.length) {
-                        this.$refs.prismEditor.forEach(ref => {
+                    if (
+                        this.showPrismEditor &&
+                        this.$refs.prismEditor &&
+                        this.$refs.prismEditor.length
+                    ) {
+                        this.$refs.prismEditor.forEach((ref) => {
                             ref.$el.children[0].setAttribute('tabIndex', '-1');
                         });
                     }
-                })
+                });
             },
 
             closeModal() {
@@ -268,7 +390,7 @@
                 this.hideModal = false;
             },
 
-            onChange: _debounce(function() {
+            onChange: _debounce(function () {
                 this.updateLineItemOptions();
             }, 3000),
 
@@ -296,9 +418,12 @@
 
                 if (this.lineItem.showForm) {
                     let opts = [];
-                    Object.keys(options).forEach(key => {
+                    Object.keys(options).forEach((key) => {
                         let type = this.inputType(options[key]);
-                        let val = type == 'prism' ? JSON.stringify(options[key], null, '\t') : options[key];
+                        let val =
+                            type == 'prism'
+                                ? JSON.stringify(options[key], null, '\t')
+                                : options[key];
 
                         let opt = {
                             key: key,
@@ -313,7 +438,7 @@
                     });
                     this.options = opts;
                 } else {
-                    this.options = JSON.stringify(options, null, '\t')
+                    this.options = JSON.stringify(options, null, '\t');
                     this.showPrismEditor = true;
                 }
             },
@@ -333,14 +458,16 @@
 
                     this.isWaiting = false;
                     if (!jsonValid) {
-                        this.errors = [this.$options.filters.t('Invalid JSON', 'commerce')]
+                        this.errors = [
+                            this.$options.filters.t('Invalid JSON', 'commerce'),
+                        ];
                         return false;
                     }
 
                     return options;
                 }
 
-                this.options.forEach(row => {
+                this.options.forEach((row) => {
                     keys.push(row.key);
                     if (row.type == 'string') {
                         options[row.key] = row.value;
@@ -348,7 +475,13 @@
                         try {
                             options[row.key] = JSON.parse(row.value);
                         } catch (e) {
-                            this.errors.push(this.$options.filters.t('“{key}” has invalid JSON', 'commerce', {key: row.key}));
+                            this.errors.push(
+                                this.$options.filters.t(
+                                    '“{key}” has invalid JSON',
+                                    'commerce',
+                                    {key: row.key}
+                                )
+                            );
                             this.errorValues.push(row.key);
                             hasErrors = true;
                         }
@@ -372,23 +505,21 @@
                     this.$emit('updateLineItem', lineItem);
                     this.closeModal();
                 }
-
             },
         },
 
         mounted() {
             this.prepOptions();
-        }
-    }
+        },
+    };
 </script>
 
 <style lang="scss">
-    @import "../../../../../node_modules/craftcms-sass/src/mixins";
+    @import 'craftcms-sass/mixins';
     /* PrismJS fix for .token conflict with Craft’s styles */
 
     .prism-editor-wrapper {
-
-        pre[class*="language-"] {
+        pre[class*='language-'] {
             padding: 0;
             font-size: 14px;
             line-height: 19px;
@@ -427,7 +558,8 @@
     .line-item-options-list.bullets {
         list-style-position: inside;
 
-        body.ltr &, body.rtl & {
+        body.ltr &,
+        body.rtl & {
             padding: 0;
         }
     }
@@ -441,11 +573,11 @@
         overflow: auto;
 
         body.ltr & {
-            padding-left: .25em;
+            padding-left: 0.25em;
         }
 
         body.rtl & {
-            padding-right: .25em;
+            padding-right: 0.25em;
         }
     }
 </style>

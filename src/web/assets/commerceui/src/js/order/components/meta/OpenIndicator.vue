@@ -1,3 +1,3 @@
 <template>
-    <div data-icon="downangle"></div>
+    <div></div>
 </template>

@@ -10,17 +10,12 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
-use craft\commerce\Plugin;
-use craft\commerce\records\Country as CountryRecord;
-use craft\commerce\records\State as StateRecord;
-use craft\commerce\records\TaxZone;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
-use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
-use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
-use yii\caching\TagDependency;
+use yii\db\StaleObjectException;
 
 /**
  * Tax zone service.
@@ -32,15 +27,9 @@ use yii\caching\TagDependency;
 class TaxZones extends Component
 {
     /**
-     * @var bool
-     */
-    private $_fetchedAllTaxZones = false;
-
-    /**
      * @var TaxAddressZone[]
      */
-    private $_allTaxZones;
-
+    private array $_allZones = [];
 
     /**
      * Get all tax zones.
@@ -49,37 +38,25 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (!$this->_fetchedAllTaxZones) {
-            $this->_allTaxZones = [];
-            $rows = $this->_createTaxZonesQuery()->all();
+        $rows = $this->_createQuery()->all();
 
-            foreach ($rows as $row) {
-                $this->_allTaxZones[$row['id']] = new TaxAddressZone($row);
-            }
-
-            $this->_fetchedAllTaxZones = true;
+        foreach ($rows as $row) {
+            $this->_allZones[$row['id']] = new TaxAddressZone($row);
         }
 
-        return $this->_allTaxZones;
+        return $this->_allZones;
     }
 
     /**
      * Get a tax zone by its ID.
-     *
-     * @param int $id
-     * @return TaxAddressZone|null
      */
-    public function getTaxZoneById($id)
+    public function getTaxZoneById(int $id): ?TaxAddressZone
     {
-        if (isset($this->_allTaxZones[$id])) {
-            return $this->_allTaxZones[$id];
+        if (isset($this->_allZones[$id])) {
+            return $this->_allZones[$id];
         }
 
-        if ($this->_fetchedAllTaxZones) {
-            return null;
-        }
-
-        $result = $this->_createTaxZonesQuery()
+        $result = $this->_createQuery()
             ->where(['id' => $id])
             ->one();
 
@@ -87,17 +64,15 @@ class TaxZones extends Component
             return null;
         }
 
-        return $this->_allTaxZones[$id] = new TaxAddressZone($result);
+        return $this->_allZones[$id] = new TaxAddressZone($result);
     }
 
     /**
      * Save a tax zone.
      *
-     * @param TaxAddressZone $model
-     * @param bool $runValidation should we validate this zone before saving.
-     * @return bool
-     * @throws Exception
+     * @param bool $runValidation should we validate this zone before saving
      * @throws \Exception
+     * @throws Exception
      */
     public function saveTaxZone(TaxAddressZone $model, bool $runValidation = true): bool
     {
@@ -105,8 +80,7 @@ class TaxZones extends Component
             $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No tax zone exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new TaxZoneRecord();
@@ -118,120 +92,70 @@ class TaxZones extends Component
             return false;
         }
 
-        $countryIds = $model->getCountryIds();
-        $stateIds = $model->getStateIds();
-
         //setting attributes
         $record->name = $model->name;
         $record->description = $model->description;
-
-        // If the condition formula changes, clear the cache for this zone.
-        if (($record->zipCodeConditionFormula != $model->getZipCodeConditionFormula()) && $record->id) {
-            TagDependency::invalidate(Craft::$app->cache, get_class($model) . ':' . $record->id);
-        }
-
-        $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
-        $record->isCountryBased = $model->isCountryBased;
         $record->default = $model->default;
+        $record->condition = $model->getCondition()->getConfig();
 
-        //validating given ids
-        if ($record->isCountryBased) {
-            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
+        $record->save();
 
-            if (!$exist) {
-                $model->addError('countries', Plugin::t('At least one country must be selected.'));
-            }
-        } else {
-            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
+        $model->id = $record->id;
 
-            if (!$exist) {
-                $model->addError('states', Plugin::t('At least one state must be selected.'));
-            }
-        }
-
-        if (!$model->validate()) {
-            return false;
-        }
-
-        //saving
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            // Clean out all old links
-            TaxZoneCountryRecord::deleteAll(['taxZoneId' => $record->id]);
-            TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
-
-            //saving new links
-            if ($model->isCountryBased) {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $countryIds);
-                $cols = ['countryId', 'taxZoneId'];
-                $table = Table::TAXZONE_COUNTRIES;
-            } else {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $stateIds);
-                $cols = ['stateId', 'taxZoneId'];
-                $table = Table::TAXZONE_STATES;
-            }
-            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-            //If this was the default make all others not the default.
-            if ($model->default) {
-                TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
-            }
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            throw $e;
+        // If this was the default make all others not the default.
+        if ($model->default) {
+            TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $model->id]]);
         }
 
         return true;
     }
 
     /**
-     * @param $id
-     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteTaxZoneById($id): bool
+    public function deleteTaxZoneById(int $id): bool
     {
         $record = TaxZoneRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $result = (bool)$record->delete();
+            if ($result) {
+                $this->_clearCaches();
+            }
+
+            return $result;
         }
 
         return false;
     }
 
-
     /**
      * Returns a Query object prepped for retrieving tax zones.
-     *
-     * @return Query
      */
-    private function _createTaxZonesQuery(): Query
+    private function _createQuery(): Query
     {
         return (new Query())
             ->select([
+                'condition',
+                'dateCreated',
+                'dateUpdated',
+                'default',
+                'description',
                 'id',
                 'name',
-                'description',
-                'isCountryBased',
-                'zipCodeConditionFormula',
-                'default',
             ])
             ->orderBy('name')
             ->from([Table::TAXZONES]);
+    }
+
+    /**
+     * Clear memoization.
+     *
+     * @since 3.2.5
+     */
+    private function _clearCaches(): void
+    {
+        $this->_allZones = [];
     }
 }

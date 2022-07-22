@@ -7,11 +7,11 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\elements\Order;
+use craft\commerce\models\Pdf;
 use yii\base\Event;
 
 /**
- * Class AddressEvent
+ * Class PdfEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -19,27 +19,12 @@ use yii\base\Event;
 class PdfEvent extends Event
 {
     /**
-     * @var Order
+     * @var Pdf The PDF model associated with the event.
      */
-    public $order;
+    public Pdf $pdf;
 
     /**
-     * @var string
+     * @var bool Whether the PDF is brand new
      */
-    public $option;
-
-    /**
-     * @var string
-     */
-    public $template;
-
-    /**
-     * @var array
-     */
-    public $variables;
-
-    /**
-     * @var string|null The rendered PDF
-     */
-    public $pdf;
+    public bool $isNew = false;
 }

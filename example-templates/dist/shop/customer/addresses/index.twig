@@ -1,0 +1,40 @@
+{% extends 'shop/_private/layouts' %}
+
+{% if not currentUser %}
+  {% exit 404 %}
+{% endif %}
+
+{# @var primaryBillingAddress \craft\commerce\models\Address #}
+{% set primaryBillingAddress = currentUser.getPrimaryBillingAddress() %}
+{# @var primaryShippingAddress \craft\commerce\models\Address #}
+{% set primaryShippingAddress = currentUser.getPrimaryShippingAddress() %}
+
+{% block main %}
+  <!-- Template: {{ _self }}.twig -->
+
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl block sm:inline">
+      {{- 'Addresses'|t -}}
+    </h1>
+    <a href="{{ url('/shop/customer/addresses/edit') }}"
+       class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+    >
+      {{- 'Add new address'|t -}}
+    </a>
+  </div>
+
+  {% if currentUser.addresses|length %}
+    {{ include('shop/_private/address/list', {
+      addresses: currentUser.addresses,
+      selectable: false,
+      primaryBillingAddressId: currentUser.primaryBillingAddressId,
+      primaryShippingAddressId: currentUser.primaryShippingAddressId,
+      cardWidth: 'md:w-1/3',
+      showDelete: true,
+    }) }}
+  {% else %}
+    <div class="mt-10">
+      <span>{{ 'You don’t have any addresses yet.'|t }}</span>
+    </div>
+  {% endif %}
+{% endblock %}

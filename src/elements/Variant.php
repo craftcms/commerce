@@ -12,24 +12,29 @@ use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\variants\VariantCondition;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\ElementQueryInterface;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
+use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\Expression;
 use yii\validators\Validator;
 
@@ -39,8 +44,13 @@ use yii\validators\Validator;
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
  * @property bool $onSale
  * @property Product $product the product associated with this variant
- * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
+ * @property DateTime|null $dateUpdated
+ * @property DateTime|null $dateCreated
+ * @property-read string[] $cacheTags
+ * @property-read string $gqlTypeName
+ * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -78,7 +88,7 @@ class Variant extends Purchasable
      * );
      * ```
      */
-    const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
+    public const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
 
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotDataEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
@@ -103,7 +113,7 @@ class Variant extends Purchasable
      * );
      * ```
      */
-    const EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT = 'afterCaptureVariantSnapshot';
+    public const EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT = 'afterCaptureVariantSnapshot';
 
     /**
      * @event craft\commerce\events\CustomizeProductSnapshotFieldsEvent The event that is triggered before a product’s field data is captured. This makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
@@ -141,7 +151,7 @@ class Variant extends Purchasable
      * Add with care! A huge amount of custom fields/data will increase your database size.
      * :::
      */
-    const EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT = 'beforeCaptureProductSnapshot';
+    public const EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT = 'beforeCaptureProductSnapshot';
 
     /**
      * @event craft\commerce\events\CustomizeProductSnapshotDataEvent The event that is triggered after a product’s field data is captured, which can be used to customize, extend, or redact the data to be persisted on the product instance.
@@ -167,135 +177,114 @@ class Variant extends Purchasable
      * );
      * ```
      */
-    const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
+    public const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
 
 
     /**
-     * @var int $productId
+     * @var int|null $productId
      */
-    public $productId;
+    public ?int $productId = null;
 
     /**
      * @var bool $isDefault
      */
-    public $isDefault;
+    public bool $isDefault = false;
 
     /**
      * @inheritdoc
      */
-    public $sku;
+    public ?float $price = null;
 
     /**
-     * @inheritdoc
+     * @var int|null $sortOrder
      */
-    public $price;
+    public ?int $sortOrder = null;
 
     /**
-     * @var int $sortOrder
+     * @var int|null $width
      */
-    public $sortOrder;
+    public ?int $width = null;
 
     /**
-     * @var int $width
+     * @var int|null $height
      */
-    public $width;
+    public ?int $height = null;
 
     /**
-     * @var int $height
+     * @var int|null $length
      */
-    public $height;
+    public ?int $length = null;
 
     /**
-     * @var int $length
+     * @var int|null $weight
      */
-    public $length;
+    public ?int $weight = null;
 
     /**
-     * @var int $weight
+     * @var int|null $stock
      */
-    public $weight;
-
-    /**
-     * @var int $stock
-     */
-    public $stock;
+    public ?int $stock = null;
 
     /**
      * @var bool $hasUnlimitedStock
      */
-    public $hasUnlimitedStock;
+    public bool $hasUnlimitedStock = false;
 
     /**
-     * @var int $minQty
+     * @var int|null $minQty
      */
-    public $minQty;
+    public ?int $minQty = null;
 
     /**
-     * @var int $maxQty
+     * @var int|null $maxQty
      */
-    public $maxQty;
+    public ?int $maxQty = null;
 
     /**
      * @var bool Whether the variant was deleted along with its product
      * @see beforeDelete()
      */
-    public $deletedWithProduct = false;
+    public bool $deletedWithProduct = false;
 
     /**
-     * @var Product The product that this variant is associated with.
+     * @var Product|null The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
-    private $_product;
+    private ?Product $_product = null;
 
     /**
-     * @return array
+     * @var string SKU
+     * @see getSku()
+     * @see setSku()
+     */
+    private string $_sku = '';
+
+    /**
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
     }
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function currencyAttributes(): array
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
     }
 
     /**
@@ -307,10 +296,10 @@ class Variant extends Purchasable
 
         // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
         if ($product && $product->getType()->hasVariants) {
-            return "{$this->product}: {$this->title}";
-        } else {
-            return parent::__toString();
+            return "$this->product: $this->title";
         }
+
+        return parent::__toString();
     }
 
     /**
@@ -318,7 +307,7 @@ class Variant extends Purchasable
      */
     public static function displayName(): string
     {
-        return Plugin::t('Product Variant');
+        return Craft::t('commerce', 'Product Variant');
     }
 
     /**
@@ -326,7 +315,7 @@ class Variant extends Purchasable
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('product variant');
+        return Craft::t('commerce', 'product variant');
     }
 
     /**
@@ -334,7 +323,7 @@ class Variant extends Purchasable
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Product Variants');
+        return Craft::t('commerce', 'Product Variants');
     }
 
     /**
@@ -342,39 +331,46 @@ class Variant extends Purchasable
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('product variants');
+        return Craft::t('commerce', 'product variants');
     }
 
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'variant';
     }
 
     /**
      * @inheritdoc
+     * @return VariantCondition
      */
-    public function defineRules(): array
+    public static function createCondition(): ElementConditionInterface
     {
-        $rules = parent::defineRules();
+        return Craft::createObject(VariantCondition::class, [static::class]);
+    }
 
-        $rules[] = [['sku'], 'string', 'max' => 255];
-        $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price'], 'number'];
-        $rules[] = [
-            ['stock'],
-            'required',
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->hasUnlimitedStock;
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-        $rules[] = [['stock'], 'number'];
-
-        return $rules;
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        return array_merge(parent::defineRules(), [
+            [['sku'], 'string', 'max' => 255],
+            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            [
+                ['stock'],
+                'required',
+                'when' => static function($model) {
+                    /** @var Variant $model */
+                    return !$model->hasUnlimitedStock;
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [['stock'], 'number'],
+        ]);
     }
 
     /**
@@ -390,10 +386,16 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
-        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
-        return parent::getFieldLayout() ?? $this->getProduct()->getType()->getVariantFieldLayout();
+        $fieldLayout = parent::getFieldLayout();
+
+        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout() #COM-41
+        if (!$fieldLayout && $this->productId) {
+            $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+        }
+
+        return $fieldLayout;
     }
 
     /**
@@ -402,7 +404,7 @@ class Variant extends Purchasable
      * @return Product|null The product associated with this variant, or null if it isn’t known
      * @throws InvalidConfigException if the product ID is missing from the variant
      */
-    public function getProduct()
+    public function getProduct(): ?Product
     {
         if ($this->_product !== null) {
             return $this->_product;
@@ -412,10 +414,11 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
+        /** @var Product|null $product */
         $product = Product::find()
             ->id($this->productId)
             ->siteId($this->siteId)
-            ->anyStatus()
+            ->status(null)
             ->trashed(null)
             ->one();
 
@@ -430,8 +433,9 @@ class Variant extends Purchasable
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
+     * @throws InvalidConfigException
      */
-    public function setProduct(Product $product)
+    public function setProduct(Product $product): void
     {
         if ($product->siteId) {
             $this->siteId = $product->siteId;
@@ -441,13 +445,14 @@ class Variant extends Purchasable
             $this->productId = $product->id;
         }
 
+        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
+
         $this->_product = $product;
     }
 
     /**
      * Returns the product title and variants title together for variable products.
      *
-     * @return string
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
@@ -469,22 +474,22 @@ class Variant extends Purchasable
     /**
      * Updates the title based on titleFormat, or sets it to the same title as the product.
      *
-     * @param Product $product
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
+     * @see \craft\elements\Entry::updateTitle
      */
-    public function updateTitle(Product $product)
+    public function updateTitle(Product $product): void
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
-        if (!$type->hasVariantTitleField && $type->hasVariants && $type->titleFormat) {
+        if (!$type->hasVariantTitleField && $type->hasVariants && $type->variantTitleFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
             // Set Craft to the products's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->titleFormat, $this);
+            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
 
@@ -495,17 +500,16 @@ class Variant extends Purchasable
 
 
     /**
-     * @param Product $product
      * @throws Throwable
      */
-    public function updateSku(Product $product)
+    public function updateSku(Product $product): void
     {
         $type = $product->getType();
-        // If we have a blank SKU, generate from product type's skuFormat
+        // If we have a blank SKU, generate from product type’s skuFormat
         if (!$this->sku && $type->skuFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
-            // Set Craft to the products's site's language, in case the title format has any static translations
+            // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
@@ -524,24 +528,19 @@ class Variant extends Purchasable
     }
 
     /**
-     * @return bool
-     * @throws InvalidConfigException
+     * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function cacheTags(): array
     {
-        $product = $this->getProduct();
-
-        if ($product) {
-            return $product->getIsEditable();
-        }
-
-        return false;
+        return [
+            "product:$this->productId",
+        ];
     }
 
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
@@ -549,7 +548,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->product->url . '?variant=' . $this->id;
     }
@@ -566,7 +565,6 @@ class Variant extends Purchasable
 
     /**
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getSnapshot(): array
@@ -579,7 +577,7 @@ class Variant extends Purchasable
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
             'product' => $this->getProduct(),
-            'fields' => $productFields
+            'fields' => $productFields,
         ]);
 
         // Allow plugins to modify Product fields to be fetched
@@ -593,7 +591,7 @@ class Variant extends Purchasable
 
             // Remove custom fields
             if (($fieldLayout = $product->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     ArrayHelper::removeValue($productAttributes, $field->handle);
                 }
             }
@@ -607,12 +605,12 @@ class Variant extends Purchasable
 
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => $data['product']
+                'fieldData' => $data['product'],
             ]);
         } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => []
+                'fieldData' => [],
             ]);
         }
 
@@ -627,7 +625,7 @@ class Variant extends Purchasable
         $variantFields = [];
         $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent([
             'variant' => $this,
-            'fields' => $variantFields
+            'fields' => $variantFields,
         ]);
 
         // Allow plugins to modify fields to be fetched
@@ -639,7 +637,7 @@ class Variant extends Purchasable
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 ArrayHelper::removeValue($variantAttributes, $field->handle);
             }
         }
@@ -653,7 +651,7 @@ class Variant extends Purchasable
 
         $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
             'variant' => $this,
-            'fieldData' => $variantData
+            'fieldData' => $variantData,
         ]);
 
         // Allow plugins to modify captured Variant data
@@ -669,7 +667,29 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        return $this->sku;
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
+     */
+    public function getSkuAsText(): string
+    {
+        $sku = $this->getSku();
+
+        if (PurchasableHelper::isTempSku($sku)) {
+            $sku = '';
+        }
+
+        return $sku;
+    }
+
+    /**
+     * @param string|null $sku
+     */
+    public function setSku(string $sku = null): void
+    {
+        $this->_sku = $sku;
     }
 
     /**
@@ -677,7 +697,7 @@ class Variant extends Purchasable
      */
     public function getTaxCategoryId(): int
     {
-        return $this->getProduct()->taxCategoryId;
+        return $this->getProduct()->getTaxCategory()->id;
     }
 
     /**
@@ -685,13 +705,11 @@ class Variant extends Purchasable
      */
     public function getShippingCategoryId(): int
     {
-        return $this->getProduct()->shippingCategoryId;
+        return $this->getProduct()->getShippingCategory()->id;
     }
 
     /**
      * Returns whether this variant has stock.
-     *
-     * @return bool
      */
     public function hasStock(): bool
     {
@@ -703,7 +721,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        $isShippable = $this->getIsShippable();
+        $isShippable = $this->getIsShippable(); // Same as Plugin::getInstance()->getPurchasables()->isPurchasableShippable since this has no context
         return $isShippable && $this->getProduct()->freeShipping;
     }
 
@@ -739,35 +757,35 @@ class Variant extends Purchasable
                     /** @var Purchasable $purchasable */
                     $purchasable = $lineItem->getPurchasable();
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('The item is not enabled for sale.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
-                }
+                },
             ],
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
                     if (!$this->hasStock()) {
-                        $error = Plugin::t('"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Plugin::t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Plugin::t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
                 },
             ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false]
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
     }
 
@@ -775,7 +793,7 @@ class Variant extends Purchasable
      * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): VariantQuery
     {
         return new VariantQuery(static::class);
     }
@@ -791,7 +809,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'product') {
             // Get the source element IDs
@@ -812,8 +830,7 @@ class Variant extends Purchasable
                 'map' => $map,
                 'criteria' => [
                     'status' => null,
-                    'enabledForSite' => false,
-                ]
+                ],
             ];
         }
 
@@ -823,26 +840,36 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-            $lineItem->qty = $this->stock;
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+                /** @var Order $order */
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
+                /** @var OrderNotice $notice */
+                $notice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'lineItemSalePriceChanged',
+                        'attribute' => "lineItems.$lineItem->id.qty",
+                        'message' => $message,
+                    ],
+                ]);
+                $order->addNotice($notice);
+                $lineItem->qty = $this->stock;
+            }
         }
 
         $lineItem->weight = (float)$this->weight; //converting nulls
         $lineItem->height = (float)$this->height; //converting nulls
         $lineItem->length = (float)$this->length; //converting nulls
         $lineItem->width = (float)$this->width; //converting nulls
-
-        return null;
     }
 
     /**
      * Returns a promotion category related to this element if the category is related to the product OR the variant.
-     *
-     * @return array
      */
     public function getPromotionRelationSource(): array
     {
@@ -854,11 +881,10 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return (bool)$this->getProduct()->promotable;
+        return $this->getProduct()->promotable;
     }
 
     /**
-     * @return string
      * @throws InvalidConfigException
      * @since 3.1
      */
@@ -866,7 +892,13 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        if (!$product || !$productType = $product->getType()) {
+        if (!$product) {
+            return 'Variant';
+        }
+
+        try {
+            $productType = $product->getType();
+        } catch (Exception) {
             return 'Variant';
         }
 
@@ -878,7 +910,7 @@ class Variant extends Purchasable
      * @return string
      * @since 3.1
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         return $context->handle . '_Variant';
     }
@@ -888,7 +920,7 @@ class Variant extends Purchasable
      * @return array
      * @since 3.1
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -897,7 +929,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
             if (!$isNew) {
@@ -920,8 +952,8 @@ class Variant extends Purchasable
             $record->weight = $this->weight;
             $record->minQty = $this->minQty;
             $record->maxQty = $this->maxQty;
-            $record->stock = $this->stock;
-            $record->isDefault = (bool)$this->isDefault;
+            $record->stock = (int)$this->stock;
+            $record->isDefault = $this->isDefault;
             $record->sortOrder = $this->sortOrder;
             $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
@@ -939,7 +971,7 @@ class Variant extends Purchasable
             $record->save(false);
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
@@ -947,7 +979,7 @@ class Variant extends Purchasable
      *
      * @inheritdoc
      */
-    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
         // Don't reduce stock of unlimited items.
         if (!$this->hasUnlimitedStock) {
@@ -963,7 +995,7 @@ class Variant extends Purchasable
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
-            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getElements()->invalidateCachesForElement($this);
         }
     }
 
@@ -997,13 +1029,18 @@ class Variant extends Purchasable
             return false;
         }
 
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
@@ -1050,32 +1087,41 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         $product = $this->getProduct();
 
         $this->updateTitle($product);
         $this->updateSku($product);
 
+        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
+            if (!$this->sku) {
+                $this->setSku(PurchasableHelper::tempSku());
+            }
+
+            if (!$this->price) {
+                $this->price = 0;
+            }
+
+            if (!$this->stock) {
+                $this->stock = 0;
+            }
+        }
+
         // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
             $this->stock = 0;
         }
 
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
-
         return parent::beforeValidate();
     }
 
     /**
-     * @param bool $isNew
-     * @return bool
      * @throws InvalidConfigException
      */
     public function beforeSave(bool $isNew): bool
     {
         // Set the field layout
-        /** @var ProductType $productType */
         $productType = $this->getProduct()->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
@@ -1145,8 +1191,21 @@ class Variant extends Purchasable
     }
 
     /**
-     * @param string $attribute
-     * @return string
+     * @throws \yii\db\Exception
+     */
+    public function afterRestore(): void
+    {
+        // Once restored, we no longer track if it was deleted with variant or not
+        $this->deletedWithProduct = false;
+        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
+            ['deletedWithProduct' => null],
+            ['id' => $this->getId()]
+        )->execute();
+
+        parent::afterRestore();
+    }
+
+    /**
      * @throws InvalidConfigException
      * @since 2.2
      */
@@ -1174,16 +1233,16 @@ class Variant extends Purchasable
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => Plugin::t('Title'),
-            'product' => Plugin::t('Product'),
-            'sku' => Plugin::t('SKU'),
-            'price' => Plugin::t('Price'),
-            'width' => Plugin::t('Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Plugin::t('Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Plugin::t('Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Plugin::t('Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Plugin::t('Stock'),
-            'minQty' => Plugin::t('Quantities')
+            'title' => Craft::t('commerce', 'Title'),
+            'product' => Craft::t('commerce', 'Product'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities'),
         ];
     }
 
@@ -1228,7 +1287,7 @@ class Variant extends Purchasable
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Plugin::t('Title')
+            'title' => Craft::t('commerce', 'Title'),
         ];
     }
 
@@ -1237,17 +1296,21 @@ class Variant extends Purchasable
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        /* @var $productType ProductType */
         $productType = $this->product->getType();
 
         switch ($attribute) {
             case 'sku':
             {
-                return $this->sku;
+                return Html::encode($this->getSkuAsText());
             }
             case 'product':
             {
-                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
+                $product = $this->getProduct();
+                if (!$product) {
+                    return '';
+                }
+
+                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
             }
             case 'price':
             {

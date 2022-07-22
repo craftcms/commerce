@@ -1,24 +1,28 @@
 <template>
     <div class="order-flex justify-end">
         <div class="w-1/4">
-            <btn-link @click="enableEditMode()" v-if="!editMode && draft.order.isCompleted">{{'Edit'|t('commerce')}}</btn-link>
+            <btn-link
+                @click="enableEditMode()"
+                v-if="!editMode && draft.order.isCompleted"
+                >{{ 'Edit adjustments' | t('commerce') }}</btn-link
+            >
         </div>
         <div class="w-3/4">
             <adjustments
-                    :editing="editing && editMode"
-                    :adjustments="adjustments"
-                    :recalculation-mode="recalculationMode"
-                    @addAdjustment="addOrderAdjustment"
-                    @updateAdjustment="updateOrderAdjustment"
-                    @removeAdjustment="removeOrderAdjustment"
+                :editing="editing && editMode"
+                :adjustments="adjustments"
+                :recalculation-mode="recalculationMode"
+                @addAdjustment="addOrderAdjustment"
+                @updateAdjustment="updateOrderAdjustment"
+                @removeAdjustment="removeOrderAdjustment"
             ></adjustments>
         </div>
     </div>
 </template>
 
 <script>
-    import {mapActions, mapGetters, mapState} from 'vuex'
-    import Adjustments from './Adjustments'
+    import {mapActions, mapGetters, mapState} from 'vuex';
+    import Adjustments from './Adjustments';
     import BtnLink from '../../../base/components/BtnLink';
 
     export default {
@@ -46,19 +50,15 @@
         },
 
         computed: {
-            ...mapGetters([
-                'orderId',
-            ]),
+            ...mapGetters(['orderId', 'currentUserId']),
 
             ...mapState({
-                draft: state => state.draft,
+                draft: (state) => state.draft,
             }),
         },
 
         methods: {
-            ...mapActions([
-                'edit',
-            ]),
+            ...mapActions(['edit']),
 
             addOrderAdjustment() {
                 const adjustment = {
@@ -67,15 +67,18 @@
                     name: '',
                     description: '',
                     amount: '0.0000',
-                    included: '0',
+                    included: false,
                     orderId: this.orderId,
-                }
 
-                const adjustments = this.adjustments
+                    // When creating a brand new manual adjustment, we need to set the author ID
+                    sourceSnapshot: {authorId: this.currentUserId},
+                };
 
-                adjustments.push(adjustment)
+                const adjustments = this.adjustments;
 
-                this.$emit('updateOrderAdjustments', adjustments)
+                adjustments.push(adjustment);
+
+                this.$emit('updateOrderAdjustments', adjustments);
             },
 
             enableEditMode() {
@@ -84,16 +87,16 @@
             },
 
             updateOrderAdjustment(adjustment, key) {
-                const adjustments = this.adjustments
-                adjustments[key] = adjustment
-                this.$emit('updateOrderAdjustments', adjustments)
+                const adjustments = this.adjustments;
+                adjustments[key] = adjustment;
+                this.$emit('updateOrderAdjustments', adjustments);
             },
 
             removeOrderAdjustment(key) {
-                const adjustments = this.adjustments
-                adjustments.splice(key, 1)
-                this.$emit('updateOrderAdjustments', adjustments)
+                const adjustments = this.adjustments;
+                adjustments.splice(key, 1);
+                this.$emit('updateOrderAdjustments', adjustments);
             },
         },
-    }
+    };
 </script>

@@ -23,17 +23,18 @@ use craft\db\ActiveRecord;
  * @property string $subject
  * @property string $templatePath
  * @property string $plainTextTemplatePath
- * @property bool $attachPdf
- * @property string $pdfTemplatePath
+ * @property int|null $pdfId
  * @property string $to
+ * @property string $language
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Email extends ActiveRecord
 {
-    const TYPE_CUSTOMER = 'customer';
-    const TYPE_CUSTOM = 'custom';
+    public const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
 
+    public const TYPE_CUSTOMER = 'customer';
+    public const TYPE_CUSTOM = 'custom';
 
     /**
      * @inheritdoc

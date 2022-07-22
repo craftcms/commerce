@@ -1,0 +1,52 @@
+<!-- Template: {{ _self }}.twig -->
+{#
+Outputs a fieldset for selecting one of a user’s available addresses or creating a new one.
+
+@var addresses   \craft\elements\Address[]
+@var cart        \craft\commerce\elements\Order
+@var classes     string
+@var name        string
+@var title       string
+@var currentUser \craft\elements\User
+#}
+<div class="js-address-fieldset {{ classes }}">
+  <h2 class="text-lg font-bold mb-4">
+    {{- title -}}
+  </h2>
+
+  {{ include('shop/_private/address/list', {
+    adresses: addresses,
+    selectable: true,
+    primaryBillingAddressId: cart and cart.customer ? cart.customer.primaryBillingAddressId : null,
+    primaryShippingAddressId: cart and cart.customer ? cart.customer.primaryShippingAddressId : null,
+  }) }}
+
+  <div class="js-address-select">
+    {% if attribute(cart, name ~ 'Id') %}
+      {% set addressHasErrors = attribute(cart, name) and attribute(cart, name).hasErrors() %}
+    {% else %}
+      {% set addressHasErrors = false %}
+    {% endif %}
+
+    {% if currentUser %}
+      <div class="js-radio">
+        <label>
+          {{ input('radio', name ~ 'Id', '', {
+            checked: not addresses|length or addressHasErrors
+          }) }}
+          {{ 'New {title}'|t({ title: title }) }}
+        </label>
+      </div>
+    {% endif %}
+
+    <div class="js-body{% if currentUser %} hidden{% endif %}">
+      {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
+      {% namespace name %}
+        {{ include('shop/_private/address/fields', {
+          address: attribute(cart, name),
+          addressName: name
+        }) }}
+      {% endnamespace %}
+    </div>
+  </div>
+</div>

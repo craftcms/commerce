@@ -18,11 +18,10 @@ use yii\db\ActiveQueryInterface;
  * Discount record.
  *
  * @property bool $allCategories
- * @property bool $allGroups
  * @property bool $allPurchasables
  * @property float $baseDiscount
  * @property string $baseDiscountType
- * @property string $code
+ * @property string $couponFormat
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description
@@ -38,11 +37,14 @@ use yii\db\ActiveQueryInterface;
  * @property string $percentageOffSubject
  * @property float $percentDiscount
  * @property string $appliedTo
- * @property string $perEmailLimit
+ * @property int $perEmailLimit
  * @property float $perItemDiscount
  * @property int $perUserLimit
  * @property int $purchaseQty
- * @property int $purchaseTotal
+ * @property array|null $orderCondition
+ * @property array|null $customerCondition
+ * @property array|null $shippingAddressCondition
+ * @property array|null $billingAddressCondition
  * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing
@@ -55,21 +57,21 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
-    const TYPE_ORIGINAL_SALEPRICE = 'original';
-    const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
+    public const TYPE_ORIGINAL_SALEPRICE = 'original';
+    public const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 
-    const BASE_DISCOUNT_TYPE_VALUE = 'value';
-    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
-    const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
-    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
-    const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
+    public const BASE_DISCOUNT_TYPE_VALUE = 'value';
+    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
+    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
+    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
+    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
 
-    const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
-    const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
-    const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
+    public const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
+    public const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
-    const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
+    public const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
+    public const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
     /**
      * @inheritdoc
@@ -80,48 +82,28 @@ class Discount extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
-     */
-    public function getDiscountUserGroups(): ActiveQueryInterface
-    {
-        return $this->hasMany(DiscountUserGroup::class, ['discountId' => 'id']);
-    }
-
-    /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getDiscountPurchasables(): ActiveQueryInterface
     {
         return $this->hasMany(DiscountPurchasable::class, ['discountId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscountCategories(): ActiveQueryInterface
     {
         return $this->hasMany(DiscountCategory::class, ['discountId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGroups(): ActiveQueryInterface
     {
         return $this->hasMany(UserGroup::class, ['id' => 'discountId'])->via('discountUserGroups');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasables(): ActiveQueryInterface
     {
         return $this->hasMany(Purchasable::class, ['id' => 'discountId'])->via('discountPurchasables');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCategories(): ActiveQueryInterface
     {
         return $this->hasMany(Category::class, ['id' => 'discountId'])->via('discountCategories');

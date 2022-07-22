@@ -10,14 +10,17 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
@@ -56,10 +59,10 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
+    public const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
-     * @event LineItemEvent The event that is triggeredd after a line item is saved.
+     * @event LineItemEvent The event that is triggered after a line item is saved.
      *
      * ```php
      * use craft\commerce\events\LineItemEvent;
@@ -82,7 +85,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
+    public const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
 
     /**
      * @event LineItemEvent The event that is triggered after a line item has been created from a purchasable.
@@ -108,7 +111,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_CREATE_LINE_ITEM = 'createLineItem';
+    public const EVENT_CREATE_LINE_ITEM = 'createLineItem';
 
     /**
      * @event LineItemEvent The event that is triggered as a line item is being populated from a purchasable.
@@ -134,14 +137,7 @@ class LineItems extends Component
      * );
      * ```
      */
-    const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
-
-
-    /**
-     * @var LineItem[]
-     */
-    private $_lineItemsByOrderId = [];
-
+    public const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
     /**
      * Returns an order's line items, per the order's ID.
@@ -151,53 +147,49 @@ class LineItems extends Component
      */
     public function getAllLineItemsByOrderId(int $orderId): array
     {
-        if (!isset($this->_lineItemsByOrderId[$orderId])) {
-            $results = $this->_createLineItemQuery()
-                ->where(['orderId' => $orderId])
-                ->orderBy('dateCreated DESC')
-                ->all();
+        $results = $this->_createLineItemQuery()
+            ->where(['orderId' => $orderId])
+            ->all();
 
-            $this->_lineItemsByOrderId[$orderId] = [];
+        $lineItems = [];
 
-            foreach ($results as $result) {
-                $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $lineItem = new LineItem($result);
-                $lineItem->typecastAttributes();
-                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
-            }
+        foreach ($results as $result) {
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItems[] = $lineItem;
         }
 
-        return $this->_lineItemsByOrderId[$orderId];
+        return $lineItems;
     }
 
     /**
-     * Takes an order ID, a purchasable ID, options, and resolves it to a line item.
+     * Takes an order, a purchasable ID, options, and resolves it to a line item.
      *
      * If a line item is found for that order ID with those exact options, that line item is
      * returned. Otherwise, a new line item is returned.
      *
-     * @param int $orderId
+     * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
      * @return LineItem
+     * @throws \Exception
      */
-    public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
     {
         $signature = LineItemHelper::generateOptionsSignature($options);
 
-        $result = $this->_createLineItemQuery()
+        $result = $order->id ? $this->_createLineItemQuery()
             ->where([
-                'orderId' => $orderId,
+                'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
-            ->one();
+            ->one() : null;
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
         } else {
-            $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
+            $lineItem = $this->createLineItem($order, $purchasableId, $options);
         }
 
         return $lineItem;
@@ -208,7 +200,6 @@ class LineItems extends Component
      *
      * @param LineItem $lineItem The line item to save.
      * @param bool $runValidation Whether the Line Item should be validated.
-     * @return bool
      * @throws Throwable
      */
     public function saveLineItem(LineItem $lineItem, bool $runValidation = true): bool
@@ -221,7 +212,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -243,8 +234,8 @@ class LineItems extends Component
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
         $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
-        $lineItemRecord->sku = $lineItem->sku;
-        $lineItemRecord->description = $lineItem->description;
+        $lineItemRecord->sku = $lineItem->getSku();
+        $lineItemRecord->description = $lineItem->getDescription();
 
         $lineItemRecord->options = $lineItem->getOptions();
         $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();
@@ -259,13 +250,17 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
-        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote ?? '');
+        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
+
+        if ($lineItem->uid) {
+            $lineItemRecord->uid = $lineItem->uid;
+        }
 
         if (!$lineItem->hasErrors()) {
             $db = Craft::$app->getDb();
@@ -276,7 +271,10 @@ class LineItems extends Component
 
                 if ($success) {
                     $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
+                    $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;
+                    $lineItem->dateUpdated = $dateUpdated;
+                    $lineItem->uid = $lineItemRecord->uid;
 
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
@@ -296,11 +294,6 @@ class LineItems extends Component
                 ]));
             }
 
-            // Clear cache on save
-            if (isset($this->_lineItemsByOrderId[$lineItem->orderId])) {
-                unset($this->_lineItemsByOrderId[$lineItem->orderId]);
-            }
-
             return $success;
         }
 
@@ -313,45 +306,39 @@ class LineItems extends Component
      * @param int $id the line item ID
      * @return LineItem|null Line item or null, if not found.
      */
-    public function getLineItemById($id)
+    public function getLineItemById(int $id): ?LineItem
     {
         $result = $this->_createLineItemQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($result) {
-            $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
-            return $lineItem;
-        }
-
-        return null;
+        return $result ? new LineItem($result) : null;
     }
 
     /**
      * Create a line item.
      *
+     * @param Order $order The order the line item is associated with
      * @param int $purchasableId The ID of the purchasable the line item represents
-     * @param int $orderId The order ID the line item is associated with
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
-     * @return LineItem
-     *
-     * @throws InvalidArgumentException if the purchasable ID is not valid
+     * @param string|null $uid
+     * @throws \Exception
      */
-    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
-        $lineItem->orderId = $orderId;
         $lineItem->note = $note;
+        $lineItem->uid = $uid ?: StringHelper::UUID();
+        $lineItem->setOrder($order);
 
-        /** @var PurchasableInterface $purchasable */
+        /** @var PurchasableInterface|null $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
-        if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
+        if ($purchasable instanceof PurchasableInterface) {
             $lineItem->setPurchasable($purchasable);
             $lineItem->populateFromPurchasable($purchasable);
         } else {
@@ -382,6 +369,58 @@ class LineItems extends Component
         return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadLineItemsForOrders(array $orders): array
+    {
+        $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $lineItemsResults = $this->_createLineItemQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $lineItems = [];
+
+        foreach ($lineItemsResults as $result) {
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
+            $lineItems[$lineItem->orderId][] = $lineItem;
+        }
+
+        foreach ($orders as $key => $order) {
+            if (isset($lineItems[$order->id])) {
+                $order->setLineItems($lineItems[$order->id]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
+     *
+     * @throws Throwable
+     * @since 3.2.5
+     */
+    public function orderCompleteHandler(LineItem $lineItem, Order $order): void
+    {
+        // Called the after order complete method for the purchasable if there is one
+        if ($lineItem->getPurchasable()) {
+            $lineItem->getPurchasable()->afterOrderComplete($order, $lineItem);
+        }
+
+        // Retrieve the default status for the current line item. This is a chance for
+        // developers to hook into an event for finer control
+        $defaultStatus = Plugin::getInstance()->getLineItemStatuses()->getDefaultLineItemStatusForLineItem($lineItem);
+        if (!$defaultStatus) {
+            return;
+        }
+
+        // Set the status ID and save the line item
+        $lineItem->setLineItemStatus($defaultStatus);
+        $this->saveLineItem($lineItem, false);
+    }
 
     /**
      * Returns a Query object prepped for retrieving line items.
@@ -392,28 +431,30 @@ class LineItems extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'options',
-                'price',
-                'salePrice',
-                'sku',
+                'dateCreated',
+                'dateUpdated',
                 'description',
-                'weight',
-                'length',
                 'height',
-                'width',
-                'qty',
-                'snapshot',
+                'id',
+                'length',
+                'lineItemStatusId',
                 'note',
+                'options',
+                'orderId',
+                'price',
                 'privateNote',
                 'purchasableId',
-                'orderId',
-                'taxCategoryId',
+                'qty',
+                'salePrice',
                 'shippingCategoryId',
-                'lineItemStatusId',
-                'dateCreated',
-                'dateUpdated'
+                'sku',
+                'snapshot',
+                'taxCategoryId',
+                'uid',
+                'weight',
+                'width',
             ])
-            ->from([Table::LINEITEMS . ' lineItems']);
+            ->from([Table::LINEITEMS . ' lineItems'])
+            ->orderBy('dateCreated DESC');
     }
 }

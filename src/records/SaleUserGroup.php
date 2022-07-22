@@ -36,23 +36,20 @@ class SaleUserGroup extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['saleId', 'userGroupId'], 'unique', 'targetAttribute' => ['saleId', 'userGroupId']]
+            [['saleId', 'userGroupId'], 'unique', 'targetAttribute' => ['saleId', 'userGroupId']],
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSale(): ActiveQueryInterface
     {
         return $this->hasOne(Sale::class, ['saleId' => 'id']);
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getUserGroup(): ActiveQueryInterface
     {

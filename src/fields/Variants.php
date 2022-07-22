@@ -7,12 +7,14 @@
 
 namespace craft\commerce\fields;
 
+use Craft;
 use craft\commerce\elements\Variant;
 use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
 use craft\commerce\gql\resolvers\elements\Variant as VariantResolver;
-use craft\commerce\Plugin;
 use craft\fields\BaseRelationField;
+use craft\helpers\Gql as GqlHelper;
+use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -20,6 +22,8 @@ use GraphQL\Type\Definition\Type;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read array $contentGqlType
  */
 class Variants extends BaseRelationField
 {
@@ -28,7 +32,7 @@ class Variants extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return Plugin::t('Commerce Variants');
+        return Craft::t('commerce', 'Commerce Variants');
     }
 
     /**
@@ -36,27 +40,28 @@ class Variants extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Plugin::t('Add a variant');
+        return Craft::t('commerce', 'Add a variant');
     }
 
     /**
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|Type
     {
         return [
             'name' => $this->handle,
             'type' => Type::listOf(VariantInterface::getType()),
             'args' => VariantArguments::getArguments(),
             'resolve' => VariantResolver::class . '::resolve',
+            'complexity' => GqlHelper::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Variant::class;
     }

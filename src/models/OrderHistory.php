@@ -7,16 +7,19 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Order History Class
  *
- * @property Customer $customer
+ * @property User $user
  * @property OrderStatus $newStatus
  * @property Order $order
  * @property OrderStatus $prevStatus
@@ -26,85 +29,90 @@ use DateTime;
 class OrderHistory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public $message;
+    public ?string $message = null;
 
     /**
      * @var int Order ID
      */
-    public $orderId;
+    public int $orderId;
 
     /**
-     * @var int Previous Status ID
+     * @var int|null Previous Status ID
      */
-    public $prevStatusId;
+    public ?int $prevStatusId = null;
 
     /**
-     * @var int New status ID
+     * @var int|null New status ID
      */
-    public $newStatusId;
+    public ?int $newStatusId = null;
 
     /**
-     * @var int Customer ID
+     * @var int|null User ID
      */
-    public $customerId;
+    public ?int $userId;
+
+    /**
+     * @var string|null User name or email
+     */
+    public ?string $userName = '';
 
     /**
      * @var Datetime|null
      */
-    public $dateCreated;
-
+    public ?DateTime $dateCreated = null;
 
     /**
-     * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
     }
 
     /**
-     * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
-    public function getPrevStatus()
+    public function getPrevStatus(): ?OrderStatus
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->prevStatusId);
     }
 
     /**
-     * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
-    public function getNewStatus()
+    public function getNewStatus(): ?OrderStatus
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->newStatusId);
     }
 
     /**
-     * @return Customer|null
+     * @return User|null
      */
-    public function getCustomer()
+    public function getUser(): ?User
     {
-        return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($this->userId === null) {
+            return null;
+        }
+
+        return Craft::$app->getUsers()->getUserById($this->userId);
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['orderId', 'customerId'], 'required'];
-
-        return $rules;
+        return [
+            [['orderId', 'userId'], 'required'],
+        ];
     }
 }
-

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements;
 
+use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
@@ -21,8 +22,8 @@ use yii\validators\Validator;
 /**
  * Donation purchasable.
  *
- * @property-read $priceAsCurrency
- * @property-read $salePriceAsCurrency
+ * @property-read string $priceAsCurrency
+ * @property-read string $salePriceAsCurrency
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -32,16 +33,13 @@ class Donation extends Purchasable
     /**
      * @var bool Is the product available for purchase.
      */
-    public $availableForPurchase;
+    public bool $availableForPurchase = false;
 
     /**
      * @var string The SKU
      */
-    private $_sku;
+    private string $_sku;
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -50,7 +48,7 @@ class Donation extends Purchasable
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -63,25 +61,32 @@ class Donation extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
-    /**
-     * @return array
-     */
-    public function fields(): array
+    protected function defineRules(): array
     {
-        $fields = parent::fields();
+        $rules = parent::defineRules();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
+        $rules[] = [['sku'], 'trim'];
+        $rules[] = [
+            ['sku'], 'required', 'when' => function($model) {
+                /** @var self $model */
+                return $model->availableForPurchase && $model->enabled;
+            },
+        ];
 
-        return $fields;
+        return $rules;
     }
 
+    /**
+     * @inerhitdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
@@ -96,7 +101,7 @@ class Donation extends Purchasable
      */
     public function __toString(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
@@ -104,7 +109,7 @@ class Donation extends Purchasable
      */
     public static function displayName(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
@@ -112,7 +117,7 @@ class Donation extends Purchasable
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('donation');
+        return Craft::t('commerce', 'donation');
     }
 
     /**
@@ -120,7 +125,7 @@ class Donation extends Purchasable
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Donations');
+        return Craft::t('commerce', 'Donations');
     }
 
     /**
@@ -128,13 +133,13 @@ class Donation extends Purchasable
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('donations');
+        return Craft::t('commerce', 'donations');
     }
 
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): ?string
     {
         return 'donation';
     }
@@ -150,18 +155,16 @@ class Donation extends Purchasable
 
     /**
      * Returns the product title and variants title together for variable products.
-     *
-     * @return string
      */
     public function getDescription(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/store-settings/donation');
     }
@@ -169,7 +172,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return '';
     }
@@ -182,10 +185,7 @@ class Donation extends Purchasable
         return $this->_sku;
     }
 
-    /**
-     * @param string|null $value
-     */
-    public function setSku($value)
+    public function setSku(?string $value): void
     {
         $this->_sku = $value;
     }
@@ -217,7 +217,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
@@ -237,16 +237,16 @@ class Donation extends Purchasable
                 function($attribute, $params, Validator $validator) use ($lineItem) {
                     $options = $lineItem->getOptions();
                     if (!isset($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('No donation amount supplied.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
                     }
                     if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('Donation needs to be an amount.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount.'));
                     }
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('Donation can not be zero.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -263,14 +263,13 @@ class Donation extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        return (bool)$this->availableForPurchase;
+        return $this->availableForPurchase;
     }
 
     /**
-     * @param bool $isNew
      * @throws Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $record = DonationRecord::findOne($this->id);
@@ -292,14 +291,6 @@ class Donation extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function isSelectable(): bool
-    {
-        return true;
+        parent::afterSave($isNew);
     }
 }

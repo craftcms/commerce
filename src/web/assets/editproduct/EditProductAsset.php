@@ -21,7 +21,7 @@ class EditProductAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
@@ -30,11 +30,11 @@ class EditProductAsset extends AssetBundle
         ];
 
         $this->css = [
-            'css/product.css',
+            'css/CommerceProductEdit.css',
         ];
 
         $this->js = [
-            'js/CommerceProductEdit.js',
+            'CommerceProductEdit.js',
         ];
 
         parent::init();

@@ -18,11 +18,14 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property bool $enabled
  * @property int $id
+ * @property bool $isLite
  * @property ShippingMethod $method
  * @property int $methodId
+ * @property string $orderConditionFormula
  * @property int $maxQty
  * @property float $maxRate
  * @property float $maxTotal
+ * @property string $minMaxTotalType
  * @property float $maxWeight
  * @property int $minQty
  * @property float $minRate
@@ -40,6 +43,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
+    public const TYPE_MIN_MAX_TOTAL_SALEPRICE = 'salePrice';
+    public const TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS = 'salePriceWithDiscounts';
+
     /**
      * @inheritdoc
      */
@@ -51,24 +57,21 @@ class ShippingRule extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['name'], 'required']
+            [['name'], 'required'],
         ];
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getShippingZone(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getMethod(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingZone::class, ['id' => 'shippingMethodId']);

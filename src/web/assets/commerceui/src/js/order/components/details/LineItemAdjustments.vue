@@ -1,19 +1,23 @@
 <template>
-    <order-block v-if="editing || lineItem.adjustments.length" class="order-flex">
+    <order-block
+        v-if="editing || lineItem.adjustments.length"
+        class="order-flex"
+    >
         <adjustments
-                :editing="editing"
-                :error-prefix="errorPrefix"
-                :adjustments="adjustments"
-                :recalculation-mode="recalculationMode"
-                @addAdjustment="addAdjustment"
-                @updateAdjustment="updateAdjustment"
-                @removeAdjustment="removeAdjustment"
+            :editing="editing"
+            :error-prefix="errorPrefix"
+            :adjustments="adjustments"
+            :recalculation-mode="recalculationMode"
+            @addAdjustment="addAdjustment"
+            @updateAdjustment="updateAdjustment"
+            @removeAdjustment="removeAdjustment"
         ></adjustments>
     </order-block>
 </template>
 
 <script>
-    import Adjustments from './Adjustments'
+    import Adjustments from './Adjustments';
+    import {mapGetters} from 'vuex';
 
     export default {
         components: {
@@ -39,8 +43,10 @@
         },
 
         computed: {
+            ...mapGetters(['currentUserId']),
+
             adjustments() {
-                return this.lineItem.adjustments
+                return this.lineItem.adjustments;
             },
         },
 
@@ -54,27 +60,30 @@
                     amount: '0.0000',
                     included: false,
                     orderId: this.orderId,
-                    lineItemId: this.lineItem.id
-                }
+                    lineItemId: this.lineItem.id,
 
-                const lineItem = this.lineItem
+                    // When creating a brand new manual adjustment, we need to set the author ID
+                    sourceSnapshot: {authorId: this.currentUserId},
+                };
 
-                lineItem.adjustments.push(adjustment)
+                const lineItem = this.lineItem;
 
-                this.$emit('updateLineItem', lineItem)
+                lineItem.adjustments.push(adjustment);
+
+                this.$emit('updateLineItem', lineItem);
             },
 
             updateAdjustment({adjustment, key}) {
-                const lineItem = this.lineItem
-                lineItem.adjustments[key] = adjustment
-                this.$emit('updateLineItem', lineItem)
+                const lineItem = this.lineItem;
+                lineItem.adjustments[key] = adjustment;
+                this.$emit('updateLineItem', lineItem);
             },
 
             removeAdjustment(key) {
-                const lineItem = this.lineItem
-                lineItem.adjustments.splice(key, 1)
-                this.$emit('updateLineItem', lineItem)
+                const lineItem = this.lineItem;
+                lineItem.adjustments.splice(key, 1);
+                this.$emit('updateLineItem', lineItem);
             },
-        }
-    }
+        },
+    };
 </script>

@@ -8,10 +8,20 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
+use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\ArrayHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Emails Controller
@@ -22,7 +32,7 @@ use yii\web\Response;
 class EmailsController extends BaseAdminController
 {
     /**
-     * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -33,7 +43,6 @@ class EmailsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Email|null $email
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Email $email = null): Response
@@ -55,46 +64,70 @@ class EmailsController extends BaseAdminController
         if ($variables['email']->id) {
             $variables['title'] = $variables['email']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new email');
+            $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
+        $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
+        $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
+        $variables['pdfList'] = $pdfList;
+
+        $emailLanguageOptions = [
+            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
+        ];
+
+        $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
 
     /**
-     * @return null|Response
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
-        $email = new Email();
+        $emailsService = Plugin::getInstance()->getEmails();
+        $emailId = $this->request->getBodyParam('emailId');
 
-        // Shared attributes
-        $email->id = Craft::$app->getRequest()->getBodyParam('emailId');
-        $email->name = Craft::$app->getRequest()->getBodyParam('name');
-        $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
-        $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
-        $email->to = Craft::$app->getRequest()->getBodyParam('to');
-        $email->bcc = Craft::$app->getRequest()->getBodyParam('bcc');
-        $email->cc = Craft::$app->getRequest()->getBodyParam('cc');
-        $email->replyTo = Craft::$app->getRequest()->getBodyParam('replyTo');
-        $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
-        $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
-        $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $email->attachPdf = Craft::$app->getRequest()->getBodyParam('attachPdf');
-        // Only set pdfTemplatePath if attachments are turned on
-        $email->pdfTemplatePath = $email->attachPdf ? Craft::$app->getRequest()->getBodyParam('pdfTemplatePath') : '';
-
-        // Save it
-        if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Email saved.'));
-            return $this->redirectToPostedUrl($email);
+        if ($emailId) {
+            $email = $emailsService->getEmailById($emailId);
+            if (!$email) {
+                throw new BadRequestHttpException("Invalid email ID: $emailId");
+            }
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save email.'));
+            $email = new Email();
         }
 
+        // Shared attributes
+        $email->name = $this->request->getBodyParam('name');
+        $email->subject = $this->request->getBodyParam('subject');
+        $email->recipientType = $this->request->getBodyParam('recipientType');
+        $email->to = $this->request->getBodyParam('to');
+        $email->bcc = $this->request->getBodyParam('bcc');
+        $email->cc = $this->request->getBodyParam('cc');
+        $email->replyTo = $this->request->getBodyParam('replyTo');
+        $email->enabled = (bool)$this->request->getBodyParam('enabled');
+        $email->templatePath = $this->request->getBodyParam('templatePath');
+        $email->plainTextTemplatePath = $this->request->getBodyParam('plainTextTemplatePath');
+        $pdfId = $this->request->getBodyParam('pdfId');
+        $email->pdfId = $pdfId ?: null;
+        $email->language = $this->request->getBodyParam('language');
+
+        // Save it
+        if ($emailsService->saveEmail($email)) {
+            $this->setSuccessFlash(Craft::t('commerce', 'Email saved.'));
+            return $this->redirectToPostedUrl($email);
+        }
+
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['email' => $email]);
 
@@ -109,9 +142,9 @@ class EmailsController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

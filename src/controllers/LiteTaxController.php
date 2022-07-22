@@ -8,11 +8,15 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
 use craft\i18n\Locale;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -25,14 +29,16 @@ class LiteTaxController extends BaseStoreSettingsController
 {
     /**
      * @throws WrongEditionException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
+        parent::init();
+
         if (!Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             throw new WrongEditionException('Lite settings editable when using the lite edition only');
         }
-
-        parent::init();
     }
 
     /**
@@ -51,30 +57,27 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxRate = $taxRate->rate;
         $settings->taxInclude = $taxRate->include;
 
-        return $this->renderTemplate('commerce/store-settings/tax/index', compact('settings'));
+        $variables = compact('settings');
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+
+        return $this->renderTemplate('commerce/store-settings/tax/index', $variables);
     }
 
     /**
-     * @return Response|null
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSaveSettings()
+    public function actionSaveSettings(): ?Response
     {
         $this->requirePostRequest();
 
         $settings = new LiteTaxSettings();
-        $settings->taxName = Craft::$app->getRequest()->getBodyParam('taxName');
-        $settings->taxInclude = (bool)Craft::$app->getRequest()->getBodyParam('taxInclude');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $rate = Craft::$app->getRequest()->getBodyParam('taxRate');
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $settings->taxRate = (float)$rate / 100;
-        } else {
-            $settings->taxRate = (float)$rate;
-        }
+        $settings->taxName = $this->request->getBodyParam('taxName');
+        $settings->taxInclude = (bool)$this->request->getBodyParam('taxInclude');
+        $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/store-settings/tax', compact('settings'));
         }
 
@@ -88,7 +91,7 @@ class LiteTaxController extends BaseStoreSettingsController
             throw new Exception('Could not save internal tax rate for lite tax.');
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }

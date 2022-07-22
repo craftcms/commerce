@@ -1,0 +1,153 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Emails"|t('commerce'), url: url('commerce/settings/emails') },
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/emails/save">
+    {{ redirectInput('commerce/settings/emails') }}
+    {% if email.id %}<input type="hidden" name="emailId"
+                            value="{{ email.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "What this email will be called in the control panel."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: email.name,
+        errors: email.getErrors('name'),
+        autofocus: true,
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Email Subject"|t('commerce'),
+        instructions: "The subject line of the email. Twig code can be used here."|t('commerce'),
+        id: 'subject',
+        name: 'subject',
+        value: email.subject,
+        errors: email.getErrors('subject'),
+        required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "Reply To"|t('commerce'),
+        instructions: "The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here."|t('commerce'),
+        id: 'replyTo',
+        name: 'replyTo',
+        value: email.replyTo,
+        errors: email.getErrors('replyTo')
+    }) }}
+
+    {% set recipientInput %}
+        <div class="flex">
+            <div>
+                {{ forms.select({
+                    id: 'recipient-type',
+                    name: 'recipientType',
+                    options: [
+                        { label: "Send to the customer"|t('commerce'), value: 'customer' },
+                        { label: "Send to custom recipient"|t('commerce'), value: 'custom' }
+                    ],
+                    value: email.recipientType,
+                    toggle: true,
+                    targetPrefix: 'to-option-'
+                }) }}
+            </div>
+            <div id="to-option-custom"
+                 class="flex-grow{% if email.recipientType != 'custom' %} hidden{% endif %}">
+                {{ forms.text({
+                    id: 'to',
+                    name: 'to',
+                    value: email.to,
+                    placeholder: 'jane@acme.com, joe@acme.com'
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'recipient-type',
+        label: 'Recipient'|t('commerce'),
+        instructions: 'The recipient of the email. Twig code can be used here.'|t('commerce'),
+        errors: email.getErrors('to'),
+        required: true,
+    }, recipientInput) }}
+
+    {{ forms.textField({
+        label: 'BCC’d Recipient'|t('commerce'),
+        instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
+        id: 'bcc',
+        name: 'bcc',
+        value: email.bcc,
+        errors: email.getErrors('bcc'),
+    }) }}
+
+    {{ forms.textField({
+        label: 'CC’d Recipient'|t('commerce'),
+        instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
+        id: 'cc',
+        name: 'cc',
+        value: email.cc,
+        errors: email.getErrors('cc'),
+    }) }}
+
+    {{ forms.autoSuggestField({
+        label: 'HTML Email Template Path'|t('commerce'),
+        instructions: 'The template to be used for HTML emails.'|t('commerce'),
+        id: 'templatePath',
+        name: 'templatePath',
+        value: email.templatePath,
+        errors: email.getErrors('templatePath'),
+        required: true,
+        suggestions: craft.cp.getTemplateSuggestions()
+    }) }}
+
+    {{ forms.textField({
+        label: 'Plain Text Email Template Path'|t('commerce'),
+        instructions: 'The template to be used for plain text emails. Twig code can be used here.'|t('commerce'),
+        id: 'plainTextTemplatePath',
+        name: 'plainTextTemplatePath',
+        value: email.plainTextTemplatePath,
+        errors: email.getErrors('plainTextTemplatePath'),
+    }) }}
+
+    {{ forms.selectField({
+        label: 'PDF Attachment'|t('commerce'),
+        instructions: 'The PDF to attach to this email.'|t('commerce'),
+        id: 'pdfId',
+        name: 'pdfId',
+        value: email.pdfId,
+        options: pdfList
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Language'|t('commerce'),
+        instructions: "The language to be used when email is rendered."|t,
+        id: 'language',
+        name: 'language',
+        options : emailLanguageOptions,
+        value : email.language,
+        errors: email.getErrors('language') ?? null,
+        toggle: true
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t('commerce'),
+        instructions: 'If disabled, this email will not send.'|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: email.enabled,
+        errors: email.getErrors('enabled')
+    }) }}
+{% endblock %}

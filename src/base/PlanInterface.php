@@ -12,15 +12,14 @@ namespace craft\commerce\base;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @todo remove ignore: https://github.com/phpstan/phpstan/issues/6778
+ * @phpstan-ignore-next-line
  * @mixin PlanTrait
  */
 interface PlanInterface
 {
     /**
      * Returns whether it's possible to switch to this plan from a different plan.
-     *
-     * @param PlanInterface $currentPlant
-     * @return bool
      */
     public function canSwitchFrom(PlanInterface $currentPlant): bool;
 }

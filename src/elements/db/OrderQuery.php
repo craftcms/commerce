@@ -13,7 +13,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Customer;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -30,8 +29,12 @@ use yii\db\Schema;
  * @method Order[]|array all($db = null)
  * @method Order|array|null one($db = null)
  * @method Order|array|null nth(int $n, Connection $db = null)
+ * @method self id($value)
+ * @method self orderBy($columns)
+ * @method self status(array|string|null $value)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path orders-carts.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -41,100 +44,140 @@ use yii\db\Schema;
 class OrderQuery extends ElementQuery
 {
     /**
-     * @var string The order number of the resulting order.
+     * @var mixed The order number of the resulting order.
      */
-    public $number;
+    public mixed $number = null;
 
     /**
-     * @var string The short order number of the resulting order.
+     * @var mixed The short order number of the resulting order.
      */
-    public $shortNumber;
+    public mixed $shortNumber = null;
 
     /**
-     * @var string The order reference of the resulting order.
+     * @var mixed The order reference of the resulting order.
      * @used-by reference()
      */
-    public $reference;
+    public mixed $reference = null;
 
     /**
-     * @var string The email address the resulting orders must have.
+     * @var mixed The email address the resulting orders must have.
      */
-    public $email;
+    public mixed $email = null;
 
     /**
      * @var bool The completion status that the resulting orders must have.
      */
-    public $isCompleted;
+    public ?bool $isCompleted = null;
 
     /**
      * @var mixed The Date Ordered date that the resulting orders must have.
      */
-    public $dateOrdered;
+    public mixed $dateOrdered = null;
 
     /**
      * @var mixed The Expiry Date that the resulting orders must have.
      */
-    public $expiryDate;
+    public mixed $expiryDate = null;
 
     /**
      * @var mixed The date the order was paid in full.
      */
-    public $datePaid;
+    public mixed $datePaid = null;
 
     /**
      * @var mixed The date the order was authorized in full.
      */
-    public $dateAuthorized;
+    public mixed $dateAuthorized = null;
 
     /**
-     * @var int The Order Status ID that the resulting orders must have.
+     * @var mixed The Order Status ID that the resulting orders must have.
      */
-    public $orderStatusId;
+    public mixed $orderStatusId = null;
 
     /**
-     * @var string|null The origin the resulting orders must have.
+     * @var mixed The language the order was made that the resulting the order must have.
      */
-    public $origin;
+    public mixed $orderLanguage = null;
 
     /**
-     * @var bool The completion status that the resulting orders must have.
+     * @var mixed The Order Site ID that the resulting orders must have.
      */
-    public $customerId;
+    public mixed $orderSiteId = null;
 
     /**
-     * @var int The gateway ID that the resulting orders must have.
+     * @var mixed The origin the resulting orders must have.
      */
-    public $gatewayId;
+    public mixed $origin = null;
 
     /**
-     * @var bool Whether the order is paid
+     * @var mixed The user ID that the resulting orders must have.
      */
-    public $isPaid;
+    public mixed $customerId = null;
 
     /**
-     * @var bool Whether the order is unpaid
+     * @var mixed The gateway ID that the resulting orders must have.
      */
-    public $isUnpaid;
+    public mixed $gatewayId = null;
 
     /**
-     * @var PurchasableInterface|PurchasableInterface[] The resulting orders must contain these Purchasables.
+     * @var bool|null Whether the order is paid
      */
-    public $hasPurchasables;
+    public ?bool $isPaid = null;
 
     /**
-     * @var bool Whether the order has any transactions
+     * @var bool|null Whether the order is unpaid
      */
-    public $hasTransactions;
+    public ?bool $isUnpaid = null;
 
     /**
-     * @var bool Whether the order has any line items.
+     * @var mixed The resulting orders must contain these Purchasables.
      */
-    public $hasLineItems;
+    public mixed $hasPurchasables = null;
+
+    /**
+     * @var bool|null Whether the order has any transactions
+     */
+    public ?bool $hasTransactions = null;
+
+    /**
+     * @var bool|null Whether the order has any line items.
+     */
+    public ?bool $hasLineItems = null;
+
+    /**
+     * @var bool Eager loads all relational data (addresses, adjustments, users, line items, transactions) for the resulting orders.
+     */
+    public bool $withAll = false;
+
+    /**
+     * @var bool Eager loads the shipping and billing addressees on the resulting orders.
+     */
+    public bool $withAddresses = false;
+
+    /**
+     * @var bool Eager loads the order adjustments on the resulting orders.
+     */
+    public bool $withAdjustments = false;
+
+    /**
+     * @var bool Eager load the user on to the order.
+     */
+    public bool $withCustomer = false;
+
+    /**
+     * @var bool Eager loads the line items on the resulting orders.
+     */
+    public bool $withLineItems = false;
+
+    /**
+     * @var bool Eager loads the transactions on the resulting orders.
+     */
+    public bool $withTransactions = false;
 
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
+    protected array $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
 
     /**
      * @inheritdoc
@@ -164,8 +207,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderNumber = craft.app.request.getQueryParam('number') %}
      * {% set {element-var} = {twig-method}
-     *     .number(orderNumber)
-     *     .one() %}
+     *   .number(orderNumber)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -179,7 +222,7 @@ class OrderQuery extends ElementQuery
      * @param string|array|null $value The property value.
      * @return static self reference
      */
-    public function number($value = null)
+    public function number(mixed $value): OrderQuery
     {
         $this->number = $value;
         return $this;
@@ -200,8 +243,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderNumber = craft.app.request.getQueryParam('shortNumber') %}
      * {% set {element-var} = {twig-method}
-     *     .shortNumber(orderNumber)
-     *     .one() %}
+     *   .shortNumber(orderNumber)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -216,7 +259,7 @@ class OrderQuery extends ElementQuery
      * @return static self reference
      * @since 2.2
      */
-    public function shortNumber($value = null)
+    public function shortNumber(mixed $value): OrderQuery
     {
         $this->shortNumber = $value;
         return $this;
@@ -237,8 +280,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderReference = craft.app.request.getQueryParam('ref') %}
      * {% set {element-var} = {twig-method}
-     *     .reference(orderReference)
-     *     .one() %}
+     *   .reference(orderReference)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -252,7 +295,7 @@ class OrderQuery extends ElementQuery
      * @param string|null $value The property value
      * @return static self reference
      */
-    public function reference(string $value = null)
+    public function reference(mixed $value): OrderQuery
     {
         $this->reference = $value;
         return $this;
@@ -274,8 +317,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch orders from customers with a .co.uk domain on their email address #}
      * {% set {elements-var} = {twig-method}
-     *     .email('*.co.uk')
-     *     .all() %}
+     *   .email('*.co.uk')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -288,7 +331,7 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|null $value The property value
      * @return static self reference
      */
-    public function email($value)
+    public function email(mixed $value): OrderQuery
     {
         $this->email = $value;
         return $this;
@@ -301,9 +344,9 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch completed orders #}
-     * {% set {elements-var} = {twig-function}
-     *     .isCompleted()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isCompleted()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -316,7 +359,7 @@ class OrderQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isCompleted(bool $value = true)
+    public function isCompleted(?bool $value = true): OrderQuery
     {
         $this->isCompleted = $value;
         return $this;
@@ -340,8 +383,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateOrdered(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateOrdered(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -356,7 +399,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateOrdered($value)
+    public function dateOrdered(mixed $value): OrderQuery
     {
         $this->dateOrdered = $value;
         return $this;
@@ -380,8 +423,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .datePaid(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .datePaid(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -396,7 +439,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function datePaid($value)
+    public function datePaid(mixed $value): OrderQuery
     {
         $this->datePaid = $value;
         return $this;
@@ -420,8 +463,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateAuthorized(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateAuthorized(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -436,7 +479,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function dateAuthorized($value)
+    public function dateAuthorized(mixed $value): OrderQuery
     {
         $this->dateAuthorized = $value;
         return $this;
@@ -460,8 +503,8 @@ class OrderQuery extends ElementQuery
      * {% set nextMonth = date('first day of next month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .expiryDate("< #{nextMonth}")
-     *     .all() %}
+     *   .expiryDate("< #{nextMonth}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -476,7 +519,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate($value)
+    public function expiryDate(mixed $value): OrderQuery
     {
         $this->expiryDate = $value;
         return $this;
@@ -500,8 +543,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *     .orderStatus('shipped')
-     *     .all() %}
+     *   .orderStatus('shipped')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -514,11 +557,11 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|OrderStatus|null $value The property value
      * @return static self reference
      */
-    public function orderStatus($value)
+    public function orderStatus(mixed $value): OrderQuery
     {
         if ($value instanceof OrderStatus) {
             $this->orderStatusId = $value->id;
-        } else if ($value !== null) {
+        } elseif ($value !== null) {
             $this->orderStatusId = (new Query())
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
@@ -548,23 +591,97 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order status with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .authorGroupId(1)
-     *     .all() %}
+     *   .orderStatusId(1)
+     *   .all() %}
      * ```
      *
      * ```php
      * // Fetch {elements} with an order status with an ID of 1
      * ${elements-var} = {php-method}
-     *     ->authorGroupId(1)
+     *     ->orderStatusId(1)
      *     ->all();
      * ```
      *
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function orderStatusId($value)
+    public function orderStatusId(mixed $value): OrderQuery
     {
         $this->orderStatusId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'en'` | with an order language that is `'en'`.
+     * | `'not en'` | not with an order language that is not `'en'`.
+     * | `['en', 'en-us']` | with an order language that is `'en'` or `'en-us'`.
+     * | `['not', 'en']` | not with an order language that is not `'en'`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order language that is `'en'` #}
+     * {% set {elements-var} = {twig-method}
+     *   .orderLanguage('en')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order language that is `'en'`
+     * ${elements-var} = {php-method}
+     *     ->orderLanguage('en')
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderLanguage(mixed $value): OrderQuery
+    {
+        $this->orderLanguage = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with an order site ID of 1.
+     * | `'not 1'` | not with an order site ID that is no 1.
+     * | `[1, 2]` | with an order site ID of 1 or 2.
+     * | `['not', 1, 2]` | not with an order site ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order site ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .orderSiteId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order site ID of 1
+     * ${elements-var} = {php-method}
+     *     ->orderSiteId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderSiteId(mixed $value): OrderQuery
+    {
+        $this->orderSiteId = $value;
         return $this;
     }
 
@@ -585,8 +702,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *     .origin('web')
-     *     .all() %}
+     *   .origin('web')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -599,88 +716,10 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|null $value The property value
      * @return static self reference
      */
-    public function origin($value = null)
+    public function origin(mixed $value): OrderQuery
     {
         $this->origin = $value;
 
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the customer.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | a [[Customer|Customer]] object | with a customer represented by the object.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch the current user's orders #}
-     * {% set {elements-var} = {twig-method}
-     *     .customer(currentUser.customerFieldHandle)
-     *     .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch the current user's orders
-     * $user = Craft::$app->user->getIdentity();
-     * ${elements-var} = {php-method}
-     *     ->customer($user->customerFieldHandle)
-     *     ->all();
-     * ```
-     *
-     * @param Customer|null $value The property value
-     * @return static self reference
-     */
-    public function customer(Customer $value = null)
-    {
-        if ($value) {
-            $this->customerId = $value->id;
-        } else {
-            $this->customerId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the customer, per their ID.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `1` | with a customer with an ID of 1.
-     * | `'not 1'` | not with a customer with an ID of 1.
-     * | `[1, 2]` | with a customer with an ID of 1 or 2.
-     * | `['not', 1, 2]` | not with a customer with an ID of 1 or 2.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch the current user's orders #}
-     * {% set {elements-var} = {twig-method}
-     *     .customerId(currentUser.customerFieldHandle.id)
-     *     .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch the current user's orders
-     * $user = Craft::$app->user->getIdentity();
-     * ${elements-var} = {php-method}
-     *     ->customerId($user->customerFieldHandle->id)
-     *     ->all();
-     * ```
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function customerId($value)
-    {
-        $this->customerId = $value;
         return $this;
     }
 
@@ -696,7 +735,7 @@ class OrderQuery extends ElementQuery
      * @param GatewayInterface|null $value The property value
      * @return static self reference
      */
-    public function gateway(GatewayInterface $value = null)
+    public function gateway(?GatewayInterface $value): OrderQuery
     {
         if ($value) {
             /** @var Gateway $value */
@@ -723,7 +762,7 @@ class OrderQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function gatewayId($value)
+    public function gatewayId(mixed $value): OrderQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -744,8 +783,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .user(currentUser)
-     *     .all() %}
+     *   .user(currentUser)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -756,21 +795,92 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param User|int $value The property value
+     * @param User|int|null $value The property value
+     * @return static self reference
+     * @deprecated 4.0.0 in favor of [[customer()]]
+     */
+    public function user(int|User|null $value): OrderQuery
+    {
+        Craft::$app->getDeprecator()->log('OrderQuery::user()', 'The `OrderQuery::user()` method is deprecated, use the `OrderQuery::customer()` method instead.');
+        return $this->customer($value);
+    }
+
+    /**
+     * Narrows the query results based on the customer’s user account.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a customer with a user account ID of 1.
+     * | a [[User|User]] object | with a customer with a user account represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *   .customer(currentUser)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customer($user)
+     *     ->all();
+     * ```
+     *
+     * @param User|int|null $value The property value
      * @return static self reference
      */
-    public function user($value)
+    public function customer(int|User|null $value): OrderQuery
     {
         if ($value instanceof User) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);
-            $this->customerId = $customer->id ?? null;
-        } else if ($value !== null) {
-            $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value);
-            $this->customerId = $customer->id ?? null;
+            $this->customerId = $value->id;
         } else {
-            $this->customerId = null;
+            $this->customerId = $value;
         }
 
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the customer, per their user ID.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a user with an ID of 1.
+     * | `'not 1'` | not with a user with an ID of 1.
+     * | `[1, 2]` | with a user with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a user with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *   .customerId(currentUser.id)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customerId($user->id)
+     *     ->all();
+     * ```
+     *
+     * @param int|null $value The property value
+     * @return static self reference
+     */
+    public function customerId(mixed $value): OrderQuery
+    {
+        $this->customerId = $value;
         return $this;
     }
 
@@ -781,9 +891,9 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch paid orders #}
-     * {% set {elements-var} = {twig-function}
-     *     .isPaid()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isPaid()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -793,10 +903,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isPaid(bool $value = true)
+    public function isPaid(?bool $value = true): OrderQuery
     {
         $this->isPaid = $value;
         return $this;
@@ -809,9 +919,9 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch unpaid orders #}
-     * {% set {elements-var} = {twig-function}
-     *     .isUnpaid()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .isUnpaid()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -821,10 +931,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function isUnpaid(bool $value = true)
+    public function isUnpaid(?bool $value = true): OrderQuery
     {
         $this->isUnpaid = $value;
         return $this;
@@ -837,9 +947,9 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch orders that do or do not have line items #}
-     * {% set {elements-var} = {twig-function}
-     *     .hasLineItems()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .hasLineItems()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -849,10 +959,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasLineItems(bool $value = true)
+    public function hasLineItems(?bool $value = true): OrderQuery
     {
         $this->hasLineItems = $value;
         return $this;
@@ -865,9 +975,9 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch carts that have attempted payments #}
-     * {% set {elements-var} = {twig-function}
-     *     .hasTransactions()
-     *     .all() %}
+     * {% set {elements-var} = {twig-method}
+     *   .hasTransactions()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -877,10 +987,10 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param bool $value The property value
+     * @param bool|null $value The property value
      * @return static self reference
      */
-    public function hasTransactions(bool $value = true)
+    public function hasTransactions(?bool $value = true): OrderQuery
     {
         $this->hasTransactions = $value;
         return $this;
@@ -899,11 +1009,178 @@ class OrderQuery extends ElementQuery
      * @param PurchasableInterface|PurchasableInterface[]|null $value The property value
      * @return static self reference
      */
-    public function hasPurchasables($value)
+    public function hasPurchasables(mixed $value): OrderQuery
     {
         $this->hasPurchasables = $value;
 
         return $this;
+    }
+
+    /**
+     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withAll()
+     */
+    public function withAll(bool $value = true): OrderQuery
+    {
+        $this->withAll = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the the shipping and billing addressees on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withAddresses()
+     */
+    public function withAddresses(bool $value = true): OrderQuery
+    {
+        $this->withAddresses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the order adjustments on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withAdjustments()
+     */
+    public function withAdjustments(bool $value = true): OrderQuery
+    {
+        $this->withAdjustments = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the user on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withCustomer()
+     */
+    public function withCustomer(bool $value = true): OrderQuery
+    {
+        $this->withCustomer = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the line items on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches line items
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withLineItems()
+     */
+    public function withLineItems(bool $value = true): OrderQuery
+    {
+        $this->withLineItems = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the transactions on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches transactions…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     *
+     * @used-by withTransactions()
+     */
+    public function withTransactions(bool $value = true): OrderQuery
+    {
+        $this->withTransactions = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populate($rows): array
+    {
+        $orders = parent::populate($rows);
+
+        // Eager-load anything?
+        if (!empty($orders) && !$this->asArray) {
+
+            // Eager-load line items?
+            if ($this->withLineItems === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            }
+
+            // Eager-load transactions?
+            if ($this->withTransactions === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+            }
+
+            // Eager-load adjustments?
+            if ($this->withAdjustments === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+            }
+
+            // Eager-load users?
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+            }
+
+            // Eager-load addresses?
+            if ($this->withAddresses === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrders()->eagerLoadAddressesForOrders($orders);
+            }
+
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
+        }
+
+        return $orders;
     }
 
     /**
@@ -934,55 +1211,31 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingAddressId',
             'commerce_orders.estimatedBillingAddressId',
             'commerce_orders.estimatedShippingAddressId',
+            'commerce_orders.sourceBillingAddressId',
+            'commerce_orders.sourceShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated',
+            'commerce_orders.registerUserOnOrderComplete',
+            'commerce_orders.recalculationMode',
+            'commerce_orders.origin',
+            'commerce_orders.dateAuthorized',
+            'storedTotalPrice' => 'commerce_orders.totalPrice',
+            'storedTotalPaid' => 'commerce_orders.totalPaid',
+            'storedItemTotal' => 'commerce_orders.itemTotal',
+            'storedTotalDiscount' => 'commerce_orders.totalDiscount',
+            'storedTotalShippingCost' => 'commerce_orders.totalShippingCost',
+            'storedTotalTax' => 'commerce_orders.totalTax',
+            'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
+            'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            'commerce_orders.shippingMethodName',
+            'commerce_orders.orderSiteId',
+            'commerce_orders.orderLanguage',
         ]);
 
-        // Join shipping and billing address
-        $this->query->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-
-        // TODO: remove after next breakpoint
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-
-        if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
-            $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.recalculationMode']);
-            $this->query->addSelect(['commerce_orders.origin']);
-
-            if ($this->origin) {
-                $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
-            }
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
-            $this->query->addSelect(['commerce_orders.dateAuthorized']);
-            if ($this->dateAuthorized) {
-                $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
-            }
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
-            $this->query->addSelect([
-                'storedTotalPrice' => 'commerce_orders.totalPrice',
-                'storedTotalPaid' => 'commerce_orders.totalPaid',
-                'storedItemTotal' => 'commerce_orders.itemTotal',
-                'storedTotalDiscount' => 'commerce_orders.totalDiscount',
-                'storedTotalShippingCost' => 'commerce_orders.totalShippingCost',
-                'storedTotalTax' => 'commerce_orders.totalTax',
-                'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
-            ]);
-        }
-
-        if ($this->number !== null) {
+        if (isset($this->number)) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {
                 return false;
@@ -990,7 +1243,7 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(['commerce_orders.number' => $this->number]);
         }
 
-        if ($this->shortNumber !== null) {
+        if (isset($this->shortNumber)) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->shortNumber) || $this->shortNumber === '') {
                 return false;
@@ -999,55 +1252,71 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('LEFT([[commerce_orders.number]], 7) = :shortNumber', [':shortNumber' => $this->shortNumber]));
         }
 
-        if ($this->reference) {
+        if (isset($this->origin) && $this->origin) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
+        }
+
+        if (isset($this->reference) && $this->reference) {
             $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
         }
 
-        if ($this->email) {
+        if (isset($this->email) && $this->email) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email));
         }
 
         // Allow true ot false but not null
-        if ($this->isCompleted !== null) {
+        if (isset($this->isCompleted) && $this->isCompleted !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->dateOrdered) {
+        if (isset($this->dateAuthorized)) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
+        }
+
+        if (isset($this->dateOrdered)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateOrdered', $this->dateOrdered));
         }
 
-        if ($this->datePaid) {
+        if (isset($this->datePaid)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.datePaid', $this->datePaid));
         }
 
-        if ($this->expiryDate) {
+        if (isset($this->expiryDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.expiryDate', $this->expiryDate));
         }
 
-        if ($this->orderStatusId) {
+        if (isset($this->orderStatusId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
         }
 
-        if ($this->customerId) {
+        if (isset($this->orderLanguage)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderLanguage));
+        }
+
+        if (isset($this->orderSiteId)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderSiteId));
+        }
+
+        if (isset($this->customerId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
         }
 
-        if ($this->gatewayId) {
+        if (isset($this->gatewayId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
         }
 
-        // Allow true ot false but not null
-        if (($this->isPaid !== null) && $this->isPaid) {
+        // Allow true but not null
+        if (isset($this->isPaid) && $this->isPaid) {
             $this->subQuery->andWhere(new Expression('[[commerce_orders.totalPaid]] >= [[commerce_orders.totalPrice]]'));
         }
 
-        // Allow true or false but not null
-        if (($this->isUnpaid !== null) && $this->isUnpaid) {
+        // Allow true but not null
+        if (isset($this->isUnpaid) && $this->isUnpaid) {
             $this->subQuery->andWhere(new Expression('[[commerce_orders.totalPaid]] < [[commerce_orders.totalPrice]]'));
         }
 
-        // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
+        // Allow integer/PurchasableInterface object or array of integers/PurchasableInterface objects
+        if (isset($this->hasPurchasables)) {
             $purchasableIds = [];
 
             if (!is_array($this->hasPurchasables)) {
@@ -1057,7 +1326,7 @@ class OrderQuery extends ElementQuery
             foreach ($this->hasPurchasables as $purchasable) {
                 if ($purchasable instanceof PurchasableInterface) {
                     $purchasableIds[] = $purchasable->getId();
-                } else if (is_numeric($purchasable)) {
+                } elseif (is_numeric($purchasable)) {
                     $purchasableIds[] = $purchasable;
                 }
             }
@@ -1065,20 +1334,33 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['lineitems.purchasableId' => $purchasableIds]);
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->andWhere(['lineitems.purchasableId' => $purchasableIds]),
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasTransactions !== null) && $this->hasTransactions) {
-            $this->subQuery->leftJoin(Table::TRANSACTIONS . ' transactions', '[[transactions.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['transactions.id' => null]]);
+        if (isset($this->hasTransactions)) {
+            $this->subQuery->andWhere([
+                $this->hasTransactions ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['transactions' => Table::TRANSACTIONS])
+                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]')),
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasLineItems !== null) && $this->hasLineItems) {
-            $this->subQuery->leftJoin(Table::LINEITEMS . ' lineItems', '[[lineItems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['lineItems.id' => null]]);
+        if (isset($this->hasLineItems)) {
+            $this->subQuery->andWhere([
+                $this->hasLineItems ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
+            ]);
         }
 
         return parent::beforePrepare();

@@ -28,6 +28,8 @@ use craft\elements\User;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
+use http\Exception\InvalidArgumentException;
+use yii\base\NotSupportedException;
 
 /**
  * Dummy represents a dummy gateway.
@@ -40,12 +42,11 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): ?string
     {
         $paymentFormModel = $this->getPaymentFormModel();
 
-        if(Craft::$app->getConfig()->general->devMode)
-        {
+        if (Craft::$app->getConfig()->general->devMode) {
             $paymentFormModel->firstName = 'Jenny';
             $paymentFormModel->lastName = 'Andrews';
             $paymentFormModel->number = '4242424242424242';
@@ -54,7 +55,7 @@ class Dummy extends SubscriptionGateway
         }
 
         $defaults = [
-            'paymentForm' => $paymentFormModel
+            'paymentForm' => $paymentFormModel,
         ];
 
         $params = array_merge($defaults, $params);
@@ -71,7 +72,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormModel(): BasePaymentForm
+    public function getPaymentFormModel(): DummyPaymentForm
     {
         return new DummyPaymentForm();
     }
@@ -81,6 +82,10 @@ class Dummy extends SubscriptionGateway
      */
     public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        if (!$form instanceof CreditCardPaymentForm) {
+            throw new InvalidArgumentException(sprintf('%s only accepts %s objects passed to $form.', __METHOD__, CreditCardPaymentForm::class));
+        }
+
         return new DummyRequestResponse($form);
     }
 
@@ -111,11 +116,12 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $customerId): PaymentSource
     {
         /** @var CreditCardPaymentForm $sourceData */
 
         $paymentSource = new PaymentSource();
+        $paymentSource->customerId = $customerId;
         $paymentSource->gatewayId = $this->id;
         $paymentSource->token = StringHelper::randomString();
         $paymentSource->response = '';
@@ -127,7 +133,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token): bool
+    public function deletePaymentSource(string $token): bool
     {
         return true;
     }
@@ -137,6 +143,10 @@ class Dummy extends SubscriptionGateway
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
+        if (!$form instanceof CreditCardPaymentForm) {
+            throw new InvalidArgumentException(sprintf('%s only accepts %s objects passed to $form.', __METHOD__, CreditCardPaymentForm::class));
+        }
+
         return new DummyRequestResponse($form);
     }
 
@@ -145,7 +155,7 @@ class Dummy extends SubscriptionGateway
      */
     public function processWebHook(): WebResponse
     {
-        return null;
+        throw new NotSupportedException(__CLASS__ . ' does not support processWebhook()');
     }
 
     /**
@@ -153,7 +163,15 @@ class Dummy extends SubscriptionGateway
      */
     public function refund(Transaction $transaction): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        $form = new DummyPaymentForm();
+
+        if ($transaction->note != 'fail') {
+            $form->number = '4242424242424242';
+        } else {
+            $form->number = '378282246310005';
+        }
+
+        return new DummyRequestResponse($form);
     }
 
     /**
@@ -247,7 +265,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPlanSettingsHtml(array $params = [])
+    public function getPlanSettingsHtml(array $params = []): ?string
     {
         return '<input type="hidden" name="reference" value="dummy.reference"/>';
     }
@@ -324,7 +342,7 @@ class Dummy extends SubscriptionGateway
     public function subscribe(User $user, Plan $plan, SubscriptionForm $parameters): SubscriptionResponseInterface
     {
         $subscription = new DummySubscriptionResponse();
-        $subscription->setTrialDays((int)$parameters->trialDays);
+        $subscription->setTrialDays($parameters->trialDays);
 
         return $subscription;
     }

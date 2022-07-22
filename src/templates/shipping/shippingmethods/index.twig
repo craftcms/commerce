@@ -1,0 +1,70 @@
+{% extends "commerce/_layouts/shipping" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Disabled',
+    'Enabled',
+    'Handle',
+    'Name',
+    'Set status',
+    'Type',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="shipping-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for method in shippingMethods %}
+	{% set tableData = tableData|merge([{
+        id: method.id,
+        title: method.getName()|t('site')|e,
+        status: method.getIsEnabled(),
+        url: method.getCpEditUrl(),
+        handle: method.handle,
+        type: method.getType(),
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'type', title: Craft.t('commerce', 'Type') },
+    ];
+
+    var actions = [
+        {
+            label: Craft.t('commerce', 'Set status'),
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Enabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('commerce', 'Disabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-methods/delete',
+        padded: true,
+        tableData: {{ tableData|json_encode|raw }}
+    });
+{% endjs %}

@@ -17,41 +17,46 @@ use yii\db\ActiveQueryInterface;
  *
  * @property float $amount
  * @property string $code
+ * @property string $currency
  * @property Gateway $gateway
  * @property int $gatewayId
  * @property string $hash
  * @property int $id
  * @property string $message
+ * @property string $note
  * @property Order $order
  * @property int $orderId
  * @property Transaction $parent
  * @property int $parentId
+ * @property float $paymentAmount
+ * @property float $paymentCurrency
+ * @property float $paymentRate
  * @property string $reference
  * @property string $response
  * @property string $status
  * @property string $type
- * @property User $user
+ * @property Customer $user
  * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Transaction extends ActiveRecord
 {
-    const TYPE_AUTHORIZE = 'authorize';
-    const TYPE_CAPTURE = 'capture';
-    const TYPE_PURCHASE = 'purchase';
-    const TYPE_REFUND = 'refund';
-    const STATUS_PENDING = 'pending';
-    const STATUS_REDIRECT = 'redirect';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_SUCCESS = 'success';
-    const STATUS_FAILED = 'failed';
+    public const TYPE_AUTHORIZE = 'authorize';
+    public const TYPE_CAPTURE = 'capture';
+    public const TYPE_PURCHASE = 'purchase';
+    public const TYPE_REFUND = 'refund';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_REDIRECT = 'redirect';
+    public const STATUS_PROCESSING = 'processing';
+    public const STATUS_SUCCESS = 'success';
+    public const STATUS_FAILED = 'failed';
 
 
     /**
      * @var int $total
      */
-    public $total = 0;
+    public int $total = 0;
 
 
     /**
@@ -62,33 +67,21 @@ class Transaction extends ActiveRecord
         return Table::TRANSACTIONS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getParent(): ActiveQueryInterface
     {
         return $this->hasOne(self::class, ['id' => 'parentId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGateway(): ActiveQueryInterface
     {
         return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getUser(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);

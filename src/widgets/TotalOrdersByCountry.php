@@ -9,18 +9,20 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Total Orders By Country widget
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -28,73 +30,73 @@ use craft\helpers\StringHelper;
 class TotalOrdersByCountry extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var string Options 'billing', 'shippinh'.
      */
-    public $type;
+    public string $type;
 
     /**
      * @var TotalOrdersByCountryStat
      */
-    private $_stat;
+    private TotalOrdersByCountryStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
         $this->_typeOptions = [
-            'billing' => Plugin::t('Billing'),
-            'shipping' => Plugin::t('Shipping'),
+            'billing' => Craft::t('commerce', 'Billing'),
+            'shipping' => Craft::t('commerce', 'Shipping'),
         ];
 
-        if ($this->type == 'billing') {
-            $this->_title = Plugin::t('Total Orders by Billing Country');
+        if (isset($this->type) && $this->type == 'billing') {
+            $this->_title = Craft::t('commerce', 'Total Orders by Billing Country');
         } else {
-            $this->_title = Plugin::t('Total Orders by Shipping Country');
+            $this->_title = Craft::t('commerce', 'Total Orders by Shipping Country');
             $this->type = 'shipping';
         }
 
-        $this->dateRange = !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersByCountryStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
     /**
      * @inheritDoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -102,7 +104,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -120,13 +122,13 @@ class TotalOrdersByCountry extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Orders by Country');
+        return Craft::t('commerce', 'Total Orders by Country');
     }
 
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -134,20 +136,19 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
-
-        if (empty($stats)) {
-            // TODO no stats available message
-            return '';
-        }
 
         $labels = ArrayHelper::getColumn($stats, 'name', false);
         $totalOrders = ArrayHelper::getColumn($stats, 'total', false);
@@ -165,7 +166,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
@@ -174,7 +175,7 @@ class TotalOrdersByCountry extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
-            'typeOptions' => $this->_typeOptions
+            'typeOptions' => $this->_typeOptions,
         ]);
     }
 }

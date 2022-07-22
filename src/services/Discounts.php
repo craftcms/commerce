@@ -9,30 +9,39 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\events\MatchOrderEvent;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
+use craft\commerce\records\Coupon as CouponRecord;
+use craft\commerce\records\CustomerDiscountUse;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
-use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use DateTime;
+use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 use function in_array;
 
 /**
@@ -68,7 +77,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
+    public const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is saved.
@@ -94,7 +103,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
+    public const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
 
     /**
      * @event DiscountEvent The event that is triggered after a discount is deleted.
@@ -118,37 +127,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
-
-    /**
-     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
-     *
-     * This event will be raised if all standard conditions are met.
-     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount to the line item.
-     *
-     * ```php
-     * use craft\commerce\services\Discounts;
-     * use craft\commerce\events\MatchLineItemEvent;
-     * use craft\commerce\models\Discount;
-     * use craft\commerce\models\LineItem;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     Discounts::class,
-     *     Discounts::EVENT_BEFORE_MATCH_LINE_ITEM,
-     *     function(MatchLineItemEvent $event) {
-     *         // @var LineItem $lineItem
-     *         $lineItem = $event->lineItem;
-     *         // @var Discount $discount
-     *         $discount = $event->discount;
-     *
-     *         // Check some business rules and prevent a match in special cases
-     *         // ...
-     *     }
-     * );
-     * ```
-     */
-    const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
+    public const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
 
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
@@ -178,7 +157,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
+    public const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
 
     /**
      * @event MatchOrderEvent The event that is triggered when an order is matched with a discount.
@@ -195,7 +174,7 @@ class Discounts extends Component
      * Event::on(
      *     Discounts::class,
      *     Discounts::EVENT_DISCOUNT_MATCHES_ORDER,
-     *     function(MatchLineOrder $event) {
+     *     function(MatchOrderEvent $event) {
      *         // @var Order $order
      *         $order = $event->order;
      *         // @var Discount $discount
@@ -207,29 +186,39 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
-
-
-    /**
-     * @var Discount[]
-     */
-    private $_allDiscounts;
+    public const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
-     * @var Discount[]
+     * @var Discount[]|null
      */
-    private $_allActiveDiscounts;
+    private ?array $_allDiscounts = null;
 
+    /**
+     * @var Discount[][]|null
+     */
+    private ?array $_activeDiscountsByKey = null;
+
+    /**
+     * @var array|null
+     */
+    private ?array $_matchingLineItemCategoryCondition = null;
 
     /**
      * Get a discount by its ID.
-     *
-     * @param int $id
-     * @return Discount|null
      */
-    public function getDiscountById($id)
+    public function getDiscountById(int $id): ?Discount
     {
-        return ArrayHelper::firstWhere($this->getAllDiscounts(), 'id', $id);
+        if (!$id) {
+            return null;
+        }
+
+        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.id]]' => $id])->all();
+
+        if (!$discounts) {
+            return null;
+        }
+
+        return ArrayHelper::firstValue($this->_populateDiscounts($discounts));
     }
 
     /**
@@ -239,19 +228,10 @@ class Discounts extends Component
      */
     public function getAllDiscounts(): array
     {
-        if (null === $this->_allDiscounts) {
-            $discounts = $this->_createDiscountQuery()
-                ->addSelect([
-                    'dp.purchasableId',
-                    'dpt.categoryId',
-                    'dug.userGroupId',
-                ])
-                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-                ->all();
+        if (!isset($this->_allDiscounts)) {
+            $discounts = $this->_createDiscountQuery()->all();
 
-            $this->_allDiscounts = $this->_populateDiscountsRelations($discounts);
+            $this->_allDiscounts = $this->_populateDiscounts($discounts);
         }
 
         return $this->_allDiscounts;
@@ -259,133 +239,133 @@ class Discounts extends Component
 
     /**
      * Get all currently active discounts
+     * We pass the Order to attempt ot optimize the query to only possible discounts that might match,
+     * eliminating ones that definitely will not match.
      *
      * @param Order|null $order
-     * @return array
+     * @return Discount[]
      * @throws \Exception
      * @since 2.2.14
      */
-    public function getAllActiveDiscounts($order = null): array
+    public function getAllActiveDiscounts(Order $order = null): array
     {
-        if (null === $this->_allActiveDiscounts) {
-            $date = $order && $order->dateOrdered ? $order->dateOrdered : new DateTime();
-
-            $discounts = $this->_createDiscountQuery()
-                ->addSelect([
-                    'dp.purchasableId',
-                    'dpt.categoryId',
-                    'dug.userGroupId',
-                ])
-                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-                // Restricted by enabled discounts
-                ->where([
-                    'enabled' => 1,
-                ])
-                // Restrict by things that a definitely not in date
-                ->andWhere([
-                    'or',
-                    ['dateFrom' => null],
-                    ['<=', 'dateFrom', Db::prepareDateForDb($date)]
-                ])
-                ->andWhere([
-                    'or',
-                    ['dateTo' => null],
-                    ['>=', 'dateTo', Db::prepareDateForDb($date)]
-                ])
-                ->all();
-
-            $this->_allActiveDiscounts = $this->_populateDiscountsRelations($discounts);
+        // Date condition for use with key
+        if ($order && $order->dateOrdered) {
+            $date = $order->dateOrdered;
+        } else {
+            // We use a round the time so we can have a cache within the same request (rounded to 1 minute flat, no seconds)
+            $date = new DateTime();
+            $date->setTime($date->format('H'), round($date->format('i') / 1) * 1);
         }
 
-        return $this->_allActiveDiscounts;
-    }
+        // Coupon condition key
+        $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
+        $dateKey = DateTimeHelper::toIso8601($date);
+        $cacheKey = implode(':', [$dateKey, $couponKey]);
 
-    /**
-     * Populates a discount's relations.
-     *
-     * @param Discount $discount
-     */
-    public function populateDiscountRelations(Discount $discount)
-    {
-        $rows = (new Query())->select(
-            'dp.purchasableId,
-            dpt.categoryId,
-            dug.userGroupId')
-            ->from(Table::DISCOUNTS . ' discounts')
-            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-            ->where(['discounts.id' => $discount->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
-            }
+        if (isset($this->_activeDiscountsByKey[$cacheKey])) {
+            return $this->_activeDiscountsByKey[$cacheKey];
         }
 
-        $discount->setPurchasableIds($purchasableIds);
-        $discount->setCategoryIds($categoryIds);
-        $discount->setUserGroupIds($userGroupIds);
+        $discountQuery = $this->_createDiscountQuery()
+            // Restricted by enabled discounts
+            ->where([
+                'enabled' => true,
+            ])
+            // Restrict by things that a definitely not in date
+            ->andWhere([
+                'or',
+                ['dateFrom' => null],
+                ['<=', 'dateFrom', Db::prepareDateForDb($date)],
+            ])
+            ->andWhere([
+                'or',
+                ['dateTo' => null],
+                ['>=', 'dateTo', Db::prepareDateForDb($date)],
+            ]);
+
+        // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
+        if ($order && $order->couponCode) {
+            $couponSubQuery = (new Query())
+                ->from(Table::COUPONS)
+                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
+            if (Craft::$app->getDb()->getIsPgsql()) {
+                $codeWhere = ['ilike', 'code', $order->couponCode];
+            } else {
+                $codeWhere = ['code' => $order->couponCode];
+            }
+
+            $discountQuery->andWhere([
+                'or',
+                // Find discount where the coupon code matches
+                [
+                    'exists', (clone $couponSubQuery)
+                    ->andWhere($codeWhere)
+                    ->andWhere([
+                            'or',
+                            ['maxUses' => null],
+                            new Expression('[[uses]] < [[maxUses]]'),
+                        ]
+                    ),
+                ],
+                // OR find discounts that do not have a coupon code requirement
+                ['not exists', $couponSubQuery],
+            ]);
+        }
+
+        $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
+
+        return $this->_activeDiscountsByKey[$cacheKey];
     }
 
     /**
      * Is discount coupon available to the order
      *
-     * @param Order $order
      * @param string|null $explanation
-     * @return bool
+     * @throws InvalidConfigException
+     * @throws \Exception
      */
     public function orderCouponAvailable(Order $order, string &$explanation = null): bool
     {
         $discount = $this->getDiscountByCode($order->couponCode);
 
-        if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid.');
+        if (!$discount || !$this->_isDiscountCouponCodeValid($order, $discount)) {
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
+            return false;
+        }
+
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is out of date.');
+            $explanation = Craft::t('commerce', 'Discount is out of date.');
             return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            $explanation = Plugin::t('Discount use has reached its limit.');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
 
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
+        $user = $order->getCustomer();
 
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Plugin::t('Discount is not allowed for the customer');
-            return false;
-        }
-
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+            $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
             return false;
         }
 
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
+            $explanation = Craft::t('commerce', 'This coupon requires an email address.');
+            return false;
+        }
+
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -397,25 +377,36 @@ class Discounts extends Component
     /**
      * Returns an enabled discount by its code.
      *
-     * @param string $code
-     * @return Discount|null
+     * @throws \Exception
      */
-    public function getDiscountByCode($code)
+    public function getDiscountByCode(string $code): ?Discount
     {
         if (!$code) {
             return null;
         }
 
-        $result = $this->_createDiscountQuery()
-            ->where(['code' => $code, 'enabled' => true])
-            ->one();
+        $query = $this->_createDiscountQuery();
+        $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
+        if (Craft::$app->getDb()->getIsPgsql()) {
+            $query->andWhere(['ilike', '[[coupons.code]]', $code]);
+        } else {
+            $query->andWhere(['[[coupons.code]]' => $code]);
+        }
+        $discounts = $query->all();
 
-        return $result ? new Discount($result) : null;
+        if (!$discounts) {
+            return null;
+        }
+
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function(Discount $discount) use ($code) {
+            return (
+                $discount->enabled &&
+                ArrayHelper::contains($discount->getCoupons(), fn(Coupon $coupon) => strcasecmp($coupon->code, $code) === 0)
+            );
+        });
     }
 
     /**
-     * @param PurchasableInterface $purchasable
-     * @return array
      * @since 2.2
      */
     public function getDiscountsRelatedToPurchasable(PurchasableInterface $purchasable): array
@@ -433,7 +424,7 @@ class Discounts extends Component
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -445,10 +436,7 @@ class Discounts extends Component
     /**
      * Match a line item against a discount.
      *
-     * @param LineItem $lineItem
-     * @param Discount $discount
-     * @param bool $matchOrder
-     * @return bool
+     * @throws \Exception
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
@@ -456,33 +444,33 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->onSale && $discount->excludeOnSale) {
+        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
             return false;
         }
 
         // can't match something not promotable
-        if (!$lineItem->purchasable->getIsPromotable()) {
+        /** @var Purchasable|null $purchasable */
+        $purchasable = $lineItem->getPurchasable();
+        if (!$purchasable || !$purchasable->getIsPromotable()) {
             return false;
         }
 
-        if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
-            $purchasableId = $lineItem->purchasableId;
-            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
-                return false;
-            }
+        if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
+            return false;
         }
 
-        if ($discount->getCategoryIds() && !$discount->allCategories && $lineItem->getPurchasable()) {
-            $purchasable = $lineItem->getPurchasable();
+        if (!$discount->allCategories) {
+            $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
-            if (!$purchasable) {
-                return false;
-            }
-
-            $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-            $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-            $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
-            if (!$purchasableIsRelateToOneOrMoreCategories) {
+            if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
+                $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+                $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
+                if (!$purchasableIsRelateToOneOrMoreCategories) {
+                    return $this->_matchingLineItemCategoryCondition[$key] = false;
+                }
+                $this->_matchingLineItemCategoryCondition[$key] = true;
+            } elseif ($this->_matchingLineItemCategoryCondition[$key] === false) {
                 return false;
             }
         }
@@ -493,24 +481,55 @@ class Discounts extends Component
             $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
         }
 
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
-            $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
-        }
-
         return $event->isValid;
     }
 
     /**
-     * @param Order $order
-     * @param Discount $discount
-     * @return bool
+     * @throws \Exception
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-
         if (!$discount->enabled) {
             return false;
+        }
+
+        $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
+
+        $orderCondition = $discount->getOrderCondition();
+        $hasOrderConditionRules = count($orderCondition->getConditionRules());
+
+        if ($hasOrderConditionRules && !$discount->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
+        $customerCondition = $discount->getCustomerCondition();
+        $hasCustomerConditionRules = count($customerCondition->getConditionRules());
+        $customer = $order->getCustomer();
+
+        if ($hasCustomerConditionRules) {
+            if (!$customer || !$customerCondition->matchElement($customer)) {
+                return false;
+            }
+        }
+
+        $shippingAddressCondition = $discount->getShippingAddressCondition();
+        $hasShippingAddressConditionRules = count($shippingAddressCondition->getConditionRules());
+        $shippingAddress = $order->getShippingAddress();
+
+        if ($hasShippingAddressConditionRules) {
+            if (!$shippingAddress || !$shippingAddressCondition->matchElement($shippingAddress)) {
+                return false;
+            }
+        }
+
+        $billingAddressCondition = $discount->getShippingAddressCondition();
+        $hasBillingAddressConditionRules = count($billingAddressCondition->getConditionRules());
+        $billingAddress = $order->getShippingAddress();
+
+        if ($hasBillingAddressConditionRules) {
+            if (!$billingAddress || !$billingAddressCondition->matchElement($billingAddress)) {
+                return false;
+            }
         }
 
         if (!$this->_isDiscountCouponCodeValid($order, $discount)) {
@@ -521,18 +540,17 @@ class Discounts extends Component
             return false;
         }
 
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
-
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            return false;
-        }
+        $user = $order->getCustomer();
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
 
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+            return false;
+        }
+
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
             return false;
         }
 
@@ -540,36 +558,30 @@ class Discounts extends Component
             return false;
         }
 
-        if ($discount->orderConditionFormula) {
-            $orderDiscountConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-            ];
-
-            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
-                return false;
-            }
-        }
-
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
             return false;
         }
 
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+        if ($allItemsMatch && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
             return false;
         }
 
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
+        if ($allItemsMatch && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+            return false;
+        }
+
+        if ($allItemsMatch && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
             return false;
         }
 
         // Check to see if we need to match on data related to the lineItems
-        if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
+        if (!$discount->allPurchasables || !$discount->allCategories) {
             $lineItemMatch = false;
             $matchingTotal = 0;
             $matchingQty = 0;
             foreach ($order->getLineItems() as $lineItem) {
                 // Must mot match order as we would get an infinate recursion
-                if ($this->matchLineItem($lineItem, $discount, false)) {
+                if ($this->matchLineItem($lineItem, $discount)) {
                     $lineItemMatch = true;
                     $matchingTotal += $lineItem->getSubtotal();
                     $matchingQty += $lineItem->qty;
@@ -609,7 +621,6 @@ class Discounts extends Component
      *
      * @param Discount $model the discount being saved
      * @param bool $runValidation should we validate this discount before saving.
-     * @return bool
      * @throws \Exception
      */
     public function saveDiscount(Discount $model, bool $runValidation = true): bool
@@ -620,7 +631,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();
@@ -646,7 +657,10 @@ class Discounts extends Component
         $record->dateTo = $model->dateTo;
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
-        $record->purchaseTotal = $model->purchaseTotal;
+        $record->orderCondition = $model->getOrderCondition()->getConfig();
+        $record->customerCondition = $model->getCustomerCondition()->getConfig();
+        $record->shippingAddressCondition = $model->getShippingAddressCondition()->getConfig();
+        $record->billingAddressCondition = $model->getBillingAddressCondition()->getConfig();
         $record->orderConditionFormula = $model->orderConditionFormula;
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
@@ -662,15 +676,18 @@ class Discounts extends Component
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignoreSales = $model->ignoreSales;
-        $record->categoryRelationshipType = $model->categoryRelationshipType;
         $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
-        $record->code = $model->code ?: null;
+        $record->couponFormat = $model->couponFormat;
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+        $record->categoryRelationshipType = $model->categoryRelationshipType;
+        if ($record->allCategories = $model->allCategories) {
+            $model->setCategoryIds([]);
+        }
+        if ($record->allPurchasables = $model->allPurchasables) {
+            $model->setPurchasableIds([]);
+        }
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -679,16 +696,8 @@ class Discounts extends Component
             $record->save(false);
             $model->id = $record->id;
 
-            DiscountUserGroupRecord::deleteAll(['discountId' => $model->id]);
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);
-
-            foreach ($model->getUserGroupIds() as $groupId) {
-                $relation = new DiscountUserGroupRecord;
-                $relation->userGroupId = $groupId;
-                $relation->discountId = $model->id;
-                $relation->save(false);
-            }
 
             foreach ($model->getCategoryIds() as $categoryId) {
                 $relation = new DiscountCategoryRecord();
@@ -706,6 +715,7 @@ class Discounts extends Component
                 $relation->save(false);
             }
 
+            Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
 
             // Raise the afterSaveDiscount event
@@ -715,6 +725,11 @@ class Discounts extends Component
                     'isNew' => $isNew,
                 ]));
             }
+
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_activeDiscountsByKey = null;
+            $this->_matchingLineItemCategoryCondition = null;
 
             return true;
         } catch (\Exception $e) {
@@ -726,10 +741,10 @@ class Discounts extends Component
     /**
      * Delete a discount by its ID.
      *
-     * @param int $id
-     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteDiscountById($id): bool
+    public function deleteDiscountById(int $id): bool
     {
         $discountRecord = DiscountRecord::findOne($id);
 
@@ -746,61 +761,74 @@ class Discounts extends Component
         if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
             $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
                 'discount' => $discount,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
+        $this->_matchingLineItemCategoryCondition = null;
 
         return $result;
     }
 
     /**
-     * @param int $id
      * @throws \yii\db\Exception
-     * @since 3.0
+     * @since 4.0
      */
-    public function clearCustomerUsageHistoryById(int $id)
+    public function clearCustomerUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
         $db->createCommand()
             ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
-     * @param int $id
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function clearEmailUsageHistoryById(int $id)
+    public function clearEmailUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
         $db->createCommand()
             ->delete(Table::EMAIL_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
      * Clear total discount uses
      *
-     * @param int $id
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function clearDiscountUsesById(int $id)
+    public function clearDiscountUsesById(int $id): void
     {
         $db = Craft::$app->getDb();
         $db->createCommand()
             ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], ['id' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
      * Reorder discounts by an array of ids.
      *
-     * @param array $ids
-     * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderDiscounts(array $ids): bool
     {
@@ -810,49 +838,48 @@ class Discounts extends Component
                 ->execute();
         }
 
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
+
         return true;
     }
 
     /**
      * Email usage stats for discount
      *
-     * @param int $id
      * @return array return in the format ['uses' => int, 'emails' => int]
      */
     public function getEmailUsageStatsById(int $id): array
     {
-        $usage = (new Query())
+        return (new Query())
             ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT(email) as emails'])
             ->from(Table::EMAIL_DISCOUNTUSES)
             ->where(['discountId' => $id])
             ->one();
-
-        return $usage;
     }
 
     /**
-     * Customer usage stats for discount
+     * User usage stats for discount
      *
      * @param int $id
-     * @return array return in the format ['uses' => int, 'customers' => int]
+     * @return array in the format ['uses' => int, 'users' => int]
      */
     public function getCustomerUsageStatsById(int $id): array
     {
-        $usage = (new Query())
-            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[customerId]]) as customers'])
+        return (new Query())
+            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[customerId]]) as users'])
             ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['[[discountId]]' => $id])
             ->one();
-
-        return $usage;
     }
 
     /**
      * Updates discount uses counters.
      *
-     * @param Order $order
+     * @throws \yii\db\Exception
      */
-    public function orderCompleteHandler($order)
+    public function orderCompleteHandler(Order $order): void
     {
         $discountAdjustments = $order->getAdjustmentsByType(DiscountAdjuster::ADJUSTMENT_TYPE);
 
@@ -877,45 +904,47 @@ class Discounts extends Component
             return;
         }
 
-        $customer = $order->getCustomer();
+        $user = $order->getCustomer();
         foreach ($discounts as $discount) {
-            // Count if there was a user on this order
-            if ($customer && $customer->userId) {
-                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['[[customerId]]' => $order->customerId, '[[discountId]]' => $discount['discountUseId']])->one();
+            // Count if there was a user on this order that has authentication
+            if ($user && $user->getIsCredentialed()) {
+                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['customerId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
-                if (!$customerDiscountUseRecord) {
-                    $customerDiscountUseRecord = new CustomerDiscountUseRecord();
-                    $customerDiscountUseRecord->customerId = $order->customerId;
-                    $customerDiscountUseRecord->discountId = $discount['discountUseId'];
-                    $customerDiscountUseRecord->uses = 1;
-                    $customerDiscountUseRecord->save();
+                if (!$userDiscountUseRecord) {
+                    $userDiscountUseRecord = Craft::createObject(CustomerDiscountUse::class);
+                    Craft::configure($userDiscountUseRecord, [
+                        'customerId' => $user->id,
+                        'discountId' => $discount['discountUseId'],
+                        'uses' => 1,
+                    ]);
+                    $userDiscountUseRecord->save();
                 } else {
                     Craft::$app->getDb()->createCommand()
                         ->update(Table::CUSTOMER_DISCOUNTUSES, [
-                            'uses' => new Expression('[[uses]] + 1')
+                            'uses' => new Expression('[[uses]] + 1'),
                         ], [
-                            'customerId' => $order->customerId,
-                            'discountId' => $discount['discountUseId']
+                            'customerId' => $order->getCustomerId(),
+                            'discountId' => $discount['discountUseId'],
                         ])
                         ->execute();
                 }
             }
 
             // Count email usage
-            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
-            if (!$customerDiscountUseRecord) {
-                $customerDiscountUseRecord = new EmailDiscountUseRecord();
-                $customerDiscountUseRecord->email = $order->getEmail();
-                $customerDiscountUseRecord->discountId = $discount['discountUseId'];
-                $customerDiscountUseRecord->uses = 1;
-                $customerDiscountUseRecord->save();
+            $emailDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
+            if (!$emailDiscountUseRecord) {
+                $emailDiscountUseRecord = new EmailDiscountUseRecord();
+                $emailDiscountUseRecord->email = $order->getEmail();
+                $emailDiscountUseRecord->discountId = $discount['discountUseId'];
+                $emailDiscountUseRecord->uses = 1;
+                $emailDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::EMAIL_DISCOUNTUSES, [
-                        'uses' => new Expression('[[uses]] + 1')
+                        'uses' => new Expression('[[uses]] + 1'),
                     ], [
                         'email' => $order->getEmail(),
-                        'discountId' => $discount['discountUseId']
+                        'discountId' => $discount['discountUseId'],
                     ])
                     ->execute();
             }
@@ -923,11 +952,26 @@ class Discounts extends Component
             // Update the total uses
             Craft::$app->getDb()->createCommand()
                 ->update(Table::DISCOUNTS, [
-                    'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1')
+                    'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1'),
                 ], [
-                    'id' => $discount['discountUseId']
+                    'id' => $discount['discountUseId'],
                 ])
                 ->execute();
+
+            // if there was a coupon on the order update its usage
+            if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
+                Craft::$app->getDb()->createCommand()
+                    ->update(Table::COUPONS, [
+                        'uses' => new Expression('[[uses]] + 1'),
+                    ], [
+                        'id' => $coupon->id,
+                    ])
+                    ->execute();
+            }
+
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_activeDiscountsByKey = null;
         }
     }
 
@@ -936,20 +980,20 @@ class Discounts extends Component
      * @param Order $order
      * @param Discount $discount
      * @return bool
+     * @throws InvalidConfigException
      */
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
-        if (!$discount->code) {
+        $coupons = $discount->getCoupons();
+        if (empty($coupons)) {
             return true;
         }
 
-        return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+        $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
+        return (bool)$return;
     }
 
     /**
-     * @param Order $order
-     * @param Discount $discount
-     * @return bool
      * @throws \Exception
      */
     private function _isDiscountDateValid(Order $order, Discount $discount): bool
@@ -967,27 +1011,24 @@ class Discounts extends Component
     }
 
     /**
-     * @param Order $order
-     * @param Discount $discount
-     * @param $user
-     * @return bool
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws SyntaxError
      */
-    private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
+    private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
     {
-        if (!$discount->allGroups) {
-            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                return false;
-            }
+        if ($discount->orderConditionFormula) {
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+            $orderConditionParams = [
+                'order' => array_merge($orderAsArray, $fieldsAsArray),
+            ];
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 
         return true;
     }
 
-    /**
-     * @param Discount $discount
-     * @return bool
-     */
     private function _isDiscountTotalUseLimitValid(Discount $discount): bool
     {
         if ($discount->totalDiscountUseLimit > 0) {
@@ -1001,22 +1042,20 @@ class Discounts extends Component
 
     /**
      * @param Discount $discount
-     * @param $user
-     * @param $customer
+     * @param User|null $user
      * @return bool
      */
-    private function _isDiscountPerUserUsageValid(Discount $discount, $user, $customer): bool
+    private function _isDiscountPerUserUsageValid(Discount $discount, ?User $user): bool
     {
         if ($discount->perUserLimit > 0) {
             if (!$user) {
                 return false;
             }
 
-            // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
                 ->select(['uses'])
                 ->from([Table::CUSTOMER_DISCOUNTUSES])
-                ->where(['[[customerId]]' => $customer->id, 'discountId' => $discount->id])
+                ->where(['[[customerId]]' => $user->id, 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {
@@ -1027,17 +1066,17 @@ class Discounts extends Component
         return true;
     }
 
-    /**
-     * @param Discount $discount
-     * @param Order $order
-     * @return bool
-     */
-    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    private function _isDiscountEmailRequirementValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
             return false;
         }
 
+        return true;
+    }
+
+    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
@@ -1054,11 +1093,11 @@ class Discounts extends Component
     }
 
     /**
-     * @param $discounts
+     * @param array $discounts
      * @return array
      * @since 2.2.14
      */
-    private function _populateDiscountsRelations($discounts): array
+    private function _populateDiscounts(array $discounts): array
     {
         $allDiscountsById = [];
 
@@ -1068,7 +1107,6 @@ class Discounts extends Component
 
         $purchasables = [];
         $categories = [];
-        $userGroups = [];
 
         foreach ($discounts as $discount) {
             $id = $discount['id'];
@@ -1080,11 +1118,7 @@ class Discounts extends Component
                 $categories[$id][] = $discount['categoryId'];
             }
 
-            if ($discount['userGroupId']) {
-                $userGroups[$id][] = $discount['userGroupId'];
-            }
-
-            unset($discount['purchasableId'], $discount['userGroupId'], $discount['categoryId']);
+            unset($discount['purchasableId'], $discount['categoryId']);
 
             if (!isset($allDiscountsById[$id])) {
                 $allDiscountsById[$id] = new Discount($discount);
@@ -1094,7 +1128,6 @@ class Discounts extends Component
         foreach ($allDiscountsById as $id => $discount) {
             $discount->setPurchasableIds($purchasables[$id] ?? []);
             $discount->setCategoryIds($categories[$id] ?? []);
-            $discount->setUserGroupIds($userGroups[$id] ?? []);
         }
 
         return $allDiscountsById;
@@ -1102,53 +1135,55 @@ class Discounts extends Component
 
     /**
      * Returns a Query object prepped for retrieving discounts
-     *
-     * @return Query
      */
     private function _createDiscountQuery(): Query
     {
         $query = (new Query())
             ->select([
-                '[[discounts.id]]',
-                '[[discounts.name]]',
-                '[[discounts.description]]',
-                '[[discounts.code]]',
-                '[[discounts.perUserLimit]]',
-                '[[discounts.perEmailLimit]]',
-                '[[discounts.totalDiscountUseLimit]]',
-                '[[discounts.totalDiscountUses]]',
-                '[[discounts.dateFrom]]',
-                '[[discounts.dateTo]]',
-                '[[discounts.purchaseTotal]]',
-                '[[discounts.orderConditionFormula]]',
-                '[[discounts.purchaseQty]]',
-                '[[discounts.maxPurchaseQty]]',
+                '[[discounts.allCategories]]',
+                '[[discounts.allPurchasables]]',
+                '[[discounts.appliedTo]]',
                 '[[discounts.baseDiscount]]',
                 '[[discounts.baseDiscountType]]',
-                '[[discounts.perItemDiscount]]',
-                '[[discounts.percentDiscount]]',
-                '[[discounts.percentageOffSubject]]',
+                '[[discounts.categoryRelationshipType]]',
+                '[[discounts.couponFormat]]',
+                '[[discounts.dateCreated]]',
+                '[[discounts.dateFrom]]',
+                '[[discounts.dateTo]]',
+                '[[discounts.dateUpdated]]',
+                '[[discounts.description]]',
+                '[[discounts.enabled]]',
                 '[[discounts.excludeOnSale]]',
                 '[[discounts.hasFreeShippingForMatchingItems]]',
                 '[[discounts.hasFreeShippingForOrder]]',
-                '[[discounts.allGroups]]',
-                '[[discounts.allPurchasables]]',
-                '[[discounts.allCategories]]',
-                '[[discounts.categoryRelationshipType]]',
-                '[[discounts.enabled]]',
-                '[[discounts.stopProcessing]]',
+                '[[discounts.id]]',
                 '[[discounts.ignoreSales]]',
+                '[[discounts.maxPurchaseQty]]',
+                '[[discounts.name]]',
+                '[[discounts.orderCondition]]',
+                '[[discounts.orderConditionFormula]]',
+                '[[discounts.percentageOffSubject]]',
+                '[[discounts.percentDiscount]]',
+                '[[discounts.perEmailLimit]]',
+                '[[discounts.perItemDiscount]]',
+                '[[discounts.perUserLimit]]',
+                '[[discounts.purchaseQty]]',
                 '[[discounts.sortOrder]]',
-                '[[discounts.dateCreated]]',
-                '[[discounts.dateUpdated]]',
+                '[[discounts.stopProcessing]]',
+                '[[discounts.totalDiscountUseLimit]]',
+                '[[discounts.totalDiscountUses]]',
+                '[[discounts.customerCondition]]',
+                '[[discounts.shippingAddressCondition]]',
+                '[[discounts.billingAddressCondition]]',
             ])
             ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC]);
 
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if ($commerce && version_compare($commerce['version'], '3.1', '>=')) {
-            $query->addSelect('[[discounts.appliedTo]]');
-        }
+        $query->addSelect([
+            'dp.purchasableId',
+            'dpt.categoryId',
+        ])->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]');
 
         return $query;
     }

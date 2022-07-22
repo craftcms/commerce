@@ -8,7 +8,9 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Gateway;
+use craft\commerce\base\GatewayInterface;
+use craft\commerce\events\WebhookEvent;
+use Exception;
 use Throwable;
 use yii\base\Component;
 use yii\web\BadRequestHttpException;
@@ -23,25 +25,75 @@ use yii\web\Response;
 class Webhooks extends Component
 {
     /**
-     * @param Gateway $gateway
-     * @return Response
-     * @throws \Exception
+     * @event WebhookEvent The event that is triggered before a Webhook is processed.
+     * @since 3.2.9
+     *
+     * ```php
+     * use craft\commerce\events\WebhookEvent;
+     * use craft\commerce\services\Webhooks;
+     * use craft\commerce\base\GatewayInterface;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Webhooks::class,
+     *     Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK,
+     *     function(WebhookEvent $event) {
+     *         // @var GatewayInterface $gateway
+     *         $gateway = $event->gateway;
+     *
+     *         // ...
+     *     }
+     * );
+     * ```
      */
-    public function processWebhook(Gateway $gateway): Response
+    public const EVENT_BEFORE_PROCESS_WEBHOOK = 'beforeProcessWebhook';
+
+    /**
+     * @event WebhookEvent The event that is triggered after a Webhook is processed.
+     * @since 3.2.9
+     *
+     * ```php
+     * use craft\commerce\events\WebhookEvent;
+     * use craft\commerce\services\Webhooks;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Webhooks::class,
+     *     Webhooks::EVENT_AFTER_PROCESS_WEBHOOK,
+     *     function(WebhookEvent $event) {
+     *         // @var Response $response
+     *         $response = $event->response;
+     *
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
+
+    /**
+     * @throws Exception
+     */
+    public function processWebhook(GatewayInterface $gateway): Response
     {
+        // Fire a 'beforeProcessWebhook' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_PROCESS_WEBHOOK)) {
+            $this->trigger(self::EVENT_BEFORE_PROCESS_WEBHOOK, new WebhookEvent([
+                'gateway' => $gateway,
+            ]));
+        }
+
         $transactionHash = $gateway->getTransactionHashFromWebhook();
-        $useMutex = $transactionHash ? true : false;
+        $useMutex = (bool)$transactionHash;
         $transactionLockName = 'commerceTransaction:' . $transactionHash;
         $mutex = Craft::$app->getMutex();
 
-        if ($useMutex && !$mutex->acquire($transactionLockName, 5)) {
-            throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+        if ($useMutex && !$mutex->acquire($transactionLockName, 15)) {
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
         }
 
-        $response = null;
-
         try {
-            if ($gateway && $gateway->supportsWebhooks()) {
+            if ($gateway->supportsWebhooks()) {
                 $response = $gateway->processWebhook();
             } else {
                 throw new BadRequestHttpException('Gateway not found or does not support webhooks.');
@@ -59,6 +111,14 @@ class Webhooks extends Component
 
         if ($useMutex) {
             $mutex->release($transactionLockName);
+        }
+
+        // Fire a 'afterProcessWebhook' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_PROCESS_WEBHOOK)) {
+            $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, new WebhookEvent([
+                'gateway' => $gateway,
+                'response' => $response,
+            ]));
         }
 
         return $response;

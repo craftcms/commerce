@@ -1,0 +1,54 @@
+{% extends 'shop/_private/layouts' %}
+
+{# @var subscriptionUid string #}
+{% set subscriptionUid = craft.app.request.getParam('subscription') %}
+{# @var subscription \craft\commerce\elements\Subscription #}
+{% set subscription = craft.subscriptions()
+  .anyStatus()
+  .uid(subscriptionUid)
+  .one() %}
+
+{% block main %}
+  <!-- Template: {{ _self }}.twig -->
+
+  {# @var currentUser \craft\elements\User #}
+  {% if currentUser is null or not subscriptionUid or not subscription %}
+    {% exit 404 %}
+  {% endif %}
+
+  {% if subscription.subscriber.id != currentUser.id %}
+    {% exit 404 %}
+  {% endif %}
+
+  {% if subscription.isExpired == true %}
+    {% exit 404 %}
+  {% endif %}
+
+  {% if subscription.isCanceled == true %}
+    {% exit 404 %}
+  {% endif %}
+
+  {% set planName = subscription.getPlan().name %}
+
+  <div class="flex -mx-8">
+    <div class="w-2/3 px-8">
+      {% if subscription.isSuspended and subscription.hasBillingIssues %}
+        <h1 class="text-xl font-semibold">
+          {{- 'Billing issue for subscription to {plan}'|t({ plan: planName }) -}}
+        </h1>
+
+        <div>{{ subscription.getBillingIssueDescription() }}</div>
+
+        <fieldset>
+          <form>
+            {{ subscription.getBillingIssueResolveFormHtml()|raw }}
+          </form>
+        </fieldset>
+      {% else %}
+        <h1 class="text-xl font-semibold">
+          {{- 'No issues with subscription to {plan}'|t({ plan: planName }) -}}
+        </h1>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

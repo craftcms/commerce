@@ -21,12 +21,12 @@ class NewCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'newCustomers';
+    protected string $_handle = 'newCustomers';
 
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): string|int|bool|null
     {
         $query = $this->_createStatQuery();
         $query->select([new Expression('COUNT(DISTINCT [[customerId]]) as newCustomers')]);

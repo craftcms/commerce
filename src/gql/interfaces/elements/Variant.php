@@ -7,12 +7,12 @@
 
 namespace craft\commerce\gql\interfaces\elements;
 
+use Craft;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\gql\types\generators\VariantType;
 use craft\commerce\gql\types\SaleType;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
-use craft\gql\TypeManager;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\Type;
 
@@ -47,7 +47,7 @@ class Variant extends Element
             'description' => 'This is the interface implemented by all variants.',
             'resolveType' => function(VariantElement $value) {
                 return $value->getGqlTypeName();
-            }
+            },
         ]));
 
         VariantType::generateTypes();
@@ -68,7 +68,7 @@ class Variant extends Element
      */
     public static function getFieldDefinitions(): array
     {
-        return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+        return Craft::$app->getGql()->prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
             'isDefault' => [
                 'name' => 'isDefault',
                 'type' => Type::boolean(),
@@ -84,10 +84,20 @@ class Variant extends Element
                 'type' => Type::float(),
                 'description' => 'The price of the variant.',
             ],
+            'priceAsCurrency' => [
+                'name' => 'priceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted price of the variant.',
+            ],
             'salePrice' => [
                 'name' => 'salePrice',
                 'type' => Type::float(),
                 'description' => 'The sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
+            ],
+            'salePriceAsCurrency' => [
+                'name' => 'salePriceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
             ],
             'sales' => [
                 'name' => 'sales',
@@ -144,6 +154,11 @@ class Variant extends Element
                 'type' => Type::int(),
                 'description' => 'The ID of the variant’s parent product.',
             ],
+            'product' => [
+                'name' => 'product',
+                'type' => Product::getType(),
+                'description' => 'The variant’s parent product.',
+            ],
             'productTitle' => [
                 'name' => 'productTitle',
                 'type' => Type::string(),
@@ -152,7 +167,7 @@ class Variant extends Element
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
-                'description' => 'The product type ID of the variant’s parent product.'
+                'description' => 'The product type ID of the variant’s parent product.',
             ],
             'sku' => [
                 'name' => 'sku',

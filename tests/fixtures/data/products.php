@@ -6,7 +6,7 @@
  */
 
 return [
-    [
+    'rad-hoodie' => [
         'typeId' => '2000',
         'title' => 'Rad Hoodie',
         'slug' => 'rad-hoodie',
@@ -32,9 +32,9 @@ return [
                 'minQty' => null,
                 'maxQty' => null,
             ],
-        ]
+        ],
     ],
-    [
+    'hypercolor-tshirt' => [
         'typeId' => '2001',
         'title' => 'Hypercolor T-Shirt',
         'slug' => 'hypercolor-tshirt',
@@ -75,7 +75,7 @@ return [
                 'hasUnlimitedStock' => 1,
                 'minQty' => null,
                 'maxQty' => null,
-            ]
-        ]
-    ]
+            ],
+        ],
+    ],
 ];

@@ -11,8 +11,13 @@ use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
+use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Class VariantMatrix
@@ -28,26 +33,33 @@ class VariantMatrix
      * @param ProductElement $product The product model
      * @param string $name The input name (sans namespace). Default is 'variants'.
      * @return string The variant matrix HTML
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     * @throws InvalidConfigException
      */
-    public static function getVariantMatrixHtml(ProductElement $product, $name = 'variants'): string
+    public static function getVariantMatrixHtml(ProductElement $product, string $name = 'variants'): string
     {
-        /** @var View $viewService */
         $viewService = Craft::$app->getView();
-        $id = $viewService->formatInputId($name);
+        $id = Html::id($name);
 
         $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,
             'name' => $name,
-            'variants' => $product->getVariants(),
-            'product' => $product
+            'variants' => $product->getVariants(true),
+            'product' => $product,
         ]);
 
         // Namespace the name/ID for JS
         $namespacedName = $viewService->namespaceInputName($name);
         $namespacedId = $viewService->namespaceInputId($id);
 
+        $namespace = $viewService->getNamespace();
+        $viewService->setNamespace(null);
+
         // Get the field HTML
-        list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
+        [$fieldBodyHtml, $fieldFootHtml] = self::_getVariantFieldHtml($product, $namespacedName);
 
         $viewService->registerAssetBundle(VariantMatrixAsset::class);
         $viewService->registerJs('new Craft.Commerce.VariantMatrix(' .
@@ -57,6 +69,8 @@ class VariantMatrix
             '"' . $namespacedName . '"' .
             ');');
 
+        $viewService->setNamespace($namespace);
+
         return $html;
     }
 
@@ -65,15 +79,19 @@ class VariantMatrix
      * Returns info about each variant field type for a variant matrix.
      *
      * @param ProductElement $product The product model
-     * @param string $name The input name (sans namespace)
-     * @return array
+     * @param string $namespace The input namespace
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    private static function _getVariantFieldHtml($product, $name): array
+    private static function _getVariantFieldHtml(ProductElement $product, string $namespace): array
     {
         $variant = new Variant();
         $variant->setProduct($product);
 
-        $variantFields = $variant->getFieldLayout()->getFields();
+        $variantFields = $variant->getFieldLayout()->getCustomFields();
 
         foreach ($variantFields as $fieldLayoutField) {
             $fieldLayoutField->setIsFresh(true);
@@ -83,14 +101,14 @@ class VariantMatrix
         $templatesService->startJsBuffer();
 
         $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
-            'namespace' => $name . '[__VARIANT__]',
+            'namespace' => Html::namespaceInputName('__VARIANT__', $namespace),
             'variant' => $variant,
-            'product' => $product
+            'product' => $product,
         ]);
 
         $footHtml = $templatesService->clearJsBuffer();
 
-        // Reset $_isFresh's
+        // Reset variant field's $_isFresh
         foreach ($variantFields as $field) {
             $field->setIsFresh();
         }

@@ -11,13 +11,14 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\TaxCategory;
-use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Tax category service.
@@ -31,25 +32,9 @@ use yii\base\Exception;
 class TaxCategories extends Component
 {
     /**
-     * @var bool
+     * @var TaxCategory[]|null
      */
-    private $_fetchedAllTaxCategories = false;
-
-    /**
-     * @var TaxCategory[]
-     */
-    private $_taxCategoriesById = [];
-
-    /**
-     * @var TaxCategory[]
-     */
-    private $_taxCategoriesByHandle = [];
-
-    /**
-     * @var TaxCategory
-     */
-    private $_defaultTaxCategory;
-
+    private ?array $_allTaxCategories = null;
 
     /**
      * Returns all Tax Categories
@@ -58,82 +43,43 @@ class TaxCategories extends Component
      */
     public function getAllTaxCategories(): array
     {
-        if (!$this->_fetchedAllTaxCategories) {
+        if ($this->_allTaxCategories === null) {
             $results = $this->_createTaxCategoryQuery()->all();
 
+            $this->_allTaxCategories = [];
             foreach ($results as $result) {
-                $this->_memoizeTaxCategory(new TaxCategory($result));
+                $taxCategory = new TaxCategory($result);
+                $this->_allTaxCategories[] = $taxCategory;
             }
-
-            $this->_fetchedAllTaxCategories = true;
         }
 
-        return $this->_taxCategoriesById;
+        return $this->_allTaxCategories;
     }
 
     /**
      * Get a tax category by its ID.
-     *
-     * @param int $taxCategoryId
-     * @return TaxCategory|null
      */
-    public function getTaxCategoryById($taxCategoryId)
+    public function getTaxCategoryById(int $taxCategoryId): ?TaxCategory
     {
-        if (isset($this->_taxCategoriesById[$taxCategoryId])) {
-            return $this->_taxCategoriesById[$taxCategoryId];
-        }
+        $categories = $this->getAllTaxCategories();
 
-        if ($this->_fetchedAllTaxCategories) {
-            return null;
-        }
-
-        $result = $this->_createTaxCategoryQuery()
-            ->where(['id' => $taxCategoryId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeTaxCategory(new TaxCategory($result));
-
-        return $this->_taxCategoriesById[$taxCategoryId];
+        return ArrayHelper::firstWhere($categories, 'id', $taxCategoryId);
     }
 
     /**
      * Get a tax category by its handle.
      *
-     * @param string $taxCategoryHandle
-     * @return TaxCategory|null
+     * @noinspection PhpUnused
      */
-    public function getTaxCategoryByHandle($taxCategoryHandle)
+    public function getTaxCategoryByHandle(string $taxCategoryHandle): ?TaxCategory
     {
-        if (isset($this->_taxCategoriesByHandle[$taxCategoryHandle])) {
-            return $this->_taxCategoriesByHandle[$taxCategoryHandle];
-        }
+        $categories = $this->getAllTaxCategories();
 
-        if ($this->_fetchedAllTaxCategories) {
-            return null;
-        }
-
-        $result = $this->_createTaxCategoryQuery()
-            ->where(['handle' => $taxCategoryHandle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $taxCategory = new TaxCategory($result);
-        $this->_memoizeTaxCategory($taxCategory);
-
-        return $this->_taxCategoriesByHandle[$taxCategoryHandle];
+        return ArrayHelper::firstWhere($categories, 'handle', $taxCategoryHandle);
     }
 
     /**
      * Returns all Tax category names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllTaxCategoriesAsList(): array
     {
@@ -145,47 +91,41 @@ class TaxCategories extends Component
     /**
      * Get the default tax category
      *
-     * @return TaxCategory|null
+     * @throws InvalidConfigException
      */
-    public function getDefaultTaxCategory()
+    public function getDefaultTaxCategory(): TaxCategory
     {
-        if ($this->_defaultTaxCategory !== null) {
-            return $this->_defaultTaxCategory;
+        $categories = $this->getAllTaxCategories();
+
+        $default = ArrayHelper::firstWhere($categories, 'default', true);
+
+        if (!$default) {
+            $default = ArrayHelper::firstValue($categories);
         }
 
-        $result = $this->_createTaxCategoryQuery()
-            ->where(['default' => true])
-            ->one();
-
-        if (!$result) {
-            return null;
+        if (!$default) {
+            throw new InvalidConfigException('Commerce must have at least one (default) tax category set up.');
         }
 
-        return $this->_defaultTaxCategory = new TaxCategory($result);
+        return $default;
     }
 
     /**
      * Save a tax category.
      *
-     * @param TaxCategory $taxCategory
      * @param bool $runValidation should we validate this state before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
     public function saveTaxCategory(TaxCategory $taxCategory, bool $runValidation = true): bool
     {
-        $oldHandle = null;
-
         if ($taxCategory->id) {
             $record = TaxCategoryRecord::findOne($taxCategory->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No tax category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax category exists with the ID “{id}”',
                     ['id' => $taxCategory->id]));
             }
-
-            $oldHandle = $record->handle;
         } else {
             $record = new TaxCategoryRecord();
         }
@@ -226,16 +166,15 @@ class TaxCategories extends Component
             // If we are removing a product type for this tax category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this tax category available to them
-                Craft::$app->getQueue()->push(new ResaveElements([
-                    'elementType' => Product::class,
-                    'criteria' => [
-                        'typeId' => $oldProductTypeId,
-                        'siteId' => '*',
-                        'unique' => true,
-                        'status' => null,
-                        'enabledForSite' => false,
-                    ]
-                ]));
+                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+            }
+        }
+
+        foreach ($newProductTypeIds as $newProductTypeId) {
+            // If we are adding a product type for this tax category the products of that type should be re-saved
+            if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
+                // Re-save all products when assigning this tax category available to them
+                $this->_resaveProductsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -247,21 +186,34 @@ class TaxCategories extends Component
             Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_TAXCATEGORIES, $data)->execute();
         }
 
-        // Update Service cache
-        $this->_memoizeTaxCategory($taxCategory);
-
-        if (null !== $oldHandle && $taxCategory->handle != $oldHandle) {
-            unset($this->_taxCategoriesByHandle[$oldHandle]);
-        }
+        // Clear Service cache
+        $this->_allTaxCategories = null;
 
         return true;
     }
 
     /**
+     * Re-save products by product type id
+     */
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
+    {
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class,
+            'criteria' => [
+                'typeId' => $productTypeId,
+                'siteId' => '*',
+                'unique' => true,
+                'status' => null,
+            ],
+        ]));
+    }
+
+    /**
      * @param int $id
      * @return bool
+     * @throws StaleObjectException
      */
-    public function deleteTaxCategoryById($id): bool
+    public function deleteTaxCategoryById(int $id): bool
     {
         $all = $this->getAllTaxCategories();
 
@@ -280,10 +232,10 @@ class TaxCategories extends Component
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
      */
-    public function getTaxCategoriesByProductTypeId($productTypeId): array
+    public function getTaxCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
@@ -291,13 +243,11 @@ class TaxCategories extends Component
             ->all();
 
         if (empty($rows)) {
-            $category = $this->getDefaultTaxCategory();
-
-            if (!$category) {
+            try {
+                $taxCategory = $this->getDefaultTaxCategory();
+            } catch (InvalidConfigException) {
                 return [];
             }
-
-            $taxCategory = $this->getDefaultTaxCategory();
 
             return [$taxCategory->id => $taxCategory];
         }
@@ -312,32 +262,20 @@ class TaxCategories extends Component
         return $taxCategories;
     }
 
-
-    /**
-     * Memoize a tax category model by its ID and handle.
-     *
-     * @param TaxCategory $taxCategory
-     */
-    private function _memoizeTaxCategory(TaxCategory $taxCategory)
-    {
-        $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
-        $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
-    }
-
     /**
      * Returns a Query object prepped for retrieving tax categories.
-     *
-     * @return Query
      */
     private function _createTaxCategoryQuery(): Query
     {
         return (new Query())
             ->select([
+                'taxCategories.dateCreated',
+                'taxCategories.dateUpdated',
+                'taxCategories.default',
+                'taxCategories.description',
+                'taxCategories.handle',
                 'taxCategories.id',
                 'taxCategories.name',
-                'taxCategories.handle',
-                'taxCategories.description',
-                'taxCategories.default'
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }

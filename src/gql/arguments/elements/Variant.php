@@ -7,6 +7,7 @@
 
 namespace craft\commerce\gql\arguments\elements;
 
+use craft\commerce\gql\types\input\Product;
 use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
@@ -26,6 +27,11 @@ class Variant extends ElementArguments
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), self::getContentArguments(), [
+            'hasProduct' => [
+                'name' => 'hasProduct',
+                'type' => Product::getType(),
+                'description' => 'Narrows the query results to only variants for certain products.',
+            ],
             'hasSales' => [
                 'name' => 'hasSales',
                 'type' => Type::boolean(),

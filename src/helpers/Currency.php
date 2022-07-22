@@ -7,9 +7,13 @@
 
 namespace craft\commerce\helpers;
 
+use Craft;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use yii\base\InvalidCallException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Currency
@@ -24,10 +28,10 @@ class Currency
      * a currency model results in rounding in default currency.
      *
      * @param float $amount
-     * @param PaymentCurrency|null $currency
+     * @param PaymentCurrency|CurrencyModel|null $currency
      * @return float
      */
-    public static function round($amount, $currency = null): float
+    public static function round(float $amount, PaymentCurrency|CurrencyModel|null $currency = null): float
     {
         if (!$currency) {
             $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
@@ -35,60 +39,66 @@ class Currency
         }
 
         $decimals = $currency->minorUnit;
-
         return round($amount, $decimals);
     }
 
-    /**
-     * @return int
-     */
     public static function defaultDecimals(): int
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-        $decimals = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
-
-        return $decimals;
+        return Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
     }
 
     /**
      * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
      *
      * @param      $amount
-     * @param      $currency
+     * @param mixed $currency
      * @param bool $convert
      * @param bool $format
      * @param bool $stripZeros
      * @return string
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
-    public static function formatAsCurrency($amount, $currency = null, $convert = false, $format = true, $stripZeros = false): string
+    public static function formatAsCurrency($amount, mixed $currency = null, bool $convert = false, bool $format = true, bool $stripZeros = false): string
     {
-        if ($currency === null) {
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        }
         // return input if no currency passed, and both convert and format are false.
         if (!$convert && !$format) {
             return $amount;
         }
 
+        $currencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        if (is_string($currency)) {
+            $currencyIso = $currency;
+        }
+
+        if ($currency instanceof PaymentCurrency) {
+            $currencyIso = $currency->iso;
+        }
+
+        if ($currency instanceof CurrencyModel) {
+            $currencyIso = $currency->alphabeticCode;
+        }
+
         if ($convert) {
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
+            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currencyIso);
             if (!$currency) {
                 throw new InvalidCallException('Trying to convert to a currency that is not configured');
             }
         }
 
         if ($convert) {
-            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currency);
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currencyIso);
         }
 
         if ($format) {
             // Round it before formatting
-            if ($currencyData = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)) {
+            if ($currencyData = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currencyIso)) {
                 $amount = self::round($amount, $currencyData); // Will round to the right minorUnits
             }
 
-            $amount = \Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currencyIso, [], [], $stripZeros);
         }
 
         return (string)$amount;

@@ -8,8 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -22,7 +27,7 @@ use yii\web\Response;
 class ShippingMethodsController extends BaseShippingSettingsController
 {
     /**
-     * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -33,8 +38,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
     /**
      * @param int|null $id
      * @param ShippingMethod|null $shippingMethod
-     * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, ShippingMethod $shippingMethod = null): Response
     {
@@ -57,40 +62,39 @@ class ShippingMethodsController extends BaseShippingSettingsController
         if ($variables['shippingMethod']->id) {
             $variables['title'] = $variables['shippingMethod']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new shipping method');
+            $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
-        $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);
+        DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
 
-        $variables['shippingRules'] = $shippingRules;
+        $variables['shippingRules'] = $variables['shippingMethod']->id !== null
+            ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
+            : [];
 
         return $this->renderTemplate('commerce/shipping/shippingmethods/_edit', $variables);
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws \yii\base\Exception
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
 
         // Shared attributes
-        $shippingMethod->id = Craft::$app->getRequest()->getBodyParam('shippingMethodId');
-        $shippingMethod->name = Craft::$app->getRequest()->getBodyParam('name');
-        $shippingMethod->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $shippingMethod->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
+        $shippingMethod->id = $this->request->getBodyParam('shippingMethodId');
+        $shippingMethod->name = $this->request->getBodyParam('name');
+        $shippingMethod->handle = $this->request->getBodyParam('handle');
+        $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
 
         // Save it
-        if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Shipping method saved.'));
-            $this->redirectToPostedUrl($shippingMethod);
-        } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping method.'));
-        }
+        $success = Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod);
 
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['shippingMethod' => $shippingMethod]);
+        return $success ?
+            $this->asModelSuccess($shippingMethod, Craft::t('commerce', 'Shipping method saved.')) :
+            $this->asModelFailure($shippingMethod, Craft::t('commerce', 'Couldn’t save shipping method.'));
     }
 
     /**
@@ -101,12 +105,42 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
         }
 
-        return $this->asErrorJson(Plugin::t('Could delete shipping method and it’s rules.'));
+        return $this->asSuccess();
+    }
+
+    /**
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @since 3.2.9
+     */
+    public function actionUpdateStatus(): void
+    {
+        $this->requirePostRequest();
+        $ids = $this->request->getRequiredBodyParam('ids');
+        $status = $this->request->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $shippingMethods = ShippingMethodRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var ShippingMethodRecord $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            $shippingMethod->enabled = ($status == 'enabled');
+            $shippingMethod->save();
+        }
+        $transaction->commit();
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
     }
 }

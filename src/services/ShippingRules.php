@@ -15,9 +15,11 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
-use craft\helpers\Localization;
+use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping rule service.
@@ -30,20 +32,9 @@ use yii\base\Exception;
 class ShippingRules extends Component
 {
     /**
-     * @var bool
+     * @var null|ShippingRule[]
      */
-    private $_fetchedAllShippingRules = false;
-
-    /**
-     * @var ShippingRule[]
-     */
-    private $_allShippingRules = [];
-
-    /**
-     * @var ShippingRule[][]
-     */
-    private $_shippingRulesByMethodId = [];
-
+    private ?array $_allShippingRules = null;
 
     /**
      * Get all shipping rules.
@@ -52,13 +43,15 @@ class ShippingRules extends Component
      */
     public function getAllShippingRules(): array
     {
-        if (!$this->_fetchedAllShippingRules) {
-            $this->_fetchedAllShippingRules = true;
-            $rows = $this->_createShippingRulesQuery()->all();
+        if ($this->_allShippingRules !== null) {
+            return $this->_allShippingRules;
+        }
 
-            foreach ($rows as $row) {
-                $this->_allShippingRules[$row['id']] = new ShippingRule($row);
-            }
+        $results = $this->_createShippingRulesQuery()->all();
+        $this->_allShippingRules = [];
+
+        foreach ($results as $result) {
+            $this->_allShippingRules[] = new ShippingRule($result);
         }
 
         return $this->_allShippingRules;
@@ -67,62 +60,25 @@ class ShippingRules extends Component
     /**
      * Get all shipping rules by a shipping method ID.
      *
-     * @param int $id
      * @return ShippingRule[]
      */
-    public function getAllShippingRulesByShippingMethodId($id): array
+    public function getAllShippingRulesByShippingMethodId(int $id): array
     {
-        if (isset($this->_shippingRulesByMethodId[$id])) {
-            return $this->_shippingRulesByMethodId[$id];
-        }
-
-        $results = $this->_createShippingRulesQuery()
-            ->where(['methodId' => $id])
-            ->orderBy('priority')
-            ->all();
-
-        $rules = [];
-
-        foreach ($results as $row) {
-            $rule = new ShippingRule($row);
-            $rules[] = $rule;
-            $this->_allShippingRules[$row['id']] = $rule;
-        }
-
-        $this->_shippingRulesByMethodId[$id] = $rules;
-
-        return $rules;
+        return ArrayHelper::where($this->getAllShippingRules(), 'methodId', $id);
     }
 
     /**
      * Get a shipping rule by its ID.
-     *
-     * @param int $id
-     * @return ShippingRule|null
      */
-    public function getShippingRuleById($id)
+    public function getShippingRuleById(int $id): ?ShippingRule
     {
-        if (isset($this->_allShippingRules[$id])) {
-            return $this->_allShippingRules[$id];
-        }
-
-        $result = $this->_createShippingRulesQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allShippingRules[$id] = new ShippingRule($result);
+        return ArrayHelper::firstWhere($this->getAllShippingRules(), 'id', $id);
     }
 
     /**
      * Save a shipping rule.
      *
-     * @param ShippingRule $model
      * @param bool $runValidation should we validate this rule before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveShippingRule(ShippingRule $model, bool $runValidation = true): bool
@@ -131,7 +87,7 @@ class ShippingRules extends Component
             $record = ShippingRuleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No shipping rule exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping rule exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -149,10 +105,12 @@ class ShippingRules extends Component
             'description',
             'methodId',
             'enabled',
+            'orderConditionFormula',
             'minQty',
             'maxQty',
             'minTotal',
             'maxTotal',
+            'minMaxTotalType',
             'minWeight',
             'maxWeight',
             'baseRate',
@@ -161,7 +119,7 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite'
+            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -188,25 +146,28 @@ class ShippingRules extends Component
 
         // Generate a rule category record for all categories regardless of data submitted
         foreach (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories() as $shippingCategory) {
-            if (isset($model->getShippingRuleCategories()[$shippingCategory->id]) && $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id]) {
+            $ruleCategory = $model->getShippingRuleCategories()[$shippingCategory->id] ?? null;
+            if ($ruleCategory) {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
                     'condition' => $ruleCategory->condition,
-                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? Localization::normalizeNumber($ruleCategory->perItemRate) : null,
-                    'weightRate' => is_numeric($ruleCategory->weightRate) ? Localization::normalizeNumber($ruleCategory->weightRate) : null,
-                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? Localization::normalizeNumber($ruleCategory->percentageRate) : null
+                    'perItemRate' => $ruleCategory->perItemRate,
+                    'weightRate' => $ruleCategory->weightRate,
+                    'percentageRate' => $ruleCategory->percentageRate,
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
-                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
+                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW,
                 ]);
             }
 
             Plugin::getInstance()->getShippingRuleCategories()->createShippingRuleCategory($ruleCategory, $runValidation);
         }
+
+        $this->_allShippingRules = null; // clear cache
 
         return true;
     }
@@ -214,9 +175,7 @@ class ShippingRules extends Component
     /**
      * Save a shipping rule.
      *
-     * @param ShippingRule $model
      * @param bool $runValidation should we validate this rule before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
@@ -229,13 +188,12 @@ class ShippingRules extends Component
             ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
             ->execute();
 
+        $this->_allShippingRules = null; // clear cache
         return $this->saveShippingRule($model, $runValidation);
     }
 
     /**
-     * Gets the the lite shipping rule or returns a new one.
-     *
-     * @return ShippingRule
+     * Gets the lite shipping rule or returns a new one.
      */
     public function getLiteShippingRule(): ShippingRule
     {
@@ -251,20 +209,22 @@ class ShippingRules extends Component
             $liteRule = new ShippingRule($liteRule);
         }
 
+        $this->_allShippingRules = null; // clear cache
+
         return $liteRule;
     }
 
     /**
      * Reorders shipping rules by the given array of IDs.
      *
-     * @param array $ids
-     * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderShippingRules(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()->update(Table::SHIPPINGRULES, ['priority' => $sortOrder + 1], ['id' => $id])->execute();
         }
+        $this->_allShippingRules = null; // clear cache
 
         return true;
     }
@@ -272,10 +232,10 @@ class ShippingRules extends Component
     /**
      * Deletes a shipping rule by an ID.
      *
-     * @param int $id
-     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteShippingRuleById($id): bool
+    public function deleteShippingRuleById(int $id): bool
     {
         $record = ShippingRuleRecord::findOne($id);
 
@@ -283,40 +243,42 @@ class ShippingRules extends Component
             return (bool)$record->delete();
         }
 
+        $this->_allShippingRules = null; // clear cache
+
         return false;
     }
 
     /**
      * Returns a Query object prepped for retrieving shipping rules.
-     *
-     * @return Query
      */
     private function _createShippingRulesQuery(): Query
     {
         $query = (new Query())
             ->select([
-                'id',
-                'shippingZoneId',
-                'name',
-                'description',
-                'methodId',
-                'priority',
-                'enabled',
-                'minQty',
-                'maxQty',
-                'minTotal',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
                 'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
+                'description',
+                'enabled',
+                'id',
+                'isLite',
+                'maxQty',
                 'maxRate',
-                'isLite'
+                'maxTotal',
+                'maxWeight',
+                'methodId',
+                'minMaxTotalType',
+                'minQty',
+                'minRate',
+                'minTotal',
+                'minWeight',
+                'name',
+                'orderConditionFormula',
+                'percentageRate',
+                'perItemRate',
+                'priority',
+                'shippingZoneId',
+                'weightRate',
             ])
-            ->orderBy('name')
+            ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {

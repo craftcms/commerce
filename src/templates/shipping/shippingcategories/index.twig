@@ -1,0 +1,75 @@
+{% extends "commerce/_layouts/shipping" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Default',
+    'Description',
+    'Handle',
+    'Name',
+    'Yes',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/shipping/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="shipping-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for shippingCategory in shippingCategories %}
+    {% set tableData = tableData|merge([{
+        id: shippingCategory.id,
+        title: shippingCategory.name|t('site'),
+        url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
+        handle: shippingCategory.handle|e,
+        description: shippingCategory.description ? shippingCategory.description|t('site')|e,
+        default: shippingCategory.default ? true : false,
+
+        _showDelete: (shippingCategories|length > 1 and not shippingCategory.default)
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce','Yes'))+'"></div>';
+                }
+            }
+        },
+    ];
+
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set Default Category'),
+                    action: 'commerce/shipping-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#shipping-vue-admin-table',
+        deleteAction: 'commerce/shipping-categories/delete',
+        padded: true,
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
-use craft\i18n\Locale;
 
 /**
  * Class Lite Tax Settings
@@ -25,37 +24,32 @@ class LiteTaxSettings extends Model
     /**
      * @var float Tax rate
      */
-    public $taxRate;
+    public float $taxRate;
 
     /**
      * @var string Tax name
      */
-    public $taxName;
+    public string $taxName;
 
     /**
-     * @var string Tax include
+     * @var bool Tax include
      */
-    public $taxInclude;
+    public bool $taxInclude;
 
     /**
-     * @return array|string[]
+     * @return array
      */
     public function safeAttributes(): array
     {
         return [
             'taxRate',
             'taxName',
-            'taxInclude'
+            'taxInclude',
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getTaxRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->taxRate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asPercent($this->taxRate);
     }
 }

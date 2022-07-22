@@ -21,7 +21,7 @@ class ProductIndexAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
@@ -30,7 +30,7 @@ class ProductIndexAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/CommerceProductIndex.js',
+            'CommerceProductIndex.js',
         ];
 
         parent::init();

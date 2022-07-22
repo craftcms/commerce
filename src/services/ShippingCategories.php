@@ -11,18 +11,21 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\ShippingCategory;
-use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping category service.
  *
  * @property array|ShippingCategory[] $allShippingCategories all Shipping Categories
+ * @property-read array $allShippingCategoriesAsList
  * @property null|ShippingCategory $defaultShippingCategory the default shipping category
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -30,25 +33,9 @@ use yii\base\Exception;
 class ShippingCategories extends Component
 {
     /**
-     * @var bool
+     * @var ShippingCategory[]|null
      */
-    private $_fetchedAllShippingCategories = false;
-
-    /**
-     * @var ShippingCategory[]
-     */
-    private $_shippingCategoriesById = [];
-
-    /**
-     * @var ShippingCategory[]
-     */
-    private $_shippingCategoriesByHandle;
-
-    /**
-     * @var ShippingCategory
-     */
-    private $_defaultShippingCategory;
-
+    private ?array $_allShippingCategories = null;
 
     /**
      * Returns all Shipping Categories
@@ -57,24 +44,21 @@ class ShippingCategories extends Component
      */
     public function getAllShippingCategories(): array
     {
-        if (!$this->_fetchedAllShippingCategories) {
+        if ($this->_allShippingCategories === null) {
             $results = $this->_createShippingCategoryQuery()->all();
 
+            $this->_allShippingCategories = [];
             foreach ($results as $result) {
                 $shippingCategory = new ShippingCategory($result);
-                $this->_memoizeShippingCategory($shippingCategory);
+                $this->_allShippingCategories[] = $shippingCategory;
             }
-
-            $this->_fetchedAllShippingCategories = true;
         }
 
-        return $this->_shippingCategoriesById;
+        return $this->_allShippingCategories;
     }
 
     /**
      * Returns all Shipping category names, by ID.
-     *
-     * @return array
      */
     public function getAllShippingCategoriesAsList(): array
     {
@@ -83,107 +67,64 @@ class ShippingCategories extends Component
         return ArrayHelper::map($categories, 'id', 'name');
     }
 
-
     /**
      * Get a shipping category by its ID.
-     *
-     * @param int $shippingCategoryId
-     * @return ShippingCategory|null
      */
-    public function getShippingCategoryById(int $shippingCategoryId)
+    public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
     {
-        if (isset($this->_shippingCategoriesById[$shippingCategoryId])) {
-            return $this->_shippingCategoriesById[$shippingCategoryId];
-        }
+        $categories = $this->getAllShippingCategories();
 
-        if ($this->_fetchedAllShippingCategories) {
-            return null;
-        }
-
-        $result = $this->_createShippingCategoryQuery()
-            ->where(['id' => $shippingCategoryId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingCategory(new ShippingCategory($result));
-
-        return $this->_shippingCategoriesById[$shippingCategoryId];
+        return ArrayHelper::firstWhere($categories, 'id', $shippingCategoryId);
     }
 
     /**
      * Get a shipping category by its handle.
      *
-     * @param string $shippingCategoryHandle
-     * @return ShippingCategory|null
+     * @noinspection PhpUnused
      */
-    public function getShippingCategoryByHandle(string $shippingCategoryHandle)
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
     {
-        if (isset($this->_shippingCategoriesByHandle[$shippingCategoryHandle])) {
-            return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
-        }
+        $categories = $this->getAllShippingCategories();
 
-        if ($this->_fetchedAllShippingCategories) {
-            return null;
-        }
-
-        $result = $this->_createShippingCategoryQuery()
-            ->where(['handle' => $shippingCategoryHandle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingCategory(new ShippingCategory($result));
-
-        return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
+        return ArrayHelper::firstWhere($categories, 'handle', $shippingCategoryHandle);
     }
 
     /**
      * Returns the default shipping category.
      *
-     * @return ShippingCategory|null
+     * @throws InvalidConfigException
      */
-    public function getDefaultShippingCategory()
+    public function getDefaultShippingCategory(): ShippingCategory
     {
-        if ($this->_defaultShippingCategory !== null) {
-            return $this->_defaultShippingCategory;
+        $categories = $this->getAllShippingCategories();
+
+        $default = ArrayHelper::firstWhere($categories, 'default', true);
+
+        if (!$default) {
+            $default = ArrayHelper::firstValue($categories);
         }
 
-        $row = $this->_createShippingCategoryQuery()
-            ->where(['default' => true])
-            ->one();
-
-        if (!$row) {
-            return null;
+        if (!$default) {
+            throw new InvalidConfigException('Commerce must have at least one (default) shipping category set up.');
         }
 
-        return $this->_defaultShippingCategory = new ShippingCategory($row);
+        return $default;
     }
 
     /**
-     * @param ShippingCategory $shippingCategory
      * @param bool $runValidation should we validate this before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
     public function saveShippingCategory(ShippingCategory $shippingCategory, bool $runValidation = true): bool
     {
-        $oldHandle = null;
-
         if ($shippingCategory->id) {
             $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No shipping category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
                     ['id' => $shippingCategory->id]));
             }
-
-            $oldHandle = $record->handle;
         } else {
             $record = new ShippingCategoryRecord();
         }
@@ -224,16 +165,15 @@ class ShippingCategories extends Component
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this shipping category available to them
-                Craft::$app->getQueue()->push(new ResaveElements([
-                    'elementType' => Product::class,
-                    'criteria' => [
-                        'typeId' => $oldProductTypeId,
-                        'siteId' => '*',
-                        'unique' => true,
-                        'status' => null,
-                        'enabledForSite' => false,
-                    ]
-                ]));
+                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+            }
+        }
+
+        foreach ($newProductTypeIds as $newProductTypeId) {
+            // If we are adding a product type for this shipping category the products of that type should be re-saved
+            if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
+                // Re-save all products when assigning this shipping category available to them
+                $this->_resaveProductsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -246,22 +186,33 @@ class ShippingCategories extends Component
             Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $data)->execute();
         }
 
-        // Update Service cache
-        $this->_memoizeShippingCategory($shippingCategory);
-
-        if (null !== $oldHandle && $shippingCategory->handle != $oldHandle) {
-            unset($this->_shippingCategoriesByHandle[$oldHandle]);
-        }
-
+        // Clear Service cache
+        $this->_allShippingCategories = null;
 
         return true;
     }
 
     /**
-     * @param int $id
-     * @return bool
+     * Re-save products by product type id
      */
-    public function deleteShippingCategoryById($id): bool
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
+    {
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class,
+            'criteria' => [
+                'typeId' => $productTypeId,
+                'siteId' => '*',
+                'unique' => true,
+                'status' => null,
+            ],
+        ]));
+    }
+
+    /**
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
         if (count($all) === 1) {
@@ -274,14 +225,18 @@ class ShippingCategories extends Component
             return (bool)$record->delete();
         }
 
+        // Clear cache
+        $this->_allShippingCategories = null;
+
         return false;
     }
 
     /**
-     * @param $productTypeId
+     * @param int $productTypeId
      * @return array
+     * @throws InvalidConfigException
      */
-    public function getShippingCategoriesByProductTypeId($productTypeId): array
+    public function getShippingCategoriesByProductTypeId(int $productTypeId): array
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
@@ -290,13 +245,11 @@ class ShippingCategories extends Component
 
         // Always need at least the default category
         if (empty($rows)) {
-            $category = $this->getDefaultShippingCategory();
-
-            if (!$category) {
+            try {
+                $shippingCategory = $this->getDefaultShippingCategory();
+            } catch (InvalidConfigException) {
                 return [];
             }
-
-            $shippingCategory = $this->getDefaultShippingCategory();
 
             return [$shippingCategory->id => $shippingCategory];
         }
@@ -311,32 +264,20 @@ class ShippingCategories extends Component
         return $shippingCategories;
     }
 
-
-    /**
-     * Memoize a shipping category model by its ID and handle.
-     *
-     * @param ShippingCategory $shippingCategory
-     */
-    private function _memoizeShippingCategory(ShippingCategory $shippingCategory)
-    {
-        $this->_shippingCategoriesById[$shippingCategory->id] = $shippingCategory;
-        $this->_shippingCategoriesByHandle[$shippingCategory->handle] = $shippingCategory;
-    }
-
     /**
      * Returns a Query object prepped for retrieving shipping categories.
-     *
-     * @return Query
      */
     private function _createShippingCategoryQuery(): Query
     {
         return (new Query())
             ->select([
+                'shippingCategories.dateCreated',
+                'shippingCategories.dateUpdated',
+                'shippingCategories.default',
+                'shippingCategories.description',
+                'shippingCategories.handle',
                 'shippingCategories.id',
                 'shippingCategories.name',
-                'shippingCategories.handle',
-                'shippingCategories.description',
-                'shippingCategories.default'
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }

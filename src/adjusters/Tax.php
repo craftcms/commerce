@@ -12,12 +12,12 @@ use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
-use craft\commerce\models\Address;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\elements\Address;
 use DvK\Vat\Validator;
 use Exception;
 use function in_array;
@@ -28,54 +28,58 @@ use function in_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
+ * @property-read TaxRate[] $taxRates
  * @property Validator $vatValidator
  */
 class Tax extends Component implements AdjusterInterface
 {
-    const ADJUSTMENT_TYPE = 'tax';
-
+    public const ADJUSTMENT_TYPE = 'tax';
 
     /**
-     * @var
+     * @var Validator|null
      */
-    private $_vatValidator;
+    private ?Validator $_vatValidator = null;
 
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
-     * @var Address
+     * @var Address|null
      */
-    private $_address;
+    private ?Address $_address = null;
+
+    /**
+     * @var TaxRate[]
+     */
+    private array $_taxRates;
 
     /**
      * @var bool
      */
-    private $_isEstimated = false;
+    private bool $_isEstimated = false;
 
     /**
      * Track the additional discounts created inside the tax adjuster per line item
      *
      * @var array
      */
-    private $_costRemovedByLineItem = [];
+    private array $_costRemovedByLineItem = [];
 
     /**
      * Track the additional discounts created inside the tax adjuster for order shipping costs
      *
      * @var float
      */
-    private $_costRemovedForOrderShipping = 0;
+    private float $_costRemovedForOrderShipping = 0;
 
     /**
      * Track the additional discounts created inside the tax adjuster for order total price
      *
-     * @var array
+     * @var float
      */
-    private $_costRemovedForOrderTotalPrice = 0;
-
+    private float $_costRemovedForOrderTotalPrice = 0;
 
     /**
      * @inheritdoc
@@ -83,28 +87,17 @@ class Tax extends Component implements AdjusterInterface
     public function adjust(Order $order): array
     {
         $this->_order = $order;
+        $this->_address = $this->_getTaxAddress();
+        $this->_taxRates = $this->getTaxRates();
 
-        $this->_address = $this->_order->getShippingAddress();
-        if (!$this->_address) {
-            $this->_address = $this->_order->getEstimatedShippingAddress();
-            $this->_isEstimated = true;
-        }
+        return $this->_adjustInternal();
+    }
 
-        if (Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
-            $this->_address = $this->_order->getBillingAddress();
-            $this->_isEstimated = false;
-
-            if (!$this->_address) {
-                $this->_address = $this->_order->getEstimatedBillingAddress();
-                $this->_isEstimated = true;
-            }
-        }
-
+    private function _adjustInternal(): array
+    {
         $adjustments = [];
-        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
 
-        /** @var TaxRate $rate */
-        foreach ($taxRates as $rate) {
+        foreach ($this->_taxRates as $rate) {
             $newAdjustments = $this->_getAdjustments($rate);
             if ($newAdjustments) {
                 $adjustments[] = $newAdjustments;
@@ -120,83 +113,67 @@ class Tax extends Component implements AdjusterInterface
 
 
     /**
-     * @param TaxRate $taxRate
-     * @return OrderAdjustment[]|false
+     * @return OrderAdjustment[]
      */
-    private function _getAdjustments(TaxRate $taxRate)
+    private function _getAdjustments(TaxRate $taxRate): array
     {
-        $zone = $taxRate->taxZone;
         $adjustments = [];
-        $removeVat = false;
+        $hasValidEuVatId = false;
 
-        $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
+        $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
-        // Do not bother checking VAT ID if the address doesn't match the zone anyway.
-        $useZone = ($zone && $this->_matchAddress($zone));
-        if ($taxRate->isVat && $vatIdOnAddress && ($useZone || $taxRate->getIsEverywhere())) {
-            // Do we have a valid VAT ID in our cache?
-            $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
-
-            // If we do not have a valid VAT ID in cache, see if we can get one from the API
-            if (!$validBusinessTaxId) {
-                $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
-            }
-
-            if ($validBusinessTaxId) {
-                Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
-                $removeVat = true;
-            }
-
-            // Clean up if the API returned false and the item was still in cache
-            if (!$validBusinessTaxId) {
-                Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
-            }
+        if ($zoneMatches && $taxRate->isVat) {
+            $hasValidEuVatId = $this->organizationTaxId();
         }
 
-        //Address doesn't match zone or we should remove the VAT
-        $doesNotMatchZone = (($zone && !$this->_matchAddress($zone)) && !$taxRate->getIsEverywhere());
-        if ($doesNotMatchZone || $removeVat) {
-            // Since the address doesn't match or it's a removable vat tax,
-            // before we return false (no taxes) remove the tax if it was included in the taxable amount.
-            if ($taxRate->include) {
-                // Is this an order level tax rate?
-                if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
-                    $orderTaxableAmount = 0;
+        $removeIncluded = (!$zoneMatches && $taxRate->removeIncluded);
+        $removeDueToVat = ($zoneMatches && $hasValidEuVatId && $taxRate->removeVatIncluded);
+        if ($removeIncluded || $removeDueToVat) {
 
-                    if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                        $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
-                    } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
-                        $orderTaxableAmount = $this->_order->getTotalShippingCost();
-                    }
+            // Is this an order level tax rate?
+            if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
+                $orderTaxableAmount = 0;
 
-                    $amount = -$this->_getTaxAmount($orderTaxableAmount, $taxRate->rate, $taxRate->include);
-
-                    if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
-                        $this->_costRemovedForOrderTotalPrice += $amount;
-                    } else if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
-                        $this->_costRemovedForOrderShipping += $amount;
-                    }
-
-                    $adjustment = $this->_createAdjustment($taxRate);
-                    // We need to display the adjustment that removed the included tax
-                    $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
-                    $adjustment->amount = $amount;
-                    $adjustment->type = 'discount'; // @TODO Not use a discount adjustment, but modify the price of the item instead.
-                    $adjustment->included = false;
-
-                    $adjustments[] = $adjustment;
+                if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                    $orderTaxableAmount = $this->_getOrderTotalTaxablePrice($this->_order);
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                    $orderTaxableAmount = $this->_order->getTotalShippingCost();
                 }
 
+                $amount = -$this->_getTaxAmount($orderTaxableAmount, $taxRate->rate, $taxRate->include);
+
+                if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
+                    $this->_costRemovedForOrderTotalPrice += $amount;
+                } elseif ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING) {
+                    $this->_costRemovedForOrderShipping += $amount;
+                }
+
+                $adjustment = $this->_createAdjustment($taxRate);
+                // We need to display the adjustment that removed the included tax
+                $adjustment->name = Craft::t('site', $taxRate->name) . ' ' . Craft::t('commerce', 'Removed');
+                $adjustment->amount = $amount;
+                $adjustment->type = 'discount'; // TODO Not use a discount adjustment, but modify the price of the item instead. #COM-26
+                $adjustment->included = false;
+
+                $adjustments[] = $adjustment;
+            }
+
+            if (!in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
                 // Not an order level taxable, add tax adjustments to the line items.
                 foreach ($this->_order->getLineItems() as $item) {
                     if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-                        $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
-                        $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        if ($taxRate->taxable == TaxRateRecord::TAXABLE_PURCHASABLE) {
+                            $taxableAmount = $item->salePrice - Currency::round($item->getDiscount() / $item->qty);
+                            $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                            $amount = $amount * $item->qty;
+                        } else {
+                            $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
+                            $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        }
                         $amount = Currency::round($amount);
-
                         $adjustment = $this->_createAdjustment($taxRate);
                         // We need to display the adjustment that removed the included tax
-                        $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
+                        $adjustment->name = Craft::t('site', $taxRate->name) . ' ' . Craft::t('commerce', 'Removed');
                         $adjustment->amount = $amount;
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';
@@ -213,19 +190,22 @@ class Tax extends Component implements AdjusterInterface
                         $adjustments[] = $adjustment;
                     }
                 }
-
-                // Return the removed included taxes as discounts.
-                return $adjustments;
             }
-
-            return false;
+            // Return the removed included taxes as discounts.
+            return $adjustments;
         }
+
+        if (!$zoneMatches || ($taxRate->isVat && $hasValidEuVatId)) {
+            return [];
+        }
+
+        // We have taxes to add!
 
         // Is this an order level tax rate?
         if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
             $allItemsTaxFree = true;
             foreach ($this->_order->getLineItems() as $item) {
-                if ($item->getPurchasable()->getIsTaxable()) {
+                if ($item->getIsTaxable()) {
                     $allItemsTaxFree = false;
                 }
             }
@@ -262,16 +242,23 @@ class Tax extends Component implements AdjusterInterface
 
         // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
-            if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getPurchasable()->getIsTaxable()) {
+            if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getIsTaxable()) {
+                // We use this ID since some line items are not saved in the DB yet and have no ID.
+                $objectId = spl_object_hash($item);
                 /**
                  * Any reduction in price to the line item we have added while inside this adjuster needs to be deducted,
                  * since the discount adjustments we just added won't be picked up in getTaxableSubtotal()
                  */
-                $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
-                $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
-                $taxableAmount += $this->_costRemovedByLineItem[$objectId] ?? 0;
-
-                $itemTax = $this->_getTaxAmount($taxableAmount, $taxRate->rate, $taxRate->include);
+                if ($taxRate->taxable == TaxRateRecord::TAXABLE_PURCHASABLE) {
+                    $purchasableAmount = $item->salePrice - Currency::round($item->getDiscount() / $item->qty);
+                    $purchasableAmount += Currency::round(($this->_costRemovedByLineItem[$objectId] ?? 0) / $item->qty);
+                    $purchasableTax = $this->_getTaxAmount($purchasableAmount, $taxRate->rate, $taxRate->include);
+                    $itemTax = $purchasableTax * $item->qty; //already rounded
+                } else {
+                    $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
+                    $taxableAmount += $this->_costRemovedByLineItem[$objectId] ?? 0;
+                    $itemTax = $this->_getTaxAmount($taxableAmount, $taxRate->rate, $taxRate->include);
+                }
 
                 $adjustment = $this->_createAdjustment($taxRate);
                 // We need to display the adjustment that removed the included tax
@@ -290,13 +277,21 @@ class Tax extends Component implements AdjusterInterface
     }
 
     /**
+     * @return TaxRate[]
+     */
+    protected function getTaxRates(): array
+    {
+        return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
+    }
+
+    /**
      * @param $taxableAmount
      * @param $rate
      * @param $included
      * @return float
      * @since 3.1
      */
-    private function _getTaxAmount($taxableAmount, $rate, $included)
+    private function _getTaxAmount($taxableAmount, $rate, $included): float
     {
         if (!$included) {
             $incTax = $taxableAmount * (1 + $rate);
@@ -319,17 +314,49 @@ class Tax extends Component implements AdjusterInterface
     {
         //when having no address check default tax zones only
         if (!$this->_address) {
-            return (bool)$zone->default;
+            return $zone->default;
         }
 
-        return Plugin::getInstance()->getAddresses()->addressWithinZone($this->_address, $zone);
+        return $zone->getCondition()->matchElement($this->_address);
+    }
+
+    /**
+     * @return bool
+     */
+    private function organizationTaxId(): bool
+    {
+        if (!$this->_address) {
+            return false;
+        }
+        if (!$this->_address->organizationTaxId) {
+            return false;
+        }
+
+        if (!$this->_address->getCountryCode()) {
+            return false;
+        }
+
+        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
+
+        // If we do not have a valid VAT ID in cache, see if we can get one from the API
+        if (!$validOrganizationTaxId) {
+            $validOrganizationTaxId = $this->validateVatNumber($this->_address->organizationTaxId);
+        }
+
+        if ($validOrganizationTaxId) {
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, '1');
+            return true;
+        }
+
+        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->organizationTaxId);
+        return false;
     }
 
     /**
      * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    protected function validateVatNumber(string $businessVatId): bool
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
@@ -340,9 +367,6 @@ class Tax extends Component implements AdjusterInterface
         }
     }
 
-    /**
-     * @return Validator
-     */
     private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
@@ -352,16 +376,12 @@ class Tax extends Component implements AdjusterInterface
         return $this->_vatValidator;
     }
 
-    /**
-     * @param TaxRate $rate
-     * @return OrderAdjustment
-     */
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
     {
-        $adjustment = new OrderAdjustment;
+        $adjustment = new OrderAdjustment();
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->name = $rate->name;
-        $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
+        $adjustment->name = Craft::t('site', $rate->name);
+        $adjustment->description = $rate->rate * 100 . '%';
         $adjustment->setOrder($this->_order);
         $adjustment->isEstimated = $this->_isEstimated;
         $adjustment->sourceSnapshot = $rate->toArray();
@@ -371,8 +391,6 @@ class Tax extends Component implements AdjusterInterface
 
     /**
      * Returns the total price of the order, minus any tax adjustments.
-     *
-     * @return float
      */
     private function _getOrderTotalTaxablePrice(Order $order): float
     {
@@ -383,5 +401,28 @@ class Tax extends Component implements AdjusterInterface
         $includedTaxAdjustments = $order->getTotalTaxIncluded();
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
+    }
+
+    /**
+     * @return Address|null
+     */
+    private function _getTaxAddress(): ?Address
+    {
+        $this->_isEstimated = false;
+        if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
+            $address = $this->_order->getShippingAddress();
+            if (!$address) {
+                $address = $this->_order->getEstimatedShippingAddress();
+                $this->_isEstimated = true;
+            }
+        } else {
+            $address = $this->_order->getBillingAddress();
+            if (!$address) {
+                $address = $this->_order->getEstimatedBillingAddress();
+                $this->_isEstimated = true;
+            }
+        }
+
+        return $address;
     }
 }

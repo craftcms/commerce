@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -31,14 +32,14 @@ class ShippingMethod extends BaseShippingMethod
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
                 'handle' => AttributeTypecastBehavior::TYPE_STRING,
                 'enabled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN
-            ]
+                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
         ];
 
         return $behaviors;
@@ -49,13 +50,13 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getType(): string
     {
-        return Plugin::t('Custom');
+        return Craft::t('commerce', 'Custom');
     }
 
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -89,7 +90,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getIsEnabled(): bool
     {
-        return (bool)$this->enabled;
+        return $this->enabled;
     }
 
     /**
@@ -103,14 +104,23 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
+        return [
+            [['name', 'handle'], 'required'],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+            [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+        ];
+    }
 
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRules';
 
-        return $rules;
+        return $fields;
     }
 }

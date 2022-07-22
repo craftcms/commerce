@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DefaultLineItemStatusEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\LineItemStatus;
-use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
@@ -39,7 +38,7 @@ class LineItemStatuses extends Component
 {
     /**
      * @event DefaultLineItemStatusEvent The event that is triggered when getting a default status for a line item.
-     * You may set [[DefaultLineItemStatusEvent::lineItemStatus]] to a desired LineItemStatus to override the default status set in CP
+     * You may set [[DefaultLineItemStatusEvent::lineItemStatus]] to a desired LineItemStatus to override the default status set in control panel.
      *
      * Plugins can get notified when a default line item status is being fetched
      *
@@ -49,43 +48,38 @@ class LineItemStatuses extends Component
      * use yii\base\Event;
      *
      * Event::on(LineItemStatuses::class, LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS, function(DefaultLineItemStatusEvent $e) {
-     *     // Do something - perhaps figure out a better default line item status than the one set in CP
+     *     // Perhaps determine a better default line item status than the one set in control panel
      * });
      * ```
      */
-    const EVENT_DEFAULT_LINE_ITEM_STATUS = 'defaultLineItemStatus';
+    public const EVENT_DEFAULT_LINE_ITEM_STATUS = 'defaultLineItemStatus';
 
-    const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
-
+    public const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
 
     /**
      * @var bool
      */
-    private $_fetchedAllStatuses = false;
+    private bool $_fetchedAllStatuses = false;
 
     /**
      * @var LineItemStatus[]
      */
-    private $_lineItemStatusesById = [];
+    private array $_lineItemStatusesById = [];
 
     /**
      * @var LineItemStatus[]
      */
-    private $_lineItemStatusesByHandle = [];
+    private array $_lineItemStatusesByHandle = [];
 
     /**
-     * @var LineItemStatus
+     * @var LineItemStatus|null
      */
-    private $_defaultLineItemStatus;
-
+    private ?LineItemStatus $_defaultLineItemStatus = null;
 
     /**
      * Get line item status by its handle.
-     *
-     * @param string $handle
-     * @return LineItemStatus|null
      */
-    public function getLineItemStatusByHandle($handle)
+    public function getLineItemStatusByHandle(string $handle): ?LineItemStatus
     {
         if (isset($this->_lineItemStatusesByHandle[$handle])) {
             return $this->_lineItemStatusesByHandle[$handle];
@@ -96,7 +90,7 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['handle' => $handle])
+            ->andWhere(['handle' => $handle])
             ->one();
 
         if (!$result) {
@@ -111,9 +105,9 @@ class LineItemStatuses extends Component
     /**
      * Get default lineItem status ID from the DB
      *
-     * @return int|null
+     * @noinspection PhpUnused
      */
-    public function getDefaultLineItemStatusId()
+    public function getDefaultLineItemStatusId(): ?int
     {
         $defaultStatus = $this->getDefaultLineItemStatus();
 
@@ -126,29 +120,29 @@ class LineItemStatuses extends Component
 
     /**
      * Get default lineItem status from the DB
-     *
-     * @return LineItemStatus|null
      */
-    public function getDefaultLineItemStatus()
+    public function getDefaultLineItemStatus(): ?LineItemStatus
     {
         if ($this->_defaultLineItemStatus !== null) {
             return $this->_defaultLineItemStatus;
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['default' => 1])
+            ->andWhere(['default' => true])
             ->one();
 
-        return new LineItemStatus($result);
+        if ($result) {
+            $this->_defaultLineItemStatus = new LineItemStatus($result);
+        }
+
+        return $this->_defaultLineItemStatus;
     }
 
     /**
-     * Get the default lineItem status for a particular lineItem. Defaults to the CP configured default lineItem status.
-     *
-     * @param LineItem $lineItem
-     * @return LineItemStatus|null
+     * Get the default lineItem status for a particular lineItem. Defaults to the default lineItem status as configured
+     * in the control panel.
      */
-    public function getDefaultLineItemStatusForLineItem(LineItem $lineItem)
+    public function getDefaultLineItemStatusForLineItem(LineItem $lineItem): ?LineItemStatus
     {
         $lineItemStatus = $this->getDefaultLineItemStatus();
 
@@ -164,9 +158,7 @@ class LineItemStatuses extends Component
     /**
      * Save the line item status.
      *
-     * @param LineItemStatus $lineItemStatus
      * @param bool $runValidation should we validate this line item status before saving.
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      */
@@ -190,7 +182,7 @@ class LineItemStatuses extends Component
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
-            $lineItemStatus->addError('handle', Plugin::t('That handle is already in use'));
+            $lineItemStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
             return false;
         }
 
@@ -199,13 +191,7 @@ class LineItemStatuses extends Component
         if ($lineItemStatus->isArchived) {
             $configData = null;
         } else {
-            $configData = [
-                'name' => $lineItemStatus->name,
-                'handle' => $lineItemStatus->handle,
-                'color' => $lineItemStatus->color,
-                'sortOrder' => (int)($lineItemStatus->sortOrder ?? 99),
-                'default' => (bool)$lineItemStatus->default
-            ];
+            $configData = $lineItemStatus->getConfig();
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
@@ -215,17 +201,17 @@ class LineItemStatuses extends Component
             $lineItemStatus->id = Db::idByUid(Table::LINEITEMSTATUSES, $statusUid);
         }
 
+        $this->_clearCaches();
+
         return true;
     }
 
     /**
      * Handle line item status change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedLineItemStatus(ConfigEvent $event)
+    public function handleChangedLineItemStatus(ConfigEvent $event): void
     {
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -258,8 +244,6 @@ class LineItemStatuses extends Component
     /**
      * Archive an line item status by it's id.
      *
-     * @param int $id
-     * @return bool
      * @throws Throwable
      */
     public function archiveLineItemStatusById(int $id): bool
@@ -276,11 +260,9 @@ class LineItemStatuses extends Component
     /**
      * Handle line item status being archived
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
-    public function handleArchivedLineItemStatus(ConfigEvent $event)
+    public function handleArchivedLineItemStatus(ConfigEvent $event): void
     {
         $lineItemStatusUid = $event->tokenMatches[0];
 
@@ -295,6 +277,8 @@ class LineItemStatuses extends Component
             $lineItemStatusRecord->save(false);
 
             $transaction->commit();
+
+            $this->_clearCaches();
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
@@ -313,7 +297,6 @@ class LineItemStatuses extends Component
 
             foreach ($results as $row) {
                 $status = new LineItemStatus($row);
-                $status->typecastAttributes();
                 $this->_memoizeLineItemStatus($status);
             }
 
@@ -324,12 +307,9 @@ class LineItemStatuses extends Component
     }
 
     /**
-     * Get an line item status by ID
-     *
-     * @param int $id
-     * @return LineItemStatus|null
+     * Get a line item status by ID
      */
-    public function getLineItemStatusById($id)
+    public function getLineItemStatusById(int $id): ?LineItemStatus
     {
         if (isset($this->_lineItemStatusesById[$id])) {
             return $this->_lineItemStatusesById[$id];
@@ -340,7 +320,7 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['id' => $id])
+            ->andWhere(['id' => $id])
             ->one();
 
         if (!$result) {
@@ -355,8 +335,6 @@ class LineItemStatuses extends Component
     /**
      * Reorders the line item statuses.
      *
-     * @param array $ids
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -375,16 +353,16 @@ class LineItemStatuses extends Component
             }
         }
 
+        $this->_clearCaches();
+
         return true;
     }
 
 
     /**
      * Memoize an line item status by its ID and handle.
-     *
-     * @param LineItemStatus $lineItemStatus
      */
-    private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus)
+    private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus): void
     {
         $this->_lineItemStatusesById[$lineItemStatus->id] = $lineItemStatus;
         $this->_lineItemStatusesByHandle[$lineItemStatus->handle] = $lineItemStatus;
@@ -392,19 +370,17 @@ class LineItemStatuses extends Component
 
     /**
      * Returns a Query object prepped for retrieving line item statuses
-     *
-     * @return Query
      */
     private function _createLineItemStatusesQuery(): Query
     {
         return (new Query())
             ->select([
+                'color',
+                'default',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
                 'sortOrder',
-                'default',
                 'uid',
             ])
             ->where(['isArchived' => false])
@@ -414,9 +390,6 @@ class LineItemStatuses extends Component
 
     /**
      * Gets an lineitem status' record by uid.
-     *
-     * @param string $uid
-     * @return LineItemStatusRecord
      */
     private function _getLineItemStatusRecord(string $uid): LineItemStatusRecord
     {
@@ -425,5 +398,18 @@ class LineItemStatuses extends Component
         }
 
         return new LineItemStatusRecord();
+    }
+
+    /**
+     * Clear all memoization
+     *
+     * @since 3.2.5
+     */
+    public function _clearCaches(): void
+    {
+        $this->_defaultLineItemStatus = null;
+        $this->_fetchedAllStatuses = false;
+        $this->_lineItemStatusesById = [];
+        $this->_lineItemStatusesByHandle = [];
     }
 }

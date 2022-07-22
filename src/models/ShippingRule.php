@@ -7,11 +7,16 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -26,120 +31,146 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 class ShippingRule extends Model implements ShippingRuleInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
-     * @var int Shipping zone ID
+     * @var int|null Shipping zone ID
      */
-    public $shippingZoneId;
+    public ?int $shippingZoneId = null;
 
     /**
      * @var int Shipping method ID
      */
-    public $methodId;
+    public int $methodId;
 
     /**
      * @var int Priority
      */
-    public $priority = 0;
+    public int $priority = 0;
 
     /**
      * @var bool Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
+
+    /**
+     * @var string|null Order Condition Formula
+     */
+    public ?string $orderConditionFormula = '';
 
     /**
      * @var int Minimum Quantity
      */
-    public $minQty = 0;
+    public int $minQty = 0;
 
     /**
      * @var int Maximum Quantity
      */
-    public $maxQty = 0;
+    public int $maxQty = 0;
 
     /**
      * @var float Minimum total
      */
-    public $minTotal = 0;
+    public float $minTotal = 0;
 
     /**
      * @var float Maximum total
      */
-    public $maxTotal = 0;
+    public float $maxTotal = 0;
+
+    /**
+     * @var string Minimum type rule
+     */
+    public string $minMaxTotalType = ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE;
 
     /**
      * @var float Minimum Weight
      */
-    public $minWeight = 0;
+    public float $minWeight = 0;
 
     /**
      * @var float Maximum Weight
      */
-    public $maxWeight = 0;
+    public float $maxWeight = 0;
 
     /**
      * @var float Base rate
      */
-    public $baseRate = 0;
+    public float $baseRate = 0;
 
     /**
      * @var float Per item rate
      */
-    public $perItemRate = 0;
+    public float $perItemRate = 0;
 
     /**
      * @var float Percentage rate
      */
-    public $percentageRate = 0;
+    public float $percentageRate = 0;
 
     /**
      * @var float Weight rate
      */
-    public $weightRate = 0;
+    public float $weightRate = 0;
 
     /**
      * @var float Minimum Rate
      */
-    public $minRate = 0;
+    public float $minRate = 0;
 
     /**
      * @var float Maximum rate
      */
-    public $maxRate = 0;
+    public float $maxRate = 0;
 
     /**
      * @var bool Is lite shipping rule
      */
-    public $isLite = 0;
+    public bool $isLite = false;
 
     /**
-     * @param Order $order
-     * @return array
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
+
+    /**
+     * @var ShippingRuleCategory[]|null
+     */
+    private ?array $_shippingRuleCategories = null;
+
+    /**
+     * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
         $orderShippingCategories = [];
-        foreach ($order->lineItems as $lineItem) {
-            // Dont' look at the shipping category of non shippable products.
-            if ($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable()) {
+        foreach ($order->getLineItems() as $lineItem) {
+            // Don't look at the shipping category of non-shippable products.
+            if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
             }
         }
-        $orderShippingCategories = array_unique($orderShippingCategories);
-        return $orderShippingCategories;
+
+        return array_unique($orderShippingCategories);
     }
 
     /**
@@ -163,40 +194,66 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @var ShippingCategory[]
+     * @inheritdoc
      */
-    private $_shippingRuleCategories;
-
+    protected function defineRules(): array
+    {
+        return [
+            [
+                [
+                    'name',
+                    'methodId',
+                    'priority',
+                    'enabled',
+                    'minQty',
+                    'maxQty',
+                    'minTotal',
+                    'minMaxTotalType',
+                    'maxTotal',
+                    'minWeight',
+                    'maxWeight',
+                    'baseRate',
+                    'perItemRate',
+                    'weightRate',
+                    'percentageRate',
+                    'minRate',
+                    'maxRate',
+                ],
+                'required',
+            ],
+            [['perItemRate', 'weightRate', 'percentageRate'], 'number'],
+            [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true],
+            [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [
+                'orderConditionFormula',
+                function($attribute) {
+                    if ($this->{$attribute}) {
+                        $order = Order::find()->one();
+                        if (!$order) {
+                            $order = new Order();
+                        }
+                        $orderConditionParams = [
+                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
+                        ];
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
+                            $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                        }
+                    }
+                },
+            ],
+        ];
+    }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    public function extraFields(): array
     {
-        $rules = parent::defineRules();
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRuleCategories';
+        $fields[] = 'shippingZone';
 
-        $rules[] = [
-            [
-                'name',
-                'methodId',
-                'priority',
-                'enabled',
-                'minQty',
-                'maxQty',
-                'minTotal',
-                'maxTotal',
-                'minWeight',
-                'maxWeight',
-                'baseRate',
-                'perItemRate',
-                'weightRate',
-                'percentageRate',
-                'minRate',
-                'maxRate',
-            ], 'required'
-        ];
-
-        return $rules;
+        return $fields;
     }
 
     /**
@@ -218,37 +275,47 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $lineItems = $order->getLineItems();
 
+        if ($this->orderConditionFormula) {
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+            $orderConditionParams = [
+                'order' => array_merge($orderAsArray, $fieldsAsArray),
+            ];
+            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
+                return false;
+            }
+        }
+
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
 
-        $shippableItemsInOrder = count($lineItems) != count($nonShippableItems);
+        $wholeOrderNonShippable = count($nonShippableItems) > 0 && count($lineItems) == count($nonShippableItems);
 
-        // If we have some shippable items in the cart, lets look at their allow/disallow rules
-        if ($shippableItemsInOrder) {
-            $shippingRuleCategories = $this->getShippingRuleCategories();
-            $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-            list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
-
-
-            // Does the order have any disallowed categories in the cart?
-            $result = array_intersect($orderShippingCategories, $disallowedCategories);
-            if (!empty($result)) {
-                return false;
-            }
-
-            // Does the order have all required categories in the cart?
-            $result = !array_diff($requiredCategories, $orderShippingCategories);
-            if (!$result) {
-                return false;
-            }
+        if ($wholeOrderNonShippable) {
+            return false;
         }
 
-        $this->getShippingRuleCategories();
+        $shippingRuleCategories = $this->getShippingRuleCategories();
+        $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
+        [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+
+        // Does the order have any disallowed categories in the cart?
+        $result = array_intersect($orderShippingCategories, $disallowedCategories);
+        if (!empty($result)) {
+            return false;
+        }
+
+        // Does the order have all required categories in the cart?
+        $result = !array_diff($requiredCategories, $orderShippingCategories);
+        if (!$result) {
+            return false;
+        }
+
         $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
         foreach ($floatFields as $field) {
             $this->$field *= 1;
@@ -261,12 +328,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        /** @var ShippingAddressZone $shippingZone */
-        if ($shippingZone && !Plugin::getInstance()->getAddresses()->addressWithinZone($shippingAddress, $shippingZone)) {
+        if ($shippingZone && !$shippingZone->getCondition()->matchElement($shippingAddress)) {
             return false;
         }
 
-        // order qty rules are inclusive (min <= x <= max)
+        // order qty rules are inclusive (min > x <  max)
         if ($this->minQty && $this->minQty > $order->totalQty) {
             return false;
         }
@@ -274,15 +340,46 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        // order total rules exclude maximum limit (min <= x < max)
-        if ($this->minTotal && $this->minTotal > $order->getItemSubtotal()) {
-            return false;
+        $itemSubtotal = $order->getItemSubtotal();
+
+        switch ($this->minMaxTotalType) {
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE:
+
+                $itemTotal = $itemSubtotal;
+                break;
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS:
+
+                $discountAdjustments = [];
+                $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
+                foreach ($discountAdjusters as $discountAdjuster) {
+                    /** @var AdjusterInterface $discountAdjuster */
+                    $adjuster = new $discountAdjuster();
+                    $discountAdjustments = array_merge($discountAdjustments, $adjuster->adjust($order));
+                }
+
+                $discountAmount = 0;
+                foreach ($discountAdjustments as $adjustment) {
+                    $discountAmount += $adjustment->amount;
+                }
+
+                $itemTotal = $itemSubtotal + $discountAmount;
+                break;
+            default:
+
+                $itemTotal = $itemSubtotal; // Default is ShippingRule::TYPE_MIN_ORDER_TOTAL_SALEPRICE
+                break;
         }
-        if ($this->maxTotal && $this->maxTotal <= $order->getItemSubtotal()) {
+
+        // order total rules exclude maximum limit (min > x <= max)
+        if ($this->minTotal && $this->minTotal > $itemTotal) {
             return false;
         }
 
-        // order weight rules exclude maximum limit (min <= x < max)
+        if ($this->maxTotal && $this->maxTotal <= $itemTotal) {
+            return false;
+        }
+
+        // order weight rules exclude maximum limit (min > x <= max)
         if ($this->minWeight && $this->minWeight > $order->totalWeight) {
             return false;
         }
@@ -296,29 +393,34 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @return ShippingRuleCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingRuleCategories(): array
     {
-        if (null === $this->_shippingRuleCategories) {
-            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId((int)$this->id);
+        if ($this->_shippingRuleCategories === null && $this->id) {
+            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId($this->id);
         }
 
-        return $this->_shippingRuleCategories;
+        return $this->_shippingRuleCategories ?? [];
     }
 
     /**
      * @param ShippingRuleCategory[] $models
      */
-    public function setShippingRuleCategories(array $models)
+    public function setShippingRuleCategories(array $models): void
     {
         $this->_shippingRuleCategories = $models;
     }
 
     /**
-     * @return mixed
+     * @throws InvalidConfigException
      */
-    public function getShippingZone()
+    public function getShippingZone(): ?ShippingAddressZone
     {
+        if ($this->shippingZoneId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getShippingZones()->getShippingZoneById($this->shippingZoneId);
     }
 
@@ -333,7 +435,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getPercentageRate($shippingCategoryId = null): float
+    public function getPercentageRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('percentageRate', $shippingCategoryId);
     }
@@ -341,7 +443,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getPerItemRate($shippingCategoryId = null): float
+    public function getPerItemRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('perItemRate', $shippingCategoryId);
     }
@@ -349,7 +451,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getWeightRate($shippingCategoryId = null): float
+    public function getWeightRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('weightRate', $shippingCategoryId);
     }
@@ -382,23 +484,39 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getDescription(): string
     {
-        return $this->description;
+        return $this->description ?? '';
     }
 
+    /**
+     * @since 3.2.7
+     */
+    public function validateShippingRuleCategories(string $attribute): void
+    {
+        $ruleCategories = $this->$attribute;
+
+        if (!empty($ruleCategories)) {
+            foreach ($ruleCategories as $key => $ruleCategory) {
+                if (!$ruleCategory->validate()) {
+                    $this->addModelErrors($ruleCategory, $attribute . '.' . $key);
+                }
+            }
+        }
+    }
 
     /**
      * @param $attribute
-     * @param $shippingCategoryId
+     * @param int|null $shippingCategoryId
      * @return mixed
+     * @throws InvalidConfigException
      */
-    private function _getRate($attribute, $shippingCategoryId = null)
+    private function _getRate($attribute, ?int $shippingCategoryId = null): mixed
     {
         if (!$shippingCategoryId) {
             return $this->$attribute;
         }
 
         foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ((int)$shippingCategoryId === (int)$ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
                 return $ruleCategory->$attribute;
             }
         }

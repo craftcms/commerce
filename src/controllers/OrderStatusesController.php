@@ -8,13 +8,19 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use Throwable;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Order Status Controller
@@ -24,9 +30,6 @@ use yii\web\Response;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
@@ -37,7 +40,6 @@ class OrderStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param OrderStatus|null $orderStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
@@ -59,8 +61,10 @@ class OrderStatusesController extends BaseAdminController
         if ($variables['orderStatus']->id) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new order status');
+            $variables['title'] = Craft::t('commerce', 'Create a new order status');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
@@ -68,23 +72,27 @@ class OrderStatusesController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
 
-    public function actionSave()
+    /**
+     * @throws Exception
+     * @throws BadRequestHttpException
+     */
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
-        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
+        $id = $this->request->getBodyParam('id');
+        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id) : false;
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();
         }
 
-        $orderStatus->name = Craft::$app->getRequest()->getBodyParam('name');
-        $orderStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $orderStatus->color = Craft::$app->getRequest()->getBodyParam('color');
-        $orderStatus->description = Craft::$app->getRequest()->getBodyParam('description');
-        $orderStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $emailIds = Craft::$app->getRequest()->getBodyParam('emails', []);
+        $orderStatus->name = $this->request->getBodyParam('name');
+        $orderStatus->handle = $this->request->getBodyParam('handle');
+        $orderStatus->color = $this->request->getBodyParam('color');
+        $orderStatus->description = $this->request->getBodyParam('description');
+        $orderStatus->default = (bool)$this->request->getBodyParam('default');
+        $emailIds = $this->request->getBodyParam('emails', []);
 
         if (!$emailIds) {
             $emailIds = [];
@@ -92,47 +100,50 @@ class OrderStatusesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, $emailIds)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Order status saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Order status saved.'));
             $this->redirectToPostedUrl($orderStatus);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save order status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('orderStatus', 'emailIds'));
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function actionReorder(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder Order Statuses.')]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response|null
-     * @throws \Throwable
+     * @throws Throwable
      * @throws BadRequestHttpException
      * @since 2.2
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requireAcceptsJson();
 
-        $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
+        $orderStatusId = $this->request->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t archive Order Status.')]);
+        return $this->asSuccess();
     }
 }

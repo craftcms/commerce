@@ -1,0 +1,68 @@
+{% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Bcc',
+    'Name',
+    'No emails exist yet.',
+    'Preview',
+    'Subject',
+    'Template Path',
+    'To',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/emails/new') }}" class="btn submit add icon">{{ 'New email'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="emails-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for email in emails %}
+    {% set tableData = tableData|merge([{
+        id: email.id,
+        title: email.name|t('site'),
+        status: email.enabled ? true : false,
+        url: url('commerce/settings/emails/'~email.id),
+        subject: email.subject|t('site')|e,
+        to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
+        bcc: email.bcc|e,
+        preview: email.id
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'subject', title: Craft.t('commerce', 'Subject') },
+        { name: 'to', title: Craft.t('commerce', 'To') },
+        { name: 'bcc', title: Craft.t('commerce', 'Bcc') },
+        { name: 'template', title: Craft.t('commerce', 'Template Path'),
+            callback: function(value) {
+                if (value) {
+                    return '<span class="code">'+value+'</span>';
+                }
+
+                return '';
+                }
+            },
+        { name: 'preview', title: Craft.t('commerce', 'Preview'),
+                    callback: function(value) {
+                        if (value) {
+                            return '<a class="btn small" target="_blank" href="'+ Craft.getActionUrl('commerce/email-preview/render', { emailId: value })+'">Preview</a>';
+                        }
+
+                        return '';
+                    }
+                },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#emails-vue-admin-table',
+        deleteAction: 'commerce/emails/delete',
+        emptyMessage: Craft.t('commerce', 'No emails exist yet.'),
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

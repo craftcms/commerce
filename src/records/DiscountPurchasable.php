@@ -19,7 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property ActiveQueryInterface $purchasable
  * @property int $purchasableId
- * @property int $purchasableType
+ * @property string $purchasableType
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -33,17 +33,11 @@ class DiscountPurchasable extends ActiveRecord
         return Table::DISCOUNT_PURCHASABLES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id' => 'discountId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);

@@ -5,12 +5,10 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
-use craft\commerce\services\Sales;
 
 /**
  * SaleTest
@@ -21,75 +19,82 @@ use craft\commerce\services\Sales;
 class SaleTest extends Unit
 {
     /**
-     * @todo Remove when populateSaleRelations is removed
+     *
      */
-    public function testLoadRelationsCalledOnce()
-    {
-        $populateSaleRelationsRunCount = 0;
-        $sale = new Sale();
-
-        $mockSalesService = $this->make(Sales::class, [
-            'populateSaleRelations' => function () use (&$populateSaleRelationsRunCount, &$sale) {
-                $populateSaleRelationsRunCount++;
-                $sale->setPurchasableIds([]);
-                $sale->setCategoryIds([]);
-                $sale->setUserGroupIds([]);
-            }
-        ]);
-
-        Plugin::getInstance()->set('sales', $mockSalesService);
-        $sale->getPurchasableIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-        $sale->getCategoryIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-    }
-
-    public function testSetCategoryIds()
-    {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
-
-       $this->assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
-
-       $sale->setCategoryIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getCategoryIds());
-    }
-
-    public function testSetPurchasableIds()
-    {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
-
-       $this->assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
-
-       $sale->setPurchasableIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
-    }
-
-    public function testSetUserGroupIds()
-    {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
-
-       $this->assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
-
-       $sale->setUserGroupIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
-    }
-
-    public function testGetApplyAmountAsPercent()
+    public function testSetCategoryIds(): void
     {
         $sale = new Sale();
-        $sale->applyAmount = '-0.1000';
+        $ids = [1, 2, 3, 4, 1];
 
-        $this->assertSame('10%', $sale->getApplyAmountAsPercent());
+        self::assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
+
+        $sale->setCategoryIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getCategoryIds());
     }
 
-    public function testGetApplyAmountAsFlat()
+    /**
+     *
+     */
+    public function testSetPurchasableIds(): void
+    {
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
+
+        self::assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
+
+        $sale->setPurchasableIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
+    }
+
+    /**
+     *
+     */
+    public function testSetUserGroupIds(): void
+    {
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
+
+        self::assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
+
+        $sale->setUserGroupIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
+    }
+
+    /**
+     * @dataProvider getApplyAMountAsPercentDataProvider
+     */
+    public function testGetApplyAmountAsPercent($applyAmount, $expected): void
+    {
+        $sale = new Sale();
+        $sale->applyAmount = $applyAmount;
+
+        self::assertSame($expected, $sale->getApplyAmountAsPercent());
+    }
+
+    /**
+     *
+     */
+    public function testGetApplyAmountAsFlat(): void
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1500';
 
-        $this->assertSame('0.15', $sale->getApplyAmountAsFlat());
+        self::assertSame('0.15', $sale->getApplyAmountAsFlat());
+    }
+
+    /**
+     * @return array
+     */
+    public function getApplyAMountAsPercentDataProvider(): array
+    {
+        return [
+            ['-0.1000', '10%'],
+            [0, '0%'],
+            [-0.1, '10%'],
+            [-0.15, '15%'],
+            [-0.105, '10.5%'],
+            [-0.10504, '10.504%'],
+            ['-0.1050400', '10.504%'],
+        ];
     }
 }

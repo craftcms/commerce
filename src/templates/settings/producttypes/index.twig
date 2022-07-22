@@ -1,0 +1,79 @@
+{% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
+    'Available Shipping Categories',
+    'Available Tax Categories',
+    'Handle',
+    'Has Variants?',
+    'Name',
+    'No product types exist yet.',
+    'Yes',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">{{ 'New product type'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="types-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for type in productTypes %}
+    {% set shipping = null %}
+    {% for cat in type.getShippingCategories() %}
+    	{% set shipping = shipping ~ '<li>' ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    {% endfor %}
+    {% set shipping = shipping ? tag('ul', { html: shipping }) : '' %}
+
+    {% set tax = null %}
+    {% for cat in type.getTaxCategories() %}
+    	{% set tax = tax ~ '<li>' ~ (currentUser.can('commerce-manageTax') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    {% endfor %}
+    {% set tax = tax ? tag('ul', { html: tax }) : '' %}
+
+    {% set tableData = tableData|merge([{
+        id: type.id,
+        title: type.name|t('site'),
+        url: type.cpEditUrl,
+        handle: type.handle|e,
+        hasVariants: type.hasVariants ? true : false,
+        shipping: shipping,
+        tax: tax,
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+            }
+        },
+        { name: 'shipping', title: Craft.t('commerce', 'Available Shipping Categories'),
+            callback: function(value) {
+                return value;
+            }
+        },
+        { name: 'tax', title: Craft.t('commerce', 'Available Tax Categories'),
+            callback: function(value) {
+                return value;
+            }
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#types-vue-admin-table',
+        deleteAction: 'commerce/product-types/delete-product-type',
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.'),
+        emptyMessage: Craft.t('commerce', 'No product types exist yet.'),
+        tableData: {{ tableData|json_encode|raw }}
+    });
+
+{% endjs %}

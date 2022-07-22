@@ -8,7 +8,9 @@
 
 namespace craft\commerce\behaviors;
 
+use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
+use craft\events\DefineFieldsEvent;
 use craft\helpers\StringHelper;
 use yii\base\Behavior;
 
@@ -56,17 +58,37 @@ class CurrencyAttributeBehavior extends Behavior
      * ]
      * ```
      */
-    public $currencyAttributes;
+    public array $currencyAttributes;
 
     /**
      * @var string default currency
      */
-    public $defaultCurrency;
+    public string $defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
      */
-    public $attributeCurrencyMap = [];
+    public array $attributeCurrencyMap = [];
+
+    /**
+     * @inheritdoc
+     */
+    public function events(): array
+    {
+        return [
+            Order::EVENT_DEFINE_FIELDS => 'defineFields',
+        ];
+    }
+
+    /**
+     * @param DefineFieldsEvent $event
+     * @return void
+     */
+    public function defineFields(DefineFieldsEvent $event): void
+    {
+        $fields = $event->fields;
+        $event->fields = array_merge($fields, $this->currencyFields());
+    }
 
     /**
      * @inheritdoc
@@ -93,7 +115,7 @@ class CurrencyAttributeBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function hasMethod($name)
+    public function hasMethod($name): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
@@ -138,7 +160,7 @@ class CurrencyAttributeBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function canGetProperty($name, $checkVars = true)
+    public function canGetProperty($name, $checkVars = true): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
@@ -150,10 +172,7 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::canGetProperty($name, $checkVars);
     }
 
-    /**
-     * @return mixed
-     */
-    public function currencyFields()
+    public function currencyFields(): array
     {
         $fields = [];
 
@@ -180,10 +199,5 @@ class CurrencyAttributeBehavior extends Behavior
         }
 
         return $name;
-    }
-
-    private function _asCurrency()
-    {
-
     }
 }

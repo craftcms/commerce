@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\ProductTypeSite;
-use craft\test\Fixture;
+use craft\test\ActiveFixture;
 
 /**
  * Product Type Sites Fixture
@@ -16,12 +16,12 @@ use craft\test\Fixture;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1.4
  */
-class ProductTypeSitesFixture extends Fixture
+class ProductTypeSitesFixture extends ActiveFixture
 {
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/product-types-sites.php';
+    public $dataFile = __DIR__ . '/data/product-types-sites.php';
 
     /**
      * @inheritdoc

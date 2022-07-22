@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class BaseCp
@@ -19,14 +20,15 @@ class BaseCpController extends BaseController
 {
     /**
      * @inheritdoc
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
+        parent::init();
+
         // All system setting actions require access to commerce
         $this->requirePermission('accessPlugin-commerce');
 
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
-
-        parent::init();
     }
 }

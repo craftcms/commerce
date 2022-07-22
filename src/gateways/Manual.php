@@ -17,7 +17,7 @@ use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Manual as ManualRequestResponse;
 use craft\commerce\models\Transaction;
-use craft\commerce\Plugin;
+use craft\helpers\App;
 use craft\web\Response as WebResponse;
 
 /**
@@ -31,12 +31,12 @@ class Manual extends Gateway
     /**
      * @var bool
      */
-    public $onlyAllowForZeroPriceOrders;
+    public bool $onlyAllowForZeroPriceOrders = false;
 
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): ?string
     {
         return '';
     }
@@ -52,7 +52,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('commerce/gateways/manualGatewaySettings', ['gateway' => $this]);
     }
@@ -78,7 +78,7 @@ class Manual extends Gateway
      */
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
@@ -86,23 +86,23 @@ class Manual extends Gateway
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $customerId): PaymentSource
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
      * @inheritdoc
      */
-    public function deletePaymentSource($token): bool
+    public function deletePaymentSource(string $token): bool
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
@@ -111,7 +111,7 @@ class Manual extends Gateway
     public function getPaymentTypeOptions(): array
     {
         return [
-            'authorize' => Plugin::t('Authorize Only (Manually Capture)'),
+            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
         ];
     }
 
@@ -120,7 +120,7 @@ class Manual extends Gateway
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
@@ -128,7 +128,7 @@ class Manual extends Gateway
      */
     public function processWebHook(): WebResponse
     {
-        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
+        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
 
     /**
@@ -216,7 +216,7 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if ($this->onlyAllowForZeroPriceOrders && $order->getTotalPrice() != 0) {
+        if (App::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
             return false;
         }
 

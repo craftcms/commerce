@@ -1,0 +1,289 @@
+{% macro generalMetaFields(product) %}
+    {%- import "_includes/forms" as forms -%}
+
+    {{ forms.textField({
+        label: "Slug"|t('commerce'),
+        site: product.site,
+        id: 'slug',
+        name: 'slug',
+        value: product.slug,
+        placeholder: 'Enter slug'|t('commerce'),
+        errors: product.getErrors('slug')|merge(product.getErrors('uri'))
+    }) }}
+
+    {{ forms.dateTimeField({
+        label: 'Post Date'|t('commerce'),
+        id: 'postDate',
+        name: 'postDate',
+        value: product.postDate,
+        errors: product.getErrors('postDate')
+    }) }}
+
+    {{ forms.dateTimeField({
+        label: 'Expiry Date'|t('commerce'),
+        id: 'expiryDate',
+        name: 'expiryDate',
+        value: product.expiryDate,
+        errors: product.getErrors('expiryDate')
+    }) }}
+{% endmacro %}
+
+
+{% macro behavioralMetaFields(product) %}
+    {%- import "_includes/forms" as forms -%}
+
+    {{ forms.lightswitchField({
+        label: 'Free Shipping'|t('commerce'),
+        id: 'free-shipping',
+        name: 'freeShipping',
+        small: true,
+        on: product.freeShipping
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Promotable'|t('commerce'),
+        id: 'promotable',
+        name: 'promotable',
+        small: true,
+        on: product.promotable
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Available for purchase'|t('commerce'),
+        id: 'available-for-purchase',
+        name: 'availableForPurchase',
+        small: true,
+        on: product.availableForPurchase
+    }) }}
+
+    {% set taxCategories = [] %}
+    {% for taxCategory in product.getType().taxCategories %}
+        {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Tax'|t('commerce'),
+        name: 'taxCategoryId',
+        value: product.taxCategoryId,
+        required: true,
+        options: taxCategories
+    }) }}
+
+    {% set shippingCategories = [] %}
+    {% for shippingCategory in product.getType().shippingCategories %}
+        {% set shippingCategories = shippingCategories|merge([{'value': shippingCategory.id, 'label': shippingCategory.name}]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Shipping'|t('commerce'),
+        name: 'shippingCategoryId',
+        value: product.shippingCategoryId,
+        required: true,
+        options: shippingCategories
+    }) }}
+{% endmacro %}
+
+{% macro singleVariantFields(product, productType) %}
+    {% if not productType.hasVariants %}
+        {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
+            <div class="meta">
+                <input class="default-input" type="hidden"
+                       name="isDefault"
+                       value="1">
+                {{ _self.generalVariantFields(product.defaultVariant, product) }}
+            </div>
+            {% if productType.hasDimensions %}
+                <div class="variant-properties meta">
+                    {{ _self.dimensionVariantFields(product.defaultVariant) }}
+                </div>
+            {% endif %}
+        {% endnamespace %}
+    {% endif %}
+
+{% endmacro %}
+
+
+{% macro generalVariantFields(variant, product) %}
+    {%- import "_includes/forms" as forms -%}
+    {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
+
+    {# For a new product hide/show the SKU field#}
+    {% if product.type.skuFormat and (not product.id or not variant.id) %}
+        {{ forms.hidden({
+            name: 'sku',
+            value: ''
+        }) }}
+    {% else %}
+        {{ forms.textField({
+            id: 'sku',
+            label: 'SKU'|t('commerce'),
+            required: true,
+            name: 'sku',
+            value: variant.getSkuAsText(),
+            placeholder: 'Enter SKU'|t('commerce'),
+            class: 'code',
+            errors: variant.getErrors('sku')
+        }) }}
+    {% endif %}
+
+    {{ forms.textField({
+        id: 'price',
+        label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
+        name: 'price',
+        value: (variant.price == '0' ? '0'|number : (variant.price and variant.getErrors('price') is empty ? variant.price|number : variant.price)),
+        placeholder: 'Enter price'|t('commerce'),
+        required: true,
+        errors: variant.getErrors('price')
+    }) }}
+
+    {% set stockInput %}
+        <div class="flex">
+            <div class="textwrapper">
+                {{ forms.text({
+                    id: 'stock',
+                    name: 'stock',
+                    value: (variant.hasUnlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
+                    placeholder: 'Enter stock'|t('commerce'),
+                    disabled: variant.hasUnlimitedStock ? true : false,
+                }) }}
+            </div>
+            <div class="nowrap">
+                {{ forms.checkbox({
+                    id: 'unlimited-stock',
+                    class: 'unlimited-stock',
+                    label: 'Unlimited'|t('commerce'),
+                    name: 'hasUnlimitedStock',
+                    checked: variant.hasUnlimitedStock ? true : false,
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'stock',
+        label: 'Stock'|t('commerce'),
+        required: true,
+        errors: variant.getErrors('hasUnlimitedStock')|merge(variant.getErrors('stock')),
+    }, stockInput) }}
+
+    {% set quantityRangeInput %}
+        <div class="flex">
+            <div class="textwrapper">
+                {{ forms.text({
+                    id: 'minQty',
+                    name: 'minQty',
+                    value: variant.minQty,
+                    placeholder: 'Any'|t('commerce'),
+                    title: 'Minimum allowed quantity'|t
+                }) }}
+            </div>
+            <div class="label light">{{ 'to'|t('commerce') }}</div>
+            <div class="textwrapper">
+                {{ forms.text({
+                    id: 'maxQty',
+                    name: 'maxQty',
+                    value: variant.maxQty,
+                    placeholder: 'Any'|t('commerce'),
+                    title: 'Maximum allowed quantity'|t
+                }) }}
+            </div>
+        </div>
+    {% endset %}
+
+    {{ forms.field({
+        id: 'minQty',
+        label: 'Allowed Qty'|t('commerce'),
+        errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
+    }, quantityRangeInput) }}
+{% endmacro %}
+
+
+{% macro dimensionVariantFields(variant) %}
+    {%- import "_includes/forms" as forms -%}
+
+    {% set dimensionsInput %}
+      {{ forms.text({
+        id: 'length',
+        name: 'length',
+        value: (variant.length and variant.getErrors('length') is empty ? variant.length|number : variant.length),
+        placeholder: 'Length'|t|upper[0:1],
+        title: 'Length'|t('commerce'),
+        unit: craft.commerce.settings.dimensionUnits,
+        errors: variant.getErrors('length')
+      }) }}
+      {{ forms.text({
+        id: 'width',
+        name: 'width',
+        value: (variant.width and variant.getErrors('width') is empty  ? variant.width|number : variant.width),
+        placeholder: 'Width'|t|upper[0:1],
+        title: 'Width'|t('commerce'),
+        unit: craft.commerce.settings.dimensionUnits,
+        errors: variant.getErrors('width')
+      }) }}
+      {{ forms.text({
+        id: 'height',
+        name: 'height',
+        value: (variant.height and variant.getErrors('height') is empty ? variant.height|number : variant.height),
+        placeholder: 'Height'|t|upper[0:1],
+        title: 'Height'|t('commerce'),
+        unit: craft.commerce.settings.dimensionUnits,
+        errors: variant.getErrors('height')
+      }) }}
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Dimensions'|t('commerce'),
+        id: 'width',
+        fieldClass: 'variant-properties-dimensions',
+        errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
+    }, dimensionsInput) }}
+
+    {{ forms.textField({
+        id: 'weight',
+        label: 'Weight'|t('commerce'),
+        name: 'weight',
+        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight|number : variant.weight),
+        placeholder: 'Enter weight'|t('commerce'),
+        unit: craft.commerce.settings.weightUnits,
+        errors: variant.getErrors('weight')
+    }) }}
+{% endmacro %}
+
+{% macro relatedSales(id, showAddAll) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        {% if not showAddAll %}
+            <div class="product-sales commerce-sales-spinner spinner" data-id="{{ id }}" data-loading="false"></div>
+            <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
+            <div class="commerce-sales-buttons">
+                {# Add to existing sale #}
+                <a class="btn small add icon product-add-to-sale" href="#" data-id="{{ id }}">{{ 'Add to Sale'|t('commerce') }}</a>
+            </div>
+        {% else %}
+            <div class="commerce-sales-buttons">
+                {# Add to existing sale #}
+                <a class="btn small add icon product-add-to-sale" href="#" data-id="all">{{ 'Add all to Sale'|t('commerce') }}</a>
+            </div>
+        {% endif %}
+
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Sales'|t('commerce'),
+        id: 'related-sales',
+    }, output) }}
+{% endmacro %}
+
+
+{% macro relatedDiscounts(id, defaultVariant) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        <ul class="commerce-discounts product-discounts commerce-sales" data-id="{{ id }}"></ul>
+        <a class="btn small add icon" target="_blank" href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~defaultVariant.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Discounts'|t('commerce'),
+        id: 'related-discounts',
+    }, output) }}
+{% endmacro %}

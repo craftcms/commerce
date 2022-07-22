@@ -22,30 +22,30 @@ class SubscriptionPayment extends Model
     /**
      * @var float payment amount
      */
-    public $paymentAmount;
+    public float $paymentAmount;
 
     /**
      * @var Currency payment currency
      */
-    public $paymentCurrency;
+    public Currency $paymentCurrency;
 
     /**
      * @var DateTime time of payment in UTC
      */
-    public $paymentDate;
+    public DateTime $paymentDate;
 
     /**
      * @var string the payment reference on gateway
      */
-    public $paymentReference;
+    public string $paymentReference;
 
     /**
      * @var bool whether payment has been collected
      */
-    public $paid = false;
+    public bool $paid = false;
 
     /**
      * @var string the gateway response text
      */
-    public $response;
+    public string $response;
 }

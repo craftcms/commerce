@@ -13,7 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
-use yii\behaviors\AttributeTypecastBehavior;
+use yii\base\InvalidConfigException;
 
 /**
  * Order adjustment model.
@@ -21,6 +21,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Order|null $order
  * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
+ * @property-read string $currency
  * @property-read string $amountAsCurrency
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -29,89 +30,74 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderAdjustment extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var string Type
      */
-    public $type;
+    public string $type;
 
     /**
      * @var float Amount
      */
-    public $amount;
+    public float $amount;
 
     /**
      * @var bool Included
      */
-    public $included = false;
+    public bool $included = false;
 
     /**
      * @var mixed Adjuster options
      */
-    private $_sourceSnapshot = [];
+    private mixed $_sourceSnapshot = [];
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public $orderId;
+    public ?int $orderId = null;
 
     /**
-     * @var int Line item ID this adjustment belongs to
+     * @var int|null Line item ID this adjustment belongs to
      */
-    public $lineItemId;
+    public ?int $lineItemId = null;
 
     /**
      * @var bool Whether the adjustment is based of estimated data
      */
-    public $isEstimated = false;
+    public bool $isEstimated = false;
 
     /**
      * @var LineItem|null The line item this adjustment belongs to
      */
-    private $_lineItem;
+    private ?LineItem $_lineItem = null;
 
     /**
      * @var Order|null The order this adjustment belongs to
      */
-    private $_order;
+    private ?Order $_order = null;
 
 
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isEstimated' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'type' => AttributeTypecastBehavior::TYPE_STRING,
-                'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'description' => AttributeTypecastBehavior::TYPE_STRING
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -120,23 +106,14 @@ class OrderAdjustment extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            [
-                'type',
-                'amount',
-                'sourceSnapshot',
-                'orderId'
-            ], 'required'
+        return [
+            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required'],
+            [['amount'], 'number'],
+            [['orderId'], 'integer'],
+            [['lineItemId'], 'integer'],
         ];
-        $rules[] = [['amount'], 'number'];
-        $rules[] = [['orderId'], 'integer'];
-        $rules[] = [['lineItemId'], 'integer'];
-
-        return $rules;
     }
 
     /**
@@ -152,8 +129,6 @@ class OrderAdjustment extends Model
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -162,12 +137,13 @@ class OrderAdjustment extends Model
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        if (!isset($this->_order->currency)) {
+            throw new InvalidConfigException('Order doesn’t have a currency.');
+        }
+
+        return $this->_order->currency;
     }
 
     /**
@@ -180,10 +156,8 @@ class OrderAdjustment extends Model
 
     /**
      * Set the options array on the line item.
-     *
-     * @param array|string $snapshot
      */
-    public function setSourceSnapshot($snapshot)
+    public function setSourceSnapshot(array|string $snapshot): void
     {
         if (is_string($snapshot)) {
             $snapshot = Json::decode($snapshot);
@@ -197,43 +171,35 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return LineItem|null
+     * @throws InvalidConfigException
      */
-    public function getLineItem()
+    public function getLineItem(): ?LineItem
     {
-        if ($this->_lineItem === null && $this->lineItemId) {
+        if ($this->_lineItem === null && isset($this->lineItemId) && $this->lineItemId) {
             $this->_lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
         }
 
         return $this->_lineItem;
     }
 
-    /**
-     * @param LineItem $lineItem
-     * @return void
-     */
-    public function setLineItem(LineItem $lineItem)
+    public function setLineItem(LineItem $lineItem): void
     {
         $this->_lineItem = $lineItem;
     }
 
     /**
-     * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if ($this->_order === null && $this->orderId) {
+        if (!isset($this->_order) && isset($this->orderId) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
         return $this->_order;
     }
 
-    /**
-     * @param Order $order
-     * @return void
-     */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
         $this->orderId = $order->id;

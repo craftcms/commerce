@@ -21,8 +21,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $productTypeId
  * @property Site $site
  * @property int $siteId
- * @property string $template
- * @property string $uriFormat
+ * @property string|null $template
+ * @property string|null $uriFormat
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -36,17 +36,11 @@ class ProductTypeSite extends ActiveRecord
         return Table::PRODUCTTYPES_SITES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id', 'productTypeId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSite(): ActiveQueryInterface
     {
         return $this->hasOne(Site::class, ['id', 'siteId']);

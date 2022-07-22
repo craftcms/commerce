@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
-use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;
@@ -25,13 +24,9 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-    /**
-     * @param array $variables
-     * @return Response
-     */
-    public function actionEdit(array $variables = []): Response
+    public function actionEdit(): Response
     {
-        $donation = Donation::find()->one();
+        $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {
             $donation = new Donation();
@@ -41,32 +36,33 @@ class DonationsController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
         // Not using a service to save a donation yet. Always editing the only donation.
-        $donation = Donation::find()->one();
+        /** @var Donation|null $donation */
+        $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {
             $donation = new Donation();
         }
 
-        $donation->sku = Craft::$app->getRequest()->getBodyParam('sku');
-        $donation->availableForPurchase = (bool)Craft::$app->getRequest()->getBodyParam('availableForPurchase');
+        $donation->sku = $this->request->getBodyParam('sku');
+        $donation->availableForPurchase = (bool)$this->request->getBodyParam('availableForPurchase');
+        $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
             return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Donation settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));
         return $this->redirectToPostedUrl();
     }
 }

@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 use craft\web\Request;
+use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -31,12 +32,13 @@ class Product
      * @param               $variant
      * @param               $key
      * @return Variant
+     * @throws InvalidConfigException
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {
         $productId = $product->id;
 
-        $newVariant = 0 === strpos($key, 'new');
+        $newVariant = str_starts_with($key, 'new');
         if ($productId && !$newVariant) {
             $variantModel = Plugin::getInstance()->getVariants()->getVariantById($key, $product->siteId);
         } else {
@@ -49,15 +51,15 @@ class Product
         $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
-        $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
-        $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
-        $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
-        $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;
-        $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
-        $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
+        $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
+        $variantModel->width = isset($variant['width']) ? (int)LocalizationHelper::normalizeNumber($variant['width']) : null;
+        $variantModel->height = isset($variant['height']) ? (int)LocalizationHelper::normalizeNumber($variant['height']) : null;
+        $variantModel->length = isset($variant['length']) ? (int)LocalizationHelper::normalizeNumber($variant['length']) : null;
+        $variantModel->weight = isset($variant['weight']) ? (int)LocalizationHelper::normalizeNumber($variant['weight']) : null;
+        $variantModel->stock = isset($variant['stock']) ? (int)LocalizationHelper::normalizeNumber($variant['stock']) : null;
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
-        $variantModel->minQty = LocalizationHelper::normalizeNumber($variant['minQty']);
-        $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
+        $variantModel->minQty = (int)LocalizationHelper::normalizeNumber($variant['minQty']);
+        $variantModel->maxQty = (int)LocalizationHelper::normalizeNumber($variant['maxQty']);
 
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);
@@ -74,7 +76,6 @@ class Product
      * Instantiates the product specified by the post data.
      *
      * @param Request|null $request
-     * @return ProductModel
      * @throws NotFoundHttpException
      * @since 3.1.3
      */
@@ -91,7 +92,7 @@ class Product
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new NotFoundHttpException(Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
+                throw new NotFoundHttpException(Craft::t('commerce', 'No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new ProductModel();
@@ -107,7 +108,6 @@ class Product
      *
      * @param ProductModel|null $product
      * @param Request|null $request
-     * @return ProductModel
      * @throws NotFoundHttpException
      */
     public static function populateProductFromPost(ProductModel $product = null, Request $request = null): ProductModel
@@ -127,6 +127,7 @@ class Product
         if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
+
         $product->promotable = (bool)$request->getBodyParam('promotable');
         $product->availableForPurchase = (bool)$request->getBodyParam('availableForPurchase');
         $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
@@ -138,6 +139,8 @@ class Product
         $product->title = $request->getBodyParam('title', $product->title);
 
         $product->setFieldValuesFromRequest('fields');
+        $product->updateTitle();
+
         if ($variants = $request->getBodyParam('variants')) {
             $product->setVariants($variants);
         } else {

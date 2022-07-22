@@ -8,8 +8,16 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use craft\db\Table as CraftTable;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\Exception as DbException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -22,7 +30,7 @@ use yii\web\Response;
 class PaymentCurrenciesController extends BaseStoreSettingsController
 {
     /**
-     * @return Response
+     * @throws CurrencyException
      */
     public function actionIndex(): Response
     {
@@ -34,8 +42,8 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param PaymentCurrency|null $currency
-     * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
     {
@@ -54,42 +62,66 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         }
 
         if ($variables['currency']->id) {
-            if ($variables['currency']->primary) {
-                $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
-            } else {
-                $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
-            }
+            $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
         } else {
-            $variables['title'] = Plugin::t('Create a new currency');
+            $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['currency'], prepend: true);
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
+
+        $variables['hasCompletedOrders'] = Order::find()->isCompleted(true)->exists();
 
         return $this->renderTemplate('commerce/store-settings/paymentcurrencies/_edit', $variables);
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws DbException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
         $currency = new PaymentCurrency();
 
         // Shared attributes
-        $currency->id = Craft::$app->getRequest()->getBodyParam('currencyId');
-        $currency->iso = Craft::$app->getRequest()->getBodyParam('iso');
-        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate');
-        $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
+        $currency->id = $this->request->getBodyParam('currencyId');
+        $currency->iso = $this->request->getBodyParam('iso');
+        $currency->rate = $this->request->getBodyParam('rate', 1);
+        $currency->primary = (bool)$this->request->getBodyParam('primary');
+
+        // Check to see if the primary currency is being changed
+        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        $changingPrimaryCurrency = false;
+        if ($currency->id && $currency->primary && $primaryCurrency && $primaryCurrency->iso != $currency->iso) {
+            $changingPrimaryCurrency = true;
+        }
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Currency saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Currency saved.'));
+
+            // Delete all carts if primary currency is being changed
+            if ($changingPrimaryCurrency) {
+                $cartIds = Order::find()->isCompleted(false)->ids();
+                if (!empty($cartIds)) {
+                    // Delete in the same way that carts are purged
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(CraftTable::ELEMENTS, ['id' => $cartIds])
+                        ->execute();
+
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(CraftTable::SEARCHINDEX, ['elementId' => $cartIds])
+                        ->execute();
+                }
+            }
             $this->redirectToPostedUrl($currency);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save currency.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save currency.'));
         }
 
         // Send the model back to the template
@@ -97,22 +129,22 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
 
-        if ($currency && !$currency->primary) {
-            Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
-            return $this->asJson(['success' => true]);
+        if (!$currency || $currency->primary) {
+            return $this->asFailure(Craft::t('commerce', 'You can not delete that currency.'));
         }
 
-        $message = Plugin::t('You can not delete that currency.');
-        return $this->asErrorJson($message);
+        Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
+        return $this->asSuccess();
     }
 }

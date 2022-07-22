@@ -8,10 +8,21 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
+use craft\commerce\helpers\Localization;
+use craft\commerce\models\ProductType;
+use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\i18n\Locale;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -24,9 +35,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -37,15 +45,19 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxCategories()->getAllTaxCategories();
 
         return $this->renderTemplate('commerce/tax/taxrates/index', [
-            'taxRates' => $taxRates
+            'taxRates' => $taxRates,
         ]);
     }
 
     /**
      * @param int|null $id
      * @param TaxRate|null $taxRate
-     * @return Response
+     * @throws ForbiddenHttpException
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
@@ -54,6 +66,7 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $variables = compact('id', 'taxRate');
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 
@@ -72,12 +85,14 @@ class TaxRatesController extends BaseTaxSettingsController
         if ($variables['taxRate']->id) {
             $variables['title'] = $variables['taxRate']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new tax rate');
+            $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
+
+        DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
-            ['value' => '', 'label' => '']
+            ['value' => '', 'label' => ''],
         ];
 
         foreach ($taxZones as $model) {
@@ -92,16 +107,17 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $taxable = [];
-        $taxable[TaxRateRecord::TAXABLE_PRICE] = Plugin::t('Line item price');
-        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Plugin::t('Line item shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Plugin::t('Both (Line item price + Line item shipping costs)');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Plugin::t('Order total shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Plugin::t('Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
+        $taxable[TaxRateRecord::TAXABLE_PURCHASABLE] = Craft::t('commerce', 'Unit price (minus discounts)');
+        $taxable[TaxRateRecord::TAXABLE_PRICE] = Craft::t('commerce', 'Line item price (minus discounts)');
+        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('commerce', 'Line item shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('commerce', 'Both (Line item price + Line item shipping costs)');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Craft::t('commerce', 'Order total shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Craft::t('commerce', 'Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
         $variables['taxables'] = $taxable;
         $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
 
         $variables['hideTaxCategory'] = false;
-        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'])) {
+        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'], false)) {
             $variables['hideTaxCategory'] = true;
         }
 
@@ -111,31 +127,44 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
 
+
+        $newZone = new TaxAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $view->renderTemplate('commerce/tax/taxzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
         $view->startJsBuffer();
+
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypesOptions = [];
+        if (!empty($productTypes)) {
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', function(ProductType $row) {
+                return ['label' => $row->name, 'value' => $row->id];
+            });
+        }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxcategories/_fields', [
-                'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
-            ])
+            $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
-
-        $view->setNamespace();
 
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -146,42 +175,37 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate = new TaxRate();
 
         // Shared attributes
-        $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
-        $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
-        $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
-        $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
-        $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
-        $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
-        $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        $rate = Craft::$app->getRequest()->getBodyParam('rate');
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $taxRate->rate = (float)$rate / 100;
-        } else {
-            $taxRate->rate = (float)$rate;
-        }
+        $taxRate->id = $this->request->getBodyParam('taxRateId');
+        $taxRate->name = $this->request->getBodyParam('name');
+        $taxRate->code = $this->request->getBodyParam('code');
+        $taxRate->include = (bool)$this->request->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)$this->request->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)$this->request->getBodyParam('removeVatIncluded');
+        $taxRate->isVat = (bool)$this->request->getBodyParam('isVat');
+        $taxRate->taxable = $this->request->getBodyParam('taxable');
+        $taxRate->taxCategoryId = (int)$this->request->getBodyParam('taxCategoryId') ?: null;
+        $taxRate->taxZoneId = (int)$this->request->getBodyParam('taxZoneId') ?: null;
+        $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Tax rate saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax rate.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax rate.'));
         }
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'taxRate' => $taxRate
+            'taxRate' => $taxRate,
         ]);
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -190,9 +214,9 @@ class TaxRatesController extends BaseTaxSettingsController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = $this->request->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

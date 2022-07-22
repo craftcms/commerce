@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -29,9 +30,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
@@ -42,7 +40,6 @@ class LineItemStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param LineItemStatus|null $lineItemStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, LineItemStatus $lineItemStatus = null): Response
@@ -61,10 +58,12 @@ class LineItemStatusesController extends BaseAdminController
             }
         }
 
+        DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
+
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new line item status');
+            $variables['title'] = Craft::t('commerce', 'Create a new line item status');
         }
 
         return $this->renderTemplate('commerce/settings/lineitemstatuses/_edit', $variables);
@@ -76,35 +75,34 @@ class LineItemStatusesController extends BaseAdminController
      * @throws Exception
      * @throws MissingComponentException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
-        $id = Craft::$app->getRequest()->getBodyParam('id');
-        $lineItemStatus = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id);
+        $id = $this->request->getBodyParam('id');
+        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id) : false;
 
         if (!$lineItemStatus) {
             $lineItemStatus = new LineItemStatus();
         }
 
-        $lineItemStatus->name = Craft::$app->getRequest()->getBodyParam('name');
-        $lineItemStatus->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $lineItemStatus->color = Craft::$app->getRequest()->getBodyParam('color');
-        $lineItemStatus->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $lineItemStatus->name = $this->request->getBodyParam('name');
+        $lineItemStatus->handle = $this->request->getBodyParam('handle');
+        $lineItemStatus->color = $this->request->getBodyParam('color');
+        $lineItemStatus->default = (bool)$this->request->getBodyParam('default');
 
         // Save it
         if (Plugin::getInstance()->getLineItemStatuses()->saveLineItemStatus($lineItemStatus)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Order status saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Order status saved.'));
             $this->redirectToPostedUrl($lineItemStatus);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save line item status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save line item status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('lineItemStatus'));
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -116,29 +114,28 @@ class LineItemStatusesController extends BaseAdminController
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
-        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
+        if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder  Line Item Statuses.')]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Throwable
      */
-    public function actionArchive()
+    public function actionArchive(): ?Response
     {
         $this->requireAcceptsJson();
 
-        $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
+        $lineItemStatusId = $this->request->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t archive Line Item Status.')]);
+        return $this->asSuccess();
     }
 }

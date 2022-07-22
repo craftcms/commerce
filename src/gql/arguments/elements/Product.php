@@ -28,37 +28,37 @@ class Product extends ElementArguments
      */
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(),  self::getContentArguments(), [
+        return array_merge(parent::getArguments(), self::getContentArguments(), [
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),
-                'description' => 'Whether to only return products that are available to purchase.'
+                'description' => 'Whether to only return products that are available to purchase.',
             ],
             'defaultPrice' => [
                 'name' => 'defaultPrice',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the default price on the product.'
+                'description' => 'Narrows the query results based on the default price on the product.',
             ],
             'editable' => [
                 'name' => 'editable',
                 'type' => Type::boolean(),
-                'description' => 'Whether to only return products that the user has permission to edit.'
+                'description' => 'Whether to only return products that the user has permission to edit.',
             ],
             'type' => [
                 'name' => 'type',
                 'type' => Type::listOf(Type::string()),
-                'description' => 'Narrows the query results based on the product type the products belong to per the product type’s handles.'
+                'description' => 'Narrows the query results based on the product type the products belong to per the product type’s handles.',
             ],
             'typeId' => [
                 'name' => 'typeId',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on the product types the products belong to, per the product type IDs.'
+                'description' => 'Narrows the query results based on the product types the products belong to, per the product type IDs.',
             ],
             'hasVariant' => [
                 'name' => 'hasVariant',
                 'type' => Variant::getType(),
-                'description' => 'Narrows the query results to only products that have certain variants.'
-            ]
+                'description' => 'Narrows the query results to only products that have certain variants.',
+            ],
         ]);
     }
 

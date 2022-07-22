@@ -20,15 +20,17 @@ use GraphQL\Type\Definition\InputObjectType;
 class Variant extends InputObjectType
 {
     /**
-     * @return bool|mixed
+     * @return mixed
      */
-    public static function getType()
+    public static function getType(): mixed
     {
         $typeName = 'VariantInput';
 
         return GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new InputObjectType([
             'name' => $typeName,
-            'fields' => VariantArguments::getArguments()
+            'fields' => function() {
+                return VariantArguments::getArguments();
+            },
         ]));
     }
 }

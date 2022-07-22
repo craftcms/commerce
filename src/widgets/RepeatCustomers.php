@@ -9,11 +9,11 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use DateTime;
 
 /**
  * Repeat Customers widget
@@ -27,37 +27,37 @@ use craft\helpers\StringHelper;
 class RepeatCustomers extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var null|RepeatingCustomersStat
      */
-    private $_stat;
+    private ?RepeatingCustomersStat $_stat = null;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new RepeatingCustomersStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -74,13 +74,13 @@ class RepeatCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t('Repeat Customers');
+        return Craft::t('commerce', 'Repeat Customers');
     }
 
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -88,7 +88,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return '';
     }
@@ -96,7 +96,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $numbers = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -110,7 +110,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }
@@ -118,7 +118,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'repeat' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

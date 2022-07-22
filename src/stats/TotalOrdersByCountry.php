@@ -7,9 +7,9 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
-use craft\commerce\db\Table;
-use craft\commerce\Plugin;
+use craft\db\Table as CraftTable;
 use craft\helpers\ArrayHelper;
 use yii\db\Expression;
 
@@ -24,23 +24,21 @@ class TotalOrdersByCountry extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalOrdersByCountry';
+    protected string $_handle = 'totalOrdersByCountry';
 
     /**
      * @var string Type of stat e.g. 'shipping' or 'billing'.
      */
-    public $type = 'shipping';
+    public string $type = 'shipping';
 
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
@@ -48,25 +46,22 @@ class TotalOrdersByCountry extends Stat
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
         $query = $this->_createStatQuery();
         $query->select([
-            new Expression('COUNT([[orders.id]]) as total'),
-            ($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') . ' as id',
-            ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]' ) . ' as name',
+            'countryCode' => ($this->type == 'billing' ? '[[b.countryCode]]' : '[[s.countryCode]]'),
+            'total' => new Expression('COUNT([[orders.id]])'),
         ]);
-        $query->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
-        $query->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');
-        $query->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]');
-        $query->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]');
+        $query->leftJoin(CraftTable::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
+        $query->leftJoin(CraftTable::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');
 
         if ($this->type == 'billing') {
-            $query->andWhere(['not', ['[[bc.id]]' => null]]);
-            $query->groupBy('[[bc.id]]');
+            $query->andWhere(['not', ['[[b.countryCode]]' => null]]);
+            $query->groupBy('[[b.countryCode]]');
         } else {
-            $query->andWhere(['not', ['[[sc.id]]' => null]]);
-            $query->groupBy('[[sc.id]]');
+            $query->andWhere(['not', ['[[s.countryCode]]' => null]]);
+            $query->groupBy('[[s.countryCode]]');
         }
 
         $query->orderBy(new Expression('COUNT([[orders.id]]) DESC'));
@@ -77,25 +72,23 @@ class TotalOrdersByCountry extends Stat
             return $rows;
         }
 
-        $countryIds = ArrayHelper::getColumn($rows, 'id', false);
+        $countryCodes = ArrayHelper::getColumn($rows, 'countryCode', false);
 
         $otherCountries = $this->_createStatQuery()
             ->select([
-                new Expression('COUNT([[orders.id]]) as total'),
-                new Expression('NULL as id'),
+                'total' => new Expression('COUNT([[orders.id]])'),
+                'countryCode' => new Expression('NULL'),
             ])
-            ->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
-            ->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')
-            ->leftJoin(Table::COUNTRIES . ' sc', '[[sc.id]] = [[s.countryId]]')
-            ->leftJoin(Table::COUNTRIES . ' bc', '[[bc.id]] = [[b.countryId]]')
-            ->andWhere(['not', [($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') => $countryIds]])
+            ->leftJoin(CraftTable::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
+            ->leftJoin(CraftTable::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')
+            ->andWhere(['not', [($this->type == 'billing' ? '[[b.countryCode]]' : '[[s.countryCode]]') => $countryCodes]])
             ->one();
 
-        if (!$otherCountries || empty($otherCountries)) {
+        if (empty($otherCountries)) {
             return $rows;
         }
 
-        $otherCountries['name'] = Plugin::t('Other countries');
+        $otherCountries['name'] = Craft::t('commerce', 'Other countries');
         $rows[] = $otherCountries;
 
         return $rows;
@@ -112,15 +105,14 @@ class TotalOrdersByCountry extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         if (!empty($data)) {
             foreach ($data as &$row) {
-                $row['country'] = null;
-
-                if ($row['id']) {
-                    $row['country'] = Plugin::getInstance()->getCountries()->getCountryById($row['id']);
+                if (!$row['countryCode']) {
+                    continue;
                 }
+                $row['name'] = Craft::$app->getAddresses()->getCountryRepository()->get($row['countryCode'])->getName();
             }
         }
 

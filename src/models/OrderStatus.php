@@ -7,15 +7,19 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
-use yii\behaviors\AttributeTypecastBehavior;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Order status model.
@@ -31,75 +35,57 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderStatus extends Model
 {
     use SoftDeleteTrait {
-        behaviors as softDeleteBehaviors;
+        SoftDeleteTrait::behaviors as softDeleteBehaviors;
     }
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Color
      */
-    public $color = 'green';
+    public string $color = 'green';
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public $sortOrder;
-
-    /**
-     * @var bool Default status
-     */
-    public $default;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
      */
-    public $dateDeleted;
+    public bool $default = false;
 
     /**
-     * @var string UID
+     * @var DateTime|null Date deleted
      */
-    public $uid;
+    public ?DateTime $dateDeleted = null;
 
     /**
-     * @return array
+     * @var string|null UID
      */
+    public ?string $uid = null;
+
     public function behaviors(): array
     {
-        $behaviors = $this->softDeleteBehaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'handle' => AttributeTypecastBehavior::TYPE_STRING,
-                'color' => AttributeTypecastBehavior::TYPE_STRING,
-                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
-        return $behaviors;
+        return $this->softDeleteBehaviors();
     }
 
     /**
@@ -107,51 +93,54 @@ class OrderStatus extends Model
      */
     public function __toString()
     {
-        return (string)$this->getDisplayName();
+        return $this->getDisplayName();
     }
 
     /**
-     * @return string
      * @since 2.2
      */
     public function getDisplayName(): string
     {
-        if ($this->dateDeleted !== null)
-        {
-            return $this->name . Plugin::t(' (Trashed)');
+        if ($this->dateDeleted !== null) {
+            return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
         }
 
-        return $this->name;
+        return $this->name ?? '';
     }
 
-    /**
-     * @return array
-     */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        return [
+            [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [
+                ['handle'],
+                HandleValidator::class,
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
+            ],
         ];
-
-        return $rules;
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'emails';
+        $fields[] = 'emailIds';
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->id);
     }
 
     /**
-     * @return array
+     * @throws InvalidConfigException
      */
     public function getEmailIds(): array
     {
@@ -160,26 +149,25 @@ class OrderStatus extends Model
 
     /**
      * @return Email[]
+     * @throws InvalidConfigException
      */
     public function getEmails(): array
     {
         return $this->id ? Plugin::getInstance()->getEmails()->getAllEmailsByOrderStatusId($this->id) : [];
     }
 
-    /**
-     * @return string
-     */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->getDisplayName());
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
     }
 
     /**
-     * @return bool
      * @since 2.2
      */
     public function canDelete(): bool
     {
-        return !Order::find()->trashed(null)->orderStatus($this)->one();
+        /** @var OrderQuery $orderQuery */
+        $orderQuery = Order::find()->trashed(null);
+        return !$orderQuery->orderStatus($this)->one();
     }
 }

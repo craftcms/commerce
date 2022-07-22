@@ -21,7 +21,6 @@ interface AdjusterInterface
     /**
      * Returns adjustments to add to the order
      *
-     * @param Order $order
      * @return OrderAdjustment[]
      */
     public function adjust(Order $order): array;

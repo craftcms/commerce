@@ -11,6 +11,7 @@ use craft\commerce\base\Model;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
 
 /**
  * Currency model.
@@ -28,42 +29,47 @@ use craft\validators\UniqueValidator;
 class PaymentCurrency extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public $iso;
+    public ?string $iso = null;
 
     /**
      * @var bool Is primary currency
      */
-    public $primary;
+    public bool $primary = false;
 
     /**
      * @var float Exchange rate vs primary currency
      */
-    public $rate;
+    public float $rate = 1;
 
     /**
      * @var Currency
      */
-    private $_currency;
-
+    private Currency $_currency;
 
     /**
-     * @return string
+     * @var DateTime|null
+     * @since 3.4
      */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
+
     public function __toString(): string
     {
         return (string)$this->iso;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/store-settings/paymentcurrencies/' . $this->id);
@@ -83,48 +89,36 @@ class PaymentCurrency extends Model
         return $names;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getAlphabeticCode()
+    public function getAlphabeticCode(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->alphabeticCode;
         }
 
         return null;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getNumericCode()
+    public function getNumericCode(): ?int
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->numericCode;
         }
 
         return null;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getEntity()
+    public function getEntity(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->entity;
         }
 
         return null;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getMinorUnit()
+    public function getMinorUnit(): ?int
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->minorUnit;
         }
 
@@ -133,20 +127,15 @@ class PaymentCurrency extends Model
 
     /**
      * Returns alias of getCurrency()
-     *
-     * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->getCurrency();
     }
 
-    /**
-     * @return string|null
-     */
-    public function getCurrency()
+    public function getCurrency(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->currency;
         }
 
@@ -155,10 +144,8 @@ class PaymentCurrency extends Model
 
     /**
      * Sets the Currency Model data on the Payment Currency
-     *
-     * @param $currency
      */
-    public function setCurrency(Currency $currency)
+    public function setCurrency(Currency $currency): void
     {
         $this->_currency = $currency;
     }
@@ -166,13 +153,12 @@ class PaymentCurrency extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['iso'], 'required'];
-        $rules[] = [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']];
-
-        return $rules;
+        return [
+            [['iso'], 'required'],
+            [['rate'], 'required'],
+            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+        ];
     }
 }

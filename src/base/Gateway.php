@@ -11,7 +11,6 @@ use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\Plugin;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 
@@ -19,12 +18,11 @@ use craft\helpers\UrlHelper;
  * Class Gateway
  *
  * @property string $cpEditUrl
- * @property bool $dateArchived
- * @property bool $isFrontendEnabled
+ * @property bool|string|null $isFrontendEnabled
  * @property bool $isArchived
- * @property string $name
  * @property null|BasePaymentForm $paymentFormModel
  * @property string $paymentType
+ * @property-read null|string $transactionHashFromWebhook
  * @property array $paymentTypeOptions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -47,7 +45,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Returns the webhook url for this gateway.
      *
      * @param array $params Parameters for the url.
-     * @return string
      */
     public function getWebhookUrl(array $params = []): string
     {
@@ -60,17 +57,12 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns whether this gateway allows payments in control panel.
-     *
-     * @return bool
      */
     public function cpPaymentsEnabled(): bool
     {
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->id);
@@ -78,32 +70,33 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns the payment type options.
-     *
-     * @return array
      */
     public function getPaymentTypeOptions(): array
     {
         return [
-            'authorize' => Plugin::t('Authorize Only (Manually Capture)'),
-            'purchase' => Plugin::t('Purchase (Authorize and Capture Immediately)'),
+            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
+            'purchase' => Craft::t('commerce', 'Purchase (Authorize and Capture Immediately)'),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['paymentType', 'handle'], 'required'],
-        ];
+        $rules = parent::defineRules();
+        $rules[] = [['paymentType', 'handle'], 'required'];
+
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
+
+        return $rules;
     }
 
     /**
      * Returns the html to use when paying with a stored payment source.
      *
      * @param array $params
-     * @return mixed
+     * @return string
      */
     public function getPaymentConfirmationFormHtml(array $params): string
     {
@@ -119,20 +112,22 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Returns payment Form HTML
-     *
-     * @param array $params
-     * @return string|null
+     * Returns true if gateway supports partial refund requests.
      */
-    abstract public function getPaymentFormHtml(array $params);
+    public function supportsPartialPayment(): bool
+    {
+        return true;
+    }
 
     /**
-     * Returns the transaction hash based on a webhook request
-     *
-     * @return string|null
-     * @since 3.1.9
+     * Returns payment Form HTML
      */
-    public function getTransactionHashFromWebhook()
+    abstract public function getPaymentFormHtml(array $params): ?string;
+
+    /**
+     * @inheritdoc
+     */
+    public function getTransactionHashFromWebhook(): ?string
     {
         return null;
     }

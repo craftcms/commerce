@@ -9,12 +9,13 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TopCustomers as TopCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
+use DateTime;
 
 /**
  * Top Customers widget
@@ -28,74 +29,62 @@ use craft\web\assets\admintable\AdminTableAsset;
 class TopCustomers extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $startDate;
+    public mixed $startDate = null;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
-    public $endDate;
+    public mixed $endDate = null;
 
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
-     * @var string Options 'total', 'average'.
+     * @var string|null Options 'total', 'average'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var TopCustomersStat
      */
-    private $_stat;
+    private TopCustomersStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->_typeOptions = [
-            'total' => Plugin::t('Total'),
-            'average' => Plugin::t('Average'),
+            'total' => Craft::t('commerce', 'Total'),
+            'average' => Craft::t('commerce', 'Average'),
         ];
 
-        switch ($this->type) {
-            case 'average':
-            {
-                $this->_title = Plugin::t('Top Customers by Average Order');
-                break;
-            }
-            case 'total':
-            {
-                $this->_title = Plugin::t('Top Customers by Total Revenue');
-                break;
-            }
-            default:
-            {
-                $this->_title = Plugin::t('Top Customers');
-                break;
-            }
-        }
-        $this->dateRange = !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->_title = match ($this->type) {
+            'average' => Craft::t('commerce', 'Top Customers by Average Order'),
+            'total' => Craft::t('commerce', 'Top Customers by Total Revenue'),
+            default => Craft::t('commerce', 'Top Customers'),
+        };
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopCustomersStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
 
         parent::init();
@@ -114,13 +103,13 @@ class TopCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Customers');
+        return Craft::t('commerce', 'Top Customers');
     }
 
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -128,7 +117,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -136,7 +125,7 @@ class TopCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -144,9 +133,13 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
@@ -163,7 +156,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-products' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

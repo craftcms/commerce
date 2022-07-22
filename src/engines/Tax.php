@@ -19,7 +19,6 @@ use craft\commerce\base\TaxEngineInterface;
  */
 class Tax extends Component implements TaxEngineInterface
 {
-
     /**
      * @inheritDoc
      */
@@ -65,9 +64,6 @@ class Tax extends Component implements TaxEngineInterface
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function taxCategoryActionHtml(): string
     {
         return '';

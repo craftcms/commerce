@@ -17,19 +17,20 @@ use yii\db\Connection;
  * @method Donation[]|array all($db = null)
  * @method Donation|array|null one($db = null)
  * @method Donation|array|null nth(int $n, Connection $db = null)
+ * @method self status(array|string|null $value)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @skip-docs
+ * @doc-path donations.md
  */
 class DonationQuery extends ElementQuery
 {
     /**
-     * @var string The sku of the donation purchasable
+     * @var mixed The SKU of the donation purchasable
      */
-    public $sku;
+    public mixed $sku = null;
 
     /**
-     * Narrows the query results based on the sku.
+     * Narrows the query results based on the SKU.
      *
      * Possible values include:
      *
@@ -43,8 +44,8 @@ class DonationQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set sku = craft.app.request.getQueryParam('sku') %}
      * {% set {element-var} = {twig-method}
-     *     .sku(sku)
-     *     .one() %}
+     *   .sku(sku)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -55,15 +56,14 @@ class DonationQuery extends ElementQuery
      *     ->one();
      * ```
      *
-     * @param string|null $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
-    public function sku(string $value = null)
+    public function sku(mixed $value): DonationQuery
     {
         $this->sku = $value;
         return $this;
     }
-
 
     /**
      * @inheritdoc
@@ -75,7 +75,7 @@ class DonationQuery extends ElementQuery
         $this->query->select([
             'commerce_donations.id',
             'commerce_donations.sku',
-            'commerce_donations.availableForPurchase'
+            'commerce_donations.availableForPurchase',
         ]);
 
         if ($this->sku) {

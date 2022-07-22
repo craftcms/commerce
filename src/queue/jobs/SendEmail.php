@@ -8,6 +8,8 @@
 namespace craft\commerce\queue\jobs;
 
 use craft\commerce\elements\Order;
+use craft\commerce\errors\EmailException;
+use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 
@@ -16,26 +18,25 @@ class SendEmail extends BaseJob
     /**
      * @var int Order ID
      */
-    public $orderId;
+    public int $orderId;
 
     /**
      * @var array Order Data at time of order status change
      */
-    public $orderData;
+    public array $orderData;
 
     /**
      * @var int The commerce email ID
      */
-    public $commerceEmailId;
+    public int $commerceEmailId;
 
     /**
      * @var int the order history ID
      */
-    public $orderHistoryId;
+    public int $orderHistoryId;
 
 
-
-    public function execute($queue)
+    public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
 
@@ -43,15 +44,21 @@ class SendEmail extends BaseJob
         $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
+        $language = $email->getRenderLanguage($order);
+        Locale::switchAppLanguage($language);
+
         $this->setProgress($queue, 0.5);
 
-        Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData);
+        $error = '';
+        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
+            throw new EmailException($error);
+        }
 
         $this->setProgress($queue, 1);
     }
 
 
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return 'Sending email for order #' . $this->orderId;
     }

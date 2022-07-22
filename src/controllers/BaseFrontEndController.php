@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
 use craft\commerce\events\ModifyCartInfoEvent;
-use craft\helpers\Json;
 
 /**
  * Class BaseFrontEndController
@@ -20,7 +19,7 @@ use craft\helpers\Json;
 class BaseFrontEndController extends BaseController
 {
     /**
-     * @event Event The event that is triggered when an cart is returned as an array (for ajax cart update requests)
+     * @event Event The event that’s triggered when a cart is returned as an array for Ajax cart update requests.
      *
      * ---
      * ```php
@@ -28,35 +27,31 @@ class BaseFrontEndController extends BaseController
      * use craft\commerce\events\ModifyCartInfoEvent;
      * use yii\base\Event;
      *
-     * Event::on(BaseFrontEndController::class, BaseFrontEndController::EVENT_MODIFY_CART_INFO, function(ModifyCartInfoEvent $e) {
-     *     $cartArray = $e->cartInfo;
-     *     $cartArray['anotherOne'] = 'Howdy';
-     *     $e->cartInfo = $cartArray;
-     * });
+     * Event::on(
+     *     BaseFrontEndController::class,
+     *     BaseFrontEndController::EVENT_MODIFY_CART_INFO,
+     *     function(ModifyCartInfoEvent $e) {
+     *         $cartArray = $e->cartInfo;
+     *         $cartArray['anotherOne'] = 'Howdy';
+     *         $e->cartInfo = $cartArray;
+     *     }
+     * );
      * ```
      */
-    const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
+    public const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
 
 
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
-
-    /**
-     * @param Order $cart
-     * @return array
-     */
     protected function cartArray(Order $cart): array
     {
-        // Typecast order attributes
-        $cart->typeCastAttributes();
-
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
-            'availableShippingMethods'
+            'notices',
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);
@@ -64,7 +59,7 @@ class BaseFrontEndController extends BaseController
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
-            'cart' => $cart
+            'cart' => $cart,
         ]);
 
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);

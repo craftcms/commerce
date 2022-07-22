@@ -22,7 +22,7 @@ class VariantMatrixAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
@@ -31,7 +31,7 @@ class VariantMatrixAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/VariantMatrix.js',
+            'VariantMatrix.js',
         ];
 
         parent::init();
@@ -40,7 +40,7 @@ class VariantMatrixAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function registerAssetFiles($view)
+    public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);
 

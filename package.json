@@ -1,25 +1,36 @@
 {
+  "name": "craftcommerce",
   "private": true,
-  "main": "gulpfile.js",
-  "devDependencies": {
-    "craftcms-sass": "^3.4.0",
-    "gulp": "^4.0.2",
-    "gulp-sass": "^4.1.0",
-    "markdown-it-deflist": "^2.0.3",
-    "node-sass": "^4.14.1"
-  },
+  "main": "webpack.config.js",
+  "browserslist": [
+    "extends @craftcms/browserslist-config"
+  ],
   "scripts": {
-    "build": "./node_modules/.bin/gulp",
-    "watch": "./node_modules/.bin/gulp watch"
+    "prebuild": "npm run fix-prettier",
+    "build": "webpack --node-env=production --progress",
+    "serve": "webpack-dev-server --node-env=development",
+    "check-prettier": "prettier --check .",
+    "fix-prettier": "prettier --write ."
   },
-  "dependencies": {
-    "chart.js": "^2.9.3",
+  "devDependencies": {
+    "@craftcms/vue": "^1.0.0",
+    "@craftcms/webpack": "^1.1.0",
+    "axios": "^0.26.1",
+    "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
+    "craftcms-sass": "^3.5.6",
     "deepmerge": "^4.2.2",
-    "event-stream": "^4.0.1",
-    "gulp-concat": "^2.6.1",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-uglify": "^3.0.2",
-    "moment": "^2.27.0"
+    "lodash.debounce": "^4.0.8",
+    "lodash.find": "^4.6.0",
+    "lodash.isequal": "^4.5.0",
+    "lodash.isobjectlike": "^4.0.0",
+    "moment": "^2.29.3",
+    "prettier": "^2.7.1",
+    "prismjs": "^1.27.0",
+    "vue": "^2.6.14",
+    "vue-prism-editor": "^0.6.1",
+    "vue-select": "3.5.2",
+    "vuelidate": "^0.7.7",
+    "vuex": "^3.6.2"
   }
 }

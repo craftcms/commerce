@@ -1,0 +1,138 @@
+{# @var settings \craft\commerce\models\Settings #}
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+
+{% import "_includes/forms" as forms %}
+{% from _self import configWarning %}
+
+{% block content %}
+
+    <h2>{{ "General Settings"|t('commerce') }}</h2>
+
+    <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
+        <input type="hidden" name="action" value="commerce/settings/save-settings">
+        {{ redirectInput('commerce/settings/general') }}
+        {{ csrfInput() }}
+
+        <h3>{{ 'Email'|t('commerce') }}</h3>
+        {{ forms.autosuggestField({
+            first: true,
+            label: 'Status Email Address'|t('commerce'),
+            instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
+            id: 'emailSenderAddress',
+            name: 'settings[emailSenderAddress]',
+            placeholder: settings.emailSenderAddressPlaceholder,
+            value: settings.emailSenderAddress,
+            errors: settings.getErrors('emailSenderAddress'),
+            suggestEnvVars: true,
+            autofocus: true,
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: 'From Name'|t('commerce'),
+            instructions: 'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
+            id: 'emailSenderName',
+            name: 'settings[emailSenderName]',
+            placeholder: settings.emailSenderNamePlaceholder,
+            value: settings.emailSenderName,
+            errors: settings.getErrors('emailSenderName'),
+            suggestEnvVars: true,
+            autofocus: true,
+        }) }}
+        <hr>
+        <h3>{{ 'Units'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Weight Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product weights."|t('commerce'),
+            name: 'settings[weightUnits]',
+            value: settings.weightUnits,
+            options: settings.getWeightUnitsOptions(),
+            errors: settings.getErrors('weightUnits'),
+            required: true,
+            warning: configWarning('weightUnits', 'commerce'),
+        }) }}
+
+        {{ forms.selectField({
+            label: "Dimension Unit"|t('commerce'),
+            instructions: "The unit of measurement that should be used when specifying product dimensions."|t('commerce'),
+            name: 'settings[dimensionUnits]',
+            value: settings.dimensionUnits,
+            options: settings.getDimensionUnits(),
+            errors: settings.getErrors('dimensionUnits'),
+            required: true,
+            warning: configWarning('dimensionUnits', 'commerce'),
+        }) }}
+
+        <hr>
+        <h3>{{ 'Order Settings'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Minimum Total Price Strategy"|t('commerce'),
+            instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
+            name: 'settings[minimumTotalPriceStrategy]',
+            value: settings.minimumTotalPriceStrategy,
+            options: settings.getMinimumTotalPriceStrategyOptions(),
+            errors: settings.getErrors('minimumTotalPriceStrategy'),
+            required: true,
+            warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
+        }) }}
+
+        {{ forms.selectField({
+            label: "Free Order Payment Strategy"|t('commerce'),
+            instructions: "Strategy to apply when an order is free or has a zero balance."|t('commerce'),
+            name: 'settings[freeOrderPaymentStrategy]',
+            value: settings.freeOrderPaymentStrategy,
+            options: settings.getFreeOrderPaymentStrategyOptions(),
+            errors: settings.getErrors('freeOrderPaymentStrategy'),
+            required: true,
+            warning: configWarning('freeOrderPaymentStrategy', 'commerce'),
+        }) }}
+
+        {{ forms.textField({
+            label: "Order Reference Number Format"|t('commerce'),
+            instructions: "A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique."|t('commerce', {
+            ex1: "<code>2018-{number[:7]}</code>",
+            ex2: "<code>{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}</code>"
+            }),
+            id: 'orderReferenceFormat',
+            name: 'settings[orderReferenceFormat]',
+            value: settings.orderReferenceFormat,
+            class: 'code ltr',
+            errors: settings.getErrors('orderReferenceFormat'),
+            required: true,
+            warning: configWarning('orderReferenceFormat', 'commerce'),
+        }) }}
+
+        <hr>
+        <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
+        {{ forms.autosuggestField({
+            label: "Billing detail update URL"|t('commerce'),
+            instructions: "The URL to the page for updating billing details for a subscription, as well as handling 3DS authentication."|t('commerce'),
+            id: 'updateBillingDetailsUrl',
+            name: 'settings[updateBillingDetailsUrl]',
+            value: settings.updateBillingDetailsUrl,
+            errors: settings.getErrors('updateBillingDetailsUrl'),
+            required: false,
+            suggestEnvVars: true,
+            suggestAliases: true,
+            placeholder: "//example.com/subscriptions/updateBillingDetails",
+            warning: configWarning('updateBillingDetailsUrl', 'commerce'),
+        }) }}
+
+        <hr>
+        <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Default View"|t('commerce'),
+            instructions: "Default Commerce control panel view. If the user does not have permission it will fall back to a location they can access."|t('commerce'),
+            name: 'settings[defaultView]',
+            value: settings.defaultView,
+            options: settings.getDefaultViewOptions(),
+            errors: settings.getErrors('defaultView'),
+            required: true,
+            warning: configWarning('defaultView', 'commerce'),
+        }) }}
+
+        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
+    </form>
+
+{% endblock %}

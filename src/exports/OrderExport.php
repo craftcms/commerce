@@ -7,12 +7,12 @@
 
 namespace craft\commerce\exports;
 
+use Craft;
 use craft\base\ElementExporter;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\db\Table;
-use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
 use craft\elements\db\ElementQueryInterface;
 
@@ -23,13 +23,13 @@ class OrderExport extends ElementExporter
      */
     public static function displayName(): string
     {
-        return Plugin::t('Orders (Legacy)');
+        return Craft::t('commerce', 'Orders (Legacy)');
     }
 
     /**
      * @inheritDoc
      */
-    public function export(ElementQueryInterface $query): array
+    public function export(ElementQueryInterface $query): mixed
     {
         $orderIds = $query->ids();
 
@@ -79,12 +79,10 @@ class OrderExport extends ElementExporter
             'shippingMethodHandle',
         ];
 
-        $orders = (new CraftQuery())
+        return (new CraftQuery())
             ->select($columns)
             ->from(Table::ORDERS)
             ->where(['id' => $orderIds])
             ->all();
-
-        return $orders;
     }
 }

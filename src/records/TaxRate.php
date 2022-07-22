@@ -12,10 +12,12 @@ use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Tax rate record.
+ * Tax Rate record.
  *
  * @property int $id
  * @property bool $include
+ * @property bool $removeIncluded
+ * @property bool $removeVatIncluded
  * @property bool $isVat
  * @property string $name
  * @property string $code
@@ -32,17 +34,43 @@ use yii\db\ActiveQueryInterface;
  */
 class TaxRate extends ActiveRecord
 {
-    const TAXABLE_PRICE = 'price';
-    const TAXABLE_SHIPPING = 'shipping';
-    const TAXABLE_PRICE_SHIPPING = 'price_shipping';
-    const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
-    const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
+    /**
+     * @var string Tax subject is line item price.
+     */
+    public const TAXABLE_PURCHASABLE = 'purchasable';
 
-    const ORDER_TAXABALES = [
+    /**
+     * @var string Tax subject is line item price.
+     */
+    public const TAXABLE_PRICE = 'price';
+
+    /**
+     * @var string Tax subject is line item shipping cost.
+     */
+    public const TAXABLE_SHIPPING = 'shipping';
+
+    /**
+     * @var string Tax subject is line item price and shipping cost.
+     */
+    public const TAXABLE_PRICE_SHIPPING = 'price_shipping';
+
+    /**
+     * @var string Tax subject is order total shipping cost.
+     */
+    public const TAXABLE_ORDER_TOTAL_SHIPPING = 'order_total_shipping';
+
+    /**
+     * @var string Tax subject is order total price.
+     */
+    public const TAXABLE_ORDER_TOTAL_PRICE = 'order_total_price';
+
+    /**
+     * @var array Order-specific tax subject options.
+     */
+    public const ORDER_TAXABALES = [
         self::TAXABLE_ORDER_TOTAL_PRICE,
-        self::TAXABLE_ORDER_TOTAL_SHIPPING
+        self::TAXABLE_ORDER_TOTAL_SHIPPING,
     ];
-
 
     /**
      * @inheritdoc
@@ -53,16 +81,13 @@ class TaxRate extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
     {
         return $this->hasOne(TaxZone::class, ['id' => 'taxZoneId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategory(): ActiveQueryInterface
     {
         return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);

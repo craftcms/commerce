@@ -7,6 +7,8 @@
 
 namespace craft\commerce\events;
 
+use craft\commerce\models\Transaction;
+
 /**
  * Class RefundTransactionEvent
  *
@@ -18,5 +20,10 @@ class RefundTransactionEvent extends TransactionEvent
     /**
      * @var float The amount to refund
      */
-    public $amount;
+    public float $amount;
+
+    /**
+     * @var Transaction The transaction created which is the refund
+     */
+    public Transaction $refundTransaction;
 }

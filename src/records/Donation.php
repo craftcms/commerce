@@ -35,16 +35,13 @@ class Donation extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['sku'], 'unique']
+            [['sku'], 'unique'],
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id', 'id']);

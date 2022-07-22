@@ -21,10 +21,10 @@ trait Variables
     /**
      * Returns the donation purchasable
      *
-     * @return Donation The donation purchasable
+     * @return Donation|null The donation purchasable
      */
-    public function getDonation(): Donation
+    public function getDonation(): ?Donation
     {
-        return Donation::find()->one();
+        return Donation::find()->status(null)->one();
     }
 }

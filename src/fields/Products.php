@@ -13,9 +13,10 @@ use craft\commerce\elements\Product;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\fields\BaseRelationField;
+use craft\helpers\Gql as GqlHelper;
+use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -23,6 +24,8 @@ use GraphQL\Type\Definition\Type;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read array $contentGqlType
  */
 class Products extends BaseRelationField
 {
@@ -38,7 +41,7 @@ class Products extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return Plugin::t('Commerce Products');
+        return Craft::t('commerce', 'Commerce Products');
     }
 
     /**
@@ -46,10 +49,10 @@ class Products extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Plugin::t('Add a product');
+        return Craft::t('commerce', 'Add a product');
     }
 
-    public function getInputHtml($value, ElementInterface $element = null): string
+    public function getInputHtml(mixed $value, ?ElementInterface $element = null): string
     {
         Craft::$app->getView()->registerAssetBundle(EditProductAsset::class);
         return parent::getInputHtml($value, $element);
@@ -59,20 +62,21 @@ class Products extends BaseRelationField
      * @inheritdoc
      * @since 3.1.4
      */
-    public function getContentGqlType()
+    public function getContentGqlType(): array|Type
     {
         return [
             'name' => $this->handle,
             'type' => Type::listOf(ProductInterface::getType()),
             'args' => ProductArguments::getArguments(),
             'resolve' => ProductResolver::class . '::resolve',
+            'complexity' => GqlHelper::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    protected static function elementType(): string
+    public static function elementType(): string
     {
         return Product::class;
     }

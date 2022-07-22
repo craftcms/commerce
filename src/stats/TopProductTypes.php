@@ -7,6 +7,7 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
@@ -24,52 +25,60 @@ class TopProductTypes extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topProductTypes';
+    protected string $_handle = 'topProductTypes';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
      */
-    public $type = 'qty';
+    public string $type = 'qty';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
+
     /**
      * @inheritDoc
      */
-    public function getData()
+    public function getData(): array
     {
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
-
+        
+        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        
         $results = $this->_createStatQuery()
             ->select([
                 '[[pt.id]] as id',
                 '[[pt.name]]',
                 $selectTotalQty,
-                $selectTotalRevenue
+                $selectTotalRevenue,
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
             ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', '[[content.elementId]] = [[v.productId]]')
+            ->leftJoin(CraftTable::CONTENT . ' content', [
+                'and',
+                '[[content.elementId]] = [[v.productId]]',
+                ['content.siteId' => $primarySite->id],
+            ])
+            ->andWhere(['not', ['pt.name' => null]])
+            ->andWhere(['pt.id' => $editableProductTypeIds])
             ->groupBy('[[pt.id]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);
@@ -88,7 +97,7 @@ class TopProductTypes extends Stat
     /**
      * @inheritDoc
      */
-    public function prepareData($data)
+    public function prepareData($data): mixed
     {
         if (!empty($data)) {
             foreach ($data as &$row) {

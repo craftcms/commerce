@@ -8,10 +8,16 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\ElementInterface;
+use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\PurchasableAvailableEvent;
+use craft\commerce\events\PurchasableShippableEvent;
+use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
+use Throwable;
 use yii\base\Component;
+use yii\base\InvalidArgumentException;
 
 /**
  * Product type service.
@@ -24,6 +30,52 @@ use yii\base\Component;
 class Purchasables extends Component
 {
     /**
+     * @event PurchasableAvailableEvent The event that is triggered when the availability of a purchasables is checked.
+     *
+     * This example stop users of a certain group from having the purchasable be available to them in their order.
+     *
+     * ```php
+     * use craft\commerce\events\PurchasableAvailableEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_PURCHASABLE_AVAILABLE,
+     *     function(PurchasableAvailableEvent $event) {
+     *         if($order && $user = $order->getUser()){
+     *             $event->isAvailable = $event->isAvailable && !$user->isInGroup(1); // Group ID 1 not allowed to have purchasable in the cart.
+     *         }
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
+
+    /**
+     * @event PurchasableShippableEvent The event that is triggered when determining whether a purchasable may be shipped.
+     *
+     * This example prevents the purchasable from being shippable in a specific user group's orders:
+     *
+     * ```php
+     * use craft\commerce\events\PurchasableShippableEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_PURCHASABLE_SHIPPABLE,
+     *     function(PurchasableShippableEvent $event) {
+     *         if($order && $user = $order->getUser()){
+     *             $event->isShippable = $event->is && !$user->isInGroup(1);
+     *         }
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
+
+    /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
      *
      * This example adds an instance of `MyPurchasable` to the event object’s `types` array:
@@ -32,7 +84,7 @@ class Purchasables extends Component
      * use craft\events\RegisterComponentTypesEvent;
      * use craft\commerce\services\Purchasables;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Purchasables::class,
      *     Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES,
@@ -42,14 +94,55 @@ class Purchasables extends Component
      * );
      * ```
      */
-    const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
-
+    public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
-     * Delete a purhasable by its ID.
+     * @param Order|null $order
+     * @param User|null $currentUser
+     * @since 3.3.1
+     */
+    public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    {
+        if ($currentUser === null) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+        }
+        $isAvailable = $purchasable->getIsAvailable();
+
+        $event = new PurchasableAvailableEvent(compact('order', 'purchasable', 'currentUser', 'isAvailable'));
+
+        if ($this->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
+            $this->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+        }
+
+        return $event->isAvailable;
+    }
+
+    /**
+     * @param Order|null $order
+     * @param User|null $currentUser
+     * @since 3.3.2
+     */
+    public function isPurchasableShippable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    {
+        if ($currentUser === null) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+        }
+        $isShippable = $purchasable->getIsShippable();
+
+        $event = new PurchasableShippableEvent(compact('order', 'purchasable', 'currentUser', 'isShippable'));
+
+        if ($this->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
+            $this->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+        }
+
+        return $event->isShippable;
+    }
+
+    /**
+     * Delete a purchasable by its ID.
      *
-     * @param int $purchasableId
-     * @return bool
+     * @throws Throwable
+     * @noinspection PhpUnused
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
@@ -60,11 +153,16 @@ class Purchasables extends Component
      * Get a purchasable by its ID.
      *
      * @param int $purchasableId
-     * @return ElementInterface|null
+     * @return PurchasableInterface|null
+     * @throws InvalidArgumentException if $purchasableId is an element ID but not a purchasable
      */
-    public function getPurchasableById(int $purchasableId)
+    public function getPurchasableById(int $purchasableId): ?PurchasableInterface
     {
-        return Craft::$app->getElements()->getElementById($purchasableId);
+        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        if ($purchasable && !$purchasable instanceof PurchasableInterface) {
+            throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
+        }
+        return $purchasable;
     }
 
     /**
@@ -79,7 +177,7 @@ class Purchasables extends Component
         ];
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $purchasableElementTypes
+            'types' => $purchasableElementTypes,
         ]);
         $this->trigger(self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, $event);
 

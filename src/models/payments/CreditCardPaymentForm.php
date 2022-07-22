@@ -7,7 +7,7 @@
 
 namespace craft\commerce\models\payments;
 
-use craft\commerce\Plugin;
+use Craft;
 
 /**
  * Credit Card Payment form model.
@@ -18,55 +18,54 @@ use craft\commerce\Plugin;
 class CreditCardPaymentForm extends BasePaymentForm
 {
     /**
-     * @var string First name
+     * @var string|null First name
      */
-    public $firstName;
+    public ?string $firstName = null;
 
     /**
-     * @var string Last name
+     * @var string|null Last name
      */
-    public $lastName;
+    public ?string $lastName = null;
 
     /**
-     * @var int Card number
+     * @var string|null Card number
      */
-    public $number;
+    public ?string $number = null;
 
     /**
-     * @var int Expiry month
+     * @var string|null Expiry month
      */
-    public $month;
+    public ?string $month = null;
 
     /**
-     * @var int Expiry year
+     * @var string|null Expiry year
      */
-    public $year;
+    public ?string $year = null;
 
     /**
-     * @var int CVV number
+     * @var string|null CVV number
      */
-    public $cvv;
+    public ?string $cvv = null;
 
     /**
-     * @var string Token
+     * @var string|null Token
      */
-    public $token;
+    public ?string $token = null;
 
     /**
-     * @var string Expiry date
+     * @var string|null Expiry date
      */
-    public $expiry;
+    public ?string $expiry = null;
 
     /**
      * @var bool
      */
-    public $threeDSecure = false;
-
+    public bool $threeDSecure = false;
 
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true)
+    public function setAttributes($values, $safeOnly = true): void
     {
         parent::setAttributes($values, $safeOnly);
 
@@ -88,35 +87,33 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
-        $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
-        $rules[] = [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12];
-        $rules[] = [['cvv'], 'integer', 'integerOnly' => true];
-        $rules[] = [['cvv'], 'string', 'length' => [3, 4]];
-        $rules[] = [['number'], 'integer', 'integerOnly' => true];
-        $rules[] = [['number'], 'string', 'max' => 19];
-        $rules[] = [['number'], 'creditCardLuhn'];
-
-        return $rules;
+        return [
+            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
+            [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
+            [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => (int)date('Y') + 12],
+            [['cvv'], 'integer', 'integerOnly' => true],
+            [['cvv'], 'string', 'length' => [3, 4]],
+            [['number'], 'integer', 'integerOnly' => true],
+            [['number'], 'string', 'max' => 19],
+            [['number'], 'creditCardLuhn'],
+        ];
     }
 
     /**
-     * @param $attribute
-     * @param $params
+     * @param string $attribute
      */
-    public function creditCardLuhn($attribute, $params)
+    public function creditCardLuhn(string $attribute): void
     {
         $str = '';
         foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {
+            /** @var int $c */
             $str .= ($i % 2) ? $c * 2 : $c;
         }
 
         if (array_sum(str_split($str)) % 10 !== 0) {
-            $this->addError($attribute, Plugin::t('Not a valid credit card number.'));
+            $this->addError($attribute, Craft::t('commerce', 'Not a valid credit card number.'));
         }
     }
 }

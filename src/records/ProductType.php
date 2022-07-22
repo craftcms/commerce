@@ -17,11 +17,10 @@ use yii\db\ActiveQueryInterface;
  *
  * @property string $descriptionFormat
  * @property FieldLayout $fieldLayout
- * @property int $fieldLayoutId
+ * @property int|null $fieldLayoutId
  * @property string $handle
  * @property bool $hasDimensions
  * @property bool $hasVariants
- * @property bool $hasVariantTitleField
  * @property int $id
  * @property string $name
  * @property ActiveQueryInterface $productTypesShippingCategories
@@ -29,11 +28,12 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $shippingCategories
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
- * @property string $titleFormat
- * @property string $titleLabel
- * @property string $variantTitleLabel
+ * @property bool $hasVariantTitleField
+ * @property string $variantTitleFormat
+ * @property bool $hasProductTitleField
+ * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
- * @property int $variantFieldLayoutId
+ * @property int|null $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -47,50 +47,35 @@ class ProductType extends ActiveRecord
         return Table::PRODUCTTYPES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductTypesShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeShippingCategory::class, ['productTypeId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ShippingCategory::class, ['id' => 'shippingCategoryId'])
             ->via('productTypesShippingCategories');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getProductTypesTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(ProductTypeTaxCategory::class, ['productTypeId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategories(): ActiveQueryInterface
     {
         return $this->hasMany(TaxCategory::class, ['id' => 'taxCategoryId'])
             ->via('productTypesTaxCategories');
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getFieldLayout(): ActiveQueryInterface
     {
         return $this->hasOne(FieldLayout::class, ['id' => 'fieldLayoutId']);
     }
 
     /**
-     * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getVariantFieldLayout(): ActiveQueryInterface
     {

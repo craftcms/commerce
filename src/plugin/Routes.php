@@ -19,11 +19,10 @@ use yii\base\Event;
  */
 trait Routes
 {
-
     /**
      * @since 3.1.10
      */
-    private function _registerSiteRoutes()
+    private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
@@ -33,7 +32,7 @@ trait Routes
     /**
      * @since 2.0
      */
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
@@ -55,17 +54,14 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';
-
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
 
-            $event->rules['commerce/orders/create-new'] = 'commerce/orders/new-order';
+            $event->rules['commerce/orders/create'] = 'commerce/orders/create';
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
+            $event->rules['commerce/addresses/new'] = 'commerce/addresses/edit';
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
@@ -80,6 +76,10 @@ trait Routes
             $event->rules['commerce/settings/emails/new'] = 'commerce/emails/edit';
             $event->rules['commerce/settings/emails/<id:\d+>'] = 'commerce/emails/edit';
 
+            $event->rules['commerce/settings/pdfs'] = 'commerce/pdfs/index';
+            $event->rules['commerce/settings/pdfs/new'] = 'commerce/pdfs/edit';
+            $event->rules['commerce/settings/pdfs/<id:\d+>'] = 'commerce/pdfs/edit';
+
             $event->rules['commerce/settings/orderstatuses'] = 'commerce/order-statuses/index';
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
             $event->rules['commerce/settings/orderstatuses/<id:\d+>'] = 'commerce/order-statuses/edit';
@@ -89,7 +89,7 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
+            $event->rules['commerce/store-settings/store'] = 'commerce/store/edit';
 
             $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
             $event->rules['commerce/store-settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
@@ -125,6 +125,10 @@ trait Routes
             $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
             $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
+            // Subscription plans
+            $event->rules['commerce/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/store-settings/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
             $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
@@ -146,11 +150,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
-
-            // Customers
-            $event->rules['commerce/customers'] = 'commerce/customers/index';
-            $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });
     }
 }
-

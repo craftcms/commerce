@@ -8,18 +8,14 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\Plugin;
-use craft\errors\ElementNotFoundException;
-use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
-use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -35,8 +31,7 @@ class ProductsPreviewController extends Controller
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
-
+    protected array|bool|int $allowAnonymous = true;
 
     /**
      * Previews a product.
@@ -49,7 +44,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         return $this->_showProduct($product);
     }
@@ -57,14 +52,14 @@ class ProductsPreviewController extends Controller
     /**
      * Redirects the client to a URL for viewing a disabled product on the front end.
      *
-     * @param mixed $productId
-     * @param mixed $siteId
+     * @param int $productId
+     * @param int|null $siteId
      * @return Response
      * @throws Exception
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionShareProduct($productId, $siteId): Response
+    public function actionShareProduct(int $productId, ?int $siteId): Response
     {
         $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
@@ -72,7 +67,7 @@ class ProductsPreviewController extends Controller
             throw new HttpException(404);
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Make sure the product actually can be viewed
         if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
@@ -81,7 +76,7 @@ class ProductsPreviewController extends Controller
 
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId]
+            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId],
         ]);
 
         $url = UrlHelper::urlWithToken($product->getUrl(), $token);
@@ -90,14 +85,17 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * Shows an product/draft/version based on a token.
+     * Shows a product/draft/version based on a token.
      *
-     * @param mixed $productId
-     * @param mixed $site
+     * @param int $productId
+     * @param int|null $site
      * @return Response|null
      * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ServerErrorHttpException
+     * @throws \yii\web\BadRequestHttpException
      */
-    public function actionViewSharedProduct($productId, $site = null)
+    public function actionViewSharedProduct(int $productId, ?int $site = null): ?Response
     {
         $this->requireToken();
 
@@ -113,87 +111,27 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * Save a new or existing product.
-     *
-     * @return Response|null
-     * @throws Exception
-     * @throws HttpException
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
-     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
      */
-    public function actionSaveProduct()
+    protected function enforceEditProductPermissions(Product $product): void
     {
-        $this->requirePostRequest();
-
-        $request = Craft::$app->getRequest();
-
-        $product = ProductHelper::populateProductFromPost();
-
-        $this->enforceProductPermissions($product);
-
-        // Save the entry (finally!)
-        if ($product->enabled && $product->enabledForSite) {
-            $product->setScenario(Element::SCENARIO_LIVE);
+        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
-
-        if (!Craft::$app->getElements()->saveElement($product)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => false,
-                    'errors' => $product->getErrors(),
-                ]);
-            }
-
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product.'));
-
-            // Send the category back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product
-            ]);
-
-            return null;
-        }
-
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
-                'id' => $product->id,
-                'title' => $product->title,
-                'status' => $product->getStatus(),
-                'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl()
-            ]);
-        }
-
-        Craft::$app->getSession()->setNotice(Plugin::t('Product saved.'));
-
-        return $this->redirectToPostedUrl($product);
-    }
-
-
-    /**
-     * @param Product $product
-     * @throws HttpException
-     */
-    protected function enforceProductPermissions(Product $product)
-    {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
 
     /**
      * Displays a product.
      *
-     * @param Product $product
-     * @return Response
-     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ServerErrorHttpException
      */
     private function _showProduct(Product $product): Response
     {
-        $productType = $product->getType();
-
-        if (!$productType) {
+        try {
+            $productType = $product->getType();
+        } catch (InvalidConfigException) {
             throw new ServerErrorHttpException('Product type not found.');
         }
 
@@ -219,7 +157,7 @@ class ProductsPreviewController extends Controller
         $this->getView()->getTwig()->disableStrictVariables();
 
         return $this->renderTemplate($siteSettings[$product->siteId]->template, [
-            'product' => $product
+            'product' => $product,
         ]);
     }
 }

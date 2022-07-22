@@ -9,23 +9,39 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\Element;
 use yii\db\ActiveQueryInterface;
 
 /**
  * Customer record.
  *
- * @property Address[] $addresses
- * @property CustomerAddress[] $customerAddresses
  * @property int $id
- * @property int $primaryBillingAddressId
- * @property int $primaryShippingAddressId
- * @property Order[] $orders
- * @property int $userId
+ * @property int $customerId The customer's User element ID
+ * @property ?int $primaryBillingAddressId
+ * @property ?int $primaryShippingAddressId
+ * @property-read ActiveQueryInterface $primaryShippingAddress
+ * @property-read ActiveQueryInterface $primaryBillingAddress
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 4.0
  */
 class Customer extends ActiveRecord
 {
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [
+                [
+                    'customerId',
+                    'primaryBillingAddressId',
+                    'primaryShippingAddressId',
+                ], 'safe',
+            ],
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -34,43 +50,13 @@ class Customer extends ActiveRecord
         return Table::CUSTOMERS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
-    public function getCustomerAddresses(): ActiveQueryInterface
-    {
-        return $this->hasMany(CustomerAddress::class, ['customerId' => 'id']);
-    }
-
-    /**
-     * @return ActiveQueryInterface
-     */
-    public function getAddresses(): ActiveQueryInterface
-    {
-        return $this->hasMany(Address::class, ['id' => 'addressId'])->via('customerAddresses');
-    }
-
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPrimaryBillingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'primaryBillingAddressId']);
+        return $this->hasOne(Element::class, ['id' => 'primaryBillingAddressId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPrimaryShippingAddress(): ActiveQueryInterface
     {
-        return $this->hasOne(Address::class, ['id' => 'primaryShippingAddressId']);
-    }
-
-    /**
-     * @return ActiveQueryInterface
-     */
-    public function getOrders(): ActiveQueryInterface
-    {
-        return $this->hasMany(Order::class, ['id' => 'customerId']);
+        return $this->hasOne(Element::class, ['id' => 'primaryShippingAddressId']);
     }
 }
