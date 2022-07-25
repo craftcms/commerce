@@ -3,12 +3,16 @@
   "private": true,
   "main": "webpack.config.js",
   "scripts": {
+    "prebuild": "npm run check-prettier",
     "build": "webpack --node-env=production --progress",
-    "serve": "webpack-dev-server --node-env=development"
+    "serve": "webpack-dev-server --node-env=development",
+    "check-prettier": "prettier --check .",
+    "fix-prettier": "prettier --write ."
   },
   "devDependencies": {
-    "@craftcms/webpack": "^0.3.0",
-    "axios": "^0.25.0",
+    "@craftcms/vue": "^1.0.0",
+    "@craftcms/webpack": "^1.0.0",
+    "axios": "^0.26.1",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
     "craftcms-sass": "^3.5.6",
@@ -17,7 +21,7 @@
     "lodash.find": "^4.6.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isobjectlike": "^4.0.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.3",
     "prismjs": "^1.27.0",
     "vue": "^2.6.14",
     "vue-prism-editor": "^0.6.1",

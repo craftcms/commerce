@@ -1,44 +1,55 @@
 <template>
-  <div v-if="customerId">
-    <a @click.prevent="open">{{$options.filters.t('Select address', 'commerce')}}</a>
+    <div v-if="customerId">
+        <a @click.prevent="open">{{
+            $options.filters.t('Select address', 'commerce')
+        }}</a>
 
-    <div class="hidden">
-      <div ref="addressselectmodal" class="order-edit-modal modal fitted">
-        <div class="body">
-          <admin-table
-            :allow-multiple-selections="false"
-            :table-data-endpoint="endpoint"
-            :checkboxes="true"
-            :columns="columns"
-            per-page="10"
-            :search="false"
-            @onSelect="handleSelect"
-            @data="handleData"
-          ></admin-table>
+        <div class="hidden">
+            <div ref="addressselectmodal" class="order-edit-modal modal fitted">
+                <div class="body">
+                    <admin-table
+                        :allow-multiple-selections="false"
+                        :table-data-endpoint="endpoint"
+                        :checkboxes="true"
+                        :columns="columns"
+                        per-page="10"
+                        :search="false"
+                        @onSelect="handleSelect"
+                        @data="handleData"
+                    ></admin-table>
+                </div>
+                <div class="footer">
+                    <div class="buttons right">
+                        <btn-link button-class="btn" @click="close">{{
+                            $options.filters.t('Cancel', 'commerce')
+                        }}</btn-link>
+                        <btn-link
+                            button-class="btn submit"
+                            @click="done"
+                            :class="{disabled: isDoneDisabled}"
+                            :disabled="isDoneDisabled"
+                            >{{
+                                $options.filters.t('Done', 'commerce')
+                            }}</btn-link
+                        >
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="footer">
-          <div class="buttons right">
-            <btn-link button-class="btn" @click="close">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-            <btn-link button-class="btn submit" @click="done" :class="{ 'disabled': isDoneDisabled }" :disabled="isDoneDisabled">{{$options.filters.t('Done', 'commerce')}}</btn-link>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>
 
 <script>
     /* global Garnish, Craft */
     import {mapGetters} from 'vuex';
-    import _find from 'lodash.find'
-    import AdminTable from 'Craft/admintable/src/App'
+    import _find from 'lodash.find';
+    import AdminTable from '@craftcms/vue/admintable/App';
 
     export default {
         components: {
-            AdminTable
+            AdminTable,
         },
 
         props: {
@@ -51,22 +62,50 @@
         data() {
             return {
                 columns: [
-                    { name: '__slot:title', title: this.$options.filters.t('Address 1', 'commerce') },
-                    { name: 'zipCode', title: this.$options.filters.t('Zip Code', 'commerce') },
-                    { name: 'billing', title: this.$options.filters.t('Primary Billing Address', 'commerce'), callback: function(value) {
-                        if (!value) {
-                            return '';
-                        }
+                    {
+                        name: '__slot:title',
+                        title: this.$options.filters.t('Address 1', 'commerce'),
+                    },
+                    {
+                        name: 'zipCode',
+                        title: this.$options.filters.t('Zip Code', 'commerce'),
+                    },
+                    {
+                        name: 'billing',
+                        title: this.$options.filters.t(
+                            'Primary Billing Address',
+                            'commerce'
+                        ),
+                        callback: function (value) {
+                            if (!value) {
+                                return '';
+                            }
 
-                        return '<span data-icon="check" title="'+Craft.t('commerce', 'Yes')+'"></span>';
-                    } },
-                    { name: 'shipping', title: this.$options.filters.t('Primary Shipping Address', 'commerce'), callback: function(value) {
-                        if (!value) {
-                            return '';
-                        }
+                            return (
+                                '<span data-icon="check" title="' +
+                                Craft.t('commerce', 'Yes') +
+                                '"></span>'
+                            );
+                        },
+                    },
+                    {
+                        name: 'shipping',
+                        title: this.$options.filters.t(
+                            'Primary Shipping Address',
+                            'commerce'
+                        ),
+                        callback: function (value) {
+                            if (!value) {
+                                return '';
+                            }
 
-                        return '<span data-icon="check" title="'+Craft.t('commerce', 'Yes')+'"></span>';
-                    } },
+                            return (
+                                '<span data-icon="check" title="' +
+                                Craft.t('commerce', 'Yes') +
+                                '"></span>'
+                            );
+                        },
+                    },
                 ],
                 data: null,
                 id: null,
@@ -95,7 +134,7 @@
                 }
 
                 return true;
-            }
+            },
         },
 
         methods: {
@@ -112,7 +151,7 @@
                         }
 
                         $this.save = false;
-                    }
+                    },
                 });
             },
 
@@ -121,7 +160,7 @@
                     return null;
                 }
 
-                let data = _find(this.data, { id: this.id });
+                let data = _find(this.data, {id: this.id});
 
                 if (!data) {
                     return null;
@@ -145,7 +184,7 @@
 
             open() {
                 if (!this.modal) {
-                    this._initModal()
+                    this._initModal();
                 }
 
                 if (!this.isVisible) {
@@ -156,7 +195,7 @@
 
             close() {
                 if (!this.modal) {
-                    this._initModal()
+                    this._initModal();
                 }
 
                 if (this.isVisible) {
@@ -169,5 +208,5 @@
                 this.close();
             },
         },
-    }
+    };
 </script>

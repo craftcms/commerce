@@ -13,7 +13,7 @@
 {% endif %}
 
 {% set userExistsButCantLogin = craft.users
-  .email(cart.email)
+  .email(cart.email ?? 'NULL')
   .status(['locked','suspended','pending'])
   .one() %}
 
@@ -21,7 +21,7 @@
   {% redirect '[[folderName]]/checkout/addresses' %}
 {% endif %}
 
-{% set userExists = craft.users.email(cart.email).one() %}
+{% set userExists = craft.users.email(cart.email ?? 'NULL').one() %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->

@@ -8,10 +8,8 @@ module.exports = getConfig({
   config: {
     plugins: [
       new CopyWebpackPlugin({
-        patterns: [
-          { from: require.resolve('deepmerge/dist/umd.js'), },
-        ],
+        patterns: [{from: require.resolve('deepmerge/dist/umd.js')}],
       }),
-    ]
-  }
+    ],
+  },
 });
