@@ -225,7 +225,7 @@ class TaxCategories extends Component
         $record = TaxCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            return (bool)$record->softDelete();
         }
 
         return false;

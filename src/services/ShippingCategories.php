@@ -222,7 +222,7 @@ class ShippingCategories extends Component
         $record = ShippingCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            return (bool)$record->softDelete();
         }
 
         // Clear cache
