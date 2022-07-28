@@ -1303,7 +1303,7 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->email) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email, '=', true));
         }
 
         // Allow true ot false but not null

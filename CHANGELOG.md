@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where querying for orders by email would return incorrect results on PostgreSQL. 
+
 ## 3.4.15 - 2022-05-16
 
 ### Changed
