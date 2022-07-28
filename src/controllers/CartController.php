@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
-use craft\commerce\models\cart\UpdateCartForm;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\elements\Address;
@@ -99,68 +98,82 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
-        $updateCartForm = Craft::createObject(UpdateCartForm::class);
-
-        if (!$updateCartForm->load($this->request->post(), '') || !$updateCartForm->validate())
-        {
-            return $this->asFailure(
-                Craft::t('commerce', 'Error updating cart.'),
-                [
-                    $this->_cartVariable => $this->cartArray($this->_cart),
-                    'updateCartFormErrors' => $updateCartForm->getErrors(),
-                ],
-                [
-                    $this->_cartVariable => $this->_cart,
-                    'updateCartFormErrors' => $updateCartForm->getErrors(),
-                ]
-            );
-        }
-
         // Can clear line items when updating the cart
-        if ($updateCartForm->clearLineItems) {
+        if ($this->request->getParam('clearLineItems') !== null) {
             $this->_cart->setLineItems([]);
         }
 
         // Can clear notices when updating the cart
-        if ($updateCartForm->clearNotices) {
+        if ($this->request->getParam('clearNotices') !== null) {
             $this->_cart->clearNotices();
         }
 
         // Set the custom fields submitted
-        $this->_cart->setFieldValuesFromRequest($updateCartForm->customFieldsNamespace);
+        $this->_cart->setFieldValuesFromRequest('fields');
 
         // Backwards compatible way of adding to the cart
-        if ($updateCartForm->purchasableId && $updateCartForm->purchasableQty > 0) {
-            $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $updateCartForm->purchasableId, $updateCartForm->purchasableOptions);
+        if ($purchasableId = $this->request->getParam('purchasableId')) {
+            $note = $this->request->getParam('note', '');
+            $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
+            $qty = (int)$this->request->getParam('qty', 1);
 
-            // New line items already have a qty of one.
-            if ($lineItem->id) {
-                $lineItem->qty += $updateCartForm->purchasableQty;
-            } else {
-                $lineItem->qty = $updateCartForm->purchasableQty;
+            if ($qty > 0) {
+                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+
+                // New line items already have a qty of one.
+                if ($lineItem->id) {
+                    $lineItem->qty += $qty;
+                } else {
+                    $lineItem->qty = $qty;
+                }
+
+                $lineItem->note = $note;
+
+                $this->_cart->addLineItem($lineItem);
             }
-
-            $lineItem->note = $updateCartForm->purchasableNote;
-
-            $this->_cart->addLineItem($lineItem);
         }
 
         // Add multiple items to the cart
-        if (!empty($updateCartForm->getPurchasables())) {
+        if ($purchasables = $this->request->getParam('purchasables')) {
             // Initially combine same purchasables
-            foreach ($updateCartForm->getPurchasables() as $purchasable) {
+            $purchasablesByKey = [];
+            foreach ($purchasables as $key => $purchasable) {
+                $purchasableId = $this->request->getParam("purchasables.$key.id");
+                $note = $this->request->getParam("purchasables.$key.note", '');
+                $options = $this->request->getParam("purchasables.$key.options", []);
+                $qty = (int)$this->request->getParam("purchasables.$key.qty", 1);
+
+                $purchasable = [];
+                $purchasable['id'] = $purchasableId;
+                $purchasable['options'] = is_array($options) ? $options : [];
+                $purchasable['note'] = $note;
+                $purchasable['qty'] = $qty;
+
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
+                if (isset($purchasablesByKey[$key])) {
+                    $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
+                } else {
+                    $purchasablesByKey[$key] = $purchasable;
+                }
+            }
+
+            foreach ($purchasablesByKey as $purchasable) {
+                if ($purchasable['id'] == null) {
+                    continue;
+                }
+
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
-                if ($purchasable->qty > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable->id, $purchasable->options);
+                if ($purchasable['qty'] > 0) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
-                        $lineItem->qty += $purchasable->qty;
+                        $lineItem->qty += $purchasable['qty'];
                     } else {
-                        $lineItem->qty = $purchasable->qty;
+                        $lineItem->qty = $purchasable['qty'];
                     }
 
-                    $lineItem->note = $purchasable->note;
+                    $lineItem->note = $purchasable['note'];
                     $this->_cart->addLineItem($lineItem);
                 }
             }
