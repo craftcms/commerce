@@ -10,9 +10,12 @@ namespace craftcommercetests\unit\controllers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\controllers\CustomerAddressesController;
+use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address;
+use craft\db\Query;
 use craft\web\Request;
 use craftcommercetests\fixtures\CustomersAddressesFixture;
 use UnitTester;
@@ -39,6 +42,8 @@ class CustomerAddressesTest extends Unit
      * @var Request
      */
     protected $request;
+
+    private $_orderIds = [];
 
     /**
      * @return array
@@ -67,6 +72,24 @@ class CustomerAddressesTest extends Unit
         Craft::$app->getUser()->getIdentity()->password = '$2y$13$tAtJfYFSRrnOkIbkruGGEu7TPh0Ixvxq0r.XgWqIgNWuWpxpA7SxK';
         $this->request = Craft::$app->getRequest();
         $this->request->enableCsrfValidation = false;
+
+        // Current order IDs
+        $this->_orderIds = (new Query())->from(Table::ORDERS)->select('id')->column();
+    }
+
+    protected function _after()
+    {
+        parent::_after();
+
+        // During the process of the test a cart might be created. These cleans up those order elements.
+        $newOrderIds = array_diff((new Query())->from(Table::ORDERS)->select('id')->column(), $this->_orderIds);
+        if (!empty($newOrderIds)) {
+            foreach ($newOrderIds as $newOrderId) {
+                Craft::$app->getElements()->deleteElementById($newOrderId, Order::class, null, true);
+            }
+        }
+
+        $this->_orderIds = [];
     }
 
     public function testSaveAddress()
