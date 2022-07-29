@@ -281,6 +281,7 @@ class ShippingCategories extends Component
                 'shippingCategories.id',
                 'shippingCategories.name',
             ])
+            ->where(['[[shippingCategories.dateDeleted]]' => null])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
 }
