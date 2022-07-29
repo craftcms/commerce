@@ -215,7 +215,7 @@ class ShippingCategories extends Component
     public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 

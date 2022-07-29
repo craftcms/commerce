@@ -217,8 +217,7 @@ class TaxCategories extends Component
     {
         $all = $this->getAllTaxCategories();
 
-        // Not the last one.
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 
