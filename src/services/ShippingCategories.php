@@ -40,12 +40,19 @@ class ShippingCategories extends Component
     /**
      * Returns all Shipping Categories
      *
-     * @return ShippingCategory[]
+     * @param bool $archive
+     * @return array|ShippingCategory[]
      */
-    public function getAllShippingCategories(): array
+    public function getAllShippingCategories(bool $archive = true): array
     {
         if ($this->_allShippingCategories === null) {
-            $results = $this->_createShippingCategoryQuery()->all();
+            $query = $this->_createShippingCategoryQuery();
+
+            if ($archive === false) {
+                $query->where(['[[shippingCategories.dateDeleted]]' => null]);
+            }
+
+            $results = $query->all();
 
             $this->_allShippingCategories = [];
             foreach ($results as $result) {
@@ -281,7 +288,6 @@ class ShippingCategories extends Component
                 'shippingCategories.id',
                 'shippingCategories.name',
             ])
-            ->where(['[[shippingCategories.dateDeleted]]' => null])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
 }

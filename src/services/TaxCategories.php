@@ -38,13 +38,19 @@ class TaxCategories extends Component
 
     /**
      * Returns all Tax Categories
-     *
+     * @param bool $archive
      * @return TaxCategory[]
      */
-    public function getAllTaxCategories(): array
+    public function getAllTaxCategories(bool $archive = true): array
     {
         if ($this->_allTaxCategories === null) {
-            $results = $this->_createTaxCategoryQuery()->all();
+            $query = $this->_createTaxCategoryQuery();
+
+            if ($archive === false) {
+                $query->where(['[[taxCategories.dateDeleted]]' => null]);
+            }
+
+            $results = $query->all();
 
             $this->_allTaxCategories = [];
             foreach ($results as $result) {
@@ -278,7 +284,6 @@ class TaxCategories extends Component
                 'taxCategories.id',
                 'taxCategories.name',
             ])
-            ->where(['[[taxCategories.dateDeleted]]' => null])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
 }
