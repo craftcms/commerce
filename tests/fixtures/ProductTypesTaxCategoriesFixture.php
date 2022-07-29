@@ -19,7 +19,7 @@ class ProductTypesTaxCategoriesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/product-types-tax-categories.php';
+    public $dataFile = __DIR__ . '/data/product-types-tax-categories.php';
 
     /**
      * @inheritdoc

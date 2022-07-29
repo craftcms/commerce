@@ -19,7 +19,7 @@ class TaxCategoryFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/tax-category.php';
+    public $dataFile = __DIR__ . '/data/tax-category.php';
 
     /**
      * @inheritdoc

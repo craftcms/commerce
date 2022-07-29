@@ -15,7 +15,6 @@ use craft\commerce\services\TaxCategories;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
-
 class TaxCategoryTest extends Unit
 {
     /**
@@ -35,8 +34,8 @@ class TaxCategoryTest extends Unit
     {
         return [
             'products' => [
-                'class' => ProductFixture::class
-            ]
+                'class' => ProductFixture::class,
+            ],
         ];
     }
 

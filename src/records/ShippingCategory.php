@@ -24,7 +24,7 @@ use craft\db\SoftDeleteTrait;
  */
 class ShippingCategory extends ActiveRecord
 {
-     use SoftDeleteTrait;
+    use SoftDeleteTrait;
     /**
      * @inheritdoc
      */

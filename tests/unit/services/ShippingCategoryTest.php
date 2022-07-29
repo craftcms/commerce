@@ -15,7 +15,6 @@ use craft\commerce\services\ShippingCategories;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
-
 class ShippingCategoryTest extends Unit
 {
     /**
@@ -35,8 +34,8 @@ class ShippingCategoryTest extends Unit
     {
         return [
             'products' => [
-                'class' => ProductFixture::class
-            ]
+                'class' => ProductFixture::class,
+            ],
         ];
     }
 

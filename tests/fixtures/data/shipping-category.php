@@ -12,6 +12,6 @@ return [
         'handle' => 'general_1',
         'description' => 'this is the default shipping category',
         'default' => '1',
-        'uid' => 'xx-xx-xx'
-    ]
+        'uid' => 'xx-xx-xx',
+    ],
 ];

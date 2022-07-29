@@ -19,7 +19,7 @@ class ProductTypesShippingCategoriesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/product-types-shipping-categories.php';
+    public $dataFile = __DIR__ . '/data/product-types-shipping-categories.php';
 
     /**
      * @inheritdoc

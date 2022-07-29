@@ -19,7 +19,7 @@ class ShippingCategoryFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/shipping-category.php';
+    public $dataFile = __DIR__ . '/data/shipping-category.php';
 
     /**
      * @inheritdoc
