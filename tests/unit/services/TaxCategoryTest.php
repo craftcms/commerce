@@ -33,7 +33,7 @@ class TaxCategoryTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'products' => [
+            'products-tax' => [
                 'class' => ProductFixture::class,
             ],
         ];
