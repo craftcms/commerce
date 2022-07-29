@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\CartForm;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
@@ -191,6 +192,25 @@ class Carts extends Component
         }
 
         return $cart;
+    }
+
+    /**
+     * @param CartForm $form
+     * @param bool $runValidation
+     * @return bool
+     * @since 4.2
+     */
+    public function updateCartFromForm(CartForm $form, bool $runValidation = true): bool
+    {
+        if ($runValidation && !$form->validate()) {
+            return false;
+        }
+
+        if (!$form->apply()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
