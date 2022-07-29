@@ -227,12 +227,6 @@ class ShippingCategories extends Component
             return true;
         }
 
-        $record = ShippingCategoryRecord::findOne($id);
-
-        if ($record) {
-            return (bool)$record->softDelete();
-        }
-
         // Clear cache
         $this->_allShippingCategories = null;
 
