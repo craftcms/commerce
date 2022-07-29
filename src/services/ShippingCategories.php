@@ -219,6 +219,14 @@ class ShippingCategories extends Component
             return false;
         }
 
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::SHIPPINGCATEGORIES, ['id' => $id])
+            ->execute();
+
+        if ($affectedRows > 0) {
+            return true;
+        }
+
         $record = ShippingCategoryRecord::findOne($id);
 
         if ($record) {

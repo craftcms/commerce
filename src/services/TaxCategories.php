@@ -221,10 +221,12 @@ class TaxCategories extends Component
             return false;
         }
 
-        $record = TaxCategoryRecord::findOne($id);
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::TAXCATEGORIES, ['id' => $id])
+            ->execute();
 
-        if ($record) {
-            return (bool)$record->softDelete();
+        if ($affectedRows > 0) {
+            return true;
         }
 
         return false;
