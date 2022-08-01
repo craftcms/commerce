@@ -75,7 +75,6 @@ return [
     'completed-new' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         'orderStatusId' => $orderStatuses['new'] ?? null,
         '_lineItems' => array_filter([$hctWhiteLineItem, $hctBlueLineItem]),
         '_markAsComplete' => true,
@@ -85,7 +84,6 @@ return [
     'completed-new-past' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         '_billingAddress' => $addresses['bttf'],
         '_shippingAddress' => $addresses['bttf'],
         'orderStatusId' => $orderStatuses['new'] ?? null,
@@ -96,7 +94,6 @@ return [
     'completed-shipped' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         '_billingAddress' => $addresses['bttf'],
         '_shippingAddress' => $addresses['bob'],
         'orderStatusId' => $orderStatuses['shipped'] ?? null,

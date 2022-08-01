@@ -123,7 +123,7 @@ class Carts extends Component
             }
         }
 
-        if ($this->_cart->autoSetAddresses()) {
+        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod()) {
             // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
             $forceSave = true;
         }

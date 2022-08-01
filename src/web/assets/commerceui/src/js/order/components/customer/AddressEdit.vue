@@ -2,7 +2,7 @@
     <div ref="container">
         <div class="order-address-display">
             <template v-if="address">
-                <div ref="address" v-html="address"></div>
+                <ul ref="address" v-html="address"></ul>
             </template>
             <template v-else>
                 <div class="zilch">{{ emptyMsg }}</div>

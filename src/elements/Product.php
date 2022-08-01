@@ -388,14 +388,6 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function canCreateDrafts(User $user): bool
-    {
-        return $this->canSave($user);
-    }
-
-    /**
-     * @inheritdoc
-     */
     public function createAnother(): ?ElementInterface
     {
         return null;

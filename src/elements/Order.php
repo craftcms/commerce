@@ -51,6 +51,8 @@ use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
@@ -61,6 +63,7 @@ use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
 use ReflectionClass;
+use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionProperty;
 use Throwable;
@@ -427,6 +430,8 @@ class Order extends Element
      *     }
      * );
      * ```
+     *
+     * @since 4.1.0
      */
     public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
 
@@ -1158,13 +1163,6 @@ class Order extends Element
             }
         }
 
-        // Sets a default shipping method
-        // Leave this as the last one inside init(), as shipping rules will need access the above default that are set (like currency).
-        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
-            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-        }
-
         parent::init();
     }
 
@@ -1459,7 +1457,10 @@ class Order extends Element
     /**
      * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
      *
-     * @return bool
+     * @return bool returns true if order is mutated
+     * @throws Throwable
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
      * @since 3.4.14
      */
     public function autoSetAddresses(): bool
@@ -1491,6 +1492,28 @@ class Order extends Element
         }
 
         return $autoSetOccurred;
+    }
+
+    /**
+     * Auto set shipping method based on config settings and available options
+     *
+     * @return bool returns true if order is mutated
+     * @since 4.1
+     */
+    public function autoSetShippingMethod(): bool
+    {
+        if ($this->shippingMethodHandle || $this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            return false;
+        }
+
+        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+        if (empty($availableMethodOptions)) {
+            return false;
+        }
+
+        $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+
+        return true;
     }
 
     /**
@@ -2000,6 +2023,7 @@ class Order extends Element
 
         if ($shippingAddress = $this->getShippingAddress()) {
             $shippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
@@ -2015,11 +2039,13 @@ class Order extends Element
         if ($billingAddress = $this->getBillingAddress()) {
             // If these were set to the same address element, we don't want the same address IDs
             if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id]);
+                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id, 'title' => Craft::t('commerce', 'Billing Address')]);
             } else {
                 $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+                $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
                 Craft::$app->getElements()->saveElement($billingAddress, false);
             }
+
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
             // Set primary billing if asked
@@ -2921,12 +2947,12 @@ class Order extends Element
      * Returns whether the billing and shipping addresses' data matches
      *
      * @return bool
-     * @since 4.0.4
+     * @since 4.1.0
      */
     public function hasMatchingAddresses(): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
-        $addressAttributes = array_map(static function(\ReflectionMethod $method) {
+        $addressAttributes = array_map(static function(ReflectionMethod $method) {
             // Remove `get` and lower case first character
             return lcfirst(substr($method->name, 3));
         }, $addressAttributes);

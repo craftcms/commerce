@@ -1,8 +1,34 @@
 # Release Notes for Craft Commerce
 
+## 4.1.0 - 2022-07-19
+
+### Added
+- Tax rates now have a “Unit price” taxable subject option. ([#2883](https://github.com/craftcms/commerce/pull/2883))
+- The Total Revenue widget can now show the total paid, rather than the total invoiced. ([#2852](https://github.com/craftcms/commerce/issues/2852))
+- Added the `commerce/transfer-customer-data` command.
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+- Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
+- Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
+- Added `craft\commerce\stats\TotalRevenue::$type`.
+- Added `craft\commerce\stats\TotalRevenue::TYPE_TOTAL_PAID`.
+- Added `craft\commerce\stats\TotalRevenue::TYPE_TOTAL`.
+- Added `craft\commerce\widgets\TotalRevenue::$type`.
+
+### Changed
+- Craft Commerce now requires Dompdf 2.0.0 or later. ([#2879](https://github.com/craftcms/commerce/pull/2879))
+- Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
+- Garbage collection now removes any orphaned variants, as well as partial donation, order, product, subscription, and variant data.
+- `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
+- `craft\commerce\elements\Variant` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 
 ### Fixed
-- Fixed a bug where disabling all variants throws an error on Edit Product Page.
+- Fixed an error that occurred when disabling all variants on Edit Product pages.
+- Fixed a bug where order address titles weren’t being updated correctly.
+- Fixed a bug where it was possible to save an order with the same billing and shipping address IDs. ([#2841](https://github.com/craftcms/commerce/issues/2841))
+- Fixed a bug where order addresses were not being saved with the `live` scenario.
+- Fixed a PHP error that occurred when editing a subscription with custom fields.
+- Fixed an infinite recursion bug that occurred when `autoSetCartShippingMethodOption` was enabled. ([#2875](https://github.com/craftcms/commerce/issues/2875))
+- Fixed a bug where product slideout editors were attempting to create provisional drafts. ([#2886](https://github.com/craftcms/commerce/issues/2886))
 
 ## 4.0.4 - 2022-06-22
 

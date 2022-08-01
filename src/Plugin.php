@@ -13,6 +13,7 @@ use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
@@ -108,6 +109,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -227,6 +229,7 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+        $request = Craft::$app->getRequest();
 
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
@@ -244,8 +247,6 @@ class Plugin extends BasePlugin
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
         $this->_registerDebugPanels();
-
-        $request = Craft::$app->getRequest();
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
@@ -801,9 +802,21 @@ class Plugin extends BasePlugin
      */
     private function _registerGarbageCollection(): void
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, static function() {
+        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+
+            // Delete orphaned variants
+            Db::delete(Table::VARIANTS, ['productId' => null]);
+
+            // Delete partial elements
+            /** @var Gc $gc */
+            $gc = $event->sender;
+            $gc->deletePartialElements(Donation::class, Table::DONATIONS, 'id');
+            $gc->deletePartialElements(Order::class, Table::ORDERS, 'id');
+            $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
+            $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
+            $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
         });
     }
 

@@ -128,9 +128,9 @@ class OrdersController extends Controller
         if ($user) {
             $order->setCustomer($user);
 
-            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                $order->autoSetAddresses();
-            }
+            // Try to set defaults
+            $order->autoSetAddresses();
+            $order->autoSetShippingMethod();
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;

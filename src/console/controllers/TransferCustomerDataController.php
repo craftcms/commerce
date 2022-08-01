@@ -15,22 +15,20 @@ use Exception;
 use yii\console\ExitCode;
 
 /**
- * Allows you to move Commerce data.
+ * Transfers customer data from one user to another
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.1
+ * @since 4.1.0
  */
 class TransferCustomerDataController extends Controller
 {
     /**
      * @var string|null The User email or username of the user that is having their commerce content moved.
-     * @since 3.3
      */
     public ?string $fromUser = null;
 
     /**
      * @var string|null The User email or username of the user that is having the commerce content moved to.
-     * @since 3.3
      */
     public ?string $toUser = null;
 
