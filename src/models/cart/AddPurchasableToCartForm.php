@@ -24,7 +24,7 @@ class AddPurchasableToCartForm extends CartForm
     public ?int $id = null;
     public string $note = '';
     public array $options = [];
-    public int $qty = 1;
+    public mixed $qty = 1;
 
     protected function defineRules(): array
     {
@@ -36,6 +36,7 @@ class AddPurchasableToCartForm extends CartForm
             'note',
             'options',
         ], 'safe'];
+        $rules[] = [['qty'], 'integer', 'skipOnEmpty' => true];
         $rules[] = [['id'], 'validatePurchasable'];
         $rules[] = [['qty'], 'validateQty'];
 
