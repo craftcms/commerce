@@ -50,8 +50,7 @@ abstract class OrderForm extends Model implements OrderFormInterface
 
     /**
      * @param $data
-     * @param $formName
-     * @param array $validateDataKeys
+     * @param null $formName
      * @return bool
      * @throws InvalidConfigException
      */

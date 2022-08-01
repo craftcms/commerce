@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models\cart;
 
+use Craft;
 use craft\commerce\base\CartForm;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\Plugin;

@@ -48,11 +48,11 @@ abstract class CartForm extends OrderForm
     }
 
     /**
-     * @return Order|null
-     * @throws InvalidConfigException
-     * @throws Throwable
+     * @return Order
      * @throws ElementNotFoundException
      * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     public function getOrder(): Order
     {
