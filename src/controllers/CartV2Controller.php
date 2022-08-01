@@ -100,19 +100,19 @@ class CartV2Controller extends BaseFrontEndController
             'class' => AddPurchasableToCartForm::class,
         ]);
 
-        $forms = compact(
-            'addPurchasablesToCartForm',
-            'addPurchasableToCartForm'
-        );
+        $forms = [
+            $addPurchasablesToCartForm,
+            $addPurchasableToCartForm,
+        ];
 
-        foreach ($forms as $key => $form) {
+        foreach ($forms as $form) {
             if (in_array($form->formName(), $postKeys, true)) {
                 $form->setOrder($cart);
                 if (!$form->load($this->request->post()) || !Plugin::getInstance()->getCarts()->updateCartFromForm($form)) {
                     return $this->asFailure(
                         Craft::t('commerce', 'Error adding to cart.'),
-                        [$key => $form],
-                        [$key => $form],
+                        [$form->formName() => $form],
+                        [$form->formName() => $form],
                     );
                 }
 
