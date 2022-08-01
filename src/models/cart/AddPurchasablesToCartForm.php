@@ -10,6 +10,7 @@ namespace craft\commerce\models\cart;
 use Craft;
 use craft\commerce\base\CartForm;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -71,11 +72,15 @@ class AddPurchasablesToCartForm extends CartForm
             }
 
             // Normalize to avoid adding duplicates
-            if (isset($this->_purchasables[$purchasableForm->getKey()])) {
-                $this->_purchasables[$purchasableForm->getKey()]->qty += $purchasableForm->qty;
-            } else {
-                $this->_purchasables[$purchasableForm->getKey()] = $purchasableForm;
+            /** @var AddPurchasableToCartForm|null $existingPurchasableForm */
+            $existingPurchasableForm = ArrayHelper::firstWhere($this->_purchasables, static function($pf) use ($purchasableForm) {
+                return $pf->getKey() === $purchasableForm->getKey();
+            });
+            if ($existingPurchasableForm) {
+                $purchasableForm += $existingPurchasableForm->qty;
             }
+
+            $this->_purchasables[] = $purchasableForm;
         }
     }
 
