@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\models\cart\AddPurchasablesToCartForm;
 use craft\commerce\models\cart\AddPurchasableToCartForm;
+use craft\commerce\models\cart\UpdateCouponCodeForm;
 use craft\commerce\models\cart\UpdateEmailForm;
 use craft\commerce\models\cart\UpdateLineItemsForm;
 use craft\commerce\Plugin;
@@ -82,6 +83,28 @@ class CartV2Controller extends BaseFrontEndController
             cart: $updateEmailForm->getOrder(),
             successMessage: $updateEmailForm->getSuccessMessage(),
             failMessage: $updateEmailForm->getFailMessage()
+        );
+    }
+
+    public function actionUpdateCouponCode(): ?Response
+    {
+        /** @var UpdateCouponCodeForm $updateCouponCodeForm */
+        $updateCouponCodeForm = Craft::createObject([
+            'class' => UpdateCouponCodeForm::class,
+        ]);
+
+        if (!$updateCouponCodeForm->load($this->request->post()) || !Plugin::getInstance()->getCarts()->updateCartFromForm($updateCouponCodeForm)) {
+            return $this->asFailure(
+                Craft::t('commerce', 'Error updating coupon code.'),
+                compact('updateCouponCodeForm'),
+                compact('updateCouponCodeForm'),
+            );
+        }
+
+        return $this->_returnCart(
+            cart: $updateCouponCodeForm->getOrder(),
+            successMessage: $updateCouponCodeForm->getSuccessMessage(),
+            failMessage: $updateCouponCodeForm->getFailMessage()
         );
     }
 
