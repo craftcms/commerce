@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where it wasn’t possible to access subscription management controls. ([#2913](https://github.com/craftcms/commerce/issues/2913))
+
 ## 4.1.0 - 2022-07-19
 
 ### Added
