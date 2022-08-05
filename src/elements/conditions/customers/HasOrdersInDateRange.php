@@ -3,24 +3,25 @@
 namespace craft\commerce\elements\conditions\customers;
 
 use Craft;
-use craft\base\conditions\BaseNumberConditionRule;
+use craft\base\conditions\BaseDateRangeConditionRule;
 use craft\base\ElementInterface;
+use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 
-class CustomerDaysSinceLastPurchase extends BaseNumberConditionRule implements ElementConditionRuleInterface
+class HasOrdersInDateRange extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @return string
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Days since last purchase');
+        return Craft::t('commerce', 'Has Orders in Date Range');
     }
 
     public function getExclusiveQueryParams(): array
     {
-        return ['daysSinceLastPurchase'];
+        return ['hasOrdersIsDateRange'];
     }
 
     public function modifyQuery(ElementQueryInterface $query): void
@@ -30,7 +31,12 @@ class CustomerDaysSinceLastPurchase extends BaseNumberConditionRule implements E
 
     public function matchElement(ElementInterface $element): bool
     {
-        // query for the date of the element (customers) last order
-        // compare how many days since to $this->valueParam() with $this->matchValue($element->{$this->orderAttribute});
+        $exists = Order::find()
+            ->customerId($element->id)
+            ->isCompleted(true)
+            ->dateOrdered($this->queryParamValue())
+            ->exists();
+
+        return $exists;
     }
 }
