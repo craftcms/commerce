@@ -150,7 +150,7 @@ class OrderAddressesTest extends Unit
                     'addressLine2',
                     'locality',
                     'administrativeArea',
-                ]
+                ],
             ],
             'attributes-not-matching' => [
                 [
@@ -176,7 +176,7 @@ class OrderAddressesTest extends Unit
                 false,
                 [
                     'addressLine1',
-                ]
+                ],
             ],
         ];
     }
