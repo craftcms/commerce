@@ -23,8 +23,6 @@
 
 {% endblock %}
 
-
-
 {% block content %}
   <div id="fields">
     <form id="customFields" method="POST">
@@ -35,7 +33,7 @@
       {{ fieldsHtml|raw }}
     </form>
 
-    <div id="tab--subscriptionManageTab" class="hidden" data-id="tab--subscriptionManageTab">
+    <div id="tab--subscriptionManageTab" class="{{ not tabs ? '' : 'hidden' }}" data-id="tab--subscriptionManageTab">
       <div class="pane">
         <h2>{{ 'Manage subscription'|t('commerce') }}</h2>
 
