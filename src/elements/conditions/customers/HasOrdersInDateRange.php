@@ -19,16 +19,25 @@ class HasOrdersInDateRange extends BaseDateRangeConditionRule implements Element
         return Craft::t('commerce', 'Has Orders in Date Range');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getExclusiveQueryParams(): array
     {
         return ['hasOrdersIsDateRange'];
     }
 
+    /**
+     * @inheritdoc
+     */
     public function modifyQuery(ElementQueryInterface $query): void
     {
         throw new NotSupportedException('Days since last purchase condition rule does not support queries');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function matchElement(ElementInterface $element): bool
     {
         $exists = Order::find()
