@@ -12,7 +12,7 @@ use yii\base\NotSupportedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0
  */
-class DiscountOrderCondition extends ElementCondition
+class DiscountOrderCondition extends OrderCondition
 {
     /**
      * @inheritdoc
@@ -20,7 +20,7 @@ class DiscountOrderCondition extends ElementCondition
     protected function conditionRuleTypes(): array
     {
         return array_merge(parent::conditionRuleTypes(), [
-            TotalPriceConditionRule::class,
+
         ]);
     }
 
