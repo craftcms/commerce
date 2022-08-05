@@ -4,7 +4,8 @@
 
 ### Fixed
 - Fixed a bug where address zone condition formulas were being cached incorrectly. ([#2842](https://github.com/craftcms/commerce/issues/2842))
-- Fixed a bug where querying for orders by email would return incorrect results on PostgreSQL. 
+- Fixed a bug where querying for orders by email would return incorrect results on PostgreSQL.
+- Fixed a bug that could occur when clearing a date value while editing a discount. ([#2819](https://github.com/craftcms/commerce/issues/2819))
 
 ## 3.4.15 - 2022-05-16
 
