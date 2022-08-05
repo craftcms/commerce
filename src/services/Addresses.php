@@ -414,7 +414,7 @@ class Addresses extends Component
             $conditionFormula = $zone->getZipCodeConditionFormula();
             $zipCode = $address->zipCode;
 
-            $cacheKey = get_class($zone) . ':' . $conditionFormula . ':' . $zipCode;
+            $cacheKey = get_class($zone) . ':' . md5($conditionFormula) . ':' . $zipCode;
 
             if (Craft::$app->cache->exists($cacheKey)) {
                 $result = Craft::$app->cache->get($cacheKey);
