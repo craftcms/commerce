@@ -120,6 +120,11 @@ class OrderQuery extends ElementQuery
     public mixed $gatewayId = null;
 
     /**
+     * @var mixed The total price of the order resulting orders must have.
+     */
+    public mixed $totalPrice = null;
+
+    /**
      * @var bool|null Whether the order is paid
      */
     public ?bool $isPaid = null;
@@ -885,6 +890,25 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the total price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total price of $10.
+     * | `['and', 10, 20]` | an order with a total price of $10 or $20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function totalPrice(mixed $value): OrderQuery
+    {
+        $this->totalPrice = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only orders that are paid.
      *
      * ---
@@ -1303,6 +1327,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->gatewayId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
+        }
+
+        if (isset($this->totalPrice)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPrice', $this->totalPrice));
         }
 
         // Allow true but not null

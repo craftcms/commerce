@@ -13,4 +13,13 @@ namespace  craft\commerce\elements\conditions\orders;
 class TotalPriceConditionRule extends OrderValuesAttributeConditionRule
 {
     public string $orderAttribute = 'totalPrice';
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel(): string
+    {
+        return \Craft::t('commerce', 'Total Price');
+    }
+
 }

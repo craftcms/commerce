@@ -33,7 +33,7 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Order Value');
+        return 'Label not implemented';
     }
 
     /**
