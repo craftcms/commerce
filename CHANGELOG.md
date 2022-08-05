@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.16 - 2022-08-05
 
 ### Fixed
 - Fixed a bug where address zone condition formulas were being cached incorrectly. ([#2842](https://github.com/craftcms/commerce/issues/2842))
