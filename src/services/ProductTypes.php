@@ -781,42 +781,10 @@ class ProductTypes extends Component
     }
 
     /**
-     * Prune a deleted field from category group layouts.
-     *
-     * @param FieldEvent $event
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
     public function pruneDeletedField(FieldEvent $event)
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $productTypes = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
-
-        // Loop through the product types and prune the UID from field layouts.
-        if (is_array($productTypes)) {
-            foreach ($productTypes as $productTypeUid => $productType) {
-                if (!empty($productType['productFieldLayouts'])) {
-                    foreach ($productType['productFieldLayouts'] as $layoutUid => $layout) {
-                        if (!empty($layout['tabs'])) {
-                            foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.productFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                            }
-                        }
-                    }
-                }
-                if (!empty($productType['variantFieldLayouts'])) {
-                    foreach ($productType['variantFieldLayouts'] as $layoutUid => $layout) {
-                        if (!empty($layout['tabs'])) {
-                            foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.variantFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**

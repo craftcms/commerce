@@ -58,29 +58,10 @@ class Orders extends Component
 
 
     /**
-     * Prune a deleted field from order field layouts.
-     *
-     * @param FieldEvent $event
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
     public function pruneDeletedField(FieldEvent $event)
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
-
-        // Prune the UID from field layouts.
-        if (is_array($layoutData)) {
-            foreach ($layoutData as $layoutUid => $layout) {
-                if (!empty($layout['tabs'])) {
-                    foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                    }
-                }
-            }
-        }
     }
 
     /**

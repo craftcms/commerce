@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\services\Orders::pruneDeletedField()`.
+- Deprecated `craft\commerce\services\ProductType::pruneDeletedField()`.
+- Deprecated `craft\commerce\services\Subscriptions::pruneDeletedField()`.
+
+### Fixed
+- Fixed a bug where not all project config changes would be applied if a field or site was deleted. ([craftcms/cms#9567](https://github.com/craftcms/cms/issues/9567))
+
 ## 3.4.16 - 2022-08-05
 
 ### Fixed
