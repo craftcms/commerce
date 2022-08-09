@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where it wasn’t possible to access subscription management controls. ([#2913](https://github.com/craftcms/commerce/issues/2913))
 - Fixed a bug where `Order::hasMatchingAddresses()` wasn’t comparing the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
+- Fixed a bug where it wasn’t possible to use an environment variable to set `onlyAllowForZeroPriceOrders` on the Manual payment gateway. ([#2927](https://github.com/craftcms/commerce/issues/2927))
 
 ## 4.1.0 - 2022-07-19
 
