@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where it wasn’t possible to access subscription management controls. ([#2913](https://github.com/craftcms/commerce/issues/2913))
 - Fixed a bug where `Order::hasMatchingAddresses()` wasn’t comparing the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
+- Fixed a bug where the site wasn’t being correctly selected on the Edit Product page. ([#2920](https://github.com/craftcms/commerce/issues/2920))
 
 ## 4.1.0 - 2022-07-19
 
