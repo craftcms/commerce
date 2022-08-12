@@ -20,6 +20,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allCategories
  * @property bool $allPurchasables
  * @property float $baseDiscount
+ * @property float $purchaseTotal
  * @property string $baseDiscountType
  * @property string $couponFormat
  * @property DateTime $dateFrom
