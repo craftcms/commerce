@@ -516,7 +516,7 @@ class Plugin extends BasePlugin
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
 
         Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, function(DeleteSiteEvent $event) use ($productTypeService) {
-            if (!Craft::$app->getProjectConfig()->getIsApplyingYamlChanges()) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
                 $productTypeService->pruneDeletedSite($event);
             }
         });
@@ -537,7 +537,7 @@ class Plugin extends BasePlugin
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
 
         Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, function(EmailEvent $event) use ($orderStatusService) {
-            if (!Craft::$app->getProjectConfig()->getIsApplyingYamlChanges()) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
                 $orderStatusService->pruneDeletedEmail($event);
             }
         });
