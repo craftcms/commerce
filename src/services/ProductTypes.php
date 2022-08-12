@@ -820,7 +820,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * @deprecated in 4.0.3. Unused fields will be pruned automatically as field layouts are resaved.
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
     public function pruneDeletedField(): void
     {
