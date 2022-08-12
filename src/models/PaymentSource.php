@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
@@ -89,6 +90,17 @@ class PaymentSource extends Model
         }
 
         return $this->_customer;
+    }
+
+    /**
+     * @return bool
+     * @since 4.2
+     */
+    public function isPrimary(): bool
+    {
+        /** @var User|CustomerBehavior|null $customer */
+        $customer = $this->getCustomer();
+        return $customer && $customer->primaryPaymentSourceId === $this->id;
     }
 
     /**

@@ -79,6 +79,7 @@ class Install extends Migration
             'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
             'primaryShippingAddressId' => $this->integer(),
+            'primaryPaymentSourceId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -827,6 +828,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryPaymentSourceId', false);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
@@ -923,6 +925,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryPaymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
