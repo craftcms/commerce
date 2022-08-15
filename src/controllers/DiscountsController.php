@@ -160,6 +160,8 @@ class DiscountsController extends BaseCpController
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
 
+        $discount->purchaseTotal = Localization::normalizeNumber($this->request->getBodyParam('purchaseTotal', 0));
+
         $date = $this->request->getBodyParam('dateFrom');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
