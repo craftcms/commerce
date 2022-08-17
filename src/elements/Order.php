@@ -3097,6 +3097,7 @@ class Order extends Element
         // Setting the payment source to null clears it
         if ($paymentSource === null) {
             $this->paymentSourceId = null;
+            return;
         }
 
         // We are now dealing with a PaymentSource
