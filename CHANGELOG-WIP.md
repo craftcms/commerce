@@ -10,7 +10,7 @@
 - Added `craft\commerce\behaviors\CustomerBehavoir::setPrimaryPaymentSourceId()`.
 - Added `craft\commerce\controllers\PaymentSourcesController::actionSetPrimaryPaymentSource()`.
 - Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
-- Added `craft\commerce\models\PaymentSource::isPrimary()`.
+- Added `craft\commerce\models\PaymentSource::getIsPrimary()`.
 - Added `craft\commerce\models\Settings::$autoSetPaymentSource`.
 - Added `craft\commerce\records\Customer::$primaryPaymentSourceId`.
 - Added `craft\commerce\services\savePrimaryPaymentSourceId()`.
