@@ -2975,10 +2975,11 @@ class Order extends Element
     /**
      * Returns whether the billing and shipping addresses' data matches
      *
+     * @param string[]|null $attributes array of attributes names on which to match the addresses
      * @return bool
      * @since 4.1.0
      */
-    public function hasMatchingAddresses(): bool
+    public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
         $addressAttributes = array_map(static function(ReflectionMethod $method) {
@@ -2995,6 +2996,10 @@ class Order extends Element
         }, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
+
+        if (!empty($attributes)) {
+            $toArrayHandles = array_intersect($toArrayHandles, $attributes);
+        }
 
         $shippingAddress = $this->getShippingAddress();
         if ($shippingAddress instanceof AddressElement) {
