@@ -1496,6 +1496,34 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function autoSetPaymentSource(): bool
+    {
+        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetPaymentSource || $this->paymentSourceId || $this->gatewayId) {
+            return false;
+        }
+
+        /** @var User|CustomerBehavior|null $customer */
+        $customer = $this->getCustomer();
+
+        // Only set the payment source if there is a customer set and that is it the current user
+        if (!$customer || $customer->id !== Craft::$app->getUser()->getIdentity()?->id) {
+            return false;
+        }
+
+        $paymentSource = $customer->getPrimaryPaymentSource();
+        if (!$paymentSource) {
+            return false;
+        }
+
+        $this->setPaymentSource($paymentSource);
+        return true;
+    }
+
+    /**
      * Auto set shipping method based on config settings and available options
      *
      * @return bool returns true if order is mutated
