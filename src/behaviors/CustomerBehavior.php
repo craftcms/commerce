@@ -106,6 +106,10 @@ class CustomerBehavior extends Behavior
         if ($user->primaryShippingAddressId) {
             Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($user, $user->primaryShippingAddressId);
         }
+
+        if ($user->primaryPaymentSourceId) {
+            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $user->primaryPaymentSourceId);
+        }
     }
 
     /**
