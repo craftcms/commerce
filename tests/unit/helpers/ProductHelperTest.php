@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\helpers;
 
 use Codeception\Test\Unit;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\web\Request;
 use craftcommercetests\fixtures\ProductFixture;
@@ -35,7 +34,7 @@ class ProductHelperTest extends Unit
         return [
             'products' => [
                 'class' => ProductFixture::class,
-            ]
+            ],
         ];
     }
 
@@ -68,7 +67,7 @@ class ProductHelperTest extends Unit
     {
         return [
             'from-post-1' => [
-                'rad-hoodie'
+                'rad-hoodie',
             ],
         ];
     }
@@ -118,9 +117,9 @@ class ProductHelperTest extends Unit
                         'hasUnlimitedStock' => true,
                         'minQty' => null,
                         'maxQty' => null,
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
     }
 }
