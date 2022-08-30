@@ -8,6 +8,7 @@
 - Deprecated `craft\commerce\services\Subscriptions::pruneDeletedField()`.
 
 ### Fixed
+- Fixed a bug where condition formula results were being cached incorrectly. ([#2842](https://github.com/craftcms/commerce/issues/2842))
 - Fixed a bug where not all project config changes would be applied if a field or site was deleted. ([craftcms/cms#9567](https://github.com/craftcms/cms/issues/9567))
 
 ## 3.4.16 - 2022-08-05
