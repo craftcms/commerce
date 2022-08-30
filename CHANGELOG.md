@@ -6,7 +6,8 @@
 - Fixed a bug where it wasn’t possible to access subscription management controls. ([#2913](https://github.com/craftcms/commerce/issues/2913))
 - Fixed a bug where `Order::hasMatchingAddresses()` wasn’t comparing the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
 - Fixed a bug where the purchase total field wasn’t saving on discounts.
-- Fixed a bug where a discount’s shipping address condition was being saved to the billing address condition. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
+- Fixed a bug where a discount’s shipping address condition was being saved to the billing address condition. ([#2938](https://github.com/craftcms/commerce/issues/2938))
+- Fixed a bug where it wasn’t possible to set a variant’s min and max quantity to blank. ([#2954](https://github.com/craftcms/commerce/issues/2954))
 
 ## 4.1.0 - 2022-07-19
 
