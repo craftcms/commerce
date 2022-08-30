@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.4.17.1 - 2022-08-30
+
+### Fixed
+- Fixed a bug where the incorrect version number was being shown after updating.
+
 ## 3.4.17 - 2022-08-30
 
 ### Deprecated
