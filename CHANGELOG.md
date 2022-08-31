@@ -8,6 +8,7 @@
 - Fixed a bug where the purchase total field wasn’t saving on discounts.
 - Fixed a bug where a discount’s shipping address condition was being saved to the billing address condition. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
 - Fixed an error that occurred when exporting orders using the expanded option. ([#2953](https://github.com/craftcms/commerce/issues/2953))
+- Fixed a bug where it wasn’t possible to set a variant’s min and max quantity to blank. ([#2954](https://github.com/craftcms/commerce/issues/2954))
 
 ## 4.1.0 - 2022-07-19
 
