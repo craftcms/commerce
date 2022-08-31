@@ -3,12 +3,12 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where it wasn’t possible to access subscription management controls. ([#2913](https://github.com/craftcms/commerce/issues/2913))
-- Fixed a bug where `Order::hasMatchingAddresses()` wasn’t comparing the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
-- Fixed a bug where the purchase total field wasn’t saving on discounts.
-- Fixed a bug where a discount’s shipping address condition was being saved to the billing address condition. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
-- Fixed an error that occurred when exporting orders using the expanded option. ([#2953](https://github.com/craftcms/commerce/issues/2953))
-- Fixed a bug where it wasn’t possible to set a variant’s min and max quantity to blank. ([#2954](https://github.com/craftcms/commerce/issues/2954))
+- Fixed a bug where Edit Subscription pages were blank. ([#2913](https://github.com/craftcms/commerce/issues/2913))
+- Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` wasn’t checking the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
+- Fixed a bug where dicounts’ Purchase Total values weren’t getting saved.
+- Fixed a bug where discounts’ shipping address conditions were being saved as billing address conditions. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
+- Fixed an error that occurred when exporting orders using the “Expanded” export type. ([#2953](https://github.com/craftcms/commerce/issues/2953))
+- Fixed a bug where it wasn’t possible to clear out variants’ min and max quantities. ([#2954](https://github.com/craftcms/commerce/issues/2954))
 
 ## 4.1.0 - 2022-07-19
 
