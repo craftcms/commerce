@@ -20,6 +20,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
@@ -98,6 +99,7 @@ use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
+use craft\events\DeleteSiteEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -202,7 +204,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.1.0';
+    public string $schemaVersion = '4.1.1';
 
     /**
      * @inheritdoc
@@ -229,6 +231,7 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+        $request = Craft::$app->getRequest();
 
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
@@ -246,8 +249,6 @@ class Plugin extends BasePlugin
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
         $this->_registerDebugPanels();
-
-        $request = Craft::$app->getRequest();
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
@@ -513,7 +514,12 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
             ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$productTypeService, 'pruneDeletedSite']);
+
+        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, function(DeleteSiteEvent $event) use ($productTypeService) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
+                $productTypeService->pruneDeletedSite($event);
+            }
+        });
 
         $ordersService = $this->getOrders();
         $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
@@ -529,7 +535,12 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
-        Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
+
+        Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, function(EmailEvent $event) use ($orderStatusService) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
+                $orderStatusService->pruneDeletedEmail($event);
+            }
+        });
 
         $lineItemStatusService = $this->getLineItemStatuses();
         $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])

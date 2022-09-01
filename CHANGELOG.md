@@ -1,12 +1,22 @@
 # Release Notes for Craft Commerce
 
+## 4.1.1 - 2022-09-01
+
+### Fixed
+- Fixed a bug where Edit Subscription pages were blank. ([#2913](https://github.com/craftcms/commerce/issues/2913))
+- Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` wasn’t checking the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
+- Fixed a bug where discounts’ Purchase Total values weren’t getting saved.
+- Fixed a bug where discounts’ shipping address conditions were being saved as billing address conditions. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
+- Fixed an error that occurred when exporting orders using the “Expanded” export type. ([#2953](https://github.com/craftcms/commerce/issues/2953))
+- Fixed a bug where it wasn’t possible to clear out variants’ min and max quantities. ([#2954](https://github.com/craftcms/commerce/issues/2954))
+
 ## 4.1.0 - 2022-07-19
 
 ### Added
 - Tax rates now have a “Unit price” taxable subject option. ([#2883](https://github.com/craftcms/commerce/pull/2883))
 - The Total Revenue widget can now show the total paid, rather than the total invoiced. ([#2852](https://github.com/craftcms/commerce/issues/2852))
 - Added the `commerce/transfer-customer-data` command.
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. ([#2676](https://github.com/craftcms/commerce/issues/2676))
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 - Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
 - Added `craft\commerce\stats\TotalRevenue::$type`.
@@ -19,7 +29,7 @@
 - Addresses submitted to the cart are now validated. ([#2874](https://github.com/craftcms/commerce/pull/2874))
 - Garbage collection now removes any orphaned variants, as well as partial donation, order, product, subscription, and variant data.
 - `craft\commerce\elements\Product` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
-- `craft\commorce\elements\Variant` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
+- `craft\commerce\elements\Variant` now supports the `EVENT_DEFINE_CACHE_TAGS` event.
 
 ### Fixed
 - Fixed an error that occurred when disabling all variants on Edit Product pages.

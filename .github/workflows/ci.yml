@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - develop
-      - '4.0'
   pull_request:
+permissions:
+  contents: read
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true

@@ -156,6 +156,7 @@ class Install extends Migration
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
+            'purchaseTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'baseDiscountType' => $this->enum('baseDiscountType', ['value', 'percentTotal', 'percentTotalDiscounted', 'percentItems', 'percentItemsDiscounted'])->notNull()->defaultValue('value'),

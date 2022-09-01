@@ -11,6 +11,7 @@ use CommerceGuys\Addressing\AddressInterface;
 use Craft;
 use craft\base\Element;
 use craft\base\FieldInterface;
+use craft\base\NameTrait;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
@@ -2961,7 +2962,11 @@ class Order extends Element
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $toArrayHandles = [...$addressAttributes, ...$customFieldHandles];
+        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
+            return $property->name;
+        }, (new ReflectionClass(NameTrait::class))->getProperties());
+
+        $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
 
         $shippingAddress = $this->getShippingAddress();
         if ($shippingAddress instanceof AddressElement) {
@@ -3092,6 +3097,7 @@ class Order extends Element
         // Setting the payment source to null clears it
         if ($paymentSource === null) {
             $this->paymentSourceId = null;
+            return;
         }
 
         // We are now dealing with a PaymentSource
