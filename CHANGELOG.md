@@ -1,11 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.1.1 - 2022-09-01
 
 ### Fixed
 - Fixed a bug where Edit Subscription pages were blank. ([#2913](https://github.com/craftcms/commerce/issues/2913))
 - Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` wasn’t checking the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
-- Fixed a bug where dicounts’ Purchase Total values weren’t getting saved.
+- Fixed a bug where discounts’ Purchase Total values weren’t getting saved.
 - Fixed a bug where discounts’ shipping address conditions were being saved as billing address conditions. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
 - Fixed an error that occurred when exporting orders using the “Expanded” export type. ([#2953](https://github.com/craftcms/commerce/issues/2953))
 - Fixed a bug where it wasn’t possible to clear out variants’ min and max quantities. ([#2954](https://github.com/craftcms/commerce/issues/2954))
