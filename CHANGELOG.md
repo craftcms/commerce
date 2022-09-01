@@ -1,11 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.1.1 - 2022-09-01
 
 ### Fixed
 - Fixed a bug where Edit Subscription pages were blank. ([#2913](https://github.com/craftcms/commerce/issues/2913))
 - Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` wasn’t checking the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
-- Fixed a bug where dicounts’ Purchase Total values weren’t getting saved.
+- Fixed a bug where discounts’ Purchase Total values weren’t getting saved.
 - Fixed a bug where discounts’ shipping address conditions were being saved as billing address conditions. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
 - Fixed an error that occurred when exporting orders using the “Expanded” export type. ([#2953](https://github.com/craftcms/commerce/issues/2953))
 - Fixed a bug where it wasn’t possible to clear out variants’ min and max quantities. ([#2954](https://github.com/craftcms/commerce/issues/2954))
@@ -43,6 +43,7 @@
 ## 4.0.4 - 2022-06-22
 
 > {note} If you’ve already upgraded a site to Commerce 4, please go to **Commerce** → **Promotions** → **Discounts** and review your discounts’ coupons’ Max Uses values, as the `commerce/upgrade` command wasn’t migrating those values properly before this release.
+
 ### Fixed
 - Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
 - Fixed an error that could occur when using a discount with a coupon code.
