@@ -218,7 +218,7 @@ class Variant extends Purchasable
     /**
      * @var int|null $weight
      */
-    public ?int $weight = null;
+    public ?float $weight = null;
 
     /**
      * @var int|null $stock

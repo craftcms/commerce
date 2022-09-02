@@ -55,7 +55,7 @@ class Product
         $variantModel->width = isset($variant['width']) ? (int)LocalizationHelper::normalizeNumber($variant['width']) : null;
         $variantModel->height = isset($variant['height']) ? (int)LocalizationHelper::normalizeNumber($variant['height']) : null;
         $variantModel->length = isset($variant['length']) ? (int)LocalizationHelper::normalizeNumber($variant['length']) : null;
-        $variantModel->weight = isset($variant['weight']) ? (int)LocalizationHelper::normalizeNumber($variant['weight']) : null;
+        $variantModel->weight = isset($variant['weight']) ? (float)LocalizationHelper::normalizeNumber($variant['weight']) : null;
         $variantModel->stock = isset($variant['stock']) ? (int)LocalizationHelper::normalizeNumber($variant['stock']) : null;
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
         $variantModel->minQty = $variant['minQty'] === null || $variant['minQty'] === '' ? null : (int)LocalizationHelper::normalizeNumber($variant['minQty']);
