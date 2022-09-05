@@ -216,7 +216,7 @@ class Variant extends Purchasable
     public ?int $length = null;
 
     /**
-     * @var int|null $weight
+     * @var float|null $weight
      */
     public ?float $weight = null;
 
