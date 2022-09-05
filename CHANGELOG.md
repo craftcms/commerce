@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added shippingAddress and billingAddress values to the field response. ([#2921](https://github.com/craftcms/commerce/issues/2921))
+
 ### Fixed
 - Fixed a MySQL error that could occur when updating to Commerce 4.
 

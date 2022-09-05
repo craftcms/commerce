@@ -1378,6 +1378,8 @@ class Order extends Element
             };
         }
 
+        $fields['shippingAddress'] = 'shippingAddress';
+        $fields['billingAddress'] = 'billingAddress';
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
