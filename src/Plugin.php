@@ -10,6 +10,7 @@ namespace craft\commerce;
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -672,13 +673,22 @@ class Plugin extends BasePlugin
      */
     private function _registerGarbageCollection()
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, function() {
+        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
             // Deletes customers that are not related to any cart/order or user
             Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
             // Deletes addresses that are not related to customers, carts or orders
             Plugin::getInstance()->getAddresses()->purgeOrphanedAddresses();
+
+            // Delete partial elements
+            /** @var Gc $gc */
+            $gc = $event->sender;
+            $gc->deletePartialElements(Donation::class, Table::DONATIONS, 'id');
+            $gc->deletePartialElements(Order::class, Table::ORDERS, 'id');
+            $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
+            $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
+            $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
         });
     }
 

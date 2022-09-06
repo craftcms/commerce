@@ -36,7 +36,7 @@ class DonationsController extends BaseStoreSettingsController
             $donation = new Donation();
             $donation->sku = 'DONATION-CC3';
             $donation->availableForPurchase = true;
-            $donation->enable = true;
+            $donation->enabled = true;
         }
 
         return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));

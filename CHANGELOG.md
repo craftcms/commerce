@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+
+### Fixed
+- Fixed a bug where partial elements were not being deleted during garbage collection.
+
 ## 3.4.17.1 - 2022-08-30
 
 ### Fixed
