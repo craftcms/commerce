@@ -414,18 +414,7 @@ class Addresses extends Component
             $conditionFormula = $zone->getZipCodeConditionFormula();
             $zipCode = $address->zipCode;
 
-            $cacheKey = get_class($zone) . ':' . md5($conditionFormula) . ':' . $zipCode;
-
-            if (Craft::$app->cache->exists($cacheKey)) {
-                $result = Craft::$app->cache->get($cacheKey);
-            } else {
-                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode' => $zipCode], 'Zip Code condition formula matching address');
-                Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
-            }
-
-            if (!$result) {
-                return false;
-            }
+            return (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode' => $zipCode], 'Zip Code condition formula matching address');
         }
 
         return true;
