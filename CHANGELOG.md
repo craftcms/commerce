@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed an error that could occur on the order index page when sorting orders by address attributes. ([#2956](https://github.com/craftcms/commerce/issues/2956))
 - Fixed a MySQL error that could occur when updating to Commerce 4.
+- Fixed a bug where it wasn't possible to save decimal numbers for variant dimensions. ([#2540](https://github.com/craftcms/commerce/issues/2540))
 - Fixed a bug where the site wasn’t being correctly selected on the Edit Product page. ([#2920](https://github.com/craftcms/commerce/issues/2920))
 
 ## 4.1.1 - 2022-09-01
