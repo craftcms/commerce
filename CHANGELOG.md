@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-### Added
-- Added shippingAddress and billingAddress values to the field response. ([#2921](https://github.com/craftcms/commerce/issues/2921))
+## Added
+- `commerce/cart/*` actions now return `shippingAddress` and `billingAddress` values in JSON responses. ([#2921](https://github.com/craftcms/commerce/issues/2921))
 
 ### Fixed
 - Fixed an error that could occur on the order index page when sorting orders by address attributes. ([#2956](https://github.com/craftcms/commerce/issues/2956))
