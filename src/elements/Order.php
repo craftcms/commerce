@@ -11,6 +11,7 @@ use CommerceGuys\Addressing\AddressInterface;
 use Craft;
 use craft\base\Element;
 use craft\base\FieldInterface;
+use craft\base\NameTrait;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
@@ -1495,6 +1496,34 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function autoSetPaymentSource(): bool
+    {
+        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetPaymentSource || $this->paymentSourceId || $this->gatewayId) {
+            return false;
+        }
+
+        /** @var User|CustomerBehavior|null $customer */
+        $customer = $this->getCustomer();
+
+        // Only set the payment source if there is a customer set and that is it the current user
+        if (!$customer || $customer->id !== Craft::$app->getUser()->getIdentity()?->id) {
+            return false;
+        }
+
+        $paymentSource = $customer->getPrimaryPaymentSource();
+        if (!$paymentSource) {
+            return false;
+        }
+
+        $this->setPaymentSource($paymentSource);
+        return true;
+    }
+
+    /**
      * Auto set shipping method based on config settings and available options
      *
      * @return bool returns true if order is mutated
@@ -2946,10 +2975,11 @@ class Order extends Element
     /**
      * Returns whether the billing and shipping addresses' data matches
      *
+     * @param string[]|null $attributes array of attributes names on which to match the addresses
      * @return bool
      * @since 4.1.0
      */
-    public function hasMatchingAddresses(): bool
+    public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
         $addressAttributes = array_map(static function(ReflectionMethod $method) {
@@ -2961,7 +2991,15 @@ class Order extends Element
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
-        $toArrayHandles = [...$addressAttributes, ...$customFieldHandles];
+        $nameTraitProperties = array_map(static function(ReflectionProperty $property) {
+            return $property->name;
+        }, (new ReflectionClass(NameTrait::class))->getProperties());
+
+        $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
+
+        if (!empty($attributes)) {
+            $toArrayHandles = array_intersect($toArrayHandles, $attributes);
+        }
 
         $shippingAddress = $this->getShippingAddress();
         if ($shippingAddress instanceof AddressElement) {
@@ -3092,6 +3130,7 @@ class Order extends Element
         // Setting the payment source to null clears it
         if ($paymentSource === null) {
             $this->paymentSourceId = null;
+            return;
         }
 
         // We are now dealing with a PaymentSource

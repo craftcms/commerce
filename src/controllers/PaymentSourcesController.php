@@ -40,14 +40,16 @@ class PaymentSourcesController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
 
         // Are we paying anonymously?
-        $customerId = Craft::$app->getUser()->getId();
+        $customer = Craft::$app->getUser()->getIdentity();
 
-        if (!$customerId) {
+        if (!$customer) {
             throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
         }
 
         // Allow setting the payment method at time of submitting payment.
         $gatewayId = $this->request->getRequiredBodyParam('gatewayId');
+
+        $isPrimaryPaymentSource = $this->request->getBodyParam('isPrimaryPaymentSource', false);
 
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
 
@@ -57,12 +59,13 @@ class PaymentSourcesController extends BaseFrontEndController
 
         // Get the payment method' gateway adapter's expected form model
         $paymentForm = $gateway->getPaymentFormModel();
-        $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)), false);
+        $paymentFormParams = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle), []);
+        $paymentForm->setAttributes($paymentFormParams, false);
         $description = (string)$this->request->getBodyParam('description');
 
         try {
-            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customerId, $gateway, $paymentForm, $description);
-        } catch (\Exception $exception) {
+            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customer->id, $gateway, $paymentForm, $description);
+        } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
             return $this->asModelFailure(
                 $paymentForm,
@@ -72,10 +75,55 @@ class PaymentSourcesController extends BaseFrontEndController
             );
         }
 
+        if ($isPrimaryPaymentSource) {
+            $plugin->getCustomers()->savePrimaryPaymentSourceId($customer, $paymentSource->id);
+        }
+
         return $this->asModelSuccess(
             $paymentSource,
             Craft::t('commerce', 'Payment source created.'),
             'paymentSource'
+        );
+    }
+
+    /**
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function actionSetPrimaryPaymentSource(): ?Response
+    {
+        $this->requirePostRequest();
+
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!$user) {
+            throw new HttpException(401, Craft::t('commerce', 'You must be logged in to set a primary payment source.'));
+        }
+
+        $paymentSourceId = $this->request->getRequiredBodyParam('id');
+
+        // Check payment source exists and belongs to the user
+        $paymentSource = Plugin::getInstance()->getPaymentSources()->getPaymentSourceByIdAndUserId($paymentSourceId, $user->id);
+        if (!$paymentSource) {
+            return $this->asFailure(
+                Craft::t('commerce', 'Unable to retrieve payment source.'),
+                ['paymentSourceId' => $paymentSourceId],
+                ['paymentSourceId' => $paymentSourceId]
+            );
+        }
+
+        if (!Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $paymentSource->id)) {
+            return $this->asFailure(
+                Craft::t('commerce', 'Unable to set primary payment source.'),
+                ['paymentSourceId' => $paymentSourceId],
+                ['paymentSourceId' => $paymentSourceId]
+            );
+        }
+
+        return $this->asSuccess(
+            Craft::t('commerce', 'Primary payment source updated.')
         );
     }
 

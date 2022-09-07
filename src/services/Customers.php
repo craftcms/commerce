@@ -60,6 +60,26 @@ class Customers extends Component
     }
 
     /**
+     * @param User $user
+     * @param int|null $paymentSourceId
+     * @return bool
+     * @since 4.2
+     */
+    public function savePrimaryPaymentSourceId(User $user, ?int $paymentSourceId): bool
+    {
+        $customerRecord = $this->ensureCustomer($user);
+        $customerRecord->primaryPaymentSourceId = $paymentSourceId;
+
+        if (!$customerRecord->save()) {
+            return false;
+        }
+
+        /** @var User|CustomerBehavior $user */
+        $user->primaryPaymentSourceId = $paymentSourceId;
+        return true;
+    }
+
+    /**
      * Handle user login
      */
     public function loginHandler(): void

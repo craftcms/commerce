@@ -29,6 +29,9 @@ Outputs radio selection inputs for payment sources and/or gateways.
       </span>
     </label>
   {% endfor %}
+  {% if availableGateways|length %}
+    <hr class="my-8">
+  {% endif %}
 {% endif %}
 
 {% if availableGateways|length %}
