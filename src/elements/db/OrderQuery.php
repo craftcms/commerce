@@ -283,7 +283,13 @@ class OrderQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `'xxxx'` | with a matching order reference
+     * | `'Foo'` | with a reference of `Foo`.
+     * | `'Foo*'` | with a reference that begins with `Foo`.
+     * | `'*Foo'` | with a reference that ends with `Foo`.
+     * | `'*Foo*'` | with a reference that contains `Foo`.
+     * | `'not *Foo*'` | with a reference that doesn’t contain `Foo`.
+     * | `['*Foo*', '*Bar*']` | with a reference that contains `Foo` or `Bar`.
+     * | `['not', '*Foo*', '*Bar*']` | with a reference that doesn’t contain `Foo` or `Bar`.
      *
      * ---
      *
@@ -1314,7 +1320,8 @@ class OrderQuery extends ElementQuery
         }
 
         if (isset($this->reference) && $this->reference) {
-            $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
+            // $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.reference', $this->reference));
         }
 
         if (isset($this->email) && $this->email) {

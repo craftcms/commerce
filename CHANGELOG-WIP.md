@@ -10,6 +10,8 @@
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInDateRange`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInLastPeriod`.
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
 - Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
@@ -24,3 +26,4 @@
 - It is now possible to set a primary payment source for a customer.
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
 - It is now possible to query orders by `itemTotal`.
+- Querying an order by `reference` now allows a wider range of inputs.
