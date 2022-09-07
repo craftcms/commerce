@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements\conditions\customers;
 
@@ -10,7 +15,15 @@ use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
 
-class HasOrdersInDateRange extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
+/**
+ * Has Orders in Date Range Condition Rule.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 4.2.0
+ *
+ * @property-read float|int $orderAttributeValue
+ */
+class HasOrdersInDateRangeConditionRule extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @return string

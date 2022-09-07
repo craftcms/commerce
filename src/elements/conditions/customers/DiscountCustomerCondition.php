@@ -20,8 +20,8 @@ class DiscountCustomerCondition extends UserElementCondition
     protected function conditionRuleTypes(): array
     {
         $types = array_merge(parent::conditionRuleTypes(), [
-            HasOrdersInDateRange::class,
-            HasOrdersInLastPeriod::class,
+            HasOrdersInDateRangeConditionRule::class,
+            HasOrdersInLastPeriodConditionRule::class,
         ]);
 
         return $types;

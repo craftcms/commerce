@@ -18,9 +18,7 @@ class DiscountOrderCondition extends OrderCondition
      */
     protected function conditionRuleTypes(): array
     {
-        return array_merge(parent::conditionRuleTypes(), [
-
-        ]);
+        return array_merge(parent::conditionRuleTypes(), []);
     }
 
     /**

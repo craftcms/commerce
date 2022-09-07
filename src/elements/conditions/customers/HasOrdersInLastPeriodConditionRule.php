@@ -12,7 +12,15 @@ use craft\helpers\Cp;
 use craft\helpers\Html;
 use yii\base\NotSupportedException;
 
-class HasOrdersInLastPeriod extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
+/**
+ * Has Orders in Last Period Condition Rule.
+ *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 4.2.0
+ *
+ * @property-read float|int $orderAttributeValue
+ */
+class HasOrdersInLastPeriodConditionRule extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
     public string $numberOfDays = '';
 
