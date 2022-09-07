@@ -2,7 +2,6 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
 use craft\base\conditions\BaseNumberConditionRule;
 use craft\base\ElementInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;

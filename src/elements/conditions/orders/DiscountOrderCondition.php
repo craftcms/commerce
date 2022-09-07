@@ -2,7 +2,6 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use craft\elements\conditions\ElementCondition;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
 
