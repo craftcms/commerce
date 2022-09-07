@@ -2,6 +2,8 @@
 
 namespace  craft\commerce\elements\conditions\orders;
 
+use Craft;
+
 /**
  * Total Price Condition Rule
  *
@@ -19,7 +21,6 @@ class TotalPriceConditionRule extends OrderValuesAttributeConditionRule
      */
     public function getLabel(): string
     {
-        return \Craft::t('commerce', 'Total Price');
+        return Craft::t('commerce', 'Total Price');
     }
-
 }
