@@ -369,7 +369,7 @@ class Discount extends Model
      */
     public function getBillingAddressCondition(): ElementConditionInterface
     {
-        $condition = $this->_shippingAddressCondition ?? new DiscountAddressCondition();
+        $condition = $this->_billingAddressCondition ?? new DiscountAddressCondition();
         $condition->mainTag = 'div';
         $condition->id = 'billingAddressCondition';
         $condition->name = 'billingAddressCondition';

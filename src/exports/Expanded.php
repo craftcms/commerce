@@ -47,13 +47,13 @@ class Expanded extends CraftExpanded
             // Get the basic array representation excluding custom fields
             $attributes = array_flip($element->attributes());
             if (($fieldLayout = $element->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     unset($attributes[$field->handle]);
                 }
             }
             $elementArr = $element->toArray(array_keys($attributes), $extraAttributes);
             if ($fieldLayout !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     $value = $element->getFieldValue($field->handle);
                     $elementArr[$field->handle] = $field->serializeValue($value, $element);
                 }

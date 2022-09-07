@@ -360,7 +360,7 @@
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
-            value: discount.purchaseTotal ? discount.purchaseTotal : 0,
+            value: discount.purchaseTotal ? discount.purchaseTotal|number : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('purchaseTotal'),
@@ -668,7 +668,7 @@ $(function() {
         }
     });
 
-    $('.clear-btn').click(function(event) {
+    $('.clear-btn.discount-clear-use').click(function(event) {
         var $this = $(this);
         var $spinner = $($this.data('spinner'));
         var $field = $($this.data('field'));
