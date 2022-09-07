@@ -126,6 +126,11 @@ class OrderQuery extends ElementQuery
     public mixed $totalPrice = null;
 
     /**
+     * @var mixed The total price of the items resulting orders must have.
+     */
+    public mixed $itemTotal = null;
+
+    /**
      * @var bool|null Whether the order is paid
      */
     public ?bool $isPaid = null;
@@ -910,6 +915,27 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the order's item total.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with an item total of $100.
+     * | `'< 1000000'` | with an item total of less than $1,000,000.
+     * | `['>= 10', '< 100']` | with an item total of between $10 and $100.
+
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function itemTotal(mixed $value): OrderQuery
+    {
+        $this->itemTotal = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only orders that are paid.
      *
      * ---
@@ -1338,6 +1364,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->totalPrice)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPrice', $this->totalPrice));
+        }
+
+        if (isset($this->itemTotal)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemTotal', $this->itemTotal));
         }
 
         // Allow true but not null
