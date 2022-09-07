@@ -9,6 +9,7 @@
 - Added `craft\commerce\controllers\PaymentSourcesController::actionSetPrimaryPaymentSource()`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInDateRange`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInLastPeriod`.
+- Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
 - Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
