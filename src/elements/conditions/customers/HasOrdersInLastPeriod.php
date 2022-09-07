@@ -75,7 +75,7 @@ class HasOrdersInLastPeriod extends BaseDateRangeConditionRule implements Elemen
     {
         return Order::find()
             ->customerId($element->id)
-            ->isCompleted(true)
+            ->isCompleted()
             ->dateOrdered($this->queryParamValue())
             ->exists();
     }
