@@ -10,6 +10,7 @@ use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use yii\base\NotSupportedException;
 
 class HasOrdersInLastPeriod extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
@@ -72,13 +73,11 @@ class HasOrdersInLastPeriod extends BaseDateRangeConditionRule implements Elemen
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $exists = Order::find()
+        return Order::find()
             ->customerId($element->id)
             ->isCompleted(true)
             ->dateOrdered($this->queryParamValue())
             ->exists();
-
-        return $exists;
     }
 
     /**

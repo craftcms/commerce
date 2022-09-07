@@ -8,6 +8,7 @@ use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
+use yii\base\NotSupportedException;
 
 class HasOrdersInDateRange extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
@@ -32,7 +33,7 @@ class HasOrdersInDateRange extends BaseDateRangeConditionRule implements Element
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        throw new NotSupportedException('Days since last purchase condition rule does not support queries');
+        throw new NotSupportedException('Orders in date range condition rule does not support queries');
     }
 
     /**
@@ -40,12 +41,10 @@ class HasOrdersInDateRange extends BaseDateRangeConditionRule implements Element
      */
     public function matchElement(ElementInterface $element): bool
     {
-        $exists = Order::find()
+        return Order::find()
             ->customerId($element->id)
-            ->isCompleted(true)
+            ->isCompleted()
             ->dateOrdered($this->queryParamValue())
             ->exists();
-
-        return $exists;
     }
 }
