@@ -608,7 +608,7 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param string|string[]|OrderStatus|null $value The property value
+     * @param string|string[]|null $value The property value
      * @return static self reference
      */
     public function shippingMethodHandle(mixed $value): OrderQuery
