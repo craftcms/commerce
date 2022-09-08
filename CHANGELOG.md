@@ -7,6 +7,8 @@
 - Fixed an error that could when sorting orders by address attributes. ([#2956](https://github.com/craftcms/commerce/issues/2956))
 - Fixed a bug where it wasn’t possible to save decimal numbers for variant dimensions. ([#2540](https://github.com/craftcms/commerce/issues/2540))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2920](https://github.com/craftcms/commerce/issues/2920))
+- Fixed a bug where partial elements were not being deleted during garbage collection.
+- Fixed a bug where `itemSubtotal` wasn’t saving to the database.
 
 ## 4.1.1 - 2022-09-01
 
