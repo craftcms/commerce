@@ -4,9 +4,11 @@ namespace craft\commerce\elements\conditions\orders;
 
 use Craft;
 use craft\base\conditions\BaseMultiSelectConditionRule;
+use craft\commerce\elements\db\OrderQuery;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\base\ElementInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use yii\db\QueryInterface;
 use craft\commerce\Plugin;
 
@@ -14,7 +16,7 @@ use craft\commerce\Plugin;
  * Element status condition rule.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
+ * @since 4.2.0
  */
 class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
@@ -39,14 +41,7 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
 	 */
 	protected function options(): array
 	{
-		//return Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-		$options = [];
-		foreach (Plugin::getInstance()->getShippingMethods()->getAllShippingMethods() as $method) {
-			$options[$method->handle] = $method->name;
-		}
-		
-		return $options;
-			
+        return ArrayHelper::map(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle', 'name');
 	}
 
 	/**
@@ -54,8 +49,8 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
 	 */
 	public function modifyQuery(QueryInterface $query): void
 	{
-		/** @var ElementQueryInterface $query */
-		$query->shippingMethod($this->paramValue());
+		/** @var OrderQuery $query */
+		$query->shippingMethodHandle($this->paramValue());
 	}
 
 	/**
