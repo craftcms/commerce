@@ -201,24 +201,24 @@ class Variant extends Purchasable
     public ?int $sortOrder = null;
 
     /**
-     * @var int|null $width
+     * @var float|null $width
      */
-    public ?int $width = null;
+    public ?float $width = null;
 
     /**
-     * @var int|null $height
+     * @var float|null $height
      */
-    public ?int $height = null;
+    public ?float $height = null;
 
     /**
-     * @var int|null $length
+     * @var float|null $length
      */
-    public ?int $length = null;
+    public ?float $length = null;
 
     /**
-     * @var int|null $weight
+     * @var float|null $weight
      */
-    public ?int $weight = null;
+    public ?float $weight = null;
 
     /**
      * @var int|null $stock
