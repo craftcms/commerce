@@ -1,8 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
 
 ### Fixed
 - Fixed a bug where partial elements were not being deleted during garbage collection.
+- Fixed a bug where `itemSubtotal` wasn’t saving to the database.
 
 ## 3.4.17.1 - 2022-08-30
 

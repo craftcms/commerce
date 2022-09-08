@@ -34,6 +34,7 @@ use yii\db\ActiveQueryInterface;
  * @property OrderHistory[] $histories
  * @property int $id
  * @property bool $isCompleted
+ * @property float $itemSubtotal
  * @property float $itemTotal
  * @property string $lastIp
  * @property LineItem[] $lineItems
