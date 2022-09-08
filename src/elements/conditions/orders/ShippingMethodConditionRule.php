@@ -6,6 +6,7 @@ use Craft;
 use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\helpers\ArrayHelper;
@@ -57,6 +58,7 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
      */
     public function matchElement(ElementInterface $element): bool
     {
-        return $this->matchValue($element->shippingMethod->handle);
+        /** @var Order $element */
+        return $this->matchValue($element->shippingMethodHandle);
     }
 }
