@@ -285,8 +285,8 @@ class ProductsController extends BaseController
                         $message,
                         'product'
                     );
-                } catch (Throwable $e) {
-                    throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0, $e);
+                } catch (Throwable) {
+                    throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0);
                 }
             } else {
                 $product = $oldProduct;

@@ -58,6 +58,7 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         if ($subscription === null && $subscriptionId) {
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->id($subscriptionId)->one();
         }
 
@@ -100,8 +101,10 @@ class SubscriptionsController extends BaseController
         $this->requirePostRequest();
 
         $subscriptionId = $this->request->getRequiredBodyParam('subscriptionId');
+        /** @var Subscription|null $subscription */
+        $subscription = Subscription::find()->status(null)->id($subscriptionId)->one();
 
-        if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
+        if (!$subscription) {
             throw new NotFoundHttpException('Subscription not found');
         }
 
@@ -199,7 +202,7 @@ class SubscriptionsController extends BaseController
                 $fieldValues = $this->request->getBodyParam($fieldsLocation, []);
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
-            } catch (Throwable $exception) {
+            } catch (\Exception $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));

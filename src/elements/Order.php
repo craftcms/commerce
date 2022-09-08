@@ -48,8 +48,8 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
+use craft\elements\Address;
 use craft\elements\Address as AddressElement;
-use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -2827,9 +2827,9 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->shippingAddressId);
-            $this->_shippingAddress = $addressQuery->ownerId($this->id)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
+            $this->_shippingAddress = $address;
         }
 
         return $this->_shippingAddress;
@@ -2885,9 +2885,9 @@ class Order extends Element
     public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->estimatedShippingAddressId);
-            $this->_estimatedShippingAddress = $addressQuery->owner($this)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
+            $this->_estimatedShippingAddress = $address;
         }
 
         return $this->_estimatedShippingAddress;
@@ -2920,9 +2920,9 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->billingAddressId);
-            $this->_billingAddress = $addressQuery->ownerId($this->id)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
+            $this->_billingAddress = $address;
         }
 
         return $this->_billingAddress;
@@ -3021,9 +3021,9 @@ class Order extends Element
     public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->estimatedBillingAddressId);
-            $this->_estimatedBillingAddress = $addressQuery->owner($this)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
+            $this->_estimatedBillingAddress = $address;
         }
 
         return $this->_estimatedBillingAddress;

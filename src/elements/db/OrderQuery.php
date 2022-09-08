@@ -22,7 +22,6 @@ use craft\elements\User;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
-use yii\db\Schema;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
@@ -1191,6 +1190,7 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
+        /** @var Order[] $orders */
         $orders = parent::populate($rows);
 
         // Eager-load anything?
@@ -1316,7 +1316,7 @@ class OrderQuery extends ElementQuery
 
         // Allow true ot false but not null
         if (isset($this->isCompleted) && $this->isCompleted !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_orders.isCompleted', $this->isCompleted, false));
         }
 
         if (isset($this->dateAuthorized)) {
