@@ -426,29 +426,29 @@ class Plugin extends BasePlugin
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => $this->_registerProductTypePermission() + [
-                    'commerce-manageOrders' => [
-                        'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                            'commerce-editOrders' => [
-                                'label' => Craft::t('commerce', 'Edit orders'),
-                            ],
-                            'commerce-deleteOrders' => [
-                                'label' => Craft::t('commerce', 'Delete orders'),
-                            ],
-                            'commerce-capturePayment' => [
-                                'label' => Craft::t('commerce', 'Capture payment'),
-                            ],
-                            'commerce-refundPayment' => [
-                                'label' => Craft::t('commerce', 'Refund payment'),
-                            ],
+                        'commerce-manageOrders' => [
+                            'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                                'commerce-editOrders' => [
+                                    'label' => Craft::t('commerce', 'Edit orders'),
+                                ],
+                                'commerce-deleteOrders' => [
+                                    'label' => Craft::t('commerce', 'Delete orders'),
+                                ],
+                                'commerce-capturePayment' => [
+                                    'label' => Craft::t('commerce', 'Capture payment'),
+                                ],
+                                'commerce-refundPayment' => [
+                                    'label' => Craft::t('commerce', 'Refund payment'),
+                                ],
 
+                            ],
                         ],
+                        'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                        'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition only)')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition only)')],
+                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],
-                    'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                    'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition only)')],
-                    'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition only)')],
-                    'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ],
             ];
         });
     }

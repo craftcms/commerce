@@ -5,6 +5,7 @@
 ## 4.2.0 - Unreleased
 
 ### Added
+- `commerce/cart/*` actions now return `shippingAddress` and `billingAddress` values in JSON responses. ([#2921](https://github.com/craftcms/commerce/issues/2921))
 - Added `craft\commerce\behaviors\CustomerBehavoir::getPrimaryPaymentSource()`.
 - Added `craft\commerce\behaviors\CustomerBehavoir::getPrimaryPaymentSourceId()`.
 - Added `craft\commerce\behaviors\CustomerBehavoir::setPrimaryPaymentSourceId()`.
