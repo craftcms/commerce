@@ -252,7 +252,7 @@ abstract class Stat implements StatInterface
             }
             case self::DATE_RANGE_THISYEAR:
             {
-                $date->setDate($date->format('Y'), 1, 1);
+                $date->setDate((int)$date->format('Y'), 1, 1);
                 break;
             }
             case self::DATE_RANGE_PAST7DAYS:
@@ -447,7 +447,7 @@ abstract class Stat implements StatInterface
         while ($dateKeyDate <= $endDate) {
             // If we are looking monthly make sure we get every month by using the 1st day
             if ($dateRangeInterval == 'month') {
-                $dateKeyDate->setDate($dateKeyDate->format('Y'), $dateKeyDate->format('m'), 1);
+                $dateKeyDate->setDate((int)$dateKeyDate->format('Y'), (int)$dateKeyDate->format('n'), 1);
             }
 
             $key = $dateKeyDate->format($options['dateKeyFormat']);
