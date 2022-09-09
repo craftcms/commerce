@@ -148,6 +148,7 @@ class Customers extends Component
     public function eagerLoadCustomerForOrders(array $orders): array
     {
         $customerIds = ArrayHelper::getColumn($orders, 'customerId');
+        /** @var User[] $users */
         $users = User::find()->id($customerIds)->limit(null)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {

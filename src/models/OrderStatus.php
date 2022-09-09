@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
-use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
@@ -166,8 +165,8 @@ class OrderStatus extends Model
      */
     public function canDelete(): bool
     {
-        /** @var OrderQuery $orderQuery */
-        $orderQuery = Order::find()->trashed(null);
-        return !$orderQuery->orderStatus($this)->one();
+        /** @var Order|null $order */
+        $order = Order::find()->orderStatus($this)->trashed(null)->one();
+        return !$order;
     }
 }

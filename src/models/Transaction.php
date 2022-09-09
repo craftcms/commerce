@@ -166,7 +166,7 @@ class Transaction extends Model
     public function __construct($attributes = [])
     {
         // generate unique hash
-        $this->hash = md5(uniqid(mt_rand(), true));
+        $this->hash = md5(uniqid((string)mt_rand(), true));
 
         parent::__construct($attributes);
     }

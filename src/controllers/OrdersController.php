@@ -35,7 +35,6 @@ use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
-use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -643,11 +642,10 @@ class OrdersController extends Controller
             return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
         }
 
-        /** @var AddressQuery $addressQuery */
-        $addressQuery = Address::find()
-            ->id($addressId);
-        $address = $addressQuery
+        /** @var Address|null $address */
+        $address = Address::find()
             ->ownerId($order->id)
+            ->id($addressId)
             ->one();
 
         if (!$address) {
@@ -1250,9 +1248,8 @@ class OrdersController extends Controller
                 $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
                 $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
             } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
-                /** @var AddressQuery $addressQuery */
-                $addressQuery = Address::find()->id($address['id']);
-                $address = $addressQuery->ownerId($address['ownerId'])->one();
+                /** @var Address|null $address */
+                $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
             }
 
             return $address;
