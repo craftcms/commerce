@@ -12,6 +12,7 @@
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInDateRange`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInLastPeriod`.
 - Added `craft\commerce\elements\conditions\orders\CustomerConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\IsCompletedConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
