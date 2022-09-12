@@ -14,8 +14,6 @@ use Craft;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
  */
 class ReferenceConditionRule extends OrderTextValuesAttributeConditionRule
 {

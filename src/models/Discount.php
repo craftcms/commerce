@@ -38,6 +38,7 @@ use yii\base\InvalidConfigException;
  * @property string|array|ElementConditionInterface $shippingAddressCondition
  * @property string|array|ElementConditionInterface $billingAddressCondition
  * @property string|array|ElementConditionInterface $customerCondition
+ * @property string|array|ElementConditionInterface $customerOrdersCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -340,9 +341,9 @@ class Discount extends Model
     }
 
     /**
-     * @return CustomerOrdersCondition
+     * @return ElementConditionInterface
      */
-    public function getCustomerOrdersCondition(): CustomerOrdersCondition
+    public function getCustomerOrdersCondition(): ElementConditionInterface
     {
         $condition = $this->_customerOrdersCondition ?? new CustomerOrdersCondition();
         $condition->mainTag = 'div';
@@ -356,7 +357,7 @@ class Discount extends Model
      * @return void
      * @throws InvalidConfigException
      */
-    public function setCustomerOrdersCondition(ElementConditionInterface|string|array $condition): void
+    public function setCustomerOrdersCondition(ElementConditionInterface|array|string $condition): void
     {
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);

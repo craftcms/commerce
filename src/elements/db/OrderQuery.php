@@ -896,7 +896,7 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param int|null $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function customerId(mixed $value): OrderQuery

@@ -28,7 +28,7 @@ class m220912_111800_add_order_total_qty_column extends Migration
 
             $cases = [];
             foreach ($sums as $sum) {
-                $cases[] = 'WHEN id=' . $sum['orderId'] . ' THEN ' . $sum['totalQty'] ?? '0';
+                $cases[] = 'WHEN id=' . $sum['orderId'] . ' THEN ' . ($sum['totalQty'] ?? '0');
             }
 
             if (!empty($cases)) {

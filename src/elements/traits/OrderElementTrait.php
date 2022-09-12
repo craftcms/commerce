@@ -133,7 +133,7 @@ trait OrderElementTrait
             }
             case 'totalQty':
             {
-                return $this->storedTotalQty;
+                return (string)$this->storedTotalQty;
             }
             case 'total':
             {

@@ -12,6 +12,7 @@ use craft\commerce\adjusters\Discount as DiscountAdjuster;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\customers\CustomerOrdersCondition;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
@@ -513,6 +514,7 @@ class Discounts extends Component
             }
         }
 
+        /** @var CustomerOrdersCondition $customerOrdersCondition */
         $customerOrdersCondition = $discount->getCustomerOrdersCondition();
         $hasCustomerOrdersConditionRules = count($customerOrdersCondition->getConditionRules());
         $customer = $order->getCustomer();

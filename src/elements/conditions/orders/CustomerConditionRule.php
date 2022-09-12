@@ -21,8 +21,6 @@ use craft\elements\User;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
  */
 class CustomerConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
@@ -65,6 +63,6 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */
-        return $this->matchValue($element->getCustomerId());
+        return $this->matchValue((string)$element->getCustomerId());
     }
 }

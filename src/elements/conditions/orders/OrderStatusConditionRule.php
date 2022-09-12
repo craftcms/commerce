@@ -24,7 +24,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  *
- * @property-read float|int $orderAttributeValue
+ * @method array|string|null paramValue(?callable $normalizeValue = null)
  */
 class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {

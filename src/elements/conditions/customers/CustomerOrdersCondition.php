@@ -112,13 +112,13 @@ class CustomerOrdersCondition extends OrderCondition
     private function _addForcedRules(): void
     {
         // Add ID condition rule
-        $hasIdConditionRule = !empty(array_filter($this->getConditionRules(), fn($rule) => get_class($rule) === IdConditionRule::class, true));
+        $hasIdConditionRule = !empty(array_filter($this->getConditionRules(), static fn($rule) => get_class($rule) === IdConditionRule::class));
         if (!$hasIdConditionRule && $this->orderId !== null) {
             /** @var IdConditionRule $idConditionRule */
             $idConditionRule = Craft::$app->getConditions()->createConditionRule([
                 'class' => IdConditionRule::class,
             ]);
-            $idConditionRule->value = $this->orderId;
+            $idConditionRule->value = (string)$this->orderId;
         }
 
         // Add customer condition rule
@@ -126,7 +126,7 @@ class CustomerOrdersCondition extends OrderCondition
         $customerConditionRule = Craft::$app->getConditions()->createConditionRule([
             'class' => CustomerConditionRule::class,
         ]);
-        $customerConditionRule->setValues([$this->customerId]);
+        $customerConditionRule->setValues([(string)$this->customerId]);
 
         // Add completed condition rule
         /** @var IsCompletedConditionRule $isCompletedConditionRule */

@@ -20,8 +20,6 @@ use craft\elements\db\ElementQueryInterface;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
- *
- * @property-read float|int $orderAttributeValue
  */
 class IsCompletedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
