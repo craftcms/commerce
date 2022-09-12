@@ -44,6 +44,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $purchaseQty
  * @property array|null $orderCondition
  * @property array|null $customerCondition
+ * @property array|null $customerOrdersCondition
  * @property array|null $shippingAddressCondition
  * @property array|null $billingAddressCondition
  * @property string|null $orderConditionFormula

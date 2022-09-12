@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
+use craft\commerce\elements\conditions\customers\CustomerOrdersCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
 use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\elements\Order;
@@ -76,6 +77,13 @@ class Discount extends Model
      * @see setCustomerCondition()
      */
     public null|ElementConditionInterface $_customerCondition = null;
+
+    /**
+     * @var ElementConditionInterface|null
+     * @see getCustomerOrdersCondition()
+     * @see setCustomerOrdersCondition()
+     */
+    public null|ElementConditionInterface $_customerOrdersCondition = null;
 
     /**
      * @var ElementConditionInterface|null
@@ -329,6 +337,39 @@ class Discount extends Model
         $condition->forProjectConfig = false;
 
         $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return CustomerOrdersCondition
+     */
+    public function getCustomerOrdersCondition(): CustomerOrdersCondition
+    {
+        $condition = $this->_customerOrdersCondition ?? new CustomerOrdersCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerOrdersCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function setCustomerOrdersCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CustomerOrdersCondition::class;
+            /** @var CustomerOrdersCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_customerOrdersCondition = $condition;
     }
 
     /**

@@ -8,6 +8,7 @@
 - Added `craft\commerce\behaviors\CustomerBehavoir::getPrimaryPaymentSourceId()`.
 - Added `craft\commerce\behaviors\CustomerBehavoir::setPrimaryPaymentSourceId()`.
 - Added `craft\commerce\controllers\PaymentSourcesController::actionSetPrimaryPaymentSource()`.
+- Added `craft\commerce\elements\conditions\customers\CustomerOrdersCondition`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInDateRange`.
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInLastPeriod`.
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.

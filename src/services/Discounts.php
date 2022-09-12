@@ -12,6 +12,7 @@ use craft\commerce\adjusters\Discount as DiscountAdjuster;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
@@ -512,6 +513,27 @@ class Discounts extends Component
             }
         }
 
+        $customerOrdersCondition = $discount->getCustomerOrdersCondition();
+        $hasCustomerOrdersConditionRules = count($customerOrdersCondition->getConditionRules());
+        $customer = $order->getCustomer();
+
+        if ($hasCustomerOrdersConditionRules) {
+            if (!$customer) {
+                return false;
+            }
+
+            $customerOrdersCondition->customerId = $customer->id;
+            if ($order->id) {
+                $customerOrdersCondition->orderId = $order->id;
+            }
+            /** @var OrderQuery $customerOrdersConditionOrderQuery */
+            $customerOrdersConditionOrderQuery = Order::find();
+            $customerOrdersCondition->modifyQuery($customerOrdersConditionOrderQuery);
+            if (!$customerOrdersConditionOrderQuery->exists()) {
+                return false;
+            }
+        }
+
         $shippingAddressCondition = $discount->getShippingAddressCondition();
         $hasShippingAddressConditionRules = count($shippingAddressCondition->getConditionRules());
         $shippingAddress = $order->getShippingAddress();
@@ -659,6 +681,7 @@ class Discounts extends Component
         $record->stopProcessing = $model->stopProcessing;
         $record->orderCondition = $model->getOrderCondition()->getConfig();
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
+        $record->customerOrdersCondition = $model->getCustomerOrdersCondition()->getConfig();
         $record->shippingAddressCondition = $model->getShippingAddressCondition()->getConfig();
         $record->billingAddressCondition = $model->getBillingAddressCondition()->getConfig();
         $record->orderConditionFormula = $model->orderConditionFormula;
@@ -1175,6 +1198,7 @@ class Discounts extends Component
                 '[[discounts.totalDiscountUseLimit]]',
                 '[[discounts.totalDiscountUses]]',
                 '[[discounts.customerCondition]]',
+                '[[discounts.customerOrdersCondition]]',
                 '[[discounts.shippingAddressCondition]]',
                 '[[discounts.billingAddressCondition]]',
             ])

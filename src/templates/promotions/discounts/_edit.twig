@@ -291,6 +291,16 @@
             errors: discount.getErrors('customerCondition')
         }, customerConditionInput) }}
 
+        {% set customerOrdersConditionInput %}
+            {{ discount.customerOrdersCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+            label: 'Match Customer’s Previous Orders'|t('commerce'),
+            instructions: 'Create rules that allow this discount to match the previous completed orders for the current customer.'|t('commerce'),
+            errors: discount.getErrors('customerOrdersCondition')
+        }, customerOrdersConditionInput) }}
+
         {% set shippingAddressConditionInput %}
             {{ discount.shippingAddressCondition.getBuilderHtml()|raw }}
         {% endset %}
