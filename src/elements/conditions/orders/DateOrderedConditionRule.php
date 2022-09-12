@@ -23,7 +23,6 @@ use craft\elements\db\ElementQueryInterface;
  */
 class DateOrderedConditionRule extends BaseDateRangeConditionRule implements ElementConditionRuleInterface
 {
-
     public function getLabel(): string
     {
         return Craft::t('commerce', 'Date Ordered');
