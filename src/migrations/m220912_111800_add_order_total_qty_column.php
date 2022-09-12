@@ -2,11 +2,8 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
-use craft\commerce\elements\conditions\customers\CustomerOrdersCondition;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\Json;
 use yii\db\Expression;
 
 /**

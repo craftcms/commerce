@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\elements\conditions\customers\CustomerOrdersCondition;
 use craft\db\Migration;
 use craft\helpers\Json;

@@ -9,7 +9,6 @@ namespace  craft\commerce\elements\conditions\orders;
 
 use Craft;
 use craft\base\conditions\BaseLightswitchConditionRule;
-use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
