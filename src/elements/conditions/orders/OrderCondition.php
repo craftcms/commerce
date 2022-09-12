@@ -26,6 +26,7 @@ class OrderCondition extends ElementCondition
             ItemTotalConditionRule::class,
             ReferenceConditionRule::class,
             TotalPriceConditionRule::class,
+            TotalQtyConditionRule::class,
         ]);
     }
 }

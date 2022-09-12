@@ -351,6 +351,7 @@ class Install extends Migration
             'couponCode' => $this->string(),
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
             'itemSubtotal' => $this->decimal(14, 4)->defaultValue(0),
+            'totalQty' => $this->integer()->unsigned(),
             'total' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'totalPaid' => $this->decimal(14, 4)->defaultValue(0),

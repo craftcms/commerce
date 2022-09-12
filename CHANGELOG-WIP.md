@@ -14,7 +14,11 @@
 - Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalQtyConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalQty()`.
+- Added `craft\commerce\elements\Order::$storedTotalQty`.
 - Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
 - Added `craft\commerce\models\PaymentSource::getIsPrimary()`.
 - Added `craft\commerce\models\Settings::$autoSetPaymentSource`.
@@ -24,7 +28,7 @@
 ### Changed
 - It is now possible to set a primary payment source for a customer.
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
-- It is now possible to query orders by `itemTotal`.
+- It is now possible to query orders by `itemTotal` and `totalQty`.
 - Querying an order by `reference` now allows a wider range of inputs.
 - Shipping and Tax Categories are now archived instead of deleted.
 - It is now possible to define how addresses are matched in `Order::hasMatchingAddresses()`.

@@ -125,6 +125,11 @@ class OrderQuery extends ElementQuery
     public mixed $totalPrice = null;
 
     /**
+     * @var mixed The total qty of the order resulting orders must have.
+     */
+    public mixed $totalQty = null;
+
+    /**
      * @var mixed The total price of the items resulting orders must have.
      */
     public mixed $itemTotal = null;
@@ -920,6 +925,25 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the total qty of items.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total qty of 10.
+     * | `[10, 20]` | an order with a total qty of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function totalQty(mixed $value): OrderQuery
+    {
+        $this->totalQty = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the order's item total.
      *
      * Possible values include:
@@ -1287,6 +1311,7 @@ class OrderQuery extends ElementQuery
             'storedTotalTax' => 'commerce_orders.totalTax',
             'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
             'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            'storedTotalQty' => 'commerce_orders.totalQty',
             'commerce_orders.shippingMethodName',
             'commerce_orders.orderSiteId',
             'commerce_orders.orderLanguage',
@@ -1375,6 +1400,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->itemTotal)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemTotal', $this->itemTotal));
+        }
+
+        if (isset($this->totalQty)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalQty', $this->totalQty));
         }
 
         // Allow true but not null

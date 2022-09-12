@@ -955,6 +955,17 @@ class Order extends Element
      */
     public ?float $storedTotalTaxIncluded = null;
 
+    /**
+     * @var int|null The total quantity as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalQty;
+     * ```
+     * ```twig
+     * {{ order.storedTotalQty }}
+     * ```
+     */
+    public ?int $storedTotalQty = null;
 
     /**
      * @var string|null
@@ -2028,6 +2039,7 @@ class Order extends Element
         $orderRecord->totalShippingCost = $this->getTotalShippingCost();
         $orderRecord->totalTax = $this->getTotalTax();
         $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
+        $orderRecord->totalQty = $this->getTotalQty();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
