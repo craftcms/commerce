@@ -25,9 +25,11 @@
 - Added `craft\commerce\elements\db\OrderQuery::$itemTotal`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::itemSubtotal()`.
 - Added `craft\commerce\elements\db\OrderQuery::itemTotal()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalPaid()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalQty()`.
 - Added `craft\commerce\elements\Order::$storedTotalQty`.
 - Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
@@ -39,7 +41,7 @@
 ### Changed
 - It is now possible to set a primary payment source for a customer.
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
-- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalPrice`, and `totalQty`.
+- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalPaid`, `totalPrice`, and `totalQty`.
 - Querying an order by `reference` now allows a wider range of inputs.
 - Shipping and Tax Categories are now archived instead of deleted.
 - It is now possible to define how addresses are matched in `Order::hasMatchingAddresses()`.
