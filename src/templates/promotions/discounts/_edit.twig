@@ -504,7 +504,7 @@
             instructions: "The flat value which should discount each item. i.e “3” for $3 off each item."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
-            value: discount.perItemDiscount ? discount.perItemDiscount : 0,
+            value: discount.perItemDiscount ? discount.perItemDiscount|number : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('perItemDiscount'),
