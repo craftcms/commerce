@@ -121,18 +121,27 @@ class OrderQuery extends ElementQuery
 
     /**
      * @var mixed The total price of the order resulting orders must have.
+     * @since 4.2.0
      */
     public mixed $totalPrice = null;
 
     /**
      * @var mixed The total qty of the order resulting orders must have.
+     * @since 4.2.0
      */
     public mixed $totalQty = null;
 
     /**
      * @var mixed The total price of the items resulting orders must have.
+     * @since 4.2.0
      */
     public mixed $itemTotal = null;
+
+    /**
+     * @var mixed The subtotal price of the items resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $itemSubtotal = null;
 
     /**
      * @var bool|null Whether the order is paid
@@ -917,6 +926,7 @@ class OrderQuery extends ElementQuery
      *
      * @param mixed $value The property value
      * @return static self reference
+     * @since 4.2.0
      */
     public function totalPrice(mixed $value): OrderQuery
     {
@@ -936,6 +946,7 @@ class OrderQuery extends ElementQuery
      *
      * @param mixed $value The property value
      * @return static self reference
+     * @since 4.2.0
      */
     public function totalQty(mixed $value): OrderQuery
     {
@@ -957,10 +968,33 @@ class OrderQuery extends ElementQuery
      *
      * @param mixed $value The property value
      * @return static self reference
+     * @since 4.2.0
      */
     public function itemTotal(mixed $value): OrderQuery
     {
         $this->itemTotal = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order's item subtotal.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with an item subtotal of $100.
+     * | `'< 1000000'` | with an item subtotal of less than $1,000,000.
+     * | `['>= 10', '< 100']` | with an item subtotal of between $10 and $100.
+
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function itemSubtotal(mixed $value): OrderQuery
+    {
+        $this->itemSubtotal = $value;
         return $this;
     }
 
@@ -1400,6 +1434,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->itemTotal)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemTotal', $this->itemTotal));
+        }
+
+        if (isset($this->itemSubtotal)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemSubtotal', $this->itemSubtotal));
         }
 
         if (isset($this->totalQty)) {

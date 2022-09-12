@@ -5,22 +5,22 @@ namespace  craft\commerce\elements\conditions\orders;
 use Craft;
 
 /**
- * Item Total Condition Rule
+ * Item Subtotal Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  *
  * @property-read float|int $orderAttributeValue
  */
-class ItemTotalConditionRule extends OrderValuesAttributeConditionRule
+class ItemSubtotalConditionRule extends OrderValuesAttributeConditionRule
 {
-    public string $orderAttribute = 'itemTotal';
+    public string $orderAttribute = 'itemSubtotal';
 
     /**
      * @inheritdoc
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Item Total');
+        return Craft::t('commerce', 'Item Subtotal');
     }
 }
