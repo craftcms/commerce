@@ -23,6 +23,7 @@ class OrderCondition extends ElementCondition
     protected function conditionRuleTypes(): array
     {
         return array_merge(parent::conditionRuleTypes(), [
+            DateOrderedConditionRule::class,
             CustomerConditionRule::class,
             IsCompletedConditionRule::class,
             ItemTotalConditionRule::class,
