@@ -138,6 +138,12 @@ class OrderQuery extends ElementQuery
     public mixed $totalQty = null;
 
     /**
+     * @var mixed The total discount of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalDiscount = null;
+
+    /**
      * @var mixed The total price of the items resulting orders must have.
      * @since 4.2.0
      */
@@ -981,6 +987,26 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the total discount.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total discount of 10.
+     * | `[10, 20]` | an order with a total discount of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalDiscount(mixed $value): OrderQuery
+    {
+        $this->totalDiscount = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the order's item total.
      *
      * Possible values include:
@@ -1472,6 +1498,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->totalQty)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalQty', $this->totalQty));
+        }
+
+        if (isset($this->totalDiscount)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalDiscount', $this->totalDiscount));
         }
 
         // Allow true but not null
