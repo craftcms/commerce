@@ -682,6 +682,7 @@ return [
     'Order Fields' => 'Order Fields',
     'Order PDF Filename Format' => 'Order PDF Filename Format',
     'Order Reference Number Format' => 'Order Reference Number Format',
+    'Order Rules' => 'Order Rules',
     'Order Settings' => 'Order Settings',
     'Order Site' => 'Order Site',
     'Order Status description.' => 'Order Status description.',
