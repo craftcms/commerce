@@ -8,9 +8,7 @@
 namespace  craft\commerce\elements\conditions\orders;
 
 use Craft;
-use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use yii\base\InvalidConfigException;
 
 /**
@@ -58,7 +56,11 @@ class TotalDiscountConditionRule extends OrderValuesAttributeConditionRule
             return null;
         }
 
-        $value = $this->value * -1;
+        $value = $this->value;
+        if (is_numeric($value)) {
+            $value *= -1;
+        }
+
         $value = Db::escapeParam($value);
 
         return "$this->operator $value";
@@ -70,7 +72,10 @@ class TotalDiscountConditionRule extends OrderValuesAttributeConditionRule
             return true;
         }
 
-        $ruleValue = $this->value * -1;
+        $ruleValue = $this->value;
+        if (is_numeric($ruleValue)) {
+            $ruleValue *= -1;
+        }
 
         return match ($this->operator) {
             self::OPERATOR_EQ => $value == $ruleValue,
