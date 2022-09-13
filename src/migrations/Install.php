@@ -148,7 +148,6 @@ class Install extends Migration
             'couponFormat' => $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT),
             'orderCondition' => $this->text(),
             'customerCondition' => $this->text(),
-            'customerOrdersCondition' => $this->text(),
             'shippingAddressCondition' => $this->text(),
             'billingAddressCondition' => $this->text(),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),

@@ -132,7 +132,6 @@ class DiscountsController extends BaseCpController
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
         $discount->setOrderCondition($this->request->getBodyParam('orderCondition'));
         $discount->setCustomerCondition($this->request->getBodyParam('customerCondition'));
-        $discount->setCustomerOrdersCondition($this->request->getBodyParam('customerOrdersCondition'));
         $discount->setShippingAddressCondition($this->request->getBodyParam('shippingAddressCondition'));
         $discount->setBillingAddressCondition($this->request->getBodyParam('billingAddressCondition'));
         $discount->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');

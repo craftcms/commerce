@@ -275,7 +275,6 @@ return [
     'Create rules that allow this discount to match the order’s billing address.' => 'Create rules that allow this discount to match the order’s billing address.',
     'Create rules that allow this discount to match the order’s customer.' => 'Create rules that allow this discount to match the order’s customer.',
     'Create rules that allow this discount to match the order’s shipping address.' => 'Create rules that allow this discount to match the order’s shipping address.',
-    'Create rules that allow this discount to match the previous completed orders for the current customer.' => 'Create rules that allow this discount to match the previous completed orders for the current customer.',
     'Create sales' => 'Create sales',
     'Create sale…' => 'Create sale…',
     'Created' => 'Created',
