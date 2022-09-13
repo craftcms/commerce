@@ -470,6 +470,7 @@ return [
     'Has Coupons?' => 'Has Coupons?',
     'Has Emails?' => 'Has Emails?',
     'Has Variants?' => 'Has Variants?',
+    'Has Purchasable' => 'Has Purchasable',
     'Height ({unit})' => 'Height ({unit})',
     'Height' => 'Height',
     'Hide snapshot' => 'Hide snapshot',

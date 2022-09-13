@@ -13,6 +13,7 @@
 - Added `craft\commerce\elements\conditions\customers\HasOrdersInLastPeriod`.
 - Added `craft\commerce\elements\conditions\orders\CustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\DateOrderedConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\HasPurchasableConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\IsCompletedConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\IsPaidConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule`.
