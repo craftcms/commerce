@@ -14,6 +14,7 @@
 - Added `craft\commerce\elements\conditions\orders\CustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\DateOrderedConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\IsCompletedConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\IsPaidConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderStatusConditionRule`.

@@ -26,6 +26,7 @@ class OrderCondition extends ElementCondition
             DateOrderedConditionRule::class,
             CustomerConditionRule::class,
             IsCompletedConditionRule::class,
+            IsPaidConditionRule::class,
             ItemSubtotalConditionRule::class,
             ItemTotalConditionRule::class,
             OrderStatusConditionRule::class,
