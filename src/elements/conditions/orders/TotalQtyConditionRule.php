@@ -26,4 +26,12 @@ class TotalQtyConditionRule extends OrderValuesAttributeConditionRule
     {
         return Craft::t('commerce', 'Total Qty');
     }
+
+    /**
+     * @inheritdoc
+     */
+    protected function inputStep(): string
+    {
+        return '1';
+    }
 }
