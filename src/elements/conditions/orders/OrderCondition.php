@@ -35,6 +35,7 @@ class OrderCondition extends ElementCondition
             TotalPaidConditionRule::class,
             TotalPriceConditionRule::class,
             TotalQtyConditionRule::class,
+            TotalTaxConditionRule::class,
         ]);
     }
 }
