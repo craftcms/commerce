@@ -21,14 +21,14 @@ use craft\elements\db\ElementQueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  */
-class IsCompletedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class CompletedConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @inheritdoc
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Is Completed');
+        return Craft::t('commerce', 'Completed');
     }
 
     public function getExclusiveQueryParams(): array

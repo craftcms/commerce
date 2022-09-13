@@ -6,7 +6,7 @@ use Craft;
 use craft\base\conditions\ConditionRuleInterface;
 use craft\base\ElementInterface;
 use craft\commerce\elements\conditions\orders\CustomerConditionRule;
-use craft\commerce\elements\conditions\orders\IsCompletedConditionRule;
+use craft\commerce\elements\conditions\orders\CompletedConditionRule;
 use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\db\OrderQuery;
 use craft\elements\conditions\IdConditionRule;
@@ -35,7 +35,7 @@ class CustomerOrdersCondition extends OrderCondition
 
     private array $_forcedRuleTypes = [
         CustomerConditionRule::class,
-        IsCompletedConditionRule::class,
+        CompletedConditionRule::class,
         IdConditionRule::class,
     ];
 
@@ -129,9 +129,9 @@ class CustomerOrdersCondition extends OrderCondition
         $customerConditionRule->setValues([(string)$this->customerId]);
 
         // Add completed condition rule
-        /** @var IsCompletedConditionRule $isCompletedConditionRule */
+        /** @var CompletedConditionRule $isCompletedConditionRule */
         $isCompletedConditionRule = Craft::$app->getConditions()->createConditionRule([
-            'class' => IsCompletedConditionRule::class,
+            'class' => CompletedConditionRule::class,
         ]);
         $isCompletedConditionRule->value = true;
 

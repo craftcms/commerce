@@ -519,7 +519,6 @@ return [
     'Invalid payment source ID: {value}' => 'Invalid payment source ID: {value}',
     'Invoice amount' => 'Invoice amount',
     'Invoice date' => 'Invoice date',
-    'Is Completed' => 'Is Completed',
     'Is EU VAT?' => 'Is EU VAT?',
     'Is subscription active?' => 'Is subscription active?',
     'Is this tax is already included in the price of items?' => 'Is this tax is already included in the price of items?',

@@ -21,7 +21,7 @@ use craft\elements\db\ElementQueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  */
-class IsPaidConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class PaidConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @inheritdoc
