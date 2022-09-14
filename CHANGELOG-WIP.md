@@ -21,6 +21,7 @@
 - Added `craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalDiscountConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalQtyConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalTaxConditionRule`.
@@ -28,6 +29,7 @@
 - Added `craft\commerce\elements\db\OrderQuery::$itemTotal`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalDiscount`.
+- Added `craft\commerce\elements\db\OrderQuery::$totale`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalTax`.
