@@ -7,7 +7,7 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use craft\base\conditions\BaseNumberConditionRule;
+use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
@@ -16,11 +16,11 @@ use craft\elements\db\ElementQueryInterface;
  * Order Number Attribute Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
+ * @since 4.2.0
  *
  * @property-read float|int $orderAttributeValue
  */
-abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
+abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
     public string $orderAttribute = '';
 

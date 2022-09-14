@@ -10,22 +10,20 @@ namespace  craft\commerce\elements\conditions\orders;
 use Craft;
 
 /**
- * Total Price Condition Rule
+ * Total Qty Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
- *
- * @property-read float|int $orderAttributeValue
+ * @since 4.2.0
  */
-class TotalPriceConditionRule extends OrderCurrencyValuesAttributeConditionRule
+class TotalQtyConditionRule extends OrderValuesAttributeConditionRule
 {
-    public string $orderAttribute = 'totalPrice';
+    public string $orderAttribute = 'totalQty';
 
     /**
      * @inheritdoc
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Total Price');
+        return Craft::t('commerce', 'Total Qty');
     }
 }

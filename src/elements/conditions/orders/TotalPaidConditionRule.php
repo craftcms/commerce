@@ -10,22 +10,22 @@ namespace  craft\commerce\elements\conditions\orders;
 use Craft;
 
 /**
- * Total Price Condition Rule
+ * Total Paid Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0.0
+ * @since 4.2.0
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalPriceConditionRule extends OrderCurrencyValuesAttributeConditionRule
+class TotalPaidConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
-    public string $orderAttribute = 'totalPrice';
+    public string $orderAttribute = 'totalPaid';
 
     /**
      * @inheritdoc
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Total Price');
+        return Craft::t('commerce', 'Total Paid');
     }
 }
