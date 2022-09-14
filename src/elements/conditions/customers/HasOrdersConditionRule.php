@@ -87,8 +87,17 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
      */
     public function getHtml(): string
     {
-        $html = parent::getHtml();
-        $html .= Html::tag('div', Craft::t('commerce', 'Order Rules'), [
+        $html = Html::label(Craft::t('commerce', 'Total Orders'), options: [
+            'style' => [
+                'padding-top' => '0.25rem',
+                'padding-bottom' => '0.5rem',
+                'font-weight' => 'bold',
+                'color' => '#596673',
+                'display' => 'block',
+            ],
+        ]);
+        $html .= parent::getHtml();
+        $html .= Html::tag('div', Craft::t('commerce', 'Match Orders'), [
             'style' => [
                 'margin-top' => '1rem',
                 'font-weight' => 'bold',
