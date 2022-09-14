@@ -29,7 +29,7 @@ abstract class OrderTextValuesAttributeConditionRule extends BaseTextConditionRu
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return [$this->orderAttribute];
     }
 
     /**

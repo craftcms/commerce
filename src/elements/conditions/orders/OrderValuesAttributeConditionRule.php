@@ -34,7 +34,7 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return [$this->orderAttribute];
     }
 
     /**
@@ -59,40 +59,5 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
     public function modifyQuery(ElementQueryInterface $query): void
     {
         $query->{$this->orderAttribute}($this->paramValue());
-    }
-
-    /**
-     * @throws CurrencyException
-     * @throws InvalidConfigException
-     */
-    protected function inputHtml(): string
-    {
-        return
-            Html::hiddenLabel(Html::encode($this->getLabel()), 'value') .
-            Cp::textHtml([
-                'type' => $this->inputType(),
-                'id' => 'value',
-                'name' => 'value',
-                'value' => $this->value,
-                'autocomplete' => false,
-                'class' => 'flex-grow flex-shrink',
-                'step' => $this->inputStep(),
-            ]);
-    }
-
-    /**
-     * @return string
-     * @throws CurrencyException
-     * @throws InvalidConfigException
-     * @since 4.2.0
-     */
-    protected function inputStep(): string
-    {
-        $minorUnit = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency()->getMinorUnit();
-        if ($minorUnit === 0) {
-            return '1';
-        }
-
-        return '0.' . str_pad('1', $minorUnit,  '0', STR_PAD_LEFT);
     }
 }

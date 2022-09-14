@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use yii\base\InvalidConfigException;
 
 /**
  * Customer Condition Rule
@@ -51,15 +52,21 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['customerId'];
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function modifyQuery(ElementQueryInterface $query): void
     {
         /** @var OrderQuery $query */
         $query->customerId($this->paramValue());
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */

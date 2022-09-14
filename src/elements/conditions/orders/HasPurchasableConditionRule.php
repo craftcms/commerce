@@ -50,7 +50,7 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['hasPurchasable'];
     }
 
     /**

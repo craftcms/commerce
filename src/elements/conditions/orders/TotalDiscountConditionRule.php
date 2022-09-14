@@ -19,7 +19,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalDiscountConditionRule extends OrderValuesAttributeConditionRule
+class TotalDiscountConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'totalDiscount';
 

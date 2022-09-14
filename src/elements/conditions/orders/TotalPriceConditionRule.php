@@ -17,7 +17,7 @@ use Craft;
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalPriceConditionRule extends OrderValuesAttributeConditionRule
+class TotalPriceConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'totalPrice';
 

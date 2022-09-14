@@ -12,7 +12,7 @@ use Craft;
  *
  * @property-read float|int $orderAttributeValue
  */
-class ItemSubtotalConditionRule extends OrderValuesAttributeConditionRule
+class ItemSubtotalConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'itemSubtotal';
 

@@ -18,6 +18,7 @@
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderStatusConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalDiscountConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
