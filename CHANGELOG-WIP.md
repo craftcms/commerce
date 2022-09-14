@@ -16,28 +16,29 @@
 - Added `craft\commerce\elements\conditions\orders\IsPaidConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderStatusConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
-- Added `craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
-- Added `craft\commerce\elements\conditions\orders\TotalDiscountConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalDiscountConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalQtyConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\TotalTaxConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$itemSubtotal`.
 - Added `craft\commerce\elements\db\OrderQuery::$itemTotal`.
-- Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalDiscount`.
-- Added `craft\commerce\elements\db\OrderQuery::$totale`.
-- Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
+- Added `craft\commerce\elements\db\OrderQuery::$total`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPaid`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalTax`.
 - Added `craft\commerce\elements\db\OrderQuery::itemSubtotal()`.
 - Added `craft\commerce\elements\db\OrderQuery::itemTotal()`.
+- Added `craft\commerce\elements\db\OrderQuery::total()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalDiscount()`.
-- Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPaid()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalQty()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalTax()`.
 - Added `craft\commerce\elements\Order::$storedTotalQty`.
@@ -50,7 +51,7 @@
 ### Changed
 - It is now possible to set a primary payment source for a customer.
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
-- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalDiscount`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax`.
+- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalDiscount`, `total`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax`.
 - Querying an order by `reference` now allows a wider range of inputs.
 - Shipping and Tax Categories are now archived instead of deleted.
 - It is now possible to define how addresses are matched in `Order::hasMatchingAddresses()`.
