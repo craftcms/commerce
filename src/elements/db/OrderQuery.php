@@ -168,6 +168,12 @@ class OrderQuery extends ElementQuery
     public mixed $itemSubtotal = null;
 
     /**
+     * @var mixed The shipping method handle the resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $shippingMethodHandle = null;
+
+    /**
      * @var bool|null Whether the order is paid
      */
     public ?bool $isPaid = null;
@@ -625,6 +631,44 @@ class OrderQuery extends ElementQuery
             $this->orderStatusId = null;
         }
 
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the shipping method handle.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | with a shipping method with a handle of `foo`.
+     * | `'not foo'` | not with a shipping method with a handle of `foo`.
+     * | `['foo', 'bar']` | with a shipping method with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not with a shipping method with a handle of `foo` or `bar`.
+     * | a [[ShippingMethod|ShippingMethod]] object | with a shipping method represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch collection shipping method {elements} #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingMethodHandle('collection')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch collection shipping method {elements}
+     * ${elements-var} = {php-method}
+     *     ->shippingMethodHandle('collection')
+     *     ->all();
+     * ```
+     *
+     * @param string|string[]|null $value The property value
+     * @return static self reference
+     */
+    public function shippingMethodHandle(mixed $value): OrderQuery
+    {
+        $this->shippingMethodHandle = $value;
         return $this;
     }
 
@@ -1514,6 +1558,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->orderStatusId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
+        }
+
+        if (isset($this->shippingMethodHandle)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.shippingMethodHandle', $this->shippingMethodHandle));
         }
 
         if (isset($this->orderLanguage)) {

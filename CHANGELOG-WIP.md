@@ -27,14 +27,16 @@
 - Added `craft\commerce\elements\conditions\orders\TotalTaxConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$itemSubtotal`.
 - Added `craft\commerce\elements\db\OrderQuery::$itemTotal`.
-- Added `craft\commerce\elements\db\OrderQuery::$totalDiscount`.
+- Added `craft\commerce\elements\db\OrderQuery::$shippingMethodHandle`.
 - Added `craft\commerce\elements\db\OrderQuery::$total`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalDiscount`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPaid`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalTax`.
 - Added `craft\commerce\elements\db\OrderQuery::itemSubtotal()`.
 - Added `craft\commerce\elements\db\OrderQuery::itemTotal()`.
+- Added `craft\commerce\elements\db\OrderQuery::shippingMethodHandle()`.
 - Added `craft\commerce\elements\db\OrderQuery::total()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalDiscount()`.
 - Added `craft\commerce\elements\db\OrderQuery::totalPaid()`.
@@ -47,8 +49,11 @@
 - Added `craft\commerce\models\Settings::$autoSetPaymentSource`.
 - Added `craft\commerce\records\Customer::$primaryPaymentSourceId`.
 - Added `craft\commerce\services\savePrimaryPaymentSourceId()`.
+- Added `craft\commerce\elements\conditions\orders\ShippingMethodConditionRule`.
 
 ### Changed
+- Order condition builds now have access to the “Shipping Method” condition rule.
+- It is now possible to query for orders by `shippingMethodHandle`.
 - It is now possible to set a primary payment source for a customer.
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
 - It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalDiscount`, `total`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax`.
