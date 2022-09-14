@@ -7,12 +7,8 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use craft\base\conditions\BaseNumberConditionRule;
-use craft\base\ElementInterface;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
-use craft\elements\conditions\ElementConditionRuleInterface;
-use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use yii\base\InvalidConfigException;
