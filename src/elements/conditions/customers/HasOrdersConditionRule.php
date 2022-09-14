@@ -38,7 +38,7 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
     /**
      * @var array
      */
-    private array $_orderConditionResults = [];
+    private static array $_orderConditionResults = [];
 
     public function getConfig(): array
     {
@@ -115,11 +115,11 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
             Json::encode($orderQuery),
         ]));
 
-        if (!isset($this->_orderConditionResults[$key])) {
-            $this->_orderConditionResults[$key] = $this->matchValue($orderQuery->count());
+        if (!isset(self::$_orderConditionResults[$key])) {
+            self::$_orderConditionResults[$key] = $this->matchValue($orderQuery->count());
         }
 
-        return $this->_orderConditionResults[$key];
+        return self::$_orderConditionResults[$key];
     }
 
     /**
