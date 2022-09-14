@@ -41,7 +41,7 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['orderStatus'];
     }
 
     /**

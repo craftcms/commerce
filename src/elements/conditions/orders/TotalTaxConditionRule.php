@@ -17,7 +17,7 @@ use Craft;
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalTaxConditionRule extends OrderValuesAttributeConditionRule
+class TotalTaxConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'totalTax';
 
@@ -27,13 +27,5 @@ class TotalTaxConditionRule extends OrderValuesAttributeConditionRule
     public function getLabel(): string
     {
         return Craft::t('commerce', 'Total Tax');
-    }
-
-    /**
-     * @return string
-     */
-    protected function inputType(): string
-    {
-        return 'number';
     }
 }

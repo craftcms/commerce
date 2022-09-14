@@ -30,7 +30,7 @@ class DateOrderedConditionRule extends BaseDateRangeConditionRule implements Ele
 
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['dateOrdered'];
     }
 
     public function modifyQuery(ElementQueryInterface $query): void

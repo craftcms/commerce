@@ -33,7 +33,7 @@ class CompletedConditionRule extends BaseLightswitchConditionRule implements Ele
 
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['isCompleted'];
     }
 
     /**

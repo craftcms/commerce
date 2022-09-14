@@ -33,7 +33,7 @@ class PaidConditionRule extends BaseLightswitchConditionRule implements ElementC
 
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['paid'];
     }
 
     /**
