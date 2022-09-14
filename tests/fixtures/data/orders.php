@@ -76,6 +76,7 @@ return [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
         'orderStatusId' => $orderStatuses['new'] ?? null,
+        'shippingMethodHandle' => 'usShipping',
         '_lineItems' => array_filter([$hctWhiteLineItem, $hctBlueLineItem]),
         '_markAsComplete' => true,
         '_billingAddress' => $addresses['apple'],
