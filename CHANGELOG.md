@@ -8,8 +8,8 @@
 - Fixed a bug where it wasn’t possible to save decimal numbers for variant dimensions. ([#2540](https://github.com/craftcms/commerce/issues/2540))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2920](https://github.com/craftcms/commerce/issues/2920))
 - Fixed a bug where partial elements were not being deleted during garbage collection.
-- Fixed a bug where `itemSubtotal` wasn’t saving to the database.
-- Fixed a bug on `perItemDiscount` where decimals were being stripped in locales that use commas as separators. ([#2937](https://github.com/craftcms/commerce/issues/2937))
+- Fixed a bug where orders’ item subtotals weren’t being saved to the database.
+- Fixed a bug where the “Per Item Amount Off” setting on Edit Discount pages was stripping decimal values for locales that use commas for decimal symbols. ([#2937](https://github.com/craftcms/commerce/issues/2937))
 
 ## 4.1.1 - 2022-09-01
 
