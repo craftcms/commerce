@@ -134,6 +134,7 @@ use yii\log\Logger;
  * @property-read string $totalTaxIncludedAsCurrency
  * @property-read string $totalShippingCostAsCurrency
  * @property-read string $totalDiscountAsCurrency
+ * @property-read string $storedTotalAsCurrency
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
@@ -871,6 +872,18 @@ class Order extends Element
     public ?float $storedTotalPrice = null;
 
     /**
+     * @var float|null The total as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotal;
+     * ```
+     * ```twig
+     * {{ order.storedTotal }}
+     * ```
+     */
+    public ?float $storedTotal = null;
+
+    /**
      * @var float|null The total paid as stored in the database from last retrieval
      * ---
      * ```php
@@ -1345,6 +1358,7 @@ class Order extends Element
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
         $attributes[] = 'totalDiscount';
+        $attributes[] = 'storedTotal';
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
