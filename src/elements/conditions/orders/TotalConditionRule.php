@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace  craft\commerce\elements\conditions\orders;
 
@@ -12,7 +17,7 @@ use Craft;
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalConditionRule extends OrderValuesAttributeConditionRule
+class TotalConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'total';
 
