@@ -16,7 +16,9 @@ use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 
 /**
  * Is Paid Condition Rule
@@ -29,14 +31,14 @@ use yii\base\InvalidConfigException;
 class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementConditionRuleInterface
 {
     /**
-     * @var int|null
-     */
-    public ?int $customerId = null;
-
-    /**
      * @var array|OrderCondition|null
      */
     private OrderCondition|array|null $_orderCondition = null;
+
+    /**
+     * @var array
+     */
+    private array $_orderConditionResults = [];
 
     public function getConfig(): array
     {
@@ -48,7 +50,7 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
-        $rules[] = [['customerId', 'orderCondition'], 'safe'];
+        $rules[] = [['orderCondition'], 'safe'];
 
         return $rules;
     }
@@ -61,26 +63,22 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         return Craft::t('commerce', 'Has Orders');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return ['hasOrders'];
     }
 
     /**
      * @param ElementQueryInterface $query
      * @return void
-     * @throws InvalidConfigException
+     * @throws NotSupportedException
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        if ($query->id === null) {
-            throw new InvalidConfigException('Has orders condition rule requires a customer ID.');
-        }
-
-        $orderQuery = Order::find()->customerId($query->id);
-        $this->getOrderCondition()->modifyQuery($orderQuery);
-
-        $query->subQuery->andWhere([$orderQuery->count() => $this->paramValue()]);
+        throw new NotSupportedException('Has orders condition rule does not support queries');
     }
 
     /**
@@ -111,8 +109,17 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
     {
         $orderQuery = Order::find()->customerId($element->id);
         $this->getOrderCondition()->modifyQuery($orderQuery);
+        $key = md5(implode('||', [
+            $element->id,
+            Json::encode($this),
+            Json::encode($orderQuery),
+        ]));
 
-        return $this->matchValue($orderQuery->count());
+        if (!isset($this->_orderConditionResults[$key])) {
+            $this->_orderConditionResults[$key] = $this->matchValue($orderQuery->count());
+        }
+
+        return $this->_orderConditionResults[$key];
     }
 
     /**
@@ -141,6 +148,8 @@ class HasOrdersConditionRule extends BaseNumberConditionRule implements ElementC
         $this->_orderCondition->id = 'hasOrdersOrderCondition';
         $this->_orderCondition->mainTag = 'div';
         $this->_orderCondition->name = 'orderCondition';
+        // Exclude unwanted condition rules
+        $this->_orderCondition->queryParams = ['customerId'];
         return $this->_orderCondition;
     }
 
