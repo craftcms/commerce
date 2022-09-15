@@ -175,7 +175,7 @@ trait OrderElementTrait
                     ];
                 }
 
-                if ($this->storedTotalDiscount > 0) {
+                if ($this->storedTotalDiscount < 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Discounts'),
                         'value' => $this->storedTotalDiscountAsCurrency,
