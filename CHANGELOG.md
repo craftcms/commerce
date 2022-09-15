@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.1.2 - 2022-09-15
 
 ### Fixed
 - Fixed a SQL error that could occur when updating to Commerce 4 on MySQL.
