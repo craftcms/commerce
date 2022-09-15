@@ -299,6 +299,7 @@ class UpgradeController extends Controller
 
         foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
             if ($db->columnExists($table, $column)) {
+                Db::dropForeignKeyIfExists($table, $column);
                 Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
             }
         }

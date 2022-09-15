@@ -16,6 +16,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
 use craft\helpers\Db;
@@ -1234,6 +1235,12 @@ class OrderQuery extends ElementQuery
             'commerce_orders.orderSiteId',
             'commerce_orders.orderLanguage',
         ]);
+
+        // Addresses table joined for sorting purposes
+        $this->query->leftJoin(CraftTable::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
+        $this->subQuery->leftJoin(CraftTable::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
+        $this->query->leftJoin(CraftTable::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
+        $this->subQuery->leftJoin(CraftTable::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
 
         if (isset($this->number)) {
             // If it's set to anything besides a non-empty string, abort the query

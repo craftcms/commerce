@@ -110,7 +110,7 @@
           {{ 'Discount'|t }}:
         </div>
         <div>
-          {{ (cart.totalDiscount * -1)|commerceCurrency(cart.currency) }}
+          {{ cart.totalDiscount|commerceCurrency(cart.currency) }}
         </div>
       </div>
     {% endif %}

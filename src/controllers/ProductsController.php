@@ -82,7 +82,7 @@ class ProductsController extends BaseController
     /**
      * @param string $productTypeHandle
      * @param int|null $productId
-     * @param string|null $siteHandle
+     * @param string|null $site
      * @param Product|null $product
      * @return Response
      * @throws Exception
@@ -92,15 +92,15 @@ class ProductsController extends BaseController
      * @throws NotFoundHttpException
      * @throws SiteNotFoundException
      */
-    public function actionEditProduct(string $productTypeHandle, int $productId = null, string $siteHandle = null, Product $product = null): Response
+    public function actionEditProduct(string $productTypeHandle, int $productId = null, string $site = null, Product $product = null): Response
     {
         $variables = compact('productTypeHandle', 'productId', 'product');
 
-        if ($siteHandle !== null) {
-            $variables['site'] = Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        if ($site !== null) {
+            $variables['site'] = Craft::$app->getSites()->getSiteByHandle($site);
 
             if (!$variables['site']) {
-                throw new NotFoundHttpException('Invalid site handle: ' . $siteHandle);
+                throw new NotFoundHttpException('Invalid site handle: ' . $site);
             }
         }
 

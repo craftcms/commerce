@@ -1975,6 +1975,7 @@ class Order extends Element
         $orderRecord->number = $this->number;
         $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
+        $orderRecord->itemSubtotal = $this->getItemSubtotal();
         $orderRecord->email = $this->getEmail() ?: '';
         $orderRecord->isCompleted = $this->isCompleted;
 
