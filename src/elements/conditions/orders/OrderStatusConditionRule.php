@@ -63,12 +63,12 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */
-        $orderStatusHandle = $element->getOrderStatus()?->handle;
+        $orderStatusHandle = $element->getOrderStatus()?->uid;
         return $this->matchValue($orderStatusHandle);
     }
 
     protected function options(): array
     {
-        return ArrayHelper::map(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(), 'handle', 'name');
+        return ArrayHelper::map(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(), 'uid', 'name');
     }
 }
