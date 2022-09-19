@@ -626,7 +626,6 @@ class OrderQuery extends ElementQuery
                 ->select(['id'])
                 ->from([Table::ORDERSTATUSES])
                 ->where(Db::parseParam('handle', $value))
-                ->orWhere(Db::parseParam('uid', $value))
                 ->column();
         } else {
             $this->orderStatusId = null;
