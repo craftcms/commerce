@@ -373,6 +373,9 @@ class SalesController extends BaseCpController
         $salePurchasableIds = $sale->getPurchasableIds();
 
         array_push($salePurchasableIds, ...$ids);
+        if (!empty($salePurchasableIds)) {
+            $sale->allPurchasables = false;
+        }
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
         if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
