@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that could occur when querying products by `type`. ([#2966](https://github.com/craftcms/commerce/issues/2966)) 
+
 ## 3.4.17.2 - 2022-09-16
 
 ### Fixed
