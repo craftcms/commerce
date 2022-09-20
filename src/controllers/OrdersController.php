@@ -218,7 +218,7 @@ class OrdersController extends Controller
 
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
-        $this->_updateOrder($order, $orderRequestData);
+        $this->_updateOrder($order, $orderRequestData, false);
         $markAsComplete = !$alreadyCompleted && $order->isCompleted;
 
         // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
@@ -1223,13 +1223,15 @@ class OrdersController extends Controller
      * @throws InvalidElementException
      * @throws UnsupportedSiteException
      */
-    private function _updateOrder(Order $order, $orderRequestData): void
+    private function _updateOrder(Order $order, $orderRequestData, bool $tryAutoSet = true): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
 
+        $hasNewCustomer = false;
         $customerId = $orderRequestData['order']['customerId'] ?? null;
         if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
+            $hasNewCustomer = $customerId != $order->customerId;
             $order->setCustomer($customer);
         } else {
             $order->setCustomer();
@@ -1242,33 +1244,41 @@ class OrdersController extends Controller
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
         $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
 
-        $getAddress = static function($address, $orderId, $title) {
-            if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
-                if (isset($address['_copy'])) {
-                    unset($address['_copy']);
+        $submittedBillingAddress = $orderRequestData['order']['billingAddress'] ?? null;
+        $submittedShippingAddress = $orderRequestData['order']['shippingAddress'] ?? null;
+
+        if ($tryAutoSet && $hasNewCustomer && $submittedShippingAddress === null && $submittedBillingAddress === null) {
+            // Try and auto set addresses if the customer has changed and no address data is submitted
+            $order->autoSetAddresses();
+        } else {
+            $getAddress = static function($address, $orderId, $title) {
+                if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+                    if (isset($address['_copy'])) {
+                        unset($address['_copy']);
+                    }
+                    $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
+                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+                } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                    /** @var AddressQuery $addressQuery */
+                    $addressQuery = Address::find()->id($address['id']);
+                    $address = $addressQuery->ownerId($address['ownerId'])->one();
                 }
-                $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
-            } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
-                /** @var AddressQuery $addressQuery */
-                $addressQuery = Address::find()->id($address['id']);
-                $address = $addressQuery->ownerId($address['ownerId'])->one();
+
+                return $address;
+            };
+            $billingAddress = $getAddress($submittedBillingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+            $order->setBillingAddress($billingAddress);
+
+            $shippingAddress = $getAddress($submittedShippingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+            $order->setShippingAddress($shippingAddress);
+
+            if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+                $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
             }
 
-            return $address;
-        };
-        $billingAddress = $getAddress($orderRequestData['order']['billingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
-        $order->setBillingAddress($billingAddress);
-
-        $shippingAddress = $getAddress($orderRequestData['order']['shippingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
-        $order->setShippingAddress($shippingAddress);
-
-        if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
-            $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
-        }
-
-        if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
-            $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+            if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+                $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+            }
         }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
