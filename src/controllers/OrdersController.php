@@ -1228,10 +1228,10 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
 
-        $hasNewCustomer = false;
+        $hasSetCustomer = false;
         $customerId = $orderRequestData['order']['customerId'] ?? null;
         if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
-            $hasNewCustomer = $customerId != $order->customerId;
+            $hasSetCustomer = true;
             $order->setCustomer($customer);
         } else {
             $order->setCustomer();
@@ -1247,8 +1247,14 @@ class OrdersController extends Controller
         $submittedBillingAddress = $orderRequestData['order']['billingAddress'] ?? null;
         $submittedShippingAddress = $orderRequestData['order']['shippingAddress'] ?? null;
 
-        if ($tryAutoSet && $hasNewCustomer && $submittedShippingAddress === null && $submittedBillingAddress === null) {
+        if ($tryAutoSet && $hasSetCustomer && $submittedShippingAddress === null && $submittedBillingAddress === null) {
             // Try and auto set addresses if the customer has changed and no address data is submitted
+            // Remove any lingering addresses from previous saves
+            if (!$order->isCompleted) {
+                $order->setBillingAddress(null);
+                $order->setShippingAddress(null);
+            }
+
             $order->autoSetAddresses();
         } else {
             $getAddress = static function($address, $orderId, $title) {
