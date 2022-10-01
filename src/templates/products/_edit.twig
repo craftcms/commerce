@@ -76,7 +76,7 @@
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
                         {% else %}
-                            {% set url = url("commerce/products/#{productTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
+                            {% set url = url("commerce/products/#{productTypeHandle}/#{craft.app.request.getSegment(4)}", {site: site.handle}) %}
                             <a href="{{ url }}" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
