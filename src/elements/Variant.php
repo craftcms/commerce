@@ -1198,7 +1198,7 @@ class Variant extends Purchasable
         // Once restored, we no longer track if it was deleted with variant or not
         $this->deletedWithProduct = false;
         Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => null],
+            ['deletedWithProduct' => false],
             ['id' => $this->getId()]
         )->execute();
 
