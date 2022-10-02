@@ -16,7 +16,6 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\App;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -380,7 +379,7 @@ class PaymentsController extends BaseFrontEndController
             if ($isCpAndAllowed) {
                 $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
             } elseif ($this->request->getBodyParam('paymentAmount')) {
-                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+                $paymentAmount = (float)$this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);
             }
         }

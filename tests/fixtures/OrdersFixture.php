@@ -37,6 +37,7 @@ class OrdersFixture extends BaseElementFixture
         CustomerFixture::class,
         ProductFixture::class,
         OrderStatusesFixture::class,
+        ShippingFixture::class,
     ];
 
     /**

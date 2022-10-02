@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -124,7 +123,7 @@ class Carts extends Component
             }
         }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod()) {
+        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
             // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
             $forceSave = true;
         }
@@ -174,14 +173,13 @@ class Carts extends Component
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
-        /** @var OrderQuery $orderQuery */
-        $orderQuery = Order::find()
-            ->number($number)
-            ->trashed(null)
-            ->status(null);
-        $cart = $orderQuery
+        /** @var Order|null $cart */
+        $cart = Order::find()
             ->withLineItems()
             ->withAdjustments()
+            ->number($number)
+            ->trashed(null)
+            ->status(null)
             ->one();
 
         // If the cart is already completed or trashed, forget the cart and start again.
@@ -212,7 +210,7 @@ class Carts extends Component
      */
     public function generateCartNumber(): string
     {
-        return md5(uniqid(mt_rand(), true));
+        return md5(uniqid((string)mt_rand(), true));
     }
 
     /**
@@ -295,10 +293,14 @@ class Carts extends Component
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        /** @var OrderQuery $orderQuery */
-        $orderQuery = Order::find()
-            ->trashed(false);
-        $previousCart = $orderQuery->customer($currentUser)->isCompleted(false)->hasLineItems()->one();
+        /** @var Order|null $previousCart */
+        $previousCart = Order::find()
+            ->customer($currentUser)
+            ->isCompleted(false)
+            ->hasLineItems()
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
             $cart->getIsEmpty() &&
             $previousCart

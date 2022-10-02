@@ -90,6 +90,7 @@ JS;
     {
         $store = Plugin::getInstance()->getStore()->getStore();
         if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
+            /** @var Address|null $locationAddress */
             $locationAddress = Address::find()->id($locationAddressId)->one();
             if ($locationAddress) {
                 $store->setLocationAddress($locationAddress);
