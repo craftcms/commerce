@@ -16,7 +16,6 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\App;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
