@@ -265,14 +265,6 @@ class OrderStatuses extends Component
             $statusUid = Db::uidById(Table::ORDERSTATUSES, $orderStatus->id);
         }
 
-        // Make sure no statuses that are not archived share the handle
-        $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
-
-        if ($existingStatus && (!$orderStatus->id || $orderStatus->id != $existingStatus->id)) {
-            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
-            return false;
-        }
-
         $projectConfig = Craft::$app->getProjectConfig();
 
         if ($orderStatus->dateDeleted) {
@@ -295,6 +287,21 @@ class OrderStatuses extends Component
 
         if ($isNewStatus) {
             $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
+        }
+
+        $this->_orderStatuses = null;
+        $this->_orderStatusesWithTrashed = null;
+
+        // Make sure this is the only default
+        $otherStatuses = $this->getAllOrderStatuses();
+        foreach ($otherStatuses as $otherStatus) {
+            if ($otherStatus->uid == $orderStatus->uid) {
+                continue;
+            }
+            if ($otherStatus->default && $orderStatus->default) {
+                $otherStatus->default = false;
+                $success = $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
+            }
         }
 
         $this->_orderStatuses = null;
@@ -328,10 +335,6 @@ class OrderStatuses extends Component
 
             // Save the volume
             $statusRecord->save(false);
-
-            if ($statusRecord->default) {
-                OrderStatusRecord::updateAll(['default' => false], ['not', ['id' => $statusRecord->id]]);
-            }
 
             $connection = Craft::$app->getDb();
             // Drop them all and we will recreate the new ones.
