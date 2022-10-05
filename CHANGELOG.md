@@ -7,6 +7,7 @@
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
 - Fixed a bug where it wasn't possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
 - Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963)) 
+- Fixed a bug where changing the default order status was not possible. ([#2915](https://github.com/craftcms/commerce/issues/2915))
 
 ## 4.1.2 - 2022-09-15
 
