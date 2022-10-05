@@ -301,6 +301,7 @@ class OrderStatuses extends Component
                 $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
             }
             // Just in case the handleChangedOrderStatus doesn't trigger
+            // TODO Remove in 5.0 when we can rebuild the project config
             OrderStatusRecord::updateAll(['default' => false], ['not', ['uid' => $orderStatus->uid]]);
         }
 
