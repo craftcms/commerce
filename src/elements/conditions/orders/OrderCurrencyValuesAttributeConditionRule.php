@@ -9,8 +9,6 @@ namespace craft\commerce\elements\conditions\orders;
 
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
-use craft\helpers\Cp;
-use craft\helpers\Html;
 use yii\base\InvalidConfigException;
 
 /**
@@ -24,22 +22,13 @@ use yii\base\InvalidConfigException;
 abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttributeConditionRule
 {
     /**
-     * @throws CurrencyException
-     * @throws InvalidConfigException
+     * @inheritdoc
      */
-    protected function inputHtml(): string
+    protected function inputOptions(): array
     {
-        return
-            Html::hiddenLabel(Html::encode($this->getLabel()), 'value') .
-            Cp::textHtml([
-                'type' => $this->inputType(),
-                'id' => 'value',
-                'name' => 'value',
-                'value' => $this->value,
-                'autocomplete' => false,
-                'class' => 'flex-grow flex-shrink',
-                'step' => $this->inputStep(),
-            ]);
+        return array_merge(parent::inputOptions(), [
+            'step' => $this->inputStep(),
+        ]);
     }
 
     /**
