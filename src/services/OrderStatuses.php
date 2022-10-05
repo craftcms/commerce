@@ -287,6 +287,7 @@ class OrderStatuses extends Component
 
         if ($isNewStatus) {
             $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
+            $orderStatus->uid = $statusUid;
         }
 
         $this->_orderStatuses = null;
