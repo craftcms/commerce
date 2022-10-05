@@ -249,7 +249,7 @@ class OrderStatuses extends Component
      * @param bool $runValidation should we validate this order status before saving.
      * @throws Exception
      */
-    public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true): bool
+    public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true, $force = false): bool
     {
         $isNewStatus = !(bool)$orderStatus->id;
 
@@ -283,7 +283,7 @@ class OrderStatuses extends Component
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
-        $projectConfig->set($configPath, $configData);
+        $projectConfig->set($configPath, $configData, force: $force);
 
         if ($isNewStatus) {
             $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
@@ -298,15 +298,9 @@ class OrderStatuses extends Component
             $otherStatuses = collect($this->getAllOrderStatuses())->where('uid', '!=', $orderStatus->uid)->all();
             foreach ($otherStatuses as $otherStatus) {
                 $otherStatus->default = false;
-                $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
+                $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false, true);
             }
-            // Just in case the handleChangedOrderStatus doesn't trigger
-            // TODO Remove in 5.0 when we can rebuild the project config
-            OrderStatusRecord::updateAll(['default' => false], ['not', ['uid' => $orderStatus->uid]]);
         }
-
-        $this->_orderStatuses = null;
-        $this->_orderStatusesWithTrashed = null;
 
         return true;
     }
