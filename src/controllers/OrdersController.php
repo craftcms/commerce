@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -1347,6 +1348,11 @@ class OrdersController extends Controller
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
             } else {
                 try {
+                    // This takes care of adding a new line item to the with a min qty, but editing should show an error.
+                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+                    if ($purchasable instanceof Variant && $purchasable->minQty && $purchasable->minQty > $qty) {
+                        $qty = $purchasable->minQty;
+                    }
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
