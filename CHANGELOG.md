@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- The `commerce/downloads/pdf` action now accepts an `inline` param. ([#2981](https://github.com/craftcms/commerce/pull/2981))
+
 ### Fixed
 - Fixed a SQL error that occurred when restoring a soft-deleted product. ([#2982](https://github.com/craftcms/commerce/issues/2982))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
