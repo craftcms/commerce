@@ -294,11 +294,13 @@ class OrderStatuses extends Component
         $this->_orderStatusesWithTrashed = null;
 
         // Make sure this is the only default
-        $otherStatuses = collect($this->getAllOrderStatuses())->where('uid', '!=', $orderStatus->uid)->all();
-        foreach ($otherStatuses as $otherStatus) {
-            if ($otherStatus->default && $orderStatus->default) {
-                $otherStatus->default = false;
-                $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
+        if ($orderStatus->default) {
+            $otherStatuses = collect($this->getAllOrderStatuses())->where('uid', '!=', $orderStatus->uid)->all();
+            foreach ($otherStatuses as $otherStatus) {
+                if ($otherStatus->default) {
+                    $otherStatus->default = false;
+                    $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
+                }
             }
         }
 
