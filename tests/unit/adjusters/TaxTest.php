@@ -138,8 +138,8 @@ class TaxTest extends Unit
 
         self::assertEquals($expected['orderTotalQty'], $order->getTotalQty(), 'Order total quantity');
         self::assertEquals($expected['orderTotalPrice'], $order->getTotalPrice(), 'Order total price');
-        self::assertEquals($expected['orderTotalTax'], $order->getTotalTax(), 'Order total tax');
-        self::assertEquals($expected['orderTotalTaxIncluded'], $order->getTotalTaxIncluded(), 'Order total included tax');
+        self::assertEquals($expected['orderTotalTax'], round($order->getTotalTax(), 2), 'Order total tax');
+        self::assertEquals($expected['orderTotalTaxIncluded'], round($order->getTotalTaxIncluded(), 2), 'Order total included tax');
     }
 
     /**
