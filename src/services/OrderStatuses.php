@@ -300,6 +300,8 @@ class OrderStatuses extends Component
                 $otherStatus->default = false;
                 $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
             }
+            // Just in case the handleChangedOrderStatus doesn't trigger
+            OrderStatusRecord::updateAll(['default' => false], ['not', ['uid' => $orderStatus->uid]]);
         }
 
         $this->_orderStatuses = null;
