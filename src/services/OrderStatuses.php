@@ -297,10 +297,8 @@ class OrderStatuses extends Component
         if ($orderStatus->default) {
             $otherStatuses = collect($this->getAllOrderStatuses())->where('uid', '!=', $orderStatus->uid)->all();
             foreach ($otherStatuses as $otherStatus) {
-                if ($otherStatus->default) {
-                    $otherStatus->default = false;
-                    $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
-                }
+                $otherStatus->default = false;
+                $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false);
             }
         }
 
