@@ -682,12 +682,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "84af6fdd2ac535707ad15bb15cc058715ada1e2b"
+                "reference": "2f05b56486a9ef9ed0615f58a26a833490771639"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/84af6fdd2ac535707ad15bb15cc058715ada1e2b",
-                "reference": "84af6fdd2ac535707ad15bb15cc058715ada1e2b",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/2f05b56486a9ef9ed0615f58a26a833490771639",
+                "reference": "2f05b56486a9ef9ed0615f58a26a833490771639",
                 "shasum": ""
             },
             "require": {
@@ -723,7 +723,7 @@
                 "symfony/var-dumper": "^5.0|^6.0",
                 "symfony/yaml": "^5.2.3",
                 "theiconic/name-parser": "^1.2",
-                "twig/twig": "~3.3.0",
+                "twig/twig": "~3.4.3",
                 "voku/stringy": "^6.4.0",
                 "webonyx/graphql-php": "~14.11.5",
                 "yiisoft/yii2": "~2.0.46.0",
@@ -792,7 +792,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2022-09-27T18:43:48+00:00"
+            "time": "2022-10-05T00:52:04+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -1963,7 +1963,7 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v9.33.0",
+            "version": "v9.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
@@ -2018,7 +2018,7 @@
         },
         {
             "name": "illuminate/conditionable",
-            "version": "v9.33.0",
+            "version": "v9.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/conditionable.git",
@@ -2064,7 +2064,7 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v9.33.0",
+            "version": "v9.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -2112,7 +2112,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v9.33.0",
+            "version": "v9.34.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -5825,16 +5825,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.3.10",
+            "version": "v3.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "8442df056c51b706793adf80a9fd363406dd3674"
+                "reference": "c38fd6b0b7f370c198db91ffd02e23b517426b58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8442df056c51b706793adf80a9fd363406dd3674",
-                "reference": "8442df056c51b706793adf80a9fd363406dd3674",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/c38fd6b0b7f370c198db91ffd02e23b517426b58",
+                "reference": "c38fd6b0b7f370c198db91ffd02e23b517426b58",
                 "shasum": ""
             },
             "require": {
@@ -5849,7 +5849,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "3.4-dev"
                 }
             },
             "autoload": {
@@ -5885,7 +5885,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.3.10"
+                "source": "https://github.com/twigphp/Twig/tree/v3.4.3"
             },
             "funding": [
                 {
@@ -5897,7 +5897,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-06T06:47:41+00:00"
+            "time": "2022-09-28T08:42:51+00:00"
         },
         {
             "name": "voku/anti-xss",
@@ -7891,22 +7891,22 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/rector.git",
-                "reference": "c14081f857aabf20129b370e95dda6c0d69c7407"
+                "reference": "3ddcfa2aba361249c4f815dfcb2b2f93819ff211"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/rector/zipball/c14081f857aabf20129b370e95dda6c0d69c7407",
-                "reference": "c14081f857aabf20129b370e95dda6c0d69c7407",
+                "url": "https://api.github.com/repos/craftcms/rector/zipball/3ddcfa2aba361249c4f815dfcb2b2f93819ff211",
+                "reference": "3ddcfa2aba361249c4f815dfcb2b2f93819ff211",
                 "shasum": ""
             },
             "require": {
                 "php": "^8.0.2",
-                "rector/rector": "^0.12.23"
+                "rector/rector": "^0.14.5"
             },
             "require-dev": {
                 "craftcms/cms": "^4.0.0-alpha",
                 "craftcms/ecs": "dev-main",
-                "phpstan/phpstan": "^1.6.8",
+                "phpstan/phpstan": "^1.8.6",
                 "phpunit/phpunit": "^9.5",
                 "symfony/var-exporter": "^6.0"
             },
@@ -7923,7 +7923,7 @@
                 "issues": "https://github.com/craftcms/rector/issues",
                 "source": "https://github.com/craftcms/rector/tree/main"
             },
-            "time": "2022-08-30T22:27:29+00:00"
+            "time": "2022-10-02T21:52:54+00:00"
         },
         {
             "name": "craftcms/redactor",
@@ -8570,16 +8570,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.8.6",
+            "version": "1.8.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "c386ab2741e64cc9e21729f891b28b2b10fe6618"
+                "reference": "536ff0ed719b5679e9f09c17aeaee9b31969cb8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c386ab2741e64cc9e21729f891b28b2b10fe6618",
-                "reference": "c386ab2741e64cc9e21729f891b28b2b10fe6618",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/536ff0ed719b5679e9f09c17aeaee9b31969cb8e",
+                "reference": "536ff0ed719b5679e9f09c17aeaee9b31969cb8e",
                 "shasum": ""
             },
             "require": {
@@ -8609,7 +8609,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.8.6"
+                "source": "https://github.com/phpstan/phpstan/tree/1.8.7"
             },
             "funding": [
                 {
@@ -8625,7 +8625,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-09-23T09:54:39+00:00"
+            "time": "2022-10-04T14:09:33+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -9049,31 +9049,29 @@
         },
         {
             "name": "rector/rector",
-            "version": "0.12.23",
+            "version": "0.14.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/rectorphp/rector.git",
-                "reference": "690b31768b322db886b35845f8452025eba2cacb"
+                "reference": "f7fd87b2435835f481e6a94ee28e09af412bd3cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/rectorphp/rector/zipball/690b31768b322db886b35845f8452025eba2cacb",
-                "reference": "690b31768b322db886b35845f8452025eba2cacb",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/f7fd87b2435835f481e6a94ee28e09af412bd3cc",
+                "reference": "f7fd87b2435835f481e6a94ee28e09af412bd3cc",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2|^8.0",
-                "phpstan/phpstan": "^1.6"
+                "phpstan/phpstan": "^1.8.6"
             },
             "conflict": {
-                "phpstan/phpdoc-parser": "<1.2",
                 "rector/rector-cakephp": "*",
                 "rector/rector-doctrine": "*",
                 "rector/rector-laravel": "*",
-                "rector/rector-nette": "*",
+                "rector/rector-php-parser": "*",
                 "rector/rector-phpoffice": "*",
                 "rector/rector-phpunit": "*",
-                "rector/rector-prefixed": "*",
                 "rector/rector-symfony": "*"
             },
             "bin": [
@@ -9082,7 +9080,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "0.12-dev"
+                    "dev-main": "0.14-dev"
                 }
             },
             "autoload": {
@@ -9097,7 +9095,7 @@
             "description": "Instant Upgrade and Automated Refactoring of any PHP code",
             "support": {
                 "issues": "https://github.com/rectorphp/rector/issues",
-                "source": "https://github.com/rectorphp/rector/tree/0.12.23"
+                "source": "https://github.com/rectorphp/rector/tree/0.14.5"
             },
             "funding": [
                 {
@@ -9105,7 +9103,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-05-01T15:50:16+00:00"
+            "time": "2022-09-29T11:05:42+00:00"
         },
         {
             "name": "sebastian/cli-parser",
