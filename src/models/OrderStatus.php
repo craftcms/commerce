@@ -168,6 +168,6 @@ class OrderStatus extends Model
     {
         /** @var OrderQuery $orderQuery */
         $orderQuery = Order::find()->trashed(null);
-        return !$orderQuery->orderStatus($this)->one();
+        return !$orderQuery->orderStatus($this)->one() && !$this->default;
     }
 }
