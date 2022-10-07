@@ -300,7 +300,7 @@ class CartController extends BaseFrontEndController
         }
 
         // If we have a cart, use the site for that cart for the URL redirect.
-        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId ?? null);
+        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
 
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);
