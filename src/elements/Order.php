@@ -1766,8 +1766,11 @@ class Order extends Element
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
-            } elseif ($shippingMethod = $this->getShippingMethod()) {
-                $this->shippingMethodName = $shippingMethod->getName();
+            } else {
+                $shippingMethod = ArrayHelper::firstWhere($this->getAvailableShippingMethodOptions(), 'handle', $this->shippingMethodHandle);
+                if ($shippingMethod) {
+                    $this->shippingMethodName = $shippingMethod->getName();
+                }
             }
 
             $lineItemRemoved = false;
@@ -1878,10 +1881,23 @@ class Order extends Element
         $attributes = (new ShippingMethod())->attributes();
 
         foreach ($availableMethods as $method) {
-            $option = new ShippingMethodOption($method->getAttributes($attributes));
+            $option = new ShippingMethodOption();
+
+            if ($method instanceof ShippingMethod) {
+                // TODO remove at a breaking change version
+                foreach (['dateCreated', 'dateUpdated'] as $attribute) {
+                    $option->$attribute = $method->$attribute;
+                }
+            }
+
             $option->setOrder($this);
-            $option->matchesOrder = true;
+            $option->enabled = $method->getIsEnabled();
+            $option->id = $method->getId();
+            $option->name = $method->getName();
+            $option->handle = $method->getHandle();
+            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethods);
             $option->price = $method->getPriceForOrder($this);
+
             $options[$option->getHandle()] = $option;
         }
 
@@ -3034,6 +3050,7 @@ class Order extends Element
 
     /**
      * @return ShippingMethod|null
+     * @deprected in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
      */
     public function getShippingMethod()
     {

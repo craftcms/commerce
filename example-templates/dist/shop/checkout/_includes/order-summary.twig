@@ -71,7 +71,7 @@
         {{- 'Shipping Method'|t -}}
       </h4>
       <div>
-        {% if not cart.shippingMethod %}
+        {% if not cart.shippingMethodName %}
           {{ 'None selected.'|t }}
           <a href="{{ url('/shop/checkout/shipping') }}" class="text-blue-500 hover:text-blue-600">
             {{- 'Choose a shipping method.'|t -}}
