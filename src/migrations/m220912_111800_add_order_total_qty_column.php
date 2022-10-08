@@ -26,13 +26,22 @@ class m220912_111800_add_order_total_qty_column extends Migration
                 ->groupBy('[[orderId]]')
                 ->all();
 
-            $cases = [];
+            $idsByQty = [];
             foreach ($sums as $sum) {
-                $cases[] = 'WHEN id=' . $sum['orderId'] . ' THEN ' . ($sum['totalQty'] ?? '0');
+                if (!isset($idsByQty[$sum['totalQty']])) {
+                    $idsByQty[$sum['totalQty']] = [];
+                }
+
+                $idsByQty[$sum['totalQty']][] = $sum['orderId'];
+            }
+
+            $cases = [];
+            foreach ($idsByQty as $totalQty => $ids) {
+                $cases[] = 'WHEN id IN (' . implode(', ', $ids) . ') THEN ' . $totalQty;
             }
 
             if (!empty($cases)) {
-                $batches = array_chunk($cases, 500);
+                $batches = array_chunk($cases, 5);
                 foreach ($batches as $batch) {
                     $this->update(
                         '{{%commerce_orders}}',
