@@ -20,7 +20,7 @@ class m220912_111800_add_order_total_qty_column extends Migration
             $this->addColumn('{{%commerce_orders}}', 'totalQty', $this->integer()->unsigned());
 
             $sums = (new Query())
-                ->select([new Expression('SUM(qty) as totalQty'), '[[orderId]]'])
+                ->select([new Expression('SUM(qty) as [[totalQty]]'), '[[orderId]]'])
                 ->from('{{%commerce_lineitems}}')
                 ->indexBy('orderId')
                 ->groupBy('[[orderId]]')
