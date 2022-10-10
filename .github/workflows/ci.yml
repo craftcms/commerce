@@ -15,7 +15,7 @@ jobs:
     name: ci
     uses: craftcms/.github/.github/workflows/ci.yml@v3
     with:
-      craft_version: '4'
+      craft_version: '3'
       jobs: '["ecs", "prettier", "tests"]'
       notify_slack: true
       slack_subteam: <!subteam^S01CWPYH9D5>
