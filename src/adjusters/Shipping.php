@@ -13,7 +13,6 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
