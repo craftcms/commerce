@@ -51,9 +51,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public ?int $shippingZoneId = null;
 
     /**
-     * @var int Shipping method ID
+     * @var int|null Shipping method ID
      */
-    public int $methodId;
+    public ?int $methodId = null;
 
     /**
      * @var int Priority

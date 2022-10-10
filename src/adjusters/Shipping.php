@@ -9,6 +9,7 @@ namespace craft\commerce\adjusters;
 
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
+use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
@@ -52,7 +53,12 @@ class Shipping extends Component implements AdjusterInterface
         $this->_order = $order;
         $this->_isEstimated = (!$order->shippingAddressId && $order->estimatedShippingAddressId);
 
-        $shippingMethod = $order->getShippingMethod();
+        if (!$order->shippingMethodHandle) {
+            return [];
+        }
+
+        $matchingMethods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($order);
+        $shippingMethod = $matchingMethods[$order->shippingMethodHandle] ?? null;
         $lineItems = $order->getLineItems();
 
         if ($shippingMethod === null) {
@@ -194,7 +200,7 @@ class Shipping extends Component implements AdjusterInterface
     }
 
 
-    private function _createAdjustment(ShippingMethod $shippingMethod, ShippingRule $rule): OrderAdjustment
+    private function _createAdjustment(ShippingMethodInterface $shippingMethod, ShippingRule $rule): OrderAdjustment
     {
         //preparing model
         $adjustment = new OrderAdjustment();
