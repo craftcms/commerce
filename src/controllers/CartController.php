@@ -270,10 +270,17 @@ class CartController extends BaseFrontEndController
      */
     public function actionLoadCart(): ?Response
     {
-        $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
+        $siteParam = $this->request->getParam('site');
+
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
+
+        if ($siteParam !== null) {
+            $site = Craft::$app->getSites()->getSiteByHandle($siteParam);
+            $siteId = $site->id;
+            $redirect = UrlHelper::siteUrl($redirect, null, null, $siteId);
+        }
 
         if (!$number) {
             $error = Craft::t('commerce', 'A cart number must be specified.');
