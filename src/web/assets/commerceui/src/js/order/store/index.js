@@ -205,12 +205,7 @@ export default new Vuex.Store({
 
     hasLineItemErrors(state) {
       return (key) => {
-        if (
-          state &&
-          state.draft &&
-          state.draft.order &&
-          state.draft.errors
-        ) {
+        if (state && state.draft && state.draft.order && state.draft.errors) {
           let errorKeys = Object.keys(state.draft.errors);
           let pattern = '^lineItems\\.' + key + '\\.';
           let regex = new RegExp(pattern, 'gm');

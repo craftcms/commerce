@@ -18,14 +18,14 @@
 
     export default {
         components: {
-            Field
+            Field,
         },
 
         props: {
             rowData: {
                 type: Object,
                 required: true,
-            }
+            },
         },
     };
 </script>
