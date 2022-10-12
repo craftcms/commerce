@@ -1,6 +1,13 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace  craft\commerce\elements\conditions\orders;
+
+use Craft;
 
 /**
  * Total Price Condition Rule
@@ -10,7 +17,15 @@ namespace  craft\commerce\elements\conditions\orders;
  *
  * @property-read float|int $orderAttributeValue
  */
-class TotalPriceConditionRule extends OrderValuesAttributeConditionRule
+class TotalPriceConditionRule extends OrderCurrencyValuesAttributeConditionRule
 {
     public string $orderAttribute = 'totalPrice';
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel(): string
+    {
+        return Craft::t('commerce', 'Total Price');
+    }
 }

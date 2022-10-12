@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\db\SoftDeleteTrait;
 
 /**
  * Tax category record.
@@ -23,6 +24,7 @@ use craft\db\ActiveRecord;
  */
 class ShippingCategory extends ActiveRecord
 {
+    use SoftDeleteTrait;
     /**
      * @inheritdoc
      */

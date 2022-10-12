@@ -22,7 +22,6 @@ use craft\errors\DeprecationException;
 use craft\errors\MissingComponentException;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
-use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
@@ -112,7 +111,7 @@ class Gateways extends Component
     public function getAllCustomerEnabledGateways(): array
     {
         return ArrayHelper::where($this->getAllGateways(), function($gateway) {
-            return App::parseBooleanEnv($gateway->isFrontendEnabled);
+            return $gateway->getIsFrontendEnabled();
         });
     }
 
@@ -250,7 +249,7 @@ class Gateways extends Component
                 'settings' => $gateway->getSettings(),
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => !str_starts_with($gateway->isFrontendEnabled, '$') ? (bool)$gateway->isFrontendEnabled : $gateway->isFrontendEnabled,
+                'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
             ];
         }
 
