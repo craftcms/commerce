@@ -193,10 +193,10 @@ export default new Vuex.Store({
           state &&
           state.draft &&
           state.draft.order &&
-          state.draft.order.errors &&
-          state.draft.order.errors[errorKey]
+          state.draft.errors &&
+          state.draft.errors[errorKey]
         ) {
-          return [state.draft.order.errors[errorKey]];
+          return [state.draft.errors[errorKey]];
         }
 
         return [];
@@ -209,9 +209,9 @@ export default new Vuex.Store({
           state &&
           state.draft &&
           state.draft.order &&
-          state.draft.order.errors
+          state.draft.errors
         ) {
-          let errorKeys = Object.keys(state.draft.order.errors);
+          let errorKeys = Object.keys(state.draft.errors);
           let pattern = '^lineItems\\.' + key + '\\.';
           let regex = new RegExp(pattern, 'gm');
           for (let i = 0; i < errorKeys.length; i++) {
@@ -412,8 +412,12 @@ export default new Vuex.Store({
 
           let errorMsg = 'Couldn’t recalculate order.';
 
+          const draft = error.response.data;
+          commit('updateDraft', draft);
+
           if (error.response.data.error) {
             errorMsg = error.response.data.error;
+            throw {response};
           }
 
           throw errorMsg;
