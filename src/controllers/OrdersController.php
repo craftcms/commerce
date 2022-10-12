@@ -1543,6 +1543,7 @@ class OrdersController extends Controller
                 $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
                 $row['description'] = Html::encode($row['description']);
                 $row['sku'] = Html::encode($row['sku']);
+                $row['qty'] = '';
                 $purchasables[] = $row;
             }
         }

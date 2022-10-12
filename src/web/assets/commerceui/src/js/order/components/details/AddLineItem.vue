@@ -142,6 +142,10 @@
                         },
                     },
                     {
+                        name: '__component:qty-input',
+                        title: this.$options.filters.t('Qty', 'commerce'),
+                    },
+                    {
                         name: '__slot:detail',
                         title: '',
                         titleClass: 'thin',
@@ -209,7 +213,7 @@
                                 id: null,
                                 lineItemStatusId: null,
                                 salePrice: purchasable.price,
-                                qty: '1',
+                                qty: purchasable.qty,
                                 note: '',
                                 privateNote: '',
                                 orderId: this.orderId,
@@ -246,7 +250,17 @@
                 if (ids && ids.length) {
                     let $this = this;
                     this.selectedPurchasables = ids.map((id) => {
-                        return _find($this.currentTableData, {id: id});
+                        for (let i = 0; i < $this.currentTableData.length; i++) {
+                            if ($this.currentTableData[i].id == id) {
+                                if ($this.currentTableData[i].qty === '') {
+                                    $this.currentTableData[i].qty = '1';
+                                }
+
+                                return $this.currentTableData[i];
+                            }
+                        }
+
+                        return false
                     });
                 } else {
                     this.selectedPurchasables = [];
