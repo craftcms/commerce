@@ -12,34 +12,14 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  ecs:
-    name: ECS
-    uses: craftcms/.github/.github/workflows/ecs.yml@v2
+  ci:
+    name: ci
+    uses: craftcms/.github/.github/workflows/ci.yml@v3
     with:
-      php_version: '8.0'
-  phpstan:
-    name: PHPStan
-    uses: craftcms/.github/.github/workflows/phpstan.yml@v2
-    with:
-      php_version: '8.0'
-  prettier:
-    name: Prettier
-    uses: craftcms/.github/.github/workflows/prettier.yml@v2
-  codecept:
-    name: Codeception
-    needs: [ecs, phpstan, prettier]
-    uses: craftcms/.github/.github/workflows/codecept.yml@v2
-    with:
-      php_versions: '["8.0", "8.1"]'
-  notify-slack:
-    name: Notify Slack
-    needs: [ecs, phpstan, prettier, codecept]
-    if: ${{ always() }}
-    uses: craftcms/.github/.github/workflows/notify-slack.yml@v2
-    with:
-      success: ${{ needs.ecs.result == 'success' && needs.phpstan.result == 'success' && needs.prettier.result == 'success' && needs.codecept.result == 'success' }}
-      failure: ${{ needs.ecs.result == 'failure' || needs.phpstan.result == 'failure' || needs.prettier.result == 'failure' || needs.codecept.result == 'failure' }}
-      failure_text_prefix: <!subteam^S01CWPYH9D5>
+      craft_version: '4'
+      jobs: '["ecs", "phpstan", "prettier", "tests"]'
+      notify_slack: true
+      slack_subteam: <!subteam^S01CWPYH9D5>
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
       slack_webhook_url: ${{ secrets.SLACK_COMMERCE_WEBHOOK_URL }}

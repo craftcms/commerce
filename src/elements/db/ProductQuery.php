@@ -865,7 +865,7 @@ class ProductQuery extends ElementQuery
     private function _normalizeTypeId(): void
     {
         if (empty($this->typeId)) {
-            $this->typeId = null;
+            $this->typeId = is_array($this->typeId) ? [] : null;
         } elseif (is_numeric($this->typeId)) {
             $this->typeId = [$this->typeId];
         } elseif (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {

@@ -2,11 +2,25 @@
 
 ## Unreleased
 
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. Use `$shippingMethodName` and `$shippingMethodHandle` instead.
+
+### Fixed
+- Fixed a bug where it wasn't possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
+- Fixed a bug that occurred when using a custom shipping method. ([#2986](https://github.com/craftcms/commerce/issues/2986))
+- Fixed a bug that could occur when querying products by `type`. ([#2966](https://github.com/craftcms/commerce/issues/2966))
+
+## 4.1.3 - 2022-10-07
+
+### Changed
+- The `commerce/downloads/pdf` action now accepts an `inline` param. ([#2981](https://github.com/craftcms/commerce/pull/2981))
+
 ### Fixed
 - Fixed a SQL error that occurred when restoring a soft-deleted product. ([#2982](https://github.com/craftcms/commerce/issues/2982))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
 - Fixed a bug where it wasn't possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
 - Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963)) 
+- Fixed a bug where it wasn’t possible to change the default order status. ([#2915](https://github.com/craftcms/commerce/issues/2915))
 
 ## 4.1.2 - 2022-09-15
 

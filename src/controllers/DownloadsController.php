@@ -37,6 +37,7 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
+        $inline = (bool) $this->request->getQueryParam('inline', false);
 
         if (!$number) {
             throw new HttpInvalidParamException('Order number required');
@@ -80,6 +81,7 @@ class DownloadsController extends BaseFrontEndController
 
         return $this->response->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf',
+            'inline' => $inline,
         ]);
     }
 }

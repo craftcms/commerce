@@ -104,7 +104,7 @@
 
     {% if orderStatuses|length == 0 %}
         {% set isDefault = true %}
-        {% else %}
+    {% else %}
         {% set isDefault = orderStatus.default %}
     {% endif %}
 

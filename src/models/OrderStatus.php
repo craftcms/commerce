@@ -165,8 +165,8 @@ class OrderStatus extends Model
      */
     public function canDelete(): bool
     {
-        /** @var Order|null $order */
-        $order = Order::find()->orderStatus($this)->trashed(null)->one();
-        return !$order;
+        /** @var OrderQuery $orderQuery */
+        $orderQuery = Order::find()->trashed(null);
+        return !$orderQuery->orderStatus($this)->one() && !$this->default;
     }
 }

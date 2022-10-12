@@ -1855,8 +1855,11 @@ class Order extends Element
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
-            } elseif ($shippingMethod = $this->getShippingMethod()) {
-                $this->shippingMethodName = $shippingMethod->getName();
+            } else {
+                $shippingMethod = ArrayHelper::firstWhere($this->getAvailableShippingMethodOptions(), 'handle', $this->shippingMethodHandle);
+                if ($shippingMethod) {
+                    $this->shippingMethodName = $shippingMethod->getName();
+                }
             }
 
             $lineItemRemoved = false;
@@ -1960,7 +1963,6 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $availableMethods = [];
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
         $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
@@ -1972,15 +1974,22 @@ class Order extends Element
         }
 
         $availableShippingMethodOptions = [];
-        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
             $option = new ShippingMethodOption();
-            $option->setOrder($this);
-            foreach ($attributes as $attribute) {
-                $option->$attribute = $method->$attribute;
+
+            if ($method instanceof ShippingMethod) {
+                // TODO remove at a breaking change version
+                foreach (['dateCreated', 'dateUpdated'] as $attribute) {
+                    $option->$attribute = $method->$attribute;
+                }
             }
 
+            $option->setOrder($this);
+            $option->enabled = $method->getIsEnabled();
+            $option->id = $method->getId();
+            $option->name = $method->getName();
+            $option->handle = $method->getHandle();
             $option->matchesOrder = ArrayHelper::isIn($method->handle, $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
@@ -3075,12 +3084,18 @@ class Order extends Element
         $this->_estimatedBillingAddress = $address;
     }
 
+    /**
+     * @return ShippingMethod|null
+     * @throws InvalidConfigException
+     * @deprected in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
+     */
     public function getShippingMethod(): ?ShippingMethod
     {
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
+     * @return GatewayInterface|null
      * @throws InvalidArgumentException
      */
     public function getGateway(): ?GatewayInterface
