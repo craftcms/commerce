@@ -56,4 +56,10 @@ trait StatTrait
      * @var string|null
      */
     private ?string $_cacheKey = null;
+
+    /**
+     * @var array|null
+     * @since 4.2.0
+     */
+    private ?array $_orderStatuses = null;
 }
