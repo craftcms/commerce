@@ -18,6 +18,7 @@ use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
@@ -97,6 +98,8 @@ class CartController extends BaseFrontEndController
         // Get the cart from the request or from the session.
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
+
+        $this->_setOrderSite();
 
         // Can clear line items when updating the cart
         if ($this->request->getParam('clearLineItems') !== null) {
@@ -611,6 +614,29 @@ class CartController extends BaseFrontEndController
 
         if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
             $this->_cart->makePrimaryBillingAddress = true;
+        }
+    }
+
+    /**
+     * Set orderSiteId and orderLanguage for cart.
+     * @return void
+     * @throws NotFoundHttpException
+     */
+    private function _setOrderSite()
+    {
+        if (($orderSite = $this->request->getParam('orderSite')) !== null) {
+            if (is_numeric($orderSite)) {
+                $site = Craft::$app->getSites()->getSiteById($orderSite, false);
+            } else {
+                $site = Craft::$app->getSites()->getSiteByHandle($orderSite, false);
+            }
+
+            if ($site === null) {
+                throw new NotFoundHttpException('Site not found');
+            }
+
+            $this->_cart->orderSiteId = $site->id;
+            $this->_cart->orderLanguage = $site->language;
         }
     }
 }

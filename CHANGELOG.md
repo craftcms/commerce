@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Added ability to set `orderSiteId` and `orderLanguage` on submitting data to `commerce/cart/update-cart` action controller. ([#2533](https://github.com/craftcms/commerce/issues/2533))
+
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getShippingMethod()`. Use `$shippingMethodName` and `$shippingMethodHandle` instead.
 
