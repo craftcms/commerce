@@ -272,8 +272,8 @@ class CartController extends BaseFrontEndController
     {
         $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
-        $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
-        $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
+        $loadCartRedirectPath = Plugin::getInstance()->getSettings()->loadCartRedirectPath ?? '';
+        $redirect = UrlHelper::siteUrl($loadCartRedirectPath);
 
         if (!$number) {
             $error = Craft::t('commerce', 'A cart number must be specified.');
@@ -300,7 +300,7 @@ class CartController extends BaseFrontEndController
         }
 
         // If we have a cart, use the site for that cart for the URL redirect.
-        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
+        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectPath, siteId: $cart->orderSiteId);
 
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);

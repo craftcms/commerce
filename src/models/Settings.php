@@ -212,7 +212,7 @@ class Settings extends Model
      * @group Cart
      * @since 3.1
      */
-    public ?string $loadCartRedirectUrl = null;
+    public ?string $loadCartRedirectPath = null;
 
     /**
      * @var string How Commerce should handle minimum total price for an order.

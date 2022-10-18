@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- `craft\commerce\models\Settings::$loadCartRedirectUrl` was renamed to `$loadCartRedirectPath`.
+
 ### Deprecated
 - Deprecated `craft\commerce\elements\Order::getShippingMethod()`. Use `$shippingMethodName` and `$shippingMethodHandle` instead.
 
