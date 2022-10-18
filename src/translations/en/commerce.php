@@ -1058,7 +1058,6 @@ return [
     'Transaction ID' => 'Transaction ID',
     'Transaction captured successfully: {message}' => 'Transaction captured successfully: {message}',
     'Transaction refunded successfully: {message}' => 'Transaction refunded successfully: {message}',
-    'Transaction type not supported.' => 'Transaction type not supported.',
     'Transactions' => 'Transactions',
     'Trial days credited' => 'Trial days credited',
     'Trial expiration' => 'Trial expiration',
