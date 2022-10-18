@@ -1058,7 +1058,6 @@ return [
     'Transaction ID' => '取引 ID',
     'Transaction captured successfully: {message}' => '取引は正しくキャプチャされました: {message}',
     'Transaction refunded successfully: {message}' => '取引は正しく払い戻されました: {message}',
-    'Transaction type not supported.' => '取引タイプがサポートされていません。',
     'Transactions' => '取引',
     'Trial days credited' => '付与されたトライアル期間',
     'Trial expiration' => 'トライアル期限',
