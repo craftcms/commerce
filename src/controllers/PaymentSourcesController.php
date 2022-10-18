@@ -43,7 +43,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $customer = Craft::$app->getUser()->getIdentity();
 
         if (!$customer) {
-            throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
+            throw new HttpException(401, Craft::t('commerce', 'You must be signed in to create a payment source.'));
         }
 
         // Allow setting the payment method at time of submitting payment.
@@ -99,7 +99,7 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $user = Craft::$app->getUser()->getIdentity();
         if (!$user) {
-            throw new HttpException(401, Craft::t('commerce', 'You must be logged in to set a primary payment source.'));
+            throw new HttpException(401, Craft::t('commerce', 'You must be signed in to set a primary payment source.'));
         }
 
         $paymentSourceId = $this->request->getRequiredBodyParam('id');
