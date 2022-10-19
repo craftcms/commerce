@@ -14,6 +14,7 @@ import {t} from '../base/filters/craft';
 import BtnLink from '../base/components/BtnLink';
 import OrderBlock from './components/OrderBlock';
 import OrderTitle from './components/OrderTitle';
+import QtyInput from './components/details/QtyInput';
 
 Vue.config.productionTip = false;
 if (process.env.NODE_ENV === 'development') {
@@ -23,6 +24,7 @@ Vue.filter('t', t);
 Vue.component('btn-link', BtnLink);
 Vue.component('order-block', OrderBlock);
 Vue.component('order-title', OrderTitle);
+Vue.component('qty-input', QtyInput);
 
 // Order actions
 // =========================================================================

@@ -53,10 +53,10 @@
 
 ### Changed
 - Order condition builds now have access to the “Shipping Method” condition rule.
-- It is now possible to query for orders by `shippingMethodHandle`.
 - It is now possible to set a primary payment source for a customer.
+- It is now possible to set a quantity when adding a line item on the Order Edit page. ([#2993](https://github.com/craftcms/commerce/discussions/2993))
 - It is now possible to automatically set a customer’s primary payment source on new carts using the `autoSetPaymentSource` config setting.
-- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `totalDiscount`, `total`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax`.
+- It is now possible to query orders by `itemTotal`, `itemSubtotal`, `shippingMethodHandle`, `totalDiscount`, `total`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax`.
 - Querying an order by `reference` now allows a wider range of inputs.
 - Shipping and Tax Categories are now archived instead of deleted.
 - It is now possible to define how addresses are matched in `Order::hasMatchingAddresses()`.
