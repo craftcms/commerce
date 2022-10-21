@@ -14,7 +14,6 @@ use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use DateTime;
 
 /**
  * Repeat Customers widget

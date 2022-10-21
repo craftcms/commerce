@@ -14,7 +14,6 @@ use craft\commerce\stats\NewCustomers as NewCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use DateTime;
 use Exception;
 
 /**

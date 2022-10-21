@@ -10,14 +10,12 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TopCustomers as TopCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
-use DateTime;
 
 /**
  * Top Customers widget

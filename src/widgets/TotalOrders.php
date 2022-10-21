@@ -16,7 +16,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use DateTime;
 
 /**
  * Total Orders widget

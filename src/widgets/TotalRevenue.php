@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\helpers\Currency;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;

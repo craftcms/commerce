@@ -16,7 +16,6 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
-use DateTime;
 
 /**
  * Top Purchasables widget
