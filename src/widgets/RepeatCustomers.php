@@ -9,6 +9,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -26,20 +27,7 @@ use DateTime;
  */
 class RepeatCustomers extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var null|RepeatingCustomersStat
@@ -59,6 +47,10 @@ class RepeatCustomers extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -126,6 +118,7 @@ class RepeatCustomers extends Widget
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/customers/repeat/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
         ]);
     }

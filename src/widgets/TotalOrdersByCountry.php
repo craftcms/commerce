@@ -9,6 +9,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
@@ -29,20 +30,7 @@ use DateTime;
  */
 class TotalOrdersByCountry extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var string Options 'billing', 'shipping'.
@@ -91,6 +79,10 @@ class TotalOrdersByCountry extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -174,6 +166,7 @@ class TotalOrdersByCountry extends Widget
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/country/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
         ]);

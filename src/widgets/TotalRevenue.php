@@ -175,21 +175,12 @@ class TotalRevenue extends Widget
     {
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
-        $orderStatuses = [];
-
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
-            $orderStatuses[$orderStatus->uid] = [
-                'label' => $orderStatus->name,
-                'value' => $orderStatus->uid,
-                'data' => ['data' => ['color' => $orderStatus->color]],
-            ];
-        }
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/revenue/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
-            'orderStatuses' => $orderStatuses,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'types' => [
                 TotalRevenueStat::TYPE_TOTAL => Craft::t('commerce', 'Total'),
                 TotalRevenueStat::TYPE_TOTAL_PAID => Craft::t('commerce', 'Total Paid'),

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\Plugin;
 use craft\gql\types\DateTime;
 
 /**
@@ -36,4 +37,22 @@ trait StatWidgetTrait
      * @var array|null
      */
     public ?array $orderStatuses = null;
+
+    /**
+     * @return array
+     */
+    public function getOrderStatusOptions(): array
+    {
+        $orderStatuses = [];
+
+        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
+            $orderStatuses[$orderStatus->uid] = [
+                'label' => $orderStatus->name,
+                'value' => $orderStatus->uid,
+                'data' => ['data' => ['color' => $orderStatus->color]],
+            ];
+        }
+
+        return $orderStatuses;
+    }
 }
