@@ -118,7 +118,7 @@ EOT;
             return false;
         }
 
-        $this->setMessage(Craft::t('commerce', '{num, plural, =1{order}, other{orders} updated.', ['num' => $orderCount]));
+        $this->setMessage(Craft::t('commerce', '{num, plural, =1{order}, other{orders}} updated.', ['num' => $orderCount]));
 
         return true;
     }

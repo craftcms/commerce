@@ -1192,6 +1192,7 @@ return [
     '{description} only has {stock} in stock.' => '{description} only has {stock} in stock.',
     '{name} (Primary)' => '{name} (Primary)',
     '{num, plural, =1{order}, other{orders} updated.' => '{num, plural, =1{order}, other{orders} updated.',
+    '{num, plural, =1{order}, other{orders}} updated.' => '{num, plural, =1{order}, other{orders}} updated.',
     '{number} more…' => '{number} more…',
     '{pct} off the discounted item price' => '{pct} off the discounted item price',
     '{pct} off the original item price' => '{pct} off the original item price',
