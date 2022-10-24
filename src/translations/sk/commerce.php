@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'Počet kupónov',
     'Number' => 'Číslo',
     'Only allow this gateway to be used for zero value orders?' => 'Povoliť použitie tejto brány pre objednávky s nulovou hodnotou?',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'Možnosti',
     'Order Condition Formula' => 'Vzorec podmienky objednávky',
     'Order Date' => 'Dátum Objednávky',
