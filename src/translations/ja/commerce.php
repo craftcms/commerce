@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'クーポン数',
     'Number' => '番号',
     'Only allow this gateway to be used for zero value orders?' => 'このゲートウェイを注文金額がゼロの場合にのみ使用できるようにしますか？',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'オプション',
     'Order Condition Formula' => '注文の条件式',
     'Order Date' => '注文日',
