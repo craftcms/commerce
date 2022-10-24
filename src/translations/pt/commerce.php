@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'Número de cupões',
     'Number' => 'Número',
     'Only allow this gateway to be used for zero value orders?' => 'Permitir que apenas este gateway seja utilizado para encomendas de valor zero?',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'Opções',
     'Order Condition Formula' => 'Formula de condição de pedido',
     'Order Date' => 'Data da Pedido',
