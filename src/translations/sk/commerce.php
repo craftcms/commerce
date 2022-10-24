@@ -432,7 +432,7 @@ return [
     'Expiry date' => 'Dátum exspirácie',
     'Expiry' => 'Platnosť',
     'Failed to start' => 'Nebolo možné spustiť',
-    'Failed to update {num, plural, =1{order status}, other{order statuses}}.' => 'Nepodarilo sa aktualizovať {num, plural, =1{stav objendávky}, other{stavov objednávok}}.',
+    'Failed to update {num, plural, =1{order status}, other{order statuses}}.' => 'Nepodarilo sa aktualizovať {num, plural, =1{stav objednávky}, other{stavov objednávok}}.',
     'Failed updating order status on {num, plural, =1{order}, other{orders}}.' => 'Nepodarilo sa aktualizovať stav pre {num, plural, =1{objednávku}, other{objednávok}}.',
     'Feet (ft)' => 'Stopy (ft)',
     'Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition.' => 'Filtrovanie podmienok, ktoré popisujú, na ktoré objednávky sa toto pravidlo vzťahuje. Nula pre preskočenie podmienky.',
