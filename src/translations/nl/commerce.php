@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'Aantal coupons',
     'Number' => 'Aantal',
     'Only allow this gateway to be used for zero value orders?' => 'Toestaan dat deze gateway alleen wordt gebruikt voor orders met waarde nul?',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'Opties',
     'Order Condition Formula' => 'Formule bestelvoorwaarde',
     'Order Date' => 'Orderdatum',
