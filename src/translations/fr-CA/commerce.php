@@ -1192,7 +1192,6 @@ return [
     '{description} is no longer available.' => '{description} n\'est plus disponible.',
     '{description} only has {stock} in stock.' => '{description} n\'a que {stock} unités en stock.',
     '{name} (Primary)' => '{name} (primaire)',
-    '{num, plural, =1{order}, other{orders} updated.' => '{num, plural, =1{commande}, other{commandes} mises à jour.',
     '{num, plural, =1{order}, other{orders}} updated.' => '{num, plural, =1{commande}, other{commandes}} mises à jour.',
     '{number} more…' => '{number} plus…',
     '{pct} off the discounted item price' => '{pct} sur le prix de l\'article incluant le rabais',
