@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'Antall kuponger',
     'Number' => 'Nummer',
     'Only allow this gateway to be used for zero value orders?' => 'Kun tillate at denne portalen brukes for nullverdi-bestillinger?',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'Valg',
     'Order Condition Formula' => 'Formel for ordretilstand',
     'Order Date' => 'Ordredato',
