@@ -9,11 +9,11 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use DateTime;
 
 /**
  * Average Order Total widget
@@ -26,20 +26,7 @@ use DateTime;
  */
 class AverageOrderTotal extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string
-     */
-    public string $dateRange = AverageOrderTotalStat::DATE_RANGE_TODAY;
+    use StatWidgetTrait;
 
     /**
      * @var null|AverageOrderTotalStat
@@ -58,6 +45,10 @@ class AverageOrderTotal extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -125,6 +116,7 @@ class AverageOrderTotal extends Widget
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/average/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
         ]);
     }

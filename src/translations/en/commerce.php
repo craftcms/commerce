@@ -676,6 +676,7 @@ return [
     'Number of Coupons' => 'Number of Coupons',
     'Number' => 'Number',
     'Only allow this gateway to be used for zero value orders?' => 'Only allow this gateway to be used for zero value orders?',
+    'Only orders with the following order statuses will be included. Leave blank to include all statuses.' => 'Only orders with the following order statuses will be included. Leave blank to include all statuses.',
     'Options' => 'Options',
     'Order Condition Formula' => 'Order Condition Formula',
     'Order Date' => 'Order Date',

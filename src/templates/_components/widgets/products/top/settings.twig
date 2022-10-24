@@ -35,6 +35,8 @@
             instructions: 'Choose adjustment values to include when calculating the product revenue total.'|t('commerce'),
         }, checkboxes) }}
     </div>
+
+  {% include 'commerce/_components/widgets/_includes/_orderStatusesField' with { id: namespaceId, widget: widget } %}
 </div>
 
 {% js %}

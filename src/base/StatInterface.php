@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use craft\commerce\models\OrderStatus;
 use DateTime;
 
 /**
@@ -96,4 +97,19 @@ interface StatInterface
     public function prepareData($data): mixed;
 
     public function getDateRangeWording(): string;
+
+    /**
+     * @return array|null
+     * @since 4.2.0
+     */
+    public function getOrderStatuses(): ?array;
+
+    /**
+     * Set order statuses to limit stat query. Accepts array of `OrderStatus` models, handle strings or uid strings.
+     *
+     * @param OrderStatus[]|string[]|null $orderStatuses
+     * @return void
+     * @since 4.2.0
+     */
+    public function setOrderStatuses(?array $orderStatuses): void;
 }
