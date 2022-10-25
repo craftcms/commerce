@@ -1058,7 +1058,6 @@ return [
     'Transaction ID' => 'Transactie-ID',
     'Transaction captured successfully: {message}' => 'Transactie succesvol vastgelegd: {message}',
     'Transaction refunded successfully: {message}' => 'Transactie succesvol terugbetaald: {message}',
-    'Transaction type not supported.' => 'Transactietype niet ondersteund.',
     'Transactions' => 'Transacties',
     'Trial days credited' => 'Dagen voor proefversie gecrediteerd',
     'Trial expiration' => 'Proefperiode verlopen',
