@@ -31,7 +31,7 @@
 - Order queries’ `reference` params now accept a wider range of values.
 - `commerce/cart/*` actions now return `shippingAddress` and `billingAddress` values in JSON responses. ([#2921](https://github.com/craftcms/commerce/issues/2921))
 
-### Extending
+### Extensibility
 - Added `craft\commerce\base\Stat::getOrderStatuses()`.
 - Added `craft\commerce\base\Stat::setOrderStatuses()`.
 - Added `craft\commerce\base\StatInterface::getOrderStatuses()`.
