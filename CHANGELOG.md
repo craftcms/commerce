@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.0 - 2022-10-26
 
 ### Store Management
 - Discounts’ “Match Customer” conditions can now have a “Has Orders” rule.
