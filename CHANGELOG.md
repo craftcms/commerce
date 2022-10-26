@@ -87,6 +87,7 @@
 - Deprecated `craft\commerce\elements\Order::getShippingMethod()`. `$shippingMethodName` and `$shippingMethodHandle` should be used instead.
 
 ### System
+- Craft Commerce now requires Craft CMS 4.3.0 or later.
 - Fixed a bug where it wasn't possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
 - Fixed a bug where custom shipping methods weren’t applying to orders properly. ([#2986](https://github.com/craftcms/commerce/issues/2986))
 - Fixed a bug where passing an invalid product type handle into product queries’ `type` params wouldn’t have any effect. ([#2966](https://github.com/craftcms/commerce/issues/2966))
