@@ -48,8 +48,8 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
+use craft\elements\Address;
 use craft\elements\Address as AddressElement;
-use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -134,6 +134,7 @@ use yii\log\Logger;
  * @property-read string $totalTaxIncludedAsCurrency
  * @property-read string $totalShippingCostAsCurrency
  * @property-read string $totalDiscountAsCurrency
+ * @property-read string $storedTotalAsCurrency
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
@@ -871,6 +872,18 @@ class Order extends Element
     public ?float $storedTotalPrice = null;
 
     /**
+     * @var float|null The total as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotal;
+     * ```
+     * ```twig
+     * {{ order.storedTotal }}
+     * ```
+     */
+    public ?float $storedTotal = null;
+
+    /**
      * @var float|null The total paid as stored in the database from last retrieval
      * ---
      * ```php
@@ -955,6 +968,17 @@ class Order extends Element
      */
     public ?float $storedTotalTaxIncluded = null;
 
+    /**
+     * @var int|null The total quantity as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalQty;
+     * ```
+     * ```twig
+     * {{ order.storedTotalQty }}
+     * ```
+     */
+    public ?int $storedTotalQty = null;
 
     /**
      * @var string|null
@@ -1334,6 +1358,7 @@ class Order extends Element
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
         $attributes[] = 'totalDiscount';
+        $attributes[] = 'storedTotal';
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
@@ -1493,6 +1518,34 @@ class Order extends Element
         }
 
         return $autoSetOccurred;
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function autoSetPaymentSource(): bool
+    {
+        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetPaymentSource || $this->paymentSourceId || $this->gatewayId) {
+            return false;
+        }
+
+        /** @var User|CustomerBehavior|null $customer */
+        $customer = $this->getCustomer();
+
+        // Only set the payment source if there is a customer set and that is it the current user
+        if (!$customer || $customer->id !== Craft::$app->getUser()->getIdentity()?->id) {
+            return false;
+        }
+
+        $paymentSource = $customer->getPrimaryPaymentSource();
+        if (!$paymentSource) {
+            return false;
+        }
+
+        $this->setPaymentSource($paymentSource);
+        return true;
     }
 
     /**
@@ -1802,8 +1855,11 @@ class Order extends Element
 
             if (!$this->shippingMethodHandle) {
                 $this->shippingMethodName = null;
-            } elseif ($shippingMethod = $this->getShippingMethod()) {
-                $this->shippingMethodName = $shippingMethod->getName();
+            } else {
+                $shippingMethod = ArrayHelper::firstWhere($this->getAvailableShippingMethodOptions(), 'handle', $this->shippingMethodHandle);
+                if ($shippingMethod) {
+                    $this->shippingMethodName = $shippingMethod->getName();
+                }
             }
 
             $lineItemRemoved = false;
@@ -1907,7 +1963,6 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $availableMethods = [];
         // Matching will contain the core shipping methods and any plugin dynamically returned shipping methods.
         $methods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
         $matchingMethodHandles = ArrayHelper::getColumn($methods, 'handle');
@@ -1919,15 +1974,22 @@ class Order extends Element
         }
 
         $availableShippingMethodOptions = [];
-        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
             $option = new ShippingMethodOption();
-            $option->setOrder($this);
-            foreach ($attributes as $attribute) {
-                $option->$attribute = $method->$attribute;
+
+            if ($method instanceof ShippingMethod) {
+                // TODO remove at a breaking change version
+                foreach (['dateCreated', 'dateUpdated'] as $attribute) {
+                    $option->$attribute = $method->$attribute;
+                }
             }
 
+            $option->setOrder($this);
+            $option->enabled = $method->getIsEnabled();
+            $option->id = $method->getId();
+            $option->name = $method->getName();
+            $option->handle = $method->getHandle();
             $option->matchesOrder = ArrayHelper::isIn($method->handle, $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
@@ -2000,6 +2062,7 @@ class Order extends Element
         $orderRecord->totalShippingCost = $this->getTotalShippingCost();
         $orderRecord->totalTax = $this->getTotalTax();
         $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
+        $orderRecord->totalQty = $this->getTotalQty();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
@@ -2799,9 +2862,9 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->shippingAddressId);
-            $this->_shippingAddress = $addressQuery->ownerId($this->id)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
+            $this->_shippingAddress = $address;
         }
 
         return $this->_shippingAddress;
@@ -2857,9 +2920,9 @@ class Order extends Element
     public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->estimatedShippingAddressId);
-            $this->_estimatedShippingAddress = $addressQuery->owner($this)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
+            $this->_estimatedShippingAddress = $address;
         }
 
         return $this->_estimatedShippingAddress;
@@ -2892,9 +2955,9 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->billingAddressId);
-            $this->_billingAddress = $addressQuery->ownerId($this->id)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
+            $this->_billingAddress = $address;
         }
 
         return $this->_billingAddress;
@@ -2948,10 +3011,11 @@ class Order extends Element
     /**
      * Returns whether the billing and shipping addresses' data matches
      *
+     * @param string[]|null $attributes array of attributes names on which to match the addresses
      * @return bool
      * @since 4.1.0
      */
-    public function hasMatchingAddresses(): bool
+    public function hasMatchingAddresses(?array $attributes = null): bool
     {
         $addressAttributes = (new ReflectionClass(AddressInterface::class))->getMethods();
         $addressAttributes = array_map(static function(ReflectionMethod $method) {
@@ -2968,6 +3032,10 @@ class Order extends Element
         }, (new ReflectionClass(NameTrait::class))->getProperties());
 
         $toArrayHandles = [...$nameTraitProperties, ...$addressAttributes, ...$customFieldHandles];
+
+        if (!empty($attributes)) {
+            $toArrayHandles = array_intersect($toArrayHandles, $attributes);
+        }
 
         $shippingAddress = $this->getShippingAddress();
         if ($shippingAddress instanceof AddressElement) {
@@ -2988,9 +3056,9 @@ class Order extends Element
     public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            /** @var AddressQuery $addressQuery */
-            $addressQuery = AddressElement::find()->id($this->estimatedBillingAddressId);
-            $this->_estimatedBillingAddress = $addressQuery->owner($this)->one();
+            /** @var Address|null $address */
+            $address = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
+            $this->_estimatedBillingAddress = $address;
         }
 
         return $this->_estimatedBillingAddress;
@@ -3016,12 +3084,18 @@ class Order extends Element
         $this->_estimatedBillingAddress = $address;
     }
 
+    /**
+     * @return ShippingMethod|null
+     * @throws InvalidConfigException
+     * @deprected in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
+     */
     public function getShippingMethod(): ?ShippingMethod
     {
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
+     * @return GatewayInterface|null
      * @throws InvalidArgumentException
      */
     public function getGateway(): ?GatewayInterface

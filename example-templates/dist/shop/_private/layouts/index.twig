@@ -30,12 +30,21 @@ Common, top-level layout template.
 
 <header>
   <div class="bg-gray-900">
-    <div class="container mx-auto p-6">
+    <div class="container mx-auto p-6 md:flex justify-content-between align-content-center">
       <h1 class="text-3xl">
-        <a href="{{ url('/shop') }}" class="text-white">
+        <a href="{{ siteUrl('/shop') }}" class="text-white">
           {{- siteName ~ ' Shop' -}}
         </a>
       </h1>
+      {% if craft.app.sites.getAllSites()|length > 1 %}
+        <div class="ml-auto">
+          <select name="site" id="js-site-selector">
+            {% for site in craft.app.sites.getAllSites() %}
+              <option value="{{ siteUrl(craft.app.request.absoluteUrl|replace(currentSite.getBaseUrl(), ''), null, null, site.id) }}" {% if site.handle == currentSite.handle %}selected{% endif %}>{{ site.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
     </div>
   </div>
 
@@ -156,5 +165,12 @@ function showAddressField(fieldName, selectorTemplate) {
   }
 
   fieldWrapper.classList.remove('hidden');
+}
+{% endjs %}
+
+{% js at endBody %}
+let $siteSelector = document.querySelector('#js-site-selector');
+if ($siteSelector) {
+  $siteSelector.addEventListener('change', (ev) => window.location = ev.target.value);
 }
 {% endjs %}

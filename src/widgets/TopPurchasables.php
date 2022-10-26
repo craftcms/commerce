@@ -9,13 +9,13 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\stats\TopPurchasables as TopPurchasablesStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
-use DateTime;
 
 /**
  * Top Purchasables widget
@@ -28,20 +28,7 @@ use DateTime;
  */
 class TopPurchasables extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var string|null Options 'revenue', 'qty'.
@@ -104,6 +91,10 @@ class TopPurchasables extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
 
         parent::init();
     }
@@ -185,6 +176,7 @@ class TopPurchasables extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'typeOptions' => $this->_typeOptions,
             'nameFieldOptions' => $this->_nameFieldOptions,
         ]);

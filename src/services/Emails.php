@@ -447,7 +447,7 @@ class Emails extends Component
         }
 
         if ($fromName && $fromEmail) {
-            $newEmail->setFrom([$fromEmail => $fromName]);
+            $newEmail->setFrom([(string)$fromEmail => (string)$fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {

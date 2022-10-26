@@ -62,4 +62,30 @@ class OrderQueryTest extends Unit
             'no-results' => ['email' => 'null@craftcms.com', 0],
         ];
     }
+
+    /**
+     * @param mixed $handle
+     * @param int $count
+     * @return void
+     * @dataProvider shippingMethodHandleDataProvider
+     */
+    public function testShippingMethodHandle(mixed $handle, int $count): void
+    {
+        $orderQuery = Order::find()->isCompleted()->shippingMethodHandle($handle);
+        $foo = \craft\commerce\records\Order::find()->select(['id', 'isCompleted', 'shippingMethodHandle', 'email'])->asArray()->all();
+        self::assertCount($count, $orderQuery->all());
+    }
+
+    /**
+     * @return array
+     */
+    public function shippingMethodHandleDataProvider(): array
+    {
+        return [
+            'queryShippingByString' => ['usShipping', 1],
+            'queryShippingByNotString' => ['not usShipping', 2],
+            'queryShippingByArray' => [['usShipping'], 1],
+            'queryShippingByNotArray' => [['not', 'usShipping'], 2],
+        ];
+    }
 }

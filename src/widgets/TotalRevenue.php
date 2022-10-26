@@ -9,6 +9,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\helpers\Currency;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
@@ -16,7 +17,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use DateTime;
 
 /**
  * Total Revenue widget
@@ -30,20 +30,7 @@ use DateTime;
  */
 class TotalRevenue extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var string
@@ -74,6 +61,10 @@ class TotalRevenue extends Widget
             DateTimeHelper::toDateTime($this->startDate, true),
             DateTimeHelper::toDateTime($this->endDate, true)
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
 
         $this->_stat->type = $this->type;
     }
@@ -188,6 +179,7 @@ class TotalRevenue extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'types' => [
                 TotalRevenueStat::TYPE_TOTAL => Craft::t('commerce', 'Total'),
                 TotalRevenueStat::TYPE_TOTAL_PAID => Craft::t('commerce', 'Total Paid'),
