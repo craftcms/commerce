@@ -734,6 +734,7 @@ class Product extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'variants') {
+            /** @var Variant[] $elements */
             $this->setVariants($elements);
         } else {
             parent::setEagerLoadedElements($handle, $elements);
@@ -1401,7 +1402,11 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku((bool)$this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                if ($this->defaultSku === null) {
+                    return '';
+                }
+
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {

@@ -131,6 +131,10 @@ trait OrderElementTrait
             {
                 return $this->storedItemSubtotalAsCurrency;
             }
+            case 'totalQty':
+            {
+                return (string)$this->storedTotalQty;
+            }
             case 'total':
             {
                 return $this->totalAsCurrency;
@@ -158,6 +162,11 @@ trait OrderElementTrait
             case 'totals':
             {
                 $miniTable = [];
+
+                $miniTable[] = [
+                    'label' => Craft::t('commerce', 'Qty'),
+                    'value' => $this->storedTotalQty,
+                ];
 
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
@@ -447,6 +456,7 @@ trait OrderElementTrait
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
             'totals' => ['label' => Craft::t('commerce', 'All Totals')],
+            'totalQty' => ['label' => Craft::t('commerce', 'Total Qty')],
             'total' => ['label' => Craft::t('commerce', 'Total')],
             'totalPrice' => ['label' => Craft::t('commerce', 'Total Price')],
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],

@@ -28,7 +28,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
 {
     public function actionIndex(): Response
     {
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(false);
         return $this->renderTemplate('commerce/tax/taxcategories/index', compact('taxCategories'));
     }
 

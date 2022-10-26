@@ -36,8 +36,8 @@
             draftErrors() {
                 let errors = [];
 
-                if (this.draft && this.draft.order && this.draft.order.errors) {
-                    var draftErrors = this.draft.order.errors;
+                if (this.draft && this.draft.order && this.draft.errors) {
+                    var draftErrors = this.draft.errors;
                     for (var key in draftErrors) {
                         if (
                             draftErrors.hasOwnProperty(key) &&
