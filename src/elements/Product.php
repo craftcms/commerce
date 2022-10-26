@@ -1041,7 +1041,7 @@ class Product extends Element
             [['postDate', 'expiryDate'], DateTimeValidator::class],
             [
                 ['variants'],
-                function () {
+                function() {
                     if (empty($this->getVariants(true))) {
                         $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
@@ -1051,7 +1051,7 @@ class Product extends Element
             ],
             [
                 ['variants'],
-                function () {
+                function() {
                     $skus = [];
                     foreach ($this->getVariants(true) as $variant) {
                         if (isset($skus[$variant->sku])) {
@@ -1065,7 +1065,7 @@ class Product extends Element
             ],
             [
                 ['variants'],
-                function () {
+                function() {
                     foreach ($this->getVariants(true) as $i => $variant) {
                         if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
                             $variant->setScenario(self::SCENARIO_LIVE);
