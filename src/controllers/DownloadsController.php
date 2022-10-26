@@ -37,6 +37,7 @@ class DownloadsController extends BaseFrontEndController
         $number = $this->request->getQueryParam('number');
         $pdfHandle = $this->request->getQueryParam('pdfHandle');
         $option = $this->request->getQueryParam('option', '');
+        $inline = (bool) $this->request->getQueryParam('inline', false);
 
         if (!$number) {
             throw new HttpInvalidParamException('Order number required');
@@ -45,7 +46,7 @@ class DownloadsController extends BaseFrontEndController
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
-            throw new HttpException('404', 'Order not found');
+            throw new HttpException(404, 'Order not found');
         }
 
         if ($pdfHandle) {
@@ -80,6 +81,7 @@ class DownloadsController extends BaseFrontEndController
 
         return $this->response->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf',
+            'inline' => $inline,
         ]);
     }
 }

@@ -1,12 +1,57 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. Use `$shippingMethodName` and `$shippingMethodHandle` instead.
+
+### Fixed
+- Fixed a bug where it wasn't possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
+- Fixed a bug that occurred when using a custom shipping method. ([#2986](https://github.com/craftcms/commerce/issues/2986))
+- Fixed a bug that could occur when querying products by `type`. ([#2966](https://github.com/craftcms/commerce/issues/2966))
+- Fixed a bug where `availableForUseWithOrder` on payment gateways not respecting on payment transaction modal. ([#2988](https://github.com/craftcms/commerce/issues/2988))
+- Fixed a bug where the “Template Path” was blank on the Emails index page. ([#3000](https://github.com/craftcms/commerce/issues/3000))
+
+## 4.1.3 - 2022-10-07
+
+### Changed
+- The `commerce/downloads/pdf` action now accepts an `inline` param. ([#2981](https://github.com/craftcms/commerce/pull/2981))
+
+### Fixed
+- Fixed a SQL error that occurred when restoring a soft-deleted product. ([#2982](https://github.com/craftcms/commerce/issues/2982))
+- Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
+- Fixed a bug where it wasn't possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
+- Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963)) 
+- Fixed a bug where it wasn’t possible to change the default order status. ([#2915](https://github.com/craftcms/commerce/issues/2915))
+
+## 4.1.2 - 2022-09-15
+
+### Fixed
+- Fixed a SQL error that could occur when updating to Commerce 4 on MySQL.
+- Fixed an error that could when sorting orders by address attributes. ([#2956](https://github.com/craftcms/commerce/issues/2956))
+- Fixed a bug where it wasn’t possible to save decimal numbers for variant dimensions. ([#2540](https://github.com/craftcms/commerce/issues/2540))
+- Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2920](https://github.com/craftcms/commerce/issues/2920))
+- Fixed a bug where partial elements were not being deleted during garbage collection.
+- Fixed a bug where orders’ item subtotals weren’t being saved to the database.
+- Fixed a bug where the “Per Item Amount Off” setting on Edit Discount pages was stripping decimal values for locales that use commas for decimal symbols. ([#2937](https://github.com/craftcms/commerce/issues/2937))
+
+## 4.1.1 - 2022-09-01
+
+### Fixed
+- Fixed a bug where Edit Subscription pages were blank. ([#2913](https://github.com/craftcms/commerce/issues/2913))
+- Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` wasn’t checking the `fullName` property. ([#2917](https://github.com/craftcms/commerce/issues/2917))
+- Fixed a bug where discounts’ Purchase Total values weren’t getting saved.
+- Fixed a bug where discounts’ shipping address conditions were being saved as billing address conditions. ([#2938](https://github.com/craftcms/commerce/issues/2938)) 
+- Fixed an error that occurred when exporting orders using the “Expanded” export type. ([#2953](https://github.com/craftcms/commerce/issues/2953))
+- Fixed a bug where it wasn’t possible to clear out variants’ min and max quantities. ([#2954](https://github.com/craftcms/commerce/issues/2954))
+
 ## 4.1.0 - 2022-07-19
 
 ### Added
 - Tax rates now have a “Unit price” taxable subject option. ([#2883](https://github.com/craftcms/commerce/pull/2883))
 - The Total Revenue widget can now show the total paid, rather than the total invoiced. ([#2852](https://github.com/craftcms/commerce/issues/2852))
 - Added the `commerce/transfer-customer-data` command.
-- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. [#2676](https://github.com/craftcms/commerce/issues/2676)
+- Added `craft\commerce\elements\Order::EVENT_BEFORE_APPLY_ADD_NOTICE`. ([#2676](https://github.com/craftcms/commerce/issues/2676))
 - Added `craft\commerce\elements\Order::hasMatchingAddresses()`.
 - Added `craft\commerce\services\Customers::transferCustomerData()`. ([#2801](https://github.com/craftcms/commerce/pull/2801))
 - Added `craft\commerce\stats\TotalRevenue::$type`.
@@ -33,6 +78,7 @@
 ## 4.0.4 - 2022-06-22
 
 > {note} If you’ve already upgraded a site to Commerce 4, please go to **Commerce** → **Promotions** → **Discounts** and review your discounts’ coupons’ Max Uses values, as the `commerce/upgrade` command wasn’t migrating those values properly before this release.
+
 ### Fixed
 - Fixed a bug where `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()` wasn’t passing along the user ID to `getAllPaymentSourcesByCustomerId()`.
 - Fixed an error that could occur when using a discount with a coupon code.

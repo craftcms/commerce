@@ -201,24 +201,24 @@ class Variant extends Purchasable
     public ?int $sortOrder = null;
 
     /**
-     * @var int|null $width
+     * @var float|null $width
      */
-    public ?int $width = null;
+    public ?float $width = null;
 
     /**
-     * @var int|null $height
+     * @var float|null $height
      */
-    public ?int $height = null;
+    public ?float $height = null;
 
     /**
-     * @var int|null $length
+     * @var float|null $length
      */
-    public ?int $length = null;
+    public ?float $length = null;
 
     /**
-     * @var int|null $weight
+     * @var float|null $weight
      */
-    public ?int $weight = null;
+    public ?float $weight = null;
 
     /**
      * @var int|null $stock
@@ -1044,7 +1044,7 @@ class Variant extends Purchasable
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
-            if ($product) {
+            if ($product instanceof Product) {
                 $this->setProduct($product);
             }
         } else {
@@ -1198,7 +1198,7 @@ class Variant extends Purchasable
         // Once restored, we no longer track if it was deleted with variant or not
         $this->deletedWithProduct = false;
         Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => null],
+            ['deletedWithProduct' => false],
             ['id' => $this->getId()]
         )->execute();
 

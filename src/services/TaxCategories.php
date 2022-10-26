@@ -38,13 +38,19 @@ class TaxCategories extends Component
 
     /**
      * Returns all Tax Categories
-     *
+     * @param bool $archive
      * @return TaxCategory[]
      */
-    public function getAllTaxCategories(): array
+    public function getAllTaxCategories(bool $archive = true): array
     {
         if ($this->_allTaxCategories === null) {
-            $results = $this->_createTaxCategoryQuery()->all();
+            $query = $this->_createTaxCategoryQuery();
+
+            if ($archive === false) {
+                $query->where(['[[taxCategories.dateDeleted]]' => null]);
+            }
+
+            $results = $query->all();
 
             $this->_allTaxCategories = [];
             foreach ($results as $result) {
@@ -217,15 +223,16 @@ class TaxCategories extends Component
     {
         $all = $this->getAllTaxCategories();
 
-        // Not the last one.
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 
-        $record = TaxCategoryRecord::findOne($id);
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::TAXCATEGORIES, ['id' => $id])
+            ->execute();
 
-        if ($record) {
-            return (bool)$record->delete();
+        if ($affectedRows > 0) {
+            return true;
         }
 
         return false;

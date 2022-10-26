@@ -58,7 +58,7 @@ class Orders extends Component
 
 
     /**
-     * @deprecated in 4.0.3. Unused fields will be pruned automatically as field layouts are resaved.
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
     public function pruneDeletedField(): void
     {
@@ -140,6 +140,7 @@ class Orders extends Component
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
 
+        /** @var Address[] $addresses */
         $addresses = Address::find()->id($ids)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {

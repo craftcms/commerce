@@ -512,13 +512,7 @@ class Product extends Element
         $productType = $this->getType();
 
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
-
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
-        }
-
-        return $url;
+        return UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
     }
 
     /**
@@ -740,6 +734,7 @@ class Product extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'variants') {
+            /** @var Variant[] $elements */
             $this->setVariants($elements);
         } else {
             parent::setEagerLoadedElements($handle, $elements);
@@ -1425,7 +1420,11 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku((bool)$this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                if ($this->defaultSku === null) {
+                    return '';
+                }
+
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {

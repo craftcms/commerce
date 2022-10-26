@@ -52,14 +52,14 @@ class Product
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
         $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
-        $variantModel->width = isset($variant['width']) ? (int)LocalizationHelper::normalizeNumber($variant['width']) : null;
-        $variantModel->height = isset($variant['height']) ? (int)LocalizationHelper::normalizeNumber($variant['height']) : null;
-        $variantModel->length = isset($variant['length']) ? (int)LocalizationHelper::normalizeNumber($variant['length']) : null;
-        $variantModel->weight = isset($variant['weight']) ? (int)LocalizationHelper::normalizeNumber($variant['weight']) : null;
+        $variantModel->width = isset($variant['width']) ? (float)LocalizationHelper::normalizeNumber($variant['width']) : null;
+        $variantModel->height = isset($variant['height']) ? (float)LocalizationHelper::normalizeNumber($variant['height']) : null;
+        $variantModel->length = isset($variant['length']) ? (float)LocalizationHelper::normalizeNumber($variant['length']) : null;
+        $variantModel->weight = isset($variant['weight']) ? (float)LocalizationHelper::normalizeNumber($variant['weight']) : null;
         $variantModel->stock = isset($variant['stock']) ? (int)LocalizationHelper::normalizeNumber($variant['stock']) : null;
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
-        $variantModel->minQty = (int)LocalizationHelper::normalizeNumber($variant['minQty']);
-        $variantModel->maxQty = (int)LocalizationHelper::normalizeNumber($variant['maxQty']);
+        $variantModel->minQty = $variant['minQty'] === null || $variant['minQty'] === '' ? null : (int)LocalizationHelper::normalizeNumber($variant['minQty']);
+        $variantModel->maxQty = $variant['maxQty'] === null || $variant['maxQty'] === '' ? null : (int)LocalizationHelper::normalizeNumber($variant['maxQty']);
 
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);

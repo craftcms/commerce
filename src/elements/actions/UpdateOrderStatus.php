@@ -95,14 +95,30 @@ EOT;
     public function performAction(ElementQueryInterface $query): bool
     {
         $orders = $query->all();
+        $orderCount = count($orders);
 
+        $failureCount = 0;
         foreach ($orders as $order) {
             /** @var Order $order */
             $order->orderStatusId = $this->orderStatusId;
             $order->message = $this->message;
             $order->suppressEmails = $this->suppressEmails;
-            Craft::$app->getElements()->saveElement($order);
+            if (!Craft::$app->getElements()->saveElement($order)) {
+                $failureCount++;
+            }
         }
+
+        if ($failureCount > 0) {
+            $message = Craft::t('commerce', 'Failed updating order status on {num, plural, =1{order}, other{orders}}.', ['num' => $failureCount]);
+            if ($orderCount === $failureCount) {
+                $message = Craft::t('commerce', 'Failed to update {num, plural, =1{order status}, other{order statuses}}.', ['num' => $failureCount]);
+            }
+
+            $this->setMessage($message);
+            return false;
+        }
+
+        $this->setMessage(Craft::t('commerce', '{num, plural, =1{order}, other{orders}} updated.', ['num' => $orderCount]));
 
         return true;
     }

@@ -40,12 +40,19 @@ class ShippingCategories extends Component
     /**
      * Returns all Shipping Categories
      *
-     * @return ShippingCategory[]
+     * @param bool $archive
+     * @return array|ShippingCategory[]
      */
-    public function getAllShippingCategories(): array
+    public function getAllShippingCategories(bool $archive = true): array
     {
         if ($this->_allShippingCategories === null) {
-            $results = $this->_createShippingCategoryQuery()->all();
+            $query = $this->_createShippingCategoryQuery();
+
+            if ($archive === false) {
+                $query->where(['[[shippingCategories.dateDeleted]]' => null]);
+            }
+
+            $results = $query->all();
 
             $this->_allShippingCategories = [];
             foreach ($results as $result) {
@@ -215,14 +222,16 @@ class ShippingCategories extends Component
     public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 
-        $record = ShippingCategoryRecord::findOne($id);
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::SHIPPINGCATEGORIES, ['id' => $id])
+            ->execute();
 
-        if ($record) {
-            return (bool)$record->delete();
+        if ($affectedRows > 0) {
+            return true;
         }
 
         // Clear cache

@@ -79,6 +79,7 @@ class Install extends Migration
             'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
             'primaryShippingAddressId' => $this->integer(),
+            'primaryPaymentSourceId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -156,6 +157,7 @@ class Install extends Migration
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
             'purchaseQty' => $this->integer()->notNull()->defaultValue(0),
+            'purchaseTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'baseDiscountType' => $this->enum('baseDiscountType', ['value', 'percentTotal', 'percentTotalDiscounted', 'percentItems', 'percentItemsDiscounted'])->notNull()->defaultValue('value'),
@@ -349,6 +351,7 @@ class Install extends Migration
             'couponCode' => $this->string(),
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
             'itemSubtotal' => $this->decimal(14, 4)->defaultValue(0),
+            'totalQty' => $this->integer()->unsigned(),
             'total' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'totalPaid' => $this->decimal(14, 4)->defaultValue(0),
@@ -601,6 +604,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
+            'dateDeleted' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -714,6 +718,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
+            'dateDeleted' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -827,6 +832,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryPaymentSourceId', false);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
@@ -923,6 +929,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryPaymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');

@@ -34,6 +34,7 @@ use yii\db\ActiveQueryInterface;
  * @property OrderHistory[] $histories
  * @property int $id
  * @property bool $isCompleted
+ * @property float $itemSubtotal
  * @property float $itemTotal
  * @property string $lastIp
  * @property LineItem[] $lineItems
@@ -61,6 +62,7 @@ use yii\db\ActiveQueryInterface;
  * @property float $totalTaxIncluded
  * @property float $totalShippingCost
  * @property float $totalDiscount
+ * @property float $totalQty
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
