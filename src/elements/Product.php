@@ -800,24 +800,6 @@ class Product extends Element
         // General Meta fields
         $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
 
-        // Enabled field
-        $topMetaHtml .= Cp::lightswitchFieldHtml([
-            'label' => Craft::t('commerce', 'Enabled'),
-            'id' => 'enabled',
-            'name' => 'enabled',
-            'on' => $this->enabled,
-        ]);
-
-        // Multi site enabled
-        if (Craft::$app->getIsMultiSite()) {
-            $topMetaHtml .= Cp::lightswitchFieldHtml([
-                'label' => Craft::t('commerce', 'Enabled for site'),
-                'id' => 'enabledForSite',
-                'name' => 'enabledForSite',
-                'on' => $this->enabledForSite,
-            ]);
-        }
-
         $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
 
         $html[] = Html::tag('div', Craft::$app->getView()->renderObjectTemplate(
