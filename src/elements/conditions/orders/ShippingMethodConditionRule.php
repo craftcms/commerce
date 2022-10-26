@@ -25,7 +25,7 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
      */
     public function getLabel(): string
     {
-        return Craft::t('app', 'Shipping Method');
+        return Craft::t('commerce', 'Shipping Method');
     }
 
     /**
