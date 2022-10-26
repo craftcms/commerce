@@ -3,11 +3,11 @@
 ## Unreleased
 
 ### Deprecated
-- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. Use `$shippingMethodName` and `$shippingMethodHandle` instead.
+- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. `$shippingMethodName` and `$shippingMethodHandle` should be used instead.
 
 ### Fixed
-- Fixed a bug that occurred when using a custom shipping method. ([#2986](https://github.com/craftcms/commerce/issues/2986))
-- Fixed a bug that could occur when querying products by `type`. ([#2966](https://github.com/craftcms/commerce/issues/2966)) 
+- Fixed a bug where custom shipping methods weren’t applying to orders properly. ([#2986](https://github.com/craftcms/commerce/issues/2986))
+- Fixed a bug where passing an invalid product type handle into product queries’ `type` params wouldn’t have any effect. ([#2966](https://github.com/craftcms/commerce/issues/2966))
 
 ## 3.4.17.2 - 2022-09-16
 
