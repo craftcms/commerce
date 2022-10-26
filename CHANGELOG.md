@@ -11,6 +11,7 @@
 - Fixed a bug that could occur when querying products by `type`. ([#2966](https://github.com/craftcms/commerce/issues/2966))
 - Fixed a bug where `availableForUseWithOrder` on payment gateways not respecting on payment transaction modal. ([#2988](https://github.com/craftcms/commerce/issues/2988))
 - Fixed a bug where the “Template Path” was blank on the Emails index page. ([#3000](https://github.com/craftcms/commerce/issues/3000))
+- Fixed a bug where product slideout editors were showing additional status fields. ([#3010](https://github.com/craftcms/commerce/issues/3010))
 
 ## 4.1.3 - 2022-10-07
 
