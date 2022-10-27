@@ -576,21 +576,17 @@ class Discounts extends Component
 
         // Check to see if we need to match on data related to the lineItems
         if (!$discount->allPurchasables || !$discount->allCategories) {
-            $lineItemMatch = false;
-            $matchingTotal = 0;
-            $matchingQty = 0;
-            foreach ($order->getLineItems() as $lineItem) {
-                // Must mot match order as we would get an infinate recursion
-                if ($this->matchLineItem($lineItem, $discount)) {
-                    $lineItemMatch = true;
-                    $matchingTotal += $lineItem->getSubtotal();
-                    $matchingQty += $lineItem->qty;
-                }
-            }
 
-            if (!$lineItemMatch) {
+            // Get matching line items but don't match the order again
+            $matchingItems = collect($order->getLineItems())
+                ->filter(fn($item) => $this->matchLineItem($item, $discount));
+
+            if ($matchingItems->isEmpty()) {
                 return false;
             }
+
+            $matchingQty = $matchingItems->sum('qty');
+            $matchingTotal = $matchingItems->sum('subtotal');
 
             if ($discount->purchaseTotal > 0 && $matchingTotal < $discount->purchaseTotal) {
                 return false;
