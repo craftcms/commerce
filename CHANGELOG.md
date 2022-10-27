@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.1 - 2022-10-27
 
 - Fixed an error that occurred when viewing tax categories.
 - Fixed a bug where the Top Products widget wasn’t showing the correct revenue total.
