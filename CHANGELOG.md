@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when purging inactive carts.
+
 ## 3.4.18 - 2022-10-26
 
 ### Deprecated

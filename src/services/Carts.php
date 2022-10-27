@@ -296,14 +296,17 @@ class Carts extends Component
             // takes too much resources since it retrieves the order before deleting it.
 
             // Delete the elements table rows, which will cascade across all other InnoDB tables
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%elements}}', ['id' => $cartIds])
-                ->execute();
+            // Batch delete to avoid any errors with too many IDs
+            foreach (array_chunk($cartIds, 5000) as $ids) {
+                Craft::$app->getDb()->createCommand()
+                    ->delete('{{%elements}}', ['id' => $ids])
+                    ->execute();
 
-            // The searchindex table is probably MyISAM, though
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
-                ->execute();
+                // The searchindex table is probably MyISAM, though
+                Craft::$app->getDb()->createCommand()
+                    ->delete('{{%searchindex}}', ['elementId' => $ids])
+                    ->execute();
+            }
 
             return count($cartIds);
         }
