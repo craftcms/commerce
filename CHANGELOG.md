@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the Top Products widget wasn’t showing the correct revenue total.
+
 ## 4.2.0 - 2022-10-26
 
 ### Store Management
