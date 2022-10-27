@@ -27,7 +27,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 {
     public function actionIndex(): Response
     {
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(false);
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
         return $this->renderTemplate('commerce/shipping/shippingcategories/index', compact('shippingCategories'));
     }
 
@@ -96,8 +96,9 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
+        $postedProductTypes = $this->request->getBodyParam('productTypes', []) ?: [];
         $productTypes = [];
-        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($postedProductTypes as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }

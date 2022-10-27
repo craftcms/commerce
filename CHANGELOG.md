@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## 4.2.1 - 2022-10-27
+
+- Fixed an error that occurred when viewing tax categories.
+- Fixed a bug where the Top Products widget wasn’t showing the correct revenue total.
+- Added `craft\commerce\models\TaxCategory::dateDeleted`.
+- Added `craft\commerce\models\ShippingCategory::dateDeleted`.
+
 ## 4.2.0 - 2022-10-26
 
 ### Store Management

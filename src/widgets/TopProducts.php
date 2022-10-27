@@ -180,8 +180,20 @@ class TopProducts extends Widget
         $view->registerAssetBundle(StatWidgetsAsset::class);
         $view->registerAssetBundle(AdminTableAsset::class);
 
+        $revenueOptions = [
+            TopProductsStat::REVENUE_OPTION_DISCOUNT,
+            TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+            TopProductsStat::REVENUE_OPTION_TAX,
+            TopProductsStat::REVENUE_OPTION_SHIPPING,
+        ];
+        $revenueColumnHandle = 'revenue';
+        if ($this->type === TopProductsStat::TYPE_REVENUE && count(array_intersect($revenueOptions, $this->revenueOptions)) !== count($revenueOptions)) {
+            $revenueColumnHandle = 'revenue_custom';
+        }
+
         return $view->renderTemplate('commerce/_components/widgets/products/top/body', [
             'stats' => $stats,
+            'revenueColumnHandle' => $revenueColumnHandle,
             'type' => $this->type,
             'typeLabel' => $this->_typeOptions[$this->type] ?? '',
             'id' => 'top-products' . StringHelper::randomString(),

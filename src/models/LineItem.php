@@ -650,7 +650,9 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->taxCategoryId);
     }
 
     /**
@@ -662,7 +664,9 @@ class LineItem extends Model
             throw new InvalidConfigException('Line Item is missing its shipping category ID');
         }
 
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->shippingCategoryId);
     }
 
     /**
