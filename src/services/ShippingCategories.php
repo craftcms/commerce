@@ -38,30 +38,34 @@ class ShippingCategories extends Component
     private ?array $_allShippingCategories = null;
 
     /**
+     * @var ShippingCategory[]|null
+     */
+    private ?array $_allShippingCategoriesWithTrashed = null;
+
+    /**
      * Returns all Shipping Categories
      *
-     * @param bool $archive
+     * @param bool $withTrashed
      * @return array|ShippingCategory[]
      */
-    public function getAllShippingCategories(bool $archive = true): array
+    public function getAllShippingCategories(bool $withTrashed = false): array
     {
         if ($this->_allShippingCategories === null) {
-            $query = $this->_createShippingCategoryQuery();
-
-            if ($archive === false) {
-                $query->where(['[[shippingCategories.dateDeleted]]' => null]);
-            }
-
-            $results = $query->all();
+            $results = $this->_createShippingCategoryQuery(true)->all();
 
             $this->_allShippingCategories = [];
+            $this->_allShippingCategoriesWithTrashed = [];
             foreach ($results as $result) {
                 $shippingCategory = new ShippingCategory($result);
-                $this->_allShippingCategories[] = $shippingCategory;
+
+                if (!$shippingCategory->dateDeleted) {
+                    $this->_allShippingCategories[] = $shippingCategory;
+                }
+                $this->_allShippingCategoriesWithTrashed[] = $shippingCategory;
             }
         }
 
-        return $this->_allShippingCategories;
+        return $withTrashed ? $this->_allShippingCategoriesWithTrashed : $this->_allShippingCategories;
     }
 
     /**
@@ -275,12 +279,16 @@ class ShippingCategories extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping categories.
+     *
+     * @param bool $withTrashed
+     * @return Query
      */
-    private function _createShippingCategoryQuery(): Query
+    private function _createShippingCategoryQuery(bool $withTrashed = false): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'shippingCategories.dateCreated',
+                'shippingCategories.dateDeleted',
                 'shippingCategories.dateUpdated',
                 'shippingCategories.default',
                 'shippingCategories.description',
@@ -289,5 +297,11 @@ class ShippingCategories extends Component
                 'shippingCategories.name',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
+
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
+        }
+
+        return $query;
     }
 }

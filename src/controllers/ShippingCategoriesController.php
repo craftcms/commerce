@@ -27,7 +27,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 {
     public function actionIndex(): Response
     {
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(false);
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
         return $this->renderTemplate('commerce/shipping/shippingcategories/index', compact('shippingCategories'));
     }
 

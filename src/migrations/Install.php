@@ -893,7 +893,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SALE_CATEGORIES, 'categoryId', false);
         $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
-        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', true);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
@@ -908,7 +907,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'nextPaymentDate', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateCreated', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateExpired', false);
-        $this->createIndex(null, Table::TAXCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
