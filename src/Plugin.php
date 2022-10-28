@@ -819,7 +819,7 @@ class Plugin extends BasePlugin
         Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
             if (Craft::$app instanceof ConsoleApplication) {
-                Console::stdout('    > purging incomplete carts ... ');
+                Console::stdout('    > purging inactive carts ... ');
             }
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
             if (Craft::$app instanceof ConsoleApplication) {
