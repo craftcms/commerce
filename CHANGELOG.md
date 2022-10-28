@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed an error that could occur when purging inactive carts.
+
 ## 4.2.1 - 2022-10-27
 
 - Fixed an error that occurred when viewing tax categories.
