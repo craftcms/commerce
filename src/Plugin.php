@@ -55,7 +55,6 @@ use craft\commerce\widgets\TopPurchasables;
 use craft\commerce\widgets\TotalOrders;
 use craft\commerce\widgets\TotalOrdersByCountry;
 use craft\commerce\widgets\TotalRevenue;
-use craft\console\Application;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;

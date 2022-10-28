@@ -295,7 +295,6 @@ class Carts extends Component
             // takes too much resources since it retrieves the order before deleting it.
 
             // Delete the elements table rows, which will cascade across all other InnoDB tables
-            // Batch delete to avoid any errors with too many IDs
             Craft::$app->getDb()->createCommand()
                 ->delete('{{%elements}}', ['id' => $cartIdsQuery])
                 ->execute();
