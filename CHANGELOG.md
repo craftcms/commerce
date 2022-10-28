@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+
+- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+
 ## 4.2.1 - 2022-10-27
 
 - Fixed an error that occurred when viewing tax categories.

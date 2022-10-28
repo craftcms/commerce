@@ -107,15 +107,11 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->setProductTypes($productTypes);
 
         // Save it
-        if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-            return $this->asModelSuccess(
+        if (!Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+            return $this->asModelFailure(
                 $taxCategory,
-                Craft::t('commerce', 'Tax category saved.'),
-                'taxCategory',
-                [
-                    'id' => $taxCategory->id,
-                    'name' => $taxCategory->name,
-                ]
+                Craft::t('commerce', 'Couldn’t save tax category.'),
+                'taxCategory'
             );
         }
 
