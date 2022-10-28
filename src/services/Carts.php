@@ -23,7 +23,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\web\Cookie;
-use function count;
 
 /**
  * Cart service. This manages the cart currently in the session, this service should mainly be used by web controller actions.
