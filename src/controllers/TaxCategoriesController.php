@@ -117,7 +117,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         return $this->asModelSuccess(
             $taxCategory,
-            Craft::t('commerce', 'Couldn’t save tax category.'),
+            Craft::t('commerce', 'Tax category saved.'),
             'taxCategory'
         );
     }
