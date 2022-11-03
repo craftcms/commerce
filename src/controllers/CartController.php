@@ -123,7 +123,7 @@ class CartController extends BaseFrontEndController
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
-                }else{
+                } else {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
                 }
 
@@ -175,7 +175,7 @@ class CartController extends BaseFrontEndController
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
                         $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
-                    }else{
+                    } else {
                         $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
                     }
 
