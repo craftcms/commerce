@@ -1,8 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
 ### Fixed
 
 - Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed an error that could occur when purging inactive carts.
 
 ## 4.2.1 - 2022-10-27
 
