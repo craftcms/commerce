@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where the `clearLineItems` param submitted to the `commerce/cart/update-cart` action did clear the cart when adding an existing purchasable. ([#3014](https://github.com/craftcms/commerce/issues/3014))
 - Fixed an error that could occur when purging inactive carts.
 
 ## 4.2.1 - 2022-10-27
