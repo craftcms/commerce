@@ -23,7 +23,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\web\Cookie;
-use function count;
 
 /**
  * Cart service. This manages the cart currently in the session, this service should mainly be used by web controller actions.
@@ -328,26 +327,25 @@ class Carts extends Component
         $interval = DateTimeHelper::secondsToInterval($configInterval);
         $edge->sub($interval);
 
-        $cartIds = (new Query())
+        $cartIdsQuery = (new Query())
             ->select(['orders.id'])
             ->where(['not', ['isCompleted' => true]])
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
-            ->from(['orders' => Table::ORDERS])
-            ->column();
+            ->from(['orders' => Table::ORDERS]);
 
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%elements}}', ['id' => $cartIds])
+            ->delete('{{%elements}}', ['id' => $cartIdsQuery])
             ->execute();
 
         // The searchindex table is probably MyISAM, though
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
             ->execute();
 
-        return count($cartIds);
+        return $cartIdsQuery->count();
     }
 
     /**

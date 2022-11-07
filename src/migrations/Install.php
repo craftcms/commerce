@@ -861,6 +861,8 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'reference', false);
         $this->createIndex(null, Table::ORDERS, 'billingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'shippingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'estimatedBillingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'estimatedShippingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
