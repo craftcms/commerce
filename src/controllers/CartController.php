@@ -90,6 +90,7 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $isSiteRequest = $this->request->getIsSiteRequest();
+        $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
@@ -98,7 +99,8 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear line items when updating the cart
-        if ($this->request->getParam('clearLineItems') !== null) {
+        $clearLineItems = $this->request->getParam('clearLineItems');
+        if ($clearLineItems) {
             $this->_cart->setLineItems([]);
         }
 
@@ -117,7 +119,13 @@ class CartController extends BaseFrontEndController
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
-                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+
+                // We only want a new line item if they cleared the cart
+                if ($clearLineItems) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
+                } else {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+                }
 
                 // New line items already have a qty of one.
                 if ($lineItem->id) {
@@ -163,7 +171,13 @@ class CartController extends BaseFrontEndController
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
                 if ($purchasable['qty'] > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+
+                    // We only want a new line item if they cleared the cart
+                    if ($clearLineItems) {
+                        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                    } else {
+                        $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                    }
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
@@ -199,10 +213,16 @@ class CartController extends BaseFrontEndController
 
         $this->_setAddresses();
 
-        // Set guest email address onto guest customers order.
-        if ($email = $this->request->getParam('email')) {
-            if ($this->_cart->getEmail() === null) {
-                $this->_cart->setEmail($email);
+        // Setting email only allowed for guest customers
+        if (!$currentUser) {
+            // Set guest email address onto guest customers order.
+            $email = $this->request->getParam('email');
+            if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
+                try {
+                    $this->_cart->setEmail($email);
+                } catch (\Exception $e) {
+                    $this->_cart->addError('email', $e->getMessage());
+                }
             }
         }
 
@@ -263,8 +283,10 @@ class CartController extends BaseFrontEndController
      */
     public function actionLoadCart(): ?Response
     {
+        $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
-        $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
+        $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
+        $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
 
         if (!$number) {
             $error = Craft::t('commerce', 'A cart number must be specified.');
@@ -290,10 +312,11 @@ class CartController extends BaseFrontEndController
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
-        $session = Craft::$app->getSession();
-        $carts = Plugin::getInstance()->getCarts();
+        // If we have a cart, use the site for that cart for the URL redirect.
+        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
+
         $carts->forgetCart();
-        $session->set($carts->getCartName(), $number);
+        $carts->setSessionCartNumber($number);
 
         if ($this->request->getAcceptsJson()) {
             return $this->asSuccess();
@@ -461,7 +484,7 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    private function _getCart(bool $forceSave = false): ?Order
+    private function _getCart(bool $forceSave = false): Order
     {
         $orderNumber = $this->request->getBodyParam('number');
 
@@ -498,45 +521,72 @@ class CartController extends BaseFrontEndController
         $billingAddress = $this->request->getParam('billingAddress');
         $estimatedBillingAddress = $this->request->getParam('estimatedBillingAddress');
 
-
         // Use an address ID from the customer address book to populate the address
         $shippingAddressId = $this->request->getParam('shippingAddressId');
         $billingAddressId = $this->request->getParam('billingAddressId');
 
         // Shipping address
         if ($shippingAddressId && !$shippingIsBilling) {
-            /** @var Address $userShippingAddress */
+            /** @var Address|null $userShippingAddress */
             $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
 
             // If a user's address ID has been submitted duplicate the address to the order
             if ($userShippingAddress) {
                 $this->_cart->sourceShippingAddressId = $shippingAddressId;
 
-                /** @var Address $userShippingAddress */
-                $userShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
-                $this->_cart->setShippingAddress($userShippingAddress);
+                /** @var Address $cartShippingAddress */
+                $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
+                $this->_cart->setShippingAddress($cartShippingAddress);
+
+                if ($billingIsShipping) {
+                    $this->_cart->sourceBillingAddressId = $userShippingAddress->id;
+                    $this->_cart->setBillingAddress($cartShippingAddress);
+                }
             }
         } elseif ($shippingAddress && !$shippingIsBilling) {
             $this->_cart->sourceShippingAddressId = null;
             $this->_cart->setShippingAddress($shippingAddress);
+
+            if (!empty($shippingAddress['fields']) && $this->_cart->getShippingAddress()) {
+                $this->_cart->getShippingAddress()->setFieldValues($shippingAddress['fields']);
+            }
+
+            if ($billingIsShipping) {
+                $this->_cart->sourceBillingAddressId = null;
+                $this->_cart->setBillingAddress($this->_cart->getShippingAddress());
+            }
         }
 
         // Billing address
         if ($billingAddressId && !$billingIsShipping) {
-            /** @var Address $userBillingAddress */
+            /** @var Address|null $userBillingAddress */
             $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
 
             // If a user's address ID has been submitted duplicate the address to the order
             if ($userBillingAddress) {
                 $this->_cart->sourceBillingAddressId = $billingAddressId;
 
-                /** @var Address $userBillingAddress */
-                $userBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
-                $this->_cart->setBillingAddress($userBillingAddress);
+                /** @var Address $cartBillingAddress */
+                $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
+                $this->_cart->setBillingAddress($cartBillingAddress);
+
+                if ($shippingIsBilling) {
+                    $this->_cart->sourceShippingAddressId = $userBillingAddress->id;
+                    $this->_cart->setShippingAddress($cartBillingAddress);
+                }
             }
         } elseif ($billingAddress && !$billingIsShipping) {
             $this->_cart->sourceBillingAddressId = null;
             $this->_cart->setBillingAddress($billingAddress);
+
+            if (!empty($billingAddress['fields']) && $this->_cart->getBillingAddress()) {
+                $this->_cart->getBillingAddress()->setFieldValues($billingAddress['fields']);
+            }
+
+            if ($shippingIsBilling) {
+                $this->_cart->sourceShippingAddressId = null;
+                $this->_cart->setShippingAddress($this->_cart->getBillingAddress());
+            }
         }
 
         // Estimated Shipping Address
@@ -574,18 +624,6 @@ class CartController extends BaseFrontEndController
 
         if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
             $this->_cart->makePrimaryBillingAddress = true;
-        }
-
-        // Shipping
-        if ($shippingAddressId && !$shippingIsBilling && $billingIsShipping) {
-            $this->_cart->sourceBillingAddressId = $this->_cart->sourceShippingAddressId;
-            $this->_cart->billingAddressId = $shippingAddressId;
-        }
-
-        // Billing
-        if ($billingAddressId && !$billingIsShipping && $shippingIsBilling) {
-            $this->_cart->sourceShippingAddressId = $this->_cart->sourceBillingAddressId;
-            $this->_cart->shippingAddressId = $billingAddressId;
         }
     }
 }

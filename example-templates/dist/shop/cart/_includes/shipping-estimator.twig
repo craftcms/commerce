@@ -15,11 +15,11 @@ Outputs a form for collecting shipping estimate address details if an address do
     </h5>
 
     <div class="js-estimate-fields">
-      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">
+      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryCode">
         {{- 'Country'|t -}}
       </label>
       {% tag 'select' with {
-        name: 'estimatedShippingAddress[countryId]',
+        name: 'estimatedShippingAddress[countryCode]',
         'data-modelname': 'estimatedShippingAddress',
         class: ['js-address-country', 'js-estimate-country', 'w-full', 'h-9', 'max-w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
       } %}
@@ -30,7 +30,7 @@ Outputs a form for collecting shipping estimate address details if an address do
           text: 'Select country'|t ~ '...'
         }) }}
         {% for key, option in countries %}
-          {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryId : '') %}
+          {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryCode : '') %}
           {{ tag('option', {
             value: key,
             selected: key == optionValue,
@@ -45,8 +45,8 @@ Outputs a form for collecting shipping estimate address details if an address do
             <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
               {{- 'State'|t -}}
             </label>
-            {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ?
-              states[cart.estimatedShippingAddress.countryId] : []
+            {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryCode] is defined ?
+              states[cart.estimatedShippingAddress.countryCode] : []
               ) %}
             {% tag 'select' with {
               name: 'estimatedShippingAddress[stateValue]',
@@ -70,19 +70,19 @@ Outputs a form for collecting shipping estimate address details if an address do
               {% endfor %}
             {% endtag %}
 
-            {{ input('text', options|length == 0 ? 'estimatedShippingAddress[stateValue]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '', {
-              id: 'estimatedShippingAddress-stateName',
+            {{ input('text', options|length == 0 ? 'estimatedShippingAddress[stateValue]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.administrativeArea : '', {
+              id: 'estimatedShippingAddress-administrativeArea',
               'data-modelname': 'estimatedShippingAddress',
-              class: ['js-address-stateName', 'w-full', options|length > 0 ? 'hidden' : '', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+              class: ['js-address-administrativeArea', 'w-full', options|length > 0 ? 'hidden' : '', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
             }) }}
           </div>
         </div>
         <div class="lg:w-1/2 lg:mx-2 my-2">
-          <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">
+          <label class="mb-0 mt-2 block" for="estimatedShippingAddress-postalCode">
             {{- 'Postal Code'|t -}}
           </label>
-          {{ input('text', 'estimatedShippingAddress[zipCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '', {
-            id: 'estimatedShippingAddress-zipCode',
+          {{ input('text', 'estimatedShippingAddress[postalCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.postalCode : '', {
+            id: 'estimatedShippingAddress-postalCode',
             'data-modelname': 'estimatedShippingAddress',
             class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
           }) }}
@@ -103,11 +103,11 @@ Outputs a form for collecting shipping estimate address details if an address do
         <h5 class="mt-0 font-bold">
           {{- 'Tax Estimate'|t -}}
         </h5>
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">
+        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryCode">
           {{- 'Country'|t -}}
         </label>
         {% tag 'select' with {
-          name: 'estimatedBillingAddress[countryId]',
+          name: 'estimatedBillingAddress[countryCode]',
           'data-modelname': 'estimatedBillingAddress',
           class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'h-9', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
         } %}
@@ -118,7 +118,7 @@ Outputs a form for collecting shipping estimate address details if an address do
             text: 'Select country'|t ~ '...'
           }) }}
           {% for key, option in countries %}
-            {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryId : '') %}
+            {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryCode : '') %}
             {{ tag('option', {
               value: key,
               selected: key == optionValue,
@@ -133,8 +133,8 @@ Outputs a form for collecting shipping estimate address details if an address do
               <label class="mb-0 block" for="estimatedBillingAddress-state">
                 {{- 'State'|t -}}
               </label>
-              {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ?
-                states[cart.estimatedBillingAddress.countryId] : []
+              {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryCode] is defined ?
+                states[cart.estimatedBillingAddress.countryCode] : []
                 ) %}
               {% tag 'select' with {
                 name: 'estimatedBillingAddress[stateValue]',
@@ -157,19 +157,19 @@ Outputs a form for collecting shipping estimate address details if an address do
                   }) }}
                 {% endfor %}
               {% endtag %}
-              {{ input('text', options|length == 0 ? 'estimatedBillingAddress[stateValue]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '', {
-                id: 'estimatedBillingAddress-stateName',
+              {{ input('text', options|length == 0 ? 'estimatedBillingAddress[stateValue]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.administrativeArea : '', {
+                id: 'estimatedBillingAddress-administrativeArea',
                 'data-modelname': 'estimatedBillingAddress',
-                class: ['js-address-stateName', options|length > 0 ? 'hidden', 'w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+                class: ['js-address-administrativeArea', options|length > 0 ? 'hidden', 'w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
               }) }}
             </div>
           </div>
           <div class="lg:w-1/2 lg:mx-2 my-2">
-            <label class="mb-0 block" for="estimatedBillingAddress-zipCode">
+            <label class="mb-0 block" for="estimatedBillingAddress-postalCode">
               {{- 'Postal Code' -}}
             </label>
-            {{ input('text', options|length == 0 ? 'estimatedBillingAddress[zipCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '', {
-              id: 'estimatedBillingAddress-zipCode',
+            {{ input('text', options|length == 0 ? 'estimatedBillingAddress[postalCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.postalCode : '', {
+              id: 'estimatedBillingAddress-postalCode',
               class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
             }) }}
           </div>
@@ -291,7 +291,7 @@ window.states = {{ enabledStates|json_encode|raw }};
       var cid = $this.value;
       var $box = document.querySelector('.js-estimate-state-box[data-modelname="' + $this.dataset.modelname + '"]');
       var $states = $box.querySelector('select.js-address-stateId');
-      var $stateName = $box.querySelector('input.js-address-stateName');
+      var $administrativeArea = $box.querySelector('input.js-address-administrativeArea');
       var $statesOption = $states.querySelectorAll('option:not([value=""]');
 
       if ($statesOption.length) {
@@ -306,10 +306,10 @@ window.states = {{ enabledStates|json_encode|raw }};
         $states.classList.remove('hidden');
         $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
 
-        // We have states for this country, hide the stateName input.
-        $stateName.removeAttribute('name');
-        $stateName.classList.add('hidden');
-        $stateName.value = '';
+        // We have states for this country, hide the administrativeArea input.
+        $administrativeArea.removeAttribute('name');
+        $administrativeArea.classList.add('hidden');
+        $administrativeArea.value = '';
 
         // Add all states as options to drop down.
         for (var id in window.states[countryKey]) {
@@ -324,9 +324,9 @@ window.states = {{ enabledStates|json_encode|raw }};
         $states.classList.add('hidden');
         $states.removeAttribute('name');
 
-        // show the stateName
-        $stateName.classList.remove('hidden');
-        $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
+        // show the administrativeArea
+        $administrativeArea.classList.remove('hidden');
+        $administrativeArea.setAttribute('name', $administrativeArea.dataset.modelname + '[stateValue]');
       }
     });
   });

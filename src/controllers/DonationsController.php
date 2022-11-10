@@ -30,6 +30,9 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
+            $donation->sku = 'DONATION-CC3';
+            $donation->availableForPurchase = true;
+            $donation->enabled = true;
         }
 
         return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
@@ -47,6 +50,7 @@ class DonationsController extends BaseStoreSettingsController
         $this->requirePostRequest();
 
         // Not using a service to save a donation yet. Always editing the only donation.
+        /** @var Donation|null $donation */
         $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {

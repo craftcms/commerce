@@ -17,6 +17,7 @@ use yii\db\Connection;
  * @method Donation[]|array all($db = null)
  * @method Donation|array|null one($db = null)
  * @method Donation|array|null nth(int $n, Connection $db = null)
+ * @method self status(array|string|null $value)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  * @doc-path donations.md

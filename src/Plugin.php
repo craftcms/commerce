@@ -13,20 +13,22 @@ use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\VariantsField;
+use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
-use craft\commerce\fields\Products;
-use craft\commerce\fields\Variants;
+use craft\commerce\fields\Products as ProductsField;
+use craft\commerce\fields\Variants as VariantsField;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -37,14 +39,44 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
+use craft\commerce\services\Carts;
+use craft\commerce\services\Coupons;
+use craft\commerce\services\Currencies;
+use craft\commerce\services\Customers;
+use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
+use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
+use craft\commerce\services\OrderAdjustments;
+use craft\commerce\services\OrderHistories;
+use craft\commerce\services\OrderNotices;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\PaymentCurrencies;
+use craft\commerce\services\Payments;
+use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Pdfs;
+use craft\commerce\services\Plans;
+use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Purchasables;
+use craft\commerce\services\Sales;
+use craft\commerce\services\ShippingCategories;
+use craft\commerce\services\ShippingMethods;
+use craft\commerce\services\ShippingRuleCategories;
+use craft\commerce\services\ShippingRules;
+use craft\commerce\services\ShippingZones;
+use craft\commerce\services\Store;
 use craft\commerce\services\Subscriptions;
+use craft\commerce\services\TaxCategories;
+use craft\commerce\services\Taxes;
+use craft\commerce\services\TaxRates;
+use craft\commerce\services\TaxZones;
+use craft\commerce\services\Transactions;
+use craft\commerce\services\Variants as VariantsService;
+use craft\commerce\services\Webhooks;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\AverageOrderTotal;
@@ -58,6 +90,7 @@ use craft\commerce\widgets\TopPurchasables;
 use craft\commerce\widgets\TotalOrders;
 use craft\commerce\widgets\TotalOrdersByCountry;
 use craft\commerce\widgets\TotalRevenue;
+use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\debug\Module;
@@ -67,6 +100,7 @@ use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
+use craft\events\DeleteSiteEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -78,6 +112,8 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\Console;
+use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -112,6 +148,53 @@ class Plugin extends BasePlugin
     public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
 
+    public static function config(): array
+    {
+        return [
+            'components' => [
+                'carts' => ['class' => Carts::class],
+                'coupons' => ['class' => Coupons::class],
+                'currencies' => ['class' => Currencies::class],
+                'discounts' => ['class' => Discounts::class],
+                'emails' => ['class' => Emails::class],
+                'formulas' => ['class' => Formulas::class],
+                'gateways' => ['class' => Gateways::class],
+                'lineItems' => ['class' => LineItems::class],
+                'lineItemStatuses' => ['class' => LineItemStatuses::class],
+                'orderAdjustments' => ['class' => OrderAdjustments::class],
+                'orderHistories' => ['class' => OrderHistories::class],
+                'orders' => ['class' => OrdersService::class],
+                'orderNotices' => ['class' => OrderNotices::class],
+                'orderStatuses' => ['class' => OrderStatuses::class],
+                'paymentMethods' => ['class' => Gateways::class],
+                'paymentCurrencies' => ['class' => PaymentCurrencies::class],
+                'payments' => ['class' => Payments::class],
+                'paymentSources' => ['class' => PaymentSources::class],
+                'pdfs' => ['class' => Pdfs::class],
+                'plans' => ['class' => Plans::class],
+                'products' => ['class' => Products::class],
+                'productTypes' => ['class' => ProductTypes::class],
+                'purchasables' => ['class' => Purchasables::class],
+                'sales' => ['class' => Sales::class],
+                'shippingMethods' => ['class' => ShippingMethods::class],
+                'shippingRules' => ['class' => ShippingRules::class],
+                'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
+                'shippingCategories' => ['class' => ShippingCategories::class],
+                'shippingZones' => ['class' => ShippingZones::class],
+                'store' => ['class' => Store::class],
+                'subscriptions' => ['class' => Subscriptions::class],
+                'taxCategories' => ['class' => TaxCategories::class],
+                'taxes' => ['class' => Taxes::class],
+                'taxRates' => ['class' => TaxRates::class],
+                'taxZones' => ['class' => TaxZones::class],
+                'transactions' => ['class' => Transactions::class],
+                'customers' => ['class' => Customers::class],
+                'variants' => ['class' => VariantsService::class],
+                'webhooks' => ['class' => Webhooks::class],
+            ],
+        ];
+    }
+
     public static function editions(): array
     {
         return [
@@ -123,7 +206,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.0.1';
+    public string $schemaVersion = '4.2.2';
 
     /**
      * @inheritdoc
@@ -150,9 +233,8 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+        $request = Craft::$app->getRequest();
 
-
-        $this->_setPluginComponents();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
         $this->_registerPermissions();
@@ -169,8 +251,6 @@ class Plugin extends BasePlugin
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
         $this->_registerDebugPanels();
-
-        $request = Craft::$app->getRequest();
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
@@ -348,29 +428,29 @@ class Plugin extends BasePlugin
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => $this->_registerProductTypePermission() + [
-                    'commerce-manageOrders' => [
-                        'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                            'commerce-editOrders' => [
-                                'label' => Craft::t('commerce', 'Edit orders'),
-                            ],
-                            'commerce-deleteOrders' => [
-                                'label' => Craft::t('commerce', 'Delete orders'),
-                            ],
-                            'commerce-capturePayment' => [
-                                'label' => Craft::t('commerce', 'Capture payment'),
-                            ],
-                            'commerce-refundPayment' => [
-                                'label' => Craft::t('commerce', 'Refund payment'),
-                            ],
+                        'commerce-manageOrders' => [
+                            'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                                'commerce-editOrders' => [
+                                    'label' => Craft::t('commerce', 'Edit orders'),
+                                ],
+                                'commerce-deleteOrders' => [
+                                    'label' => Craft::t('commerce', 'Delete orders'),
+                                ],
+                                'commerce-capturePayment' => [
+                                    'label' => Craft::t('commerce', 'Capture payment'),
+                                ],
+                                'commerce-refundPayment' => [
+                                    'label' => Craft::t('commerce', 'Refund payment'),
+                                ],
 
+                            ],
                         ],
+                        'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                        'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition only)')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition only)')],
+                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],
-                    'commerce-managePromotions' => $this->_registerPromotionPermission(),
-                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                    'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
-                    'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
-                    'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ],
             ];
         });
     }
@@ -410,12 +490,12 @@ class Plugin extends BasePlugin
         return [
             'label' => Craft::t('commerce', 'Manage promotions'),
             'nested' => [
-                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit Sales')],
-                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create Sales')],
-                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete Sales')],
-                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit Discounts')],
-                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create Discounts')],
-                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete Discounts')],
+                'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
+                'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
+                'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
+                'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
+                'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
+                'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
             ],
         ];
     }
@@ -436,26 +516,33 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
             ->onUpdate(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleChangedProductType'])
             ->onRemove(ProductTypes::CONFIG_PRODUCTTYPES_KEY . '.{uid}', [$productTypeService, 'handleDeletedProductType']);
-        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$productTypeService, 'pruneDeletedField']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$productTypeService, 'pruneDeletedSite']);
+
+        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, function(DeleteSiteEvent $event) use ($productTypeService) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
+                $productTypeService->pruneDeletedSite($event);
+            }
+        });
 
         $ordersService = $this->getOrders();
         $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
-        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$ordersService, 'pruneDeletedField']);
 
         $subscriptionsService = $this->getSubscriptions();
         $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
             ->onUpdate(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
             ->onRemove(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleDeletedFieldLayout']);
-        Event::on(Fields::class, Fields::EVENT_AFTER_DELETE_FIELD, [$subscriptionsService, 'pruneDeletedField']);
 
         $orderStatusService = $this->getOrderStatuses();
         $projectConfigService->onAdd(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onUpdate(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleChangedOrderStatus'])
             ->onRemove(OrderStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$orderStatusService, 'handleDeletedOrderStatus']);
-        Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, [$orderStatusService, 'pruneDeletedEmail']);
+
+        Event::on(Emails::class, Emails::EVENT_AFTER_DELETE_EMAIL, function(EmailEvent $event) use ($orderStatusService) {
+            if (!Craft::$app->getProjectConfig()->getIsApplyingExternalChanges()) {
+                $orderStatusService->pruneDeletedEmail($event);
+            }
+        });
 
         $lineItemStatusService = $this->getLineItemStatuses();
         $projectConfigService->onAdd(LineItemStatuses::CONFIG_STATUSES_KEY . '.{uid}', [$lineItemStatusService, 'handleChangedLineItemStatus'])
@@ -541,8 +628,8 @@ class Plugin extends BasePlugin
     private function _registerFieldTypes(): void
     {
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, static function(RegisterComponentTypesEvent $event) {
-            $event->types[] = Products::class;
-            $event->types[] = Variants::class;
+            $event->types[] = ProductsField::class;
+            $event->types[] = VariantsField::class;
         });
     }
 
@@ -683,8 +770,8 @@ class Plugin extends BasePlugin
     private function _registerGqlEagerLoadableFields(): void
     {
         Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
-            $event->fieldList['variants'] = [Products::class];
-            $event->fieldList['product'] = [Variants::class];
+            $event->fieldList['variants'] = [ProductsField::class];
+            $event->fieldList['product'] = [VariantsField::class];
         });
     }
 
@@ -729,9 +816,27 @@ class Plugin extends BasePlugin
      */
     private function _registerGarbageCollection(): void
     {
-        Event::on(Gc::class, Gc::EVENT_RUN, static function() {
+        Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging inactive carts ... ');
+            }
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
+
+            // Delete orphaned variants
+            Db::delete(Table::VARIANTS, ['productId' => null]);
+
+            // Delete partial elements
+            /** @var Gc $gc */
+            $gc = $event->sender;
+            $gc->deletePartialElements(Donation::class, Table::DONATIONS, 'id');
+            $gc->deletePartialElements(Order::class, Table::ORDERS, 'id');
+            $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
+            $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
+            $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
         });
     }
 
@@ -794,7 +899,7 @@ class Plugin extends BasePlugin
                     break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
-                    $e->fields[] = VariantsField::class;
+                    $e->fields[] = VariantsLayoutElement::class;
                     break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;

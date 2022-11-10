@@ -16,7 +16,6 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\App;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -82,7 +81,6 @@ class PaymentsController extends BaseFrontEndController
         $number = $this->request->getParam('number');
 
         if ($number !== null) {
-            /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
             if (!$order) {
@@ -107,8 +105,8 @@ class PaymentsController extends BaseFrontEndController
 
         /**
          * Payments on completed orders can only be made if the order number and email
-         * address are passed to the payments controller. If this is via the CP it
-         * requires the user have the correct permission.
+         * address are passed to the payments controller. If this is via the control panel,
+         * it requires the user have the correct permission.
          */
         $isSiteRequestAndAllowed = $isSiteRequest && $order->getEmail() == $this->request->getParam('email');
         $isCpAndAllowed = $isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders');
@@ -198,7 +196,7 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!App::parseBooleanEnv($gateway->isFrontendEnabled) && !$isCpRequest)) {
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->getIsFrontendEnabled() && !$isCpRequest)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($order->gatewayId) {
@@ -381,7 +379,7 @@ class PaymentsController extends BaseFrontEndController
             if ($isCpAndAllowed) {
                 $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
             } elseif ($this->request->getBodyParam('paymentAmount')) {
-                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+                $paymentAmount = (float)$this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);
             }
         }

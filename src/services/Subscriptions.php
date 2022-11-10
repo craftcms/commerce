@@ -26,9 +26,8 @@ use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\events\ConfigEvent;
-use craft\events\FieldEvent;
 use craft\events\ModelEvent;
-use craft\helpers\Db;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use DateTime;
@@ -380,27 +379,10 @@ class Subscriptions extends Component
     }
 
     /**
-     * Prune a deleted field from subscription field layouts.
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
-    public function pruneDeletedField(FieldEvent $event): void
+    public function pruneDeletedField(): void
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
-
-        // Prune the UID from field layouts.
-        if (is_array($layoutData)) {
-            foreach ($layoutData as $layoutUid => $layout) {
-                if (!empty($layout['tabs'])) {
-                    foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -443,7 +425,7 @@ class Subscriptions extends Component
         $subscription->dateExpired = $dateTime;
 
         if (!$subscription->dateExpired) {
-            $subscription->dateExpired = Db::prepareDateForDb(new DateTime());
+            $subscription->dateExpired = DateTimeHelper::toDateTime('now');
         }
 
         Craft::$app->getElements()->saveElement($subscription, false);
@@ -546,7 +528,7 @@ class Subscriptions extends Component
         $subscription->isSuspended = $failedToStart;
 
         if ($failedToStart) {
-            $subscription->dateSuspended = Db::prepareDateForDb(new DateTime());
+            $subscription->dateSuspended = DateTimeHelper::toDateTime('now');
         }
 
         $subscription->setFieldValues($fieldValues);
@@ -718,14 +700,14 @@ class Subscriptions extends Component
         if ($response->isCanceled() || $response->isScheduledForCancellation()) {
             if ($response->isScheduledForCancellation()) {
                 $subscription->isCanceled = true;
-                $subscription->dateCanceled = Db::prepareDateForDb(new DateTime());
+                $subscription->dateCanceled = DateTimeHelper::toDateTime('now');
             }
 
             if ($response->isCanceled()) {
                 $subscription->isExpired = true;
                 $subscription->isCanceled = true;
-                $subscription->dateCanceled = Db::prepareDateForDb(new DateTime());
-                $subscription->dateExpired = Db::prepareDateForDb(new DateTime());
+                $subscription->dateCanceled = DateTimeHelper::toDateTime('now');
+                $subscription->dateExpired = DateTimeHelper::toDateTime('now');
             }
 
             $subscription->setSubscriptionData($response->getData());

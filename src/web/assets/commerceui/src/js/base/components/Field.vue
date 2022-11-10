@@ -1,7 +1,12 @@
 <template>
     <div :id="'field-' + id" class="order-field field">
         <div class="heading" v-if="label || instructions">
-            <label v-if="label" :for="id" :class="{required: required, error: errors && errors.length}">{{label}}</label>
+            <label
+                v-if="label"
+                :for="id"
+                :class="{required: required, error: errors && errors.length}"
+                >{{ label }}</label
+            >
 
             <div v-if="instructions" class="instructions">
                 <p>{{ instructions }}</p>
@@ -15,7 +20,7 @@
         <template v-if="errors && errors.length > 0">
             <ul class="errors">
                 <li v-for="(error, key) in errors" :key="id + 'error' + key">
-                    {{error}}
+                    {{ error }}
                 </li>
             </ul>
         </template>
@@ -51,5 +56,5 @@
                 default: false,
             },
         },
-    }
+    };
 </script>

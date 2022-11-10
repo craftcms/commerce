@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
@@ -21,6 +22,7 @@ use yii\base\InvalidConfigException;
  *
  * @property GatewayInterface $gateway the gateway associated with this payment source
  * @property User $user the user element associated with this payment source
+ * @property-read bool $isPrimary
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -92,6 +94,17 @@ class PaymentSource extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.2
+     */
+    public function getIsPrimary(): bool
+    {
+        /** @var User|CustomerBehavior|null $customer */
+        $customer = $this->getCustomer();
+        return $customer && $customer->primaryPaymentSourceId === $this->id;
+    }
+
+    /**
      * @deprecated in 4.0.0. Use [[getCustomer()]] instead.
      */
     public function getUser(): ?User
@@ -108,7 +121,7 @@ class PaymentSource extends Model
      */
     public function getGateway(): ?GatewayInterface
     {
-        if (isset($this->_gateway)) {
+        if ($this->_gateway === null && $this->gatewayId) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 

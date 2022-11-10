@@ -2,9 +2,12 @@
 {#
 Outputs address form fields for editing an address.
 #}
+{% set addressFieldLayout = craft.app.getAddresses().getLayout() %}
+{% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'craft\\fields\\PlainText') %}
 {# @var address \craft\elements\Address #}
 {% set addressName = addressName is defined ? addressName : '' %}
 {% set showLabelField = showLabelField is defined ? showLabelField : false %}
+
 {# Define a simple a Twig macro for outputting validation errors and making template less redundant #}
 {% macro displayErrors(address, fieldName) %}
   {% if address and address.getErrors(fieldName) %}
@@ -24,18 +27,6 @@ Outputs address form fields for editing an address.
     }) }}
     {{ _self.displayErrors(address, 'title') }}
   </div>
-
-  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-      <label for="fullName">
-        {{- 'Full Name'|t -}}
-      </label>
-      {{ input('text', 'fullName', address.fullName ?? '', {
-        id: 'fullName',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {{ _self.displayErrors(address, 'fullName') }}
-  </div>
-
   {% set countries = craft.commerce.store.store.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
 
@@ -64,6 +55,17 @@ Outputs address form fields for editing an address.
       {% endfor %}
     {% endtag %}
     {{ _self.displayErrors(address, 'countryCode') }}
+  </div>
+
+  <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <label for="fullName">
+      {{- 'Full Name'|t -}}
+    </label>
+    {{ input('text', 'fullName', address.fullName ?? '', {
+      id: 'fullName',
+      class: ['w-full', '[[classes.input]]']
+    }) }}
+    {{ _self.displayErrors(address, 'fullName') }}
   </div>
 
   <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
@@ -98,6 +100,7 @@ Outputs address form fields for editing an address.
         id: 'locality',
         class: ['w-full', '[[classes.input]]']
       }) }}
+      {{ _self.displayErrors(address, 'locality') }}
     </div>
     <div class="md:w-1/3 md:mx-4 my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
       <label for="state">
@@ -143,7 +146,7 @@ Outputs address form fields for editing an address.
   </div>
 
   <div class="my-2 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <label for="businessName">
+    <label for="organization">
       {{- 'Organization'|t -}}
     </label>
     {{ input('text', 'organization', address ? address.organization : '', {
@@ -153,18 +156,43 @@ Outputs address form fields for editing an address.
     {{ _self.displayErrors(address, 'organization') }}
   </div>
 
-  <div class="md:flex md:-mx-4 {{ 'js-address-field'|namespaceInputId(addressName) }}">
-    <div class="md:w-1/2 md:mx-4 my-2">
-      <label for="organizationTaxId">
-        {{- 'Organization Tax ID'|t -}}
-      </label>
-      {{ input('text', 'organizationTaxId', address ? address.organizationTaxId : '', {
-        id: 'organizationTaxId',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {{ _self.displayErrors(address, 'organizationTaxId') }}
+  <div class="{{ 'js-address-field'|namespaceInputId(addressName) }}">
+    <div class="md:flex md:-mx-4">
+      <div class="md:w-1/2 md:mx-4 my-2">
+        <label for="organizationTaxId">
+          {{- 'Organization Tax ID'|t -}}
+        </label>
+        {{ input('text', 'organizationTaxId', address ? address.organizationTaxId : '', {
+          id: 'organizationTaxId',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
+        {{ _self.displayErrors(address, 'organizationTaxId') }}
+      </div>
     </div>
   </div>
+
+  {% if addressCustomFields|length %}
+    <hr class="my-2">
+    <div class="{{ 'js-address-custom-fields'|namespaceInputId(addressName) }} {{ 'js-address-field'|namespaceInputId(addressName) }}">
+      <div class="my-2">
+        <h2 class="text-l">{{ 'Custom Fields'|t }}</h2>
+        <p><small>{{ 'Note: The example templates only show plain text custom fields.'|t }}</small></p>
+      </div>
+
+      {% for customField in addressCustomFields %}
+        <div class="my-2">
+          <label for="custom-field-{{ customField.handle }}">
+            {{ customField.name }}
+          </label>
+          {{ input('text', 'fields[' ~ customField.handle ~ ']', address ? address[customField.handle] : '', {
+            id: 'custom-field-' ~ customField.handle,
+            class: ['w-full', '[[classes.input]]']
+          }) }}
+          {{ _self.displayErrors(address, customField.handle) }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
 
 {% js %}
@@ -172,19 +200,28 @@ document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}
   const countryCode = ev.target.value;
   const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(addressName) }}');
   const stateText = document.querySelector('#{{ 'administrativeArea'|namespaceInputId(addressName) }}[type=text]');
+  const $customFieldsContainer = document.querySelector('.{{ 'js-address-custom-fields'|namespaceInputId(addressName) }}');
   stateSelect.innerHTML = '';
 
   hideAddressFields('{{ 'placeHolder'|namespaceInputId(addressName) }}');
 
   if (countryCode && usedAddressFieldsByCountryCode[countryCode]) {
     usedAddressFieldsByCountryCode[countryCode].forEach(usedField => {
-        showAddressField(usedField, '{{ 'placeHolder'|namespaceInputId(addressName) }}');
+      showAddressField(usedField, '{{ 'placeHolder'|namespaceInputId(addressName) }}');
     });
+  }
+
+  if ($customFieldsContainer) {
+    if (countryCode) {
+      $customFieldsContainer.classList.remove('hidden');
+    } else {
+      $customFieldsContainer.classList.add('hidden');
+    }
   }
 
   if (states[countryCode] && Object.keys(states[countryCode]).length) {
     stateSelect.classList.remove('hidden');
-    stateSelect.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+    stateSelect.setAttribute('name', '{{ addressName ? 'administrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
     stateText.classList.add('hidden');
     stateText.removeAttribute('name');
     stateSelect.innerHTML = '<option value="">Select state...</option>';
@@ -196,7 +233,7 @@ document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}
     stateSelect.classList.add('hidden');
     stateSelect.removeAttribute('name');
     stateText.classList.remove('hidden');
-    stateText.setAttribute('name', '{{ addressName ? 'adminstrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
+    stateText.setAttribute('name', '{{ addressName ? 'administrativeArea'|namespaceInputName(addressName) : 'administrativeArea' }}');
   }
 });
 

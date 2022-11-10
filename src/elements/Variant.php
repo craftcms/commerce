@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\variants\VariantCondition;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
@@ -26,7 +27,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\ElementQueryInterface;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\models\FieldLayout;
@@ -44,6 +46,8 @@ use yii\validators\Validator;
  * @property Product $product the product associated with this variant
  * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
+ * @property DateTime|null $dateUpdated
+ * @property DateTime|null $dateCreated
  * @property-read string[] $cacheTags
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
@@ -197,24 +201,24 @@ class Variant extends Purchasable
     public ?int $sortOrder = null;
 
     /**
-     * @var int|null $width
+     * @var float|null $width
      */
-    public ?int $width = null;
+    public ?float $width = null;
 
     /**
-     * @var int|null $height
+     * @var float|null $height
      */
-    public ?int $height = null;
+    public ?float $height = null;
 
     /**
-     * @var int|null $length
+     * @var float|null $length
      */
-    public ?int $length = null;
+    public ?float $length = null;
 
     /**
-     * @var int|null $weight
+     * @var float|null $weight
      */
-    public ?int $weight = null;
+    public ?float $weight = null;
 
     /**
      * @var int|null $stock
@@ -336,6 +340,15 @@ class Variant extends Purchasable
     public static function refHandle(): ?string
     {
         return 'variant';
+    }
+
+    /**
+     * @inheritdoc
+     * @return VariantCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(VariantCondition::class, [static::class]);
     }
 
     /**
@@ -517,7 +530,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCacheTags(): array
+    protected function cacheTags(): array
     {
         return [
             "product:$this->productId",
@@ -780,7 +793,7 @@ class Variant extends Purchasable
      * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): VariantQuery
     {
         return new VariantQuery(static::class);
     }
@@ -879,7 +892,13 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        if (!$product || !$productType = $product->getType()) {
+        if (!$product) {
+            return 'Variant';
+        }
+
+        try {
+            $productType = $product->getType();
+        } catch (Exception) {
             return 'Variant';
         }
 
@@ -1025,7 +1044,7 @@ class Variant extends Purchasable
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
-            if ($product) {
+            if ($product instanceof Product) {
                 $this->setProduct($product);
             }
         } else {
@@ -1179,7 +1198,7 @@ class Variant extends Purchasable
         // Once restored, we no longer track if it was deleted with variant or not
         $this->deletedWithProduct = false;
         Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-            ['deletedWithProduct' => null],
+            ['deletedWithProduct' => false],
             ['id' => $this->getId()]
         )->execute();
 

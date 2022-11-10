@@ -48,11 +48,13 @@ class TotalRevenueTest extends Unit
      * @param DateTime $endDate
      * @param int $count
      * @param $revenue
+     * @param string $type
      * @throws \yii\base\Exception
      */
-    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count, $revenue): void
+    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count, $revenue, string $type): void
     {
         $stat = new TotalRevenue($dateRange, $startDate, $endDate);
+        $stat->type = $type;
         $data = $stat->get();
 
         self::assertIsArray($data);
@@ -77,7 +79,16 @@ class TotalRevenueTest extends Unit
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
-                83.96,
+                127.94,
+                TotalRevenue::TYPE_TOTAL,
+            ],
+            [
+                TotalRevenue::DATE_RANGE_TODAY,
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                2,
+                0,
+                TotalRevenue::TYPE_TOTAL_PAID,
             ],
         ];
     }

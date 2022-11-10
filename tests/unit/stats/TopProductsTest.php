@@ -96,8 +96,8 @@ class TopProductsTest extends Unit
                     return [
                         'id' => $product->id,
                         'title' => 'Hypercolor T-Shirt',
-                        'qty' => 4,
-                        'revenue' => 83.96,
+                        'qty' => 6,
+                        'revenue' => 127.94,
                     ];
                 },
             ],

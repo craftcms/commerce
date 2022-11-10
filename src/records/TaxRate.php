@@ -37,6 +37,11 @@ class TaxRate extends ActiveRecord
     /**
      * @var string Tax subject is line item price.
      */
+    public const TAXABLE_PURCHASABLE = 'purchasable';
+
+    /**
+     * @var string Tax subject is line item price.
+     */
     public const TAXABLE_PRICE = 'price';
 
     /**

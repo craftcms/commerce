@@ -38,7 +38,7 @@ trait OrderElementTrait
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
      */
-    public static function find(): ElementQueryInterface
+    public static function find(): OrderQuery
     {
         return new OrderQuery(static::class);
     }
@@ -69,7 +69,7 @@ trait OrderElementTrait
         switch ($attribute) {
             case 'orderStatus':
             {
-                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
+                return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() : '';
             }
             case 'customer':
             {
@@ -131,6 +131,10 @@ trait OrderElementTrait
             {
                 return $this->storedItemSubtotalAsCurrency;
             }
+            case 'totalQty':
+            {
+                return (string)$this->storedTotalQty;
+            }
             case 'total':
             {
                 return $this->totalAsCurrency;
@@ -159,6 +163,11 @@ trait OrderElementTrait
             {
                 $miniTable = [];
 
+                $miniTable[] = [
+                    'label' => Craft::t('commerce', 'Qty'),
+                    'value' => $this->storedTotalQty,
+                ];
+
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Items'),
@@ -166,7 +175,7 @@ trait OrderElementTrait
                     ];
                 }
 
-                if ($this->storedTotalDiscount > 0) {
+                if ($this->storedTotalDiscount < 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Discounts'),
                         'value' => $this->storedTotalDiscountAsCurrency,
@@ -447,6 +456,7 @@ trait OrderElementTrait
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
             'totals' => ['label' => Craft::t('commerce', 'All Totals')],
+            'totalQty' => ['label' => Craft::t('commerce', 'Total Qty')],
             'total' => ['label' => Craft::t('commerce', 'Total')],
             'totalPrice' => ['label' => Craft::t('commerce', 'Total Price')],
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],

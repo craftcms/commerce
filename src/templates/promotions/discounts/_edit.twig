@@ -360,7 +360,7 @@
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
-            value: discount.purchaseTotal ? discount.purchaseTotal : 0,
+            value: discount.purchaseTotal ? discount.purchaseTotal|number : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('purchaseTotal'),
@@ -412,7 +412,7 @@
         {% endset %}
         {{ forms.field({
             label: "Per User Discount Limit"|t('commerce'),
-            instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+            instructions: "How many times one user is allowed to use this discount. If this is set to something besides zero, the discount will only be available to signed in users."|t('commerce'),
             errors: discount.getErrors('perUserLimit')
         }, userCounterMarkup) }}
 
@@ -472,7 +472,7 @@
         {% endset %}
         {{ forms.field({
             label: 'Total Discount Use Limit'|t('commerce'),
-            instructions: "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            instructions: "How many times this discount can be used in total by guests or signed in users. Set zero for unlimited use."|t('commerce'),
             errors: discount.getErrors('totalDiscountUseLimit'),
         }, totalDiscountLimitMarkup) }}
 
@@ -504,7 +504,7 @@
             instructions: "The flat value which should discount each item. i.e “3” for $3 off each item."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
-            value: discount.perItemDiscount ? discount.perItemDiscount : 0,
+            value: discount.perItemDiscount ? discount.perItemDiscount|number : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('perItemDiscount'),
@@ -572,7 +572,7 @@
                             type: 'text',
                             step: 'any',
                             size: 10,
-                            value: discount.baseDiscount ? discount.baseDiscount : 0,
+                            value: discount.baseDiscount ? discount.baseDiscount|number : 0,
                         }) }}
                     </td>
                     <td style="padding-left: 14px;">
@@ -668,7 +668,7 @@ $(function() {
         }
     });
 
-    $('.clear-btn').click(function(event) {
+    $('.clear-btn.discount-clear-use').click(function(event) {
         var $this = $(this);
         var $spinner = $($this.data('spinner'));
         var $field = $($this.data('field'));

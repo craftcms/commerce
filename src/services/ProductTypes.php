@@ -24,7 +24,6 @@ use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
-use craft\events\FieldEvent;
 use craft\events\SiteEvent;
 use craft\helpers\App;
 use craft\helpers\ArrayHelper;
@@ -127,7 +126,7 @@ class ProductTypes extends Component
      * @var int[]|null
      */
     private ?array $_editableProductTypeIds = null;
-    
+
     /**
      * @var int[]|null
      */
@@ -139,7 +138,7 @@ class ProductTypes extends Component
     private array $_siteSettingsByProductId = [];
 
     /**
-     * @var array interim storage for product types being saved via CP
+     * @var array interim storage for product types being saved via control panel
      */
     private array $_savingProductTypes = [];
 
@@ -551,10 +550,11 @@ class ProductTypes extends Component
 
             $sitesNowWithoutUrls = [];
             $sitesWithNewUriFormats = [];
+            /** @var array<int, ProductTypeSiteRecord> $allOldSiteSettingsRecords */
             $allOldSiteSettingsRecords = [];
 
             if (!$isNewProductType) {
-                // Get the old product type site settings
+                /** @var array<int, ProductTypeSiteRecord> $allOldSiteSettingsRecords */
                 $allOldSiteSettingsRecords = ProductTypeSiteRecord::find()
                     ->where(['productTypeId' => $productTypeRecord->id])
                     ->indexBy('siteId')
@@ -563,7 +563,7 @@ class ProductTypes extends Component
 
             $siteIdMap = Db::idsByUids('{{%sites}}', array_keys($siteData));
 
-            /** @var ProductTypeSiteRecord $siteSettings */
+            /** @var array $siteSettings */
             foreach ($siteData as $siteUid => $siteSettings) {
                 $siteId = $siteIdMap[$siteUid];
 
@@ -820,40 +820,10 @@ class ProductTypes extends Component
     }
 
     /**
-     * Prune a deleted field from category group layouts.
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
-    public function pruneDeletedField(FieldEvent $event): void
+    public function pruneDeletedField(): void
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $productTypes = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
-
-        // Loop through the product types and prune the UID from field layouts.
-        if (is_array($productTypes)) {
-            foreach ($productTypes as $productTypeUid => $productType) {
-                if (!empty($productType['productFieldLayouts'])) {
-                    foreach ($productType['productFieldLayouts'] as $layoutUid => $layout) {
-                        if (!empty($layout['tabs'])) {
-                            foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.productFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                            }
-                        }
-                    }
-                }
-                if (!empty($productType['variantFieldLayouts'])) {
-                    foreach ($productType['variantFieldLayouts'] as $layoutUid => $layout) {
-                        if (!empty($layout['tabs'])) {
-                            foreach ($layout['tabs'] as $tabUid => $tab) {
-                                $projectConfig->remove(self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.variantFieldLayouts.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -908,7 +878,7 @@ class ProductTypes extends Component
     {
         $productTypeSiteSettings = $productType->getSiteSettings();
 
-        if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls) {
+        if (isset($productTypeSiteSettings[$siteId]) && $productTypeSiteSettings[$siteId]->hasUrls && $productTypeSiteSettings[$siteId]->template) {
             // Set Craft to the site template mode
             $view = Craft::$app->getView();
             $oldTemplateMode = $view->getTemplateMode();
@@ -1022,26 +992,26 @@ class ProductTypes extends Component
      *
      * @param User $user
      * @param ProductType $productType
-     * @param null $checkPermissionName detailed product type permission.
+     * @param string|null $checkPermissionName detailed product type permission.
      * @return bool
      */
-    public function hasPermission(User $user, ProductType $productType, $checkPermissionName = null): bool
+    public function hasPermission(User $user, ProductType $productType, ?string $checkPermissionName = null): bool
     {
         if ($user->admin == true) {
             return true;
         }
-      
+
         $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
-      
+
         $suffix = ':' . $productType->uid;
-       
+
         // Required for create and delete permission.
         $editProductType = strtolower('commerce-editProductType' . $suffix);
-        
+
         if ($checkPermissionName !== null) {
             $checkPermissionName = strtolower($checkPermissionName . $suffix);
         }
-        
+
         if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
             return false;
         }

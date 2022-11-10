@@ -72,7 +72,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormModel(): BasePaymentForm
+    public function getPaymentFormModel(): DummyPaymentForm
     {
         return new DummyPaymentForm();
     }
@@ -116,11 +116,12 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $customerId): PaymentSource
     {
         /** @var CreditCardPaymentForm $sourceData */
 
         $paymentSource = new PaymentSource();
+        $paymentSource->customerId = $customerId;
         $paymentSource->gatewayId = $this->id;
         $paymentSource->token = StringHelper::randomString();
         $paymentSource->response = '';

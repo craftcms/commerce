@@ -72,7 +72,7 @@ class Formulas extends Component
     public function validateFormulaSyntax(string $formula, array $params): bool
     {
         try {
-            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, null, Craft::t('commerce', 'Validating formula syntax'));
         } catch (Exception) {
             return false;
         }
@@ -83,7 +83,7 @@ class Formulas extends Component
     /**
      * @param array $params data passed into the condition
      * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
-     * @return mixed
+     * @return bool
      * @throws SyntaxError
      * @throws LoaderError
      */
@@ -93,10 +93,14 @@ class Formulas extends Component
             throw new SyntaxError('Tags are not allowed in a condition formula.');
         }
 
-        $cacheKey = 'formula:' . md5($formula) . '|params:' . md5(Json::encode($params));
+        $cacheKey = [
+            'formula' => md5($formula),
+            'params' => md5(Json::encode($params)),
+        ];
 
-        if (Craft::$app->getCache()->exists($cacheKey)) {
-            return (bool)Craft::$app->getCache()->get($cacheKey);
+        $cachedResult = Craft::$app->getCache()->get($cacheKey);
+        if ($cachedResult !== false) {
+            return $cachedResult === 'TRUE';
         }
 
         $twigCode = '{% if ';
@@ -105,10 +109,10 @@ class Formulas extends Component
 
         $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        $result = ($output == 'TRUE');
-        Craft::$app->getCache()->set($cacheKey, $result);
 
-        return $result;
+        Craft::$app->getCache()->set($cacheKey, $output);
+
+        return $output === 'TRUE';
     }
 
     /**
@@ -120,7 +124,7 @@ class Formulas extends Component
      * @throws SyntaxError
      * @throws LoaderError
      */
-    public function evaluateFormula(string $formula, array $params, ?string $setType = null, ?string $name = 'Inline formula'): bool
+    public function evaluateFormula(string $formula, array $params, ?string $setType = null, ?string $name = 'Inline formula'): mixed
     {
         $formula = trim($formula);
 

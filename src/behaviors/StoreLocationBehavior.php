@@ -53,7 +53,8 @@ class StoreLocationBehavior extends Behavior
     public function saveStoreLocation(ModelEvent $event): void
     {
         $address = $event->sender;
-        $store = Store::find()->one(); // we only have one store right now and we assume it is the first one
+        /** @var Store $store */
+        $store = Store::find()->one(); // we only have one store right now, and we assume it is the first one
         $store->locationAddressId = $address->id;
         $store->save();
     }

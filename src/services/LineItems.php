@@ -62,7 +62,7 @@ class LineItems extends Component
     public const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
-     * @event LineItemEvent The event that is triggeredd after a line item is saved.
+     * @event LineItemEvent The event that is triggered after a line item is saved.
      *
      * ```php
      * use craft\commerce\events\LineItemEvent;
@@ -335,7 +335,7 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        /** @var PurchasableInterface $purchasable */
+        /** @var PurchasableInterface|null $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
 
         if ($purchasable instanceof PurchasableInterface) {

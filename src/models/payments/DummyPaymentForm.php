@@ -19,7 +19,7 @@ class DummyPaymentForm extends CreditCardPaymentForm
 {
     public function populateFromPaymentSource(PaymentSource $paymentSource): void
     {
-        $this->token = $paymentSource->id;
+        $this->token = (string)$paymentSource->id;
     }
 
     /**

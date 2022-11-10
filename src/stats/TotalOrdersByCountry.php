@@ -112,7 +112,7 @@ class TotalOrdersByCountry extends Stat
                 if (!$row['countryCode']) {
                     continue;
                 }
-                $row['name'] = Craft::$app->getAddresses()->getCountryRepository()->get($row['countryCode'])?->getName();
+                $row['name'] = Craft::$app->getAddresses()->getCountryRepository()->get($row['countryCode'])->getName();
             }
         }
 

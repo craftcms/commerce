@@ -22,4 +22,12 @@ return [
         'fieldLayoutType' => 'craft\elements\User',
         'field:myTestText' => 'Some test text.',
     ],
+    'customer3' => [
+        'active' => true,
+        'firstName' => 'Customer',
+        'lastName' => 'Three',
+        'username' => 'customer3',
+        'email' => 'customer3@crafttest.com',
+        'fieldLayoutType' => 'craft\elements\User',
+    ],
 ];

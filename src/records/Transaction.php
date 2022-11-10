@@ -17,15 +17,20 @@ use yii\db\ActiveQueryInterface;
  *
  * @property float $amount
  * @property string $code
+ * @property string $currency
  * @property Gateway $gateway
  * @property int $gatewayId
  * @property string $hash
  * @property int $id
  * @property string $message
+ * @property string $note
  * @property Order $order
  * @property int $orderId
  * @property Transaction $parent
  * @property int $parentId
+ * @property float $paymentAmount
+ * @property float $paymentCurrency
+ * @property float $paymentRate
  * @property string $reference
  * @property string $response
  * @property string $status

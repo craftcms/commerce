@@ -21,13 +21,14 @@ $hctWhiteLineItem = !array_key_exists('hct-white', $variants) ? [] : [
 $hctBlueLineItem = !array_key_exists('hct-blue', $variants) ? [] : [
     'purchasableId' => $variants['hct-blue']->id,
     'options' => ['giftWrapped' => 'yes'],
-    'qty' => 2,
+    'qty' => 4,
     'note' => '',
     'taxCategoryId' => 1,
 ];
 $orderStatuses = OrderStatus::find()->select(['id', 'handle'])->indexBy('handle')->column();
 
 $yesterday = new DateTime();
+$yesterday->setTimezone(new DateTimeZone('America/Los_Angeles'));
 $yesterday->sub(new DateInterval('P1D'));
 $yesterday->setTime(23, 59, 59);
 
@@ -74,8 +75,8 @@ return [
     'completed-new' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         'orderStatusId' => $orderStatuses['new'] ?? null,
+        'shippingMethodHandle' => 'usShipping',
         '_lineItems' => array_filter([$hctWhiteLineItem, $hctBlueLineItem]),
         '_markAsComplete' => true,
         '_billingAddress' => $addresses['apple'],
@@ -84,7 +85,6 @@ return [
     'completed-new-past' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         '_billingAddress' => $addresses['bttf'],
         '_shippingAddress' => $addresses['bttf'],
         'orderStatusId' => $orderStatuses['new'] ?? null,
@@ -95,7 +95,6 @@ return [
     'completed-shipped' => [
         '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
-        'email' => 'support@craftcms.com',
         '_billingAddress' => $addresses['bttf'],
         '_shippingAddress' => $addresses['bob'],
         'orderStatusId' => $orderStatuses['shipped'] ?? null,

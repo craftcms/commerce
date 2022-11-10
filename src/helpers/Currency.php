@@ -52,7 +52,7 @@ class Currency
      * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
      *
      * @param      $amount
-     * @param null $currency
+     * @param mixed $currency
      * @param bool $convert
      * @param bool $format
      * @param bool $stripZeros
@@ -60,7 +60,7 @@ class Currency
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public static function formatAsCurrency($amount, $currency = null, bool $convert = false, bool $format = true, bool $stripZeros = false): string
+    public static function formatAsCurrency($amount, mixed $currency = null, bool $convert = false, bool $format = true, bool $stripZeros = false): string
     {
         // return input if no currency passed, and both convert and format are false.
         if (!$convert && !$format) {

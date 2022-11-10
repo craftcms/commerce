@@ -18,13 +18,7 @@ class m211118_101920_split_coupon_codes extends Migration
      */
     public function safeUp(): bool
     {
-        $schema = $this->db->getSchema();
-        $schema->refresh();
-
-        $rawTableName = $schema->getRawTableName('{{%commerce_coupons}}');
-        $table = $schema->getTableSchema($rawTableName);
-
-        if (!$table) {
+        if (!$this->getDb()->tableExists('{{%commerce_coupons}}')) {
             $this->createTable('{{%commerce_coupons}}', [
                 'id' => $this->primaryKey(),
                 'code' => $this->string(),
@@ -49,7 +43,7 @@ class m211118_101920_split_coupon_codes extends Migration
         if (!(new Query())->from('{{%commerce_coupons}}')->exists()) {
             // These could be one query, leaving as separate for now for readability
             $discountsWithCodes = (new Query())
-                ->select(['id', 'code', 'totalDiscountUses', 'dateCreated', 'dateUpdated'])
+                ->select(['id', 'code', 'totalDiscountUseLimit', 'dateCreated', 'dateUpdated'])
                 ->from('{{%commerce_discounts}}')
                 ->where(['not', ['code' => null]])
                 ->all();
@@ -67,7 +61,7 @@ class m211118_101920_split_coupon_codes extends Migration
                     $row['code'] = $discount['code'];
                     $row['discountId'] = $discount['id'];
                     $row['uses'] = $codeUsage[$discount['code']] ?? 0;
-                    $row['maxUses'] = $discount['totalDiscountUses'] ?? 0;
+                    $row['maxUses'] = $discount['totalDiscountUseLimit'] ?? 0;
                     $row['dateCreated'] = $discount['dateCreated'];
                     $row['dateUpdated'] = $discount['dateUpdated'];
                     $row['uid'] = StringHelper::UUID();

@@ -20,7 +20,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
-use yii\db\Schema;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
@@ -28,6 +27,8 @@ use yii\db\Schema;
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
+ * @method self siteId($value)
+ * @method self status(array|string|null $value)
  * @property-write Product $product
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -588,7 +589,7 @@ class VariantQuery extends ElementQuery
         }
 
         if (isset($this->isDefault) && $this->isDefault !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_variants.isDefault', $this->isDefault, false));
         }
 
         if (isset($this->minQty)) {

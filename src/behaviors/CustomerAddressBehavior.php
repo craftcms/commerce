@@ -52,15 +52,21 @@ class CustomerAddressBehavior extends Behavior
             return;
         }
 
-        /** @var User $user */
+        /** @var User|null $user */
         $user = $this->owner->getOwner();
+
+        if (!$user instanceof User) {
+            return;
+        }
+
         $customersService = Plugin::getInstance()->getCustomers();
 
-        if (isset($this->_isPrimaryBilling)) {
+        $customer = $customersService->ensureCustomer($user);
+        if (isset($this->_isPrimaryBilling) && ($this->_isPrimaryBilling || $customer->primaryBillingAddressId === $this->owner->id)) {
             $customersService->savePrimaryBillingAddressId($user, $this->_isPrimaryBilling ? $this->owner->id : null);
         }
 
-        if (isset($this->_isPrimaryShipping)) {
+        if (isset($this->_isPrimaryShipping) && ($this->_isPrimaryShipping || $customer->primaryShippingAddressId === $this->owner->id)) {
             $customersService->savePrimaryShippingAddressId($user, $this->_isPrimaryShipping ? $this->owner->id : null);
         }
     }
@@ -73,12 +79,14 @@ class CustomerAddressBehavior extends Behavior
     public function getIsPrimaryBilling(): bool
     {
         if (!isset($this->_isPrimaryBilling)) {
-            if (!$this->owner->id) {
+
+            /** @var User|CustomerBehavior|null $user */
+            $user = $this->owner->getOwner();
+
+            if (!$this->owner->id || !$user) {
                 return false;
             }
 
-            /** @var User|CustomerBehavior $user */
-            $user = $this->owner->getOwner();
             $this->_isPrimaryBilling = $this->owner->id === $user->getPrimaryBillingAddressId();
         }
 
@@ -103,12 +111,14 @@ class CustomerAddressBehavior extends Behavior
     public function getIsPrimaryShipping(): bool
     {
         if (!isset($this->_isPrimaryShipping)) {
-            if (!$this->owner->id) {
+
+            /** @var User|CustomerBehavior|null $user */
+            $user = $this->owner->getOwner();
+
+            if (!$this->owner->id || !$user) {
                 return false;
             }
 
-            /** @var User|CustomerBehavior $user */
-            $user = $this->owner->getOwner();
             $this->_isPrimaryShipping = $this->owner->id === $user->getPrimaryShippingAddressId();
         }
 

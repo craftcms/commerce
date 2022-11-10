@@ -1,13 +1,13 @@
 <template>
     <div>
-        <div v-if="draft.order.errors && draft.order.errors[errorKey]" class="error">
-            {{draft.order.errors[errorKey]}}
+        <div v-if="draft.errors && draft.errors[errorKey]" class="error">
+            {{ draft.errors[errorKey] }}
         </div>
     </div>
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+    import {mapState} from 'vuex';
 
     export default {
         props: {
@@ -18,8 +18,8 @@
 
         computed: {
             ...mapState({
-                draft: state => state.draft,
+                draft: (state) => state.draft,
             }),
-        }
-    }
+        },
+    };
 </script>

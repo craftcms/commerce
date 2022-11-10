@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use DateTime;
 
 /**
  * Order status record.
@@ -18,7 +19,7 @@ use craft\db\ActiveRecord;
  * @property string $handle
  * @property int $id
  * @property bool $isArchived
- * @property bool $dateArchived
+ * @property string|DateTime|null $dateArchived
  * @property string $name
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

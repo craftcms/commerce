@@ -193,7 +193,7 @@ class OrderStatuses extends Component
 
 
     /**
-     * Get the default order status for a particular order. Defaults to the CP configured default order status.
+     * Get the default order status for a particular order. Defaults to the control-panel-configured default order status.
      */
     public function getDefaultOrderStatusForOrder(Order $order): ?OrderStatus
     {
@@ -249,7 +249,7 @@ class OrderStatuses extends Component
      * @param bool $runValidation should we validate this order status before saving.
      * @throws Exception
      */
-    public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true): bool
+    public function saveOrderStatus(OrderStatus $orderStatus, array $emailIds = [], bool $runValidation = true, $force = false): bool
     {
         $isNewStatus = !(bool)$orderStatus->id;
 
@@ -263,14 +263,6 @@ class OrderStatuses extends Component
             $statusUid = StringHelper::UUID();
         } else {
             $statusUid = Db::uidById(Table::ORDERSTATUSES, $orderStatus->id);
-        }
-
-        // Make sure no statuses that are not archived share the handle
-        $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
-
-        if ($existingStatus && (!$orderStatus->id || $orderStatus->id != $existingStatus->id)) {
-            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
-            return false;
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -291,14 +283,24 @@ class OrderStatuses extends Component
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
-        $projectConfig->set($configPath, $configData);
+        $projectConfig->set($configPath, $configData, force: $force);
 
         if ($isNewStatus) {
             $orderStatus->id = Db::idByUid(Table::ORDERSTATUSES, $statusUid);
+            $orderStatus->uid = $statusUid;
         }
 
         $this->_orderStatuses = null;
         $this->_orderStatusesWithTrashed = null;
+
+        // Make sure this is the only default
+        if ($orderStatus->default) {
+            $otherStatuses = collect($this->getAllOrderStatuses())->where('uid', '!=', $orderStatus->uid)->all();
+            foreach ($otherStatuses as $otherStatus) {
+                $otherStatus->default = false;
+                $this->saveOrderStatus($otherStatus, $otherStatus->getEmailIds(), false, true);
+            }
+        }
 
         return true;
     }
@@ -328,10 +330,6 @@ class OrderStatuses extends Component
 
             // Save the volume
             $statusRecord->save(false);
-
-            if ($statusRecord->default) {
-                OrderStatusRecord::updateAll(['default' => false], ['not', ['id' => $statusRecord->id]]);
-            }
 
             $connection = Craft::$app->getDb();
             // Drop them all and we will recreate the new ones.
@@ -544,11 +542,8 @@ class OrderStatuses extends Component
      */
     private function _getOrderStatusRecord(string $uid): OrderStatusRecord
     {
-        /** @var OrderStatusRecord $orderStatus */
-        if ($orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one()) {
-            return $orderStatus;
-        }
-
-        return new OrderStatusRecord();
+        /** @var ?OrderStatusRecord $orderStatus */
+        $orderStatus = OrderStatusRecord::findWithTrashed()->where(['uid' => $uid])->one();
+        return $orderStatus ?: new OrderStatusRecord();
     }
 }

@@ -376,7 +376,7 @@ class Emails extends Component
         $uid = $event->tokenMatches[0];
         $emailRecord = $this->_getEmailRecord($uid);
 
-        if (!$emailRecord || !$emailRecord->id) {
+        if (!$emailRecord->id) {
             return;
         }
 
@@ -447,7 +447,7 @@ class Emails extends Component
         }
 
         if ($fromName && $fromEmail) {
-            $newEmail->setFrom([$fromEmail => $fromName]);
+            $newEmail->setFrom([(string)$fromEmail => (string)$fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {

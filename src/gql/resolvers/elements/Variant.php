@@ -10,6 +10,7 @@ namespace craft\commerce\gql\resolvers\elements;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
+use craft\elements\db\ElementQuery;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
 
@@ -35,7 +36,7 @@ class Variant extends ElementResolver
         }
 
         // If it's preloaded, it's preloaded.
-        if (is_array($query)) {
+        if (!$query instanceof ElementQuery) {
             return $query;
         }
 

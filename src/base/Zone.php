@@ -39,7 +39,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
     public ?DateTime $dateCreated = null;
 
     /**
-     * @var ?DateTime|null
+     * @var DateTime|null
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
@@ -75,6 +75,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
+            /** @var ZoneAddressCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
         $condition->forProjectConfig = false;

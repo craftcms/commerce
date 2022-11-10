@@ -76,7 +76,7 @@
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
                         {% else %}
-                            {% set url = url("commerce/products/#{productTypeHandle}/#{craft.app.request.getSegment(4)}/#{site.handle}") %}
+                            {% set url = url("commerce/products/#{productTypeHandle}/#{craft.app.request.getSegment(4)}", {site: site.handle}) %}
                             <a href="{{ url }}" data-site-id="{{ siteId }}">
                                 <div class="status {{ status }}"></div>{{ site.name|t('site') }}
                             </a>
@@ -150,12 +150,13 @@
   <div class="meta">
     {# Related Sales #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
-        {% if currentUser.can('commerce-editSales') %}
-            {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
+        {% set productDefaultVariant = product.getDefaultVariant(true) %}
+        {% if currentUser.can('commerce-editSales') and productDefaultVariant is not null %}
+            {{ productFields.relatedSales(productDefaultVariant.id, productType.hasVariants) }}
         {% endif %}
 
-      {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') %}
-        {{ productFields.relatedDiscounts(product.defaultVariant.id, product.defaultVariant) }}
+      {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') and productDefaultVariant is not null %}
+        {{ productFields.relatedDiscounts(productDefaultVariant.id, productDefaultVariant) }}
       {% endif %}
     {% endif %}
     <div class="data">

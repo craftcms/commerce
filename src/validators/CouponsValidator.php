@@ -21,6 +21,7 @@ use yii\validators\Validator;
 class CouponsValidator extends Validator
 {
     /**
+     * @param \craft\commerce\models\Coupon $model the coupon model to be validated
      * @inheritdoc
      */
     public function validateAttribute($model, $attribute): void
@@ -39,8 +40,7 @@ class CouponsValidator extends Validator
         }
 
         // Check other codes in the DB
-        $query = Coupon::find()
-            ->where(['in', 'code', $codes]);
+        $query = Coupon::find()->where(['in', 'code', $codes]);
 
         if ($model->id) {
             $query->andWhere(['not', ['discountId' => $model->id]]);

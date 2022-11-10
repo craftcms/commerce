@@ -288,7 +288,6 @@ class Payments extends Component
             $response = match ($defaultAction) {
                 TransactionRecord::TYPE_PURCHASE => $gateway->purchase($transaction, $form),
                 TransactionRecord::TYPE_AUTHORIZE => $gateway->authorize($transaction, $form),
-                default => throw new PaymentException(Craft::t('commerce', 'Transaction type not supported.')),
             };
 
             $this->_updateTransaction($transaction, $response);
@@ -440,12 +439,14 @@ class Payments extends Component
         $success = $response->isSuccessful() || $response->isProcessing();
         $isParentTransactionRedirect = ($transaction->status === TransactionRecord::STATUS_REDIRECT);
 
-        if ($success && ($transaction->status === TransactionRecord::STATUS_SUCCESS || ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_SUCCESS))) {
-            $transaction->order->updateOrderPaidInformation();
-        }
+        if ($success) {
+            if ($transaction->status === TransactionRecord::STATUS_SUCCESS || ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_SUCCESS)) {
+                $transaction->order->updateOrderPaidInformation();
+            }
 
-        if ($success && ($transaction->status === TransactionRecord::STATUS_PROCESSING || ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_PROCESSING))) {
-            $transaction->order->markAsComplete();
+            if ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_PROCESSING) {
+                $transaction->order->markAsComplete();
+            }
         }
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
@@ -474,14 +475,14 @@ class Payments extends Component
      * Handles a redirect.
      *
      * @param RequestResponseInterface $response
-     * @param                          $redirect
+     * @param string|null $redirect
      * @throws ExitException
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \yii\base\Exception
      */
-    private function _handleRedirect(RequestResponseInterface $response, &$redirect): void
+    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect): void
     {
         // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {

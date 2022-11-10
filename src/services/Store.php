@@ -44,7 +44,7 @@ class Store extends Component
         if ($this->_store == null) {
             // We always ensure we have a store record and an associated store address.
             $store = $this->_createStoreQuery()->one(); // get first row only. Only one store at the moment.
-            if ($store === null) {
+            if (!$store) {
                 $storeRecord = new StoreRecord();
                 $storeRecord->save();
                 $this->_store = new StoreModel(['id' => $storeRecord->id]);

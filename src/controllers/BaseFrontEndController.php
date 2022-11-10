@@ -49,9 +49,11 @@ class BaseFrontEndController extends BaseController
     protected function cartArray(Order $cart): array
     {
         $extraFields = [
-            'lineItems.snapshot',
             'availableShippingMethodOptions',
+            'billingAddress',
+            'lineItems.snapshot',
             'notices',
+            'shippingAddress',
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use craft\helpers\App;
 use DateTime;
 
 /**
@@ -35,7 +36,7 @@ trait GatewayTrait
     /**
      * @var bool|string|null Enabled on the frontend
      */
-    public bool|string|null $isFrontendEnabled = true;
+    public bool|string|null $_isFrontendEnabled = true;
 
     /**
      * @var bool Archived
@@ -56,4 +57,24 @@ trait GatewayTrait
      * @var string|null UID
      */
     public ?string $uid = null;
+
+    /**
+     * @param bool|string|null $isFrontendEnabled
+     * @return void
+     * @since 4.2.0
+     */
+    public function setIsFrontendEnabled(bool|string|null $isFrontendEnabled): void
+    {
+        $this->_isFrontendEnabled = $isFrontendEnabled;
+    }
+
+    /**
+     * @param bool $parse
+     * @return bool|string|null
+     * @since 4.2.0
+     */
+    public function getIsFrontendEnabled(bool $parse = true): bool|string|null
+    {
+        return $parse ? App::parseBooleanEnv($this->_isFrontendEnabled) : $this->_isFrontendEnabled;
+    }
 }

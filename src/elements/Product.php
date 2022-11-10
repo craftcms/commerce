@@ -14,7 +14,9 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
+use craft\commerce\elements\conditions\products\ProductCondition;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
@@ -28,6 +30,7 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -246,6 +249,15 @@ class Product extends Element
 
     /**
      * @inheritdoc
+     * @return ProductCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(ProductCondition::class, [static::class]);
+    }
+
+    /**
+     * @inheritdoc
      */
     public static function hasContent(): bool
     {
@@ -302,13 +314,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -320,13 +332,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -338,13 +350,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-editProductType:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-editProductType:' . $productType->uid);
     }
 
     /**
@@ -356,13 +368,13 @@ class Product extends Element
             return true;
         }
 
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return $user->can('commerce-deleteProducts:' . $uid);
+        try {
+            $productType = $this->getType();
+        } catch (\Exception) {
+            return false;
         }
 
-        return false;
+        return $user->can('commerce-deleteProducts:' . $productType->uid);
     }
 
     /**
@@ -371,14 +383,6 @@ class Product extends Element
     public function canDeleteForSite(User $user): bool
     {
         return $this->canDelete($user);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function canCreateDrafts(User $user): bool
-    {
-        return $this->canSave($user);
     }
 
     /**
@@ -436,7 +440,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCacheTags(): array
+    protected function cacheTags(): array
     {
         return [
             "productType:$this->typeId",
@@ -508,13 +512,7 @@ class Product extends Element
         $productType = $this->getType();
 
         // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        $url = UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
-
-        if (Craft::$app->getIsMultiSite()) {
-            $url .= '/' . $this->getSite()->handle;
-        }
-
-        return $url;
+        return UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
     }
 
     /**
@@ -736,6 +734,7 @@ class Product extends Element
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'variants') {
+            /** @var Variant[] $elements */
             $this->setVariants($elements);
         } else {
             parent::setEagerLoadedElements($handle, $elements);
@@ -800,24 +799,6 @@ class Product extends Element
 
         // General Meta fields
         $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
-
-        // Enabled field
-        $topMetaHtml .= Cp::lightswitchFieldHtml([
-            'label' => Craft::t('commerce', 'Enabled'),
-            'id' => 'enabled',
-            'name' => 'enabled',
-            'on' => $this->enabled,
-        ]);
-
-        // Multi site enabled
-        if (Craft::$app->getIsMultiSite()) {
-            $topMetaHtml .= Cp::lightswitchFieldHtml([
-                'label' => Craft::t('commerce', 'Enabled for site'),
-                'id' => 'enabledForSite',
-                'name' => 'enabledForSite',
-                'on' => $this->enabledForSite,
-            ]);
-        }
 
         $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
 
@@ -1004,6 +985,7 @@ class Product extends Element
             return false;
         }
 
+        /** @var Variant[] $variants */
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
             ->status(null)
@@ -1033,9 +1015,11 @@ class Product extends Element
     public function afterRestore(): void
     {
         // Also restore any variants for this element
+        /** @var VariantQuery $variantsQuery */
         $variantsQuery = Variant::find()
             ->status(null)
-            ->siteId($this->siteId)
+            ->siteId($this->siteId);
+        $variantsQuery
             ->productId($this->id)
             ->trashed()
             ->andWhere(['commerce_variants.deletedWithProduct' => true]);
@@ -1414,23 +1398,27 @@ class Product extends Element
         switch ($attribute) {
             case 'type':
             {
-                return ($productType ? Craft::t('site', $productType->name) : '');
+                return Craft::t('site', $productType->name);
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku((bool)$this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                if ($this->defaultSku === null) {
+                    return '';
+                }
+
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {
                 $taxCategory = $this->getTaxCategory();
 
-                return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
+                return Craft::t('site', $taxCategory->name);
             }
             case 'shippingCategory':
             {
                 $shippingCategory = $this->getShippingCategory();
 
-                return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
+                return Craft::t('site', $shippingCategory->name);
             }
             case 'defaultPrice':
             {
@@ -1518,8 +1506,9 @@ class Product extends Element
      */
     public function afterPropagate(bool $isNew): void
     {
-        /** @var Product $original */
-        if ($original = $this->duplicateOf) {
+        /** @var Product|null $original */
+        $original = $this->duplicateOf;
+        if ($original) {
             $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($original->id, $original->siteId);
             $newVariants = [];
             foreach ($variants as $variant) {

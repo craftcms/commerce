@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
+use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -57,46 +58,29 @@ class SubscriptionsController extends BaseController
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         if ($subscription === null && $subscriptionId) {
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->id($subscriptionId)->one();
         }
 
         if (!$subscription) {
-            throw new NotFoundHttpException(Craft::t('commerce', 'Subscription not found'));
+            throw new NotFoundHttpException('Subscription not found');
         }
 
         $this->enforceManageSubscriptionPermissions($subscription);
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        $variables['tabs'] = [];
-
-        $variables['tabs'][] = [
+        $form = $fieldLayout->createForm($subscription);
+        $tabMenu = $form->getTabMenu();
+        $tabMenu['tab--subscriptionManageTab'] = [
             'label' => Craft::t('commerce', 'Manage'),
-            'url' => '#subscriptionManageTab',
+            'url' => '#tab--subscriptionManageTab',
             'class' => null,
         ];
+        $variables['tabs'] = $tabMenu;
+        $variables['fieldsHtml'] = $form->render();
 
-        foreach ($fieldLayout->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-
-            if ($subscription->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($subscription->getErrors($field->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Craft::t('commerce', $tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null,
-            ];
-        }
-
-        $variables['continueEditingUrl'] = $subscription->cpEditUrl;
+        $variables['continueEditingUrl'] = $subscription->getCpEditUrl();
         $variables['subscriptionId'] = $subscriptionId;
         $variables['subscription'] = $subscription;
         $variables['fieldLayout'] = $fieldLayout;
@@ -117,8 +101,10 @@ class SubscriptionsController extends BaseController
         $this->requirePostRequest();
 
         $subscriptionId = $this->request->getRequiredBodyParam('subscriptionId');
+        /** @var Subscription|null $subscription */
+        $subscription = Subscription::find()->status(null)->id($subscriptionId)->one();
 
-        if (!$subscription = Subscription::find()->status(null)->id($subscriptionId)->one()) {
+        if (!$subscription) {
             throw new NotFoundHttpException('Subscription not found');
         }
 
@@ -157,6 +143,7 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
+        /** @var Subscription $subscription */
         $gateway = $subscription->getGateway();
         $gateway->refreshPaymentHistory($subscription);
 
@@ -205,7 +192,7 @@ class SubscriptionsController extends BaseController
 
             try {
                 $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParams(), false);
+                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
 
                 if ($paymentForm->validate()) {
                     $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
@@ -215,7 +202,7 @@ class SubscriptionsController extends BaseController
                 $fieldValues = $this->request->getBodyParam($fieldsLocation, []);
 
                 $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
-            } catch (Throwable $exception) {
+            } catch (\Exception $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
                 throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
@@ -262,6 +249,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
 
             $validData = $subscriptionUid && $subscription;
@@ -308,6 +296,7 @@ class SubscriptionsController extends BaseController
         $error = false;
 
         try {
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanByUid($planUid);
 
@@ -370,6 +359,7 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $this->request->getValidatedBodyParam('subscriptionUid');
+            /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
             $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());

@@ -302,6 +302,9 @@ class LineItem extends Model
         }
     }
 
+    /**
+     * @return string
+     */
     public function getDescription(): string
     {
         if (!$this->_description) {
@@ -312,6 +315,10 @@ class LineItem extends Model
         return $this->_description;
     }
 
+    /**
+     * @param string $description
+     * @return void
+     */
     public function setDescription(string $description): void
     {
         $this->_description = $description;
@@ -408,7 +415,7 @@ class LineItem extends Model
         ];
 
         if ($this->purchasableId) {
-            /** @var PurchasableInterface $purchasable */
+            /** @var PurchasableInterface|null $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
@@ -565,7 +572,9 @@ class LineItem extends Model
     public function getPurchasable(): ?PurchasableInterface
     {
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
-            $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            /** @var PurchasableInterface|null $purchasable */
+            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $this->_purchasable = $purchasable;
         }
 
         return $this->_purchasable;
@@ -641,7 +650,9 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->taxCategoryId);
     }
 
     /**
@@ -653,7 +664,9 @@ class LineItem extends Model
             throw new InvalidConfigException('Line Item is missing its shipping category ID');
         }
 
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->shippingCategoryId);
     }
 
     /**

@@ -6,21 +6,23 @@
 
 {% block main %}
 
-    {% set addressId = craft.app.request.param('addressId') %}
-    {% set redirect = craft.app.request.param('redirect') %}
-    {% set countryCode = craft.app.request.param('countryCode') %}
+    {% set addressId = craft.app.request.queryParam('addressId') %}
+    {% set redirect = craft.app.request.queryParam('redirect') %}
+    {% set countryCode = craft.app.request.queryParam('countryCode') %}
 
-    {% if addressId %}
-        {% set address = collect(currentUser.addresses).firstWhere('id', addressId) %}
-        {% if not address %}
-            {% exit 404 %}
+    {% if not address is defined %}
+        {% if addressId %}
+            {% set address = collect(currentUser.addresses).firstWhere('id', addressId) %}
+            {% if not address %}
+                {% exit 404 %}
+            {% endif %}
+        {% else %}
+            {% set address = create({
+                class: 'craft\\elements\\Address',
+                ownerId: currentUser.id,
+                countryCode: countryCode ?? 'US'
+            }) %}
         {% endif %}
-    {% else %}
-        {% set address = create({
-            class: 'craft\\elements\\Address',
-            ownerId: currentUser.id,
-            countryCode: countryCode ?? 'US'
-        }) %}
     {% endif %}
 
     <!-- Template: {{ _self }}.twig -->

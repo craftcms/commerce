@@ -225,11 +225,11 @@ class ProductType extends Model
      */
     public function getShippingCategories(): array
     {
-        if ($this->_shippingCategories === null) {
+        if ($this->_shippingCategories === null && $this->id) {
             $this->_shippingCategories = Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($this->id);
         }
 
-        return $this->_shippingCategories;
+        return $this->_shippingCategories ?? [];
     }
 
     /**
@@ -261,11 +261,11 @@ class ProductType extends Model
      */
     public function getTaxCategories(): array
     {
-        if ($this->_taxCategories === null) {
+        if ($this->_taxCategories === null && $this->id) {
             $this->_taxCategories = Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($this->id);
         }
 
-        return $this->_taxCategories;
+        return $this->_taxCategories ?? [];
     }
 
     /**

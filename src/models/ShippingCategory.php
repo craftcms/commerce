@@ -9,8 +9,11 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
+use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -68,6 +71,12 @@ class ShippingCategory extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
+     * @var DateTime|null Date deleted
+     * @since 4.2.0.1
+     */
+    public ?DateTime $dateDeleted = null;
+
+    /**
      * Returns the name of this shipping category.
      *
      * @return string
@@ -118,6 +127,8 @@ class ShippingCategory extends Model
     {
         return [
             [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => ShippingCategoryRecord::class],
+            [['handle'], HandleValidator::class],
         ];
     }
 

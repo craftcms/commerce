@@ -19,4 +19,6 @@
     value: widget.type,
     options: typeOptions
   }) }}
+
+  {% include 'commerce/_components/widgets/_includes/_orderStatusesField' with { id: namespaceId, widget: widget } %}
 </div>

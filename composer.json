@@ -22,8 +22,8 @@
   "prefer-stable": true,
   "require": {
     "php": "^8.0.2",
-    "craftcms/cms": "^4.0.0-beta.4",
-    "dompdf/dompdf": "^1.0.2",
+    "craftcms/cms": "^4.3.0",
+    "dompdf/dompdf": "^2.0.0",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
   },

@@ -22,7 +22,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $name
  * @property Order $order
  * @property int $orderId
- * @property string $sourceSnapshot
+ * @property array $sourceSnapshot
  * @property string $type
  * @property bool $isEstimated
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

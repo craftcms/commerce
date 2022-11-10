@@ -22,6 +22,8 @@ use Throwable;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @todo remove ignore: https://github.com/phpstan/phpstan/issues/6778
+ * @phpstan-ignore-next-line
  * @mixin GatewayTrait
  */
 interface GatewayInterface extends SavableComponentInterface
@@ -57,9 +59,9 @@ interface GatewayInterface extends SavableComponentInterface
     public function completePurchase(Transaction $transaction): RequestResponseInterface;
 
     /**
-     * Creates a payment source from source data and user id.
+     * Creates a payment source from source data and customer id.
      */
-    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource;
+    public function createPaymentSource(BasePaymentForm $sourceData, int $customerId): PaymentSource;
 
     /**
      * Deletes a payment source on the gateway by its token.

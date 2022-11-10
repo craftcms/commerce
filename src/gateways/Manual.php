@@ -25,13 +25,24 @@ use craft\web\Response as WebResponse;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property bool|string $onlyAllowForZeroPriceOrders
+ * @property-read null|string $settingsHtml
  */
 class Manual extends Gateway
 {
     /**
      * @var bool
      */
-    public bool $onlyAllowForZeroPriceOrders = false;
+    private string|bool $_onlyAllowForZeroPriceOrders = false;
+
+    public function getSettings(): array
+    {
+        $settings = parent::getSettings();
+        $settings['onlyAllowForZeroPriceOrders'] = $this->getOnlyAllowForZeroPriceOrders(false);
+
+        return $settings;
+    }
 
     /**
      * @inheritdoc
@@ -92,7 +103,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
+    public function createPaymentSource(BasePaymentForm $sourceData, int $customerId): PaymentSource
     {
         throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
     }
@@ -216,10 +227,30 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if (App::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
+        if ($this->getOnlyAllowForZeroPriceOrders() && $order->getTotalPrice() != 0) {
             return false;
         }
 
         return parent::availableForUseWithOrder($order);
+    }
+
+    /**
+     * @param bool $parse
+     * @return bool|string
+     * @since 4.1.1
+     */
+    public function getOnlyAllowForZeroPriceOrders(bool $parse = true): bool|string
+    {
+        return $parse ? App::parseBooleanEnv($this->_onlyAllowForZeroPriceOrders) : $this->_onlyAllowForZeroPriceOrders;
+    }
+
+    /**
+     * @param bool|string $onlyAllowForZeroPriceOrders
+     * @return void
+     * @since 4.1.1
+     */
+    public function setOnlyAllowForZeroPriceOrders(bool|string $onlyAllowForZeroPriceOrders): void
+    {
+        $this->_onlyAllowForZeroPriceOrders = $onlyAllowForZeroPriceOrders;
     }
 }

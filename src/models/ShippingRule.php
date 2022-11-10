@@ -51,9 +51,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public ?int $shippingZoneId = null;
 
     /**
-     * @var int Shipping method ID
+     * @var int|null Shipping method ID
      */
-    public int $methodId;
+    public ?int $methodId = null;
 
     /**
      * @var int Priority
@@ -153,7 +153,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ShippingCategory[]|null
+     * @var ShippingRuleCategory[]|null
      */
     private ?array $_shippingRuleCategories = null;
 
@@ -328,7 +328,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        /** @var ShippingAddressZone $shippingZone */
         if ($shippingZone && !$shippingZone->getCondition()->matchElement($shippingAddress)) {
             return false;
         }
@@ -506,18 +505,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $attribute
-     * @param null $shippingCategoryId
+     * @param int|null $shippingCategoryId
      * @return mixed
      * @throws InvalidConfigException
      */
-    private function _getRate($attribute, $shippingCategoryId = null): mixed
+    private function _getRate($attribute, ?int $shippingCategoryId = null): mixed
     {
         if (!$shippingCategoryId) {
             return $this->$attribute;
         }
 
         foreach ($this->getShippingRuleCategories() as $ruleCategory) {
-            if ((int)$shippingCategoryId === (int)$ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
+            if ($shippingCategoryId === $ruleCategory->shippingCategoryId && $ruleCategory->$attribute !== null) {
                 return $ruleCategory->$attribute;
             }
         }

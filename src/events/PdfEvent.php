@@ -7,7 +7,7 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\elements\Order;
+use craft\commerce\models\Pdf;
 use yii\base\Event;
 
 /**
@@ -15,32 +15,16 @@ use yii\base\Event;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4 #COM-43
  */
 class PdfEvent extends Event
 {
     /**
-     * @var Order
+     * @var Pdf The PDF model associated with the event.
      */
-    public Order $order;
+    public Pdf $pdf;
 
     /**
-     * @var string
+     * @var bool Whether the PDF is brand new
      */
-    public string $option;
-
-    /**
-     * @var string
-     */
-    public string $template;
-
-    /**
-     * @var array
-     */
-    public array $variables;
-
-    /**
-     * @var string|null The rendered PDF
-     */
-    public ?string $pdf = null;
+    public bool $isNew = false;
 }

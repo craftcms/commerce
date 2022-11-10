@@ -100,7 +100,6 @@ class PaymentSources extends Component
      */
     public const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';
 
-
     /**
      * Returns a customer's payment sources, per the customer's ID.
      *
@@ -130,10 +129,14 @@ class PaymentSources extends Component
     /**
      * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
      */
-    public function getAllPaymentSourcesByUserId(): array
+    public function getAllPaymentSourcesByUserId(int $userId = null): array
     {
         Craft::$app->getDeprecator()->log('PaymentSources::getAllPaymentSourcesByUserId()', 'The `PaymentSources::getAllPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllPaymentSourcesByCustomerId()` instead.');
-        return $this->getAllPaymentSourcesByCustomerId();
+        if ($userId === null) {
+            return [];
+        }
+
+        return $this->getAllPaymentSourcesByCustomerId($userId);
     }
 
     /**
@@ -189,12 +192,14 @@ class PaymentSources extends Component
     }
 
     /**
+     * @param int|null $gatewayId the gateway's ID
+     * @param int|null $userId the user's ID
      * @deprecated in 4.0.0. Use [[getAllPaymentSourcesByCustomerId()]] instead.
      */
-    public function getAllGatewayPaymentSourcesByUserId(): array
+    public function getAllGatewayPaymentSourcesByUserId(?int $gatewayId = null, ?int $userId = null): array
     {
         Craft::$app->getDeprecator()->log('PaymentSources::getAllGatewayPaymentSourcesByUserId()', 'The `PaymentSources::getAllGatewayPaymentSourcesByUserId()` is deprecated, use the `PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` instead.');
-        return $this->getAllPaymentSourcesByCustomerId();
+        return $this->getAllPaymentSourcesByCustomerId($userId);
     }
 
     /**
@@ -247,7 +252,7 @@ class PaymentSources extends Component
     /**
      * Creates a payment source for a user in the gateway based on a payment form.
      *
-     * @param int $userId the user's ID
+     * @param int $customerId the user's ID
      * @param GatewayInterface $gateway the gateway
      * @param BasePaymentForm $paymentForm the payment form to use
      * @param string|null $sourceDescription the payment form to use
@@ -255,15 +260,15 @@ class PaymentSources extends Component
      * @throws InvalidConfigException
      * @throws PaymentSourceException If unable to create the payment source
      */
-    public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
+    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
     {
         try {
-            $source = $gateway->createPaymentSource($paymentForm, $userId);
+            $source = $gateway->createPaymentSource($paymentForm, $customerId);
         } catch (Throwable $exception) {
             throw new PaymentSourceException($exception->getMessage());
         }
 
-        $source->customerId = $userId;
+        $source->customerId = $customerId;
 
         if (!empty($sourceDescription)) {
             $source->description = $sourceDescription;

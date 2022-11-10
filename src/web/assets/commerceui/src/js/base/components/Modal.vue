@@ -1,6 +1,10 @@
 <template>
     <div class="hidden">
-        <div ref="modal" class="vue-commerce-modal modal" :modal-class="modalClass">
+        <div
+            ref="modal"
+            class="vue-commerce-modal modal"
+            :modal-class="modalClass"
+        >
             <div class="body">
                 <slot name="body"></slot>
             </div>
@@ -18,7 +22,7 @@
 <script>
     /* global Garnish */
     export default {
-        name: "Modal",
+        name: 'Modal',
 
         props: {
             autoShow: {
@@ -69,24 +73,23 @@
                         $this.isVisible = true;
                         $this.hide = false;
                         $this.$emit('onShow');
-                    }
+                    },
                 });
             },
 
             hideModal() {
                 if (!this.modal) {
-                    this._initModal()
+                    this._initModal();
                 }
 
                 if (this.isVisible) {
                     this.modal.hide();
                 }
-
             },
 
             showModal() {
                 if (!this.modal) {
-                    this._initModal()
+                    this._initModal();
                 }
 
                 if (!this.isVisible) {
@@ -107,8 +110,8 @@
                     this.showModal();
                 }
             },
-        }
-    }
+        },
+    };
 </script>
 
 <style lang="scss">

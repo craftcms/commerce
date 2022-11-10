@@ -7,24 +7,19 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\models\Pdf;
-use yii\base\Event;
+use craft\commerce\models\OrderNotice;
+use craft\events\CancelableEvent;
 
 /**
- * Class PdfSaveEvent
+ * Class OrderNoticeEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 4.1.0
  */
-class PdfSaveEvent extends Event
+class OrderNoticeEvent extends CancelableEvent
 {
     /**
-     * @var Pdf
+     * @var OrderNotice The line item model.
      */
-    public Pdf $pdf;
-
-    /**
-     * @var bool Is the PDF new
-     */
-    public bool $isNew;
+    public $orderNotice;
 }

@@ -9,6 +9,7 @@ namespace craft\commerce\behaviors;
 
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\elements\Address;
@@ -31,6 +32,8 @@ use yii\base\InvalidConfigException;
  * @property null|int $primaryBillingAddressId
  * @property-read Order[] $orders
  * @property-read Address[] $addresses
+ * @property null|int $primaryPaymentSourceId
+ * @property-read null|PaymentSource $primaryPaymentSource
  * @property User $owner
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
@@ -48,9 +51,21 @@ class CustomerBehavior extends Behavior
     private ?int $_primaryShippingAddressId = null;
 
     /**
+     * @var int|null
+     * @since 4.2
+     */
+    private ?int $_primaryPaymentSourceId = null;
+
+    /**
      * @var array|null
      */
     private ?array $_subscriptions = null;
+
+    /**
+     * @var Customer|null
+     * @since 4.2
+     */
+    private ?Customer $_customer = null;
 
     /**
      * @inheritdoc
@@ -90,6 +105,10 @@ class CustomerBehavior extends Behavior
 
         if ($user->primaryShippingAddressId) {
             Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($user, $user->primaryShippingAddressId);
+        }
+
+        if ($user->primaryPaymentSourceId) {
+            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $user->primaryPaymentSourceId);
         }
     }
 
@@ -161,9 +180,11 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryBillingAddressId(): ?int
     {
-        /** @var Customer $customer */
-        if (!isset($this->_primaryBillingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
-            $this->_primaryBillingAddressId = $customer->primaryBillingAddressId;
+        if (!isset($this->_primaryBillingAddressId)) {
+            $customer = $this->_getCustomerRecord();
+            if ($customer) {
+                $this->_primaryBillingAddressId = $customer->primaryBillingAddressId;
+            }
         }
 
         return $this->_primaryBillingAddressId;
@@ -190,9 +211,11 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryShippingAddressId(): ?int
     {
-        /** @var Customer $customer */
-        if (!isset($this->_primaryShippingAddressId) && $customer = Customer::find()->where(['customerId' => $this->owner->id])->one()) {
-            $this->_primaryShippingAddressId = $customer->primaryShippingAddressId;
+        if (!isset($this->_primaryShippingAddressId)) {
+            $customer = $this->_getCustomerRecord();
+            if ($customer) {
+                $this->_primaryShippingAddressId = $customer->primaryShippingAddressId;
+            }
         }
 
         return $this->_primaryShippingAddressId;
@@ -212,5 +235,77 @@ class CustomerBehavior extends Behavior
     public function getPrimaryShippingAddress(): ?Address
     {
         return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $this->getPrimaryShippingAddressId());
+    }
+
+    /**
+     * @param int|null $paymentSourceId
+     * @return void
+     * @since 4.2
+     */
+    public function setPrimaryPaymentSourceId(?int $paymentSourceId): void
+    {
+        $this->_primaryPaymentSourceId = $paymentSourceId;
+    }
+
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function getPrimaryPaymentSourceId(): ?int
+    {
+        // @TODO remove fallback code and just always enforce a primary payment source if one exists at next breaking change
+        if ($this->_primaryPaymentSourceId === null) {
+            $customer = $this->_getCustomerRecord();
+            if (!$customer) {
+                return $this->_primaryPaymentSourceId;
+            }
+
+            if ($customer->primaryPaymentSourceId) {
+                $this->_primaryPaymentSourceId = $customer->primaryPaymentSourceId;
+                return $this->_primaryPaymentSourceId;
+            }
+
+            $paymentSource = $this->getPrimaryPaymentSource();
+            if ($paymentSource) {
+                $this->_primaryPaymentSourceId = $paymentSource->id;
+            }
+        }
+
+        return $this->_primaryPaymentSourceId;
+    }
+
+    /**
+     * @return PaymentSource|null
+     * @throws InvalidConfigException
+     * @since 4.2
+     */
+    public function getPrimaryPaymentSource(): ?PaymentSource
+    {
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId($this->owner->id);
+        if (empty($paymentSources)) {
+            return null;
+        }
+
+        if (!$this->_primaryPaymentSourceId) {
+            return ArrayHelper::firstValue($paymentSources);
+        }
+
+        return ArrayHelper::firstWhere($paymentSources, 'id', $this->_primaryPaymentSourceId);
+    }
+
+    /**
+     * @return Customer|null
+     * @since 4.2
+     */
+    private function _getCustomerRecord(): ?Customer
+    {
+        if (!$this->_customer instanceof Customer) {
+            /** @var Customer|null $customer */
+            $customer = Customer::find()->where(['customerId' => $this->owner->id])->one();
+            $this->_customer = $customer;
+        }
+
+        return $this->_customer;
     }
 }

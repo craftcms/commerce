@@ -1,10 +1,10 @@
-@import "craftcms-sass/mixins";
+@import 'craftcms-sass/mixins';
 $lightGrey: #eee;
 
-@import "../base/craft-classes";
-@import "../base/vue-select";
-@import "../base/common";
-@import "./modal";
+@import '../base/craft-classes';
+@import '../base/vue-select';
+@import '../base/common';
+@import './modal';
 
 .order-box-sizing * {
   box-sizing: border-box;
@@ -23,7 +23,7 @@ $lightGrey: #eee;
 }
 
 .order-opacity-50 {
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .orderedit-border-t {

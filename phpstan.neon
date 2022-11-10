@@ -2,6 +2,8 @@ includes:
     - vendor/craftcms/phpstan/phpstan.neon
 
 parameters:
-    level: 1
+    level: 5
     paths:
         - src
+    ignoreErrors:
+        - '#Call to an undefined method yii\\web\\UrlManager::setRouteParams\(\)#'

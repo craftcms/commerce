@@ -104,7 +104,7 @@
 
     {% if orderStatuses|length == 0 %}
         {% set isDefault = true %}
-        {% else %}
+    {% else %}
         {% set isDefault = orderStatus.default %}
     {% endif %}
 
@@ -125,14 +125,16 @@
     {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
     $(function () {
         $colorSelect = $('#color-menu-btn');
-        new Garnish.MenuBtn($colorSelect, {
-            onOptionSelect: function(data){
-                var val = $(data).data('val');
-                $('#color').val(val);
-                var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
-                $colorSelect.html(html);
-            }
-        });
+        let menuBtn = $colorSelect.data('menubtn');
+        if (!menuBtn) {
+          menuBtn = new Garnish.MenuBtn($colorSelect);
+        }
+        menuBtn.on('optionSelect', ev => {
+          var val = $(ev.option).data('val');
+          $('#color').val(val);
+          var html = "<span class='status "+val+"'></span>"+Craft.uppercaseFirst(val);
+          $colorSelect.html(html);
+        })
 
         $('#emails').selectize({
             plugins: ['remove_button'],

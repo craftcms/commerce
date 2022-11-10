@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -129,9 +128,9 @@ class OrdersController extends Controller
         if ($user) {
             $order->setCustomer($user);
 
-            if (Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-                $order->autoSetAddresses();
-            }
+            // Try to set defaults
+            $order->autoSetAddresses();
+            $order->autoSetShippingMethod();
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
@@ -218,7 +217,7 @@ class OrdersController extends Controller
 
         $alreadyCompleted = $order->isCompleted;
         // Set data from request to the order
-        $this->_updateOrder($order, $orderRequestData);
+        $this->_updateOrder($order, $orderRequestData, false);
         $markAsComplete = !$alreadyCompleted && $order->isCompleted;
 
         // We don't want to save it as completed yet since we will markAsComplete() after saving the cart
@@ -412,22 +411,27 @@ class OrdersController extends Controller
         sort($orderFields);
 
         // Remove unneeded fields
-        ArrayHelper::removeValue($orderFields, 'hasDescendants');
-        ArrayHelper::removeValue($orderFields, 'makePrimaryShippingAddress');
-        ArrayHelper::removeValue($orderFields, 'shippingSameAsBilling');
-        ArrayHelper::removeValue($orderFields, 'billingSameAsShipping');
-        ArrayHelper::removeValue($orderFields, 'tempId');
-        ArrayHelper::removeValue($orderFields, 'resaving');
-        ArrayHelper::removeValue($orderFields, 'duplicateOf');
-        ArrayHelper::removeValue($orderFields, 'totalDescendants');
-        ArrayHelper::removeValue($orderFields, 'fieldLayoutId');
-        ArrayHelper::removeValue($orderFields, 'contentId');
-        ArrayHelper::removeValue($orderFields, 'trashed');
-        ArrayHelper::removeValue($orderFields, 'structureId');
-        ArrayHelper::removeValue($orderFields, 'url');
-        ArrayHelper::removeValue($orderFields, 'ref');
-        ArrayHelper::removeValue($orderFields, 'title');
-        ArrayHelper::removeValue($orderFields, 'slug');
+        $removeProps = [
+            'hasDescendants',
+            'makePrimaryShippingAddress',
+            'shippingSameAsBilling',
+            'billingSameAsShipping',
+            'tempId',
+            'resaving',
+            'duplicateOf',
+            'totalDescendants',
+            'fieldLayoutId',
+            'contentId',
+            'trashed',
+            'structureId',
+            'url',
+            'ref',
+            'title',
+            'slug',
+        ];
+        foreach ($removeProps as $removeProp) {
+            ArrayHelper::removeValue($orderFields, $removeProp);
+        }
 
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getCustomFields() as $field) {
@@ -449,7 +453,7 @@ class OrdersController extends Controller
         $lineItems = $order->getLineItems();
         $purchasableCpEditUrlByPurchasableId = [];
         foreach ($lineItems as $lineItem) {
-            /** @var PurchasableElement $purchasable */
+            /** @var Purchasable|PurchasableElement|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
                 continue;
@@ -638,9 +642,10 @@ class OrdersController extends Controller
             return $this->asFailure(message: Craft::t('commerce', 'Order not found.'));
         }
 
+        /** @var Address|null $address */
         $address = Address::find()
-            ->id($addressId)
             ->ownerId($order->id)
+            ->id($addressId)
             ->one();
 
         if (!$address) {
@@ -844,7 +849,7 @@ class OrdersController extends Controller
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
             // If gateway adapter does no support backend cp payments.
-            if (!$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
+            if ($gateway->availableForUseWithOrder($order) === false || !$gateway->cpPaymentsEnabled() || $gateway instanceof MissingGateway) {
                 unset($gateways[$key]);
                 continue;
             }
@@ -873,14 +878,14 @@ class OrdersController extends Controller
                 'order' => $order,
             ]);
 
+            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
+
             $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
                 'formHtml' => $paymentFormHtml,
                 'gateway' => $gateway,
                 'paymentForm' => $paymentFormModel,
                 'order' => $order,
             ]);
-
-            $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
             $formHtml .= $paymentFormHtml;
         }
@@ -1016,6 +1021,7 @@ class OrdersController extends Controller
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
+        /** @var Order $order */
         $order = Order::find()->id($orderId)->one();
         $baseCurrency = $order->currency;
 
@@ -1108,7 +1114,6 @@ class OrdersController extends Controller
         $variables['paymentMethodsAvailable'] = false;
 
         if (empty($variables['paymentForm'])) {
-            /** @var Gateway $gateway */
             $gateway = $order->getGateway();
 
             if ($gateway && !$gateway instanceof MissingGateway) {
@@ -1216,13 +1221,15 @@ class OrdersController extends Controller
      * @throws InvalidElementException
      * @throws UnsupportedSiteException
      */
-    private function _updateOrder(Order $order, $orderRequestData): void
+    private function _updateOrder(Order $order, $orderRequestData, bool $tryAutoSet = true): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
 
+        $hasSetCustomer = false;
         $customerId = $orderRequestData['order']['customerId'] ?? null;
         if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
+            $hasSetCustomer = true;
             $order->setCustomer($customer);
         } else {
             $order->setCustomer();
@@ -1235,31 +1242,46 @@ class OrdersController extends Controller
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
         $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
 
-        $getAddress = static function($address, $orderId, $title) {
-            if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
-                if (isset($address['_copy'])) {
-                    unset($address['_copy']);
-                }
-                $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
-            } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
-                $address = Address::find()->id($address['id'])->ownerId($address['ownerId'])->one();
+        $submittedBillingAddress = $orderRequestData['order']['billingAddress'] ?? null;
+        $submittedShippingAddress = $orderRequestData['order']['shippingAddress'] ?? null;
+
+        if ($tryAutoSet && $hasSetCustomer && $submittedShippingAddress === null && $submittedBillingAddress === null) {
+            // Try and auto set addresses if the customer has changed and no address data is submitted
+            // Remove any lingering addresses from previous saves
+            if (!$order->isCompleted) {
+                $order->setBillingAddress(null);
+                $order->setShippingAddress(null);
             }
 
-            return $address;
-        };
-        $billingAddress = $getAddress($orderRequestData['order']['billingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
-        $order->setBillingAddress($billingAddress);
+            $order->autoSetAddresses();
+        } else {
+            $getAddress = static function($address, $orderId, $title) {
+                if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
+                    if (isset($address['_copy'])) {
+                        unset($address['_copy']);
+                    }
+                    $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
+                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+                } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
+                    /** @var Address|null $address */
+                    $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
+                }
 
-        $shippingAddress = $getAddress($orderRequestData['order']['shippingAddress'] ?? null, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
-        $order->setShippingAddress($shippingAddress);
+                return $address;
+            };
+            $billingAddress = $getAddress($submittedBillingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Billing Address'));
+            $order->setBillingAddress($billingAddress);
 
-        if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
-            $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
-        }
+            $shippingAddress = $getAddress($submittedShippingAddress, $orderRequestData['order']['id'], Craft::t('commerce', 'Shipping Address'));
+            $order->setShippingAddress($shippingAddress);
 
-        if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
-            $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+            if (isset($orderRequestData['order']['sourceBillingAddressId'])) {
+                $order->sourceBillingAddressId = $orderRequestData['order']['sourceBillingAddressId'];
+            }
+
+            if (isset($orderRequestData['order']['sourceShippingAddressId'])) {
+                $order->sourceShippingAddressId = $orderRequestData['order']['sourceShippingAddressId'];
+            }
         }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
@@ -1471,7 +1493,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Craft::t('commerce', 'Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
-                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note) ?? ''],
+                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
@@ -1500,8 +1522,9 @@ class OrdersController extends Controller
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
         foreach ($results as $row) {
-            /** @var PurchasableInterface|PurchasableElement $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+            /** @var PurchasableElement|null $purchasable */
+            $purchasable = Craft::$app->getElements()->getElementById($row['id']);
+            if ($purchasable) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 } else {
@@ -1517,6 +1540,7 @@ class OrdersController extends Controller
                 $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
                 $row['description'] = Html::encode($row['description']);
                 $row['sku'] = Html::encode($row['sku']);
+                $row['qty'] = '';
                 $purchasables[] = $row;
             }
         }
@@ -1534,6 +1558,7 @@ class OrdersController extends Controller
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
                 'totalAddresses' => count($customer->getAddresses()),
+                'photoThumbUrl' => $customer->getThumbUrl(100),
             ];
     }
 
@@ -1541,7 +1566,7 @@ class OrdersController extends Controller
      * @param Order $order
      * @throws ForbiddenHttpException
      */
-    protected function enforceManageOrderPermissions(Order $order)
+    protected function enforceManageOrderPermissions(Order $order): void
     {
         if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User not authorized to view this order.');

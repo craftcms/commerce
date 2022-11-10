@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ConfigEvent;
-use craft\events\FieldEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
@@ -59,27 +58,10 @@ class Orders extends Component
 
 
     /**
-     * Prune a deleted field from order field layouts.
+     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
      */
-    public function pruneDeletedField(FieldEvent $event): void
+    public function pruneDeletedField(): void
     {
-        /** @var Field $field */
-        $field = $event->field;
-        $fieldUid = $field->uid;
-
-        $projectConfig = Craft::$app->getProjectConfig();
-        $layoutData = $projectConfig->get(self::CONFIG_FIELDLAYOUT_KEY);
-
-        // Prune the UID from field layouts.
-        if (is_array($layoutData)) {
-            foreach ($layoutData as $layoutUid => $layout) {
-                if (!empty($layout['tabs'])) {
-                    foreach ($layout['tabs'] as $tabUid => $tab) {
-                        $projectConfig->remove(self::CONFIG_FIELDLAYOUT_KEY . '.' . $layoutUid . '.tabs.' . $tabUid . '.fields.' . $fieldUid);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -92,6 +74,9 @@ class Orders extends Component
 
     /**
      * Get an order by its ID.
+     *
+     * @param int $id
+     * @return Order|null
      */
     public function getOrderById(int $id): ?Order
     {
@@ -155,6 +140,7 @@ class Orders extends Component
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
 
+        /** @var Address[] $addresses */
         $addresses = Address::find()->id($ids)->indexBy('id')->all();
 
         foreach ($orders as $key => $order) {

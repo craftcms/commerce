@@ -6,7 +6,7 @@
  */
 
 return [
-    [
+    'rad-hoodie' => [
         'typeId' => '2000',
         'title' => 'Rad Hoodie',
         'slug' => 'rad-hoodie',
@@ -15,6 +15,8 @@ return [
         'availableForPurchase' => 1,
         'promotable' => 1,
         'postDate' => (new DateTime('now')),
+        'shippingCategoryId' => 101,
+        'taxCategoryId' => 101,
         '_variants' => [
             'new_0' => [
                 'title' => 'Rad Hoodie',
@@ -34,7 +36,7 @@ return [
             ],
         ],
     ],
-    [
+    'hypercolor-tshirt' => [
         'typeId' => '2001',
         'title' => 'Hypercolor T-Shirt',
         'slug' => 'hypercolor-tshirt',

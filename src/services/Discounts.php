@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\adjusters\Discount as DiscountAdjuster;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
@@ -173,7 +174,7 @@ class Discounts extends Component
      * Event::on(
      *     Discounts::class,
      *     Discounts::EVENT_DISCOUNT_MATCHES_ORDER,
-     *     function(MatchLineOrder $event) {
+     *     function(MatchOrderEvent $event) {
      *         // @var Order $order
      *         $order = $event->order;
      *         // @var Discount $discount
@@ -254,7 +255,7 @@ class Discounts extends Component
         } else {
             // We use a round the time so we can have a cache within the same request (rounded to 1 minute flat, no seconds)
             $date = new DateTime();
-            $date->setTime($date->format('H'), round($date->format('i') / 1) * 1);
+            $date->setTime((int)$date->format('H'), (int)(round($date->format('i') / 1) * 1));
         }
 
         // Coupon condition key
@@ -289,9 +290,10 @@ class Discounts extends Component
                 ->from(Table::COUPONS)
                 ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
-            $codeWhere = ['code' => $order->couponCode];
             if (Craft::$app->getDb()->getIsPgsql()) {
-                ArrayHelper::prependOrAppend($codeWhere, 'ilike', true);
+                $codeWhere = ['ilike', 'code', $order->couponCode];
+            } else {
+                $codeWhere = ['code' => $order->couponCode];
             }
 
             $discountQuery->andWhere([
@@ -447,18 +449,17 @@ class Discounts extends Component
         }
 
         // can't match something not promotable
-        if (!$lineItem->getPurchasable() || !$lineItem->getPurchasable()->getIsPromotable()) {
+        /** @var Purchasable|null $purchasable */
+        $purchasable = $lineItem->getPurchasable();
+        if (!$purchasable || !$purchasable->getIsPromotable()) {
             return false;
         }
 
-        if (!$discount->allPurchasables) {
-            $purchasableId = $lineItem->purchasableId;
-            if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
-                return false;
-            }
+        if (!$discount->allPurchasables && !in_array($purchasable->id, $discount->getPurchasableIds(), false)) {
+            return false;
         }
 
-        if (!$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
+        if (!$discount->allCategories) {
             $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
@@ -495,39 +496,40 @@ class Discounts extends Component
         $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
 
         $orderCondition = $discount->getOrderCondition();
-        $hasRules = count($orderCondition->getConditionRules());
-        if ($hasRules && !$discount->getOrderCondition()->matchElement($order)) {
+        $hasOrderConditionRules = count($orderCondition->getConditionRules());
+
+        if ($hasOrderConditionRules && !$discount->getOrderCondition()->matchElement($order)) {
             return false;
         }
 
         $customerCondition = $discount->getCustomerCondition();
-        $hasRules = count($customerCondition->getConditionRules());
+        $hasCustomerConditionRules = count($customerCondition->getConditionRules());
         $customer = $order->getCustomer();
-        if ($hasRules && !$customer) {
-            return false;
-        }
-        if ($hasRules && $customer && !$customerCondition->matchElement($customer)) {
-            return false;
+
+        if ($hasCustomerConditionRules) {
+            if (!$customer || !$customerCondition->matchElement($customer)) {
+                return false;
+            }
         }
 
         $shippingAddressCondition = $discount->getShippingAddressCondition();
-        $hasRules = count($shippingAddressCondition->getConditionRules());
+        $hasShippingAddressConditionRules = count($shippingAddressCondition->getConditionRules());
         $shippingAddress = $order->getShippingAddress();
-        if ($hasRules && !$shippingAddress) {
-            return false;
-        }
-        if ($hasRules && $shippingAddress && !$shippingAddressCondition->matchElement($shippingAddress)) {
-            return false;
+
+        if ($hasShippingAddressConditionRules) {
+            if (!$shippingAddress || !$shippingAddressCondition->matchElement($shippingAddress)) {
+                return false;
+            }
         }
 
         $billingAddressCondition = $discount->getShippingAddressCondition();
-        $hasRules = count($billingAddressCondition->getConditionRules());
+        $hasBillingAddressConditionRules = count($billingAddressCondition->getConditionRules());
         $billingAddress = $order->getShippingAddress();
-        if ($hasRules && !$billingAddress) {
-            return false;
-        }
-        if ($hasRules && $billingAddress && !$billingAddressCondition->matchElement($billingAddress)) {
-            return false;
+
+        if ($hasBillingAddressConditionRules) {
+            if (!$billingAddress || !$billingAddressCondition->matchElement($billingAddress)) {
+                return false;
+            }
         }
 
         if (!$this->_isDiscountCouponCodeValid($order, $discount)) {
@@ -574,21 +576,17 @@ class Discounts extends Component
 
         // Check to see if we need to match on data related to the lineItems
         if (!$discount->allPurchasables || !$discount->allCategories) {
-            $lineItemMatch = false;
-            $matchingTotal = 0;
-            $matchingQty = 0;
-            foreach ($order->getLineItems() as $lineItem) {
-                // Must mot match order as we would get an infinate recursion
-                if ($this->matchLineItem($lineItem, $discount)) {
-                    $lineItemMatch = true;
-                    $matchingTotal += $lineItem->getSubtotal();
-                    $matchingQty += $lineItem->qty;
-                }
-            }
 
-            if (!$lineItemMatch) {
+            // Get matching line items but don't match the order again
+            $matchingItems = collect($order->getLineItems())
+                ->filter(fn($item) => $this->matchLineItem($item, $discount));
+
+            if ($matchingItems->isEmpty()) {
                 return false;
             }
+
+            $matchingQty = $matchingItems->sum('qty');
+            $matchingTotal = $matchingItems->sum('subtotal');
 
             if ($discount->purchaseTotal > 0 && $matchingTotal < $discount->purchaseTotal) {
                 return false;
@@ -664,6 +662,7 @@ class Discounts extends Component
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
         $record->baseDiscountType = $model->baseDiscountType;
+        $record->purchaseTotal = $model->purchaseTotal;
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
         $record->percentageOffSubject = $model->percentageOffSubject;
@@ -1091,11 +1090,11 @@ class Discounts extends Component
     }
 
     /**
-     * @param $discounts
+     * @param array $discounts
      * @return array
      * @since 2.2.14
      */
-    private function _populateDiscounts($discounts): array
+    private function _populateDiscounts(array $discounts): array
     {
         $allDiscountsById = [];
 
@@ -1165,6 +1164,7 @@ class Discounts extends Component
                 '[[discounts.perEmailLimit]]',
                 '[[discounts.perItemDiscount]]',
                 '[[discounts.perUserLimit]]',
+                '[[discounts.purchaseTotal]]',
                 '[[discounts.purchaseQty]]',
                 '[[discounts.sortOrder]]',
                 '[[discounts.stopProcessing]]',
