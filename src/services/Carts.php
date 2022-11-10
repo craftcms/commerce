@@ -121,8 +121,11 @@ class Carts extends Component
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
         }
+        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
+            $forceSave = true;
+        }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
+        if ($currentUser && $currentUser->id === $this->_cart->getCustomerId() && $this->_cart->autoSetAddresses()) {
             // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
             $forceSave = true;
         }
@@ -251,7 +254,7 @@ class Carts extends Component
      * Get the session cart number or generates one if none exists.
      *
      */
-    private function getSessionCartNumber(): string
+    protected function getSessionCartNumber(): string
     {
         if ($this->_cartNumber === null) {
             $this->_cartNumber = $this->generateCartNumber();
