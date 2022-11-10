@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Carts;
 use craftcommercetests\fixtures\CustomerAddressFixture;
-use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
 
 /**
