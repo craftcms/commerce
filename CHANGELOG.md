@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where partial elements were not being deleted during garbage collection.
 - Fixed a bug where orders’ item subtotals weren’t being saved to the database.
+- Fixed a bug where switching from guest to customer does set auto address. ([#2903](https://github.com/craftcms/commerce/issues/2903))
 
 ## 3.4.17.1 - 2022-08-30
 
