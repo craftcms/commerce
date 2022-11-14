@@ -73,6 +73,60 @@ class Install extends Migration
      */
     public function createTables(): void
     {
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES);
+        $this->createTable(Table::CATALOG_PRICING_RULES, [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'description' => $this->text(),
+            'dateFrom' => $this->dateTime(),
+            'dateTo' => $this->dateTime(),
+            'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
+            'applyAmount' => $this->decimal(14, 4)->notNull(),
+            'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'customerCondition' => $this->text(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES_PURCHASABLES);
+        $this->createTable(Table::CATALOG_PRICING_RULES_PURCHASABLES, [
+            'id' => $this->primaryKey(),
+            'catalogPricingRuleId' => $this->integer()->notNull(),
+            'purchasableId' => $this->integer()->notNull(),
+            'purchasableType' => $this->string()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES_USERS);
+        $this->createTable(Table::CATALOG_PRICING_RULES_USERS, [
+            'id' => $this->primaryKey(),
+            'catalogPricingRuleId' => $this->integer()->notNull(),
+            'userGroupId' => $this->integer()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING);
+        $this->createTable(Table::CATALOG_PRICING, [
+            'id' => $this->primaryKey(),
+            'price' => $this->decimal(14, 4), // TODO probably store as string?
+            'purchasableId' => $this->integer()->notNull(),
+            'storeId' => $this->integer(),
+            'catalogPricingRuleId' => $this->integer(),
+            'userId' => $this->integer(),
+            'dateFrom' => $this->dateTime(),
+            'dateTo' => $this->dateTime(),
+            'salePrice' => $this->boolean()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->archiveTableIfExists(Table::CUSTOMERS);
         $this->createTable(Table::CUSTOMERS, [
             'id' => $this->primaryKey(), // Not used in v4 but is the old customerId
@@ -829,6 +883,14 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'purchasableId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userGroupId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -925,6 +987,14 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userGroupId'], CraftTable::USERGROUPS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::COUPONS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
