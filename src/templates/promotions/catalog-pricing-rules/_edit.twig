@@ -1,0 +1,246 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set selectedSubnavItem = "promotions" %}
+
+{% set crumbs = [
+    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
+    { label: "Catalog Pricing Rules"|t('commerce'), url: url('commerce/promotions/catalog-pricing-rules') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+{% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+{% set actionClasses = "" %}
+{% if (catalogPricingRule.getErrors('applyAmount') or catalogPricingRule.getErrors('apply')) %}
+  {% set actionClasses = "error" %}
+{% endif %}
+
+{% set ruleClasses = "" %}
+{% if(catalogPricingRule.getErrors('name')) %}
+    {% set ruleClasses = "error" %}
+{% endif %}
+
+{% set tabs = {
+    0: {'label':'Rule'|t('commerce'),'url':'#rule','class': ruleClasses},
+    1: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
+    2: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+} %}
+
+{% hook "cp.commerce.catalogPricingRules.edit" %}
+
+{% block details %}
+
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this rule"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: catalogPricingRule.enabled,
+            checked: catalogPricingRule.enabled,
+            errors: catalogPricingRule.getErrors('enabled'),
+            instructions: 'Whether this catalog pricing rule should be available for use, regardless of other conditions.'|t('commerce')
+        }) }}
+    </div>
+
+    {% if catalogPricingRule and catalogPricingRule.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ catalogPricingRule.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ catalogPricingRule.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% hook "cp.commerce.catalogPricingRules.edit.details" %}
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/catalog-pricing-rules/save">
+    {{ redirectInput('commerce/promotions/catalog-pricing-rules') }}
+    {% if catalogPricingRule.id %}
+        <input type="hidden" name="id" value="{{ catalogPricingRule.id }}">
+    {% endif %}
+
+    <div id="rule">
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            instructions: "What this catalog pricing rule will be called in the control panel."|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: catalogPricingRule.name,
+            errors: catalogPricingRule.getErrors('name'),
+            autofocus: true,
+            required: true,
+        }) }}
+
+        {{ forms.textField({
+            label: "Description"|t('commerce'),
+            instructions: "Catalog pricing rule description."|t('commerce'),
+            id: 'description',
+            name: 'description',
+            value: catalogPricingRule.description,
+            errors: catalogPricingRule.getErrors('description'),
+        }) }}
+
+    </div>
+
+    <div id="matching-items" class="hidden">
+        {{ forms.lightswitchField({
+            label: "All purchasables"|t('commerce'),
+            id: 'allPurchasables',
+            name: 'allPurchasables',
+            reverseToggle: '#matching-items-purchasables',
+            on: catalogPricingRule.allPurchasables ? true : false,
+            errors: catalogPricingRule.getErrors('allPurchasables')
+        }) }}
+
+        <div id="matching-items-purchasables" {% if catalogPricingRule.allPurchasables %}class="hidden"{% endif %}>
+            {% for purchasableType in purchasableTypes %}
+                {{ forms.elementSelectField({
+                    id: 'purchasables-'~purchasableType.elementType|id,
+                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                    name: 'purchasables['~purchasableType.elementType~']',
+                    elements: purchasables[purchasableType.elementType] ?? null,
+                    elementType: purchasableType.elementType,
+                    limit: null,
+                    instructions: '{type} for which this catalog pricing rule will be applicable to.'|t('commerce', {
+                        type: purchasableType.name
+                    }),
+                    errors: catalogPricingRule.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
+                }) }}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div id="conditions" class="hidden">
+        {{ forms.dateTimeField({
+            label: "Start Date"|t('commerce'),
+            instructions: "Date from which the catalog pricing rule will be active. Leave blank for unlimited start date"|t('commerce'),
+            id: 'dateFrom',
+            name: 'dateFrom',
+            value: catalogPricingRule.dateFrom,
+            errors: catalogPricingRule.getErrors('dateFrom'),
+        }) }}
+
+        {{ forms.dateTimeField({
+            label: "End Date"|t('commerce'),
+            instructions: "Date when the catalog pricing rule will be finished. Leave blank for unlimited end date"|t('commerce'),
+            id: 'dateTo',
+            name: 'dateTo',
+            value: catalogPricingRule.dateTo,
+            errors: catalogPricingRule.getErrors('dateTo'),
+        }) }}
+        <div class="grid">
+
+            {% if groups|length %}
+
+                {{ forms.lightswitchField({
+                    label: "All customers"|t('commerce'),
+                    id: 'allGroups',
+                    name: 'allGroups',
+                    reverseToggle: '#matching-usergroups',
+                    on: catalogPricingRule.allGroups ? true : false,
+                    errors: catalogPricingRule.getErrors('allGroups')
+                }) }}
+
+                <div id="matching-usergroups" {% if catalogPricingRule.allGroups %}class="hidden"{% endif %}>
+                    {{ forms.multiselectField({
+                        label: 'User Groups'|t('commerce'),
+                        instructions: "Groups for which this catalog pricing rule will be applicable to."|t('commerce'),
+                        id: 'groups',
+                        name: 'groups',
+                        options: groups,
+                        values: catalogPricingRule.getUserGroupIds(),
+                        errors: catalogPricingRule.getErrors('userGroupIds'),
+                        class: 'selectize fullwidth',
+                    }) }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="actions" class="hidden">
+
+        {% set applyAmountInput %}
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.select({
+                            id: 'apply',
+                            name: 'apply',
+                            options: [
+                                {optgroup: "Reduce price"|t('commerce')},
+                                {label: "Reduce the price by a percentage of the original price"|t('commerce'), value: 'byPercent' },
+                                {label: "Reduce the price by a fixed amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'byFlat' },
+                                {optgroup: "Set price"|t('commerce')},
+                                {label: "Set the price to a percentage of the original price"|t('commerce'), value: 'toPercent' },
+                                {label: "Set the price to a flat amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'toFlat' },
+                            ],
+                            value: catalogPricingRule.apply
+                        }) }}
+                    </td>
+                    <td>
+                        <span id="applyAmount-currency-symbol" class="{% if catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply %}hidden{% endif %}">{{ currencySymbol }}</span>
+                        {{ forms.text({
+                            id: 'applyAmount',
+                            name: 'applyAmount',
+                            value: applyAmount,
+                            class: 'code ltr',
+                            size: 5,
+                        }) }}
+                        <span id="applyAmount-percent-symbol" class="{% if catalogPricingRule.apply == 'byFlat' or catalogPricingRule.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
+                    </td>
+                </tr>
+            </table>
+        {% endset %}
+
+        {{ forms.field({
+            label: "Effect"|t('commerce'),
+            instructions: "Select how the catalog pricing rule will be applied to the purchasable(s)."|t('commerce'),
+            id: 'applyAmount',
+            errors: catalogPricingRule.getErrors('applyAmount')
+        }, applyAmountInput) }}
+    </div>
+
+    {% hook "cp.commerce.catalogPricingRules.edit.content" %}
+{% endblock %}
+
+{% js %}
+$(function() {
+    $('#groups, #productTypes').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+
+    $('select[name=apply]').change(function() {
+
+        if (this.value == 'byPercent' || this.value == 'toPercent') {
+            $('#applyAmount-percent-symbol').removeClass('hidden');
+            $('#applyAmount-currency-symbol').addClass('hidden');
+        }else{
+            $('#applyAmount-percent-symbol').addClass('hidden');
+            $('#applyAmount-currency-symbol').removeClass('hidden');
+        }
+
+        if (this.value == 'toFlat' || this.value == 'toPercent') {
+            $('input[name=ignorePrevious]').prop('disabled', true);
+            $('#ignorePrevious').prop('disabled', true);
+            $('#ignorePrevious').addClass('disabled', true);
+        }
+        if (this.value != 'toFlat' && this.value != 'toPercent') {
+            $('input[name=ignorePrevious]').prop('disabled', false);
+            $('#ignorePrevious').prop('disabled', false);
+            $('#ignorePrevious').removeClass('disabled', true);
+        }
+    });
+});
+{% endjs %}

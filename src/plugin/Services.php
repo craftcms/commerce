@@ -8,6 +8,7 @@
 namespace craft\commerce\plugin;
 
 use craft\commerce\services\Carts;
+use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -27,6 +28,7 @@ use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Pdfs;
 use craft\commerce\services\Plans;
+use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -66,6 +68,7 @@ use yii\base\InvalidConfigException;
  * @property PaymentSources $paymentSources the payment sources service
  * @property Pdfs $pdf the pdf service
  * @property Plans $plans the plans service
+ * @property CatalogPricingRules $catalogPricingRules the catalog pricing rules service
  * @property Products $products the products service
  * @property ProductTypes $productTypes the product types service
  * @property Purchasables $purchasables the purchasables service
@@ -306,6 +309,28 @@ trait Services
     public function getPlans(): Plans
     {
         return $this->get('plans');
+    }
+
+    /**
+     * Returns the catalog pricing service
+     *
+     * @return CatalogPricing
+     * @throws InvalidConfigException
+     */
+    public function getCatalogPricing(): CatalogPricing
+    {
+        return $this->get('catalogPricing');
+    }
+
+    /**
+     * Returns the catalog pricing rules service
+     *
+     * @return CatalogPricingRules
+     * @throws InvalidConfigException
+     */
+    public function getCatalogPricingRules(): CatalogPricingRules
+    {
+        return $this->get('catalogPricingRules');
     }
 
     /**

@@ -59,6 +59,7 @@ use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Pdfs;
 use craft\commerce\services\Plans;
+use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
@@ -129,7 +130,6 @@ use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
-use yii\base\Exception;
 use yii\web\User;
 
 /**
@@ -170,6 +170,7 @@ class Plugin extends BasePlugin
                 'paymentSources' => ['class' => PaymentSources::class],
                 'pdfs' => ['class' => Pdfs::class],
                 'plans' => ['class' => Plans::class],
+                'catalogPricingRules' => ['class' => CatalogPricingRules::class],
                 'products' => ['class' => Products::class],
                 'productTypes' => ['class' => ProductTypes::class],
                 'purchasables' => ['class' => Purchasables::class],
@@ -204,7 +205,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.1.2';
+    public string $schemaVersion = '4.1.5';
 
     /**
      * @inheritdoc
@@ -265,21 +266,6 @@ class Plugin extends BasePlugin
         }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeInstall(): void
-    {
-        // Check version before installing
-        if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
-            throw new Exception('Craft Commerce 4 requires Craft CMS 4+ in order to run.');
-        }
-
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80000) {
-            Craft::error('Craft Commerce requires PHP 8.0.2+ in order to run.');
-        }
     }
 
     /**
@@ -491,6 +477,9 @@ class Plugin extends BasePlugin
                 'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
                 'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
                 'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
+                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
+                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
+                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
                 'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
                 'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
                 'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
