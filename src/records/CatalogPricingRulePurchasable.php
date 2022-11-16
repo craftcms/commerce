@@ -46,9 +46,9 @@ class CatalogPricingRulePurchasable extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getPricingCatalogRule(): ActiveQueryInterface
+    public function getCatalogPricingRule(): ActiveQueryInterface
     {
-        return $this->hasOne(CatalogPricingRule::class, ['catalogPricingRuleId' => 'id']);
+        return $this->hasOne(CatalogPricingRule::class, ['id' => 'catalogPricingRuleId']);
     }
 
     /**
@@ -56,6 +56,6 @@ class CatalogPricingRulePurchasable extends ActiveRecord
      */
     public function getPurchasable(): ActiveQueryInterface
     {
-        return $this->hasOne(Purchasable::class, ['catalogPricingRuleId' => 'id']);
+        return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);
     }
 }

@@ -17,11 +17,12 @@
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES_USERS`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES_PURCHASABLES`.
+- Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\records\CatalogPricing`.
 - Added `craft\commerce\records\CatalogPricingRule`.
 - Added `craft\commerce\records\CatalogPricingRulePurchasable`.
-- Added `craft\commerce\records\CatalogPricingRuleUserGroup`.
+- Added `craft\commerce\records\CatalogPricingRuleUser`.
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
 

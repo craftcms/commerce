@@ -85,6 +85,7 @@ class Install extends Migration
             'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -105,7 +106,7 @@ class Install extends Migration
         $this->createTable(Table::CATALOG_PRICING_RULES_USERS, [
             'id' => $this->primaryKey(),
             'catalogPricingRuleId' => $this->integer()->notNull(),
-            'userGroupId' => $this->integer()->notNull(),
+            'userId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -121,7 +122,7 @@ class Install extends Migration
             'userId' => $this->integer(),
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
-            'salePrice' => $this->boolean()->defaultValue(false),
+            'isPromotionalPrice' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -886,7 +887,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userGroupId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
@@ -989,7 +990,7 @@ class Install extends Migration
     {
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userGroupId'], CraftTable::USERGROUPS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');

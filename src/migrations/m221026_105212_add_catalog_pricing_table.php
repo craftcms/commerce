@@ -25,9 +25,10 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateTo' => $this->dateTime(),
                 'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
                 'applyAmount' => $this->decimal(14, 4)->notNull(),
-                'allGroups' => $this->boolean()->notNull()->defaultValue(false),
                 'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+                'customerCondition' => $this->text(),
                 'enabled' => $this->boolean()->notNull()->defaultValue(true),
+                'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
@@ -54,14 +55,14 @@ class m221026_105212_add_catalog_pricing_table extends Migration
             $this->createTable('{{%commerce_catalogpricingrules_users}}', [
                 'id' => $this->primaryKey(),
                 'catalogPricingRuleId' => $this->integer()->notNull(),
-                'userGroupId' => $this->integer()->notNull(),
+                'userId' => $this->integer()->notNull(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
             ]);
             $this->createIndex(null, '{{%commerce_catalogpricingrules_users}}', 'catalogPricingRuleId', false);
-            $this->createIndex(null, '{{%commerce_catalogpricingrules_users}}', 'userGroupId', false);
-            $this->addForeignKey(null, '{{%commerce_catalogpricingrules_users}}', ['userGroupId'], \craft\db\Table::USERGROUPS, ['id'], 'CASCADE', 'CASCADE');
+            $this->createIndex(null, '{{%commerce_catalogpricingrules_users}}', 'userId', false);
+            $this->addForeignKey(null, '{{%commerce_catalogpricingrules_users}}', ['userId'], \craft\db\Table::USERS, ['id'], 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%commerce_catalogpricingrules_users}}', ['catalogPricingRuleId'], '{{%commerce_catalogpricingrules}}', ['id'], 'CASCADE', 'CASCADE');
         }
 
@@ -75,7 +76,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'userId' => $this->integer(),
                 'dateFrom' => $this->dateTime(),
                 'dateTo' => $this->dateTime(),
-                'salePrice' => $this->boolean()->defaultValue(false),
+                'isPromotionalPrice' => $this->boolean()->defaultValue(false),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),

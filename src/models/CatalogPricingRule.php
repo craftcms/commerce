@@ -10,8 +10,12 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\db\Query;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\User;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -21,8 +25,8 @@ use DateTime;
  * @property string|false $cpEditUrl
  * @property string $applyAmountAsFlat
  * @property string $applyAmountAsPercent
+ * @property string|array|ElementConditionInterface $customerCondition
  * @property array $purchasableIds
- * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
@@ -64,9 +68,11 @@ class CatalogPricingRule extends Model
     public ?float $applyAmount = null;
 
     /**
-     * @var bool Match all groups
+     * @var ElementConditionInterface|null
+     * @see getCustomerCondition()
+     * @see setCustomerCondition()
      */
-    public bool $allGroups = false;
+    public null|ElementConditionInterface $_customerCondition = null;
 
     /**
      * @var bool Match all purchasables
@@ -77,6 +83,11 @@ class CatalogPricingRule extends Model
      * @var bool Enabled
      */
     public bool $enabled = true;
+
+    /**
+     * @var bool
+     */
+    public bool $isPromotionalPrice = false;
 
     /**
      * @var DateTime|null
@@ -96,9 +107,9 @@ class CatalogPricingRule extends Model
     private ?array $_purchasableIds = null;
 
     /**
-     * @var int[]|null Group IDs
+     * @var int[]|null
      */
-    private ?array $_userGroupIds = null;
+    private ?array $_userIds = null;
 
     /**
      * @inheritdoc
@@ -108,8 +119,8 @@ class CatalogPricingRule extends Model
         return [
             [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
             [['enabled'], 'boolean'],
-            [['name', 'apply', 'allGroups', 'allPurchasables'], 'required'],
-            [['id', 'applyAmount', 'dateFrom', 'dateTo'], 'safe'],
+            [['name', 'apply', 'allPurchasables'], 'required'],
+            [['id', 'applyAmount', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice'], 'safe'],
         ];
     }
 
@@ -160,26 +171,6 @@ class CatalogPricingRule extends Model
         return $this->_purchasableIds;
     }
 
-    public function getUserGroupIds(): array
-    {
-        if (!isset($this->_userGroupIds)) {
-            $userGroupIds = [];
-            if ($this->id) {
-                $userGroupIds = (new Query())->select(
-                    'pcru.userGroupId')
-                    ->from(Table::CATALOG_PRICING_RULES . ' pcr')
-                    ->leftJoin(Table::CATALOG_PRICING_RULES_USERS . ' pcru', '[[pcru.catalogPricingRuleId]]=[[pcr.id]]')
-                    ->where(['pcr.id' => $this->id])
-                    ->column();
-                $userGroupIds = array_filter($userGroupIds);
-            }
-
-            $this->_userGroupIds = $userGroupIds;
-        }
-
-        return $this->_userGroupIds;
-    }
-
     /**
      * Sets the related purchasable ids
      */
@@ -189,11 +180,50 @@ class CatalogPricingRule extends Model
     }
 
     /**
-     * Sets the related user group ids
+     * @return ElementConditionInterface
      */
-    public function setUserGroupIds(array $userGroupIds): void
+    public function getCustomerCondition(): ElementConditionInterface
     {
-        $this->_userGroupIds = array_unique($userGroupIds);
+        $condition = $this->_customerCondition ?? new CatalogPricingRuleCustomerCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'customerCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRuleCustomerCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var CatalogPricingRuleCustomerCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return int[]|null
+     */
+    public function getUserIds(): ?array
+    {
+        if ($this->_userIds === null && !empty($this->getCustomerCondition()->getConditionRules())) {
+            $userQuery = User::find();
+            $this->getCustomerCondition()->modifyQuery($userQuery);
+            $this->_userIds = $userQuery->ids();
+        }
+
+        return $this->_userIds;
     }
 
     /**

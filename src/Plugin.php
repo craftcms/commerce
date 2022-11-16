@@ -40,6 +40,7 @@ use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Carts;
+use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -170,6 +171,7 @@ class Plugin extends BasePlugin
                 'paymentSources' => ['class' => PaymentSources::class],
                 'pdfs' => ['class' => Pdfs::class],
                 'plans' => ['class' => Plans::class],
+                'catalogPricing' => ['class' => CatalogPricing::class],
                 'catalogPricingRules' => ['class' => CatalogPricingRules::class],
                 'products' => ['class' => Products::class],
                 'productTypes' => ['class' => ProductTypes::class],

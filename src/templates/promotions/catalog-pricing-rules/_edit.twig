@@ -91,6 +91,14 @@
             errors: catalogPricingRule.getErrors('description'),
         }) }}
 
+        {{ forms.lightswitchField({
+            label: 'Is Promotional Price?'|t('commerce'),
+            id: 'isPromotionalPrice',
+            name: 'isPromotionalPrice',
+            value: 1,
+            on: catalogPricingRule.isPromotionalPrice ? true : false,
+            errors: catalogPricingRule.getErrors('isPromotionalPrice'),
+        }) }}
     </div>
 
     <div id="matching-items" class="hidden">
@@ -139,33 +147,15 @@
             value: catalogPricingRule.dateTo,
             errors: catalogPricingRule.getErrors('dateTo'),
         }) }}
-        <div class="grid">
 
-            {% if groups|length %}
+        {% set customerConditionInput %}
+          {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
+        {% endset %}
 
-                {{ forms.lightswitchField({
-                    label: "All customers"|t('commerce'),
-                    id: 'allGroups',
-                    name: 'allGroups',
-                    reverseToggle: '#matching-usergroups',
-                    on: catalogPricingRule.allGroups ? true : false,
-                    errors: catalogPricingRule.getErrors('allGroups')
-                }) }}
-
-                <div id="matching-usergroups" {% if catalogPricingRule.allGroups %}class="hidden"{% endif %}>
-                    {{ forms.multiselectField({
-                        label: 'User Groups'|t('commerce'),
-                        instructions: "Groups for which this catalog pricing rule will be applicable to."|t('commerce'),
-                        id: 'groups',
-                        name: 'groups',
-                        options: groups,
-                        values: catalogPricingRule.getUserGroupIds(),
-                        errors: catalogPricingRule.getErrors('userGroupIds'),
-                        class: 'selectize fullwidth',
-                    }) }}
-                </div>
-            {% endif %}
-        </div>
+        {{ forms.field({
+          label: 'Match Customer'|t('commerce'),
+          errors: catalogPricingRule.getErrors('customerCondition')
+        }, customerConditionInput) }}
     </div>
 
     <div id="actions" class="hidden">

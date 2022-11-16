@@ -122,6 +122,7 @@ class CatalogPricingRulesController extends BaseCpController
         $catalogPricingRule->description = $this->request->getBodyParam('description');
         $catalogPricingRule->apply = $this->request->getBodyParam('apply');
         $catalogPricingRule->enabled = (bool)$this->request->getBodyParam('enabled');
+        $catalogPricingRule->isPromotionalPrice = (bool)$this->request->getBodyParam('isPromotionalPrice');
 
         $dateFields = [
             'dateFrom',
@@ -158,20 +159,11 @@ class CatalogPricingRulesController extends BaseCpController
             $catalogPricingRule->setPurchasableIds($purchasables);
         }
 
-        // Set user group conditions
-        // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
-        if ($catalogPricingRule->allGroups = (bool)$this->request->getBodyParam('allGroups', true)) {
-            $catalogPricingRule->setUserGroupIds([]);
-        } else {
-            $groups = $this->request->getBodyParam('groups', []);
-            if (!$groups) {
-                $groups = [];
-            }
-            $catalogPricingRule->setUserGroupIds($groups);
-        }
+        // Set user conditions
+        $catalogPricingRule->setCustomerCondition($this->request->getBodyParam('customerCondition'));
 
         // Save it
-        if (Plugin::getInstance()->getcatalogPricingRules()->savecatalogPricingRule($catalogPricingRule)) {
+        if (Plugin::getInstance()->getcatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Catalog pricing rule saved.'));
             return $this->redirectToPostedUrl($catalogPricingRule);
         }

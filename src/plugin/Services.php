@@ -68,6 +68,7 @@ use yii\base\InvalidConfigException;
  * @property PaymentSources $paymentSources the payment sources service
  * @property Pdfs $pdf the pdf service
  * @property Plans $plans the plans service
+ * @property CatalogPricing $catalogPricing the catalog pricing rules service
  * @property CatalogPricingRules $catalogPricingRules the catalog pricing rules service
  * @property Products $products the products service
  * @property ProductTypes $productTypes the product types service

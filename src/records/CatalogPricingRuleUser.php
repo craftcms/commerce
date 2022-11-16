@@ -9,21 +9,21 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
-use craft\records\UserGroup;
+use craft\elements\User;
 use yii\db\ActiveQueryInterface;
 
 /**
- * Catalog Pricing Rule user group record.
+ * Catalog Pricing Rule user record.
  *
  * @property int $id
- * @property ActiveQueryInterface $userGroup
- * @property int $userGroupId
+ * @property ActiveQueryInterface $user
+ * @property int $userId
  * @property ActiveQueryInterface $catalogPricingRule
  * @property int $catalogPricingRuleId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingRuleUserGrup extends ActiveRecord
+class CatalogPricingRuleUser extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -39,23 +39,23 @@ class CatalogPricingRuleUserGrup extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['catalogPricingRuleId', 'userGroupId'], 'unique', 'targetAttribute' => ['catalogPricingRuleId', 'userGroupId']],
+            [['catalogPricingRuleId', 'userId'], 'unique', 'targetAttribute' => ['catalogPricingRuleId', 'userId']],
         ];
     }
 
     /**
      * @return ActiveQueryInterface
      */
-    public function getPricingCatalogRule(): ActiveQueryInterface
+    public function getCatalogPricingRule(): ActiveQueryInterface
     {
-        return $this->hasOne(CatalogPricingRule::class, ['catalogPricingRuleId' => 'id']);
+        return $this->hasOne(CatalogPricingRule::class, ['id' => 'catalogPricingRuleId']);
     }
 
     /**
      * @noinspection PhpUnused
      */
-    public function getUserGroup(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(UserGroup::class, ['catalogPricingRuleId' => 'id']);
+        return $this->hasOne(User::class, ['id' => 'userId']);
     }
 }

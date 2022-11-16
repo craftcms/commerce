@@ -9,8 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
-use craft\records\Category;
-use craft\records\UserGroup;
+use craft\elements\User;
 use DateTime;
 use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
@@ -18,7 +17,7 @@ use yii\db\ActiveQueryInterface;
 /**
  * Catalog Pricing Rule record.
  *
- * @property bool $allGroups
+ * @property string $customerCondition
  * @property bool $allPurchasables
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
@@ -26,12 +25,13 @@ use yii\db\ActiveQueryInterface;
  * @property float $applyAmount
  * @property string $apply
  * @property bool $enabled
- * @property UserGroup[] $groups
+ * @property bool $isPromotionalPrice
  * @property int $id
  * @property-read ActiveQueryInterface $purchasables
+ * @property-read ActiveQueryInterface $users
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 5.0.0
  */
 class CatalogPricingRule extends ActiveRecord
 {
@@ -51,9 +51,9 @@ class CatalogPricingRule extends ActiveRecord
     /**
      * @throws InvalidConfigException
      */
-    public function getGroups(): ActiveQueryInterface
+    public function getUsers(): ActiveQueryInterface
     {
-        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable(Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId' => 'id']);
+        return $this->hasMany(User::class, ['id' => 'userId'])->viaTable(Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId' => 'id']);
     }
 
     /**
