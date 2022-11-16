@@ -7,19 +7,9 @@
 
 namespace craft\commerce\console\controllers;
 
-use Craft;
-use craft\commerce\base\Purchasable;
 use craft\commerce\console\Controller;
-use craft\commerce\db\Table;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\elements\Category;
-use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
-use craft\helpers\Db;
-use craft\records\UserGroup_User;
-use DateTime;
 use yii\console\ExitCode;
 
 /**

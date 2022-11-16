@@ -9,6 +9,7 @@ namespace craft\commerce\plugin;
 
 use craft\commerce\services\Carts;
 use craft\commerce\services\CatalogPricing;
+use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -28,7 +29,6 @@ use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
 use craft\commerce\services\Pdfs;
 use craft\commerce\services\Plans;
-use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
