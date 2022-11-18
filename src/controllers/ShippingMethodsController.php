@@ -78,7 +78,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @throws BadRequestHttpException
      * @throws \yii\base\Exception
      */
-    public function actionSave(): Response
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
@@ -93,8 +93,8 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $success = Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod);
 
         return $success ?
-            $this->asModelSuccess($shippingMethod, Craft::t('commerce', 'Shipping method saved.')) :
-            $this->asModelFailure($shippingMethod, Craft::t('commerce', 'Couldn’t save shipping method.'));
+            $this->asModelSuccess($shippingMethod, Craft::t('commerce', 'Shipping method saved.'), 'shippingMethod') :
+            $this->asModelFailure($shippingMethod, Craft::t('commerce', 'Couldn’t save shipping method.'), 'shippingMethod');
     }
 
     /**
