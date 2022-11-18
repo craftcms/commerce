@@ -162,7 +162,6 @@ class CatalogPricingRules extends Component
             $model->id = $record->id;
 
             CatalogPricingRuleUser::deleteAll(['catalogPricingRuleId' => $model->id]);
-            CatalogPricingRulePurchasable::deleteAll(['catalogPricingRuleId' => $model->id]);
 
             // Batch insert user relationships in case we are dealing with a large number
             $userIds = $model->getUserIds() ?? [];
