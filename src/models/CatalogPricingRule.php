@@ -8,9 +8,11 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
@@ -26,6 +28,7 @@ use DateTime;
  * @property string $applyAmountAsFlat
  * @property string $applyAmountAsPercent
  * @property string|array|ElementConditionInterface $customerCondition
+ * @property string|array|ElementConditionInterface $purchasableCondition
  * @property array $purchasableIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
@@ -75,9 +78,11 @@ class CatalogPricingRule extends Model
     public null|ElementConditionInterface $_customerCondition = null;
 
     /**
-     * @var bool Match all purchasables
+     * @var ElementConditionInterface|null
+     * @see getPurchasableCondition()
+     * @see setPurchasableCondition()
      */
-    public bool $allPurchasables = false;
+    public null|ElementConditionInterface $_purchasableCondition = null;
 
     /**
      * @var bool Enabled
@@ -119,8 +124,8 @@ class CatalogPricingRule extends Model
         return [
             [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
             [['enabled'], 'boolean'],
-            [['name', 'apply', 'allPurchasables'], 'required'],
-            [['id', 'applyAmount', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice'], 'safe'],
+            [['name', 'apply'], 'required'],
+            [['id', 'applyAmount', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition'], 'safe'],
         ];
     }
 
@@ -150,33 +155,18 @@ class CatalogPricingRule extends Model
         return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
-    public function getPurchasableIds(): array
+    /**
+     * @return int[]|null
+     */
+    public function getPurchasableIds(): ?array
     {
-        if (!isset($this->_purchasableIds)) {
-            $purchasableIds = [];
-            if ($this->id) {
-                $purchasableIds = (new Query())->select(
-                    'sp.purchasableId')
-                    ->from(Table::CATALOG_PRICING_RULES . ' pcr')
-                    ->leftJoin(Table::CATALOG_PRICING_RULES_PURCHASABLES . ' pcrs', '[[pcrs.catalogPricingRuleId]]=[[pcr.id]]')
-                    ->where(['pcr.id' => $this->id])
-                    ->column();
-
-                $purchasableIds = array_filter($purchasableIds);
-            }
-
-            $this->_purchasableIds = $purchasableIds;
+        if ($this->_purchasableIds === null && !empty($this->getPurchasableCondition()->getConditionRules())) {
+            $purchasableQuery = Element::find();
+            $this->getPurchasableCondition()->modifyQuery($purchasableQuery);
+            $this->_purchasableIds = $purchasableQuery->ids();
         }
 
         return $this->_purchasableIds;
-    }
-
-    /**
-     * Sets the related purchasable ids
-     */
-    public function setPurchasableIds(array $purchasableIds): void
-    {
-        $this->_purchasableIds = array_unique($purchasableIds);
     }
 
     /**
@@ -210,6 +200,39 @@ class CatalogPricingRule extends Model
         $condition->forProjectConfig = false;
 
         $this->_customerCondition = $condition;
+    }
+
+    /**
+     * @return ElementConditionInterface
+     */
+    public function getPurchasableCondition(): ElementConditionInterface
+    {
+        $condition = $this->_purchasableCondition ?? new CatalogPricingRulePurchasableCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'purchasableCondition';
+
+        return $condition;
+    }
+
+    /**
+     * @param ElementConditionInterface|string|array $condition
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function setPurchasableCondition(ElementConditionInterface|string|array $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ElementConditionInterface) {
+            $condition['class'] = CatalogPricingRulePurchasableCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var CatalogPricingRulePurchasableCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_purchasableCondition = $condition;
     }
 
     /**

@@ -18,7 +18,7 @@ use yii\db\ActiveQueryInterface;
  * Catalog Pricing Rule record.
  *
  * @property string $customerCondition
- * @property bool $allPurchasables
+ * @property string $purchasableCondition
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description
@@ -27,7 +27,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool $enabled
  * @property bool $isPromotionalPrice
  * @property int $id
- * @property-read ActiveQueryInterface $purchasables
  * @property-read ActiveQueryInterface $users
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -54,13 +53,5 @@ class CatalogPricingRule extends ActiveRecord
     public function getUsers(): ActiveQueryInterface
     {
         return $this->hasMany(User::class, ['id' => 'userId'])->viaTable(Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId' => 'id']);
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getPurchasables(): ActiveQueryInterface
-    {
-        return $this->hasMany(Purchasable::class, ['id' => 'purchasableId'])->viaTable(Table::CATALOG_PRICING_RULES_PURCHASABLES, ['catalogPricingRuleId' => 'id']);
     }
 }

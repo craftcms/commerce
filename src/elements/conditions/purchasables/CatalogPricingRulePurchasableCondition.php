@@ -1,34 +1,38 @@
 <?php
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\elements\conditions\customers;
+namespace craft\commerce\elements\conditions\purchasables;
 
+use craft\elements\conditions\ElementCondition;
 use craft\elements\conditions\SiteConditionRule;
 use craft\elements\conditions\users\LastLoginDateConditionRule;
-use craft\elements\conditions\users\UserCondition;
 
 /**
- * Catalog Pricing Rule Customer condition.
+ * Catalog Pricing Rule Purchasable condition builder.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingRuleCustomerCondition extends UserCondition
+class CatalogPricingRulePurchasableCondition extends ElementCondition
 {
     /**
      * @inheritdoc
      */
     protected function conditionRuleTypes(): array
     {
-        return array_filter(parent::conditionRuleTypes(), static function($type) {
+        $types = array_filter(parent::conditionRuleTypes(), static function($type) {
             return !in_array($type, [
-                LastLoginDateConditionRule::class,
                 SiteConditionRule::class,
             ], true);
         });
+
+        $types[] = SkuConditionRule::class;
+
+        return $types;
     }
 }

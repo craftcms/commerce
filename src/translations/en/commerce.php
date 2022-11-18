@@ -575,6 +575,7 @@ return [
     'Match Customer' => 'Match Customer',
     'Match Order' => 'Match Order',
     'Match Orders' => 'Match Orders',
+    'Match Purchasable' => 'Match Purchasable',
     'Match Shipping Address' => 'Match Shipping Address',
     'Matching Items' => 'Matching Items',
     'Matching items are those items that are used to match this discount’s conditions. Those on the \'Matching Items\' tab.' => 'Matching items are those items that are used to match this discount’s conditions. Those on the \'Matching Items\' tab.',

@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
-use craft\commerce\records\CatalogPricingRulePurchasable;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -67,25 +66,14 @@ class CatalogPricingRules extends Component
             $catalogPricingRules = $this->_createCatalogPricingRuleQuery()->all();
 
             $allPricingCatalogRulesById = [];
-            $purchasables = [];
 
             foreach ($catalogPricingRules as $pcr) {
-                $id = $pcr['id'];
-                if ($pcr['purchasableId']) {
-                    $purchasables[$id][] = $pcr['purchasableId'];
-                }
-
-                unset($pcr['purchasableId']);
-
                 $pcr['customerCondition'] = $pcr['customerCondition'] ?? '';
+                $pcr['purchasableCondition'] = $pcr['purchasableCondition'] ?? '';
 
-                if (!isset($allPricingCatalogRulesById[$id])) {
-                    $allPricingCatalogRulesById[$id] = Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $pcr]]);
+                if (!isset($allPricingCatalogRulesById[$pcr['id']])) {
+                    $allPricingCatalogRulesById[$pcr['id']] = Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $pcr]]);
                 }
-            }
-
-            foreach ($allPricingCatalogRulesById as $id => $pcr) {
-                $pcr->setPurchasableIds($purchasables[$id] ?? []);
             }
 
             $this->_allCatalogPricingRules = $allPricingCatalogRulesById;
@@ -164,9 +152,7 @@ class CatalogPricingRules extends Component
         }
 
         $record->customerCondition = $model->getCustomerCondition()->getConfig();
-        if ($record->allPurchasables = $model->allPurchasables) {
-            $model->setPurchasableIds([]);
-        }
+        $record->purchasableCondition = $model->getPurchasableCondition()->getConfig();
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -179,7 +165,7 @@ class CatalogPricingRules extends Component
             CatalogPricingRulePurchasable::deleteAll(['catalogPricingRuleId' => $model->id]);
 
             // Batch insert user relationships in case we are dealing with a large number
-            $userIds = $model->getUserIds();
+            $userIds = $model->getUserIds() ?? [];
             foreach (array_chunk($userIds, 1000) as $userIdsChunk) {
                 $userRecords = [];
                 foreach ($userIdsChunk as $userId) {
@@ -192,17 +178,6 @@ class CatalogPricingRules extends Component
                         $userRecords
                     )
                     ->execute();
-            }
-
-            foreach ($model->getPurchasableIds() as $purchasableId) {
-                $relation = new CatalogPricingRulePurchasable();
-                $relation->purchasableId = $purchasableId;
-                $purchasable = Craft::$app->getElements()->getElementById($purchasableId, null, null, ['trashed' => null]);
-                $relation->purchasableType = get_class($purchasable);
-                $relation->catalogPricingRuleId = $model->id;
-                $relation->save();
-
-                Craft::$app->getElements()->invalidateCachesForElement($purchasable);
             }
 
             $transaction->commit();
@@ -239,23 +214,21 @@ class CatalogPricingRules extends Component
     {
         return (new Query())
             ->select([
-                'pcr.id',
-                'pcr.name',
-                'pcr.description',
-                'pcr.dateFrom',
-                'pcr.dateTo',
-                'pcr.apply',
-                'pcr.applyAmount',
-                'pcr.customerCondition',
-                'pcr.allPurchasables',
-                'pcr.enabled',
-                'pcr.isPromotionalPrice',
-                'pcr.dateCreated',
-                'pcr.dateUpdated',
-                'pcrp.purchasableId',
+                'id',
+                'name',
+                'description',
+                'dateFrom',
+                'dateTo',
+                'apply',
+                'applyAmount',
+                'customerCondition',
+                'purchasableCondition',
+                'enabled',
+                'isPromotionalPrice',
+                'dateCreated',
+                'dateUpdated',
             ])
-            ->from(Table::CATALOG_PRICING_RULES . ' pcr')
-            ->leftJoin(Table::CATALOG_PRICING_RULES_PURCHASABLES . ' pcrp', '[[pcrp.catalogPricingRuleId]] = [[pcr.id]]');
+            ->from(Table::CATALOG_PRICING_RULES);
     }
 
     /**

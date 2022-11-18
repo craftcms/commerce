@@ -82,21 +82,10 @@ class Install extends Migration
             'dateTo' => $this->dateTime(),
             'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
             'applyAmount' => $this->decimal(14, 4)->notNull(),
-            'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'purchasableCondition' => $this->text(),
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES_PURCHASABLES);
-        $this->createTable(Table::CATALOG_PRICING_RULES_PURCHASABLES, [
-            'id' => $this->primaryKey(),
-            'catalogPricingRuleId' => $this->integer()->notNull(),
-            'purchasableId' => $this->integer()->notNull(),
-            'purchasableType' => $this->string()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -884,8 +873,6 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'catalogPricingRuleId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
@@ -988,8 +975,6 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_PURCHASABLES, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');

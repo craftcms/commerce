@@ -41,7 +41,6 @@ abstract class Table
     public const CATALOG_PRICING = '{{%commerce_catalogpricing}}';
     public const CATALOG_PRICING_RULES = '{{%commerce_catalogpricingrules}}';
     public const CATALOG_PRICING_RULES_USERS = '{{%commerce_catalogpricingrules_users}}';
-    public const CATALOG_PRICING_RULES_PURCHASABLES = '{{%commerce_catalogpricingrules_purchasables}}';
     public const PRODUCTS = '{{%commerce_products}}';
     public const PRODUCTTYPES = '{{%commerce_producttypes}}';
     public const PRODUCTTYPES_SHIPPINGCATEGORIES = '{{%commerce_producttypes_shippingcategories}}';

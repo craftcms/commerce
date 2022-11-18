@@ -83,10 +83,8 @@ class CatalogPricing extends Component
         $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules();
 
         foreach ($catalogPricingRules as $catalogPricingRule) {
-            $purchasableIds = $catalogPricingRule->allPurchasables ? ArrayHelper::getColumn($purchasables, 'id') : [];
-            if (!$catalogPricingRule->allPurchasables && !empty($catalogPricingRule->getPurchasableIds())) {
-                $purchasableIds = array_intersect($catalogPricingRule->getPurchasableIds(), ArrayHelper::getColumn($purchasables, 'id'));
-            }
+            // If `getPurchasableIds()` is `null` this means all purchasables
+            $purchasableIds = $catalogPricingRule->getPurchasableIds() ?? ArrayHelper::getColumn($purchasables, 'id');
 
             if (empty($purchasableIds)) {
                 continue;
@@ -164,7 +162,7 @@ class CatalogPricing extends Component
             ->andWhere(['storeId' => $storeId])
             ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
             ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
-            ->andWhere(['[[cpru.userId]]' => $userId]);
+            ->andWhere(['[[cpru.userId]]' => ['or', $userId, null]]);
 
         return $catalogPricingQuery->scalar();
     }

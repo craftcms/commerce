@@ -25,7 +25,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateTo' => $this->dateTime(),
                 'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
                 'applyAmount' => $this->decimal(14, 4)->notNull(),
-                'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+                'purchasableCondition' => $this->text(),
                 'customerCondition' => $this->text(),
                 'enabled' => $this->boolean()->notNull()->defaultValue(true),
                 'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
@@ -33,22 +33,6 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
             ]);
-        }
-
-        if (!$this->db->tableExists('{{%commerce_catalogpricingrules_purchasables}}')) {
-            $this->createTable('{{%commerce_catalogpricingrules_purchasables}}', [
-                'id' => $this->primaryKey(),
-                'catalogPricingRuleId' => $this->integer()->notNull(),
-                'purchasableId' => $this->integer()->notNull(),
-                'purchasableType' => $this->string()->notNull(),
-                'dateCreated' => $this->dateTime()->notNull(),
-                'dateUpdated' => $this->dateTime()->notNull(),
-                'uid' => $this->uid(),
-            ]);
-            $this->createIndex(null, '{{%commerce_catalogpricingrules_purchasables}}', 'catalogPricingRuleId', false);
-            $this->createIndex(null, '{{%commerce_catalogpricingrules_purchasables}}', 'purchasableId', false);
-            $this->addForeignKey(null, '{{%commerce_catalogpricingrules_purchasables}}', ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
-            $this->addForeignKey(null, '{{%commerce_catalogpricingrules_purchasables}}', ['catalogPricingRuleId'], '{{%commerce_catalogpricingrules}}', ['id'], 'CASCADE', 'CASCADE');
         }
 
         if (!$this->db->tableExists('{{%commerce_catalogpricingrules_users}}')) {

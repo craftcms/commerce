@@ -24,9 +24,8 @@
 
 {% set tabs = {
     0: {'label':'Rule'|t('commerce'),'url':'#rule','class': ruleClasses},
-    1: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
-    2: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-    3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+    1: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    2: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
 {% hook "cp.commerce.catalogPricingRules.edit" %}
@@ -101,34 +100,6 @@
         }) }}
     </div>
 
-    <div id="matching-items" class="hidden">
-        {{ forms.lightswitchField({
-            label: "All purchasables"|t('commerce'),
-            id: 'allPurchasables',
-            name: 'allPurchasables',
-            reverseToggle: '#matching-items-purchasables',
-            on: catalogPricingRule.allPurchasables ? true : false,
-            errors: catalogPricingRule.getErrors('allPurchasables')
-        }) }}
-
-        <div id="matching-items-purchasables" {% if catalogPricingRule.allPurchasables %}class="hidden"{% endif %}>
-            {% for purchasableType in purchasableTypes %}
-                {{ forms.elementSelectField({
-                    id: 'purchasables-'~purchasableType.elementType|id,
-                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
-                    name: 'purchasables['~purchasableType.elementType~']',
-                    elements: purchasables[purchasableType.elementType] ?? null,
-                    elementType: purchasableType.elementType,
-                    limit: null,
-                    instructions: '{type} for which this catalog pricing rule will be applicable to.'|t('commerce', {
-                        type: purchasableType.name
-                    }),
-                    errors: catalogPricingRule.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
-                }) }}
-            {% endfor %}
-        </div>
-    </div>
-
     <div id="conditions" class="hidden">
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),
@@ -148,11 +119,22 @@
             errors: catalogPricingRule.getErrors('dateTo'),
         }) }}
 
+        {% set purchasableConditionInput %}
+          {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
+        {% endset %}
+
+        {{ forms.field({
+          id: 'purchasableCondition',
+          label: 'Match Purchasable'|t('commerce'),
+          errors: catalogPricingRule.getErrors('purchasableCondition')
+        }, purchasableConditionInput) }}
+
         {% set customerConditionInput %}
           {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
         {% endset %}
 
         {{ forms.field({
+          id: 'customerCondition',
           label: 'Match Customer'|t('commerce'),
           errors: catalogPricingRule.getErrors('customerCondition')
         }, customerConditionInput) }}

@@ -15,7 +15,7 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricingRule as catalogPricingRuleRecord;
+use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -144,18 +144,7 @@ class CatalogPricingRulesController extends BaseCpController
         }
 
         // Set purchasable conditions
-        if ($catalogPricingRule->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
-            $catalogPricingRule->setPurchasableIds([]);
-        } else {
-            $purchasables = [];
-            $purchasableGroups = $this->request->getBodyParam('purchasables') ?: [];
-            foreach ($purchasableGroups as $group) {
-                if (is_array($group)) {
-                    array_push($purchasables, ...$group);
-                }
-            }
-            $catalogPricingRule->setPurchasableIds($purchasables);
-        }
+        $catalogPricingRule->setPurchasableCondition($this->request->getBodyParam('purchasableCondition'));
 
         // Set user conditions
         $catalogPricingRule->setCustomerCondition($this->request->getBodyParam('customerCondition'));
@@ -271,18 +260,18 @@ class CatalogPricingRulesController extends BaseCpController
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
-        $sales = SaleRecord::find()
+        $rules = CatalogPricingRuleRecord::find()
             ->where(['id' => $ids])
             ->all();
 
-        /** @var SaleRecord $sale */
-        foreach ($sales as $sale) {
-            $sale->enabled = ($status == 'enabled');
-            $sale->save();
+        /** @var CatalogPricingRuleRecord $rule */
+        foreach ($rules as $rule) {
+            $rule->enabled = ($status == 'enabled');
+            $rule->save();
         }
         $transaction->commit();
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Sales updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Catalog pricing rules updated.'));
     }
 
 
@@ -315,53 +304,12 @@ class CatalogPricingRulesController extends BaseCpController
 
         $variables['applyAmount'] = '';
         if (isset($variables['catalogPricingRule']->applyAmount) && $variables['catalogPricingRule']->applyAmount !== null) {
-            if ($catalogPricingRule->apply == catalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == catalogPricingRuleRecord::APPLY_TO_PERCENT) {
+            if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
                 $amount = -(float)$variables['catalogPricingRule']->applyAmount * 100;
                 $variables['applyAmount'] = Craft::$app->getFormatter()->asDecimal($amount);
             } else {
                 $variables['applyAmount'] = Craft::$app->getFormatter()->asDecimal(-(float)$variables['catalogPricingRule']->applyAmount);
             }
-        }
-
-        $variables['purchasables'] = null;
-        $purchasables = [];
-
-        if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
-            $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
-            $purchasableIds = [];
-            foreach ($purchasableIdsFromUrl as $purchasableId) {
-                $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable instanceof Product) {
-                    foreach ($purchasable->getVariants(true) as $variant) {
-                        $purchasableIds[] = $variant->getId();
-                    }
-                } else {
-                    $purchasableIds[] = $purchasableId;
-                }
-            }
-        } else {
-            $purchasableIds = $catalogPricingRule->getPurchasableIds();
-        }
-
-        foreach ($purchasableIds as $purchasableId) {
-            $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-            if ($purchasable instanceof PurchasableInterface) {
-                $class = get_class($purchasable);
-                $purchasables[$class] = $purchasables[$class] ?? [];
-                $purchasables[$class][] = $purchasable;
-            }
-        }
-        $variables['purchasables'] = $purchasables;
-
-        $variables['purchasableTypes'] = [];
-        $purchasableTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
-
-        /** @var Purchasable $purchasableType */
-        foreach ($purchasableTypes as $purchasableType) {
-            $variables['purchasableTypes'][] = [
-                'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType,
-            ];
         }
     }
 }
