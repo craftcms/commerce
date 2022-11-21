@@ -807,6 +807,7 @@ return [
     'Purchasable ID is required.' => 'Purchasable ID is required.',
     'Purchase (Authorize and Capture Immediately)' => 'Purchase (Authorize and Capture Immediately)',
     'Purchase Total' => 'Purchase Total',
+    'Purchase Type' => 'Purchase Type',
     'Qty' => 'Qty',
     'Quantities' => 'Quantities',
     'Quantity' => 'Quantity',

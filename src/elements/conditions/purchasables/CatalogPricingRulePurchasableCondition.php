@@ -10,7 +10,6 @@ namespace craft\commerce\elements\conditions\purchasables;
 
 use craft\elements\conditions\ElementCondition;
 use craft\elements\conditions\SiteConditionRule;
-use craft\elements\conditions\users\LastLoginDateConditionRule;
 
 /**
  * Catalog Pricing Rule Purchasable condition builder.
@@ -32,6 +31,7 @@ class CatalogPricingRulePurchasableCondition extends ElementCondition
         });
 
         $types[] = SkuConditionRule::class;
+        $types[] = PurchasableTypeConditionRule::class;
 
         return $types;
     }

@@ -44,8 +44,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
             ]);
-            $this->createIndex(null, '{{%commerce_catalogpricingrules_users}}', 'catalogPricingRuleId', false);
-            $this->createIndex(null, '{{%commerce_catalogpricingrules_users}}', 'userId', false);
+
             $this->addForeignKey(null, '{{%commerce_catalogpricingrules_users}}', ['userId'], \craft\db\Table::USERS, ['id'], 'CASCADE', 'CASCADE');
             $this->addForeignKey(null, '{{%commerce_catalogpricingrules_users}}', ['catalogPricingRuleId'], '{{%commerce_catalogpricingrules}}', ['id'], 'CASCADE', 'CASCADE');
         }
