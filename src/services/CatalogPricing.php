@@ -19,6 +19,7 @@ use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
+use yii\db\Expression;
 
 /**
  * Catalog Pricing service.
@@ -28,6 +29,11 @@ use yii\db\Exception;
  */
 class CatalogPricing extends Component
 {
+    /**
+     * @var array|null
+     */
+    private ?array $_allCatalogPrices = null;
+
     /**
      * @param array|null $purchasables
      * @param array|null $catalogPricingRules
@@ -152,18 +158,46 @@ class CatalogPricing extends Component
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null): ?float
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStore()->getStore()->id;
+        $cacheKey = sprintf('catalog-price-%s-%s', $storeId, $userId ?? 'all');
 
-        $catalogPricingQuery = (new Query())
-            ->select(['price'])
-            ->from([Table::CATALOG_PRICING . ' cp'])
-            ->leftJoin(Table::CATALOG_PRICING_RULES_USERS . ' cpru', '[[cpru.catalogPricingRuleId]] = [[cp.catalogPricingRuleId]]')
-            ->orderBy(['price' => SORT_ASC])
-            ->where(['purchasableId' => $purchasableId])
-            ->andWhere(['storeId' => $storeId])
-            ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
-            ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
-            ->andWhere(['[[cpru.userId]]' => ['or', $userId, null]]);
+        if ($this->_allCatalogPrices === null || !isset($this->_allCatalogPrices[$cacheKey])) {
+            $catalogPricingRuleIdWhere = [
+                'or',
+                ['catalogPricingRuleId' => null],
+                ['catalogPricingRuleId' => (new Query())
+                    ->select(['cpr.id as cprid'])
+                    ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
+                    ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
+                    ->where(['[[cpru.id]]' => null])
+                    ->groupBy(['[[cpr.id]]'])
+                ],
+            ];
+            // Sub query to figure out which catalog pricing rules are using user conditions
+            if ($userId) {
+                $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
+                    ->select(['cpr.id as cprid'])
+                    ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
+                    ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
+                    ->where(['[[cpru.userId]]' => $userId])
+                    ->andWhere(['not', ['[[cpru.id]]' => null]])
+                    ->groupBy(['[[cpr.id]]'])];
+            }
 
-        return $catalogPricingQuery->scalar();
+            $query = (new Query())
+                ->select([new Expression('MIN(price) as price')])
+                ->from([Table::CATALOG_PRICING . ' cp'])
+                ->where($catalogPricingRuleIdWhere)
+                ->andWhere(['storeId' => $storeId])
+                ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
+                ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
+                ->groupBy(['purchasableId'])
+                ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC])
+                ->indexBy('purchasableId');
+
+
+            $this->_allCatalogPrices[$cacheKey] = $query->column();
+        }
+
+        return $this->_allCatalogPrices[$cacheKey][$purchasableId] ?? null;
     }
 }
