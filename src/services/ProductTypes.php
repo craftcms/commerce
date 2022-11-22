@@ -965,7 +965,7 @@ class ProductTypes extends Component
 
         // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if (version_compare($commerce['version'], '4.0.0', '>=')) {
+        if (version_compare($commerce['schemaVersion'], '4.0.0', '>=')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
             $query->addSelect('productTypes.titleFormat');
