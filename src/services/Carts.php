@@ -110,9 +110,9 @@ class Carts extends Component
                 $shippingAddress->id = null;
                 $this->_cart->setShippingAddress($shippingAddress);
             }
-
-            $this->_cart->autoSetAddresses();
         }
+
+        $this->_cart->autoSetAddresses();
 
         $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
 
@@ -287,27 +287,26 @@ class Carts extends Component
             $interval = DateTimeHelper::secondsToInterval($configInterval);
             $edge->sub($interval);
 
-            $cartIds = (new Query())
+            $cartIdsQuery = (new Query())
                 ->select(['orders.id'])
                 ->where(['not', ['isCompleted' => true]])
                 ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
-                ->from(['orders' => Table::ORDERS])
-                ->column();
+                ->from(['orders' => Table::ORDERS]);
 
             // Taken from craft\services\Elements::deleteElement(); Using the method directly
             // takes too much resources since it retrieves the order before deleting it.
 
             // Delete the elements table rows, which will cascade across all other InnoDB tables
             Craft::$app->getDb()->createCommand()
-                ->delete('{{%elements}}', ['id' => $cartIds])
+                ->delete('{{%elements}}', ['id' => $cartIdsQuery])
                 ->execute();
 
             // The searchindex table is probably MyISAM, though
             Craft::$app->getDb()->createCommand()
-                ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+                ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
                 ->execute();
 
-            return count($cartIds);
+            return $cartIdsQuery->count();
         }
 
         return 0;

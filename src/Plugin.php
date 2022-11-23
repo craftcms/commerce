@@ -73,6 +73,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\Console;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -675,11 +676,31 @@ class Plugin extends BasePlugin
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging inactive carts ... ');
+            }
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
+
             // Deletes customers that are not related to any cart/order or user
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging orphaned customers ... ');
+            }
             Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
+
             // Deletes addresses that are not related to customers, carts or orders
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging orphaned addresses ... ');
+            }
             Plugin::getInstance()->getAddresses()->purgeOrphanedAddresses();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
 
             // Delete partial elements
             /** @var Gc $gc */

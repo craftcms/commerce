@@ -3,9 +3,23 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where the `autoSetNewCartAddresses` config setting would not work after a customer login. ([#2903](https://github.com/craftcms/commerce/issues/2903))
+- Fixed an error that could occur when purging inactive carts.
+
+## 3.4.18 - 2022-10-26
+
+### Deprecated
+- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. `$shippingMethodName` and `$shippingMethodHandle` should be used instead.
+
+### Fixed
+- Fixed a bug where custom shipping methods weren’t applying to orders properly. ([#2986](https://github.com/craftcms/commerce/issues/2986))
+- Fixed a bug where passing an invalid product type handle into product queries’ `type` params wouldn’t have any effect. ([#2966](https://github.com/craftcms/commerce/issues/2966))
+
+## 3.4.17.2 - 2022-09-16
+
+### Fixed
 - Fixed a bug where partial elements were not being deleted during garbage collection.
 - Fixed a bug where orders’ item subtotals weren’t being saved to the database.
-- Fixed a bug where switching from guest to customer does set auto address. ([#2903](https://github.com/craftcms/commerce/issues/2903))
 
 ## 3.4.17.1 - 2022-08-30
 
