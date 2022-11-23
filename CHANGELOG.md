@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.3 - 2022-11-23
 
 - Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
 - Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
