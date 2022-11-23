@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- Fixed a bug where the correct default tax category was not being set on new products. ([#3013](https://github.com/craftcms/commerce/issues/3013))
 - Fixed a bug where using the `autoSetNewCartAddresses` config setting would set addresses on guest carts when emails belonging to a registered user are used.
 - Fixed an error that could occur when purging inactive carts.
 
