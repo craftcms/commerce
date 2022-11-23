@@ -4,7 +4,8 @@
 
 ### Fixed
 
-- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting would set addresses on guest carts when emails belonging to a registered user are used.
 - Fixed an error that could occur when purging inactive carts.
 
 ## 4.2.2 - 2022-11-06
