@@ -1103,7 +1103,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the order's item total.
+     * Narrows the query results based on the order’s item total.
      *
      * Possible values include:
      *
@@ -1125,7 +1125,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the order's item subtotal.
+     * Narrows the query results based on the order’s item subtotal.
      *
      * Possible values include:
      *
