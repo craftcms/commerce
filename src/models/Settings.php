@@ -70,7 +70,7 @@ class Settings extends Model
     public bool $autoSetCartShippingMethodOption = false;
 
     /**
-     * @var bool Whether the user's primary payment source should be set automatically on new carts.
+     * @var bool Whether the user’s primary payment source should be set automatically on new carts.
      *
      * @group Cart
      * @since 4.2
