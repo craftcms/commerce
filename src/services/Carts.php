@@ -112,7 +112,6 @@ class Carts extends Component
             }
 
             $this->_cart->autoSetAddresses();
-
         }
 
 
