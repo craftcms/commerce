@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
