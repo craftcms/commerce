@@ -480,10 +480,8 @@ class ProductsController extends BaseController
             } else {
                 $variables['product'] = new Product();
                 $variables['product']->typeId = $variables['productType']->id;
-                $taxCategories = $variables['productType']->getTaxCategories();
-                $variables['product']->taxCategoryId = key($taxCategories);
-                $shippingCategories = $variables['productType']->getShippingCategories();
-                $variables['product']->shippingCategoryId = key($shippingCategories);
+                $variables['product']->taxCategoryId = collect($variables['productType']->getTaxCategories())->pluck('id')->first();
+                $variables['product']->shippingCategoryId = collect($variables['productType']->getShippingCategories())->pluck('id')->first();
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;
