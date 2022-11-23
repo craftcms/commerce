@@ -122,7 +122,11 @@ class Carts extends Component
             }
         }
 
-        $autoSetAddresses = $this->_cart->autoSetAddresses();
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
         $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
         $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
         if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
