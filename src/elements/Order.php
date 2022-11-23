@@ -1484,6 +1484,7 @@ class Order extends Element
     /**
      * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
      *
+     *
      * @return bool returns true if order is mutated
      * @throws Throwable
      * @throws InvalidElementException
