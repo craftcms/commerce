@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where the cart would not get default addresses set after login when using the `autoSetNewCartAddresses` config setting. ([#2903](https://github.com/craftcms/commerce/issues/2903))
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting would set addresses on guest carts when emails belonging to a registered user are used.
 - Fixed an error that could occur when purging inactive carts.
 
 ## 4.2.2 - 2022-11-06
