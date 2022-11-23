@@ -1,10 +1,16 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
-- Fixed a bug where saving an invalid shipping method throws an error and doesn't display error notice.
+- Fixed a bug where saving an invalid tax or shipping categories failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting would set addresses on guest carts when emails belonging to a registered user are used.
+- Fixed an error that could occur when purging inactive carts.
 
 ## 4.2.2 - 2022-11-06
 
+### Fixed
+
+- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed an error that could occur when purging inactive carts.
 - Fixed a bug where the `commerce/cart/update-cart` action wasn’t fully clearing the cart when the `clearLineItems` param was submitted, if the quantity of an exsiting line item was being increased in the same request. ([#3014](https://github.com/craftcms/commerce/issues/3014))
 - Fixed an error that could occur when purging a large number of inactive carts.
 - Fixed an error where addresses were assumed to have an owner. ([#3021](https://github.com/craftcms/commerce/pull/3021))

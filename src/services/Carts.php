@@ -122,8 +122,10 @@ class Carts extends Component
             }
         }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
-            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+        $autoSetAddresses = $this->_cart->autoSetAddresses();
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
