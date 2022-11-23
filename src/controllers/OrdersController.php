@@ -129,7 +129,7 @@ class OrdersController extends Controller
             $order->setCustomer($user);
 
             // Try to set defaults
-            $order->autoSetAddresses();
+            $order->autoSetAddresses(false);
             $order->autoSetShippingMethod();
         }
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
@@ -1253,7 +1253,7 @@ class OrdersController extends Controller
                 $order->setShippingAddress(null);
             }
 
-            $order->autoSetAddresses();
+            $order->autoSetAddresses(false);
         } else {
             $getAddress = static function($address, $orderId, $title) {
                 if ($address && ($address['id'] && ($address['ownerId'] != $orderId || isset($address['_copy'])))) {
