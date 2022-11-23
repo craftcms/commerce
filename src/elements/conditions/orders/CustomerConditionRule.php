@@ -62,7 +62,6 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
     {
         /** @var OrderQuery $query */
         $paramValue = $this->paramValue();
-        ;
         if ($this->operator === self::OPERATOR_NOT_IN) {
             $paramValue = ['or', $paramValue, null];
         }
