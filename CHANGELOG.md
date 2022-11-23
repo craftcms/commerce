@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the cart would not get default addresses set after login when using the `autoSetNewCartAddresses` config setting. ([#2903](https://github.com/craftcms/commerce/issues/2903))
+- Fixed an error that could occur when purging inactive carts.
+
 ## 4.2.2 - 2022-11-06
 
 - Fixed a bug where the `commerce/cart/update-cart` action wasn’t fully clearing the cart when the `clearLineItems` param was submitted, if the quantity of an exsiting line item was being increased in the same request. ([#3014](https://github.com/craftcms/commerce/issues/3014))
