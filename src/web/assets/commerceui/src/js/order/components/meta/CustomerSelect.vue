@@ -16,28 +16,24 @@
         taggable
         @input="onChange"
         @search="onSearch"
+        @created="onCreated"
     >
         <template v-slot:option="slotProps">
             <div
                 class="customer-select-option"
                 v-if="
                     slotProps.option.id ||
-                    (!slotProps.option.id &&
-                        (($v.newCustomerEmail.$invalid && !customers.length) ||
-                            !$v.newCustomerEmail.$invalid))
+                    (!slotProps.option.id && !customers.length)
                 "
             >
                 <template
                     v-if="
                         !slotProps.option.id &&
-                        (($v.newCustomerEmail.$invalid && !customers.length) ||
-                            !$v.newCustomerEmail.$invalid)
+                        !customers.length &&
+                        $v.newCustomerEmail.$invalid
                     "
                 >
-                    <div
-                        class="order-flex justify-center"
-                        v-if="$v.newCustomerEmail.$invalid"
-                    >
+                    <div class="order-flex justify-center">
                         <div>
                             {{
                                 $options.filters.t(
@@ -47,7 +43,15 @@
                             }}
                         </div>
                     </div>
-                    <div class="order-flex align-center" v-else>
+                </template>
+                <template
+                    v-else-if="
+                        !slotProps.option.id &&
+                        !$v.newCustomerEmail.$invalid &&
+                        !customers.length
+                    "
+                >
+                    <div class="order-flex align-center">
                         <div class="customer-photo-wrapper">
                             <div
                                 class="customer-photo order-flex customer-photo--initial customer-photo--email justify-center align-center"
@@ -127,6 +131,12 @@
             ...mapGetters(['userPhotoFallback']),
 
             createOption(searchText) {
+                const data = {id: null, email: searchText};
+
+                return data;
+            },
+
+            onCreated({id, email}) {
                 if (this.$v.newCustomerEmail.$invalid) {
                     this.$store.dispatch(
                         'displayError',
@@ -134,21 +144,12 @@
                     );
 
                     this.$nextTick(() => {
-                        this.$refs.vSelect.$children[0].search = searchText;
+                        this.$refs.vSelect.$children[0].search = email;
                     });
-
-                    return {
-                        id: this.customerId,
-                        email: this.order.customer
-                            ? this.order.customer.email
-                            : null,
-                    };
+                    return;
                 }
 
-                this.$store.commit('updateRecalculateLoading', true);
-
-                const data = {email: searchText};
-                // Create a new customer if there is a valid email and no customer found
+                const data = {email};
                 Craft.sendActionRequest(
                     'POST',
                     'commerce/orders/create-customer',
@@ -175,9 +176,6 @@
                                 ? this.order.customer.email
                                 : null,
                         };
-                    })
-                    .finally(() => {
-                        this.$store.commit('updateRecalculateLoading', false);
                     });
             },
 
@@ -212,7 +210,7 @@
             }, 500),
 
             onChange() {
-                if (this.selectedCustomer) {
+                if (this.selectedCustomer && this.selectedCustomer.id) {
                     this.$emit('update', this.selectedCustomer);
                 }
             },
@@ -254,5 +252,10 @@
         .vs__dropdown-option--highlight {
             background-color: $bgColor;
         }
+    }
+
+    .customer-select--error {
+        border: 1px solid var(--error-color);
+        border-radius: 5px;
     }
 </style>
