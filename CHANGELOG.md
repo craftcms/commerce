@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.19 - 2022-11-23
 
 ### Fixed
 - Fixed a bug where carts weren’t getting default billing and shipping addresses set after login when `autoSetNewCartAddresses` was enabled. ([#2903](https://github.com/craftcms/commerce/issues/2903))
