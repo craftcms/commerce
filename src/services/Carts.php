@@ -125,8 +125,14 @@ class Carts extends Component
             $forceSave = true;
         }
 
-        if ($currentUser && $currentUser->id === $this->_cart->getCustomerId() && $this->_cart->autoSetAddresses()) {
-            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
