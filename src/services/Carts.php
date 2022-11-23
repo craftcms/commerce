@@ -110,9 +110,11 @@ class Carts extends Component
                 $shippingAddress->id = null;
                 $this->_cart->setShippingAddress($shippingAddress);
             }
+
+            $this->_cart->autoSetAddresses();
+
         }
 
-        $this->_cart->autoSetAddresses();
 
         $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
 
