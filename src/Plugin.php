@@ -407,10 +407,6 @@ class Plugin extends BasePlugin
 
             $productSources = array_unique($productSources);
 
-            if (!empty($sources)) {
-                array_unshift($sources, '*');
-            }
-
             if ($productSources) {
                 $event->linkOptions[] = [
                     'optionTitle' => Craft::t('commerce', 'Link to a product'),
