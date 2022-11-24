@@ -9,7 +9,7 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\Plugin;
-use craft\commerce\services\Store;
+use craft\commerce\services\StoreSettings;
 use craft\elements\Address;
 use UnitTester;
 
@@ -29,7 +29,7 @@ class StoreTest extends Unit
     /**
      * @var Store
      */
-    protected Store $service;
+    protected StoreSettings $service;
 
     public function testGetStore(): void
     {
@@ -58,6 +58,6 @@ class StoreTest extends Unit
     {
         parent::_before();
 
-        $this->service = Plugin::getInstance()->getStore();
+        $this->service = Plugin::getInstance()->getStoreSettings();
     }
 }

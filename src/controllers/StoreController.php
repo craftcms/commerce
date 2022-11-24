@@ -35,7 +35,7 @@ class StoreController extends BaseStoreSettingsController
         $addressesService = Craft::$app->getAddresses();
 
         // We will always have a store location address.
-        $store = Plugin::getInstance()->getStore()->getStore();
+        $store = Plugin::getInstance()->getStoreSettings()->getStore();
         $allCountries = $addressesService->getCountryRepository()->getList(Craft::$app->language);
 
         $locationField = Cp::addressCardsHtml(
@@ -88,7 +88,7 @@ JS;
      */
     public function actionSave(): ?YiiResponse
     {
-        $store = Plugin::getInstance()->getStore()->getStore();
+        $store = Plugin::getInstance()->getStoreSettings()->getStore();
         if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
             /** @var Address|null $locationAddress */
             $locationAddress = Address::find()->id($locationAddressId)->one();
@@ -101,7 +101,7 @@ JS;
         $countries = $this->request->getBodyParam('countries') ?: [];
         $store->setCountries($countries);
 
-        if (!$store->validate() || !Plugin::getInstance()->getStore()->saveStore($store)) {
+        if (!$store->validate() || !Plugin::getInstance()->getStoreSettings()->saveStore($store)) {
             return $this->asFailure(
                 message: Craft::t('commerce', 'Couldn’t save store.'),
                 data: ['store' => $store]

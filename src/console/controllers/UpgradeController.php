@@ -14,7 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
-use craft\commerce\records\Store;
+use craft\commerce\records\StoreSettings;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
@@ -1040,13 +1040,13 @@ SQL;
             ->where(['isStoreLocation' => true])
             ->one();
 
-        $store = Store::find()->one();
+        $store = StoreSettings::find()->one();
         if ($store === null) {
-            $store = new Store();
+            $store = new StoreSettings();
             $store->save();
         }
 
-        $storeModel = Plugin::getInstance()->getStore()->getStore();
+        $storeModel = Plugin::getInstance()->getStoreSettings()->getStore();
 
         if ($storeLocationQuery) {
             $storeModel->locationAddressId = $this->_createAddress($storeLocationQuery)->id;
@@ -1063,6 +1063,6 @@ SQL;
         $condition = $storeModel->getMarketAddressCondition();
         $storeModel->setMarketAddressCondition($condition);
 
-        Plugin::getInstance()->getStore()->saveStore($storeModel);
+        Plugin::getInstance()->getStoreSettings()->saveStore($storeModel);
     }
 }

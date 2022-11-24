@@ -68,7 +68,8 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
-use craft\commerce\services\Store;
+use craft\commerce\services\Stores;
+use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\Taxes;
@@ -181,7 +182,8 @@ class Plugin extends BasePlugin
                 'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
                 'shippingCategories' => ['class' => ShippingCategories::class],
                 'shippingZones' => ['class' => ShippingZones::class],
-                'store' => ['class' => Store::class],
+                'storeSettings' => ['class' => StoreSettings::class],
+                'stores' => ['class' => Stores::class],
                 'subscriptions' => ['class' => Subscriptions::class],
                 'taxCategories' => ['class' => TaxCategories::class],
                 'taxes' => ['class' => Taxes::class],
@@ -206,7 +208,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.2.2';
+    public string $schemaVersion = '5.0.1';
 
     /**
      * @inheritdoc
@@ -554,6 +556,11 @@ class Plugin extends BasePlugin
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
 
+        $storesService = $this->getStores();
+        $projectConfigService->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
+            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
+            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
+
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
@@ -610,7 +617,7 @@ class Plugin extends BasePlugin
             $address = $event->sender;
             $canonicalId = $address->getCanonicalId();
             if (
-                $canonicalId && $canonicalId === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
+                $canonicalId && $canonicalId === Plugin::getInstance()->getStoreSettings()->getStore()->getLocationAddressId() &&
                 $event->user->can('commerce-manageStoreSettings')
             ) {
                 $event->authorized = true;
