@@ -87,7 +87,7 @@ trait OrderValidatorsTrait
             $this->addModelErrors($address, $attribute);
         }
 
-        $marketLocationCondition = Plugin::getInstance()->getStore()->getStore()->getMarketAddressCondition();
+        $marketLocationCondition = Plugin::getInstance()->getStoreSettings()->getStore()->getMarketAddressCondition();
         if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
             $this->addError($attribute, Craft::t('commerce', 'The address provided is outside the store’s market.'));
         }

@@ -9,36 +9,27 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
-use craft\elements\Address;
-use yii\db\ActiveQueryInterface;
+use craft\db\SoftDeleteTrait;
 
 /**
  * Store record.
  *
  * @property int $id
- * @property int $locationAddressId
- * @property array $countries
- * @property array $marketAddressCondition
+ * @property string $name
+ * @property string $handle
+ * @property bool $primary
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
 class Store extends ActiveRecord
 {
+    use SoftDeleteTrait;
+
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
         return Table::STORES;
-    }
-
-    /**
-     * Returns the store's location
-     *
-     * @return ActiveQueryInterface The relational query object.
-     */
-    public function getStoreLocation(): ActiveQueryInterface
-    {
-        return $this->hasOne(Address::class, ['id' => 'locationAddressId']);
     }
 }

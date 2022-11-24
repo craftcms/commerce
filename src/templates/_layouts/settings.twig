@@ -8,6 +8,7 @@
 
 {% if currentUser.admin %}
 {% set navItems = {
+    'stores': { title: "Stores"|t('commerce'), minEdition: 'pro' },
     'general': { title: "General Settings"|t('commerce'), minEdition: 'lite' },
     'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: 'lite' },
     'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: 'lite' },

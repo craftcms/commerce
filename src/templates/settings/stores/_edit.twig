@@ -1,0 +1,52 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    {{ actionInput('commerce/stores/save-store') }}
+    {{ redirectInput('commerce/settings/stores') }}
+    {% if not brandNewStore %}<input type="hidden" name="storeId" value="{{ store.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: store.getName(false),
+        errors: store.getErrors('name'),
+        autofocus: true,
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t('app'),
+        instructions: "How you’ll refer to this store in the templates."|t('app'),
+        id: 'handle',
+        name: 'handle',
+        class: 'code',
+        autocorrect: false,
+        autocapitalize: false,
+        value: store.handle,
+        errors: store.getErrors('handle'),
+        required: true
+    }) }}
+
+    {% if not store.primary %}
+        {{ forms.lightswitchField({
+            label: "Make this the primary store"|t('commerce'),
+            id: 'primary',
+            name: 'primary',
+            value: 1,
+            on: store.primary,
+            errors: store.getErrors('primary')
+        }) }}
+    {% endif %}
+{% endblock %}
+
+{% if not store.handle %}
+    {% js on ready %}
+        new Craft.HandleGenerator('#name', '#handle');
+    {% endjs %}
+{% endif %}

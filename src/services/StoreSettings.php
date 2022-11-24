@@ -9,8 +9,9 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\models\Store as StoreModel;
-use craft\commerce\records\Store as StoreRecord;
+use craft\commerce\models\StoreSettings as StoreSettingsModel;
+use craft\commerce\Plugin;
+use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
@@ -23,16 +24,16 @@ use yii\base\InvalidConfigException;
 /**
  * Stores service.
  *
- * @property-read StoreModel $store
+ * @property-read StoreSettingsModel $store
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class Store extends Component
+class StoreSettings extends Component
 {
     /**
-     * @var ?StoreModel
+     * @var ?StoreSettingsModel
      */
-    private ?StoreModel $_store = null;
+    private ?StoreSettingsModel $_store = null;
 
     /**
      * @return void
@@ -45,11 +46,12 @@ class Store extends Component
             // We always ensure we have a store record and an associated store address.
             $store = $this->_createStoreQuery()->one(); // get first row only. Only one store at the moment.
             if (!$store) {
-                $storeRecord = new StoreRecord();
+                $storeRecord = new StoreSettingsRecord();
+                $storeRecord->id = Plugin::getInstance()->getStores()->getPrimaryStore()->id; // FIXME We need to ensure we have a store before creating a store settings.
                 $storeRecord->save();
-                $this->_store = new StoreModel(['id' => $storeRecord->id]);
+                $this->_store = new StoreSettingsModel(['id' => $storeRecord->id]);
             } else {
-                $this->_store = new StoreModel();
+                $this->_store = new StoreSettingsModel();
                 $locationAddressId = $store['locationAddressId'] ?? null;
                 if ($locationAddressId === null) {
                     unset($store['locationAddressId']);
@@ -68,9 +70,9 @@ class Store extends Component
     /**
      * Returns the store record.
      *
-     * @return StoreModel
+     * @return StoreSettingsModel
      */
-    public function getStore(): StoreModel
+    public function getStore(): StoreSettingsModel
     {
         return $this->_store;
     }
@@ -78,13 +80,13 @@ class Store extends Component
     /**
      * Saves the store
      *
-     * @param StoreModel $store
+     * @param StoreSettingsModel $store
      * @return bool
      * @throws InvalidConfigException
      */
-    public function saveStore(StoreModel $store): bool
+    public function saveStore(StoreSettingsModel $store): bool
     {
-        $storeRecord = StoreRecord::findOne($store->id);
+        $storeRecord = StoreSettingsRecord::findOne($store->id);
 
         if (!$storeRecord) {
             throw new InvalidConfigException('Invalid store ID');
@@ -109,7 +111,7 @@ class Store extends Component
      */
     private function _createDefaultStoreLocationAddress(): void
     {
-        if (!$this->_store instanceof StoreModel) {
+        if (!$this->_store instanceof StoreSettingsModel) {
             return;
         }
 
@@ -117,7 +119,7 @@ class Store extends Component
         $storeLocationAddress->title = 'Store';
         $storeLocationAddress->countryCode = 'US';
         if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
-            $storeRecord = StoreRecord::findOne($this->_store->id);
+            $storeRecord = StoreSettingsRecord::findOne($this->_store->id);
             if ($storeRecord === null) {
                 return;
             }
@@ -140,6 +142,6 @@ class Store extends Component
                 'marketAddressCondition',
                 'countries',
             ])
-            ->from([Table::STORES]);
+            ->from([Table::STORESETTINGS]);
     }
 }
