@@ -43,11 +43,12 @@ class StoreSettings extends Component
         parent::init();
 
         if ($this->_store == null) {
+            $primaryStoreId = Plugin::getInstance()->getStores()->getPrimaryStore()->id; // FIXME We need to ensure we have a store before creating a store settings.
             // We always ensure we have a store record and an associated store address.
-            $store = $this->_createStoreQuery()->one(); // get first row only. Only one store at the moment.
+            $store = $this->_createStoreQuery()->where(['id' => $primaryStoreId])->one(); // get first row only. Only one store at the moment.
             if (!$store) {
                 $storeRecord = new StoreSettingsRecord();
-                $storeRecord->id = Plugin::getInstance()->getStores()->getPrimaryStore()->id; // FIXME We need to ensure we have a store before creating a store settings.
+                $storeRecord->id = $primaryStoreId;
                 $storeRecord->save();
                 $this->_store = new StoreSettingsModel(['id' => $storeRecord->id]);
             } else {
