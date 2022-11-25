@@ -20,12 +20,10 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
-use craft\commerce\records\Store;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
-use craft\helpers\Json;
 use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 use Exception;
@@ -724,13 +722,27 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::STORES);
         $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'primary' => $this->boolean()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime()->null(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::STORESETTINGS);
+        $this->createTable(Table::STORESETTINGS, [
+            'id' => $this->integer()->notNull(),
             'locationAddressId' => $this->integer(),
             'countries' => $this->text(),
             'marketAddressCondition' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
+            'PRIMARY KEY(id)',
         ]);
+
 
         $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
         $this->createTable(Table::SUBSCRIPTIONS, [
@@ -911,6 +923,8 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'reference', false);
         $this->createIndex(null, Table::ORDERS, 'billingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'shippingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'estimatedBillingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'estimatedShippingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
@@ -943,7 +957,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SALE_CATEGORIES, 'categoryId', false);
         $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
-        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', true);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
@@ -958,7 +971,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'nextPaymentDate', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateCreated', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateExpired', false);
-        $this->createIndex(null, Table::TAXCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
@@ -1077,7 +1089,6 @@ class Install extends Migration
     {
         // The following defaults are not stored in the project config.
         $this->_defaultCurrency();
-        $this->_defaultStore();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
@@ -1104,17 +1115,6 @@ class Install extends Migration
             'primary' => true,
         ];
         $this->insert(PaymentCurrency::tableName(), $data);
-    }
-
-    /**
-     * Make the default store market US
-     */
-    private function _defaultStore(): void
-    {
-        $data = [
-            'countries' => Json::encode(['US']),
-        ];
-        $this->insert(Store::tableName(), $data);
     }
 
     /**

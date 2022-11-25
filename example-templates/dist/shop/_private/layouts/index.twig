@@ -38,7 +38,7 @@ Common, top-level layout template.
       </h1>
       {% if craft.app.sites.getAllSites()|length > 1 %}
         <div class="ml-auto">
-          <select name="site" id="js-site-selector">
+            <select name="site" id="js-site-selector" class="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
             {% for site in craft.app.sites.getAllSites() %}
               <option value="{{ siteUrl(craft.app.request.absoluteUrl|replace(currentSite.getBaseUrl(), ''), null, null, site.id) }}" {% if site.handle == currentSite.handle %}selected{% endif %}>{{ site.name }}</option>
             {% endfor %}

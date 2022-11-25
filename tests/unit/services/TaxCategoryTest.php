@@ -8,10 +8,12 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\TaxCategories;
+use craft\helpers\Db;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
@@ -63,5 +65,8 @@ class TaxCategoryTest extends Unit
         $taxCategory = TaxCategory::findTrashed()->where(['id' => $taxCategoryId])->one();
 
         $this->assertInstanceOf(TaxCategory::class, $taxCategory);
+
+        // Return tax category to normal
+        Db::update(Table::TAXCATEGORIES, ['dateDeleted' => null], ['id' => $taxCategoryId]);
     }
 }

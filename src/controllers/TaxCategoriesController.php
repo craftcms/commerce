@@ -28,7 +28,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
 {
     public function actionIndex(): Response
     {
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(false);
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
         return $this->renderTemplate('commerce/tax/taxcategories/index', compact('taxCategories'));
     }
 
@@ -97,8 +97,9 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
+        $postedProductTypes = $this->request->getBodyParam('productTypes', []) ?: [];
         $productTypes = [];
-        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($postedProductTypes as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }

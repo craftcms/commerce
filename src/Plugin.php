@@ -70,7 +70,8 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
-use craft\commerce\services\Store;
+use craft\commerce\services\Stores;
+use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\Taxes;
@@ -92,6 +93,7 @@ use craft\commerce\widgets\TopPurchasables;
 use craft\commerce\widgets\TotalOrders;
 use craft\commerce\widgets\TotalOrdersByCountry;
 use craft\commerce\widgets\TotalRevenue;
+use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\debug\Module;
@@ -113,6 +115,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -182,7 +185,8 @@ class Plugin extends BasePlugin
                 'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
                 'shippingCategories' => ['class' => ShippingCategories::class],
                 'shippingZones' => ['class' => ShippingZones::class],
-                'store' => ['class' => Store::class],
+                'storeSettings' => ['class' => StoreSettings::class],
+                'stores' => ['class' => Stores::class],
                 'subscriptions' => ['class' => Subscriptions::class],
                 'taxCategories' => ['class' => TaxCategories::class],
                 'taxes' => ['class' => Taxes::class],
@@ -207,7 +211,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.1.5';
+    public string $schemaVersion = '5.0.1';
 
     /**
      * @inheritdoc
@@ -268,6 +272,21 @@ class Plugin extends BasePlugin
         }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function beforeInstall(): void
+    {
+        // Check version before installing
+        if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
+            throw new Exception('Craft Commerce 4 requires Craft CMS 4+ in order to run.');
+        }
+
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80000) {
+            Craft::error('Craft Commerce requires PHP 8.0.2+ in order to run.');
+        }
     }
 
     /**
@@ -543,6 +562,11 @@ class Plugin extends BasePlugin
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
 
+        $storesService = $this->getStores();
+        $projectConfigService->onAdd(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
+            ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
+            ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
+
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
@@ -599,7 +623,7 @@ class Plugin extends BasePlugin
             $address = $event->sender;
             $canonicalId = $address->getCanonicalId();
             if (
-                $canonicalId && $canonicalId === Plugin::getInstance()->getStore()->getStore()->getLocationAddressId() &&
+                $canonicalId && $canonicalId === Plugin::getInstance()->getStoreSettings()->getStore()->getLocationAddressId() &&
                 $event->user->can('commerce-manageStoreSettings')
             ) {
                 $event->authorized = true;
@@ -807,7 +831,13 @@ class Plugin extends BasePlugin
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging inactive carts ... ');
+            }
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
 
             // Delete orphaned variants
             Db::delete(Table::VARIANTS, ['productId' => null]);

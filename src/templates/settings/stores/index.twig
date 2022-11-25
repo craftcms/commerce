@@ -1,0 +1,54 @@
+{% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Handle',
+    'Primary',
+]) %}
+{% set title = "Stores"|t('app') %}
+
+{% block actionButton %}
+    {% set newStoreUrl = url('commerce/settings/stores/new') %}
+    <a href="{{ newStoreUrl }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="stores-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for store in stores %}
+    {% set tableData = tableData|merge([{
+        id: store.id,
+        name: store.name|t('site'),
+        title: store.name|t('site'),
+        url: url('commerce/settings/stores/'~store.id),
+        handle: store.handle,
+        primary: store.primary ? true : false,
+        _showDelete : store.primary ? false : true
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        {
+            name: 'primary',
+            title: Craft.t('commerce', 'Primary'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+            }
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#stores-vue-admin-table',
+        deleteAction: 'commerce/stores/delete-store',
+        emptyMessage: Craft.t('commerce', 'No stores exist yet.'),
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

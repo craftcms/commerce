@@ -8,7 +8,7 @@
 namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
-use craft\commerce\models\Store;
+use craft\commerce\models\StoreSettings;
 use yii\base\InvalidConfigException;
 
 /**
@@ -28,7 +28,7 @@ class StoreTest extends Unit
      */
     public function testSetCountries(mixed $countries, bool $expectException, array $expected): void
     {
-        $store = new Store();
+        $store = new StoreSettings();
         if ($expectException) {
             $this->expectException(InvalidConfigException::class);
         }
@@ -47,7 +47,7 @@ class StoreTest extends Unit
      */
     public function testGetCountriesList(array $countries, array $expected): void
     {
-        $store = new Store();
+        $store = new StoreSettings();
         $store->setCountries($countries);
 
         self::assertEquals($expected, $store->getCountriesList());
@@ -62,7 +62,7 @@ class StoreTest extends Unit
      */
     public function testGetAdministrativeAreasListByCountryCode(array $countries, array $expected): void
     {
-        $store = new Store();
+        $store = new StoreSettings();
         $store->setCountries($countries);
 
         self::assertEquals($expected, $store->getAdministrativeAreasListByCountryCode());

@@ -79,12 +79,14 @@ class CustomerAddressBehavior extends Behavior
     public function getIsPrimaryBilling(): bool
     {
         if (!isset($this->_isPrimaryBilling)) {
-            if (!$this->owner->id) {
+
+            /** @var User|CustomerBehavior|null $user */
+            $user = $this->owner->getOwner();
+
+            if (!$this->owner->id || !$user) {
                 return false;
             }
 
-            /** @var User|CustomerBehavior $user */
-            $user = $this->owner->getOwner();
             $this->_isPrimaryBilling = $this->owner->id === $user->getPrimaryBillingAddressId();
         }
 
@@ -109,12 +111,14 @@ class CustomerAddressBehavior extends Behavior
     public function getIsPrimaryShipping(): bool
     {
         if (!isset($this->_isPrimaryShipping)) {
-            if (!$this->owner->id) {
+
+            /** @var User|CustomerBehavior|null $user */
+            $user = $this->owner->getOwner();
+
+            if (!$this->owner->id || !$user) {
                 return false;
             }
 
-            /** @var User|CustomerBehavior $user */
-            $user = $this->owner->getOwner();
             $this->_isPrimaryShipping = $this->owner->id === $user->getPrimaryShippingAddressId();
         }
 

@@ -33,6 +33,7 @@ class ProjectConfigData
         $output['emails'] = self::_getEmailData();
         $output['pdfs'] = self::_getPdfData();
         $output['gateways'] = self::_rebuildGatewayProjectConfig();
+        $output['stores'] = self::_getStoresData();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
@@ -89,6 +90,18 @@ class ProjectConfigData
 
 
         return $configData;
+    }
+
+    /**
+     * Return stores data config array.
+     */
+    private static function _getStoresData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $data[$store->uid] = $store->getConfig();
+        }
+        return $data;
     }
 
     /**
