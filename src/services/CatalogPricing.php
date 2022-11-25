@@ -158,9 +158,9 @@ class CatalogPricing extends Component
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null): ?float
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStore()->getStore()->id;
-        $cacheKey = sprintf('catalog-price-%s-%s', $storeId, $userId ?? 'all');
+        $key = sprintf('catalog-price-%s-%s', $storeId, $userId ?? 'all');
 
-        if ($this->_allCatalogPrices === null || !isset($this->_allCatalogPrices[$cacheKey])) {
+        if ($this->_allCatalogPrices === null || !isset($this->_allCatalogPrices[$key])) {
             $catalogPricingRuleIdWhere = [
                 'or',
                 ['catalogPricingRuleId' => null],
@@ -194,10 +194,9 @@ class CatalogPricing extends Component
                 ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC])
                 ->indexBy('purchasableId');
 
-
-            $this->_allCatalogPrices[$cacheKey] = $query->column();
+            $this->_allCatalogPrices[$key] = $query->column();
         }
 
-        return $this->_allCatalogPrices[$cacheKey][$purchasableId] ?? null;
+        return $this->_allCatalogPrices[$key][$purchasableId] ?? null;
     }
 }
