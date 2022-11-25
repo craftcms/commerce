@@ -60,7 +60,7 @@ class m221122_055725_multi_store extends Migration
         }
 
         $this->update(table: Table::STORES,
-            columns: ['name' => 'Primary Store', 'handle' => 'primary-store', 'primary' => true],
+            columns: ['name' => 'Primary Store', 'handle' => 'primaryStore', 'primary' => true],
             condition: ['id' => $storeSettings['id']],
             updateTimestamp: false
         );

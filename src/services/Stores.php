@@ -12,10 +12,10 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\Store;
-use craft\commerce\models\Store as StoreModel;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
-use craft\errors\SiteNotFoundException;
+use craft\errors\BusyResourceException;
+use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
@@ -24,12 +24,21 @@ use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
+use yii\base\Exception as YiiBaseException;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\db\Exception as YiiDbException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Stores service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
+ *
+ * @property-read Store $primaryStore
+ * @property-read Collection $allStores
  */
 class Stores extends Component
 {
@@ -66,7 +75,7 @@ class Stores extends Component
     public const CONFIG_STORES_KEY = 'commerce.stores';
 
     /**
-     * @var Collection<StoreModel>|null
+     * @var Collection<Store>|null
      */
     private ?Collection $_allStores = null;
 
@@ -102,15 +111,13 @@ class Stores extends Component
 
         if (!empty($results)) {
             $this->_allStores = collect($results)->map(function($row) {
-                $store = new Store();
-                $store->setAttributes($row, false);
-                return $store;
+                return Craft::createObject(array_merge(['class' => Store::class], $row));
             });
         }
     }
 
     /**
-     * @return Collection<StoreModel>
+     * @return Collection<Store>
      */
     public function getAllStores(): Collection
     {
@@ -119,39 +126,28 @@ class Stores extends Component
 
     /**
      * @param int $id
-     * @return StoreModel|null
+     * @return Store|null
      */
-    public function getStoreById(int $id): ?StoreModel
+    public function getStoreById(int $id): ?Store
     {
-        $stores = $this->_allStores;
-        return $stores->firstWhere('id', $id);
-    }
-
-    /**
-     * Returns a Query object prepped for retrieving the stores.
-     */
-    private function _createStoreQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'id',
-                'name',
-                'handle',
-                'primary',
-                'uid',
-            ])
-            ->andWhere(['dateDeleted' => null])
-            ->from([Table::STORES]);
+        return $this->getAllStores()->firstWhere('id', $id);
     }
 
     /**
      * Saves a store.
      *
-     * @param StoreModel $store The store to be saved
+     * @param Store $store The store to be saved
      * @param bool $runValidation Whether the store should be validated
      * @return bool
+     * @throws BusyResourceException
+     * @throws StaleResourceException
+     * @throws ErrorException
+     * @throws YiiBaseException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function saveStore(StoreModel $store, bool $runValidation = true): bool
+    public function saveStore(Store $store, bool $runValidation = true): bool
     {
         $isNewStore = !$store->id;
 
@@ -202,8 +198,9 @@ class Stores extends Component
     }
 
     /**
-     * @param int $siteId
+     * @param int $storeId
      * @return bool
+     * @throws Exception
      */
     public function deleteStoreById(int $storeId): bool
     {
@@ -217,11 +214,11 @@ class Stores extends Component
     }
 
     /**
-     * @param StoreModel $store
+     * @param Store $store
      * @return bool
      * @throws Exception
      */
-    public function deleteStore(StoreModel $store): bool
+    public function deleteStore(Store $store): bool
     {
         // Make sure this isn't the primary site
         if ($store->id === $this->getPrimaryStore()?->id) {
@@ -243,6 +240,10 @@ class Stores extends Component
     /**
      * Handle store status change.
      *
+     * @param ConfigEvent $event
+     * @return void
+     * @throws Throwable
+     * @throws YiiDbException
      */
     public function handleChangedStore(ConfigEvent $event): void
     {
@@ -290,6 +291,8 @@ class Stores extends Component
      * Handle a deleted Store.
      *
      * @param ConfigEvent $event
+     * @throws Throwable
+     * @throws YiiDbException
      */
     public function handleDeletedStore(ConfigEvent $event): void
     {
@@ -337,6 +340,7 @@ class Stores extends Component
     /**
      * Refresh the status of all stores based on the DB data.
      *
+     * @return void
      */
     public function refreshStores(): void
     {
@@ -346,15 +350,19 @@ class Stores extends Component
 
     /**
      * Returns the primary store.
+     *
+     * @return Store
      */
-    public function getPrimaryStore(): StoreModel
+    public function getPrimaryStore(): Store
     {
-        $stores = $this->_allStores;
-        return $stores->firstWhere('primary', true);
+        return $this->getAllStores()->firstWhere('primary', true);
     }
 
     /**
-     * Gets an email record by uid.
+     * Gets a store record by uid.
+     *
+     * @param string $uid
+     * @return StoreRecord
      */
     private function _getStoreRecord(string $uid): StoreRecord
     {
@@ -363,5 +371,24 @@ class Stores extends Component
         }
 
         return new StoreRecord();
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving the stores.
+     *
+     * @return Query
+     */
+    private function _createStoreQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'name',
+                'handle',
+                'primary',
+                'uid',
+            ])
+            ->andWhere(['dateDeleted' => null])
+            ->from([Table::STORES]);
     }
 }

@@ -26,7 +26,7 @@ class Store extends Model
     public ?int $id = null;
 
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $_name = null;
 
@@ -44,6 +44,18 @@ class Store extends Model
      * @var string|null Store UID
      */
     public ?string $uid = null;
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['primary', 'id', 'uid'], 'safe'];
+
+        return $rules;
+    }
 
     /**
      * Returns the store’s name.
@@ -87,7 +99,7 @@ class Store extends Model
     public function attributeLabels(): array
     {
         return [
-            'name' => \Craft::t('commerce', 'Name'),
+            'name' => Craft::t('commerce', 'Name'),
             'commerce' => Craft::t('commerce', 'Handle'),
             'primary' => Craft::t('commerce', 'primary'),
         ];
