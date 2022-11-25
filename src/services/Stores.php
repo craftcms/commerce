@@ -89,7 +89,12 @@ class Stores extends Component
             return;
         }
 
-        if (!Craft::$app->getIsInstalled() || !Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
+        if (!Craft::$app->getIsInstalled()
+            || !Craft::$app->getPlugins()->isPluginInstalled('commerce')
+            // @TODO remove at next major version
+            || version_compare($schemaVersion, '5.0.1', '<')
+        ) {
             return;
         }
 
