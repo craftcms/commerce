@@ -1185,7 +1185,7 @@ class Product extends Element
             default:
             {
                 if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
-                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($matches[1]);
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$matches[1]);
 
                     if ($productType) {
                         $productTypes = [$productType];
