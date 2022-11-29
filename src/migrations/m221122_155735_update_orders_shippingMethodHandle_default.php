@@ -21,7 +21,6 @@ class m221122_155735_update_orders_shippingMethodHandle_default extends Migratio
             ['shippingMethodHandle' => null],
             updateTimestamp: false,
         );
-        $this->alterColumn('{{%commerce_orders}}', 'shippingMethodHandle', $this->string()->notNull()->defaultValue(''));
 
         $this->update(
             Table::ORDERS,
@@ -29,7 +28,18 @@ class m221122_155735_update_orders_shippingMethodHandle_default extends Migratio
             ['shippingMethodName' => null],
             updateTimestamp: false,
         );
-        $this->alterColumn('{{%commerce_orders}}', 'shippingMethodName', $this->string()->notNull()->defaultValue(''));
+
+        if ($this->db->getIsPgsql()) {
+            // Manually construct the SQL for Postgres
+            // (see https://github.com/yiisoft/yii2/issues/12077)
+            $this->execute(sprintf('ALTER TABLE %s ALTER COLUMN [[shippingMethodHandle]] SET NOT NULL', Table::ORDERS));
+            $this->execute(sprintf("ALTER TABLE %s ALTER COLUMN [[shippingMethodHandle]] SET DEFAULT ''", Table::ORDERS));
+            $this->execute(sprintf('ALTER TABLE %s ALTER COLUMN [[shippingMethodName]] SET NOT NULL', Table::ORDERS));
+            $this->execute(sprintf("ALTER TABLE %s ALTER COLUMN [[shippingMethodName]] SET DEFAULT ''", Table::ORDERS));
+        } else {
+            $this->alterColumn(Table::ORDERS, 'shippingMethodHandle', $this->string()->notNull()->defaultValue(''));
+            $this->alterColumn(Table::ORDERS, 'shippingMethodName', $this->string()->notNull()->defaultValue(''));
+        }
 
         return true;
     }
