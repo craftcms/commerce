@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Store;
 
 /**
  * Interface Purchasable
@@ -24,19 +25,79 @@ interface PurchasableInterface
     public function getId(): ?int;
 
     /**
-     * Returns the base price the item will be added to the line item with.
-     *
-     * @return float decimal(14,4)
+     * @param int|null $storeId
+     * @return void
+     * @since 5.0.0.
      */
-    public function getPrice(): float;
+    public function setStoreId(?int $storeId): void;
+
+    /**
+     * @return int|null
+     * @since 5.0.0
+     */
+    public function getStoreId(): ?int;
+
+    /**
+     * @param int|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setStore(int|Store|null $store): void;
+
+    /**
+     * @return Store|null
+     * @since 5.0.0
+     */
+    public function getStore(): ?Store;
 
     /**
      * Returns the base price the item will be added to the line item with.
-     * It provides opportunity to populate the salePrice if sales have not already been applied.
      *
-     * @return float decimal(14,4)
+     * @param string|null $storeHandle
+     * @return float|null decimal(14,4)
      */
-    public function getSalePrice(): float;
+    public function getPrice(?string $storeHandle = null): ?float;
+
+    /**
+     * Returns the promotional price the item will be added to the line item with.
+     *
+     * @param string|null $storeHandle
+     * @return float|null decimal(14,4)
+     */
+    public function getSalePrice(?string $storeHandle = null): ?float;
+
+    /**
+     * Returns the base price the item will be added to the line item with.
+     *
+     * @param string|null $storeHandle
+     * @return float|null decimal(14,4)
+     * @since 5.0.0
+     */
+    public function getBasePrice(?string $storeHandle = null): ?float;
+
+    /**
+     * @param float|null $price
+     * @param string $storeHandle
+     * @return void
+     * @since 5.0.0
+     */
+    public function setBasePrice(?float $price, string $storeHandle): void;
+
+    /**
+     * @param float|null $price
+     * @param string $storeHandle
+     * @return void
+     * @since 5.0.0
+     */
+    public function setBaseSalePrice(?float $price, string $storeHandle): void;
+
+    /**
+     * Returns the promotional price the item will be added to the line item with.
+     *
+     * @return float|null decimal(14,4)
+     * @since 5.0.0
+     */
+    public function getBaseSalePrice(): ?float;
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
