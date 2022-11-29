@@ -557,7 +557,6 @@ class VariantQuery extends ElementQuery
             'commerce_variants.productId',
             'commerce_variants.isDefault',
             'commerce_variants.sku',
-            'commerce_variants.price',
             'commerce_variants.sortOrder',
             'commerce_variants.width',
             'commerce_variants.height',

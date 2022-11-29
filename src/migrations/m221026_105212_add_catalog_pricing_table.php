@@ -103,6 +103,10 @@ class m221026_105212_add_catalog_pricing_table extends Migration
             $this->dropColumn('{{%commerce_purchasables}}', 'price');
         }
 
+        if ($this->db->columnExists('{{%commerce_variants}}', 'price')) {
+            $this->dropColumn('{{%commerce_variants}}', 'price');
+        }
+
         return true;
     }
 

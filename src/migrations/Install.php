@@ -842,7 +842,6 @@ class Install extends Migration
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'price' => $this->decimal(14, 4)->notNull(),
             'sortOrder' => $this->integer(),
             'width' => $this->decimal(14, 4),
             'height' => $this->decimal(14, 4),
