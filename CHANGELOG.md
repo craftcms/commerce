@@ -2,8 +2,7 @@
 
 ## Unreleased
 
-- The "Customer" condition rule now supports orders with no customer.
-- Fixed a bug where `shippingMethodHandle` and `shippingMethodName` were missing their default values.
+- The “Customer” order condition rule now supports orders with no customer.
 
 ## 4.2.3 - 2022-11-23
 
