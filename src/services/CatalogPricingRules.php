@@ -14,6 +14,7 @@ use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -57,38 +58,31 @@ class CatalogPricingRules extends Component
     /**
      * Get all catalog pricing rules.
      *
-     * @return CatalogPricingRule[]
-     * @throws InvalidConfigException
+     * @return Collection<CatalogPricingRule>
      */
-    public function getAllCatalogPricingRules(): array
+    public function getAllCatalogPricingRules(): Collection
     {
         if (!isset($this->_allCatalogPricingRules)) {
             $catalogPricingRules = $this->_createCatalogPricingRuleQuery()->all();
 
-            $allPricingCatalogRulesById = [];
+            $this->_allCatalogPricingRules = collect($catalogPricingRules)->map(function($row) {
+                $row['customerCondition'] = $row['customerCondition'] ?? '';
+                $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
 
-            foreach ($catalogPricingRules as $pcr) {
-                $pcr['customerCondition'] = $pcr['customerCondition'] ?? '';
-                $pcr['purchasableCondition'] = $pcr['purchasableCondition'] ?? '';
-
-                if (!isset($allPricingCatalogRulesById[$pcr['id']])) {
-                    $allPricingCatalogRulesById[$pcr['id']] = Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $pcr]]);
-                }
-            }
-
-            $this->_allCatalogPricingRules = $allPricingCatalogRulesById;
+                return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $pcr]]);
+            })->keyBy('id');
         }
 
         return $this->_allCatalogPricingRules;
     }
 
     /**
-     * @return CatalogPricingRule[]|null
+     * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
-    public function getAllEnabledCatalogPricingRules(): ?array
+    public function getAllEnabledCatalogPricingRules(): Collection
     {
-        return array_filter($this->getAllCatalogPricingRules(), fn(CatalogPricingRule $pcr) => $pcr->enabled);
+        return $this->getAllCatalogPricingRules()->map(fn(CatalogPricingRule $pcr) => $pcr->enabled);
     }
 
     /**
@@ -97,16 +91,24 @@ class CatalogPricingRules extends Component
     public function getAllActiveCatalogPricingRules(): array
     {
         if ($this->_allActiveCatalogPricingRules === null) {
-            $this->_allActiveCatalogPricingRules = [];
-            foreach ($this->getAllEnabledCatalogPricingRules() as $pcr) {
+            $this->_allActiveCatalogPricingRules = $this->getAllEnabledCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
                 // If there are no dates or rule is currently in the date range add it to the active list
-                if (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time())) {
-                    $this->_allActiveCatalogPricingRules[] = $pcr;
-                }
-            }
+                return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
+            });
         }
 
         return $this->_allActiveCatalogPricingRules ?? [];
+    }
+
+    /**
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getAllCatalogPricingRulesWithUserConditions(): array
+    {
+        return $this->getAllCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
+            return $pcr->getCustomerCondition() && !empty($pcr->getCustomerCondition()->rules());
+        });
     }
 
     /**
