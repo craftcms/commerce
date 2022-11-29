@@ -43,7 +43,7 @@ use yii\db\Connection;
  * @supports-status-param
  * @supports-title-param
  */
-class VariantQuery extends ElementQuery
+class VariantQuery extends PurchasableQuery
 {
     /**
      * @inheritdoc
