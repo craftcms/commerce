@@ -1,13 +1,13 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.3 - 2022-11-23
 
 - The "Customer" condition rule now supports orders with no customer.
 - Fixed a bug where `shippingMethodHandle` and `shippingMethodName` were missing their default values.
 - Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
-- Fixed a bug where using the `autoSetNewCartAddresses` config setting would set addresses on guest carts when emails belonging to a registered user are used.
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
 - Fixed an error that could occur when purging inactive carts.
-- Fixed an bug where product and variant link options did not show up the on redactor link menu for all sites. ([#3041](https://github.com/craftcms/commerce/issues/3041))
+- Fixed an bug where products and variants weren’t always available as link options in Redactor. ([#3041](https://github.com/craftcms/commerce/issues/3041))
 
 ## 4.2.2 - 2022-11-06
 
