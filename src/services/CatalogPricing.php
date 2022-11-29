@@ -152,13 +152,16 @@ class CatalogPricing extends Component
      * @param int $purchasableId
      * @param int|null $storeId
      * @param int|null $userId
+     * @param bool|null $isPromotionalPrice
      * @return float|null
      * @throws InvalidConfigException
      */
-    public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null): ?float
+    public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStore()->getStore()->id;
-        $key = sprintf('catalog-price-%s-%s', $storeId, $userId ?? 'all');
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $userKey = $userId ?? 'all';
+        $promoKey = $isPromotionalPrice ? 'promo' : 'standard';
+        $key = 'catalog-price-' . implode('-', [$storeId, $userKey, $promoKey]);
 
         if ($this->_allCatalogPrices === null || !isset($this->_allCatalogPrices[$key])) {
             $catalogPricingRuleIdWhere = [
@@ -190,6 +193,7 @@ class CatalogPricing extends Component
                 ->andWhere(['storeId' => $storeId])
                 ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
                 ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
+                ->andWhere(['isPromotionalPrice' => $isPromotionalPrice])
                 ->groupBy(['purchasableId'])
                 ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC])
                 ->indexBy('purchasableId');
@@ -198,5 +202,22 @@ class CatalogPricing extends Component
         }
 
         return $this->_allCatalogPrices[$key][$purchasableId] ?? null;
+    }
+
+    /**
+     * @param array $data
+     * @param array $where
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function upsertCatalogPricingRecord(array $data, array $where): bool
+    {
+        $catalogPricingRecord = \craft\commerce\records\CatalogPricing::find()->where($where)->one();
+        if ($catalogPricingRecord === null) {
+            $catalogPricingRecord = Craft::createObject(\craft\commerce\records\CatalogPricing::class);
+        }
+
+        $catalogPricingRecord->setAttributes($data, false);
+        return $catalogPricingRecord->save();
     }
 }
