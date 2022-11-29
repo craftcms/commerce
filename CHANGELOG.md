@@ -1,9 +1,12 @@
 # Release Notes for Craft Commerce
 
-## 4.2.3 - 2022-11-23
+## Unreleased
 
 - The "Customer" condition rule now supports orders with no customer.
 - Fixed a bug where `shippingMethodHandle` and `shippingMethodName` were missing their default values.
+
+## 4.2.3 - 2022-11-23
+
 - Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
 - Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
 - Fixed an error that could occur when purging inactive carts.
