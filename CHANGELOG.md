@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.4 - 2022-11-29
 
 - The “Customer” order condition rule now supports orders with no customer.
 
