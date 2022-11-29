@@ -18,7 +18,7 @@ class m211118_101920_split_coupon_codes extends Migration
      */
     public function safeUp(): bool
     {
-        if (!$this->getDb()->tableExists('{{%commerce_coupons}}')) {
+        if (!$this->db->tableExists('{{%commerce_coupons}}')) {
             $this->createTable('{{%commerce_coupons}}', [
                 'id' => $this->primaryKey(),
                 'code' => $this->string(),

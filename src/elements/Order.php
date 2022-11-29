@@ -813,6 +813,7 @@ class Order extends Element
 
     /**
      * @var string|null Shipping Method Handle
+     * @TODO change this to be just string at next breaking change
      */
     public ?string $shippingMethodHandle = '';
 
@@ -2050,8 +2051,8 @@ class Order extends Element
 
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
-        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
-        $orderRecord->shippingMethodName = $this->shippingMethodName;
+        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
+        $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;

@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 4.2.4 - 2022-11-29
+
+- The “Customer” order condition rule now supports orders with no customer.
+
 ## 4.2.3 - 2022-11-23
 
 - Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
