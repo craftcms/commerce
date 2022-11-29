@@ -2,6 +2,7 @@
 
 namespace craft\commerce\migrations;
 
+use craft\commerce\db\Table;
 use craft\db\Migration;
 
 /**
@@ -14,14 +15,20 @@ class m221122_155735_update_orders_shippingMethodHandle_default extends Migratio
      */
     public function safeUp(): bool
     {
-        $this->db->createCommand()
-            ->update('{{%commerce_orders}}', ['shippingMethodHandle' => ''], ['shippingMethodHandle' => null])
-            ->execute();
+        $this->update(
+            Table::ORDERS,
+            ['shippingMethodHandle' => ''],
+            ['shippingMethodHandle' => null],
+            updateTimestamp: false,
+        );
         $this->alterColumn('{{%commerce_orders}}', 'shippingMethodHandle', $this->string()->notNull()->defaultValue(''));
 
-        $this->db->createCommand()
-            ->update('{{%commerce_orders}}', ['shippingMethodName' => ''], ['shippingMethodName' => null])
-            ->execute();
+        $this->update(
+            Table::ORDERS,
+            ['shippingMethodName' => ''],
+            ['shippingMethodName' => null],
+            updateTimestamp: false,
+        );
         $this->alterColumn('{{%commerce_orders}}', 'shippingMethodName', $this->string()->notNull()->defaultValue(''));
 
         return true;
