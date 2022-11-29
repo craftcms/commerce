@@ -151,10 +151,6 @@
     {# Related Sales #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
         {% set productDefaultVariant = product.getDefaultVariant(true) %}
-        {% if currentUser.can('commerce-editSales') and productDefaultVariant is not null %}
-            {{ productFields.relatedSales(productDefaultVariant.id, productType.hasVariants) }}
-        {% endif %}
-
       {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') and productDefaultVariant is not null %}
         {{ productFields.relatedDiscounts(productDefaultVariant.id, productDefaultVariant) }}
       {% endif %}
