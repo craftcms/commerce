@@ -51,7 +51,6 @@ class Product
         $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
-        $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
         $variantModel->width = isset($variant['width']) ? (float)LocalizationHelper::normalizeNumber($variant['width']) : null;
         $variantModel->height = isset($variant['height']) ? (float)LocalizationHelper::normalizeNumber($variant['height']) : null;
         $variantModel->length = isset($variant['length']) ? (float)LocalizationHelper::normalizeNumber($variant['length']) : null;
@@ -60,6 +59,21 @@ class Product
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
         $variantModel->minQty = $variant['minQty'] === null || $variant['minQty'] === '' ? null : (int)LocalizationHelper::normalizeNumber($variant['minQty']);
         $variantModel->maxQty = $variant['maxQty'] === null || $variant['maxQty'] === '' ? null : (int)LocalizationHelper::normalizeNumber($variant['maxQty']);
+
+        // Set prices
+        if (!empty($variant['basePrice'])) {
+            foreach ($variant['basePrice'] as $storeHandle => $basePrice) {
+                $basePrice = $basePrice === '' ? null : (float)LocalizationHelper::normalizeNumber($basePrice);
+                $variantModel->setBasePrice($basePrice, $storeHandle);
+            }
+        }
+
+        if (!empty($variant['baseSalePrice'])) {
+            foreach ($variant['baseSalePrice'] as $storeHandle => $baseSalePrice) {
+                $baseSalePrice = $baseSalePrice === '' ? null : (float)LocalizationHelper::normalizeNumber($baseSalePrice);
+                $variantModel->setBaseSalePrice($baseSalePrice, $storeHandle);
+            }
+        }
 
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);

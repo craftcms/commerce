@@ -23,7 +23,9 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricing;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -191,11 +193,6 @@ class Variant extends Purchasable
     public bool $isDefault = false;
 
     /**
-     * @inheritdoc
-     */
-    public ?float $price = null;
-
-    /**
      * @var int|null $sortOrder
      */
     public ?int $sortOrder = null;
@@ -358,8 +355,8 @@ class Variant extends Purchasable
     {
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            [['sku'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'salePrice', 'weight', 'width', 'height', 'length'], 'number'],
             [
                 ['stock'],
                 'required',
@@ -551,16 +548,6 @@ class Variant extends Purchasable
     public function getUrl(): ?string
     {
         return $this->product->url . '?variant=' . $this->id;
-    }
-
-    /**
-     * Cache on the purchasable table.
-     *
-     * @inheritdoc
-     */
-    public function getPrice(): float
-    {
-        return (float)$this->price;
     }
 
     /**
@@ -945,7 +932,6 @@ class Variant extends Purchasable
 
             $record->productId = $this->productId;
             $record->sku = $this->sku;
-            $record->price = $this->price;
             $record->width = $this->width;
             $record->height = $this->height;
             $record->length = $this->length;
@@ -969,6 +955,22 @@ class Variant extends Purchasable
             }
 
             $record->save(false);
+
+            // Save prices
+            // @TODO evalutate this to see if we need a bulk delete and insert. Currently this is not optimised for large numbers of prices.
+            $storeIdsByHandle = Plugin::getInstance()->getStores()->getAllStores()->keyBy('handle')->map(fn(Store $store) => $store->id)->all();
+            foreach ($this->basePrices as $storeHandle => $basePrice) {
+                Plugin::getInstance()->getCatalogPricing()->upsertCatalogPricingRecord(
+                    ['purchasableId' => $record->id, 'price' => $basePrice, 'storeId' => $storeIdsByHandle[$storeHandle], 'isPromotionalPrice' => 0],
+                    ['purchasableId' => $record->id, 'storeId' => $storeIdsByHandle[$storeHandle], 'catalogPricingRuleId' => null, 'dateFrom' => null, 'dateTo' => null, 'isPromotionalPrice' => 0]
+                );
+            }
+            foreach ($this->baseSalePrices as $storeHandle => $baseSalePrice) {
+                Plugin::getInstance()->getCatalogPricing()->upsertCatalogPricingRecord(
+                    ['purchasableId' => $record->id, 'price' => $baseSalePrice, 'storeId' => $storeIdsByHandle[$storeHandle], 'isPromotionalPrice' => 1],
+                    ['purchasableId' => $record->id, 'storeId' => $storeIdsByHandle[$storeHandle], 'catalogPricingRuleId' => null, 'dateFrom' => null, 'dateTo' => null, 'isPromotionalPrice' => 1]
+                );
+            }
         }
 
         parent::afterSave($isNew);

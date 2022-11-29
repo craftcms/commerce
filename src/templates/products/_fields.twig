@@ -126,15 +126,26 @@
         }) }}
     {% endif %}
 
-    {{ forms.textField({
-        id: 'price',
-        label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
-        name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price and variant.getErrors('price') is empty ? variant.price|number : variant.price)),
-        placeholder: 'Enter price'|t('commerce'),
-        required: true,
-        errors: variant.getErrors('price')
-    }) }}
+    {% for store in craft.commerce.stores.getAllStores() %}
+      {{ forms.textField({
+          id: 'price-' ~ store.handle,
+          label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
+          name: 'basePrice[' ~ store.handle ~ ']',
+          value: (variant.getBasePrice(store.handle) == '0' ? '0'|number : (variant.getBasePrice(store.handle) and variant.getErrors('price') is empty ? variant.getBasePrice(store.handle)|number : variant.getBasePrice(store.handle))),
+          placeholder: 'Enter price'|t('commerce'),
+          required: true,
+          errors: variant.getErrors('basePrice')
+      }) }}
+      {{ forms.textField({
+          id: 'salePrice-' ~ store.handle,
+          label: 'Sale Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
+          name: 'baseSalePrice[' ~ store.handle ~ ']',
+          value: (variant.getBaseSalePrice(store.handle) == '0' ? '0'|number : (variant.getBaseSalePrice(store.handle) and variant.getErrors('salePrice') is empty ? variant.getBaseSalePrice(store.handle)|number : variant.getBaseSalePrice(store.handle))),
+          placeholder: 'Enter price'|t('commerce'),
+          required: true,
+          errors: variant.getErrors('baseSalePrice')
+      }) }}
+    {% endfor %}
 
     {% set stockInput %}
         <div class="flex">
@@ -248,32 +259,6 @@
         errors: variant.getErrors('weight')
     }) }}
 {% endmacro %}
-
-{% macro relatedSales(id, showAddAll) %}
-    {%- import "_includes/forms" as forms -%}
-    {% set output %}
-        {% if not showAddAll %}
-            <div class="product-sales commerce-sales-spinner spinner" data-id="{{ id }}" data-loading="false"></div>
-            <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
-            <div class="commerce-sales-buttons">
-                {# Add to existing sale #}
-                <a class="btn small add icon product-add-to-sale" href="#" data-id="{{ id }}">{{ 'Add to Sale'|t('commerce') }}</a>
-            </div>
-        {% else %}
-            <div class="commerce-sales-buttons">
-                {# Add to existing sale #}
-                <a class="btn small add icon product-add-to-sale" href="#" data-id="all">{{ 'Add all to Sale'|t('commerce') }}</a>
-            </div>
-        {% endif %}
-
-    {% endset %}
-
-    {{ forms.field({
-        label: 'Related Sales'|t('commerce'),
-        id: 'related-sales',
-    }, output) }}
-{% endmacro %}
-
 
 {% macro relatedDiscounts(id, defaultVariant) %}
     {%- import "_includes/forms" as forms -%}
