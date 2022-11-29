@@ -13,10 +13,13 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\errors\SiteNotFoundException;
 use craft\validators\UniqueValidator;
+use InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Base Purchasable
@@ -48,6 +51,47 @@ abstract class Purchasable extends Element implements PurchasableInterface
     private ?float $_salePrice = null;
 
     /**
+     * @var float|null
+     */
+    private ?float $_baseSalePrice = null;
+
+    /**
+     * @var float|null
+     */
+    private ?float $_basePrice = null;
+
+    /**
+     * Array of base prices indexed by store handle.
+     *
+     * @var array
+     */
+    public array $basePrices = [];
+
+    /**
+     * Array of base sale prices indexed by store handle.
+     *
+     * @var array
+     */
+    public array $baseSalePrices = [];
+
+    /**
+     * @var float|null
+     */
+    private ?float $_price = null;
+
+    /**
+     * @var int|null
+     * @since 5.0.0
+     */
+    private ?int $_storeId = null;
+
+    /**
+     * @var Store|null
+     * @since 5.0.0
+     */
+    private ?Store $_store = null;
+
+    /**
      * @var Sale[]|null
      */
     private ?array $_sales = null;
@@ -62,6 +106,11 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'isAvailable';
         $names[] = 'isPromotable';
         $names[] = 'price';
+        $names[] = 'salePrice';
+        $names[] = 'basePrice';
+        $names[] = 'baseSalePrice';
+        $names[] = 'basePrices';
+        $names[] = 'baseSalePrices';
         $names[] = 'shippingCategoryId';
         $names[] = 'sku';
         $names[] = 'taxCategoryId';
@@ -112,13 +161,167 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
+     * @param int|null $storeId
+     * @return void
+     * @since 5.0.0
+     */
+    public function setStoreId(?int $storeId): void
+    {
+        $this->_storeId = $storeId;
+    }
+
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getStoreId(): ?int
+    {
+        if ($this->_storeId === null && $this->_store === null) {
+            return null;
+        }
+
+        return $this->getStore()?->id;
+    }
+
+    /**
+     * @param int|Store|null $store
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function setStore(int|Store|null $store): void
+    {
+        if ($store === null) {
+            $this->_storeId = null;
+            $this->_store = null;
+            return;
+        }
+
+        if (is_int($store)) {
+            $store = Plugin::getInstance()->getStores()->getStoreById($store);
+            if ($store === null) {
+                throw new InvalidArgumentException('Invalid store ID: ' . $store);
+            }
+
+            $this->_storeId = $store->id;
+            $this->_store = $store;
+        }
+    }
+
+    /**
+     * @return Store|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getStore(): ?Store
+    {
+        if ($this->_store === null && $this->_storeId === null) {
+            return null;
+        }
+
+        if ($this->_store instanceof Store) {
+            return $this->_store;
+        }
+
+        if ($this->_storeId !== null) {
+            $this->_store = Plugin::getInstance()->getStores()->getStoreById($this->_storeId);
+        }
+
+        return $this->_store;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function getSalePrice(): float
+    public function getSalePrice(?string $storeHandle = null): ?float
     {
-        $this->_loadSales();
+        if ($storeHandle === null) {
+            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+        } else {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        }
 
-        return $this->_salePrice;
+        if ($store === null) {
+            throw new InvalidArgumentException('Invalid store handle');
+        }
+
+        $price = $this->getPrice($storeHandle);
+        // Live get catalog price
+        $salePrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, true);
+
+        return $price <= $salePrice ? null : $salePrice;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPrice(?string $storeHandle = null): ?float
+    {
+        if ($storeHandle === null) {
+            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+        } else {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        }
+
+        if ($store === null) {
+            throw new InvalidArgumentException('Invalid store handle');
+        }
+
+        // Live get catalog price
+        $catalogPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, false);
+
+        return $catalogPrice ?? $this->getBasePrice($store->handle);
+    }
+
+    public function getBaseSalePrice(?string $storeHandle = null): ?float
+    {
+        if ($storeHandle === null) {
+            $storeHandle = Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
+        }
+
+        if (!isset($this->baseSalePrices[$storeHandle])) {
+            return null;
+        }
+
+        return $this->baseSalePrices[$storeHandle] ?? null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setBaseSalePrice(?float $price, string $storeHandle): void
+    {
+        if (!in_array($storeHandle, Plugin::getInstance()->getStores()->getAllStores()->map(fn($store) => $store->handle)->all(), true)) {
+            throw new InvalidArgumentException('Invalid store handle');
+        }
+
+        $this->baseSalePrices[$storeHandle] = $price;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBasePrice(?string $storeHandle = null): ?float
+    {
+        if ($storeHandle === null) {
+            $storeHandle = Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
+        }
+
+        if (!isset($this->basePrices[$storeHandle])) {
+            return null;
+        }
+
+        return $this->basePrices[$storeHandle] ?? null;
+    }
+
+    public function setBasePrice(?float $price, string $storeHandle): void
+    {
+        if (!in_array($storeHandle, Plugin::getInstance()->getStores()->getAllStores()->map(fn($store) => $store->handle)->all(), true)) {
+            throw new InvalidArgumentException('Invalid store handle');
+        }
+
+        $this->basePrices[$storeHandle] = $price;
     }
 
     /**
@@ -254,7 +457,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         }
 
         $purchasable->sku = $this->getSku();
-        $purchasable->price = $this->getPrice();
         $purchasable->id = $this->id;
 
         // Only update the description for the primary site until we have a concept
@@ -288,9 +490,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($this);
     }
 
-    public function getOnSale(): bool
+    /**
+     * @param string|null $storeHandle
+     * @return bool
+     */
+    public function getOnSale(?string $storeHandle = null): bool
     {
-        return Currency::round($this->getSalePrice()) !== Currency::round($this->getPrice());
+        $salePrice = $this->getSalePrice($storeHandle);
+        if ($salePrice === null) {
+            return false;
+        }
+
+        return Currency::round($salePrice) !== Currency::round($this->getPrice($storeHandle));
     }
 
     /**
