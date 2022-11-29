@@ -4,6 +4,8 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
 use craft\db\Migration;
+use craft\db\Query;
+use craft\helpers\StringHelper;
 
 /**
  * m221026_105212_add_catalog_pricing_table migration.
@@ -76,6 +78,29 @@ class m221026_105212_add_catalog_pricing_table extends Migration
             $this->addForeignKey(null, $this->_tableName, ['storeId'], Table::STORES, ['id'], 'CASCADE');
             $this->addForeignKey(null, $this->_tableName, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE');
             $this->addForeignKey(null, $this->_tableName, ['userId'], \craft\db\Table::USERS, ['id'], 'CASCADE');
+        }
+
+        if ($this->db->columnExists('{{%commerce_purchasables}}', 'price')) {
+            $purchasablePrices = (new Query())
+                ->select(['id as purchasableId', 'price', 'dateCreated', 'dateUpdated'])
+                ->from('{{%commerce_purchasables}}')
+                ->all();
+
+            if (!empty($purchasablePrices)) {
+                $storeId = (new Query())
+                    ->select(['id'])
+                    ->from('{{%commerce_stores}}')
+                    ->orderBy(['id' => SORT_ASC])
+                    ->scalar();
+
+                array_walk($purchasablePrices, function (&$purchasablePrice) use ($storeId) {
+                    $purchasablePrice['storeId'] = $storeId;
+                    $purchasablePrice['uid'] = StringHelper::UUID();
+                });
+
+                $this->batchInsert($this->_tableName, ['purchasableId', 'price', 'dateCreated', 'dateUpdated', 'storeId', 'uid'], $purchasablePrices);
+            }
+            $this->dropColumn('{{%commerce_purchasables}}', 'price');
         }
 
         return true;
