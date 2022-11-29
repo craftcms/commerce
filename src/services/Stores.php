@@ -134,6 +134,15 @@ class Stores extends Component
     }
 
     /**
+     * @param string $handle
+     * @return Store|null
+     */
+    public function getStoreByHandle(string $handle): ?Store
+    {
+        return $this->getAllStores()->firstWhere('handle', $handle);
+    }
+
+    /**
      * Saves a store.
      *
      * @param Store $store The store to be saved
