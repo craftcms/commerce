@@ -91,7 +91,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getPrice(): float
+    public function getPrice(?string $storeHandle = null): float
     {
         return 0;
     }
