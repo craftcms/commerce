@@ -813,6 +813,7 @@ class Order extends Element
 
     /**
      * @var string|null Shipping Method Handle
+     * @TODO change this to be just string at next breaking change
      */
     public ?string $shippingMethodHandle = '';
 
@@ -1483,7 +1484,6 @@ class Order extends Element
     /**
      * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
      *
-     * @param bool $requiresCurrentUser If auto setting the address should require the cart's customer to be the current user in session.
      *
      * @return bool returns true if order is mutated
      * @throws Throwable
@@ -1491,7 +1491,7 @@ class Order extends Element
      * @throws UnsupportedSiteException
      * @since 3.4.14
      */
-    public function autoSetAddresses(bool $requiresCurrentUser = true): bool
+    public function autoSetAddresses(): bool
     {
         if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
             return false;
@@ -1501,13 +1501,6 @@ class Order extends Element
         $user = $this->getCustomer();
         if (!$user) {
             return false;
-        }
-
-        if ($requiresCurrentUser) {
-            $currentUser = Craft::$app->getUser()->getIdentity();
-            if (!$currentUser || $currentUser->id !== $user->id) {
-                return false;
-            }
         }
 
         $autoSetOccurred = false;
@@ -2058,8 +2051,8 @@ class Order extends Element
 
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
-        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
-        $orderRecord->shippingMethodName = $this->shippingMethodName;
+        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
+        $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;

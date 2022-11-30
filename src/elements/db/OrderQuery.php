@@ -912,6 +912,9 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | `1` | with a customer with a user account ID of 1.
      * | a [[User|User]] object | with a customer with a user account represented by the object.
+     * | `'not 1'` | not the user account with an ID 1.
+     * | `[1, 2]` | with an user account ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a user account ID of 1 or 2.
      *
      * ---
      *
@@ -1103,7 +1106,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the order's item total.
+     * Narrows the query results based on the order’s item total.
      *
      * Possible values include:
      *
@@ -1125,7 +1128,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the order's item subtotal.
+     * Narrows the query results based on the order’s item subtotal.
      *
      * Possible values include:
      *
