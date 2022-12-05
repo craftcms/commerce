@@ -151,7 +151,7 @@ class PurchasableQuery extends ElementQuery
                         ->createCatalogPricingQuery(null, $this->store->id)
                         ->addSelect(['cp.purchasableId'])
                 ])
-                ->where(Db::parseParam('price', $this->price));
+                ->where(Db::parseNumericParam('price', $this->price));
 
             $this->subQuery->andWhere(['commerce_purchasables.id' => $priceQuery]);
         }
