@@ -158,50 +158,68 @@ class CatalogPricing extends Component
      */
     public function getCatalogPrice(int $purchasableId, ?int $storeId = null, ?int $userId = null, bool $isPromotionalPrice = false): ?float
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
         $userKey = $userId ?? 'all';
         $promoKey = $isPromotionalPrice ? 'promo' : 'standard';
         $key = 'catalog-price-' . implode('-', [$storeId, $userKey, $promoKey]);
 
         if ($this->_allCatalogPrices === null || !isset($this->_allCatalogPrices[$key])) {
-            $catalogPricingRuleIdWhere = [
-                'or',
-                ['catalogPricingRuleId' => null],
-                ['catalogPricingRuleId' => (new Query())
-                    ->select(['cpr.id as cprid'])
-                    ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
-                    ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
-                    ->where(['[[cpru.id]]' => null])
-                    ->groupBy(['[[cpr.id]]'])
-                ],
-            ];
-            // Sub query to figure out which catalog pricing rules are using user conditions
-            if ($userId) {
-                $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
-                    ->select(['cpr.id as cprid'])
-                    ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
-                    ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
-                    ->where(['[[cpru.userId]]' => $userId])
-                    ->andWhere(['not', ['[[cpru.id]]' => null]])
-                    ->groupBy(['[[cpr.id]]'])];
-            }
-
-            $query = (new Query())
-                ->select([new Expression('MIN(price) as price')])
-                ->from([Table::CATALOG_PRICING . ' cp'])
-                ->where($catalogPricingRuleIdWhere)
-                ->andWhere(['storeId' => $storeId])
-                ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
-                ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
-                ->andWhere(['isPromotionalPrice' => $isPromotionalPrice])
-                ->groupBy(['purchasableId'])
-                ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC])
+            $query = $this->createCatalogPricingQuery($userId, $storeId, $isPromotionalPrice)
                 ->indexBy('purchasableId');
 
             $this->_allCatalogPrices[$key] = $query->column();
         }
 
         return $this->_allCatalogPrices[$key][$purchasableId] ?? null;
+    }
+
+    /**
+     * Creates query for catalog pricing.
+     *
+     * @param int|null $userId
+     * @param int|null $storeId
+     * @param bool|null $isPromotionalPrice
+     * @return Query
+     */
+    public function createCatalogPricingQuery(?int $userId = null, ?int $storeId = null, ?bool $isPromotionalPrice = null): Query
+    {
+        $catalogPricingRuleIdWhere = [
+            'or',
+            ['catalogPricingRuleId' => null],
+            ['catalogPricingRuleId' => (new Query())
+                ->select(['cpr.id as cprid'])
+                ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
+                ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
+                ->where(['[[cpru.id]]' => null])
+                ->groupBy(['[[cpr.id]]'])
+            ],
+        ];
+        // Sub query to figure out which catalog pricing rules are using user conditions
+        if ($userId) {
+            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
+                ->select(['cpr.id as cprid'])
+                ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
+                ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
+                ->where(['[[cpru.userId]]' => $userId])
+                ->andWhere(['not', ['[[cpru.id]]' => null]])
+                ->groupBy(['[[cpr.id]]'])];
+        }
+
+        $query = (new Query())
+            ->select([new Expression('MIN(price) as price')])
+            ->from([Table::CATALOG_PRICING . ' cp'])
+            ->where($catalogPricingRuleIdWhere)
+            ->andWhere(['storeId' => $storeId])
+            ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
+            ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
+            ->groupBy(['purchasableId'])
+            ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC]);
+
+        if ($isPromotionalPrice !== null) {
+            $query->andWhere(['isPromotionalPrice' => $isPromotionalPrice]);
+        }
+
+        return $query;
     }
 
     /**
