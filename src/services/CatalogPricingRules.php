@@ -13,6 +13,9 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
+use craft\elements\User;
+use craft\events\ModelEvent;
+use craft\events\UserGroupsAssignEvent;
 use craft\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use yii\base\Component;
@@ -100,13 +103,42 @@ class CatalogPricingRules extends Component
     }
 
     /**
-     * @return array
+     * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
-    public function getAllCatalogPricingRulesWithUserConditions(): array
+    public function getAllCatalogPricingRulesWithUserConditions(): Collection
     {
         return $this->getAllCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
-            return $pcr->getCustomerCondition() && !empty($pcr->getCustomerCondition()->rules());
+            return $pcr->getCustomerCondition() && !empty($pcr->getCustomerCondition()->getConditionRules());
+        });
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function afterSaveUserHandler(ModelEvent|UserGroupsAssignEvent $event): void
+    {
+        $rules = $this->getAllCatalogPricingRulesWithUserConditions();
+        if ($rules->isEmpty()) {
+            return;
+        }
+
+        /** @var User $user */
+        $user = $event instanceof ModelEvent ? $event->sender : Craft::$app->getUsers()->getUserById($event->userId);
+        $rules->each(function(CatalogPricingRule $rule) use ($user) {
+            $customerCondition = $rule->getCustomerCondition();
+            if ($customerCondition->matchElement($user)) {
+                if (!CatalogPricingRuleUser::find()->where(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])->exists()) {
+                    Craft::$app->getDb()->createCommand()
+                        ->insert(Table::CATALOG_PRICING_RULES_USERS, ['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])
+                        ->execute();
+                }
+            } else {
+                CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
+            }
         });
     }
 
@@ -122,7 +154,7 @@ class CatalogPricingRules extends Component
         $isNew = !$model->id;
 
         if ($isNew) {
-            $record = new CatalogPricingRuleRecord();
+            $record = Craft::createObject(CatalogPricingRuleRecord::class);
         } else {
             $record = CatalogPricingRuleRecord::findOne($model->id);
 

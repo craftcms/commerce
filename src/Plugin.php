@@ -130,6 +130,7 @@ use craft\services\Gql;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\services\Users;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
@@ -600,6 +601,9 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
+        Event::on(Users::class, Users::EVENT_AFTER_ASSIGN_USER_TO_GROUPS, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
 
         Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
             /** @var Address $address */
