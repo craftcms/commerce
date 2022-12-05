@@ -51,16 +51,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     private ?float $_salePrice = null;
 
     /**
-     * @var float|null
-     */
-    private ?float $_baseSalePrice = null;
-
-    /**
-     * @var float|null
-     */
-    private ?float $_basePrice = null;
-
-    /**
      * Array of base prices indexed by store handle.
      *
      * @var array
