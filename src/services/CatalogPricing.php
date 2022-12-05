@@ -67,24 +67,24 @@ class CatalogPricing extends Component
             return;
         }
 
-        // Generate all standard catalog pricing rules
         $catalogPricing = [];
         $priceByPurchasableId = [];
-        foreach ($purchasables as $purchasable) {
-            /** @var Purchasable $purchasable */
-            $id = $purchasable->getId();
-            $price = $purchasable->getPrice();
-            $catalogPricing[] = [
-                $id, // purchasableId
-                $price, // price
-                1, // storeId
-                0, // isPromotionalPrice
-                null, // catalogPricingRuleId
-                null, // dateFrom
-                null, // dateTo
-            ];
-            $priceByPurchasableId[$id] = $price;
-        }
+        // Generate all standard catalog pricing rules
+        // foreach ($purchasables as $purchasable) {
+        //     /** @var Purchasable $purchasable */
+        //     $id = $purchasable->getId();
+        //     $price = $purchasable->getPrice();
+        //     $catalogPricing[] = [
+        //         $id, // purchasableId
+        //         $price, // price
+        //         1, // storeId
+        //         0, // isPromotionalPrice
+        //         null, // catalogPricingRuleId
+        //         null, // dateFrom
+        //         null, // dateTo
+        //     ];
+        //     $priceByPurchasableId[$id] = $price;
+        // }
 
         $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules();
 
