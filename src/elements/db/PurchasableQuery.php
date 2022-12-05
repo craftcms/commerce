@@ -40,6 +40,11 @@ class PurchasableQuery extends ElementQuery
     public mixed $price = null;
 
     /**
+     * @var mixed|null
+     */
+    public mixed $salePrice = null;
+
+    /**
      * Narrows the query results based on the purchasables’ price.
      *
      * Possible values include:
@@ -56,6 +61,26 @@ class PurchasableQuery extends ElementQuery
     public function price(mixed $value): PurchasableQuery
     {
         $this->price = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the purchasables’ sale price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a sale price of 100.
+     * | `'>= 100'` | with a sale price of at least 100.
+     * | `'< 100'` | with a sale price of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function salePrice(mixed $value): PurchasableQuery
+    {
+        $this->salePrice = $value;
         return $this;
     }
 
@@ -154,6 +179,20 @@ class PurchasableQuery extends ElementQuery
                 ->where(Db::parseNumericParam('price', $this->price));
 
             $this->subQuery->andWhere(['commerce_purchasables.id' => $priceQuery]);
+        }
+
+        if (isset($this->salePrice) && $this->store !== false) {
+            $salePriceQuery = (new Query())
+                ->select(['purchasableId'])
+                ->from([
+                    'saleruleprice' => Plugin::getInstance()
+                        ->getCatalogPricing()
+                        ->createCatalogPricingQuery(null, $this->store->id, true)
+                        ->addSelect(['cp.purchasableId'])
+                ])
+                ->where(Db::parseNumericParam('price', $this->salePrice));
+
+            $this->subQuery->andWhere(['commerce_purchasables.id' => $salePriceQuery]);
         }
 
         return parent::beforePrepare();
