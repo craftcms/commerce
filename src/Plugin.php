@@ -615,6 +615,7 @@ class Plugin extends BasePlugin
         });
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
+        Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSavePurchasableHandler']);
     }
 
     /**

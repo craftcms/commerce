@@ -8,8 +8,10 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
+use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
@@ -84,13 +86,13 @@ class CatalogPricingRules extends Component
      */
     public function getAllEnabledCatalogPricingRules(): Collection
     {
-        return $this->getAllCatalogPricingRules()->map(fn(CatalogPricingRule $pcr) => $pcr->enabled);
+        return $this->getAllCatalogPricingRules()->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
     }
 
     /**
-     * @return CatalogPricingRule[]
+     * @return Collection<CatalogPricingRule>
      */
-    public function getAllActiveCatalogPricingRules(): array
+    public function getAllActiveCatalogPricingRules(): Collection
     {
         if ($this->_allActiveCatalogPricingRules === null) {
             $this->_allActiveCatalogPricingRules = $this->getAllEnabledCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
@@ -99,7 +101,7 @@ class CatalogPricingRules extends Component
             });
         }
 
-        return $this->_allActiveCatalogPricingRules ?? [];
+        return $this->_allActiveCatalogPricingRules ?? collect([]);
     }
 
     /**
@@ -140,6 +142,16 @@ class CatalogPricingRules extends Component
                 CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
             }
         });
+    }
+
+    /**
+     * @return void
+     */
+    public function afterSavePurchasableHandler(ModelEvent $event): void
+    {
+        /** @var Purchasable $purchasable */
+        $purchasable = $event->sender;
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices([$purchasable]);
     }
 
     /**

@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricing as CatalogPricingRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
@@ -44,7 +45,8 @@ class CatalogPricing extends Component
      */
     public function generateCatalogPrices(?array $purchasables = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false): void
     {
-        if ($purchasables === null) {
+        $isAllPurchasables = $purchasables === null;
+        if ($isAllPurchasables) {
             $purchasableElementTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
             if (empty($purchasableElementTypes)) {
                 return;
@@ -70,27 +72,32 @@ class CatalogPricing extends Component
         $catalogPricing = [];
         $priceByPurchasableId = [];
         // Generate all standard catalog pricing rules
-        // foreach ($purchasables as $purchasable) {
-        //     /** @var Purchasable $purchasable */
-        //     $id = $purchasable->getId();
-        //     $price = $purchasable->getPrice();
-        //     $catalogPricing[] = [
-        //         $id, // purchasableId
-        //         $price, // price
-        //         1, // storeId
-        //         0, // isPromotionalPrice
-        //         null, // catalogPricingRuleId
-        //         null, // dateFrom
-        //         null, // dateTo
-        //     ];
-        //     $priceByPurchasableId[$id] = $price;
-        // }
+        foreach ($purchasables as $purchasable) {
+            /** @var Purchasable $purchasable */
+            $id = $purchasable->getId();
+            $price = $purchasable->getBasePrice();
+            // @TODO reinstate truncate when we move location of base prices
+            // $catalogPricing[] = [
+            //     $id, // purchasableId
+            //     $price, // price
+            //     1, // storeId
+            //     0, // isPromotionalPrice
+            //     null, // catalogPricingRuleId
+            //     null, // dateFrom
+            //     null, // dateTo
+            // ];
+            $priceByPurchasableId[$id] = $price;
+        }
 
         $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules();
 
         foreach ($catalogPricingRules as $catalogPricingRule) {
             // If `getPurchasableIds()` is `null` this means all purchasables
-            $purchasableIds = $catalogPricingRule->getPurchasableIds() ?? ArrayHelper::getColumn($purchasables, 'id');
+            if ($catalogPricingRule->getPurchasableIds() === null) {
+                $purchasableIds = ArrayHelper::getColumn($purchasables, 'id');
+            } else {
+                $purchasableIds = $isAllPurchasables ? $catalogPricingRule->getPurchasableIds() : array_intersect($catalogPricingRule->getPurchasableIds(), ArrayHelper::getColumn($purchasables, 'id'));
+            }
 
             if (empty($purchasableIds)) {
                 continue;
@@ -111,7 +118,13 @@ class CatalogPricing extends Component
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
-        Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+        // @TODO reinstate truncate when we move location of base prices
+        // Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+        $deleteWhere = ['and', ['not', ['catalogPricingRuleId' => null]]];
+        if (!$isAllPurchasables) {
+            $deleteWhere[] = ['in', 'purchasableId', ArrayHelper::getColumn($purchasables, 'id')];
+        }
+        CatalogPricingRecord::deleteAll($deleteWhere);
 
         if (!empty($catalogPricing)) {
             // Batch through `$catalogPricing` and insert into the catalog pricing table
@@ -134,7 +147,9 @@ class CatalogPricing extends Component
                     'dateTo',
                 ], $catalogPricingChunk)->execute();
                 $count += 2000;
-                Console::stdout('done!');
+                if ($showConsoleOutput) {
+                    Console::stdout('done!');
+                }
             }
 
             $executionLength = microtime(true) - $startTime;
@@ -230,9 +245,9 @@ class CatalogPricing extends Component
      */
     public function upsertCatalogPricingRecord(array $data, array $where): bool
     {
-        $catalogPricingRecord = \craft\commerce\records\CatalogPricing::find()->where($where)->one();
+        $catalogPricingRecord = CatalogPricingRecord::find()->where($where)->one();
         if ($catalogPricingRecord === null) {
-            $catalogPricingRecord = Craft::createObject(\craft\commerce\records\CatalogPricing::class);
+            $catalogPricingRecord = Craft::createObject(CatalogPricingRecord::class);
         }
 
         $catalogPricingRecord->setAttributes($data, false);
