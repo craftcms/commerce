@@ -191,7 +191,7 @@ class CatalogPricing extends Component
                 ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
                 ->where(['[[cpru.id]]' => null])
-                ->groupBy(['[[cpr.id]]'])
+                ->groupBy(['[[cpr.id]]']),
             ],
         ];
         // Sub query to figure out which catalog pricing rules are using user conditions
@@ -202,7 +202,7 @@ class CatalogPricing extends Component
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
                 ->where(['[[cpru.userId]]' => $userId])
                 ->andWhere(['not', ['[[cpru.id]]' => null]])
-                ->groupBy(['[[cpr.id]]'])];
+                ->groupBy(['[[cpr.id]]']), ];
         }
 
         $query = (new Query())

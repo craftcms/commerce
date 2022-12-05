@@ -93,7 +93,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                     ->orderBy(['id' => SORT_ASC])
                     ->scalar();
 
-                array_walk($purchasablePrices, function (&$purchasablePrice) use ($storeId) {
+                array_walk($purchasablePrices, function(&$purchasablePrice) use ($storeId) {
                     $purchasablePrice['storeId'] = $storeId;
                     $purchasablePrice['uid'] = StringHelper::UUID();
                 });

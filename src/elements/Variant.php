@@ -25,7 +25,6 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricing;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;

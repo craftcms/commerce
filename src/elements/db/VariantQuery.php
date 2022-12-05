@@ -15,7 +15,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;

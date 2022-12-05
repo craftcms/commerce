@@ -11,7 +11,6 @@ use Craft;
 use craft\base\conditions\BaseMultiSelectConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
-use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
@@ -19,7 +18,6 @@ use craft\helpers\Db;
 
 class PurchasableTypeConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
-
     public function getLabel(): string
     {
         return Craft::t('commerce', 'Purchasable Type');

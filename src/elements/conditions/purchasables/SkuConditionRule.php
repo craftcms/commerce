@@ -18,7 +18,6 @@ use craft\helpers\Db;
 
 class SkuConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
-
     public function getLabel(): string
     {
         return Craft::t('commerce', 'SKU');

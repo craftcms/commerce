@@ -9,8 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\base\Purchasable;
-use craft\commerce\base\PurchasableInterface;
-use craft\commerce\elements\Product;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\Sale;
@@ -29,8 +27,6 @@ use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
-use function explode;
-use function get_class;
 
 /**
  * Class Catalog Pricing Rules Controller

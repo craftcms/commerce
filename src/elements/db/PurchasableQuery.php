@@ -15,7 +15,6 @@ use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
-use yii\db\Expression;
 
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
@@ -97,9 +96,9 @@ class PurchasableQuery extends ElementQuery
     {
         if ($store instanceof Store) {
             $this->store = $store;
-        } else if (is_numeric($store)) {
+        } elseif (is_numeric($store)) {
             $this->store = Plugin::getInstance()->getStores()->getStoreById($store);
-        } else if (is_string($store)) {
+        } elseif (is_string($store)) {
             $this->store = Plugin::getInstance()->getStores()->getStoreByHandle($store);
         } else {
             $this->store = $store;
@@ -174,7 +173,7 @@ class PurchasableQuery extends ElementQuery
                     'ruleprice' => Plugin::getInstance()
                         ->getCatalogPricing()
                         ->createCatalogPricingQuery(null, $this->store->id)
-                        ->addSelect(['cp.purchasableId'])
+                        ->addSelect(['cp.purchasableId']),
                 ])
                 ->where(Db::parseNumericParam('price', $this->price));
 
@@ -188,7 +187,7 @@ class PurchasableQuery extends ElementQuery
                     'saleruleprice' => Plugin::getInstance()
                         ->getCatalogPricing()
                         ->createCatalogPricingQuery(null, $this->store->id, true)
-                        ->addSelect(['cp.purchasableId'])
+                        ->addSelect(['cp.purchasableId']),
                 ])
                 ->where(Db::parseNumericParam('price', $this->salePrice));
 
