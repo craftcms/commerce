@@ -34,14 +34,14 @@ use function get_class;
 class CatalogPricingRules extends Component
 {
     /**
-     * @var CatalogPricingRule[]|null
+     * @var Collection<CatalogPricingRule>|null
      */
-    private ?array $_allCatalogPricingRules = null;
+    private ?Collection $_allCatalogPricingRules = null;
 
     /**
-     * @var CatalogPricingRule[]|null
+     * @var Collection<CatalogPricingRule>|null
      */
-    private ?array $_allActiveCatalogPricingRules = null;
+    private ?Collection $_allActiveCatalogPricingRules = null;
 
     /**
      * Get a catalog pricing rule by its ID.
@@ -69,7 +69,7 @@ class CatalogPricingRules extends Component
                 $row['customerCondition'] = $row['customerCondition'] ?? '';
                 $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
 
-                return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $pcr]]);
+                return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $row]]);
             })->keyBy('id');
         }
 
