@@ -9,9 +9,13 @@ namespace craft\commerce\elements\db;
 
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\elements\db\ElementQuery;
+use craft\helpers\Db;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
@@ -25,16 +29,57 @@ class PurchasableQuery extends ElementQuery
 {
     protected array $defaultOrderBy = ['commerce_purchasables.sku' => SORT_ASC];
 
-    public ?int $storeId = null;
+    /**
+     * @var mixed|null
+     */
+    public mixed $store = null;
 
     /**
-     * @param int|null $storeId
-     * @return int
+     * @var mixed|null
      */
-    public function storeId(?int $storeId = null): int
+    public mixed $price = null;
+
+    /**
+     * Narrows the query results based on the purchasables’ price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a price of 100.
+     * | `'>= 100'` | with a price of at least 100.
+     * | `'< 100'` | with a price of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function price(mixed $value): PurchasableQuery
     {
-        $this->storeId = $storeId;
-        return $this->storeId;
+        $this->price = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the purchasables’ store.
+     * Setting `null` will narrow the query based on the request's store.
+     * Setting `false` will cause the join of prices for all stores.
+     *
+     * @param mixed|null $store
+     * @return PurchasableQuery
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function store(mixed $store = null): PurchasableQuery
+    {
+        if ($store instanceof Store) {
+            $this->store = $store;
+        } else if (is_numeric($store)) {
+            $this->store = Plugin::getInstance()->getStores()->getStoreById($store);
+        } else if (is_string($store)) {
+            $this->store = Plugin::getInstance()->getStores()->getStoreByHandle($store);
+        } else {
+            $this->store = $store;
+        }
+        return $this;
     }
 
     public function populate($rows): array
@@ -59,12 +104,17 @@ class PurchasableQuery extends ElementQuery
 
     protected function beforePrepare(): bool
     {
+        // If a store hasn't been specified use the store for the current request.
+        if ($this->store === null) {
+            $this->store = Plugin::getInstance()->getStores()->getCurrentStore();
+        }
+
         $this->joinElementTable('commerce_purchasables');
         $storeIdsByHandle = Plugin::getInstance()->getStores()->getAllStores()->keyBy('handle')->map(fn($store) => $store->id)->all();
         $select = [];
         $joins = [];
         foreach ($storeIdsByHandle as $storeHandle => $storeId) {
-            if ($this->storeId !== null && $this->storeId !== $storeId) {
+            if ($this->store !== false && $this->store->id !== $storeId) {
                 continue;
             }
 
@@ -90,6 +140,20 @@ class PurchasableQuery extends ElementQuery
 
         foreach ($joins as $join) {
             $this->query->leftJoin($join['table'], $join['on'], $join['params']);
+        }
+
+        if (isset($this->price) && $this->store !== false) {
+            $priceQuery = (new Query())
+                ->select(['purchasableId'])
+                ->from([
+                    'ruleprice' => Plugin::getInstance()
+                        ->getCatalogPricing()
+                        ->createCatalogPricingQuery(null, $this->store->id)
+                        ->addSelect(['cp.purchasableId'])
+                ])
+                ->where(Db::parseParam('price', $this->price));
+
+            $this->subQuery->andWhere(['commerce_purchasables.id' => $priceQuery]);
         }
 
         return parent::beforePrepare();

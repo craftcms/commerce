@@ -78,11 +78,6 @@ class VariantQuery extends PurchasableQuery
     /**
      * @var mixed
      */
-    public mixed $price = null;
-
-    /**
-     * @var mixed
-     */
     public mixed $productId = null;
 
     /**
@@ -318,26 +313,6 @@ class VariantQuery extends PurchasableQuery
     public function stock(mixed $value): VariantQuery
     {
         $this->stock = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the variants’ price.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a price of 100.
-     * | `'>= 100'` | with a price of at least 100.
-     * | `'< 100'` | with a price of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function price(mixed $value): VariantQuery
-    {
-        $this->price = $value;
         return $this;
     }
 
@@ -581,10 +556,6 @@ class VariantQuery extends PurchasableQuery
 
         if (isset($this->productId)) {
             $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
-        }
-
-        if (isset($this->price)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
         if (isset($this->isDefault) && $this->isDefault !== null) {
