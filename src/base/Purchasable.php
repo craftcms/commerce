@@ -237,7 +237,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getSalePrice(?string $storeHandle = null): ?float
     {
         if ($storeHandle === null) {
-            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getCurrentStore();
         } else {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         }
@@ -259,7 +259,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getPrice(?string $storeHandle = null): ?float
     {
         if ($storeHandle === null) {
-            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+            $store = $this->getStore() ?? Plugin::getInstance()->getStores()->getCurrentStore();
         } else {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
         }
@@ -277,7 +277,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getBaseSalePrice(?string $storeHandle = null): ?float
     {
         if ($storeHandle === null) {
-            $storeHandle = Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
+            $storeHandle = Plugin::getInstance()->getStores()->getCurrentStore()->handle;
         }
 
         if (!isset($this->baseSalePrices[$storeHandle])) {
@@ -305,7 +305,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getBasePrice(?string $storeHandle = null): ?float
     {
         if ($storeHandle === null) {
-            $storeHandle = Plugin::getInstance()->getStores()->getPrimaryStore()->handle;
+            $storeHandle = Plugin::getInstance()->getStores()->getCurrentStore()->handle;
         }
 
         if (!isset($this->basePrices[$storeHandle])) {
