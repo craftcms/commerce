@@ -97,8 +97,9 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
+        $postedProductTypes = $this->request->getBodyParam('productTypes', []) ?: [];
         $productTypes = [];
-        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($postedProductTypes as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
@@ -106,21 +107,17 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->setProductTypes($productTypes);
 
         // Save it
-        if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-            return $this->asModelSuccess(
+        if (!Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+            return $this->asModelFailure(
                 $taxCategory,
-                Craft::t('commerce', 'Tax category saved.'),
-                'taxCategory',
-                [
-                    'id' => $taxCategory->id,
-                    'name' => $taxCategory->name,
-                ]
+                Craft::t('commerce', 'Couldn’t save tax category.'),
+                'taxCategory'
             );
         }
 
         return $this->asModelSuccess(
             $taxCategory,
-            Craft::t('commerce', 'Couldn’t save tax category.'),
+            Craft::t('commerce', 'Tax category saved.'),
             'taxCategory'
         );
     }

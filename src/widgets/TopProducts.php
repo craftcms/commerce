@@ -9,13 +9,13 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
 use craft\commerce\stats\TopProducts as TopProductsStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\assets\admintable\AdminTableAsset;
-use DateTime;
 
 /**
  * Top Products widget
@@ -28,20 +28,7 @@ use DateTime;
  */
 class TopProducts extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var string|null Options 'revenue', 'qty'.
@@ -132,6 +119,10 @@ class TopProducts extends Widget
             DateTimeHelper::toDateTime($this->endDate, true),
             $this->revenueOptions
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -189,8 +180,20 @@ class TopProducts extends Widget
         $view->registerAssetBundle(StatWidgetsAsset::class);
         $view->registerAssetBundle(AdminTableAsset::class);
 
+        $revenueOptions = [
+            TopProductsStat::REVENUE_OPTION_DISCOUNT,
+            TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+            TopProductsStat::REVENUE_OPTION_TAX,
+            TopProductsStat::REVENUE_OPTION_SHIPPING,
+        ];
+        $revenueColumnHandle = 'revenue';
+        if ($this->type === TopProductsStat::TYPE_REVENUE && count(array_intersect($revenueOptions, $this->revenueOptions)) !== count($revenueOptions)) {
+            $revenueColumnHandle = 'revenue_custom';
+        }
+
         return $view->renderTemplate('commerce/_components/widgets/products/top/body', [
             'stats' => $stats,
+            'revenueColumnHandle' => $revenueColumnHandle,
             'type' => $this->type,
             'typeLabel' => $this->_typeOptions[$this->type] ?? '',
             'id' => 'top-products' . StringHelper::randomString(),
@@ -211,6 +214,7 @@ class TopProducts extends Widget
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
             'revenueOptions' => $this->_revenueCheckboxOptions,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE,
         ]);
     }

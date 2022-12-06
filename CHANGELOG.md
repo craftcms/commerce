@@ -2,12 +2,143 @@
 
 ## Unreleased
 
+- Fixed a PHP error that occurred when retrieving a discount via a null coupon code. ([#3045](https://github.com/craftcms/commerce/issues/3045))
+- Fixed a bug that prevented adding items with a minimum purchase quantity to the cart on the Edit Order page. ([#2962](https://github.com/craftcms/commerce/issues/2962))
+
+## 4.2.4 - 2022-11-29
+
+- The “Customer” order condition rule now supports orders with no customer.
+
+## 4.2.3 - 2022-11-23
+
+- Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
+- Fixed an error that could occur when purging inactive carts.
+- Fixed an bug where products and variants weren’t always available as link options in Redactor. ([#3041](https://github.com/craftcms/commerce/issues/3041))
+
+## 4.2.2 - 2022-11-06
+
+### Fixed
+
+- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed an error that could occur when purging inactive carts.
+- Fixed a bug where the `commerce/cart/update-cart` action wasn’t fully clearing the cart when the `clearLineItems` param was submitted, if the quantity of an exsiting line item was being increased in the same request. ([#3014](https://github.com/craftcms/commerce/issues/3014))
+- Fixed an error that could occur when purging a large number of inactive carts.
+- Fixed an error where addresses were assumed to have an owner. ([#3021](https://github.com/craftcms/commerce/pull/3021))
+
+## 4.2.1 - 2022-10-27
+
+- Fixed an error that occurred when viewing tax categories.
+- Fixed a bug where the Top Products widget wasn’t showing the correct revenue total.
+- Added `craft\commerce\models\TaxCategory::dateDeleted`.
+- Added `craft\commerce\models\ShippingCategory::dateDeleted`.
+
+## 4.2.0 - 2022-10-26
+
+### Store Management
+- Discounts’ “Match Customer” conditions can now have a “Has Orders” rule.
+- Order conditions can now have a “Completed” rule.
+- Order conditions can now have a “Customer” rule.
+- Order conditions can now have a “Date Ordered” rule.
+- Order conditions can now have a “Has Purchasable” rule.
+- Order conditions can now have a “Item Subtotal” rule.
+- Order conditions can now have a “Order Status” rule.
+- Order conditions can now have a “Paid” rule.
+- Order conditions can now have a “Reference” rule.
+- Order conditions can now have a “Shipping Method” rule.
+- Order conditions can now have a “Total” rule.
+- Order conditions can now have a “Total Discount” rule.
+- Order conditions can now have a “Total Price” rule.
+- Order conditions can now have a “Total Qty” rule.
+- Order conditions can now have a “Total Tax” rule.
+- It’s now possible to assign primary payment sources on customers.
+- It’s now possible to set the quantity when adding a line item on the Edit Order page. ([#2993](https://github.com/craftcms/commerce/discussions/2993))
+- The “Update Order Status…” bulk order action now returns a more helpful response message.
+
+### Administration
+- Added the `autoSetPaymentSource` config setting, which can be enabled to automatically set a customers’ primary payment sources on new carts.
+- Shipping and tax categories are now archived instead of deleted.
+
+### Development
+- Order queries now have `itemTotal`, `itemSubtotal`, `shippingMethodHandle`, `totalDiscount`, `total`, `totalPaid`, `totalPrice`, `totalQty`, and `totalTax` params.
+- Order queries’ `reference` params now accept a wider range of values.
+- `commerce/cart/*` actions now return `shippingAddress` and `billingAddress` values in JSON responses. ([#2921](https://github.com/craftcms/commerce/issues/2921))
+
+### Extensibility
+- Added `craft\commerce\base\Stat::getOrderStatuses()`.
+- Added `craft\commerce\base\Stat::setOrderStatuses()`.
+- Added `craft\commerce\base\StatInterface::getOrderStatuses()`.
+- Added `craft\commerce\base\StatInterface::setOrderStatuses()`.
+- Added `craft\commerce\base\StatWidgetTrait`.
+- Added `craft\commerce\behaviors\CustomerBehavoir::getPrimaryPaymentSource()`.
+- Added `craft\commerce\behaviors\CustomerBehavoir::getPrimaryPaymentSourceId()`.
+- Added `craft\commerce\behaviors\CustomerBehavoir::setPrimaryPaymentSourceId()`.
+- Added `craft\commerce\controllers\PaymentSourcesController::actionSetPrimaryPaymentSource()`.
+- Added `craft\commerce\elements\Order::$storedTotalQty`.
+- Added `craft\commerce\elements\Order::autoSetPaymentSource()`.
+- Added `craft\commerce\elements\conditions\customers\HasOrdersConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\CompletedConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\CustomerConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\DateOrderedConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\HasPurchasableConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ItemTotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderStatusConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\OrderTextValuesAttributeConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\PaidConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ReferenceConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ShippingMethodConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalDiscountConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalPriceConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalQtyConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\TotalTaxConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$itemSubtotal`.
+- Added `craft\commerce\elements\db\OrderQuery::$itemTotal`.
+- Added `craft\commerce\elements\db\OrderQuery::$shippingMethodHandle`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalDiscount`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalPaid`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalPrice`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalQty`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalTax`.
+- Added `craft\commerce\elements\db\OrderQuery::$total`.
+- Added `craft\commerce\elements\db\OrderQuery::itemSubtotal()`.
+- Added `craft\commerce\elements\db\OrderQuery::itemTotal()`.
+- Added `craft\commerce\elements\db\OrderQuery::shippingMethodHandle()`.
+- Added `craft\commerce\elements\db\OrderQuery::total()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalDiscount()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalPaid()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalPrice()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalQty()`.
+- Added `craft\commerce\elements\db\OrderQuery::totalTax()`.
+- Added `craft\commerce\models\PaymentSource::getIsPrimary()`.
+- Added `craft\commerce\models\Settings::$autoSetPaymentSource`.
+- Added `craft\commerce\records\Customer::$primaryPaymentSourceId`.
+- Added `craft\commerce\services\savePrimaryPaymentSourceId()`.
+- `craft\commerce\elements\Order::hasMatchingAddresses()` now has an `$attributes` argument, which can be used to customize which address attributes should be checked.
+- Deprecated `craft\commerce\elements\Order::getShippingMethod()`. `$shippingMethodName` and `$shippingMethodHandle` should be used instead.
+
+### System
+- Craft Commerce now requires Craft CMS 4.3.0 or later.
+- Fixed a bug where it wasn't possible to use a path value for the `loadCartRedirectUrl` setting. ([#2992](https://github.com/craftcms/commerce/pull/2992))
+- Fixed a bug where custom shipping methods weren’t applying to orders properly. ([#2986](https://github.com/craftcms/commerce/issues/2986))
+- Fixed a bug where passing an invalid product type handle into product queries’ `type` params wouldn’t have any effect. ([#2966](https://github.com/craftcms/commerce/issues/2966))
+- Fixed a bug where payments made from Edit Order pages weren’t factoring in gateways’ `availableForUseWithOrder()` methods. ([#2988](https://github.com/craftcms/commerce/issues/2988))
+- Fixed a bug where the Emails index page wasn’t showing emails’ template paths. ([#3000](https://github.com/craftcms/commerce/issues/3000))
+- Fixed a bug where product slideout editors were showing additional status fields. ([#3010](https://github.com/craftcms/commerce/issues/3010))
+
+## 4.1.3 - 2022-10-07
+
+### Changed
+- The `commerce/downloads/pdf` action now accepts an `inline` param. ([#2981](https://github.com/craftcms/commerce/pull/2981))
+
 ### Fixed
 - Fixed a SQL error that occurred when restoring a soft-deleted product. ([#2982](https://github.com/craftcms/commerce/issues/2982))
 - Fixed a bug where the Edit Product page wasn’t handling site selection changes properly. ([#2971](https://github.com/craftcms/commerce/issues/2971))
 - Fixed a bug where it wasn't possible to add variants to a sale from the Edit Product page. ([#2976](https://github.com/craftcms/commerce/issues/2976))
-- Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963)) 
-- Fixed a bug that prevented adding items with a minimum purchase quantity to the cart on the Edit Order page. ([$2962](https://github.com/craftcms/commerce/issues/2962))
+- Fixed a bug where primary addresses weren’t being automatically set on the Edit Order page. ([#2963](https://github.com/craftcms/commerce/issues/2963))
+- Fixed a bug where it wasn’t possible to change the default order status. ([#2915](https://github.com/craftcms/commerce/issues/2915))
 
 ## 4.1.2 - 2022-09-15
 

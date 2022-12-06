@@ -132,7 +132,7 @@ class ExampleTemplatesController extends Controller
         $this->_addResourceAssetsToReplacementData();
 
         // Create a temporary directory to hold the copy of the templates before we replace variables
-        $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
+        $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid((string)mt_rand(), true));
 
         try {
             // Copy the templates to the temporary directory

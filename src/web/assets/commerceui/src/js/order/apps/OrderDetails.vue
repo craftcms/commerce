@@ -142,11 +142,8 @@
             },
 
             lineItemsErrors() {
-                if (
-                    this.draft.order.errors &&
-                    this.draft.order.errors.lineItems
-                ) {
-                    return this.draft.order.errors.lineItems;
+                if (this.draft.errors && this.draft.errors.lineItems) {
+                    return this.draft.errors.lineItems;
                 }
 
                 return [];

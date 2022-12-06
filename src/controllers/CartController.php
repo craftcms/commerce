@@ -99,7 +99,8 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear line items when updating the cart
-        if ($this->request->getParam('clearLineItems') !== null) {
+        $clearLineItems = $this->request->getParam('clearLineItems');
+        if ($clearLineItems) {
             $this->_cart->setLineItems([]);
         }
 
@@ -118,7 +119,13 @@ class CartController extends BaseFrontEndController
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
-                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+
+                // We only want a new line item if they cleared the cart
+                if ($clearLineItems) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
+                } else {
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
+                }
 
                 // New line items already have a qty of one.
                 if ($lineItem->id) {
@@ -164,7 +171,13 @@ class CartController extends BaseFrontEndController
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
                 if ($purchasable['qty'] > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+
+                    // We only want a new line item if they cleared the cart
+                    if ($clearLineItems) {
+                        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                    } else {
+                        $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                    }
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
@@ -270,10 +283,10 @@ class CartController extends BaseFrontEndController
      */
     public function actionLoadCart(): ?Response
     {
-        $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
         $number = $this->request->getParam('number');
-        $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
+        $loadCartRedirectUrl = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?? '';
+        $redirect = UrlHelper::siteUrl($loadCartRedirectUrl);
 
         if (!$number) {
             $error = Craft::t('commerce', 'A cart number must be specified.');
@@ -298,6 +311,9 @@ class CartController extends BaseFrontEndController
             $this->setFailFlash($error);
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
+
+        // If we have a cart, use the site for that cart for the URL redirect.
+        $redirect = UrlHelper::siteUrl(path: $loadCartRedirectUrl, siteId: $cart->orderSiteId);
 
         $carts->forgetCart();
         $carts->setSessionCartNumber($number);

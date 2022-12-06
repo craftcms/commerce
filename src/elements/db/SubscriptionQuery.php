@@ -17,7 +17,6 @@ use craft\elements\User;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
-use yii\db\Schema;
 
 /**
  * SubscriptionQuery represents a SELECT SQL statement for subscriptions in a way that is independent of DBMS.
@@ -765,7 +764,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if (isset($this->isCanceled)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isCanceled', $this->isCanceled, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_subscriptions.isCanceled', $this->isCanceled, false));
         }
 
         if (isset($this->dateCanceled)) {
@@ -773,11 +772,11 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if (isset($this->hasStarted)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.hasStarted', $this->hasStarted, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_subscriptions.hasStarted', $this->hasStarted, false));
         }
 
         if (isset($this->isSuspended)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isSuspended', $this->isSuspended, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_subscriptions.isSuspended', $this->isSuspended, false));
         }
 
         if (isset($this->dateSuspended)) {
@@ -785,7 +784,7 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if (isset($this->isExpired)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_subscriptions.isExpired', $this->isExpired, false));
         }
 
         if (isset($this->dateExpired)) {

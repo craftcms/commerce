@@ -21,7 +21,7 @@ Outputs a form for collecting an order’s shipping and billing address.
           {{ csrfInput() }}
           {{ actionInput('commerce/cart/update-cart') }}
           {{ successMessageInput('Addresses selected.') }}
-          {{ redirectInput('[[folderName]]/checkout/shipping') }}
+          {{ redirectInput(siteUrl('[[folderName]]/checkout/shipping')) }}
 
           {% if not cart.email %}
             <div class="mb-6">

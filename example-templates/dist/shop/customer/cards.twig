@@ -21,13 +21,24 @@
         <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
           <div class="card flex justify-between bg-gray-100 border-blue-300 border-b-2 p-6">
             <div>
-              <strong>{{ paymentSource.description }}</strong>
+              <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}({{ 'Primary'|t }}){% endif %}</strong>
               {% if paymentSource.gateway %}
                 <div class="text-grey-dark">{{ paymentSource.gateway.name }}</div>
               {% endif %}
             </div>
 
             <div>
+              <form method="post" action="">
+                {{ csrfInput() }}
+                {{ redirectInput('/shop/customer/cards') }}
+                {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
+                {{ hiddenInput('id', paymentSource.id) }}
+                {{ tag('button', {
+                  type: 'submit',
+                  class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
+                  text: 'Set as primary'|t
+                }) }}
+              </form>
               <form method="post" action="">
                 {{ csrfInput() }}
                 {{ redirectInput('/shop/customer/cards') }}
@@ -63,7 +74,7 @@
           {{ tag('option', {
             value: '',
             disabled: true,
-            selected: not cart.estimatedShippingAddress,
+            selected: true,
             text: 'Select gateway'|t ~ '...'
           }) }}
           {% for gateway in gateways %}
@@ -99,6 +110,8 @@
               {{ gateway.getPaymentFormHtml({})|raw }}
             </div>
 
+
+
             {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
             <style>
             .gateway-payment-form input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
@@ -112,12 +125,20 @@
             .gateway-payment-form input.card-cvc { width: 50%; margin-right: 0.75rem; margin-left: 0.75rem; }
             </style>
 
-            {{ input('text', 'description', '', {
-              maxlength: 70,
-              autocomplete: 'off',
-              placeholder: 'Card description'|t,
-              class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
-            }) }}
+            <div>
+              {{ input('text', 'description', '', {
+                maxlength: 70,
+                autocomplete: 'off',
+                placeholder: 'Card description'|t,
+                class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded']
+              }) }}
+            </div>
+
+            <div class="mt-4">
+              <label>
+                {{ 'Set as primary payment source?'|t }} {{ input('checkbox', 'isPrimaryPaymentSource', 1) }}
+              </label>
+            </div>
 
             <div class="mt-4 text-right">
               {{ tag('button', {

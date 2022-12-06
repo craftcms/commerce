@@ -195,6 +195,8 @@ class CartTest extends Unit
         self::assertIsFloat($data['cart']['totalDiscount']);
         self::assertIsArray($data['cart']['availableShippingMethodOptions']);
         self::assertIsArray($data['cart']['notices']);
+        self::assertNull($data['cart']['billingAddress']);
+        self::assertNull($data['cart']['shippingAddress']);
     }
 
     /**

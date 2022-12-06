@@ -90,6 +90,7 @@ use craft\commerce\widgets\TopPurchasables;
 use craft\commerce\widgets\TotalOrders;
 use craft\commerce\widgets\TotalOrdersByCountry;
 use craft\commerce\widgets\TotalRevenue;
+use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\debug\Module;
@@ -111,6 +112,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -204,7 +206,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.1.1';
+    public string $schemaVersion = '4.2.3';
 
     /**
      * @inheritdoc
@@ -392,12 +394,18 @@ class Plugin extends BasePlugin
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
-            $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $sites = Craft::$app->getSites()->getAllSites();
+
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
-                if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:' . $productType->uid;
+                foreach ($sites as $site) {
+                    $productTypeSettings = $productType->getSiteSettings();
+                    if (isset($productTypeSettings[$site->id]) && $productTypeSettings[$site->id]->hasUrls) {
+                        $productSources[] = 'productType:' . $productType->uid;
+                    }
                 }
             }
+
+            $productSources = array_unique($productSources);
 
             if ($productSources) {
                 $event->linkOptions[] = [
@@ -816,7 +824,13 @@ class Plugin extends BasePlugin
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function(Event $event) {
             // Deletes carts that meet the purge settings
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout('    > purging inactive carts ... ');
+            }
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
+            if (Craft::$app instanceof ConsoleApplication) {
+                Console::stdout("done\n", Console::FG_GREEN);
+            }
 
             // Delete orphaned variants
             Db::delete(Table::VARIANTS, ['productId' => null]);
