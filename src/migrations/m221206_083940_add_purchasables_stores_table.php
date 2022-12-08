@@ -65,7 +65,7 @@ class m221206_083940_add_purchasables_stores_table extends Migration
             ->from(Table::PURCHASABLES)
             ->where(['not', ['id' => (new Query())
                 ->select(['id'])
-                ->from(Table::VARIANTS)]
+                ->from(Table::VARIANTS), ],
             ])
             ->all());
 

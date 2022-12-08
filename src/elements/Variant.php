@@ -943,7 +943,6 @@ class Variant extends Purchasable
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
             }
-
         }
 
         return parent::beforeValidate();
