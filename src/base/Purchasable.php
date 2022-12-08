@@ -44,6 +44,13 @@ use yii\base\InvalidConfigException;
  * @property bool $isShippable
  * @property bool $isTaxable
  * @property int $taxCategoryId the purchasable's tax category ID
+ * @property bool $hasUnlimitedStock
+ * @property int $stock
+ * @property int $minQty
+ * @property int $maxQty
+ * @property bool $promotable
+ * @property bool $freeShipping
+ * @property bool $availableForPurchase
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -123,12 +130,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public ?float $weight = null;
 
     /**
-     * @var Collection|null
-     * @since 5.0.0
-     */
-    private ?array $_stocks = null;
-
-    /**
      * @var float|null $price
      * @since 5.0.0
      */
@@ -186,12 +187,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * @param array|null $purchasableStores
+     * @param array|Collection<PurchasableStoreModel>|null $purchasableStores
      * @return void
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @since 5.0.0
      */
-    public function setPurchasableStores(?array $purchasableStores): void
+    public function setPurchasableStores(array|Collection|null $purchasableStores): void
     {
         if ($purchasableStores === null) {
             $purchasableStores = [];
@@ -661,7 +662,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getIsAvailable(): bool
     {
-        return $this->availableForPurchase;
+        return $this->getAvailableForPurchase();
     }
 
     /**

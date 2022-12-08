@@ -161,6 +161,14 @@ interface PurchasableInterface
 
     /**
      * Returns the base price the item will be added to the line item with.
+     *
+     * @param string|Store|null $store
+     * @return float|null decimal(14,4)
+     */
+    public function getPrice(string|Store|null $store = null): ?float;
+
+    /**
+     * Returns the base price the item will be added to the line item with.
      * It provides opportunity to populate the salePrice if sales have not already been applied.
      *
      * @return float decimal(14,4)

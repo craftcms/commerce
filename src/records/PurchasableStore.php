@@ -14,6 +14,7 @@ use yii\db\ActiveQueryInterface;
 /**
  * PurchasableStore record.
  *
+ * @property int $id
  * @property int $purchasableId
  * @property int $storeId
  * @property float $price

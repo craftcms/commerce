@@ -36,11 +36,6 @@ class Donation extends Purchasable
      */
     public bool $availableForPurchase = false;
 
-    /**
-     * @var string The SKU
-     */
-    private string $_sku;
-
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -176,14 +171,6 @@ class Donation extends Purchasable
     public function getUrl(): ?string
     {
         return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSku(): string
-    {
-        return $this->_sku;
     }
 
     /**
