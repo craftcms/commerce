@@ -32,30 +32,6 @@
 {% macro behavioralMetaFields(product) %}
     {%- import "_includes/forms" as forms -%}
 
-    {{ forms.lightswitchField({
-        label: 'Free Shipping'|t('commerce'),
-        id: 'free-shipping',
-        name: 'freeShipping',
-        small: true,
-        on: product.freeShipping
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: 'Promotable'|t('commerce'),
-        id: 'promotable',
-        name: 'promotable',
-        small: true,
-        on: product.promotable
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: 'Available for purchase'|t('commerce'),
-        id: 'available-for-purchase',
-        name: 'availableForPurchase',
-        small: true,
-        on: product.availableForPurchase
-    }) }}
-
     {% set taxCategories = [] %}
     {% for taxCategory in product.getType().taxCategories %}
         {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
@@ -126,75 +102,122 @@
         }) }}
     {% endif %}
 
-    {{ forms.textField({
-        id: 'price',
-        label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
-        name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price and variant.getErrors('price') is empty ? variant.price|number : variant.price)),
-        placeholder: 'Enter price'|t('commerce'),
-        required: true,
-        errors: variant.getErrors('price')
-    }) }}
+    {% for store in craft.commerce.stores.getAllStores() %}
+        {% namespace store.handle %}
+          {# Temp heading #}
+          <div>
+            <strong>{{ store.name }}</strong>
+          </div>
 
-    {% set stockInput %}
-        <div class="flex">
-            <div class="textwrapper">
-                {{ forms.text({
-                    id: 'stock',
-                    name: 'stock',
-                    value: (variant.hasUnlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
-                    placeholder: 'Enter stock'|t('commerce'),
-                    disabled: variant.hasUnlimitedStock ? true : false,
-                }) }}
-            </div>
-            <div class="nowrap">
-                {{ forms.checkbox({
-                    id: 'unlimited-stock',
-                    class: 'unlimited-stock',
-                    label: 'Unlimited'|t('commerce'),
-                    name: 'hasUnlimitedStock',
-                    checked: variant.hasUnlimitedStock ? true : false,
-                }) }}
-            </div>
-        </div>
-    {% endset %}
+          {{ forms.lightswitchField({
+            label: 'Free Shipping'|t('commerce'),
+            id: 'free-shipping',
+            name: 'freeShipping',
+            small: true,
+            on: variant.getFreeShipping(store)
+          }) }}
 
-    {{ forms.field({
-        id: 'stock',
-        label: 'Stock'|t('commerce'),
-        required: true,
-        errors: variant.getErrors('hasUnlimitedStock')|merge(variant.getErrors('stock')),
-    }, stockInput) }}
+          {{ forms.lightswitchField({
+            label: 'Promotable'|t('commerce'),
+            id: 'promotable',
+            name: 'promotable',
+            small: true,
+            on: variant.getPromotable(store)
+          }) }}
 
-    {% set quantityRangeInput %}
-        <div class="flex">
-            <div class="textwrapper">
-                {{ forms.text({
-                    id: 'minQty',
-                    name: 'minQty',
-                    value: variant.minQty,
-                    placeholder: 'Any'|t('commerce'),
-                    title: 'Minimum allowed quantity'|t
-                }) }}
-            </div>
-            <div class="label light">{{ 'to'|t('commerce') }}</div>
-            <div class="textwrapper">
-                {{ forms.text({
-                    id: 'maxQty',
-                    name: 'maxQty',
-                    value: variant.maxQty,
-                    placeholder: 'Any'|t('commerce'),
-                    title: 'Maximum allowed quantity'|t
-                }) }}
-            </div>
-        </div>
-    {% endset %}
+          {{ forms.lightswitchField({
+            label: 'Available for purchase'|t('commerce'),
+            id: 'available-for-purchase',
+            name: 'availableForPurchase',
+            small: true,
+            on: variant.getAvailableForPurchase(store)
+          }) }}
 
-    {{ forms.field({
-        id: 'minQty',
-        label: 'Allowed Qty'|t('commerce'),
-        errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
-    }, quantityRangeInput) }}
+          {% set basePrice = variant.getBasePrice(store) %}
+          {{ forms.textField({
+              id: 'price',
+              label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
+              name: 'basePrice',
+              value: (basePrice == '0' ? '0'|number : (basePrice and variant.getErrors('price') is empty ? basePrice|number : basePrice)),
+              placeholder: 'Enter price'|t('commerce'),
+              required: true,
+              errors: variant.getErrors('price')
+          }) }}
+
+          {% set basePromotionalPrice = variant.getBasePromotionalPrice(store) %}
+          {{ forms.textField({
+              id: 'promotionalPrice',
+              label: 'Promotional Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
+              name: 'basePromotionalPrice',
+              value: (basePromotionalPrice == '0' ? '0'|number : (basePromotionalPrice and variant.getErrors('price') is empty ? basePromotionalPrice|number : basePromotionalPrice)),
+              placeholder: 'Enter price'|t('commerce'),
+              required: true,
+              errors: variant.getErrors('promotionalPrice')
+          }) }}
+
+          {% set stockInput %}
+              {% set hasUnlimitedStock = variant.getHasUnlimitedStock(store) %}
+              {% set stock = variant.getStock(store) %}
+              <div class="flex">
+                  <div class="textwrapper">
+                      {{ forms.text({
+                          id: 'stock',
+                          name: 'stock',
+                          value: (hasUnlimitedStock ? '' : (stock == '0' ? '0': (stock ? stock : ''))),
+                          placeholder: 'Enter stock'|t('commerce'),
+                          disabled: hasUnlimitedStock ? true : false,
+                      }) }}
+                  </div>
+                  <div class="nowrap">
+                      {{ forms.checkbox({
+                          id: 'unlimited-stock',
+                          class: 'unlimited-stock',
+                          label: 'Unlimited'|t('commerce'),
+                          name: 'hasUnlimitedStock',
+                          checked: hasUnlimitedStock ? true : false,
+                      }) }}
+                  </div>
+              </div>
+          {% endset %}
+
+          {{ forms.field({
+              id: 'stock',
+              label: 'Stock'|t('commerce'),
+              required: true,
+              errors: variant.getErrors('hasUnlimitedStock')|merge(variant.getErrors('stock')),
+          }, stockInput) }}
+
+          {% set quantityRangeInput %}
+              <div class="flex">
+                  <div class="textwrapper">
+                      {{ forms.text({
+                          id: 'minQty',
+                          name: 'minQty',
+                          value: variant.getMinQty(store),
+                          placeholder: 'Any'|t('commerce'),
+                          title: 'Minimum allowed quantity'|t
+                      }) }}
+                  </div>
+                  <div class="label light">{{ 'to'|t('commerce') }}</div>
+                  <div class="textwrapper">
+                      {{ forms.text({
+                          id: 'maxQty',
+                          name: 'maxQty',
+                          value: variant.getMaxQty(store),
+                          placeholder: 'Any'|t('commerce'),
+                          title: 'Maximum allowed quantity'|t
+                      }) }}
+                  </div>
+              </div>
+          {% endset %}
+
+          {{ forms.field({
+              id: 'minQty',
+              label: 'Allowed Qty'|t('commerce'),
+              errors: variant.getErrors('minQty')|merge(variant.getErrors('maxQty'))
+          }, quantityRangeInput) }}
+        {% endnamespace %}
+    {% endfor %}
 {% endmacro %}
 
 

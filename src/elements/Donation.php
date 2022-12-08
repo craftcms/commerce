@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
@@ -91,7 +92,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getPrice(): float
+    public function getPrice(string|Store|null $store = null): ?float
     {
         return 0;
     }
@@ -183,11 +184,6 @@ class Donation extends Purchasable
     public function getSku(): string
     {
         return $this->_sku;
-    }
-
-    public function setSku(?string $value): void
-    {
-        $this->_sku = $value;
     }
 
     /**

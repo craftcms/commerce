@@ -874,20 +874,11 @@ class Product extends Element
             $record->postDate = $this->postDate;
             $record->expiryDate = $this->expiryDate;
             $record->typeId = $this->typeId;
-            $record->promotable = $this->promotable;
-            $record->availableForPurchase = $this->availableForPurchase;
-            $record->freeShipping = $this->freeShipping;
-            $record->taxCategoryId = $this->taxCategoryId;
-            $record->shippingCategoryId = $this->shippingCategoryId;
 
             $defaultVariant = $this->getDefaultVariant();
             $record->defaultVariantId = $defaultVariant->id ?? null;
             $record->defaultSku = $defaultVariant->skuAsText ?? '';
             $record->defaultPrice = $defaultVariant->price ?? 0.0;
-            $record->defaultHeight = $defaultVariant->height ?? 0;
-            $record->defaultLength = $defaultVariant->length ?? 0;
-            $record->defaultWidth = $defaultVariant->width ?? 0;
-            $record->defaultWeight = $defaultVariant->weight ?? 0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;

@@ -16,21 +16,15 @@ use yii\db\ActiveQueryInterface;
  * Variant record.
  *
  * @property ActiveQueryInterface $element
- * @property float $height
  * @property int $id
  * @property bool $isDefault
- * @property float $length
  * @property int $maxQty
  * @property int $minQty
- * @property float $price
  * @property Product $product
  * @property int $productId
- * @property string $sku
  * @property int $sortOrder
  * @property int $stock
  * @property bool $hasUnlimitedStock
- * @property float $weight
- * @property float $width
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

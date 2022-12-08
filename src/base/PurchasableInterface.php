@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Store;
 
 /**
  * Interface Purchasable
@@ -26,9 +27,137 @@ interface PurchasableInterface
     /**
      * Returns the base price the item will be added to the line item with.
      *
-     * @return float decimal(14,4)
+     * @return float|null decimal(14,4)
      */
-    public function getPrice(): float;
+    public function getBasePrice(string|Store|null $store = null): ?float;
+
+    /**
+     * @param string|Store|null $store
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getBasePromotionalPrice(string|Store|null $store = null): ?float;
+
+    /**
+     * @param string|Store|null $store
+     * @return int|null
+     * @since 5.0.0
+     */
+    public function getStock(string|Store|null $store = null): ?int;
+
+    /**
+     * @param string|Store|null $store
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getHasUnlimitedStock(string|Store|null $store = null): bool;
+
+    /**
+     * @param string|Store|null $store
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getPromotable(string|Store|null $store = null): bool;
+
+    /**
+     * @param string|Store|null $store
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getAvailableForPurchase(string|Store|null $store = null): bool;
+
+    /**
+     * @param string|Store|null $store
+     * @return int|null
+     * @since 5.0.0
+     */
+    public function getMinQty(string|Store|null $store = null): ?int;
+
+    /**
+     * @param string|Store|null $store
+     * @return int|null
+     * @since 5.0.0
+     */
+    public function getMaxQty(string|Store|null $store = null): ?int;
+
+    /**
+     * @param string|Store|null $store
+     * @return bool|null
+     * @since 5.0.0
+     */
+    public function getFreeShipping(string|Store|null $store = null): ?bool;
+
+    /**
+     * @param float|null $price
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setBasePrice(?float $price, string|Store|null $store = null): void;
+
+    /**
+     * @param float|null $price
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setBasePromotionalPrice(?float $price, string|Store|null $store = null): void;
+
+    /**
+     * @param int|null $stock
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setStock(?int $stock, string|Store|null $store = null): void;
+
+    /**
+     * @param bool $hasUnlimitedStock
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setHasUnlimitedStock(bool $hasUnlimitedStock, string|Store|null $store = null): void;
+
+    /**
+     * @param bool $promotable
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setPromotable(bool $promotable, string|Store|null $store = null): void;
+
+    /**
+     * @param bool $availableForPurchase
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setAvailableForPurchase(bool $availableForPurchase, string|Store|null $store = null): void;
+
+    /**
+     * @param int|null $minQty
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setMinQty(?int $minQty, string|Store|null $store = null): void;
+
+    /**
+     * @param int|null $maxQty
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setMaxQty(?int $maxQty, string|Store|null $store = null): void;
+
+    /**
+     * @param bool $freeShipping
+     * @param string|Store|null $store
+     * @return void
+     * @since 5.0.0
+     */
+    public function setFreeShipping(bool $freeShipping, string|Store|null $store = null): void;
 
     /**
      * Returns the base price the item will be added to the line item with.
