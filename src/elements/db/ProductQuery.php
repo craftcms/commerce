@@ -754,9 +754,6 @@ class ProductQuery extends ElementQuery
         $this->query->select([
             'commerce_products.id',
             'commerce_products.typeId',
-            'commerce_products.promotable',
-            'commerce_products.freeShipping',
-            'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -766,8 +763,6 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultLength',
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
-            'commerce_products.taxCategoryId',
-            'commerce_products.shippingCategoryId',
         ]);
 
         if (isset($this->availableForPurchase)) {

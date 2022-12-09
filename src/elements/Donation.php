@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
@@ -34,11 +35,6 @@ class Donation extends Purchasable
      * @var bool Is the product available for purchase.
      */
     public bool $availableForPurchase = false;
-
-    /**
-     * @var string The SKU
-     */
-    private string $_sku;
 
     public function behaviors(): array
     {
@@ -91,7 +87,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getPrice(?string $storeHandle = null): float
+    public function getPrice(string|Store|null $store = null): ?float
     {
         return 0;
     }
@@ -175,19 +171,6 @@ class Donation extends Purchasable
     public function getUrl(): ?string
     {
         return '';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSku(): string
-    {
-        return $this->_sku;
-    }
-
-    public function setSku(?string $value): void
-    {
-        $this->_sku = $value;
     }
 
     /**

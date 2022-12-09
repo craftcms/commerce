@@ -802,6 +802,7 @@ return [
     'Products' => 'Products',
     'Promotable' => 'Promotable',
     'Promotable?' => 'Promotable?',
+    'Promotional Price' => 'Promotional Price',
     'Promotions' => 'Promotions',
     'Purchasable ID and Sale ID are required.' => 'Purchasable ID and Sale ID are required.',
     'Purchasable ID is required.' => 'Purchasable ID is required.',
