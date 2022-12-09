@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when retrieving a discount via a null coupon code. ([#3045](https://github.com/craftcms/commerce/issues/3045))
+
 ## 4.2.4 - 2022-11-29
 
 - The “Customer” order condition rule now supports orders with no customer.
