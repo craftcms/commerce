@@ -10,7 +10,10 @@ namespace craft\commerce\models;
 use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
+use craft\commerce\models\StoreSettings;
+use craft\commerce\Plugin;
 use craft\helpers\App;
+use craft\helpers\UrlHelper;
 
 /**
  * Store model.
@@ -44,6 +47,11 @@ class Store extends Model
      * @var string|null Store UID
      */
     public ?string $uid = null;
+
+    /**
+     * @var StoreSettings|null
+     */
+    private ?StoreSettings $_storeSettings = null;
 
     /**
      * @inheritdoc
@@ -91,6 +99,25 @@ class Store extends Model
                 ],
             ],
         ];
+    }
+
+
+    /**
+     * Gets the CP url to this stores settings
+     * @return string
+     */
+    public function getStoreSettingsUrl(?string $path = null): string
+    {
+        $path = $path ? '/' . $path : '';
+        return UrlHelper::cpUrl('commerce/store-settings/' . $this->handle . $path);
+    }
+
+    /**
+     * @return StoreSettings
+     */
+    public function getSettings(): StoreSettings
+    {
+        return Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($this->id);
     }
 
     /**

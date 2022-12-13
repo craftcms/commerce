@@ -1,0 +1,34 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <div class="tablepane">
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th scope="col" data-title="Site">{{ "Site"|t('app') }}</th>
+                    <th scope="col" data-title="Default Store">{{ "Default Store"|t('commerce') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for site in sites %}
+
+                        <td>
+                            {{ site.name|t('site') }}
+                        </td>
+                        <td>
+                            {{ forms.selectField({
+                                id: 'site-'~site.id,
+                                name: 'site[defaultStoreId]',
+                                options: storesList,
+                                value: primaryStoreId,
+                                errors: site.getErrors('defaultStoreId'),
+                            }) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

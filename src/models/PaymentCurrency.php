@@ -34,6 +34,11 @@ class PaymentCurrency extends Model
     public ?int $id = null;
 
     /**
+     * @var int|null Store ID
+     */
+    public ?int $storeId = null;
+
+    /**
      * @var string|null ISO code
      */
     public ?string $iso = null;

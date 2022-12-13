@@ -17,6 +17,7 @@ use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -35,14 +36,14 @@ use yii\db\StaleObjectException;
 class PaymentCurrencies extends Component
 {
     /**
-     * @var PaymentCurrency[]|null
+     * @var Collection<string, PaymentCurrency>
      */
-    private ?array $_allCurrenciesByIso = null;
+    private ?Collection $_allCurrenciesByIso = null;
 
     /**
-     * @var PaymentCurrency[]|null
+     * @var Collection<int, PaymentCurrency>
      */
-    private ?array $_allCurrenciesById = null;
+    private ?Collection $_allCurrenciesById = null;
 
     /**
      * Get payment currency by its ID.

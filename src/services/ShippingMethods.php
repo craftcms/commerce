@@ -26,7 +26,6 @@ use yii\base\Exception;
 /**
  * Shipping method service.
  *
- * @property ShippingMethod $liteShippingMethod
  * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -183,7 +182,6 @@ class ShippingMethods extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
-        $record->isLite = $model->isLite;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -197,51 +195,6 @@ class ShippingMethods extends Component
         $this->_allShippingMethods = null; //clear the cache
 
         return true;
-    }
-
-    /**
-     * Save a lite shipping method.
-     *
-     * @param bool $runValidation should we validate this method before saving.
-     * @throws Exception
-     */
-    public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
-    {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rules also first.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        // Delete the current lite shipping method.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        $this->_allShippingMethods = null; //clear the cache
-        return $this->saveShippingMethod($model, $runValidation);
-    }
-
-    /**
-     * Gets the lite shipping method or returns a new one.
-     */
-    public function getLiteShippingMethod(): ShippingMethod
-    {
-        $liteMethod = $this->_createShippingMethodQuery()->one();
-
-        if ($liteMethod == null) {
-            $liteMethod = new ShippingMethod();
-            $liteMethod->isLite = true;
-            $liteMethod->name = 'Shipping Cost';
-            $liteMethod->handle = 'liteShipping';
-            $liteMethod->enabled = true;
-        } else {
-            $liteMethod = new ShippingMethod($liteMethod);
-        }
-
-        return $liteMethod;
     }
 
     /**
@@ -289,14 +242,9 @@ class ShippingMethods extends Component
                 'enabled',
                 'handle',
                 'id',
-                'isLite',
                 'name',
             ])
             ->from([Table::SHIPPINGMETHODS]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

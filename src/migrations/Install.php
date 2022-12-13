@@ -334,6 +334,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::ORDERS);
         $this->createTable(Table::ORDERS, [
             'id' => $this->integer()->notNull(),
+            'storeId' => $this->integer()->notNull(),
             'billingAddressId' => $this->integer(),
             'shippingAddressId' => $this->integer(),
             'estimatedBillingAddressId' => $this->integer(),
@@ -614,7 +615,6 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -657,7 +657,6 @@ class Install extends Migration
             'percentageRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'minRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -750,7 +749,6 @@ class Install extends Migration
             'removeIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'removeVatIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'taxable' => $this->enum('taxable', ['purchasable', 'price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -879,6 +877,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERS, 'email', false);
+        $this->createIndex(null, Table::ORDERS, 'storeId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
@@ -944,11 +943,13 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryPaymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::DISCOUNTS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::DONATIONS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
@@ -970,8 +971,10 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ORDERS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['paymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['emailId'], Table::EMAILS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
+        $this->addForeignKey(null, Table::PAYMENTCURRENCIES, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');

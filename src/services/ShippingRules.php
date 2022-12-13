@@ -24,7 +24,6 @@ use yii\db\StaleObjectException;
 /**
  * Shipping rule service.
  *
- * @property ShippingRule $liteShippingRule The lite shipping rule
  * @property ShippingRule[] $allShippingRules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -119,7 +118,6 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -173,48 +171,6 @@ class ShippingRules extends Component
     }
 
     /**
-     * Save a shipping rule.
-     *
-     * @param bool $runValidation should we validate this rule before saving.
-     * @throws Exception
-     */
-    public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
-    {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rule.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        $this->_allShippingRules = null; // clear cache
-        return $this->saveShippingRule($model, $runValidation);
-    }
-
-    /**
-     * Gets the lite shipping rule or returns a new one.
-     */
-    public function getLiteShippingRule(): ShippingRule
-    {
-        $liteRule = $this->_createShippingRulesQuery()->one();
-
-        if ($liteRule == null) {
-            $liteRule = new ShippingRule();
-            $liteRule->isLite = true;
-            $liteRule->name = 'Shipping Cost';
-            $liteRule->description = 'Shipping Cost';
-            $liteRule->enabled = true;
-        } else {
-            $liteRule = new ShippingRule($liteRule);
-        }
-
-        $this->_allShippingRules = null; // clear cache
-
-        return $liteRule;
-    }
-
-    /**
      * Reorders shipping rules by the given array of IDs.
      *
      * @throws \yii\db\Exception
@@ -259,7 +215,6 @@ class ShippingRules extends Component
                 'description',
                 'enabled',
                 'id',
-                'isLite',
                 'maxQty',
                 'maxRate',
                 'maxTotal',
@@ -280,10 +235,6 @@ class ShippingRules extends Component
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

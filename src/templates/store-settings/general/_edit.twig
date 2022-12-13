@@ -4,10 +4,10 @@
 {% set fullPageForm = true %}
 {% block content %}
 
-    {{ actionInput('commerce/store/save') }}
-    {{ redirectInput('commerce/store-settings/store') }}
+    {{ actionInput('commerce/store-settings/save') }}
+    {{ redirectInput(store.getStoreSettingsUrl()) }}
     {{ hiddenInput('id', store.id) }}
-    {{ hiddenInput('locationAddressId', store.locationAddress.id) }}
+    {{ hiddenInput('locationAddressId', storeSettings.locationAddress.id) }}
 
     <h2 class="first">{{ "Store Location"|t('commerce') }}</h2>
     <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>

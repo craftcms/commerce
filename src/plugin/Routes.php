@@ -61,12 +61,13 @@ trait Routes
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
-            $event->rules['commerce/addresses/new'] = 'commerce/addresses/edit';
-            $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
+            // Settings
 
             $event->rules['commerce/settings/stores'] = 'commerce/stores/stores-index';
             $event->rules['commerce/settings/stores/new'] = 'commerce/stores/edit-store';
             $event->rules['commerce/settings/stores/<storeId:\d+>'] = 'commerce/stores/edit-store';
+
+            $event->rules['commerce/settings/sites'] = 'commerce/settings/sites';
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
 
@@ -93,67 +94,55 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-settings/store'] = 'commerce/store/edit';
+            $event->rules['commerce/store-settings'] = 'commerce/store-settings/edit'; // Redirects to the first store
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>'] = 'commerce/store-settings/edit';
 
-            $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
-            $event->rules['commerce/store-settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
-            $event->rules['commerce/store-settings/paymentcurrencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/payment-currencies'] = 'commerce/payment-currencies/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/payment-currencies/new'] = 'commerce/payment-currencies/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/payment-currencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
 
-            $event->rules['commerce/store-settings/donation'] = 'commerce/donations/edit';
-
-            // Store Settings - Regions
-            $event->rules['commerce/store-settings/countries'] = 'commerce/countries/index';
-            $event->rules['commerce/store-settings/countries/new'] = 'commerce/countries/edit';
-            $event->rules['commerce/store-settings/countries/<id:\d+>'] = 'commerce/countries/edit';
-
-            $event->rules['commerce/store-settings/states'] = 'commerce/states/index';
-            $event->rules['commerce/store-settings/states/new'] = 'commerce/states/edit';
-            $event->rules['commerce/store-settings/states/<id:\d+>'] = 'commerce/states/edit';
-
-            // Lite shipping and tax
-            $event->rules['commerce/store-settings/shipping'] = 'commerce/lite-shipping/edit';
-            $event->rules['commerce/store-settings/tax'] = 'commerce/lite-tax/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/donation'] = 'commerce/donations/edit';
 
             // Shipping
-            $event->rules['commerce/shipping/shippingzones'] = 'commerce/shipping-zones/index';
-            $event->rules['commerce/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
-            $event->rules['commerce/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones'] = 'commerce/shipping-zones/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
 
-            $event->rules['commerce/shipping/shippingcategories'] = 'commerce/shipping-categories/index';
-            $event->rules['commerce/shipping/shippingcategories/new'] = 'commerce/shipping-categories/edit';
-            $event->rules['commerce/shipping/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories'] = 'commerce/shipping-categories/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories/new'] = 'commerce/shipping-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
 
-            $event->rules['commerce/shipping/shippingmethods'] = 'commerce/shipping-methods/index';
-            $event->rules['commerce/shipping/shippingmethods/new'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/shipping/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
-            $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods'] = 'commerce/shipping-methods/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/new'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
             // Subscription plans
-            $event->rules['commerce/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/store-settings/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/store-settings/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
-            $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
-            $event->rules['commerce/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
-            $event->rules['commerce/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories'] = 'commerce/tax-categories/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
 
-            $event->rules['commerce/tax/taxzones'] = 'commerce/tax-zones/index';
-            $event->rules['commerce/tax/taxzones/new'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/tax/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/tax/taxrates'] = 'commerce/tax-rates/index';
-            $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
-            $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones'] = 'commerce/tax-zones/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones/new'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates'] = 'commerce/tax-rates/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/new'] = 'commerce/tax-rates/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-            // Promotions
-            $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
-            $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
-            $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
+            // Sales going away
+//            $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
+//            $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
+//            $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
 
-            $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
-            $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
-            $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts'] = 'commerce/discounts/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/<id:\d+>'] = 'commerce/discounts/edit';
         });
     }
 }

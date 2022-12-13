@@ -9,9 +9,11 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\Store;
+use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\errors\BusyResourceException;
@@ -26,6 +28,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception as YiiBaseException;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Exception as YiiDbException;
@@ -80,6 +83,13 @@ class Stores extends Component
     private ?Collection $_allStores = null;
 
     /**
+     * @var Store|null the current store
+     * @see getCurrentStore()
+     * @see setCurrentStore()
+     */
+    private ?Store $_currentStore = null;
+
+    /**
      * @return void
      */
     public function init(): void
@@ -109,10 +119,59 @@ class Stores extends Component
 
         $results = $this->_createStoreQuery()->all();
 
-        if (!empty($results)) {
-            $this->_allStores = collect($results)->map(function($row) {
-                return Craft::createObject(array_merge(['class' => Store::class], $row));
-            });
+
+        $this->_allStores = collect($results)->map(function($row) {
+            return Craft::createObject(array_merge(['class' => Store::class], $row));
+        });
+    }
+
+    /**
+     * Returns the current store.
+     *
+     * @return Store the current store
+     * @throws StoreNotFoundException if no stores exist
+     */
+    public function getCurrentStore(): Store
+    {
+        if (isset($this->_currentStore)) {
+            return $this->_currentStore;
+        }
+
+        // Default to the primary store
+        // TODO: Lookup the current default based on the current site.
+        return $this->_currentStore = $this->getPrimaryStore();
+    }
+
+    /**
+     * Sets the current store.
+     *
+     * @param Store|string|int|null $store the current store, or its handle/ID, or null
+     * @throws InvalidArgumentException if $store is invalid
+     */
+    public function setCurrentStore(mixed $store): void
+    {
+        // In case this was called from the constructor...
+        $this->_loadAllStores();
+
+        if ($store === null) {
+            $this->_currentStore = null;
+            return;
+        }
+
+        if ($store instanceof Store) {
+            $this->_currentStore = $store;
+        } elseif (is_numeric($store)) {
+            $this->_currentStore = $this->getStoreById($store, false);
+        } else {
+            $this->_currentStore = $this->getStoreByHandle($store, false);
+        }
+
+        // Did something go wrong?
+        if (!$this->_currentStore) {
+            // Fail silently if Craft isn't installed yet or is in the middle of updating
+            if (Craft::$app->getIsInstalled() && !Craft::$app->getUpdates()->getIsCraftUpdatePending() && Plugin::getInstance()->getIsInstalled()) {
+                throw new InvalidArgumentException('Invalid store: ' . $store);
+            }
         }
     }
 
@@ -131,6 +190,15 @@ class Stores extends Component
     public function getStoreById(int $id): ?Store
     {
         return $this->getAllStores()->firstWhere('id', $id);
+    }
+
+    /**
+     * @param string $handle
+     * @return Store|null
+     */
+    public function getStoreByHandle(string $handle): ?Store
+    {
+        return $this->getAllStores()->firstWhere('handle', $handle);
     }
 
     /**
@@ -328,6 +396,11 @@ class Stores extends Component
 
         // Refresh stores
         $this->refreshStores();
+
+        // Was this the current store?
+        if (isset($this->_currentStore) && $this->_currentStore->id == $store->id) {
+            $this->setCurrentStore($this->getPrimaryStore());
+        }
 
         // Fire an 'afterDeleteStore' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_STORE)) {

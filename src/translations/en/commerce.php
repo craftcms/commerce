@@ -951,7 +951,6 @@ return [
     'System Settings' => 'System Settings',
     'System' => 'System',
     'Target - The purchasable relationship field is on the category' => 'Target - The purchasable relationship field is on the category',
-    'Tax & Shipping (Lite)' => 'Tax & Shipping (Lite)',
     'Tax & Shipping' => 'Tax & Shipping',
     'Tax (inc)' => 'Tax (inc)',
     'Tax Categories' => 'Tax Categories',
