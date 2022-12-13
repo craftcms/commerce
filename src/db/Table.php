@@ -53,14 +53,14 @@ abstract class Table
     public const SHIPPINGRULE_CATEGORIES = '{{%commerce_shippingrule_categories}}';
     public const SHIPPINGRULES = '{{%commerce_shippingrules}}';
     public const SHIPPINGZONES = '{{%commerce_shippingzones}}';
-    /** @since 5.0.0 */
-    public const STORES = '{{%commerce_stores}}';
-    /** @since 4.0.0 */
-    public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
     public const SUBSCRIPTIONS = '{{%commerce_subscriptions}}';
     public const TAXCATEGORIES = '{{%commerce_taxcategories}}';
     public const TAXRATES = '{{%commerce_taxrates}}';
     public const TAXZONES = '{{%commerce_taxzones}}';
     public const TRANSACTIONS = '{{%commerce_transactions}}';
     public const VARIANTS = '{{%commerce_variants}}';
+    /** @since 5.0.0 */
+    public const PURCHASABLES_STORES = '{{%commerce_purchasables_stores}}';
+    public const STORES = '{{%commerce_stores}}';
+    public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
 }

@@ -335,7 +335,6 @@ class Stores extends Component
             throw $e;
         }
 
-        /** @var Site $site */
         $store = $this->getStoreById($storeRecord->id);
 
         // Did the primary site just change?
@@ -424,11 +423,31 @@ class Stores extends Component
     /**
      * Returns the primary store.
      *
-     * @return Store
+     * @return Store|null
      */
-    public function getPrimaryStore(): Store
+    public function getPrimaryStore(): ?Store
     {
         return $this->getAllStores()->firstWhere('primary', true);
+    }
+
+    /**
+     * @param string $handle
+     * @return Store|null
+     */
+    public function getStoreByHandle(string $handle): ?Store
+    {
+        return $this->getAllStores()->firstWhere('handle', $handle);
+    }
+
+    /**
+     * Returns the current store for the active request.
+     *
+     * @return Store
+     */
+    public function getCurrentStore(): Store
+    {
+        // @TODO update this with actual logic
+        return $this->getPrimaryStore();
     }
 
     /**

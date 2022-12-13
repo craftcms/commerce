@@ -191,54 +191,9 @@ class Variant extends Purchasable
     public bool $isDefault = false;
 
     /**
-     * @inheritdoc
-     */
-    public ?float $price = null;
-
-    /**
      * @var int|null $sortOrder
      */
     public ?int $sortOrder = null;
-
-    /**
-     * @var float|null $width
-     */
-    public ?float $width = null;
-
-    /**
-     * @var float|null $height
-     */
-    public ?float $height = null;
-
-    /**
-     * @var float|null $length
-     */
-    public ?float $length = null;
-
-    /**
-     * @var float|null $weight
-     */
-    public ?float $weight = null;
-
-    /**
-     * @var int|null $stock
-     */
-    public ?int $stock = null;
-
-    /**
-     * @var bool $hasUnlimitedStock
-     */
-    public bool $hasUnlimitedStock = false;
-
-    /**
-     * @var int|null $minQty
-     */
-    public ?int $minQty = null;
-
-    /**
-     * @var int|null $maxQty
-     */
-    public ?int $maxQty = null;
 
     /**
      * @var bool Whether the variant was deleted along with its product
@@ -252,13 +207,6 @@ class Variant extends Purchasable
      * @see setProduct()
      */
     private ?Product $_product = null;
-
-    /**
-     * @var string SKU
-     * @see getSku()
-     * @see setSku()
-     */
-    private string $_sku = '';
 
     /**
      * @throws InvalidConfigException
@@ -349,28 +297,6 @@ class Variant extends Purchasable
     public static function createCondition(): ElementConditionInterface
     {
         return Craft::createObject(VariantCondition::class, [static::class]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        return array_merge(parent::defineRules(), [
-            [['sku'], 'string', 'max' => 255],
-            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length'], 'number'],
-            [
-                ['stock'],
-                'required',
-                'when' => static function($model) {
-                    /** @var Variant $model */
-                    return !$model->hasUnlimitedStock;
-                },
-                'on' => self::SCENARIO_LIVE,
-            ],
-            [['stock'], 'number'],
-        ]);
     }
 
     /**
@@ -554,16 +480,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * Cache on the purchasable table.
-     *
-     * @inheritdoc
-     */
-    public function getPrice(): float
-    {
-        return (float)$this->price;
-    }
-
-    /**
      *
      * @throws InvalidConfigException
      */
@@ -660,60 +576,6 @@ class Variant extends Purchasable
         }
 
         return array_merge($variantDataEvent->fieldData, $data);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSku(): string
-    {
-        return $this->_sku ?? '';
-    }
-
-    /**
-     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
-     */
-    public function getSkuAsText(): string
-    {
-        $sku = $this->getSku();
-
-        if (PurchasableHelper::isTempSku($sku)) {
-            $sku = '';
-        }
-
-        return $sku;
-    }
-
-    /**
-     * @param string|null $sku
-     */
-    public function setSku(string $sku = null): void
-    {
-        $this->_sku = $sku;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getTaxCategoryId(): int
-    {
-        return $this->getProduct()->getTaxCategory()->id;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getShippingCategoryId(): int
-    {
-        return $this->getProduct()->getShippingCategory()->id;
-    }
-
-    /**
-     * Returns whether this variant has stock.
-     */
-    public function hasStock(): bool
-    {
-        return $this->stock > 0 || $this->hasUnlimitedStock;
     }
 
     /**
@@ -944,29 +806,12 @@ class Variant extends Purchasable
             }
 
             $record->productId = $this->productId;
-            $record->sku = $this->sku;
-            $record->price = $this->price;
-            $record->width = $this->width;
-            $record->height = $this->height;
-            $record->length = $this->length;
-            $record->weight = $this->weight;
-            $record->minQty = $this->minQty;
-            $record->maxQty = $this->maxQty;
-            $record->stock = (int)$this->stock;
             $record->isDefault = $this->isDefault;
             $record->sortOrder = $this->sortOrder;
-            $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
-
-            if (!$this->getProduct()->getType()->hasDimensions) {
-                $record->width = $this->width = 0;
-                $record->height = $this->height = 0;
-                $record->length = $this->length = 0;
-                $record->weight = $this->weight = 0;
-            }
 
             $record->save(false);
         }
@@ -1098,19 +943,6 @@ class Variant extends Purchasable
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
             }
-
-            if (!$this->price) {
-                $this->price = 0;
-            }
-
-            if (!$this->stock) {
-                $this->stock = 0;
-            }
-        }
-
-        // Zero out stock if unlimited stock is turned on
-        if ($this->hasUnlimitedStock) {
-            $this->stock = 0;
         }
 
         return parent::beforeValidate();

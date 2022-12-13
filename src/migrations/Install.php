@@ -538,6 +538,31 @@ class Install extends Migration
             'sku' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull(),
             'description' => $this->text(),
+            'width' => $this->decimal(14, 4),
+            'height' => $this->decimal(14, 4),
+            'length' => $this->decimal(14, 4),
+            'weight' => $this->decimal(14, 4),
+            'taxCategoryId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::PURCHASABLES_STORES);
+        $this->createTable(Table::PURCHASABLES_STORES, [
+            'id' => $this->primaryKey(),
+            'purchasableId' => $this->integer()->notNull(),
+            'storeId' => $this->integer()->notNull(),
+            'price' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'promotionalPrice' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'promotable' => $this->boolean()->notNull()->defaultValue(false),
+            'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
+            'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
+            'stock' => $this->integer(),
+            'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
+            'minQty' => $this->integer(),
+            'maxQty' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -797,16 +822,7 @@ class Install extends Migration
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'price' => $this->decimal(14, 4)->notNull(),
             'sortOrder' => $this->integer(),
-            'width' => $this->decimal(14, 4),
-            'height' => $this->decimal(14, 4),
-            'length' => $this->decimal(14, 4),
-            'weight' => $this->decimal(14, 4),
-            'stock' => $this->integer()->notNull()->defaultValue(0),
-            'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
-            'minQty' => $this->integer(),
-            'maxQty' => $this->integer(),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -888,8 +904,6 @@ class Install extends Migration
         $this->createIndex(null, Table::PRODUCTS, 'typeId', false);
         $this->createIndex(null, Table::PRODUCTS, 'postDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'expiryDate', false);
-        $this->createIndex(null, Table::PRODUCTS, 'taxCategoryId', false);
-        $this->createIndex(null, Table::PRODUCTS, 'shippingCategoryId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'handle', true);
         $this->createIndex(null, Table::PRODUCTTYPES, 'fieldLayoutId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'variantFieldLayoutId', false);
@@ -927,7 +941,6 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
-        $this->createIndex(null, Table::VARIANTS, 'sku', false);
         $this->createIndex(null, Table::VARIANTS, 'productId', false);
     }
 
@@ -980,8 +993,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PLANS, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::PRODUCTS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
-        $this->addForeignKey(null, Table::PRODUCTS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::PRODUCTS, ['typeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['fieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTTYPES, ['variantFieldLayoutId'], '{{%fieldlayouts}}', ['id'], 'SET NULL');
@@ -992,6 +1003,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES, ['id'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PURCHASABLES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
+        $this->addForeignKey(null, Table::PURCHASABLES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');

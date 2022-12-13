@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -538,6 +539,41 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
+    public function populate($rows): array
+    {
+        // @TODO move to purchasable query
+        $purchasableStoresAttributes = [
+            'id',
+            'purchasableId',
+            'price',
+            'promotionalPrice',
+            'storeId',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+            'promotable',
+            'freeShipping',
+            'availableForPurchase',
+        ];
+        foreach ($rows as &$row) {
+            $purchasableStores = [];
+            Plugin::getInstance()->getStores()->getAllStores()->each(function($store) use (&$row, $purchasableStoresAttributes, &$purchasableStores) {
+                if (!isset($purchasableStores[$store->id])) {
+                    $purchasableStores[$store->id] = [];
+                }
+
+                foreach ($purchasableStoresAttributes as $attribute) {
+                    $purchasableStores[$store->id][$attribute] = $row[$store->handle . '_' . $attribute] ?? null;
+                    unset($row[$store->handle . '_' . $attribute]);
+                }
+            });
+            $row['purchasableStores'] = $purchasableStores;
+        }
+
+        return parent::populate($rows);
+    }
+
     /**
      * @inheritdoc
      */
@@ -556,28 +592,49 @@ class VariantQuery extends ElementQuery
             'commerce_variants.id',
             'commerce_variants.productId',
             'commerce_variants.isDefault',
-            'commerce_variants.sku',
-            'commerce_variants.price',
+            'commerce_purchasables.sku',
             'commerce_variants.sortOrder',
-            'commerce_variants.width',
-            'commerce_variants.height',
-            'commerce_variants.length',
-            'commerce_variants.weight',
-            'commerce_variants.stock',
-            'commerce_variants.hasUnlimitedStock',
-            'commerce_variants.minQty',
-            'commerce_variants.maxQty',
+            'commerce_purchasables.width',
+            'commerce_purchasables.height',
+            'commerce_purchasables.length',
+            'commerce_purchasables.weight',
+            'commerce_purchasables.taxCategoryId',
+            'commerce_purchasables.shippingCategoryId',
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
         $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
+
+        // @TODO move to purchasable query
+        $this->query->leftJoin(Table::PURCHASABLES . ' commerce_purchasables', '[[commerce_purchasables.id]] = [[commerce_variants.id]]');
+
+        foreach (Plugin::getInstance()->getStores()->getAllStores()->all() as $store) {
+            $storeTableNameAlias = $store->handle . '_commerce_purchasables_stores';
+            $storeTableName = Table::PURCHASABLES_STORES . ' ' . $storeTableNameAlias;
+            $this->query->addSelect([
+                $storeTableNameAlias . '.id as ' . $store->handle . '_id',
+                $storeTableNameAlias . '.purchasableId as ' . $store->handle . '_purchasableId',
+                $storeTableNameAlias . '.storeId as ' . $store->handle . '_storeId',
+                $storeTableNameAlias . '.price as ' . $store->handle . '_price',
+                $storeTableNameAlias . '.promotionalPrice as ' . $store->handle . '_promotionalPrice',
+                $storeTableNameAlias . '.stock as ' . $store->handle . '_stock',
+                $storeTableNameAlias . '.hasUnlimitedStock as ' . $store->handle . '_hasUnlimitedStock',
+                $storeTableNameAlias . '.minQty as ' . $store->handle . '_minQty',
+                $storeTableNameAlias . '.maxQty as ' . $store->handle . '_maxQty',
+                $storeTableNameAlias . '.promotable as ' . $store->handle . '_promotable',
+                $storeTableNameAlias . '.freeShipping as ' . $store->handle . '_freeShipping',
+                $storeTableNameAlias . '.availableForPurchase as ' . $store->handle . '_availableForPurchase',
+            ]);
+            $onStatement = sprintf('[[%s]] = [[%s]] AND [[%s]] = %s', $storeTableNameAlias . '.purchasableId', 'commerce_purchasables.id', $storeTableNameAlias . '.storeId', $store->id);
+            $this->query->leftJoin($storeTableName, $onStatement);
+        }
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
         }
 
         if (isset($this->sku)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
+            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
         }
 
         if (isset($this->productId)) {
@@ -585,7 +642,7 @@ class VariantQuery extends ElementQuery
         }
 
         if (isset($this->price)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
+            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.price', $this->price));
         }
 
         if (isset($this->isDefault) && $this->isDefault !== null) {
@@ -606,33 +663,33 @@ class VariantQuery extends ElementQuery
 
         if ($this->width !== false) {
             if ($this->width === null) {
-                $this->subQuery->andWhere(['commerce_variants.width' => $this->width]);
+                $this->subQuery->andWhere(['commerce_purchasables.width' => $this->width]);
             } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.width', $this->width));
+                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.width', $this->width));
             }
         }
 
         if ($this->height !== false) {
             if ($this->height === null) {
-                $this->subQuery->andWhere(['commerce_variants.height' => $this->height]);
+                $this->subQuery->andWhere(['commerce_purchasables.height' => $this->height]);
             } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.height', $this->height));
+                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.height', $this->height));
             }
         }
 
         if ($this->length !== false) {
             if ($this->length === null) {
-                $this->subQuery->andWhere(['commerce_variants.length' => $this->length]);
+                $this->subQuery->andWhere(['commerce_purchasables.length' => $this->length]);
             } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.length', $this->length));
+                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.length', $this->length));
             }
         }
 
         if ($this->weight !== false) {
             if ($this->weight === null) {
-                $this->subQuery->andWhere(['commerce_variants.weight' => $this->weight]);
+                $this->subQuery->andWhere(['commerce_purchasables.weight' => $this->weight]);
             } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.weight', $this->weight));
+                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.weight', $this->weight));
             }
         }
 
