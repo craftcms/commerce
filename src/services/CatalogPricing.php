@@ -10,8 +10,10 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricing as CatalogPricingRecord;
+use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
@@ -37,7 +39,7 @@ class CatalogPricing extends Component
 
     /**
      * @param array|null $purchasables
-     * @param array|null $catalogPricingRules
+     * @param CatalogPricingRule[]|null $catalogPricingRules
      * @param bool $showConsoleOutput
      * @return void
      * @throws InvalidConfigException
@@ -70,61 +72,89 @@ class CatalogPricing extends Component
         }
 
         $catalogPricing = [];
-        $priceByPurchasableId = [];
-        // Generate all standard catalog pricing rules
-        foreach ($purchasables as $purchasable) {
-            /** @var Purchasable $purchasable */
-            $id = $purchasable->getId();
-            $price = $purchasable->getBasePrice();
-            // @TODO reinstate truncate when we move location of base prices
-            // $catalogPricing[] = [
-            //     $id, // purchasableId
-            //     $price, // price
-            //     1, // storeId
-            //     0, // isPromotionalPrice
-            //     null, // catalogPricingRuleId
-            //     null, // dateFrom
-            //     null, // dateTo
-            // ];
-            $priceByPurchasableId[$id] = $price;
-        }
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $priceByPurchasableId = (new Query())
+                ->select(['purchasableId', 'price', 'promotionalPrice'])
+                ->from([Table::PURCHASABLES_STORES])
+                ->where(['storeId' => $store->id])
+                ->indexBy('purchasableId')
+                ->all();
 
-        $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules();
+            // Generate original pricing records
+            foreach ($purchasables as $purchasable) {
+                if (!isset($priceByPurchasableId[$purchasable->id]) || !isset($priceByPurchasableId[$purchasable->id]['price'])) {
+                    continue;
+                }
 
-        foreach ($catalogPricingRules as $catalogPricingRule) {
-            // If `getPurchasableIds()` is `null` this means all purchasables
-            if ($catalogPricingRule->getPurchasableIds() === null) {
-                $purchasableIds = ArrayHelper::getColumn($purchasables, 'id');
-            } else {
-                $purchasableIds = $isAllPurchasables ? $catalogPricingRule->getPurchasableIds() : array_intersect($catalogPricingRule->getPurchasableIds(), ArrayHelper::getColumn($purchasables, 'id'));
-            }
-
-            if (empty($purchasableIds)) {
-                continue;
-            }
-
-            foreach ($purchasableIds as $purchasableId) {
                 $catalogPricing[] = [
-                    $purchasableId, // purchasableId
-                    $catalogPricingRule->getRulePriceFromPrice($priceByPurchasableId[$purchasableId]), // price
-                    1, // storeId
-                    $catalogPricingRule->isPromotionalPrice, // isPromotionalPrice
-                    $catalogPricingRule->id, // catalogPricingRuleId
-                    $catalogPricingRule->dateFrom ? Db::prepareDateForDb($catalogPricingRule->dateFrom) : null, // dateFrom
-                    $catalogPricingRule->dateTo ? Db::prepareDateForDb($catalogPricingRule->dateTo) : null, // dateTo
+                    $purchasable->id, // purchasableId
+                    $priceByPurchasableId[$purchasable->id]['price'], // price
+                    $store->id, // storeId
+                    0, // isPromotionalPrice
+                    null, // catalogPricingRuleId
+                    null, // dateFrom
+                    null, // dateTo
                 ];
+
+                if ($priceByPurchasableId[$purchasable->id]['promotionalPrice'] !== null) {
+                    $catalogPricing[] = [
+                        $purchasable->id, // purchasableId
+                        $priceByPurchasableId[$purchasable->id]['promotionalPrice'], // price
+                        $store->id, // storeId
+                        1, // isPromotionalPrice
+                        null, // catalogPricingRuleId
+                        null, // dateFrom
+                        null, // dateTo
+                    ];
+                }
+            }
+
+            $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store)->all();
+
+            foreach ($catalogPricingRules as $catalogPricingRule) {
+                // If `getPurchasableIds()` is `null` this means all purchasables
+                if ($catalogPricingRule->getPurchasableIds() === null) {
+                    $purchasableIds = ArrayHelper::getColumn($purchasables, 'id');
+                } else {
+                    $purchasableIds = $isAllPurchasables ? $catalogPricingRule->getPurchasableIds() : array_intersect($catalogPricingRule->getPurchasableIds(), ArrayHelper::getColumn($purchasables, 'id'));
+                }
+
+                if (empty($purchasableIds)) {
+                    continue;
+                }
+
+                foreach ($purchasableIds as $purchasableId) {
+                    if (!isset($priceByPurchasableId[$purchasableId])) {
+                        continue;
+                    }
+
+                    $price = null;
+                    if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
+                        $price = $priceByPurchasableId[$purchasableId]['price'];
+                    } else if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
+                        $price = $priceByPurchasableId[$purchasableId]['promotionalPrice'] ?? $priceByPurchasableId[$purchasableId]['price'];
+                    }
+
+                    if ($price === null) {
+                        continue;
+                    }
+
+                    $catalogPricing[] = [
+                        $purchasableId, // purchasableId
+                        $catalogPricingRule->getRulePriceFromPrice($price), // price
+                        $store->id, // storeId
+                        $catalogPricingRule->isPromotionalPrice, // isPromotionalPrice
+                        $catalogPricingRule->id, // catalogPricingRuleId
+                        $catalogPricingRule->dateFrom ? Db::prepareDateForDb($catalogPricingRule->dateFrom) : null, // dateFrom
+                        $catalogPricingRule->dateTo ? Db::prepareDateForDb($catalogPricingRule->dateTo) : null, // dateTo
+                    ];
+                }
             }
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
-        // @TODO reinstate truncate when we move location of base prices
-        // Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
-        $deleteWhere = ['and', ['not', ['catalogPricingRuleId' => null]]];
-        if (!$isAllPurchasables) {
-            $deleteWhere[] = ['in', 'purchasableId', ArrayHelper::getColumn($purchasables, 'id')];
-        }
-        CatalogPricingRecord::deleteAll($deleteWhere);
+        Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
 
         if (!empty($catalogPricing)) {
             // Batch through `$catalogPricing` and insert into the catalog pricing table
@@ -235,22 +265,5 @@ class CatalogPricing extends Component
         }
 
         return $query;
-    }
-
-    /**
-     * @param array $data
-     * @param array $where
-     * @return bool
-     * @throws InvalidConfigException
-     */
-    public function upsertCatalogPricingRecord(array $data, array $where): bool
-    {
-        $catalogPricingRecord = CatalogPricingRecord::find()->where($where)->one();
-        if ($catalogPricingRecord === null) {
-            $catalogPricingRecord = Craft::createObject(CatalogPricingRecord::class);
-        }
-
-        $catalogPricingRecord->setAttributes($data, false);
-        return $catalogPricingRecord->save();
     }
 }
