@@ -740,14 +740,6 @@ class Variant extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getIsPromotable(): bool
-    {
-        return $this->getProduct()->promotable;
-    }
-
-    /**
      * @throws InvalidConfigException
      * @since 3.1
      */
@@ -815,22 +807,6 @@ class Variant extends Purchasable
             $record->dateCreated = $this->dateCreated;
 
             $record->save(false);
-
-            // Save prices
-            // @TODO evalutate this to see if we need a bulk delete and insert. Currently this is not optimised for large numbers of prices.
-            $storeIdsByHandle = Plugin::getInstance()->getStores()->getAllStores()->keyBy('handle')->map(fn(Store $store) => $store->id)->all();
-            foreach ($this->basePrices as $storeHandle => $basePrice) {
-                Plugin::getInstance()->getCatalogPricing()->upsertCatalogPricingRecord(
-                    ['purchasableId' => $record->id, 'price' => $basePrice, 'storeId' => $storeIdsByHandle[$storeHandle], 'isPromotionalPrice' => 0],
-                    ['purchasableId' => $record->id, 'storeId' => $storeIdsByHandle[$storeHandle], 'catalogPricingRuleId' => null, 'dateFrom' => null, 'dateTo' => null, 'isPromotionalPrice' => 0]
-                );
-            }
-            foreach ($this->baseSalePrices as $storeHandle => $baseSalePrice) {
-                Plugin::getInstance()->getCatalogPricing()->upsertCatalogPricingRecord(
-                    ['purchasableId' => $record->id, 'price' => $baseSalePrice, 'storeId' => $storeIdsByHandle[$storeHandle], 'isPromotionalPrice' => 1],
-                    ['purchasableId' => $record->id, 'storeId' => $storeIdsByHandle[$storeHandle], 'catalogPricingRuleId' => null, 'dateFrom' => null, 'dateTo' => null, 'isPromotionalPrice' => 1]
-                );
-            }
         }
 
         parent::afterSave($isNew);
