@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
@@ -43,11 +44,6 @@ class CatalogPricingRules extends Component
     private ?Collection $_allCatalogPricingRules = null;
 
     /**
-     * @var Collection<CatalogPricingRule>|null
-     */
-    private ?Collection $_allActiveCatalogPricingRules = null;
-
-    /**
      * Get a catalog pricing rule by its ID.
      *
      * @param int $id
@@ -62,10 +58,14 @@ class CatalogPricingRules extends Component
     /**
      * Get all catalog pricing rules.
      *
-     * @return Collection<CatalogPricingRule>
+     * @param Store|null $store
+     * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getAllCatalogPricingRules(): Collection
+    public function getAllCatalogPricingRules(?Store $store = null): Collection
     {
+        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+
         if (!isset($this->_allCatalogPricingRules)) {
             $catalogPricingRules = $this->_createCatalogPricingRuleQuery()->all();
 
@@ -77,31 +77,32 @@ class CatalogPricingRules extends Component
             })->keyBy('id');
         }
 
-        return $this->_allCatalogPricingRules;
+        return $this->_allCatalogPricingRules ? $this->_allCatalogPricingRules->filter(function(CatalogPricingRule $catalogPricingRule) use ($store) {
+            return $catalogPricingRule->storeId === $store->id;
+        }) : collect([]);
     }
 
     /**
+     * @param Store|null $store
+     * @return Collection
+     * @throws InvalidConfigException
+     */
+    public function getAllEnabledCatalogPricingRules(?Store $store = null): Collection
+    {
+        return $this->getAllCatalogPricingRules($store)->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
+    }
+
+    /**
+     * @param mixed|null $store
      * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
-    public function getAllEnabledCatalogPricingRules(): Collection
+    public function getAllActiveCatalogPricingRules(?Store $store = null): Collection
     {
-        return $this->getAllCatalogPricingRules()->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
-    }
-
-    /**
-     * @return Collection<CatalogPricingRule>
-     */
-    public function getAllActiveCatalogPricingRules(): Collection
-    {
-        if ($this->_allActiveCatalogPricingRules === null) {
-            $this->_allActiveCatalogPricingRules = $this->getAllEnabledCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
-                // If there are no dates or rule is currently in the date range add it to the active list
-                return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
-            });
-        }
-
-        return $this->_allActiveCatalogPricingRules ?? collect([]);
+        return $this->getAllEnabledCatalogPricingRules($store)->where(function(CatalogPricingRule $pcr) {
+            // If there are no dates or rule is currently in the date range add it to the active list
+            return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
+        });
     }
 
     /**
@@ -145,7 +146,10 @@ class CatalogPricingRules extends Component
     }
 
     /**
+     * @param ModelEvent $event
      * @return void
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
      */
     public function afterSavePurchasableHandler(ModelEvent $event): void
     {
@@ -242,6 +246,7 @@ class CatalogPricingRules extends Component
      * @param int $id
      * @return bool
      * @throws StaleObjectException
+     * @throws \Throwable
      */
     public function deleteCatalogPricingRuleById(int $id): bool
     {
@@ -262,6 +267,7 @@ class CatalogPricingRules extends Component
                 'id',
                 'name',
                 'description',
+                'storeId',
                 'dateFrom',
                 'dateTo',
                 'apply',
@@ -280,9 +286,8 @@ class CatalogPricingRules extends Component
     /**
      * Clear memoization caches
      */
-    private function _clearCaches(): void
+    protected function _clearCaches(): void
     {
-        $this->_allActiveCatalogPricingRules = null;
         $this->_allCatalogPricingRules = null;
     }
 }
