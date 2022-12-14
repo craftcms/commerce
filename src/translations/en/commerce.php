@@ -728,6 +728,8 @@ return [
     'Organization Tax ID' => 'Organization Tax ID',
     'Origin' => 'Origin',
     'Original Price' => 'Original Price',
+    'Original price' => 'Original price',
+    'Original promotional price' => 'Original promotional price',
     'Other Languages' => 'Other Languages',
     'Other countries' => 'Other countries',
     'Overpaid' => 'Overpaid',
