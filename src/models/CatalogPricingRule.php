@@ -49,6 +49,11 @@ class CatalogPricingRule extends Model
     public ?string $description = null;
 
     /**
+     * @var int|null
+     */
+    public ?int $storeId = null;
+
+    /**
      * @var DateTime|null Date From
      */
     public ?DateTime $dateFrom = null;

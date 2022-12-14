@@ -28,6 +28,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $enabled
  * @property bool $isPromotionalPrice
  * @property int $id
+ * @property int $storeId
  * @property-read ActiveQueryInterface $users
  * @property string $name
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

@@ -24,6 +24,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'id' => $this->primaryKey(),
                 'name' => $this->string()->notNull(),
                 'description' => $this->text(),
+                'storeId' => $this->integer()->notNull(),
                 'dateFrom' => $this->dateTime(),
                 'dateTo' => $this->dateTime(),
                 'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
@@ -37,6 +38,9 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
             ]);
+
+            $this->createIndex(null, '{{%commerce_catalogpricingrules}}', 'storeId', false);
+            $this->addForeignKey(null, '{{%commerce_catalogpricingrules}}', ['storeId'], Table::STORES, ['id'], 'CASCADE');
         }
 
         if (!$this->db->tableExists('{{%commerce_catalogpricingrules_users}}')) {
