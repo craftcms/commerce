@@ -106,25 +106,25 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * @var float|null $width
      * @since 5.0.0
      */
-    public ?float $width = null;
+    private ?float $_width = null;
 
     /**
      * @var float|null $height
      * @since 5.0.0
      */
-    public ?float $height = null;
+    private ?float $_height = null;
 
     /**
      * @var float|null $length
      * @since 5.0.0
      */
-    public ?float $length = null;
+    private ?float $_length = null;
 
     /**
      * @var float|null $weight
      * @since 5.0.0
      */
-    public ?float $weight = null;
+    private ?float $_weight = null;
 
     /**
      * @inheritdoc
@@ -143,6 +143,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'shippingCategoryId';
         $names[] = 'sku';
         $names[] = 'taxCategoryId';
+        $names[] = 'width';
+        $names[] = 'length';
+        $names[] = 'height';
+        $names[] = 'weight';
         return $names;
     }
 
@@ -179,6 +183,78 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $classNameParts = explode('\\', static::class);
 
         return array_pop($classNameParts);
+    }
+
+    /**
+     * @param float|null $width
+     * @return void
+     * @since 5.0.0
+     */
+    public function setWidth(?float $width): void
+    {
+        $this->_width = $width;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWidth(): ?float
+    {
+        return $this->_width;
+    }
+
+    /**
+     * @param float|null $height
+     * @return void
+     * @since 5.0.0
+     */
+    public function setHeight(?float $height): void
+    {
+        $this->_height = $height;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHeight(): ?float
+    {
+        return $this->_height;
+    }
+
+    /**
+     * @param float|null $length
+     * @return void
+     * @since 5.0.0
+     */
+    public function setLength(?float $length): void
+    {
+        $this->_length = $length;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLength(): ?float
+    {
+        return $this->_length;
+    }
+
+    /**
+     * @param float|null $weight
+     * @return void
+     * @since 5.0.0
+     */
+    public function setWeight(?float $weight): void
+    {
+        $this->_weight = $weight;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWeight(): ?float
+    {
+        return $this->_weight;
     }
 
     /**

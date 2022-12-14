@@ -195,4 +195,36 @@ interface PurchasableInterface
      * @return mixed
      */
     public function getPromotionRelationSource(): mixed;
+
+    /**
+     * Returns the purchasable's weight.
+     *
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getWeight(): ?float;
+
+    /**
+     * Returns the purchasable's height.
+     *
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getHeight(): ?float;
+
+    /**
+     * Returns the purchasable's length.
+     *
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getLength(): ?float;
+
+    /**
+     * Returns the purchasable's width.
+     *
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getWidth(): ?float;
 }
