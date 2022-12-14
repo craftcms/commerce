@@ -24,6 +24,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property float $applyAmount
  * @property string $apply
+ * @property string $applyPriceType
  * @property bool $enabled
  * @property bool $isPromotionalPrice
  * @property int $id
@@ -38,6 +39,8 @@ class CatalogPricingRule extends ActiveRecord
     public const APPLY_BY_FLAT = 'byFlat';
     public const APPLY_TO_PERCENT = 'toPercent';
     public const APPLY_TO_FLAT = 'toFlat';
+    public const APPLY_PRICE_TYPE_PRICE = 'price';
+    public const APPLY_PRICE_TYPE_PROMOTIONAL_PRICE = 'promotionalPrice';
 
     /**
      * @inheritdoc

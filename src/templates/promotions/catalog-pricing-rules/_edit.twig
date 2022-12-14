@@ -149,15 +149,16 @@
                         {{ forms.select({
                             id: 'apply',
                             name: 'apply',
-                            options: [
-                                {optgroup: "Reduce price"|t('commerce')},
-                                {label: "Reduce the price by a percentage of the original price"|t('commerce'), value: 'byPercent' },
-                                {label: "Reduce the price by a fixed amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'byFlat' },
-                                {optgroup: "Set price"|t('commerce')},
-                                {label: "Set the price to a percentage of the original price"|t('commerce'), value: 'toPercent' },
-                                {label: "Set the price to a flat amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'toFlat' },
-                            ],
+                            options: applyOptions,
                             value: catalogPricingRule.apply
+                        }) }}
+                    </td>
+                    <td id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
+                        {{ forms.select({
+                            id: 'applyPriceType',
+                            name: 'applyPriceType',
+                            options: applyPriceTypeOptions,
+                            value: catalogPricingRule.applyPriceType,
                         }) }}
                     </td>
                     <td>
@@ -188,30 +189,20 @@
 
 {% js %}
 $(function() {
-    $('#groups, #productTypes').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
-    });
-
     $('select[name=apply]').change(function() {
 
         if (this.value == 'byPercent' || this.value == 'toPercent') {
             $('#applyAmount-percent-symbol').removeClass('hidden');
             $('#applyAmount-currency-symbol').addClass('hidden');
-        }else{
+        } else {
             $('#applyAmount-percent-symbol').addClass('hidden');
             $('#applyAmount-currency-symbol').removeClass('hidden');
         }
 
-        if (this.value == 'toFlat' || this.value == 'toPercent') {
-            $('input[name=ignorePrevious]').prop('disabled', true);
-            $('#ignorePrevious').prop('disabled', true);
-            $('#ignorePrevious').addClass('disabled', true);
-        }
-        if (this.value != 'toFlat' && this.value != 'toPercent') {
-            $('input[name=ignorePrevious]').prop('disabled', false);
-            $('#ignorePrevious').prop('disabled', false);
-            $('#ignorePrevious').removeClass('disabled', true);
+        if (this.value == 'toFlat') {
+            $('#applyPriceType-input').addClass('hidden');
+        } else {
+            $('#applyPriceType-input').removeClass('hidden');
         }
     });
 });

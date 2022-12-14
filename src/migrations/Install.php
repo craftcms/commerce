@@ -16,6 +16,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
@@ -80,6 +81,7 @@ class Install extends Migration
             'dateTo' => $this->dateTime(),
             'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
             'applyAmount' => $this->decimal(14, 4)->notNull(),
+            'applyPriceType' => $this->enum('applyPriceType', [CatalogPricingRule::APPLY_PRICE_TYPE_PRICE, CatalogPricingRule::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE])->notNull(),
             'purchasableCondition' => $this->text(),
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),

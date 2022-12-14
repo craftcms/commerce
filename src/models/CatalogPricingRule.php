@@ -69,6 +69,11 @@ class CatalogPricingRule extends Model
     public ?float $applyAmount = null;
 
     /**
+     * @var string
+     */
+    public string $applyPriceType = PricingCatalogRuleRecord::APPLY_PRICE_TYPE_PRICE;
+
+    /**
      * @var ElementConditionInterface|null
      * @see getCustomerCondition()
      * @see setCustomerCondition()
@@ -123,7 +128,7 @@ class CatalogPricingRule extends Model
             [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
             [['enabled'], 'boolean'],
             [['name', 'apply'], 'required'],
-            [['id', 'applyAmount', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition'], 'safe'],
+            [['id', 'storeId', 'applyAmount', 'applyPriceType', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition'], 'safe'],
         ];
     }
 

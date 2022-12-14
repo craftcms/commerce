@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
+use craft\commerce\records\CatalogPricingRule;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\StringHelper;
@@ -27,6 +28,7 @@ class m221026_105212_add_catalog_pricing_table extends Migration
                 'dateTo' => $this->dateTime(),
                 'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
                 'applyAmount' => $this->decimal(14, 4)->notNull(),
+                'applyPriceType' => $this->enum('applyPriceType', [CatalogPricingRule::APPLY_PRICE_TYPE_PRICE, CatalogPricingRule::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE])->notNull(),
                 'purchasableCondition' => $this->text(),
                 'customerCondition' => $this->text(),
                 'enabled' => $this->boolean()->notNull()->defaultValue(true),

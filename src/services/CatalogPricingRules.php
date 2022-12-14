@@ -185,6 +185,7 @@ class CatalogPricingRules extends Component
         $fields = [
             'apply',
             'applyAmount',
+            'applyPriceType',
             'dateFrom',
             'dateTo',
             'description',
@@ -265,6 +266,7 @@ class CatalogPricingRules extends Component
                 'dateTo',
                 'apply',
                 'applyAmount',
+                'applyPriceType',
                 'customerCondition',
                 'purchasableCondition',
                 'enabled',
