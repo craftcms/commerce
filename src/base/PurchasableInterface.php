@@ -88,92 +88,12 @@ interface PurchasableInterface
     public function getFreeShipping(?Store $store = null): ?bool;
 
     /**
-     * @param float|null $price
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setBasePrice(?float $price, ?Store $store = null): void;
-
-    /**
-     * @param float|null $price
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setBasePromotionalPrice(?float $price, ?Store $store = null): void;
-
-    /**
-     * @param int|null $stock
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setStock(?int $stock, ?Store $store = null): void;
-
-    /**
-     * @param bool $hasUnlimitedStock
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setHasUnlimitedStock(bool $hasUnlimitedStock, ?Store $store = null): void;
-
-    /**
-     * @param bool $promotable
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setPromotable(bool $promotable, ?Store $store = null): void;
-
-    /**
-     * @param bool $availableForPurchase
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setAvailableForPurchase(bool $availableForPurchase, ?Store $store = null): void;
-
-    /**
-     * @param int|null $minQty
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setMinQty(?int $minQty, ?Store $store = null): void;
-
-    /**
-     * @param int|null $maxQty
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setMaxQty(?int $maxQty, ?Store $store = null): void;
-
-    /**
-     * @param bool $freeShipping
-     * @param Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setFreeShipping(bool $freeShipping, ?Store $store = null): void;
-
-    /**
      * Returns the live price including catalog rule pricing.
      *
      * @param Store|null $store
      * @return float|null decimal(14,4)
      */
     public function getPrice(?Store $store = null): ?float;
-
-    /**
-     * @param float|null $price
-     * @param string $storeHandle
-     * @return void
-     * @since 5.0.0
-     */
-    public function setPrice(?float $price, string $storeHandle): void;
 
     /**
      * Returns the live promotional price including the catalog rule pricing.
@@ -183,14 +103,6 @@ interface PurchasableInterface
      * @since 5.0.0
      */
     public function getPromotionalPrice(?Store $store = null): ?float;
-
-    /**
-     * @param float|null $price
-     * @param string $storeHandle
-     * @return void
-     * @since 5.0.0
-     */
-    public function setPromotionalPrice(?float $price, string $storeHandle): void;
 
     /**
      * Returns the promotional price the item will be added to the line item with.
