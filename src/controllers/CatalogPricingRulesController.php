@@ -307,5 +307,19 @@ class CatalogPricingRulesController extends BaseCpController
                 $variables['applyAmount'] = Craft::$app->getFormatter()->asDecimal(-(float)$variables['catalogPricingRule']->applyAmount);
             }
         }
+
+        $variables['applyOptions'] = [
+            ['optgroup' => Craft::t('commerce', 'Reduce price')],
+            ['label' => Craft::t('commerce', 'Reduce the price by a percentage of the original price'), 'value' => CatalogPricingRuleRecord::APPLY_BY_PERCENT],
+            ['label' => Craft::t('commerce', 'Reduce the price by a fixed amount'), 'value' => CatalogPricingRuleRecord::APPLY_BY_FLAT],
+            ['optgroup' => Craft::t('commerce', 'Set price')],
+            ['label' => Craft::t('commerce', 'Set the price to a percentage of the original price'), 'value' => CatalogPricingRuleRecord::APPLY_TO_PERCENT],
+            ['label' => Craft::t( 'commerce', 'Set the price to a flat amount'), 'value' => CatalogPricingRuleRecord::APPLY_TO_FLAT],
+        ];
+
+        $variables['applyPriceTypeOptions'] = [
+            ['label' => Craft::t('commerce', 'Original price'), 'value' => 'price' ],
+            ['label' => Craft::t('commerce', 'Original promotional price'), 'value' => 'promotionalPrice' ],
+        ];
     }
 }
