@@ -487,7 +487,7 @@ class Variant extends Purchasable
     public function getSnapshot(): array
     {
         $data = [];
-        $data['onSale'] = $this->getOnSale();
+        $data['onPromotion'] = $this->getOnPromotion();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Product custom field handles

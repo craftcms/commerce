@@ -17,8 +17,8 @@ use yii\db\ActiveQueryInterface;
 /**
  * Catalog Pricing Rule record.
  *
- * @property string $customerCondition
- * @property string $purchasableCondition
+ * @property array|string $customerCondition
+ * @property array|string $purchasableCondition
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description

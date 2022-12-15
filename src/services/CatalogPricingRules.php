@@ -77,9 +77,9 @@ class CatalogPricingRules extends Component
             })->keyBy('id');
         }
 
-        return $this->_allCatalogPricingRules ? $this->_allCatalogPricingRules->filter(function(CatalogPricingRule $catalogPricingRule) use ($store) {
+        return $this->_allCatalogPricingRules->filter(function(CatalogPricingRule $catalogPricingRule) use ($store) {
             return $catalogPricingRule->storeId === $store->id;
-        }) : collect([]);
+        });
     }
 
     /**
@@ -93,7 +93,7 @@ class CatalogPricingRules extends Component
     }
 
     /**
-     * @param mixed|null $store
+     * @param Store|null $store
      * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
@@ -112,7 +112,7 @@ class CatalogPricingRules extends Component
     public function getAllCatalogPricingRulesWithUserConditions(): Collection
     {
         return $this->getAllCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
-            return $pcr->getCustomerCondition() && !empty($pcr->getCustomerCondition()->getConditionRules());
+            return !empty($pcr->getCustomerCondition()->getConditionRules());
         });
     }
 

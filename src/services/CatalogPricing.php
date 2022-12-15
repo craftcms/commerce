@@ -188,7 +188,7 @@ class CatalogPricing extends Component
             }
         }
 
-        $transaction?->commit();
+        $transaction->commit();
     }
 
     /**
@@ -197,7 +197,7 @@ class CatalogPricing extends Component
      * @param int $purchasableId
      * @param int|null $storeId
      * @param int|null $userId
-     * @param bool|null $isPromotionalPrice
+     * @param bool $isPromotionalPrice
      * @return float|null
      * @throws InvalidConfigException
      */

@@ -25,8 +25,6 @@ class CatalogPricingController extends Controller
      */
     public $defaultAction = 'generate';
 
-    private ?array $_allSales = null;
-
     /**
      * @inheritdoc
      */

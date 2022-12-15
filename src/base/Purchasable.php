@@ -58,9 +58,9 @@ use yii\base\InvalidConfigException;
 abstract class Purchasable extends Element implements PurchasableInterface
 {
     /**
-     * @var float|null
+     * @var float[]|null
      */
-    private ?float $_salePrice = null;
+    private ?array $_salePrice = null;
 
     /**
      * @var float[]|null

@@ -19,7 +19,6 @@ use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
-use craft\models\Site;
 use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
