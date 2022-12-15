@@ -82,21 +82,6 @@ class Product
             $variantModel->setPromotable($promotable, $store);
         }
 
-        // Set prices
-        if (!empty($variant['basePrice'])) {
-            foreach ($variant['basePrice'] as $storeHandle => $basePrice) {
-                $basePrice = $basePrice === '' ? null : (float)LocalizationHelper::normalizeNumber($basePrice);
-                $variantModel->setBasePrice($basePrice, $storeHandle);
-            }
-        }
-
-        if (!empty($variant['baseSalePrice'])) {
-            foreach ($variant['baseSalePrice'] as $storeHandle => $baseSalePrice) {
-                $baseSalePrice = $baseSalePrice === '' ? null : (float)LocalizationHelper::normalizeNumber($baseSalePrice);
-                $variantModel->setBaseSalePrice($baseSalePrice, $storeHandle);
-            }
-        }
-
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);
         }
