@@ -105,12 +105,19 @@ interface PurchasableInterface
     public function getPromotionalPrice(?Store $store = null): ?float;
 
     /**
-     * Returns the promotional price the item will be added to the line item with.
+     * Returns the actual price the purchasable will be sold for.
      *
-     * @param string|null $storeHandle
+     * @param Store|null $store
      * @return float|null decimal(14,4)
      */
-    public function getSalePrice(?string $storeHandle = null): ?float;
+    public function getSalePrice(?Store $store = null): ?float;
+
+    /**
+     * @param Store|null $store
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getOnPromotion(?Store $store = null): bool;
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
