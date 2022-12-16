@@ -32,6 +32,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
@@ -447,16 +448,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function attributeLabels(): array
-    {
-        $labels = parent::attributeLabels();
-
-        return array_merge($labels, ['sku' => 'SKU']);
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function cacheTags(): array
     {
         return [
@@ -469,7 +460,7 @@ class Variant extends Purchasable
      */
     public function getCpEditUrl(): ?string
     {
-        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
+        return UrlHelper::cpUrl('commerce/variants/' . $this->id . ($this->getSku() ? '-' . $this->getSku() : ''));
     }
 
     /**
@@ -486,8 +477,7 @@ class Variant extends Purchasable
      */
     public function getSnapshot(): array
     {
-        $data = [];
-        $data['onPromotion'] = $this->getOnPromotion();
+        $data = parent::getSnapshot();
         $data['cpEditUrl'] = $this->getCpEditUrl();
 
         // Default Product custom field handles
@@ -590,70 +580,6 @@ class Variant extends Purchasable
 
     /**
      * @inheritdoc
-     */
-    public function getLineItemRules(LineItem $lineItem): array
-    {
-        $order = $lineItem->getOrder();
-
-        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
-        if ($order && $order->isCompleted) {
-            return [];
-        }
-
-        $getQty = function(LineItem $lineItem) {
-            $qty = 0;
-            foreach ($lineItem->getOrder()->getLineItems() as $item) {
-                if ($item->id !== null && $item->id == $lineItem->id) {
-                    $qty += $lineItem->qty;
-                } elseif ($item->purchasableId == $lineItem->purchasableId) {
-                    $qty += $item->qty;
-                }
-            }
-            return $qty;
-        };
-
-        return [
-            // an inline validator defined as an anonymous function
-            [
-                'purchasableId',
-                function($attribute, $params, Validator $validator) use ($lineItem) {
-                    /** @var Purchasable $purchasable */
-                    $purchasable = $lineItem->getPurchasable();
-                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
-                    }
-                },
-            ],
-            [
-                'qty',
-                function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
-                    if (!$this->hasStock()) {
-                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-
-                    if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
-                        $validator->addError($lineItem, $attribute, $error);
-                    }
-                },
-            ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
-        ];
-    }
-
-    /**
-     * @inheritdoc
      * @return VariantQuery The newly created [[VariantQuery]] instance.
      */
     public static function find(): VariantQuery
@@ -698,37 +624,6 @@ class Variant extends Purchasable
         }
 
         return parent::eagerLoadingMap($sourceElements, $handle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function populateLineItem(LineItem $lineItem): void
-    {
-        // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
-        // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-                /** @var Order $order */
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
-                /** @var OrderNotice $notice */
-                $notice = Craft::createObject([
-                    'class' => OrderNotice::class,
-                    'attributes' => [
-                        'type' => 'lineItemSalePriceChanged',
-                        'attribute' => "lineItems.$lineItem->id.qty",
-                        'message' => $message,
-                    ],
-                ]);
-                $order->addNotice($notice);
-                $lineItem->qty = $this->stock;
-            }
-        }
-
-        $lineItem->weight = (float)$this->weight; //converting nulls
-        $lineItem->height = (float)$this->height; //converting nulls
-        $lineItem->length = (float)$this->length; //converting nulls
-        $lineItem->width = (float)$this->width; //converting nulls
     }
 
     /**
@@ -1057,18 +952,9 @@ class Variant extends Purchasable
      */
     protected static function defineTableAttributes(): array
     {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
+        return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
-            'sku' => Craft::t('commerce', 'SKU'),
-            'price' => Craft::t('commerce', 'Price'),
-            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities'),
-        ];
+        ]);
     }
 
     /**
@@ -1076,14 +962,7 @@ class Variant extends Purchasable
      */
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        $attributes = [];
-
-        $attributes[] = 'title';
-        $attributes[] = 'product';
-        $attributes[] = 'sku';
-        $attributes[] = 'price';
-
-        return $attributes;
+        return [...parent::defineDefaultTableAttributes($source), ...['product']];
     }
 
     /**
@@ -1091,29 +970,7 @@ class Variant extends Purchasable
      */
     protected static function defineSearchableAttributes(): array
     {
-        return [
-            'sku',
-            'price',
-            'width',
-            'height',
-            'length',
-            'weight',
-            'stock',
-            'hasUnlimitedStock',
-            'minQty',
-            'maxQty',
-            'productTitle',
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
-        ];
+        return [...parent::defineSearchableAttributes(), ...['productTitle']];
     }
 
     /**
@@ -1121,48 +978,15 @@ class Variant extends Purchasable
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        $productType = $this->product->getType();
-
-        switch ($attribute) {
-            case 'sku':
-            {
-                return Html::encode($this->getSkuAsText());
-            }
-            case 'product':
-            {
-                $product = $this->getProduct();
-                if (!$product) {
-                    return '';
-                }
-
-                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
-            }
-            case 'price':
-            {
-                return $this->priceAsCurrency;
-            }
-            case 'weight':
-            {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits;
-                }
-
+        if ($attribute === 'product') {
+            $product = $this->getProduct();
+            if (!$product) {
                 return '';
             }
-            case 'length':
-            case 'width':
-            case 'height':
-            {
-                if ($productType->hasDimensions) {
-                    return Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits;
-                }
 
-                return '';
-            }
-            default:
-            {
-                return parent::tableAttributeHtml($attribute);
-            }
+            return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
         }
+
+        return parent::tableAttributeHtml($attribute);
     }
 }

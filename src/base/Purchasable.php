@@ -12,6 +12,7 @@ use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\PurchasableStore as PurchasableStoreModel;
 use craft\commerce\models\Sale;
 use craft\commerce\models\Store;
@@ -19,9 +20,11 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Html;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Base Purchasable
@@ -151,6 +154,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'basePromotionalPrice';
         $names[] = 'price';
         $names[] = 'promotionalPrice';
+        $names[] = 'onPromotion';
         $names[] = 'salePrice';
         $names[] = 'shippingCategoryId';
         $names[] = 'sku';
@@ -342,7 +346,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPurchasableStoreValue(string $key, ?Store $store = null): mixed
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $store ?? $this->getStore();
 
         $purchasableStore = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
@@ -367,7 +371,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function setPurchasableStoreValue(string $key, mixed $value = null, ?Store $store = null): void
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $store ?? $this->getStore();
 
         $purchasableStore = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
@@ -559,7 +563,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPrice(?Store $store = null): ?float
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $store ?? $this->getStore();
 
         if (!isset($this->_price[$store->handle])) {
             // Live get catalog price
@@ -580,7 +584,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPromotionalPrice(?Store $store = null): ?float
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $store ?? $this->getStore();
 
         if (!isset($this->_promotionalPrice[$store->handle])) {
             $catalogPromotionalPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, true);
@@ -610,7 +614,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getSalePrice(?Store $store = null): ?float
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
+        $store = $store ?? $this->getStore();
 
         if (empty($this->_salePrice) || !isset($this->_salePrice[$store->handle])) {
             $this->_salePrice[$store->handle] = $this->getPromotionalPrice($store) ?? $this->getPrice($store);
@@ -739,6 +743,29 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function populateLineItem(LineItem $lineItem): void
     {
+        // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
+        // If this occurs in the payment request, the user will be notified the order has changed.
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            if (($lineItem->qty > $this->getStock()) && !$this->getHasUnlimitedStock()) {
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
+                /** @var OrderNotice $notice */
+                $notice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'lineItemSalePriceChanged',
+                        'attribute' => "lineItems.$lineItem->id.qty",
+                        'message' => $message,
+                    ],
+                ]);
+                $order->addNotice($notice);
+                $lineItem->qty = $this->getStock();
+            }
+        }
+
+        $lineItem->weight = (float)$this->getWeight(); //converting nulls
+        $lineItem->height = (float)$this->getHeight(); //converting nulls
+        $lineItem->length = (float)$this->getLength(); //converting nulls
+        $lineItem->width = (float)$this->getWidth(); //converting nulls
     }
 
     /**
@@ -746,7 +773,67 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getLineItemRules(LineItem $lineItem): array
     {
-        return [];
+        $order = $lineItem->getOrder();
+
+        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
+        if ($order && $order->isCompleted) {
+            return [];
+        }
+
+        $lineItemQuantitiesById = [];
+        $lineItemQuantitiesByPurchasableId = [];
+        collect($order->getLineItems())->each(function(LineItem $item) use (&$lineItemQuantitiesById, &$lineItemQuantitiesByPurchasableId) {
+            if ($item->id !== null) {
+                $lineItemQuantitiesById[$item->id] += $item->qty;
+            } else {
+                $lineItemQuantitiesByPurchasableId[$item->purchasableId] += $item->qty;
+            }
+        });
+
+        return [
+            // an inline validator defined as an anonymous function
+            [
+                'purchasableId',
+                function($attribute, $params, Validator $validator) use ($lineItem) {
+                    $purchasable = $lineItem->getPurchasable();
+                    if ($purchasable === null) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
+                    }
+
+                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
+                    }
+                },
+            ],
+            [
+                'qty',
+                function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
+                    // @TODO change all attribute calls to pass in the the store from the order `$lineItem->getOrder()->getStore()`
+                    if (!$this->hasStock()) {
+                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
+
+                    if ($this->hasStock() && !$this->hasUnlimitedStock && $lineItemQty > $this->stock) {
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    if ($this->getMinQty() > 1 && $lineItemQty < $this->getMinQty()) {
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    if ($this->getMaxQty() != 0 && $lineItemQty > $this->getMaxQty()) {
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+                },
+            ],
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
+        ];
     }
 
     /**
@@ -928,5 +1015,92 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getOnPromotion(?Store $store = null): bool
     {
         return $this->getPromotionalPrice($store) !== null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels(): array
+    {
+        $labels = parent::attributeLabels();
+
+        return array_merge($labels, ['sku' => 'SKU']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function tableAttributeHtml(string $attribute): string
+    {
+        match ($attribute) {
+            'sku' => Html::encode($this->getSkuAsText()),
+            'price' => $this->getBasePrice(), // @TODO change this to the `asCurrency` attribute when implemented
+            'promotionalPrice' => $this->getBasePromotionalPrice(), // @TODO change this to the `asCurrency` attribute when implemented
+            'weight' => $this->getWeight() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
+            'length' => $this->getLength() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'width' => $this->getWidth() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'height' => $this->getHeight() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            default => parent::tableAttributeHtml($attribute),
+        };
+        return parent::tableAttributeHtml($attribute); // TODO: Change the autogenerated stub
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
+    {
+        return array_merge(parent::defineTableAttributes(), [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities'),
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        return [
+            'sku',
+            'price',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return [...parent::defineSearchableAttributes(), ...[
+            'sku',
+            'price',
+            'width',
+            'height',
+            'length',
+            'weight',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+        ]];
     }
 }
