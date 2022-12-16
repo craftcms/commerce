@@ -30,6 +30,15 @@ interface PurchasableInterface
      * @return Store
      */
     public function getStore(): Store;
+
+    /**
+     * Returns the element’s status.
+     *
+     * @return string|null
+     * @TODO figure out what to do with this as it comes from the `ElementInterface`
+     */
+    public function getStatus(): ?string;
+
     /**
      * Returns the base price the item will be added to the line item with.
      *

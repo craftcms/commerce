@@ -283,7 +283,7 @@ class PurchasableQuery extends ElementQuery
         foreach (Plugin::getInstance()->getStores()->getAllStores()->all() as $store) {
             $storeTableNameAlias = $store->handle . '_commerce_purchasables_stores';
             $storeTableName = Table::PURCHASABLES_STORES . ' ' . $storeTableNameAlias;
-            $selectColumns = collect(array_merge(Craft::createObject(PurchasableStore::class)->safeAttributes(), ['id']))->map(function ($column) use ($storeTableNameAlias, $store) {
+            $selectColumns = collect(array_merge(Craft::createObject(PurchasableStore::class)->safeAttributes(), ['id']))->map(function($column) use ($storeTableNameAlias, $store) {
                 return $storeTableNameAlias . '.' . $column . ' as ' . $store->handle . '_' . $column;
             })->all();
             $this->query->addSelect($selectColumns);

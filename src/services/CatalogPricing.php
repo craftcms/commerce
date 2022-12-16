@@ -12,7 +12,6 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricing as CatalogPricingRecord;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -131,7 +130,7 @@ class CatalogPricing extends Component
                     $price = null;
                     if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
                         $price = $priceByPurchasableId[$purchasableId]['price'];
-                    } else if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
+                    } elseif ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
                         $price = $priceByPurchasableId[$purchasableId]['promotionalPrice'] ?? $priceByPurchasableId[$purchasableId]['price'];
                     }
 

@@ -7,8 +7,7 @@
 
 namespace craft\commerce\controllers;
 
-use Craft;
-use craft\web\Response;
+use yii\web\Response;
 
 /**
  * Class Variants Controller

@@ -134,6 +134,7 @@ use craft\services\Users;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use Exception;
 use yii\base\Event;
 use yii\web\User;
 

@@ -314,7 +314,7 @@ class CatalogPricingRulesController extends BaseCpController
             ['label' => Craft::t('commerce', 'Reduce the price by a fixed amount'), 'value' => CatalogPricingRuleRecord::APPLY_BY_FLAT],
             ['optgroup' => Craft::t('commerce', 'Set price')],
             ['label' => Craft::t('commerce', 'Set the price to a percentage of the original price'), 'value' => CatalogPricingRuleRecord::APPLY_TO_PERCENT],
-            ['label' => Craft::t( 'commerce', 'Set the price to a flat amount'), 'value' => CatalogPricingRuleRecord::APPLY_TO_FLAT],
+            ['label' => Craft::t('commerce', 'Set the price to a flat amount'), 'value' => CatalogPricingRuleRecord::APPLY_TO_FLAT],
         ];
 
         $variables['applyPriceTypeOptions'] = [

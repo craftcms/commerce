@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
