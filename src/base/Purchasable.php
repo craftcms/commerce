@@ -68,6 +68,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
     private ?array $_price = null;
 
     /**
+     * The store based on the `siteId` of the instance of the purchasable.
+     *
+     * @var Store|null
+     */
+    private ?Store $_store = null;
+
+    /**
      * @var float[]|null
      */
     private ?array $_promotionalPrice = null;
@@ -188,6 +195,24 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $classNameParts = explode('\\', static::class);
 
         return array_pop($classNameParts);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStore(): Store
+    {
+        if ($this->_store === null) {
+            if ($this->siteId === null) {
+                throw new InvalidConfigException('Purchasable::siteId cannot be null');
+            }
+
+            // @TODO implement this when we have site to store mapping
+            // $this->_store = Plugin::getInstance()->getStores()->getStoreBySiteId($this->siteId) ?? Plugin::getInstance()->getStores()->getCurrentStore();
+            $this->_store = Plugin::getInstance()->getStores()->getCurrentStore();
+        }
+
+        return $this->_store;
     }
 
     /**

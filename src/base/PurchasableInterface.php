@@ -25,6 +25,12 @@ interface PurchasableInterface
     public function getId(): ?int;
 
     /**
+     * Returns the store for the current instance of the purchasable.
+     *
+     * @return Store
+     */
+    public function getStore(): Store;
+    /**
      * Returns the base price the item will be added to the line item with.
      *
      * @return float|null decimal(14,4)

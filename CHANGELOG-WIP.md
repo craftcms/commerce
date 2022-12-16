@@ -26,6 +26,7 @@
 - Added `craft\commerce\base\Purchasable::getPurchasableStoreValue()`.
 - Added `craft\commerce\base\Purchasable::getShippingCategoryId()`.
 - Added `craft\commerce\base\Purchasable::getStock()`.
+- Added `craft\commerce\base\Purchasable::getStore()`.
 - Added `craft\commerce\base\Purchasable::getTaxCategoryId()`.
 - Added `craft\commerce\base\Purchasable::getWeight()`.
 - Added `craft\commerce\base\Purchasable::getWidth()`.
