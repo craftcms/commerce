@@ -49,6 +49,7 @@
 - Added `craft\commerce\base\Purchasable::setWidth()`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.
+- Added `craft\commerce\controllers\VariantsController`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES_USERS`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING`.
