@@ -38,9 +38,9 @@ trait Routes
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
             $event->rules['commerce/products'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants'] = 'commerce/products/variant-index';
+            $event->rules['commerce/variants'] = 'commerce/variants/index';
             $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/products/variant-index';
+            $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/variants/index';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/new'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/new/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>'] = 'commerce/products/edit-product';
