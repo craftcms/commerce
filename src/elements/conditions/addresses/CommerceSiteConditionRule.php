@@ -1,6 +1,6 @@
 <?php
 
-namespace craft\commerce\elements\conditions;
+namespace craft\commerce\elements\conditions\addresses;
 
 use Craft;
 use craft\base\ElementInterface;

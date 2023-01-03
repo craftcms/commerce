@@ -2,7 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
+use craft\commerce\records\ShippingZone;
 use craft\commerce\records\TaxZone;
 use craft\db\Migration;
 
@@ -19,24 +19,22 @@ class m230103_153208_tax_zone_site_condition_update extends Migration
         // get all tax zone records
         $taxZoneRecords = TaxZone::find()->all();
 
-        // iterate through all, json decode the 'condition'
-        foreach ($taxZoneRecords as $i => $taxZoneRecord) {
-            $condition = json_decode($taxZoneRecord->attributes['condition'], true);
+        // update conditionRule class for site condition
+        $this->_updateSiteConditionRule(
+            $taxZoneRecords,
+            'craft\elements\conditions\SiteConditionRule',
+            'craft\commerce\elements\conditions\addresses\CommerceSiteConditionRule',
+        );
 
-            // if it contains "conditionRules":[{"class":"craft\\elements\\conditions\\SiteConditionRule"
-            // change it to "conditionRules":[{"class":"craft\\commerce\\elements\\conditions\\CommerceSiteConditionRule"
-            if ($condition['class'] === 'craft\commerce\elements\conditions\addresses\ZoneAddressCondition' &&
-                !empty($condition['conditionRules'])
-            ) {
-                foreach ($condition['conditionRules'] as $j => $rule) {
-                    if ($rule['class'] === 'craft\elements\conditions\SiteConditionRule') {
-                        $condition['conditionRules'][$j]['class'] = 'craft\commerce\elements\conditions\CommerceSiteConditionRule';
-                        $taxZoneRecord->setAttribute('condition', json_encode($condition));
-                        $taxZoneRecord->save();
-                    }
-                }
-            }
-        }
+        // get all shipping zone records
+        $shippingZoneRecords = ShippingZone::find()->all();
+
+        // update conditionRule class for site condition
+        $this->_updateSiteConditionRule(
+            $shippingZoneRecords,
+            'craft\elements\conditions\SiteConditionRule',
+            'craft\commerce\elements\conditions\addresses\CommerceSiteConditionRule',
+        );
 
         return true;
     }
@@ -49,25 +47,45 @@ class m230103_153208_tax_zone_site_condition_update extends Migration
         // get all tax zone records
         $taxZoneRecords = TaxZone::find()->all();
 
-        // iterate through all, json decode the 'condition'
-        foreach ($taxZoneRecords as $i => $taxZoneRecord) {
-            $condition = json_decode($taxZoneRecord->attributes['condition'], true);
+        // update conditionRule class for site condition
+        $this->_updateSiteConditionRule(
+            $taxZoneRecords,
+            'craft\commerce\elements\conditions\addresses\CommerceSiteConditionRule',
+            'craft\elements\conditions\SiteConditionRule',
+        );
 
-            // if it contains "conditionRules":[{"class":"craft\\commerce\\elements\\conditions\\CommerceSiteConditionRule"
-            // change it back to "conditionRules":[{"class":"craft\\elements\\conditions\\SiteConditionRule"
+        // get all shipping zone records
+        $shippingZoneRecords = ShippingZone::find()->all();
+
+        // update conditionRule class for site condition
+        $this->_updateSiteConditionRule(
+            $shippingZoneRecords,
+            'craft\commerce\elements\conditions\addresses\CommerceSiteConditionRule',
+            'craft\elements\conditions\SiteConditionRule',
+        );
+
+        return true;
+    }
+
+    private function _updateSiteConditionRule(array $records, string $changeFrom, string $changeTo): void
+    {
+        // iterate through all, json decode the 'condition'
+        foreach ($records as $i => $record) {
+            $condition = json_decode($record->attributes['condition'], true);
+
+            // if it contains "conditionRules":[{"class":$changeFrom
+            // change it to "conditionRules":[{"class":$changeTo
             if ($condition['class'] === 'craft\commerce\elements\conditions\addresses\ZoneAddressCondition' &&
                 !empty($condition['conditionRules'])
             ) {
                 foreach ($condition['conditionRules'] as $j => $rule) {
-                    if ($rule['class'] === 'craft\commerce\elements\conditions\CommerceSiteConditionRule') {
-                        $condition['conditionRules'][$j]['class'] = 'craft\elements\conditions\SiteConditionRule';
-                        $taxZoneRecord->setAttribute('condition', json_encode($condition));
-                        $taxZoneRecord->save();
+                    if ($rule['class'] === $changeFrom) {
+                        $condition['conditionRules'][$j]['class'] = $changeTo;
+                        $record->setAttribute('condition', json_encode($condition));
+                        $record->save();
                     }
                 }
             }
         }
-
-        return true;
     }
 }
