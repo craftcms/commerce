@@ -2,7 +2,6 @@
 
 namespace craft\commerce\elements\conditions\addresses;
 
-use craft\commerce\elements\conditions\addresses\CommerceSiteConditionRule;
 use craft\elements\conditions\addresses\AddressCondition as ElementAddressCondition;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
