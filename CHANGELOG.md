@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that could occur when updating to Commerce 3.
+
 ## 3.4.19 - 2022-11-23
 
 ### Fixed

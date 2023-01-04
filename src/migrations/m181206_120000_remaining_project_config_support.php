@@ -38,11 +38,13 @@ class m181206_120000_remaining_project_config_support extends Migration
         $id = (new Query())->select(['fieldLayoutId'])->from(['{{%commerce_ordersettings}}'])->scalar();
         // Field layouts
         $orderFieldLayout = Craft::$app->getFields()->getLayoutById($id);
-        Craft::$app->getFields()->deleteLayoutById($id);
-
-        if ($orderFieldLayout && $layoutConfig = $orderFieldLayout->getConfig()) {
-            $orderConfigData = [StringHelper::UUID() => $layoutConfig];
-            $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
+        if ($orderFieldLayout) {
+            $layoutConfig = $orderFieldLayout->getConfig();
+            Craft::$app->getFields()->deleteLayoutById($id);
+            if ($layoutConfig) {
+                $orderConfigData = [StringHelper::UUID() => $layoutConfig];
+                $projectConfig->set(Orders::CONFIG_FIELDLAYOUT_KEY, $orderConfigData);
+            }
         }
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
