@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that occurred when retrieving a discount via a null coupon code. ([#3045](https://github.com/craftcms/commerce/issues/3045))
+- Fixed a bug that could cause a large number of shipping rule category queries.
 
 ## 4.2.4 - 2022-11-29
 
