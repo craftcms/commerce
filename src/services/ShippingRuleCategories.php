@@ -36,18 +36,19 @@ class ShippingRuleCategories extends Component
      */
     public function getShippingRuleCategoriesByRuleId(int $ruleId): array
     {
-        if (!isset($this->_shippingRuleCategoriesByRuleId[$ruleId])) {
+        if (empty($this->_shippingRuleCategoriesByRuleId)) {
             $rows = $this->_createShippingRuleCategoriesQuery()
-                ->where(['shippingRuleId' => $ruleId])
                 ->all();
 
-            $this->_shippingRuleCategoriesByRuleId[$ruleId] = [];
             foreach ($rows as $row) {
-                $this->_shippingRuleCategoriesByRuleId[$ruleId][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
+                if (!isset($this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']])) {
+                    $this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']] = [];
+                }
+                $this->_shippingRuleCategoriesByRuleId[$row['shippingRuleId']][$row['shippingCategoryId']] = new ShippingRuleCategory($row);
             }
         }
 
-        return $this->_shippingRuleCategoriesByRuleId[$ruleId];
+        return $this->_shippingRuleCategoriesByRuleId[$ruleId] ?? [];
     }
 
     /**
