@@ -22,6 +22,7 @@ use yii\db\ActiveQueryInterface;
  * @property ?int $primaryPaymentSourceId
  * @property-read ActiveQueryInterface $primaryShippingAddress
  * @property-read ActiveQueryInterface $primaryBillingAddress
+ * @property-read ActiveQueryInterface $primaryPaymentSource
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
@@ -38,6 +39,7 @@ class Customer extends ActiveRecord
                     'customerId',
                     'primaryBillingAddressId',
                     'primaryShippingAddressId',
+                    'primaryPaymentSourceId',
                 ], 'safe',
             ],
         ];
@@ -59,5 +61,10 @@ class Customer extends ActiveRecord
     public function getPrimaryShippingAddress(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'primaryShippingAddressId']);
+    }
+
+    public function getPrimaryPaymentSource(): ActiveQueryInterface
+    {
+        return $this->hasOne(PaymentSource::class, ['id' => 'primaryPaymentSourceId']);
     }
 }
