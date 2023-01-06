@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug that could occur when updating to Commerce 3.
 - Fixed a bug that could cause a large number of shipping rule category queries.
+- Fixed a PHP error that would occur when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not logged in. 
 
 ## 3.4.19 - 2022-11-23
 

@@ -141,6 +141,16 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypes(): array
     {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            return $this->getAllProductTypes();
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return [];
+        }
+
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
 
