@@ -4,6 +4,7 @@
 
 - Fixed a PHP error that occurred when retrieving a discount via a null coupon code. ([#3045](https://github.com/craftcms/commerce/issues/3045))
 - Fixed a bug that could cause a large number of shipping rule category queries.
+- Fixed a PHP error that would occur when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not logged in. 
 
 ## 4.2.4 - 2022-11-29
 
