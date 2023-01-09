@@ -22,6 +22,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Typecast;
 use craft\validators\UniqueValidator;
@@ -790,6 +791,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             [['basePrice'], 'number'],
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
             [['freeShipping', 'hasUnlimitedStock', 'promotable', 'availableForPurchase'], 'boolean'],
+            [['taxCategoryId', 'shippingCategoryId'], 'safe'],
         ]);
     }
 
@@ -955,11 +957,30 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return array_merge($labels, ['sku' => 'SKU']);
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function metaFieldsHtml(bool $static): string
     {
         $html = parent::metaFieldsHtml($static);
 
-        return $html . 'test';
+        $html .= Cp::selectFieldHtml([
+            'id' => 'tax-category',
+            'name' => 'taxCategoryId',
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
+            'value' => $this->taxCategoryId,
+        ]);
+
+        $html .= Cp::selectFieldHtml([
+            'id' => 'shipping-category',
+            'name' => 'shippingCategoryId',
+            'label' => Craft::t('commerce', 'Shipping Category'),
+            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList(),
+            'value' => $this->shippingCategoryId,
+        ]);
+
+        return $html;
     }
 
     /**
