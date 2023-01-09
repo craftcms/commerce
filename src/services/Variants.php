@@ -74,10 +74,6 @@ class Variants extends Component
             $contentArguments = [];
 
             foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
-                if (!$productType->hasVariants) {
-                    continue;
-                }
-
                 if (!GqlCommerceHelper::isSchemaAwareOf(Variant::gqlScopesByContext($productType))) {
                     continue;
                 }

@@ -527,8 +527,8 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'maxVariants' => $this->integer(),
             'hasDimensions' => $this->boolean()->notNull()->defaultValue(false),
-            'hasVariants' => $this->boolean()->notNull()->defaultValue(false),
 
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),

@@ -144,8 +144,6 @@
     {{ productFields.behavioralMetaFields(product) }}
 </div>
 
-{{ productFields.singleVariantFields(product, productType) }}
-
 {% if product.id %}
   <div class="meta">
     {# Related Sales #}
@@ -176,7 +174,6 @@
   {% js %}
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
-        hasVariants: {{ productType.hasVariants ? 'true' : 'false' }},
         purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}
       });
   {% endjs %}

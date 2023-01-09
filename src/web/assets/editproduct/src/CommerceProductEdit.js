@@ -228,7 +228,6 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     container: '#main-content',
     onChange: $.noop,
     id: null,
-    hasVariants: false,
     purchasables: [],
   },
 });

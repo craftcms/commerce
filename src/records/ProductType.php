@@ -20,8 +20,8 @@ use yii\db\ActiveQueryInterface;
  * @property int|null $fieldLayoutId
  * @property string $handle
  * @property bool $hasDimensions
- * @property bool $hasVariants
  * @property int $id
+ * @property int $maxVariants
  * @property string $name
  * @property ActiveQueryInterface $productTypesShippingCategories
  * @property ActiveQueryInterface $productTypesTaxCategories

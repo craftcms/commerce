@@ -58,6 +58,7 @@
 - Added `craft\commerce\db\Table::STORESETTINGS`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\models\CatalogPricingRule`.
+- Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
 - Added `craft\commerce\records\CatalogPricing`.
 - Added `craft\commerce\records\CatalogPricingRule`.
@@ -66,5 +67,6 @@
 - Added `craft\commerce\records\PurchasableStore`.
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
+- Removed `craft\commerce\models\ProductType::$hasVariants`.
 
 ### System

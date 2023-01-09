@@ -14,6 +14,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\events\ProductTypeEvent;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
@@ -370,18 +371,12 @@ class ProductTypes extends Component
 
         $this->_savingProductTypes[$productType->uid] = $productType;
 
-        // If the product type does not have variants, default the title format.
-        if (!$isNewProductType && !$productType->hasVariants) {
-            $productType->hasVariantTitleField = false;
-            $productType->variantTitleFormat = '{product.title}';
-        }
-
         $projectConfig = Craft::$app->getProjectConfig();
         $configData = [
             'name' => $productType->name,
             'handle' => $productType->handle,
             'hasDimensions' => $productType->hasDimensions,
-            'hasVariants' => $productType->hasVariants,
+            'maxVariants' => $productType->maxVariants,
 
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
@@ -414,11 +409,7 @@ class ProductTypes extends Component
         };
 
         $configData['productFieldLayouts'] = $generateLayoutConfig($productType->getFieldLayout());
-        $configData['variantFieldLayouts'] = [];
-        if ($productType->hasVariants) {
-            $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
-        }
-
+        $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
 
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
@@ -498,10 +489,10 @@ class ProductTypes extends Component
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
-            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
+            if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
             }
-            $productTypeRecord->hasVariants = $data['hasVariants'];
+            $productTypeRecord->maxVariants = $data['maxVariants'];
 
             $skuFormat = $data['skuFormat'] ?? '';
             if ($productTypeRecord->skuFormat != $skuFormat) {
@@ -952,10 +943,10 @@ class ProductTypes extends Component
                 'productTypes.handle',
                 'productTypes.hasDimensions',
                 'productTypes.hasProductTitleField',
-                'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
                 'productTypes.id',
                 'productTypes.name',
+                'productTypes.maxVariants',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
                 'productTypes.uid',

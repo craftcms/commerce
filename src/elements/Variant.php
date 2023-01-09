@@ -244,8 +244,8 @@ class Variant extends Purchasable
     {
         $product = $this->getProduct();
 
-        // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
-        if ($product && $product->getType()->hasVariants) {
+        // Use a combined Product and Variant title.
+        if ($product) {
             return "$this->product: $this->title";
         }
 
@@ -290,6 +290,23 @@ class Variant extends Purchasable
     public static function refHandle(): ?string
     {
         return 'variant';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSave(User $user): bool
+    {
+        if (parent::canSave($user)) {
+            return true;
+        }
+
+        $product = $this->getProduct();
+        if ($product === null) {
+            return false;
+        }
+
+        return $product->canSave($user);
     }
 
     /**
@@ -415,18 +432,14 @@ class Variant extends Purchasable
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
-        if (!$type->hasVariantTitleField && $type->hasVariants && $type->variantTitleFormat) {
+        if (!$type->hasVariantTitleField && $type->variantTitleFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
-            // Set Craft to the products's site's language, in case the title format has any static translations
+            // Set Craft to the product's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
-        }
-
-        if (!$type->hasVariants) {
-            $this->title = $product->title;
         }
     }
 
