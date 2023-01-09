@@ -57,6 +57,15 @@
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleAvailableForPurchaseField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleDimensionsField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleFreeShippingField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabalePriceField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabalePromotableField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleSkuField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
+- Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.

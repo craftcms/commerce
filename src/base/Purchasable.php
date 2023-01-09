@@ -21,6 +21,7 @@ use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Html;
+use craft\helpers\Typecast;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
@@ -189,6 +190,33 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'sales';
         $names[] = 'snapshot';
         return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        if (!empty($values)) {
+            // @TODO figure out the cleanest way to do this
+            $values['price'] = $values['basePrice'];
+            $values['promotionalPrice'] = $values['basePromotionalPrice'];
+            Typecast::properties(PurchasableStoreModel::class, $values);
+            $values['basePrice'] = $values['price'];
+            $values['basePromotionalPrice'] = $values['promotionalPrice'];
+            unset($values['price'], $values['promotionalPrice']);
+
+            // Dimension typecasting
+            foreach (['weight', 'length', 'height', 'width'] as $dimension) {
+                if (!isset($values[$dimension])) {
+                    continue;
+                }
+
+                $values[$dimension] = $values[$dimension] === '' ? null : (float)$values[$dimension];
+            }
+        }
+
+        parent::setAttributes($values, $safeOnly);
     }
 
     /**
@@ -870,6 +898,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 'on' => self::SCENARIO_LIVE,
             ],
             [['stock'], 'number'],
+            [['basePrice'], 'number'],
+            [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
+            [['freeShipping', 'hasUnlimitedStock', 'promotable', 'availableForPurchase'], 'boolean'],
         ]);
     }
 
@@ -964,10 +995,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
                     $purchasableStore->storeId = $store->id;
                 }
 
+                /** @var PurchasableStoreModel|null $ps */
                 $ps = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
                 if (!$ps) {
-                    throw new InvalidConfigException('Invalid store');
+                    $ps = Craft::createObject([
+                        'class' => PurchasableStoreModel::class,
+                        'purchasableId' => $purchasableStore->purchasableId,
+                        'storeId' => $purchasableStore->storeId,
+                    ]);
+
+                    $purchasableStores = $this->getPurchasableStores();
+                    $purchasableStores->add($ps);
                 }
 
                 $purchasableStore->price = $ps->price;

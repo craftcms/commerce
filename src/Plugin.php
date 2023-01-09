@@ -24,6 +24,16 @@ use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
+use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
+use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
+use craft\commerce\fieldlayoutelements\PurchasableDataField;
+use craft\commerce\fieldlayoutelements\PurchasableDimensionsField;
+use craft\commerce\fieldlayoutelements\PurchasableFreeShippingField;
+use craft\commerce\fieldlayoutelements\PurchasablePriceField;
+use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
+use craft\commerce\fieldlayoutelements\PurchasableSkuField;
+use craft\commerce\fieldlayoutelements\PurchasableStockField;
+use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -922,6 +932,15 @@ class Plugin extends BasePlugin
                     break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;
+                    $e->fields[] = PurchasableSkuField::class;
+                    $e->fields[] = PurchasableFreeShippingField::class;
+                    $e->fields[] = PurchasablePromotableField::class;
+                    $e->fields[] = PurchasableAvailableForPurchaseField::class;
+                    $e->fields[] = PurchasableAllowedQtyField::class;
+                    $e->fields[] = PurchasableStockField::class;
+                    $e->fields[] = PurchasablePriceField::class;
+                    $e->fields[] = PurchasableDimensionsField::class;
+                    $e->fields[] = PurchasableWeightField::class;
             }
         });
     }
