@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\services\ProductTypes;
 use craft\db\Migration;
 use craft\db\Query;
 
