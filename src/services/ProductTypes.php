@@ -14,7 +14,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\errors\ProductTypeNotFoundException;
 use craft\commerce\events\ProductTypeEvent;
-use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;

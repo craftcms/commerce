@@ -26,7 +26,6 @@ use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
 use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
-use craft\commerce\fieldlayoutelements\PurchasableDataField;
 use craft\commerce\fieldlayoutelements\PurchasableDimensionsField;
 use craft\commerce\fieldlayoutelements\PurchasableFreeShippingField;
 use craft\commerce\fieldlayoutelements\PurchasablePriceField;

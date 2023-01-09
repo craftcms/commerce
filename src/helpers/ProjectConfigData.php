@@ -11,16 +11,9 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
-use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\db\Table as CraftTable;
-use craft\helpers\Db;
 use craft\helpers\Json;
-use craft\helpers\StringHelper;
-use craft\models\FieldLayout;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
 
 /**
  * Class ProjectConfigData

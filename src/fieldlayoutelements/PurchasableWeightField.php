@@ -14,7 +14,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
 
 /**
