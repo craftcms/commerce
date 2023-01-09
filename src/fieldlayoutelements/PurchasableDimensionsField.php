@@ -38,11 +38,6 @@ class PurchasableDimensionsField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = false;
-
-    /**
-     * @inheritdoc
-     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -53,7 +48,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::textHtml([
                 'id' => 'length',
                 'name' => 'length',
-                'value' => $element->getLength(),
+                'value' => $element->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->length) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
@@ -62,7 +57,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::textHtml([
                 'id' => 'width',
                 'name' => 'width',
-                'value' => $element->getWidth(),
+                'value' => $element->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->width) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
@@ -71,7 +66,7 @@ class PurchasableDimensionsField extends BaseNativeField
             Cp::textHtml([
                 'id' => 'height',
                 'name' => 'height',
-                'value' => $element->getHeight(),
+                'value' => $element->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->height) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,

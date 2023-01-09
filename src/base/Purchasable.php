@@ -15,7 +15,9 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\PurchasableStore as PurchasableStoreModel;
 use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\Store;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
@@ -98,49 +100,39 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @var int|null Tax category ID
-     * @see setTaxCategoryId()
-     * @see getTaxCategoryId()
      * @since 5.0.0
      */
-    public ?int $_taxCategoryId = null;
+    public ?int $taxCategoryId = null;
 
     /**
      * @var int|null Shipping category ID
      * @since 5.0.0
      */
-    public ?int $_shippingCategoryId = null;
+    public ?int $shippingCategoryId = null;
 
     /**
      * @var float|null $width
-     * @see setWidth()
-     * @see getWidth()
      * @since 5.0.0
      */
-    private ?float $_width = null;
+    public ?float $width = null;
 
     /**
      * @var float|null $height
-     * @see setHeight()
-     * @see getHeight()
      * @since 5.0.0
      */
-    private ?float $_height = null;
+    public ?float $height = null;
 
     /**
      * @var float|null $length
-     * @see setLength()
-     * @see getLength()
      * @since 5.0.0
      */
-    private ?float $_length = null;
+    public ?float $length = null;
 
     /**
      * @var float|null $weight
-     * @see setWeight()
-     * @see getWeight()
      * @since 5.0.0
      */
-    private ?float $_weight = null;
+    public ?float $weight = null;
 
     /**
      * @inheritdoc
@@ -205,15 +197,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
             $values['basePrice'] = $values['price'];
             $values['basePromotionalPrice'] = $values['promotionalPrice'];
             unset($values['price'], $values['promotionalPrice']);
-
-            // Dimension typecasting
-            foreach (['weight', 'length', 'height', 'width'] as $dimension) {
-                if (!isset($values[$dimension])) {
-                    continue;
-                }
-
-                $values[$dimension] = $values[$dimension] === '' ? null : (float)$values[$dimension];
-            }
         }
 
         parent::setAttributes($values, $safeOnly);
@@ -245,78 +228,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         }
 
         return $this->_store;
-    }
-
-    /**
-     * @param float|null $width
-     * @return void
-     * @since 5.0.0
-     */
-    public function setWidth(?float $width): void
-    {
-        $this->_width = $width;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getWidth(): ?float
-    {
-        return $this->_width;
-    }
-
-    /**
-     * @param float|null $height
-     * @return void
-     * @since 5.0.0
-     */
-    public function setHeight(?float $height): void
-    {
-        $this->_height = $height;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getHeight(): ?float
-    {
-        return $this->_height;
-    }
-
-    /**
-     * @param float|null $length
-     * @return void
-     * @since 5.0.0
-     */
-    public function setLength(?float $length): void
-    {
-        $this->_length = $length;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getLength(): ?float
-    {
-        return $this->_length;
-    }
-
-    /**
-     * @param float|null $weight
-     * @return void
-     * @since 5.0.0
-     */
-    public function setWeight(?float $weight): void
-    {
-        $this->_weight = $weight;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getWeight(): ?float
-    {
-        return $this->_weight;
     }
 
     /**
@@ -691,21 +602,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @inheritdoc
-     * @throws InvalidConfigException
-     * @throws InvalidConfigException
      */
-    public function getTaxCategoryId(): int
+    public function getTaxCategory(): TaxCategory
     {
-        return $this->_taxCategoryId ?? Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-    }
-
-    /**
-     * @param int|null $taxCategoryId
-     * @return void
-     */
-    public function setTaxCategoryId(?int $taxCategoryId): void
-    {
-        $this->_taxCategoryId = $taxCategoryId;
+        return $this->taxCategoryId ? Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId) : Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
     }
 
     /**
@@ -741,21 +641,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @inheritdoc
-     * @throws InvalidConfigException
-     * @throws InvalidConfigException
      */
-    public function getShippingCategoryId(): int
+    public function getShippingCategory(): ShippingCategory
     {
-        return $this->_shippingCategoryId ?? Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
-    }
-
-    /**
-     * @param int|null $shippingCategoryId
-     * @return void
-     */
-    public function setShippingCategoryId(?int $shippingCategoryId): void
-    {
-        $this->_shippingCategoryId = $shippingCategoryId;
+        return $this->shippingCategoryId ? Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId) : Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
     }
 
     /**
@@ -790,10 +679,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
             }
         }
 
-        $lineItem->weight = (float)$this->getWeight(); //converting nulls
-        $lineItem->height = (float)$this->getHeight(); //converting nulls
-        $lineItem->length = (float)$this->getLength(); //converting nulls
-        $lineItem->width = (float)$this->getWidth(); //converting nulls
+        $lineItem->weight = (float)$this->weight; //converting nulls
+        $lineItem->height = (float)$this->height; //converting nulls
+        $lineItem->length = (float)$this->length; //converting nulls
+        $lineItem->width = (float)$this->width; //converting nulls
     }
 
     /**
@@ -970,8 +859,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $purchasable->height = $this->height;
         $purchasable->length = $this->length;
         $purchasable->weight = $this->weight;
-        $purchasable->taxCategoryId = $this->getTaxCategoryId();
-        $purchasable->shippingCategoryId = $this->getShippingCategoryId();
+        $purchasable->taxCategoryId = $this->taxCategoryId;
+        $purchasable->shippingCategoryId = $this->shippingCategoryId;
 
         // Only update the description for the primary site until we have a concept
         // of an order having a site ID
@@ -1066,6 +955,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
         return array_merge($labels, ['sku' => 'SKU']);
     }
 
+    protected function metaFieldsHtml(bool $static): string
+    {
+        $html = parent::metaFieldsHtml($static);
+
+        return $html . 'test';
+    }
+
     /**
      * @inheritdoc
      */
@@ -1075,10 +971,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
             'sku' => Html::encode($this->getSkuAsText()),
             'price' => $this->getBasePrice(), // @TODO change this to the `asCurrency` attribute when implemented
             'promotionalPrice' => $this->getBasePromotionalPrice(), // @TODO change this to the `asCurrency` attribute when implemented
-            'weight' => $this->getWeight() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
-            'length' => $this->getLength() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'width' => $this->getWidth() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'height' => $this->getHeight() !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
+            'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'height' => $this->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             default => parent::tableAttributeHtml($attribute),
         };
         return parent::tableAttributeHtml($attribute); // TODO: Change the autogenerated stub

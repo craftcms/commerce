@@ -9,7 +9,9 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\Store;
+use craft\commerce\models\TaxCategory;
 
 /**
  * Interface Purchasable
@@ -145,14 +147,14 @@ interface PurchasableInterface
     public function getDescription(): string;
 
     /**
-     * Returns the purchasable's tax category ID.
+     * Returns the purchasable's tax category.
      */
-    public function getTaxCategoryId(): int;
+    public function getTaxCategory(): TaxCategory;
 
     /**
-     * Returns the purchasable's shipping category ID.
+     * Returns the purchasable's shipping category.
      */
-    public function getShippingCategoryId(): int;
+    public function getShippingCategory(): ShippingCategory;
 
     /**
      * Returns whether the purchasable is currently available for purchase.
@@ -217,36 +219,4 @@ interface PurchasableInterface
      * @return mixed
      */
     public function getPromotionRelationSource(): mixed;
-
-    /**
-     * Returns the purchasable's weight.
-     *
-     * @return float|null
-     * @since 5.0.0
-     */
-    public function getWeight(): ?float;
-
-    /**
-     * Returns the purchasable's height.
-     *
-     * @return float|null
-     * @since 5.0.0
-     */
-    public function getHeight(): ?float;
-
-    /**
-     * Returns the purchasable's length.
-     *
-     * @return float|null
-     * @since 5.0.0
-     */
-    public function getLength(): ?float;
-
-    /**
-     * Returns the purchasable's width.
-     *
-     * @return float|null
-     * @since 5.0.0
-     */
-    public function getWidth(): ?float;
 }

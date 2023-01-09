@@ -37,11 +37,6 @@ class PurchasableWeightField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public bool $required = false;
-
-    /**
-     * @inheritdoc
-     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -51,7 +46,7 @@ class PurchasableWeightField extends BaseNativeField
         return Cp::textHtml([
             'id' => 'weight',
             'name' => 'weight',
-            'value' => $element->getWeight(),
+            'value' => $element->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->weight) : '',
             'class' => 'text',
             'size' => 10,
             'unit' => Plugin::getInstance()->getSettings()->weightUnits,
