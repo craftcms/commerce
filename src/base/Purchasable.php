@@ -150,13 +150,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names[] = 'promotionalPrice';
         $names[] = 'onPromotion';
         $names[] = 'salePrice';
-        $names[] = 'shippingCategoryId';
         $names[] = 'sku';
-        $names[] = 'taxCategoryId';
-        $names[] = 'width';
-        $names[] = 'length';
-        $names[] = 'height';
-        $names[] = 'weight';
         return $names;
     }
 
