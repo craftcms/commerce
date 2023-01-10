@@ -134,9 +134,7 @@ class ProductsController extends BaseController
 
         $this->_prepVariables($variables);
 
-        if (!$product->getType()->hasVariants) {
-            $this->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
-        }
+        $this->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
 
         // Enable Live Preview?
         if (!$this->request->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {

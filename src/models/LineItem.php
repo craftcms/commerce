@@ -593,8 +593,8 @@ class LineItem extends Model
     {
         $this->price = $purchasable->getPrice();
         $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
-        $this->taxCategoryId = $purchasable->getTaxCategoryId();
-        $this->shippingCategoryId = $purchasable->getShippingCategoryId();
+        $this->taxCategoryId = $purchasable->taxCategoryId;
+        $this->shippingCategoryId = $purchasable->shippingCategoryId;
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 

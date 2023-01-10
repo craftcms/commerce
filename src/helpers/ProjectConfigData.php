@@ -116,7 +116,7 @@ class ProjectConfigData
                 'handle',
                 'hasDimensions',
                 'hasProductTitleField',
-                'hasVariants',
+                'maxVariants',
                 'hasVariantTitleField',
                 'name',
                 'productTitleFormat',
@@ -155,7 +155,6 @@ class ProjectConfigData
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
             $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
-            $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
             $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
             $productTypeRow['hasProductTitleField'] = (bool)$productTypeRow['hasProductTitleField'];
 

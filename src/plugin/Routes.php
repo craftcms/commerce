@@ -38,9 +38,10 @@ trait Routes
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
             $event->rules['commerce/products'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants'] = 'commerce/products/variant-index';
+            $event->rules['commerce/variants'] = 'commerce/variants/index';
             $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
-            $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/products/variant-index';
+            $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/variants/index';
+            $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/new'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/new/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>'] = 'commerce/products/edit-product';
@@ -154,6 +155,10 @@ trait Routes
             $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
+
+            $event->rules['commerce/promotions/catalog-pricing-rules'] = 'commerce/catalog-pricing-rules/index';
+            $event->rules['commerce/promotions/catalog-pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
+            $event->rules['commerce/promotions/catalog-pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
         });
     }
 }

@@ -19,7 +19,6 @@ use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
-use craft\models\Site;
 use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -131,6 +130,15 @@ class Stores extends Component
     public function getStoreById(int $id): ?Store
     {
         return $this->getAllStores()->firstWhere('id', $id);
+    }
+
+    /**
+     * @param string $handle
+     * @return Store|null
+     */
+    public function getStoreByHandle(string $handle): ?Store
+    {
+        return $this->getAllStores()->firstWhere('handle', $handle);
     }
 
     /**
@@ -355,15 +363,6 @@ class Stores extends Component
     public function getPrimaryStore(): ?Store
     {
         return $this->getAllStores()->firstWhere('primary', true);
-    }
-
-    /**
-     * @param string $handle
-     * @return Store|null
-     */
-    public function getStoreByHandle(string $handle): ?Store
-    {
-        return $this->getAllStores()->firstWhere('handle', $handle);
     }
 
     /**

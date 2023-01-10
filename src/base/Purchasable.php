@@ -10,20 +10,25 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\PurchasableStore as PurchasableStoreModel;
 use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\Store;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Cp;
+use craft\helpers\Html;
+use craft\helpers\Typecast;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
-use InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\validators\Validator;
 
 /**
  * Base Purchasable
@@ -31,13 +36,12 @@ use yii\base\InvalidConfigException;
  * @property string $description the element's title or any additional descriptive information
  * @property bool $isAvailable whether the purchasable is currently available for purchase
  * @property bool $isPromotable whether this purchasable can be subject to discounts or sales
- * @property bool $onSale
+ * @property bool $onPromotion whether this purchasable is currently on sale at a promotional price
  * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the base price the item will be added to the line item with
  * @property-read float $salePrice the base price the item will be added to the line item with
  * @property-read string $priceAsCurrency the base price the item will be added to the line item with
  * @property-read string $salePriceAsCurrency the base price the item will be added to the line item with
- * @property-read Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
  * @property array $snapshot
@@ -51,38 +55,42 @@ use yii\base\InvalidConfigException;
  * @property bool $promotable
  * @property bool $freeShipping
  * @property bool $availableForPurchase
+ * @property float $width
+ * @property float $height
+ * @property float $length
+ * @property float $weight
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 abstract class Purchasable extends Element implements PurchasableInterface
 {
     /**
-     * @var float|null
+     * @var float[]|null
      */
-    private ?float $_salePrice = null;
+    private ?array $_salePrice = null;
 
     /**
-     * @var Sale[]|null
+     * @var float[]|null
      */
-    private ?array $_sales = null;
+    private ?array $_price = null;
+
+    /**
+     * The store based on the `siteId` of the instance of the purchasable.
+     *
+     * @var Store|null
+     */
+    private ?Store $_store = null;
+
+    /**
+     * @var float[]|null
+     */
+    private ?array $_promotionalPrice = null;
 
     /**
      * @var Collection|null
      * @since 5.0.0
      */
     private ?Collection $_purchasableStores = null;
-
-    /**
-     * @var int|null
-     * @since 5.0.0
-     */
-    public ?int $storeId = null;
-
-    /**
-     * @var Store|null
-     * @since 5.0.0
-     */
-    private ?Store $_store = null;
 
     /**
      * @var string SKU
@@ -93,17 +101,15 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @var int|null Tax category ID
-     * @see setTaxCategoryId()
-     * @see getTaxCategoryId()
      * @since 5.0.0
      */
-    public ?int $_taxCategoryId = null;
+    public ?int $taxCategoryId = null;
 
     /**
      * @var int|null Shipping category ID
      * @since 5.0.0
      */
-    public ?int $_shippingCategoryId = null;
+    public ?int $shippingCategoryId = null;
 
     /**
      * @var float|null $width
@@ -130,12 +136,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public ?float $weight = null;
 
     /**
-     * @var float|null $price
-     * @since 5.0.0
-     */
-    private ?float $_price = null;
-
-    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -144,10 +144,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
         $names[] = 'isAvailable';
         $names[] = 'isPromotable';
+        $names[] = 'basePrice';
+        $names[] = 'basePromotionalPrice';
         $names[] = 'price';
-        $names[] = 'shippingCategoryId';
+        $names[] = 'promotionalPrice';
+        $names[] = 'onPromotion';
+        $names[] = 'salePrice';
         $names[] = 'sku';
-        $names[] = 'taxCategoryId';
         return $names;
     }
 
@@ -179,11 +182,47 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        if (!empty($values)) {
+            // @TODO figure out the cleanest way to do this
+            $values['price'] = $values['basePrice'];
+            $values['promotionalPrice'] = $values['basePromotionalPrice'];
+            Typecast::properties(PurchasableStoreModel::class, $values);
+            $values['basePrice'] = $values['price'];
+            $values['basePromotionalPrice'] = $values['promotionalPrice'];
+            unset($values['price'], $values['promotionalPrice']);
+        }
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         $classNameParts = explode('\\', static::class);
 
         return array_pop($classNameParts);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStore(): Store
+    {
+        if ($this->_store === null) {
+            if ($this->siteId === null) {
+                throw new InvalidConfigException('Purchasable::siteId cannot be null');
+            }
+
+            // @TODO implement this when we have site to store mapping
+            // $this->_store = Plugin::getInstance()->getStores()->getStoreBySiteId($this->siteId) ?? Plugin::getInstance()->getStores()->getCurrentStore();
+            $this->_store = Plugin::getInstance()->getStores()->getCurrentStore();
+        }
+
+        return $this->_store;
     }
 
     /**
@@ -233,23 +272,15 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @param string $key
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return mixed
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      * @since 5.0.0
      */
-    public function getPurchasableStoreValue(string $key, string|Store|null $store = null): mixed
+    public function getPurchasableStoreValue(string $key, ?Store $store = null): mixed
     {
-        if ($store === null) {
-            $store = $this->getStore() ?? Craft::$app->getSites()->getCurrentSite();
-        } elseif (is_string($store)) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($store);
-        }
-
-        if (!$store) {
-            throw new InvalidConfigException('Invalid store.');
-        }
+        $store = $store ?? $this->getStore();
 
         $purchasableStore = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
@@ -267,23 +298,14 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @param string $key
      * @param mixed|null $value
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return void
      * @throws InvalidConfigException
-     * @throws SiteNotFoundException
      * @since 5.0.0
      */
-    public function setPurchasableStoreValue(string $key, mixed $value = null, string|Store|null $store = null): void
+    public function setPurchasableStoreValue(string $key, mixed $value = null, ?Store $store = null): void
     {
-        if ($store === null) {
-            $store = $this->getStore() ?? Craft::$app->getSites()->getCurrentSite();
-        } elseif (is_string($store)) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($store);
-        }
-
-        if (!$store) {
-            throw new InvalidConfigException('Invalid store.');
-        }
+        $store = $store ?? $this->getStore();
 
         $purchasableStore = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
@@ -304,56 +326,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
-     * @param int|Store|null $store
+     * @param float|null $price
+     * @param Store|null $store
      * @return void
-     * @throws \yii\base\InvalidConfigException
-     * @since 5.0.0
+     * @throws InvalidConfigException
      */
-    public function setStore(int|Store|null $store): void
-    {
-        if ($store === null) {
-            $this->storeId = null;
-            $this->_store = null;
-            return;
-        }
-
-        if (is_int($store)) {
-            $store = Plugin::getInstance()->getStores()->getStoreById($store);
-            if ($store === null) {
-                throw new InvalidArgumentException('Invalid store ID: ' . $store);
-            }
-
-            $this->storeId = $store->id;
-            $this->_store = $store;
-        }
-    }
-
-    /**
-     * @return Store|null
-     * @throws \yii\base\InvalidConfigException
-     * @since 5.0.0
-     */
-    public function getStore(): ?Store
-    {
-        if ($this->_store === null && $this->storeId === null) {
-            return null;
-        }
-
-        if ($this->_store instanceof Store) {
-            return $this->_store;
-        }
-
-        if ($this->storeId !== null) {
-            $this->_store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
-        }
-
-        return $this->_store;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setBasePromotionalPrice(?float $price, string|Store|null $store = null): void
+    public function setBasePromotionalPrice(?float $price, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('promotionalPrice', $price, $store);
     }
@@ -361,15 +339,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getBasePromotionalPrice(string|Store|null $store = null): ?float
+    public function getBasePromotionalPrice(?Store $store = null): ?float
     {
         return $this->getPurchasableStoreValue('promotionalPrice', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param bool $freeShipping
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setFreeShipping(bool $freeShipping, string|Store|null $store = null): void
+    public function setFreeShipping(bool $freeShipping, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('freeShipping', $freeShipping, $store);
     }
@@ -377,15 +358,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getFreeShipping(string|Store|null $store = null): bool
+    public function getFreeShipping(?Store $store = null): bool
     {
         return (bool)$this->getPurchasableStoreValue('freeShipping', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param bool $promotable
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setPromotable(bool $promotable, string|Store|null $store = null): void
+    public function setPromotable(bool $promotable, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('promotable', $promotable, $store);
     }
@@ -393,15 +377,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getPromotable(string|Store|null $store = null): bool
+    public function getPromotable(?Store $store = null): bool
     {
         return (bool)$this->getPurchasableStoreValue('promotable', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param bool $availableForPurchase
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setAvailableForPurchase(bool $availableForPurchase, string|Store|null $store = null): void
+    public function setAvailableForPurchase(bool $availableForPurchase, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('availableForPurchase', $availableForPurchase, $store);
     }
@@ -409,15 +396,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getAvailableForPurchase(string|Store|null $store = null): bool
+    public function getAvailableForPurchase(?Store $store = null): bool
     {
         return (bool)$this->getPurchasableStoreValue('availableForPurchase', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param int|null $minQty
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setMinQty(?int $minQty, string|Store|null $store = null): void
+    public function setMinQty(?int $minQty, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('minQty', $minQty, $store);
     }
@@ -425,15 +415,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getMinQty(string|Store|null $store = null): ?int
+    public function getMinQty(?Store $store = null): ?int
     {
         return $this->getPurchasableStoreValue('minQty', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param int|null $maxQty
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setMaxQty(?int $maxQty, string|Store|null $store = null): void
+    public function setMaxQty(?int $maxQty, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('maxQty', $maxQty, $store);
     }
@@ -441,15 +434,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getMaxQty(string|Store|null $store = null): ?int
+    public function getMaxQty(?Store $store = null): ?int
     {
         return $this->getPurchasableStoreValue('maxQty', $store);
     }
 
     /**
-     * @inheritdoc
+     * @param bool $hasUnlimitedStock
+     * @param Store|null $store
+     * @return void
+     * @throws InvalidConfigException
      */
-    public function setHasUnlimitedStock(bool $hasUnlimitedStock, string|Store|null $store = null): void
+    public function setHasUnlimitedStock(bool $hasUnlimitedStock, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('hasUnlimitedStock', $hasUnlimitedStock, $store);
     }
@@ -457,7 +453,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getHasUnlimitedStock(string|Store|null $store = null): bool
+    public function getHasUnlimitedStock(?Store $store = null): bool
     {
         return (bool)$this->getPurchasableStoreValue('hasUnlimitedStock', $store);
     }
@@ -465,51 +461,100 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getBasePrice(string|Store|null $store = null): ?float
+    public function getBasePrice(?Store $store = null): ?float
     {
         return $this->getPurchasableStoreValue('price', $store);
     }
 
     /**
      * @param float|null $price
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return void
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      */
-    public function setBasePrice(?float $price, string|Store|null $store = null): void
+    public function setBasePrice(?float $price, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('price', $price, $store);
     }
 
     /**
      * @param float|null $price
+     * @param string $storeHandle
      * @return void
      * @since 5.0.0
      */
-    public function setPrice(?float $price): void
+    public function setPrice(?float $price, string $storeHandle): void
     {
-        $this->_price = $price;
+        $this->_price[$storeHandle] = $price;
     }
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return float|null
-     * @since 5.0.0
+     * @throws InvalidConfigException
+     * @throws \Throwable
      */
-    public function getPrice(string|Store|null $store = null): ?float
+    public function getPrice(?Store $store = null): ?float
     {
-        return $this->_price ?? $this->getBasePrice($store);
+        $store = $store ?? $this->getStore();
+
+        if (!isset($this->_price[$store->handle])) {
+            // Live get catalog price
+            $catalogPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, false);
+            if ($catalogPrice !== null) {
+                $this->setPrice($catalogPrice, $store->handle);
+            }
+        }
+
+        return $this->_price[$store->handle] ?? $this->getBasePrice($store);
     }
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return float|null
-     * @since 5.0.0
+     * @throws InvalidConfigException
+     * @throws \Throwable
      */
-    public function getPromotionalPrice(string|Store|null $store = null): ?float
+    public function getPromotionalPrice(?Store $store = null): ?float
     {
-        return $this->_promotionalPrice ?? $this->getBasePromotionalPrice($store);
+        $store = $store ?? $this->getStore();
+
+        if (!isset($this->_promotionalPrice[$store->handle])) {
+            $catalogPromotionalPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, true);
+            if ($catalogPromotionalPrice !== null) {
+                $this->setPromotionalPrice($catalogPromotionalPrice, $store->handle);
+            }
+        }
+
+        $price = $this->getPrice($store);
+        $promotionalPrice = $this->_promotionalPrice[$store->handle] ?? $this->getBasePromotionalPrice($store);
+
+        return ($promotionalPrice !== null && $promotionalPrice < $price) ? $promotionalPrice : null;
+    }
+
+    /**
+     * @param float|null $price
+     * @param string $storeHandle
+     * @return void
+     */
+    public function setPromotionalPrice(?float $price, string $storeHandle): void
+    {
+        $this->_promotionalPrice[$storeHandle] = $price;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getSalePrice(?Store $store = null): ?float
+    {
+        $store = $store ?? $this->getStore();
+
+        if (empty($this->_salePrice) || !isset($this->_salePrice[$store->handle])) {
+            $this->_salePrice[$store->handle] = $this->getPromotionalPrice($store) ?? $this->getPrice($store);
+        }
+
+        return $this->_salePrice[$store->handle] ?? null;
     }
 
     /**
@@ -545,7 +590,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * Returns whether this variant has stock.
      */
-    public function hasStock(string|Store|null $store = null): bool
+    public function hasStock(?Store $store = null): bool
     {
         return $this->getPurchasableStoreValue('stock', $store) > 0 || $this->getPurchasableStoreValue('hasUnlimitedStock', $store);
     }
@@ -553,36 +598,30 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getTaxCategoryId(): int
+    public function getTaxCategory(): TaxCategory
     {
-        return $this->_taxCategoryId ?? Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        return $this->taxCategoryId ? Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId) : Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
     }
 
     /**
-     * @param int|null $taxCategoryId
+     * @param int|null $stock
+     * @param Store|null $store
      * @return void
+     * @throws InvalidConfigException
      */
-    public function setTaxCategoryId(?int $taxCategoryId): void
-    {
-        $this->_taxCategoryId = $taxCategoryId;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function setStock(?int $stock, string|Store|null $store = null): void
+    public function setStock(?int $stock, ?Store $store = null): void
     {
         $this->setPurchasableStoreValue('stock', $stock, $store);
     }
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return int|null
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      * @since 5.0.0
      */
-    public function getStock(string|Store|null $store = null): ?int
+    public function getStock(?Store $store = null): ?int
     {
         return $this->getPurchasableStoreValue('stock', $store);
     }
@@ -598,40 +637,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getSalePrice(): float
+    public function getShippingCategory(): ShippingCategory
     {
-        $this->_loadSales();
-
-        return $this->_salePrice;
-    }
-
-    /**
-     * Returns an array of sales models which are currently affecting the salePrice of this purchasable.
-     *
-     * @return Sale[]|null
-     */
-    public function getSales(): ?array
-    {
-        $this->_loadSales();
-
-        return $this->_sales;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getShippingCategoryId(): int
-    {
-        return $this->_shippingCategoryId ?? Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
-    }
-
-    /**
-     * @param int|null $shippingCategoryId
-     * @return void
-     */
-    public function setShippingCategoryId(?int $shippingCategoryId): void
-    {
-        $this->_shippingCategoryId = $shippingCategoryId;
+        return $this->shippingCategoryId ? Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId) : Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
     }
 
     /**
@@ -647,6 +655,29 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function populateLineItem(LineItem $lineItem): void
     {
+        // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
+        // If this occurs in the payment request, the user will be notified the order has changed.
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            if (($lineItem->qty > $this->getStock()) && !$this->getHasUnlimitedStock()) {
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
+                /** @var OrderNotice $notice */
+                $notice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'lineItemSalePriceChanged',
+                        'attribute' => "lineItems.$lineItem->id.qty",
+                        'message' => $message,
+                    ],
+                ]);
+                $order->addNotice($notice);
+                $lineItem->qty = $this->getStock();
+            }
+        }
+
+        $lineItem->weight = (float)$this->weight; //converting nulls
+        $lineItem->height = (float)$this->height; //converting nulls
+        $lineItem->length = (float)$this->length; //converting nulls
+        $lineItem->width = (float)$this->width; //converting nulls
     }
 
     /**
@@ -654,7 +685,67 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getLineItemRules(LineItem $lineItem): array
     {
-        return [];
+        $order = $lineItem->getOrder();
+
+        // After the order is complete shouldn't check things like stock being available or the purchasable being around since they are irrelevant.
+        if ($order && $order->isCompleted) {
+            return [];
+        }
+
+        $lineItemQuantitiesById = [];
+        $lineItemQuantitiesByPurchasableId = [];
+        collect($order->getLineItems())->each(function(LineItem $item) use (&$lineItemQuantitiesById, &$lineItemQuantitiesByPurchasableId) {
+            if ($item->id !== null) {
+                $lineItemQuantitiesById[$item->id] += $item->qty;
+            } else {
+                $lineItemQuantitiesByPurchasableId[$item->purchasableId] += $item->qty;
+            }
+        });
+
+        return [
+            // an inline validator defined as an anonymous function
+            [
+                'purchasableId',
+                function($attribute, $params, Validator $validator) use ($lineItem) {
+                    $purchasable = $lineItem->getPurchasable();
+                    if ($purchasable === null) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
+                    }
+
+                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
+                    }
+                },
+            ],
+            [
+                'qty',
+                function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
+                    // @TODO change all attribute calls to pass in the the store from the order `$lineItem->getOrder()->getStore()`
+                    if (!$this->hasStock()) {
+                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
+
+                    if ($this->hasStock() && !$this->hasUnlimitedStock && $lineItemQty > $this->stock) {
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    if ($this->getMinQty() > 1 && $lineItemQty < $this->getMinQty()) {
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+
+                    if ($this->getMaxQty() != 0 && $lineItemQty > $this->getMaxQty()) {
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $validator->addError($lineItem, $attribute, $error);
+                    }
+                },
+            ],
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
+        ];
     }
 
     /**
@@ -691,6 +782,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 'on' => self::SCENARIO_LIVE,
             ],
             [['stock'], 'number'],
+            [['basePrice'], 'number'],
+            [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
+            [['freeShipping', 'hasUnlimitedStock', 'promotable', 'availableForPurchase'], 'boolean'],
+            [['taxCategoryId', 'shippingCategoryId'], 'safe'],
         ]);
     }
 
@@ -725,9 +820,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function getIsPromotable(): bool
+    public function getIsPromotable(?Store $store = null): bool
     {
-        return $this->promotable;
+        return $this->getPromotable($store);
     }
 
     /**
@@ -742,6 +837,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * Update purchasable table
      *
      * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function afterSave(bool $isNew): void
     {
@@ -757,8 +855,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $purchasable->height = $this->height;
         $purchasable->length = $this->length;
         $purchasable->weight = $this->weight;
-        $purchasable->taxCategoryId = $this->getTaxCategoryId();
-        $purchasable->shippingCategoryId = $this->getShippingCategoryId();
+        $purchasable->taxCategoryId = $this->taxCategoryId;
+        $purchasable->shippingCategoryId = $this->shippingCategoryId;
 
         // Only update the description for the primary site until we have a concept
         // of an order having a site ID
@@ -782,10 +880,18 @@ abstract class Purchasable extends Element implements PurchasableInterface
                     $purchasableStore->storeId = $store->id;
                 }
 
+                /** @var PurchasableStoreModel|null $ps */
                 $ps = $this->getPurchasableStores()->firstWhere('storeId', $store->id);
 
                 if (!$ps) {
-                    throw new InvalidConfigException('Invalid store');
+                    $ps = Craft::createObject([
+                        'class' => PurchasableStoreModel::class,
+                        'purchasableId' => $purchasableStore->purchasableId,
+                        'storeId' => $purchasableStore->storeId,
+                    ]);
+
+                    $purchasableStores = $this->getPurchasableStores();
+                    $purchasableStores->add($ps);
                 }
 
                 $purchasableStore->price = $ps->price;
@@ -820,31 +926,131 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @return Sale[] The sales that relate directly to this purchasable
+     * @throws InvalidConfigException
      */
     public function relatedSales(): array
     {
         return Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($this);
     }
 
-    public function getOnSale(): bool
+    /**
+     * @inheritdoc
+     */
+    public function getOnPromotion(?Store $store = null): bool
     {
-        return Currency::round($this->getSalePrice()) !== Currency::round($this->getPrice());
+        return $this->getPromotionalPrice($store) !== null;
     }
 
     /**
-     * Reloads any sales applicable to the purchasable for the current user.
+     * @inheritdoc
      */
-    private function _loadSales(): void
+    public function attributeLabels(): array
     {
-        if (!isset($this->_sales)) {
-            // Default the sales and salePrice to the original price without any sales
-            $this->_sales = [];
-            $this->_salePrice = Currency::round($this->getPrice());
+        $labels = parent::attributeLabels();
 
-            if ($this->getId()) {
-                $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
-                $this->_salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($this);
-            }
-        }
+        return array_merge($labels, ['sku' => 'SKU']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function metaFieldsHtml(bool $static): string
+    {
+        $html = parent::metaFieldsHtml($static);
+
+        $html .= Cp::selectFieldHtml([
+            'id' => 'tax-category',
+            'name' => 'taxCategoryId',
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
+            'value' => $this->taxCategoryId,
+        ]);
+
+        $html .= Cp::selectFieldHtml([
+            'id' => 'shipping-category',
+            'name' => 'shippingCategoryId',
+            'label' => Craft::t('commerce', 'Shipping Category'),
+            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList(),
+            'value' => $this->shippingCategoryId,
+        ]);
+
+        return $html;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function tableAttributeHtml(string $attribute): string
+    {
+        match ($attribute) {
+            'sku' => Html::encode($this->getSkuAsText()),
+            'price' => $this->getBasePrice(), // @TODO change this to the `asCurrency` attribute when implemented
+            'promotionalPrice' => $this->getBasePromotionalPrice(), // @TODO change this to the `asCurrency` attribute when implemented
+            'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
+            'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'height' => $this->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            default => parent::tableAttributeHtml($attribute),
+        };
+        return parent::tableAttributeHtml($attribute); // TODO: Change the autogenerated stub
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
+    {
+        return array_merge(parent::defineTableAttributes(), [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities'),
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        return [
+            'sku',
+            'price',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            'sku' => Craft::t('commerce', 'SKU'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSearchableAttributes(): array
+    {
+        return [...parent::defineSearchableAttributes(), ...[
+            'sku',
+            'price',
+            'width',
+            'height',
+            'length',
+            'weight',
+            'stock',
+            'hasUnlimitedStock',
+            'minQty',
+            'maxQty',
+        ]];
     }
 }

@@ -10,7 +10,8 @@
 
 {% if craft.commerce.is('pro') %}
     {% set sidebarNavItems = sidebarNavItems|merge({
-        discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') }
+        discounts: { label: 'Discounts'|t('commerce'), url: url('commerce/promotions/discounts') },
+        catalogPricingRules: { label: 'Catalog Pricing Rules'|t('commerce'), url: url('commerce/promotions/catalog-pricing-rules') },
     }) %}
 {% endif %}
 
