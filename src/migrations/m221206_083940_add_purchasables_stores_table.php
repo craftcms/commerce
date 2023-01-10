@@ -144,6 +144,8 @@ class m221206_083940_add_purchasables_stores_table extends Migration
         $this->dropColumn(Table::PRODUCTS, 'availableForPurchase');
         $this->dropColumn(Table::PRODUCTS, 'freeShipping');
 
+        $this->dropColumn(Table::PURCHASABLES, 'price');
+
         return true;
     }
 
