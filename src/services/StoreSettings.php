@@ -43,21 +43,14 @@ class StoreSettings extends Component
         parent::init();
 
         if ($this->_store == null) {
-            $primaryStoreId = Plugin::getInstance()->getStores()->getPrimaryStore()->id; // FIXME We need to ensure we have a store before creating a store settings.
+            $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id; // FIXME We need to ensure we have a store before creating a store settings.
             // We always ensure we have a store record and an associated store address.
-            $store = $this->_createStoreQuery()->where(['id' => $primaryStoreId])->one(); // get first row only. Only one store at the moment.
-            if (!$store) {
+            $this->_store = $this->getStoreSettingsByStoreId($currentStoreId);
+            if (!$this->_store) {
                 $storeRecord = new StoreSettingsRecord();
-                $storeRecord->id = $primaryStoreId;
+                $storeRecord->id = $currentStoreId;
                 $storeRecord->save();
-                $this->_store = new StoreSettingsModel(['id' => $storeRecord->id]);
-            } else {
-                $this->_store = new StoreSettingsModel();
-                $locationAddressId = $store['locationAddressId'] ?? null;
-                if ($locationAddressId === null) {
-                    unset($store['locationAddressId']);
-                }
-                $this->_store->setAttributes($store);
+                $this->_store = Craft::createObject(['class' => StoreSettingsModel::class, 'id' => $storeRecord->id]);
             }
 
             // Make sure the store always has an address location set.
@@ -66,6 +59,25 @@ class StoreSettings extends Component
                 $this->_createDefaultStoreLocationAddress();
             }
         }
+    }
+
+    /**
+     * @param int $storeId
+     * @return StoreSettingsModel|null
+     * @throws InvalidConfigException
+     */
+    public function getStoreSettingsByStoreId(int $storeId): ?StoreSettingsModel
+    {
+        $store = $this->_createStoreQuery()->where(['id' => $storeId])->one();
+        if ($store === null) {
+            return null;
+        }
+
+        if ($store['locationAddressId'] === null) {
+            unset($store['locationAddressId']);
+        }
+
+        return Craft::createObject(array_merge(['class' => StoreSettingsModel::class], $store));
     }
 
     /**
