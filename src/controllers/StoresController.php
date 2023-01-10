@@ -156,4 +156,14 @@ class StoresController extends BaseStoreSettingsController
 
         return $this->asSuccess();
     }
+
+    /**
+     * Saves the site settings records
+     *
+     * @return Response
+     */
+    public function actionSaveSiteSettings(): Response
+    {
+
+    }
 }

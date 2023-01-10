@@ -205,7 +205,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.3';
+    public string $schemaVersion = '5.0.6';
 
     /**
      * @inheritdoc
@@ -532,6 +532,10 @@ class Plugin extends BasePlugin
             ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
             ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
 
+        $projectConfigService->onAdd(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleChangedSiteSettings'])
+            ->onUpdate(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleChangedSiteSettings'])
+            ->onRemove(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleDeletedSiteSettings']);
+
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
@@ -554,6 +558,8 @@ class Plugin extends BasePlugin
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);

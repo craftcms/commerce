@@ -77,22 +77,24 @@ class Carts extends Component
     {
         parent::init();
 
-        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
 
-        // Complete the cart cookie config
-        if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
-        }
+            // Complete the cart cookie config
+            if (!isset($this->cartCookie['name'])) {
+                $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+            }
 
-        $request = Craft::$app->getRequest();
-        if (!$request->getIsConsoleRequest()) {
-            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+            $request = Craft::$app->getRequest();
+            if (!$request->getIsConsoleRequest()) {
+                $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
-            $requestCookies = $request->getCookies();
+                $requestCookies = $request->getCookies();
 
-            // If we have a cart cookie, assign it to the cart number.
-            if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+                // If we have a cart cookie, assign it to the cart number.
+                if ($requestCookies->has($this->cartCookie['name'])) {
+                    $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+                }
             }
         }
     }

@@ -59,8 +59,11 @@ abstract class Table
     public const TAXZONES = '{{%commerce_taxzones}}';
     public const TRANSACTIONS = '{{%commerce_transactions}}';
     public const VARIANTS = '{{%commerce_variants}}';
+
     /** @since 5.0.0 */
     public const PURCHASABLES_STORES = '{{%commerce_purchasables_stores}}';
+    public const SITESETTINGS = '{{%commerce_sitesettings}}';
+
     public const STORES = '{{%commerce_stores}}';
     public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
 }

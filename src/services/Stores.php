@@ -12,16 +12,20 @@ use craft\commerce\db\Table;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
+use craft\commerce\models\SiteSettings;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\SiteSettings as SiteSettingsRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\errors\BusyResourceException;
 use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
+use craft\events\SiteEvent;
 use craft\helpers\Db;
+use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
-use craft\models\Site;
+use craft\db\Table as CraftTable;
 use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -76,6 +80,11 @@ class Stores extends Component
      * The project config path to stores data
      */
     public const CONFIG_STORES_KEY = 'commerce.stores';
+
+    /**
+     * The project config path to site settings data
+     */
+    public const CONFIG_SITESETTINGS_KEY = 'commerce.sitesettings';
 
     /**
      * @var Collection<Store>|null
@@ -257,10 +266,12 @@ class Stores extends Component
                 $projectConfigService->set(
                     $configPath,
                     false,
-                    "Set the “{$config['name']}” store not be primary"
+                    "Set the “{$config['name']}” store to not be primary"
                 );
             }
         }
+
+        $this->refreshStores();
 
         return true;
     }
@@ -335,12 +346,12 @@ class Stores extends Component
             throw $e;
         }
 
-        $store = $this->getStoreById($storeRecord->id);
+        $store = $this->_createStoreQuery()->where(['id' => $storeRecord->id])->one();
 
         // Did the primary site just change?
         if ($data['primary']) {
-            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $store->id]]);
-            Db::update(Table::STORES, ['primary' => true], ['id' => $store->id]);
+            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $store['id']]]);
+            Db::update(Table::STORES, ['primary' => true], ['id' => $store['id']]);
         }
 
         $this->refreshStores();
@@ -462,5 +473,127 @@ class Stores extends Component
             ])
             ->andWhere(['dateDeleted' => null])
             ->from([Table::STORES]);
+    }
+
+    // Sites
+    public function saveSiteSettings(SiteSettings $siteSettings, bool $runValidation = true): bool
+    {
+        if ($runValidation && !$siteSettings->validate()) {
+            Craft::info('Site settings not saved due to validation error.', __METHOD__);
+            return false;
+        }
+
+        $craftSite = Craft::$app->getSites()->getSiteById($siteSettings->siteId);
+        if (!$siteSettings->uid) {
+            $siteSettings->uid = Db::uidById(CraftTable::SITES, $siteSettings->siteId);
+        }
+
+        $projectConfigService = Craft::$app->getProjectConfig();
+        $configPath = self::CONFIG_SITESETTINGS_KEY . "." . $siteSettings->uid;
+        $projectConfigService->set(
+            $configPath,
+            $siteSettings->getConfig(),
+            "Save the “{$craftSite->handle}” commerce site settings"
+        );
+
+        return true;
+    }
+
+    /**
+     * @param Store $store
+     * @return bool
+     * @throws Exception
+     */
+    public function deleteSiteSettings(SiteSettings $siteSettings): bool
+    {
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_SITESETTINGS_KEY . '.' . $siteSettings->uid);
+
+        return true;
+    }
+
+    /**
+     * Handle site settings change.
+     *
+     * @param ConfigEvent $event
+     * @return void
+     * @throws Throwable
+     * @throws YiiDbException
+     */
+    public function handleChangedSiteSettings(ConfigEvent $event): void
+    {
+        ProjectConfigHelper::ensureAllSitesProcessed();
+
+        $storeSettingsUid = $event->tokenMatches[0];
+        $data = $event->newValue;
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        try {
+            $siteSettingsRecord = SiteSettingsRecord::findOne(['uid' => $storeSettingsUid]);
+
+            $siteSettingsRecord->siteId = Db::idByUid(CraftTable::SITES, $storeSettingsUid);
+            $siteSettingsRecord->uid = $storeSettingsUid;
+            $siteSettingsRecord->storeId = Db::idByUid(Table::STORES, $data['store']);
+
+            $siteSettingsRecord->save(false);
+
+            $transaction->commit();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Handle a deleted Store.
+     *
+     * @param ConfigEvent $event
+     * @throws Throwable
+     * @throws YiiDbException
+     */
+    public function handleDeletedSiteSettings(ConfigEvent $event): void
+    {
+        $storeSettingsUid = $event->tokenMatches[0];
+        $siteSettingsRecord = SiteSettingsRecord::findOne(['uid' => $storeSettingsUid]);
+
+        if (!$siteSettingsRecord->id) {
+            return;
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+
+        try {
+            Craft::$app->getDb()->createCommand()
+                ->delete(Table::SITESETTINGS, ['id' => $siteSettingsRecord->id])
+                ->execute();
+
+            $transaction->commit();
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+
+        // Refresh site settings
+        //$this->refreshStores();
+    }
+
+    /**
+     *
+     * @param SiteEvent $event
+     * @return void
+     */
+    public function afterSaveCraftSiteHandler(SiteEvent $event): void
+    {
+        $siteSettings = new SiteSettings();
+        $siteSettings->siteId = $event->site->id;
+        $siteSettings->storeId = $this->getPrimaryStore()->id;
+        $siteSettings->uid = $event->site->uid;
+
+        $this->saveSiteSettings($siteSettings);
+    }
+
+    public function afterDeleteCraftSiteHandler(SiteEvent $event): void
+    {
+
     }
 }

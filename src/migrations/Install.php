@@ -20,6 +20,7 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
+use craft\commerce\models\Store;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
@@ -141,6 +142,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::DISCOUNTS);
         $this->createTable(Table::DISCOUNTS, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'description' => $this->text(),
             'couponFormat' => $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT),
@@ -182,6 +184,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::DONATIONS);
         $this->createTable(Table::DONATIONS, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer()->notNull(),
             'sku' => $this->string()->notNull(),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -411,6 +414,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PAYMENTCURRENCIES);
         $this->createTable(Table::PAYMENTCURRENCIES, [
             'id' => $this->primaryKey(),
+            'storeid' => $this->integer()->notNull(),
             'iso' => $this->string(3)->notNull(),
             'primary' => $this->boolean()->notNull()->defaultValue(false),
             'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -694,6 +698,15 @@ class Install extends Migration
             'description' => $this->string(),
             'condition' => $this->text(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::SITESETTINGS);
+        $this->createTable(Table::SITESETTINGS, [
+            'siteId' => $this->integer(),
+            'storeId' => $this->integer()->null(), // defaults to primary store in app
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1047,21 +1060,22 @@ class Install extends Migration
      */
     public function insertDefaultData(): void
     {
+        // Don't make the same config changes twice
+        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
+        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
+
+        if (!$installed && !$configExists) {
+            $this->_insertPrimaryStore();
+            $this->_defaultOrderSettings();
+            $this->_defaultGateways();
+        }
+
         // The following defaults are not stored in the project config.
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
         $this->_defaultDonationPurchasable();
-
-        // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
-        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
-
-        if (!$installed && !$configExists) {
-            $this->_defaultOrderSettings();
-            $this->_defaultGateways();
-        }
     }
 
     /**
@@ -1071,6 +1085,7 @@ class Install extends Migration
     {
         $data = [
             'iso' => 'USD',
+            'storeId' => 1,
             'rate' => 1,
             'primary' => true,
         ];
@@ -1131,8 +1146,18 @@ class Install extends Migration
     {
         $donation = new Donation();
         $donation->sku = 'DONATION-CC4';
+        $donation->storeId = 1;
         $donation->availableForPurchase = false;
         Craft::$app->getElements()->saveElement($donation);
+    }
+
+    private function _insertPrimaryStore(): void
+    {
+        $store = Craft::createObject(Store::class);
+        $store->name = 'Primary';
+        $store->handle = 'primary';
+        $store->primary = true;
+        Plugin::getInstance()->getStores()->saveStore($store);
     }
 
     /**
