@@ -444,7 +444,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
+        if ($lineItem->getOnPromotion() && $discount->excludeOnSale) {
             return false;
         }
 
