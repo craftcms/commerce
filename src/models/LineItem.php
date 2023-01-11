@@ -408,7 +408,7 @@ class LineItem extends Model
     public function getSalePrice(): float
     {
         if ($this->_salePrice === null) {
-           $this->_salePrice = $this->getOnPromotion() ? $this->getPromotionalPrice() : $this->getPrice();
+            $this->_salePrice = $this->getOnPromotion() ? $this->getPromotionalPrice() : $this->getPrice();
         }
 
         return $this->_salePrice;
