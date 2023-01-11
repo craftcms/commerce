@@ -31,7 +31,7 @@ use yii\base\InvalidConfigException;
  *
  * @property array|OrderAdjustment[] $adjustments
  * @property float $discount
- * @property bool $onSale
+ * @property bool $onPromotion
  * @property array $options
  * @property Order $order
  * @property Purchasable $purchasable
@@ -43,7 +43,6 @@ use yii\base\InvalidConfigException;
  * @property int $taxIncluded
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
- * @property-read float $saleAmount
  * @property float $salePrice
  * @property float $price
  * @property-read string $priceAsCurrency
@@ -55,6 +54,13 @@ use yii\base\InvalidConfigException;
  * @property-read string $shippingCostAsCurrency
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
+ * @property-read bool $isShippable
+ * @property string $sku
+ * @property LineItemStatus|null $lineItemStatus
+ * @property string $description
+ * @property-read bool $isTaxable
+ * @property float|int $promotionalPrice
+ * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -77,9 +83,15 @@ class LineItem extends Model
     private float $_price = 0;
 
     /**
-     * @var float Sale price is the price of the line item. Sale price is price + saleAmount
+     * @var float|null
+     * @since 5.0.0
      */
-    private float $_salePrice = 0;
+    private ?float $_promotionalPrice = null;
+
+    /**
+     * @var float|null Sale price is the price the line item will be sold for.
+     */
+    private ?float $_salePrice = null;
 
     /**
      * @var float Weight
@@ -361,6 +373,33 @@ class LineItem extends Model
     public function setPrice(float|int $price): void
     {
         $this->_price = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
+    }
+
+    /**
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getPromotionalPrice(): ?float
+    {
+        if ($this->_promotionalPrice === null) {
+            return null;
+        }
+
+        return CurrencyHelper::round($this->_promotionalPrice);
+    }
+
+    /**
+     * @param float|int|null $price
+     * @return void
+     * @since 5.0.0
+     */
+    public function setPromotionalPrice(float|int|null $price): void
+    {
+        $this->_promotionalPrice = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
     }
 
     /**
@@ -368,23 +407,23 @@ class LineItem extends Model
      */
     public function getSalePrice(): float
     {
-        return CurrencyHelper::round($this->_salePrice);
+        if ($this->_salePrice === null) {
+           $this->_salePrice = $this->getOnPromotion() ? $this->getPromotionalPrice() : $this->getPrice();
+        }
+
+        return $this->_salePrice;
     }
 
     /**
-     * @since 3.1.1
+     * @since 5.0.0
      */
-    public function setSalePrice(float|int $salePrice): void
+    public function getPromotionalAmount(): float
     {
-        $this->_salePrice = $salePrice;
-    }
+        if ($this->getPromotionalPrice() === null) {
+            return 0;
+        }
 
-    /**
-     * @since 3.1.1
-     */
-    public function getSaleAmount(): float
-    {
-        return Currency::round($this->price - $this->salePrice);
+        return Currency::round($this->getPrice() - $this->getPromotionalPrice());
     }
 
     /**
@@ -397,8 +436,7 @@ class LineItem extends Model
                 [
                     'optionsSignature',
                     'price',
-                    'salePrice',
-                    'saleAmount',
+                    'promotionalAmount',
                     'weight',
                     'length',
                     'height',
@@ -411,7 +449,8 @@ class LineItem extends Model
             ],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price', 'salePrice'], 'number'],
+            [['price'], 'number'],
+            [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
         ];
 
         if ($this->purchasableId) {
@@ -459,9 +498,10 @@ class LineItem extends Model
         $names[] = 'description';
         $names[] = 'options';
         $names[] = 'optionsSignature';
-        $names[] = 'onSale';
+        $names[] = 'onPromotion';
         $names[] = 'price';
-        $names[] = 'saleAmount';
+        $names[] = 'promotionalPrice';
+        $names[] = 'promotionalPrice';
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
@@ -591,8 +631,8 @@ class LineItem extends Model
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
-        $this->price = $purchasable->getPrice();
-        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+        $this->setPrice($purchasable->getPrice());
+        $this->setPromotionalPrice($purchasable->getPromotionalPrice());
         $this->taxCategoryId = $purchasable->taxCategoryId;
         $this->shippingCategoryId = $purchasable->shippingCategoryId;
         $this->setSku($purchasable->getSku());
@@ -640,9 +680,13 @@ class LineItem extends Model
         }
     }
 
-    public function getOnSale(): bool
+    /**
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getOnPromotion(): bool
     {
-        return $this->getSaleAmount() > 0;
+        return $this->getPromotionalAmount() > 0;
     }
 
     /**

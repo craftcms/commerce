@@ -694,13 +694,14 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
         $lineItemQuantitiesById = [];
         $lineItemQuantitiesByPurchasableId = [];
-        collect($order->getLineItems())->each(function(LineItem $item) use (&$lineItemQuantitiesById, &$lineItemQuantitiesByPurchasableId) {
+        foreach ($order->getLineItems() as $item) {
             if ($item->id !== null) {
-                $lineItemQuantitiesById[$item->id] += $item->qty;
+                $lineItemQuantitiesById[$item->id] = isset($lineItemQuantitiesById[$item->id]) ? $lineItemQuantitiesById[$item->id] + $item->qty : $item->qty;
             } else {
-                $lineItemQuantitiesByPurchasableId[$item->purchasableId] += $item->qty;
+                $lineItemQuantitiesByPurchasableId[$item->purchasableId] = isset($lineItemQuantitiesByPurchasableId[$item->purchasableId]) ? $lineItemQuantitiesByPurchasableId[$item->purchasableId] + $item->qty : $item->qty;
             }
-        });
+        }
+
 
         return [
             // an inline validator defined as an anonymous function
