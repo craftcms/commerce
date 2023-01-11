@@ -113,6 +113,7 @@ use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
+use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -136,6 +137,7 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
+use craft\services\Plugins;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
@@ -593,6 +595,13 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners(): void
     {
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
+            if ($event->plugin === $this) {
+                (new Install())->insertDefaultData();
+            }
+        });
+
+
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
