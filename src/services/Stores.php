@@ -81,16 +81,6 @@ class Stores extends Component
     /**
      * @return void
      */
-    public function init(): void
-    {
-        $this->_loadAllStores();
-
-        parent::init();
-    }
-
-    /**
-     * @return void
-     */
     private function _loadAllStores(): void
     {
         if (isset($this->_allStores)) {
