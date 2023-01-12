@@ -42,6 +42,11 @@ class PurchasablePriceField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'price';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -81,13 +86,5 @@ class PurchasablePriceField extends BaseNativeField
                 'errors' => $element->getErrors('basePromotionalPrice'),
             ]) .
         Html::endTag('div');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'price';
     }
 }

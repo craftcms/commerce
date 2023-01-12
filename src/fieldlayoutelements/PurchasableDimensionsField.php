@@ -38,6 +38,11 @@ class PurchasableDimensionsField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'dimensions';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -81,13 +86,5 @@ class PurchasableDimensionsField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Dimensions');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'dimensions';
     }
 }
