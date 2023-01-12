@@ -9,7 +9,7 @@ use craft\db\Query;
 /**
  * m221206_083940_add_purchasables_stores_table migration.
  */
-class m221206_083940_add_purchasables_stores_table extends Migration
+class m221025_083940_add_purchasables_stores_table extends Migration
 {
     /**
      * @inheritdoc
@@ -53,7 +53,7 @@ class m221206_083940_add_purchasables_stores_table extends Migration
                 'v.dateCreated',
             ])
             ->from(['v' => Table::VARIANTS])
-            ->innerJoin(['p' => Table::PRODUCTS ], '[[p.id]] = [[v.productId]]')
+            ->innerJoin(['p' => Table::PRODUCTS], '[[p.id]] = [[v.productId]]')
             ->innerJoin(['pur' => Table::PURCHASABLES], '[[pur.id]] = [[v.id]]')
             ->all());
 
@@ -143,8 +143,6 @@ class m221206_083940_add_purchasables_stores_table extends Migration
         $this->dropColumn(Table::PRODUCTS, 'shippingCategoryId');
         $this->dropColumn(Table::PRODUCTS, 'availableForPurchase');
         $this->dropColumn(Table::PRODUCTS, 'freeShipping');
-
-        $this->dropColumn(Table::PURCHASABLES, 'price');
 
         return true;
     }
