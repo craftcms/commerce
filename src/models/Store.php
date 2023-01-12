@@ -148,15 +148,6 @@ class Store extends Model
     }
 
     /**
-     * @return StoreSettings|null
-     * @throws InvalidConfigException
-     */
-    public function getSettings(): ?StoreSettings
-    {
-        return $this->id ? Plugin::getInstance()->getStoreSettings()->getStoreSettingsByStoreId($this->id) : null;
-    }
-
-    /**
      * Returns the project config data for this store.
      */
     public function getConfig(): array

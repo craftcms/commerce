@@ -425,18 +425,6 @@ class Stores extends Component
     }
 
     /**
-
-     * Returns the current store for the active request.
-     *
-     * @return Store
-     */
-    public function getCurrentStore(): Store
-    {
-        // @TODO update this with actual logic
-        return $this->getPrimaryStore();
-    }
-
-    /**
      * Gets a store record by uid.
      *
      * @param string $uid
