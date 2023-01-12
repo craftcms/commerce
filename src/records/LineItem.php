@@ -27,10 +27,11 @@ use yii\db\ActiveQueryInterface;
  * @property int $orderId
  * @property int|null $lineItemStatusId
  * @property float $price
+ * @property float $promotionalPrice
  * @property-read ActiveQueryInterface $purchasable
  * @property int $purchasableId
  * @property int $qty
- * @property float $saleAmount
+ * @property float $promotionalAmount
  * @property float $salePrice
  * @property string $sku
  * @property-read ActiveQueryInterface $shippingCategory

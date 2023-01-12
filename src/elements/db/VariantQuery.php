@@ -12,11 +12,9 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
@@ -44,7 +42,7 @@ use yii\db\Connection;
  * @supports-status-param
  * @supports-title-param
  */
-class VariantQuery extends ElementQuery
+class VariantQuery extends PurchasableQuery
 {
     /**
      * @inheritdoc
@@ -79,11 +77,6 @@ class VariantQuery extends ElementQuery
     /**
      * @var mixed
      */
-    public mixed $price = null;
-
-    /**
-     * @var mixed
-     */
     public mixed $productId = null;
 
     /**
@@ -102,12 +95,6 @@ class VariantQuery extends ElementQuery
     public mixed $typeId = null;
 
     /**
-     * @var bool|null
-     * @since 3.3.4
-     */
-    public ?bool $hasUnlimitedStock = null;
-
-    /**
      * @var mixed
      */
     public mixed $minQty = null;
@@ -116,30 +103,6 @@ class VariantQuery extends ElementQuery
      * @var mixed
      */
     public mixed $maxQty = null;
-
-    /**
-     * @var mixed
-     * @since 3.2.0
-     */
-    public mixed $width = false;
-
-    /**
-     * @var mixed
-     * @since 3.2.0
-     */
-    public mixed $height = false;
-
-    /**
-     * @var mixed
-     * @since 3.2.0
-     */
-    public mixed $length = false;
-
-    /**
-     * @var mixed
-     * @since 3.2.0
-     */
-    public mixed $weight = false;
 
     /**
      * @inheritdoc
@@ -323,26 +286,6 @@ class VariantQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the variants’ price.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a price of 100.
-     * | `'>= 100'` | with a price of at least 100.
-     * | `'< 100'` | with a price of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function price(mixed $value): VariantQuery
-    {
-        $this->price = $value;
-        return $this;
-    }
-
-    /**
      * Narrows the query results to only variants that have stock.
      *
      * Possible values include:
@@ -358,27 +301,6 @@ class VariantQuery extends ElementQuery
     public function hasStock(?bool $value = true): VariantQuery
     {
         $this->hasStock = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only variants that have been set to unlimited stock.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `true` | with unlimited stock checked.
-     * | `false` | with unlimited stock not checked.
-     *
-     * @param bool|null $value
-     * @return static self reference
-     * @since 3.3.4
-     * @noinspection PhpUnused
-     */
-    public function hasUnlimitedStock(?bool $value = true): VariantQuery
-    {
-        $this->hasUnlimitedStock = $value;
         return $this;
     }
 
@@ -460,121 +382,6 @@ class VariantQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the variants’ width dimension.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a width of 100.
-     * | `'>= 100'` | with a width of at least 100.
-     * | `'< 100'` | with a width of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function width(mixed $value): VariantQuery
-    {
-        $this->width = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the variants’ height dimension.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a height of 100.
-     * | `'>= 100'` | with a height of at least 100.
-     * | `'< 100'` | with a height of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function height(mixed $value): VariantQuery
-    {
-        $this->height = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the variants’ length dimension.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a length of 100.
-     * | `'>= 100'` | with a length of at least 100.
-     * | `'< 100'` | with a length of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function length(mixed $value): VariantQuery
-    {
-        $this->length = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the variants’ weight dimension.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `100` | with a weight of 100.
-     * | `'>= 100'` | with a weight of at least 100.
-     * | `'< 100'` | with a weight of less than 100.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function weight(mixed $value): VariantQuery
-    {
-        $this->weight = $value;
-        return $this;
-    }
-
-    public function populate($rows): array
-    {
-        // @TODO move to purchasable query
-        $purchasableStoresAttributes = [
-            'id',
-            'purchasableId',
-            'price',
-            'promotionalPrice',
-            'storeId',
-            'stock',
-            'hasUnlimitedStock',
-            'minQty',
-            'maxQty',
-            'promotable',
-            'freeShipping',
-            'availableForPurchase',
-        ];
-        foreach ($rows as &$row) {
-            $purchasableStores = [];
-            Plugin::getInstance()->getStores()->getAllStores()->each(function($store) use (&$row, $purchasableStoresAttributes, &$purchasableStores) {
-                if (!isset($purchasableStores[$store->id])) {
-                    $purchasableStores[$store->id] = [];
-                }
-
-                foreach ($purchasableStoresAttributes as $attribute) {
-                    $purchasableStores[$store->id][$attribute] = $row[$store->handle . '_' . $attribute] ?? null;
-                    unset($row[$store->handle . '_' . $attribute]);
-                }
-            });
-            $row['purchasableStores'] = $purchasableStores;
-        }
-
-        return parent::populate($rows);
-    }
-
-    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -592,42 +399,11 @@ class VariantQuery extends ElementQuery
             'commerce_variants.id',
             'commerce_variants.productId',
             'commerce_variants.isDefault',
-            'commerce_purchasables.sku',
             'commerce_variants.sortOrder',
-            'commerce_purchasables.width',
-            'commerce_purchasables.height',
-            'commerce_purchasables.length',
-            'commerce_purchasables.weight',
-            'commerce_purchasables.taxCategoryId',
-            'commerce_purchasables.shippingCategoryId',
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
         $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
-
-        // @TODO move to purchasable query
-        $this->query->leftJoin(Table::PURCHASABLES . ' commerce_purchasables', '[[commerce_purchasables.id]] = [[commerce_variants.id]]');
-
-        foreach (Plugin::getInstance()->getStores()->getAllStores()->all() as $store) {
-            $storeTableNameAlias = $store->handle . '_commerce_purchasables_stores';
-            $storeTableName = Table::PURCHASABLES_STORES . ' ' . $storeTableNameAlias;
-            $this->query->addSelect([
-                $storeTableNameAlias . '.id as ' . $store->handle . '_id',
-                $storeTableNameAlias . '.purchasableId as ' . $store->handle . '_purchasableId',
-                $storeTableNameAlias . '.storeId as ' . $store->handle . '_storeId',
-                $storeTableNameAlias . '.price as ' . $store->handle . '_price',
-                $storeTableNameAlias . '.promotionalPrice as ' . $store->handle . '_promotionalPrice',
-                $storeTableNameAlias . '.stock as ' . $store->handle . '_stock',
-                $storeTableNameAlias . '.hasUnlimitedStock as ' . $store->handle . '_hasUnlimitedStock',
-                $storeTableNameAlias . '.minQty as ' . $store->handle . '_minQty',
-                $storeTableNameAlias . '.maxQty as ' . $store->handle . '_maxQty',
-                $storeTableNameAlias . '.promotable as ' . $store->handle . '_promotable',
-                $storeTableNameAlias . '.freeShipping as ' . $store->handle . '_freeShipping',
-                $storeTableNameAlias . '.availableForPurchase as ' . $store->handle . '_availableForPurchase',
-            ]);
-            $onStatement = sprintf('[[%s]] = [[%s]] AND [[%s]] = %s', $storeTableNameAlias . '.purchasableId', 'commerce_purchasables.id', $storeTableNameAlias . '.storeId', $store->id);
-            $this->query->leftJoin($storeTableName, $onStatement);
-        }
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
@@ -639,10 +415,6 @@ class VariantQuery extends ElementQuery
 
         if (isset($this->productId)) {
             $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
-        }
-
-        if (isset($this->price)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.price', $this->price));
         }
 
         if (isset($this->isDefault) && $this->isDefault !== null) {
@@ -661,48 +433,10 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
-        if ($this->width !== false) {
-            if ($this->width === null) {
-                $this->subQuery->andWhere(['commerce_purchasables.width' => $this->width]);
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.width', $this->width));
-            }
-        }
-
-        if ($this->height !== false) {
-            if ($this->height === null) {
-                $this->subQuery->andWhere(['commerce_purchasables.height' => $this->height]);
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.height', $this->height));
-            }
-        }
-
-        if ($this->length !== false) {
-            if ($this->length === null) {
-                $this->subQuery->andWhere(['commerce_purchasables.length' => $this->length]);
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.length', $this->length));
-            }
-        }
-
-        if ($this->weight !== false) {
-            if ($this->weight === null) {
-                $this->subQuery->andWhere(['commerce_purchasables.weight' => $this->weight]);
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.weight', $this->weight));
-            }
-        }
-
         // If width, height or length is specified in the query we should only be looking for products that
         // have a type which supports dimensions
         if ($this->width !== false || $this->height !== false || $this->length !== false || $this->weight !== false) {
             $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
-        }
-
-        if (isset($this->hasUnlimitedStock)) {
-            $this->subQuery->andWhere([
-                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock,
-            ]);
         }
 
         if (isset($this->hasStock)) {

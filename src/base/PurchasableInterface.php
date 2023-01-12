@@ -9,7 +9,9 @@ namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\Store;
+use craft\commerce\models\TaxCategory;
 
 /**
  * Interface Purchasable
@@ -25,155 +27,114 @@ interface PurchasableInterface
     public function getId(): ?int;
 
     /**
+     * Returns the store for the current instance of the purchasable.
+     *
+     * @return Store
+     */
+    public function getStore(): Store;
+
+    /**
+     * Returns the element’s status.
+     *
+     * @return string|null
+     * @TODO figure out what to do with this as it comes from the `ElementInterface`
+     */
+    public function getStatus(): ?string;
+
+    /**
      * Returns the base price the item will be added to the line item with.
      *
      * @return float|null decimal(14,4)
      */
-    public function getBasePrice(string|Store|null $store = null): ?float;
+    public function getBasePrice(?Store $store = null): ?float;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return float|null
      * @since 5.0.0
      */
-    public function getBasePromotionalPrice(string|Store|null $store = null): ?float;
+    public function getBasePromotionalPrice(?Store $store = null): ?float;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return int|null
      * @since 5.0.0
      */
-    public function getStock(string|Store|null $store = null): ?int;
+    public function getStock(?Store $store = null): ?int;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return bool
      * @since 5.0.0
      */
-    public function getHasUnlimitedStock(string|Store|null $store = null): bool;
+    public function getHasUnlimitedStock(?Store $store = null): bool;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return bool
      * @since 5.0.0
      */
-    public function getPromotable(string|Store|null $store = null): bool;
+    public function getPromotable(?Store $store = null): bool;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return bool
      * @since 5.0.0
      */
-    public function getAvailableForPurchase(string|Store|null $store = null): bool;
+    public function getAvailableForPurchase(?Store $store = null): bool;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return int|null
      * @since 5.0.0
      */
-    public function getMinQty(string|Store|null $store = null): ?int;
+    public function getMinQty(?Store $store = null): ?int;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return int|null
      * @since 5.0.0
      */
-    public function getMaxQty(string|Store|null $store = null): ?int;
+    public function getMaxQty(?Store $store = null): ?int;
 
     /**
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return bool|null
      * @since 5.0.0
      */
-    public function getFreeShipping(string|Store|null $store = null): ?bool;
+    public function getFreeShipping(?Store $store = null): ?bool;
 
     /**
-     * @param float|null $price
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setBasePrice(?float $price, string|Store|null $store = null): void;
-
-    /**
-     * @param float|null $price
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setBasePromotionalPrice(?float $price, string|Store|null $store = null): void;
-
-    /**
-     * @param int|null $stock
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setStock(?int $stock, string|Store|null $store = null): void;
-
-    /**
-     * @param bool $hasUnlimitedStock
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setHasUnlimitedStock(bool $hasUnlimitedStock, string|Store|null $store = null): void;
-
-    /**
-     * @param bool $promotable
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setPromotable(bool $promotable, string|Store|null $store = null): void;
-
-    /**
-     * @param bool $availableForPurchase
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setAvailableForPurchase(bool $availableForPurchase, string|Store|null $store = null): void;
-
-    /**
-     * @param int|null $minQty
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setMinQty(?int $minQty, string|Store|null $store = null): void;
-
-    /**
-     * @param int|null $maxQty
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setMaxQty(?int $maxQty, string|Store|null $store = null): void;
-
-    /**
-     * @param bool $freeShipping
-     * @param string|Store|null $store
-     * @return void
-     * @since 5.0.0
-     */
-    public function setFreeShipping(bool $freeShipping, string|Store|null $store = null): void;
-
-    /**
-     * Returns the base price the item will be added to the line item with.
+     * Returns the live price including catalog rule pricing.
      *
-     * @param string|Store|null $store
+     * @param Store|null $store
      * @return float|null decimal(14,4)
      */
-    public function getPrice(string|Store|null $store = null): ?float;
+    public function getPrice(?Store $store = null): ?float;
 
     /**
-     * Returns the base price the item will be added to the line item with.
-     * It provides opportunity to populate the salePrice if sales have not already been applied.
+     * Returns the live promotional price including the catalog rule pricing.
      *
-     * @return float decimal(14,4)
+     * @param Store|null $store
+     * @return float|null decimal(14,4)
+     * @since 5.0.0
      */
-    public function getSalePrice(): float;
+    public function getPromotionalPrice(?Store $store = null): ?float;
+
+    /**
+     * Returns the actual price the purchasable will be sold for.
+     *
+     * @param Store|null $store
+     * @return float|null decimal(14,4)
+     */
+    public function getSalePrice(?Store $store = null): ?float;
+
+    /**
+     * @param Store|null $store
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getOnPromotion(?Store $store = null): bool;
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
@@ -186,14 +147,14 @@ interface PurchasableInterface
     public function getDescription(): string;
 
     /**
-     * Returns the purchasable's tax category ID.
+     * Returns the purchasable's tax category.
      */
-    public function getTaxCategoryId(): int;
+    public function getTaxCategory(): TaxCategory;
 
     /**
-     * Returns the purchasable's shipping category ID.
+     * Returns the purchasable's shipping category.
      */
-    public function getShippingCategoryId(): int;
+    public function getShippingCategory(): ShippingCategory;
 
     /**
      * Returns whether the purchasable is currently available for purchase.

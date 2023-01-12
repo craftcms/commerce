@@ -242,6 +242,7 @@ class LineItems extends Component
 
         $lineItemRecord->qty = $lineItem->qty;
         $lineItemRecord->price = $lineItem->price;
+        $lineItemRecord->promotionalPrice = $lineItem->promotionalPrice;
 
         $lineItemRecord->weight = $lineItem->weight;
         $lineItemRecord->width = $lineItem->width;
@@ -253,7 +254,7 @@ class LineItems extends Component
         $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
-        $lineItemRecord->saleAmount = $lineItem->saleAmount;
+        $lineItemRecord->promotionalAmount = $lineItem->promotionalAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
@@ -442,10 +443,10 @@ class LineItems extends Component
                 'options',
                 'orderId',
                 'price',
+                'promotionalPrice',
                 'privateNote',
                 'purchasableId',
                 'qty',
-                'salePrice',
                 'shippingCategoryId',
                 'sku',
                 'snapshot',

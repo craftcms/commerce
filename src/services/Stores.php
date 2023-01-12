@@ -101,28 +101,9 @@ class Stores extends Component
     /**
      * @return void
      */
-    public function init(): void
-    {
-        $this->_loadAllStores();
-
-        parent::init();
-    }
-
-    /**
-     * @return void
-     */
     private function _loadAllStores(): void
     {
         if (isset($this->_allStores)) {
-            return;
-        }
-
-        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
-        if (!Craft::$app->getIsInstalled()
-            || !Craft::$app->getPlugins()->isPluginInstalled('commerce')
-            // @TODO remove at next major version
-            || version_compare($schemaVersion, '5.0.1', '<')
-        ) {
             return;
         }
 
@@ -189,7 +170,11 @@ class Stores extends Component
      */
     public function getAllStores(): Collection
     {
-        return $this->_allStores;
+        if ($this->_allStores === null) {
+            $this->_loadAllStores();
+        }
+
+        return $this->_allStores ?? collect([]);
     }
 
     /**
@@ -346,12 +331,10 @@ class Stores extends Component
             throw $e;
         }
 
-        $store = $this->_createStoreQuery()->where(['id' => $storeRecord->id])->one();
-
         // Did the primary site just change?
         if ($data['primary']) {
-            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $store['id']]]);
-            Db::update(Table::STORES, ['primary' => true], ['id' => $store['id']]);
+            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $storeRecord->id]]);
+            Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
         $this->refreshStores();
@@ -439,6 +422,18 @@ class Stores extends Component
     public function getPrimaryStore(): ?Store
     {
         return $this->getAllStores()->firstWhere('primary', true);
+    }
+
+    /**
+
+     * Returns the current store for the active request.
+     *
+     * @return Store
+     */
+    public function getCurrentStore(): Store
+    {
+        // @TODO update this with actual logic
+        return $this->getPrimaryStore();
     }
 
     /**

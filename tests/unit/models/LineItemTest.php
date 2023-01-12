@@ -46,10 +46,11 @@ class LineItemTest extends Unit
     {
         $lineItem = new LineItem();
         $lineItem->setPrice(1.239);
-        $lineItem->setSalePrice(1.114);
+        $lineItem->setPromotionalPrice(1.114);
         $lineItem->qty = 2;
 
         self::assertSame(1.24, $lineItem->getPrice());
+        self::assertSame(1.11, $lineItem->getPromotionalPrice());
         self::assertSame(1.11, $lineItem->getSalePrice());
         self::assertSame(2.22, $lineItem->getSubtotal());
     }

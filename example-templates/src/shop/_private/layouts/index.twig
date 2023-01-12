@@ -128,7 +128,7 @@ Common, top-level layout template.
 </body>
 </html>
 {% js at head %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+let states = {{ craft.commerce.getStores().getCurrentStore().settings.getAdministrativeAreasListByCountryCode()|json_encode|raw }};
 {% set usedFields = {} %}
 {% for countryCode in craft.app.addresses.getCountryRepository().getAll()|keys %}
 	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getAddressFormatRepository().get(countryCode).getUsedFields()|merge([

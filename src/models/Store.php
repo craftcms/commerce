@@ -10,16 +10,21 @@ namespace craft\commerce\models;
 use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
-use craft\commerce\models\StoreSettings;
 use craft\commerce\Plugin;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
+use yii\base\InvalidConfigException;
+
 
 /**
  * Store model.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
+ *
+ * @property-read StoreSettings|null $settings
+ * @property-write string $name
+ * @property-read array $config
  */
 class Store extends Model
 {
@@ -140,6 +145,15 @@ class Store extends Model
         $attributes = parent::attributes();
         $attributes[] = 'name';
         return $attributes;
+    }
+
+    /**
+     * @return StoreSettings|null
+     * @throws InvalidConfigException
+     */
+    public function getSettings(): ?StoreSettings
+    {
+        return $this->id ? Plugin::getInstance()->getStoreSettings()->getStoreSettingsByStoreId($this->id) : null;
     }
 
     /**

@@ -589,7 +589,7 @@ class Product extends Element
         if (!isset($this->_variants) && $this->id) {
             $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
 
-            if (!$this->getType()->hasVariants && !empty($variants)) {
+            if (!empty($variants)) {
                 $variant = array_shift($variants);
                 $variant->isDefault = true;
                 $variants = [$variant];
@@ -809,21 +809,12 @@ class Product extends Element
             Craft::$app->getView()::TEMPLATE_MODE_CP
         ), ['class' => 'meta']);
 
-        $html[] = Craft::$app->getView()->renderObjectTemplate(
-            '{% import "commerce/products/_fields" as productFields %}{{ productFields.singleVariantFields(product, product.getType()) }}',
-            null,
-            ['product' => $this],
-            Craft::$app->getView()::TEMPLATE_MODE_CP
-        );
-
         $html[] = parent::getSidebarHtml(false);
 
         // Custom styling
         $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
 
-        if (!$this->getType()->hasVariants) {
-            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
-        }
+        Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
 
         return implode('', $html);
     }
@@ -1058,6 +1049,13 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
+                    if ($this->getType()->maxVariants) {
+                        $variantCount = count($this->getVariants(true));
+                        if ($variantCount > $this->getType()->maxVariants) {
+                            $this->addError('variants', Craft::t('commerce', 'Too many variants for this product.'));
+                        }
+                    }
+
                     foreach ($this->getVariants(true) as $i => $variant) {
                         if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
                             $variant->setScenario(self::SCENARIO_LIVE);

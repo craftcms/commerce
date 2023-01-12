@@ -24,6 +24,15 @@ use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
+use craft\commerce\fieldlayoutelements\PurchasableAllowedQtyField;
+use craft\commerce\fieldlayoutelements\PurchasableAvailableForPurchaseField;
+use craft\commerce\fieldlayoutelements\PurchasableDimensionsField;
+use craft\commerce\fieldlayoutelements\PurchasableFreeShippingField;
+use craft\commerce\fieldlayoutelements\PurchasablePriceField;
+use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
+use craft\commerce\fieldlayoutelements\PurchasableSkuField;
+use craft\commerce\fieldlayoutelements\PurchasableStockField;
+use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -40,6 +49,8 @@ use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
 use craft\commerce\services\Carts;
+use craft\commerce\services\CatalogPricing;
+use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -102,6 +113,7 @@ use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
+use craft\events\PluginEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -125,14 +137,16 @@ use craft\services\Elements;
 use craft\services\Fields;
 use craft\services\Gc;
 use craft\services\Gql;
+use craft\services\Plugins;
 use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
+use craft\services\Users;
 use craft\utilities\ClearCaches;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use Exception;
 use yii\base\Event;
-use yii\base\Exception;
 use yii\web\User;
 
 /**
@@ -171,6 +185,8 @@ class Plugin extends BasePlugin
                 'paymentSources' => ['class' => PaymentSources::class],
                 'pdfs' => ['class' => Pdfs::class],
                 'plans' => ['class' => Plans::class],
+                'catalogPricing' => ['class' => CatalogPricing::class],
+                'catalogPricingRules' => ['class' => CatalogPricingRules::class],
                 'products' => ['class' => Products::class],
                 'productTypes' => ['class' => ProductTypes::class],
                 'purchasables' => ['class' => Purchasables::class],
@@ -466,6 +482,9 @@ class Plugin extends BasePlugin
                 'commerce-editSales' => ['label' => Craft::t('commerce', 'Edit sales')],
                 'commerce-createSales' => ['label' => Craft::t('commerce', 'Create sales')],
                 'commerce-deleteSales' => ['label' => Craft::t('commerce', 'Delete sales')],
+                'commerce-editCatalogPricingRules' => ['label' => Craft::t('commerce', 'Edit catalog pricing rules')],
+                'commerce-createCatalogPricingRules' => ['label' => Craft::t('commerce', 'Create catalog pricing rules')],
+                'commerce-deleteCatalogPricingRules' => ['label' => Craft::t('commerce', 'Delete catalog pricing rules')],
                 'commerce-editDiscounts' => ['label' => Craft::t('commerce', 'Edit discounts')],
                 'commerce-createDiscounts' => ['label' => Craft::t('commerce', 'Create discounts')],
                 'commerce-deleteDiscounts' => ['label' => Craft::t('commerce', 'Delete discounts')],
@@ -551,6 +570,13 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners(): void
     {
+        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
+            if ($event->plugin === $this) {
+                (new Install())->insertDefaultData();
+            }
+        });
+
+
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
@@ -572,6 +598,9 @@ class Plugin extends BasePlugin
             }
         );
 
+        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
+        Event::on(Users::class, Users::EVENT_AFTER_ASSIGN_USER_TO_GROUPS, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
+
         Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
             /** @var Address $address */
             $address = $event->sender;
@@ -582,6 +611,7 @@ class Plugin extends BasePlugin
         });
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
+        Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSavePurchasableHandler']);
     }
 
     /**
@@ -865,6 +895,15 @@ class Plugin extends BasePlugin
                     break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;
+                    $e->fields[] = PurchasableSkuField::class;
+                    $e->fields[] = PurchasableFreeShippingField::class;
+                    $e->fields[] = PurchasablePromotableField::class;
+                    $e->fields[] = PurchasableAvailableForPurchaseField::class;
+                    $e->fields[] = PurchasableAllowedQtyField::class;
+                    $e->fields[] = PurchasableStockField::class;
+                    $e->fields[] = PurchasablePriceField::class;
+                    $e->fields[] = PurchasableDimensionsField::class;
+                    $e->fields[] = PurchasableWeightField::class;
             }
         });
     }

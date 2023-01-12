@@ -9,7 +9,7 @@ use craft\db\Query;
 /**
  * m221206_083940_add_purchasables_stores_table migration.
  */
-class m221206_083940_add_purchasables_stores_table extends Migration
+class m221025_083940_add_purchasables_stores_table extends Migration
 {
     /**
      * @inheritdoc
@@ -52,9 +52,9 @@ class m221206_083940_add_purchasables_stores_table extends Migration
                 'v.dateUpdated',
                 'v.dateCreated',
             ])
-            ->from([Table::VARIANTS . ' v'])
-            ->innerJoin([Table::PRODUCTS . ' p'], '[[p.id]] = [[v.productId]]')
-            ->innerJoin([Table::PURCHASABLES . ' pur'], '[[pur.id]] = [[v.id]]')
+            ->from(['v' => Table::VARIANTS])
+            ->innerJoin(['p' => Table::PRODUCTS], '[[p.id]] = [[v.productId]]')
+            ->innerJoin(['pur' => Table::PURCHASABLES], '[[pur.id]] = [[v.id]]')
             ->all());
 
         $customPurchasablesToPurchasablesStores = collect((new Query())

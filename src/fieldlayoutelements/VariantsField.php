@@ -76,12 +76,6 @@ class VariantsField extends BaseField
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        $type = $element->getType();
-
-        if (!$type->hasVariants) {
-            return null;
-        }
-
         return VariantMatrix::getVariantMatrixHtml($element);
     }
 }

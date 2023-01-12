@@ -16,6 +16,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\Plugin;
+use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
@@ -47,7 +48,6 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
-        $this->insertDefaultData();
 
         return true;
     }
@@ -72,6 +72,52 @@ class Install extends Migration
      */
     public function createTables(): void
     {
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES);
+        $this->createTable(Table::CATALOG_PRICING_RULES, [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'description' => $this->text(),
+            'storeId' => $this->integer()->notNull(),
+            'dateFrom' => $this->dateTime(),
+            'dateTo' => $this->dateTime(),
+            'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
+            'applyAmount' => $this->decimal(14, 4)->notNull(),
+            'applyPriceType' => $this->enum('applyPriceType', [CatalogPricingRule::APPLY_PRICE_TYPE_PRICE, CatalogPricingRule::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE])->notNull(),
+            'purchasableCondition' => $this->text(),
+            'customerCondition' => $this->text(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING_RULES_USERS);
+        $this->createTable(Table::CATALOG_PRICING_RULES_USERS, [
+            'id' => $this->primaryKey(),
+            'catalogPricingRuleId' => $this->integer()->notNull(),
+            'userId' => $this->integer()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::CATALOG_PRICING);
+        $this->createTable(Table::CATALOG_PRICING, [
+            'id' => $this->primaryKey(),
+            'price' => $this->decimal(14, 4), // TODO probably store as string?
+            'purchasableId' => $this->integer()->notNull(),
+            'storeId' => $this->integer(),
+            'catalogPricingRuleId' => $this->integer(),
+            'userId' => $this->integer(),
+            'dateFrom' => $this->dateTime(),
+            'dateTo' => $this->dateTime(),
+            'isPromotionalPrice' => $this->boolean()->defaultValue(false),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->archiveTableIfExists(Table::CUSTOMERS);
         $this->createTable(Table::CUSTOMERS, [
             'id' => $this->primaryKey(), // Not used in v4 but is the old customerId
@@ -257,7 +303,8 @@ class Install extends Migration
             'options' => $this->text(),
             'optionsSignature' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull()->unsigned(),
-            'saleAmount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'promotionalPrice' => $this->decimal(14, 4)->null()->unsigned(),
+            'promotionalAmount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'salePrice' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'sku' => $this->string(),
             'weight' => $this->decimal(14, 4)->notNull()->defaultValue(0)->unsigned(),
@@ -485,8 +532,8 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'maxVariants' => $this->integer(),
             'hasDimensions' => $this->boolean()->notNull()->defaultValue(false),
-            'hasVariants' => $this->boolean()->notNull()->defaultValue(false),
 
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
@@ -540,7 +587,6 @@ class Install extends Migration
         $this->createTable(Table::PURCHASABLES, [
             'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
-            'price' => $this->decimal(14, 4)->notNull(),
             'description' => $this->text(),
             'width' => $this->decimal(14, 4),
             'height' => $this->decimal(14, 4),
@@ -868,6 +914,13 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -962,6 +1015,13 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::COUPONS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
@@ -1071,11 +1131,25 @@ class Install extends Migration
         }
 
         // The following defaults are not stored in the project config.
+        $this->_defaultStore();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
         $this->_defaultDonationPurchasable();
+    }
+
+    /**
+     * Make USD the default currency.
+     */
+    private function _defaultStore(): void
+    {
+        $data = [
+            'name' => 'Primary',
+            'handle' => 'primary',
+            'primary' => true,
+        ];
+        $this->insert(Store::tableName(), $data);
     }
 
     /**
@@ -1148,6 +1222,8 @@ class Install extends Migration
         $donation->sku = 'DONATION-CC4';
         $donation->storeId = 1;
         $donation->availableForPurchase = false;
+        $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
         Craft::$app->getElements()->saveElement($donation);
     }
 

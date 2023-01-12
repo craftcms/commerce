@@ -87,7 +87,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getPrice(string|Store|null $store = null): ?float
+    public function getPrice(?Store $store = null): ?float
     {
         return 0;
     }
@@ -236,7 +236,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getIsPromotable(): bool
+    public function getIsPromotable(?Store $store = null): bool
     {
         return false;
     }

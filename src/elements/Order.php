@@ -1348,7 +1348,7 @@ class Order extends Element
         $names[] = 'total';
         $names[] = 'totalPrice';
         $names[] = 'totalQty';
-        $names[] = 'totalSaleAmount';
+        $names[] = 'totalPromotionalAmount';
         $names[] = 'totalWeight';
         return $names;
     }
@@ -2751,13 +2751,14 @@ class Order extends Element
     }
 
     /**
-     * Returns the total sale amount.
+     * Returns the total promotional amount.
+     * @since 5.0.0
      */
-    public function getTotalSaleAmount(): float
+    public function getTotalPromotionalAmount(): float
     {
         $value = 0;
         foreach ($this->getLineItems() as $item) {
-            $value += ($item->qty * $item->saleAmount);
+            $value += ($item->qty * $item->getPromotionalAmount());
         }
 
         return $value;

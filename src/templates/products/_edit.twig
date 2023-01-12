@@ -144,17 +144,11 @@
     {{ productFields.behavioralMetaFields(product) }}
 </div>
 
-{{ productFields.singleVariantFields(product, productType) }}
-
 {% if product.id %}
   <div class="meta">
     {# Related Sales #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
         {% set productDefaultVariant = product.getDefaultVariant(true) %}
-        {% if currentUser.can('commerce-editSales') and productDefaultVariant is not null %}
-            {{ productFields.relatedSales(productDefaultVariant.id, productType.hasVariants) }}
-        {% endif %}
-
       {% if craft.commerce.is('pro') and currentUser.can('commerce-editDiscounts') and productDefaultVariant is not null %}
         {{ productFields.relatedDiscounts(productDefaultVariant.id, productDefaultVariant) }}
       {% endif %}
@@ -180,7 +174,6 @@
   {% js %}
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
-        hasVariants: {{ productType.hasVariants ? 'true' : 'false' }},
         purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}
       });
   {% endjs %}
