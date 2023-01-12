@@ -97,12 +97,8 @@ class Stores extends Component
             return;
         }
 
-        $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
-        if (!Craft::$app->getIsInstalled()
-            || !Craft::$app->getPlugins()->isPluginInstalled('commerce')
-            // @TODO remove at next major version
-            || version_compare($schemaVersion, '5.0.1', '<')
-        ) {
+        if (!Craft::$app->getIsInstalled() || !Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            // @TODO figure out if we need a version compare in here.
             return;
         }
 
@@ -120,7 +116,11 @@ class Stores extends Component
      */
     public function getAllStores(): Collection
     {
-        return $this->_allStores;
+        if ($this->_allStores === null) {
+            $this->_loadAllStores();
+        }
+
+        return $this->_allStores ?? collect([]);
     }
 
     /**
@@ -275,12 +275,10 @@ class Stores extends Component
             throw $e;
         }
 
-        $store = $this->getStoreById($storeRecord->id);
-
         // Did the primary site just change?
         if ($data['primary']) {
-            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $store->id]]);
-            Db::update(Table::STORES, ['primary' => true], ['id' => $store->id]);
+            Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $storeRecord->id]]);
+            Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
         $this->refreshStores();

@@ -21,6 +21,7 @@ use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
+use craft\commerce\records\Store;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
@@ -47,7 +48,6 @@ class Install extends Migration
         $this->createTables();
         $this->createIndexes();
         $this->addForeignKeys();
-        $this->insertDefaultData();
 
         return true;
     }
@@ -1106,6 +1106,7 @@ class Install extends Migration
     public function insertDefaultData(): void
     {
         // The following defaults are not stored in the project config.
+        $this->_defaultStore();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
@@ -1120,6 +1121,19 @@ class Install extends Migration
             $this->_defaultOrderSettings();
             $this->_defaultGateways();
         }
+    }
+
+    /**
+     * Make USD the default currency.
+     */
+    private function _defaultStore(): void
+    {
+        $data = [
+            'name' => 'Primary',
+            'handle' => 'primary',
+            'primary' => true,
+        ];
+        $this->insert(Store::tableName(), $data);
     }
 
     /**
@@ -1190,6 +1204,8 @@ class Install extends Migration
         $donation = new Donation();
         $donation->sku = 'DONATION-CC4';
         $donation->availableForPurchase = false;
+        $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
         Craft::$app->getElements()->saveElement($donation);
     }
 

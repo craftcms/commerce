@@ -499,7 +499,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         $store = $store ?? $this->getStore();
 
-        if (!isset($this->_price[$store->handle])) {
+        if ($this->id && !isset($this->_price[$store->handle])) {
             // Live get catalog price
             $catalogPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, false);
             if ($catalogPrice !== null) {
@@ -520,7 +520,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         $store = $store ?? $this->getStore();
 
-        if (!isset($this->_promotionalPrice[$store->handle])) {
+        if ($this->id && !isset($this->_promotionalPrice[$store->handle])) {
             $catalogPromotionalPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $store->id, Craft::$app->getUser()->getIdentity()?->id, true);
             if ($catalogPromotionalPrice !== null) {
                 $this->setPromotionalPrice($catalogPromotionalPrice, $store->handle);
