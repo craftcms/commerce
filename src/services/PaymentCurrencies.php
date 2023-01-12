@@ -38,12 +38,12 @@ class PaymentCurrencies extends Component
     /**
      * @var Collection<string, PaymentCurrency>
      */
-    private ?Collection $_allCurrenciesByIso = null;
+    private ?array $_allCurrenciesByIso = null;
 
     /**
      * @var Collection<int, PaymentCurrency>
      */
-    private ?Collection $_allCurrenciesById = null;
+    private ?array $_allCurrenciesById = null;
 
     /**
      * Get payment currency by its ID.
