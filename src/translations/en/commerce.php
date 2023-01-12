@@ -580,7 +580,7 @@ return [
     'Matching Items' => 'Matching Items',
     'Matching items are those items that are used to match this discount’s conditions. Those on the \'Matching Items\' tab.' => 'Matching items are those items that are used to match this discount’s conditions. Those on the \'Matching Items\' tab.',
     'Max Uses' => 'Max Uses',
-    'Max variants' => 'Max variants',
+    'Max Variants' => 'Max Variants',
     'Maximum Order Quantity' => 'Maximum Order Quantity',
     'Maximum Order Total Value' => 'Maximum Order Total Value',
     'Maximum Order Total Weight' => 'Maximum Order Total Weight',
