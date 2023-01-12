@@ -87,11 +87,6 @@ class Stores extends Component
             return;
         }
 
-        if (!Craft::$app->getIsInstalled() || !Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
-            // @TODO figure out if we need a version compare in here.
-            return;
-        }
-
         $results = $this->_createStoreQuery()->all();
 
         if (!empty($results)) {
