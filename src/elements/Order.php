@@ -47,7 +47,6 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
@@ -3143,9 +3142,7 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency(
-        string $value,
-    ): void
+    public function setPaymentCurrency(string $value): void
     {
         $this->_paymentCurrency = $value;
     }

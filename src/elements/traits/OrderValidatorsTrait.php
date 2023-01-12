@@ -98,8 +98,8 @@ trait OrderValidatorsTrait
      *
      * @param string $attribute the attribute being validated
      */
-    public function validateAddressCountry(string $attribute): void{
-
+    public function validateAddressCountry(string $attribute): void
+    {
         $address = $this->$attribute;
         if ($address && $address->countryCode) {
             $countriesList = array_keys($this->getStore()->getSettings()->getCountriesList());

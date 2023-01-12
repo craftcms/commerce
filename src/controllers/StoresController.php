@@ -164,6 +164,5 @@ class StoresController extends BaseStoreSettingsController
      */
     public function actionSaveSiteSettings(): Response
     {
-
     }
 }

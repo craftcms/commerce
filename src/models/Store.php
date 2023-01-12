@@ -13,8 +13,6 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
-use yii\base\InvalidConfigException;
-
 
 /**
  * Store model.

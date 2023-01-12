@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\SiteSettings as SiteSettingsRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\errors\BusyResourceException;
 use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
@@ -25,7 +26,6 @@ use craft\events\SiteEvent;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
-use craft\db\Table as CraftTable;
 use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -577,6 +577,5 @@ class Stores extends Component
 
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {
-
     }
 }

@@ -63,7 +63,7 @@ class StoreSettings extends Model
      */
     public function setLocationAddressId(array|int|null $locationAddressId): void
     {
-        if($locationAddressId === null){
+        if ($locationAddressId === null) {
             $this->_locationAddressId = $this->getLocationAddress()->id;
         }
 

@@ -50,7 +50,7 @@ class SiteSettings extends Model
      */
     public function getStoreUid()
     {
-        if($this->storeId && $uid = Db::uidById('{{%commerce_stores}}', $this->storeId)) {
+        if ($this->storeId && $uid = Db::uidById('{{%commerce_stores}}', $this->storeId)) {
             return $uid;
         }
 

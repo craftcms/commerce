@@ -108,7 +108,6 @@ use craft\console\controllers\ResaveController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
-use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;

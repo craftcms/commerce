@@ -14,7 +14,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\db\Query;
 use craft\elements\Address;
-use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -87,7 +86,7 @@ class StoreSettings extends Component
     {
         $store = Plugin::getInstance()->getStores()->getStoreById($id);
 
-        if(!$store) {
+        if (!$store) {
             throw new InvalidConfigException('Store not found');
         }
 
@@ -99,10 +98,10 @@ class StoreSettings extends Component
             $storeSettingsRecord->id = $id;
             $storeSettingsRecord->save();
             $storeSettings->id = $storeSettingsRecord->id;
-        }else{
+        } else {
             $storeSettings = Craft::createObject([
                 'class' => StoreSettingsModel::class,
-                'attributes' => $storeSettingsResults
+                'attributes' => $storeSettingsResults,
             ]);
         }
 

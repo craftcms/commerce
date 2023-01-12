@@ -8,8 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 
 /**
  * Class BaseStoreSettingsController
@@ -47,7 +45,7 @@ class BaseStoreSettingsController extends BaseCpController
             'path' => 'donation',
         ];
         $this->storeSettingsNav['subscriptions'] = [
-            'heading' => Craft::t('commerce', 'Subscriptions')
+            'heading' => Craft::t('commerce', 'Subscriptions'),
         ];
 
         $this->storeSettingsNav['subscription-plans'] = [
@@ -58,9 +56,8 @@ class BaseStoreSettingsController extends BaseCpController
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-
             $this->storeSettingsNav['pricing-heading'] = [
-                'heading' => Craft::t('commerce', 'Pricing')
+                'heading' => Craft::t('commerce', 'Pricing'),
             ];
 
             $this->storeSettingsNav['discounts'] = [
@@ -75,7 +72,7 @@ class BaseStoreSettingsController extends BaseCpController
         }
 
         $this->storeSettingsNav['shipping-header'] = [
-            'heading' => Craft::t('commerce', 'Shipping')
+            'heading' => Craft::t('commerce', 'Shipping'),
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
@@ -86,7 +83,7 @@ class BaseStoreSettingsController extends BaseCpController
         }
 
         $this->storeSettingsNav['tax'] = [
-            'heading' => Craft::t('commerce', 'Tax')
+            'heading' => Craft::t('commerce', 'Tax'),
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {

@@ -152,7 +152,6 @@ trait Routes
             $event->rules['commerce/promotions/catalog-pricing-rules'] = 'commerce/catalog-pricing-rules/index';
             $event->rules['commerce/promotions/catalog-pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
             $event->rules['commerce/promotions/catalog-pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
-
         });
     }
 }

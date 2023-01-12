@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -15,7 +14,7 @@ class m230110_052712_sites_settings extends Migration
      */
     public function safeUp(): bool
     {
-       // Create commerce_sites_settings table
+        // Create commerce_sites_settings table
         $this->createTable('{{%commerce_sitesettings}}', [
             'siteId' => $this->integer(),
             'storeId' => $this->integer()->null(), // defaults to primary store in app
