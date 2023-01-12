@@ -42,6 +42,11 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'stock';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -82,13 +87,5 @@ class PurchasableStockField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Stock');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'stock';
     }
 }

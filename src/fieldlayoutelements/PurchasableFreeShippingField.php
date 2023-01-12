@@ -40,6 +40,11 @@ class PurchasableFreeShippingField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'freeShipping';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -60,13 +65,5 @@ class PurchasableFreeShippingField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Free Shipping');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'freeShipping';
     }
 }

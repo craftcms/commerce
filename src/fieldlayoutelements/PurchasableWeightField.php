@@ -37,6 +37,11 @@ class PurchasableWeightField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'weight';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -60,13 +65,5 @@ class PurchasableWeightField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Weight');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'weight';
     }
 }

@@ -42,6 +42,11 @@ class PurchasableSkuField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    public string $attribute = 'sku';
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
@@ -72,13 +77,5 @@ class PurchasableSkuField extends BaseNativeField
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'SKU');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attribute(): string
-    {
-        return 'sku';
     }
 }
