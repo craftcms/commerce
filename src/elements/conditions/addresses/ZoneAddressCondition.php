@@ -3,6 +3,7 @@
 namespace craft\commerce\elements\conditions\addresses;
 
 use craft\elements\conditions\addresses\AddressCondition as ElementAddressCondition;
+use craft\elements\conditions\SiteConditionRule;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
 
@@ -19,7 +20,13 @@ class ZoneAddressCondition extends ElementAddressCondition
      */
     protected function conditionRuleTypes(): array
     {
-        return array_merge(parent::conditionRuleTypes(),
+        $conditionRuleTypes = parent::conditionRuleTypes();
+        // Removes Site Condition Rule support for Zone Address Condition.
+        if (($key = array_search(SiteConditionRule::class, $conditionRuleTypes)) !== false) {
+            unset($conditionRuleTypes[$key]);
+        }
+
+        return array_merge($conditionRuleTypes,
             [
                 PostalCodeFormulaConditionRule::class,
             ]);
