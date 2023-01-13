@@ -873,7 +873,6 @@ class Install extends Migration
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
-            'sku' => $this->string()->notNull(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
