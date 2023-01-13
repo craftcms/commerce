@@ -52,6 +52,7 @@
         columns: columns,
         container: '#stores-vue-admin-table',
         deleteAction: 'commerce/stores/delete-store',
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to permanently delete this store and everything in it?'),
         emptyMessage: Craft.t('commerce', 'No stores exist yet.'),
         tableData: {{ tableData|json_encode|raw }},
     });
