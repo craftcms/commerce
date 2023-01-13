@@ -77,25 +77,24 @@ class Carts extends Component
     {
         parent::init();
 
-        // Complete the cart cookie config
-        if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
-        }
+        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
+            $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
 
-        $request = Craft::$app->getRequest();
-        if (!$request->getIsConsoleRequest()) {
-            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+            // Complete the cart cookie config
+            if (!isset($this->cartCookie['name'])) {
+                $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+            }
 
-            $session = Craft::$app->getSession();
-            $requestCookies = $request->getCookies();
+            $request = Craft::$app->getRequest();
+            if (!$request->getIsConsoleRequest()) {
+                $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
-            // If we have a cart cookie, assign it to the cart number.
-            // Also check pre Commerce 4.0 for a cart number in the session just in case.
-            if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
-            } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
-                $this->setSessionCartNumber($session->get('commerce_cart'));
-                $session->remove('commerce_cart');
+                $requestCookies = $request->getCookies();
+
+                // If we have a cart cookie, assign it to the cart number.
+                if ($requestCookies->has($this->cartCookie['name'])) {
+                    $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+                }
             }
         }
     }

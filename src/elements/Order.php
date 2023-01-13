@@ -39,6 +39,7 @@ use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingMethodOption;
+use craft\commerce\models\Store;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
@@ -46,7 +47,6 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
@@ -653,6 +653,20 @@ class Order extends Element
      * ```
      */
     public ?string $orderLanguage = null;
+
+    /**
+     * The store the order was created in.
+     *
+     * @var int|null Order store ID
+     * ---
+     * ```php
+     * echo $order->storeId;
+     * ```
+     * ```twig
+     * {{ order.storeId }}
+     * ```
+     */
+    public ?int $storeId = null;
 
     /**
      * The site the order was created in.
@@ -1448,7 +1462,7 @@ class Order extends Element
         return array_merge(parent::defineRules(), [
             // Address models are valid
             [['billingAddress', 'shippingAddress'], 'validateAddress'],
-            [['billingAddress', 'shippingAddress'], StoreCountryValidator::class, 'skipOnEmpty' => true],
+            [['billingAddress', 'shippingAddress'], 'validateAddressCountry'],
 
             // Are the addresses both being set to each other.
             [
@@ -2034,6 +2048,7 @@ class Order extends Element
 
         $oldStatusId = $orderRecord->orderStatusId;
 
+        $orderRecord->storeId = $this->storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
         $orderRecord->number = $this->number;
         $orderRecord->reference = $this->reference;
         $orderRecord->itemTotal = $this->getItemTotal();
@@ -2661,16 +2676,7 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        // Lite should only allow one line item while the order is a cart.
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE) && $this->isCompleted == false) {
-            if (empty($lineItems)) {
-                $this->_lineItems = [];
-            } else {
-                $this->_lineItems = [array_shift($lineItems)];
-            }
-        } else {
-            $this->_lineItems = $lineItems;
-        }
+        $this->_lineItems = $lineItems;
     }
 
     public function _getAdjustmentsTotalByType(array|string $types, bool $included = false): float|int
@@ -3136,9 +3142,8 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency(
-        string $value,
-    ): void {
+    public function setPaymentCurrency(string $value): void
+    {
         $this->_paymentCurrency = $value;
     }
 
@@ -3273,6 +3278,20 @@ class Order extends Element
         }
 
         return $nestedTransactions;
+    }
+
+    /**
+     * Get the store for the order.
+     *
+     * @since 5.0.0
+     */
+    public function getStore(): ?Store
+    {
+        if (!isset($this->storeId)) {
+            throw new InvalidConfigException('Order is missing its store ID');
+        }
+
+        return Plugin::getInstance()->getStores()->getStoreById($this->storeId);
     }
 
     /**

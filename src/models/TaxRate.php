@@ -88,11 +88,6 @@ class TaxRate extends Model
     public ?int $taxCategoryId = null;
 
     /**
-     * @var bool Is this the tax rate for the lite edition
-     */
-    public bool $isLite = false;
-
-    /**
      * @var int|null Tax zone ID
      */
     public ?int $taxZoneId = null;

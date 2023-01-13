@@ -87,9 +87,25 @@ trait OrderValidatorsTrait
             $this->addModelErrors($address, $attribute);
         }
 
-        $marketLocationCondition = Plugin::getInstance()->getStoreSettings()->getStore()->getMarketAddressCondition();
+        $marketLocationCondition = $this->getStore()->getSettings()->getMarketAddressCondition();
         if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
             $this->addError($attribute, Craft::t('commerce', 'The address provided is outside the store’s market.'));
+        }
+    }
+
+    /**
+     * Validates that address country is in the allowed list.
+     *
+     * @param string $attribute the attribute being validated
+     */
+    public function validateAddressCountry(string $attribute): void
+    {
+        $address = $this->$attribute;
+        if ($address && $address->countryCode) {
+            $countriesList = array_keys($this->getStore()->getSettings()->getCountriesList());
+            if (!in_array($address->countryCode, $countriesList, false)) {
+                $this->addError($attribute, Craft::t('commerce', 'Country not allowed.'));
+            }
         }
     }
 

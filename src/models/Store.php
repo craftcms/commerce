@@ -12,7 +12,7 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\App;
-use yii\base\InvalidConfigException;
+use craft\helpers\UrlHelper;
 
 /**
  * Store model.
@@ -100,6 +100,48 @@ class Store extends Model
     }
 
     /**
+     * Gets the CP url to these stores settings
+     * @return string
+     */
+    public function getStoreSettingsUrl(?string $path = null): string
+    {
+        $path = $path ? '/' . $path : '';
+        return UrlHelper::cpUrl('commerce/store-settings/' . $this->handle . $path);
+    }
+
+    /**
+     * @return StoreSettings
+     */
+    public function getSettings(): StoreSettings
+    {
+        return Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($this->id);
+    }
+
+    /**
+     * Returns the sites that are related to this store.
+     *
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getSites(): array
+    {
+        return Plugin::getInstance()->getStores()->getAllSitesForStore($this);
+    }
+
+    /**
+     * Returns the names of the sites related to this store
+     *
+     * @return string[]
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getSitesNames(): array
+    {
+        return collect($this->getSites())->map(function($site) {
+            return $site->name;
+        })->all();
+    }
+
+    /**
      * @inheritdoc
      */
     public function attributeLabels(): array
@@ -119,15 +161,6 @@ class Store extends Model
         $attributes = parent::attributes();
         $attributes[] = 'name';
         return $attributes;
-    }
-
-    /**
-     * @return StoreSettings|null
-     * @throws InvalidConfigException
-     */
-    public function getSettings(): ?StoreSettings
-    {
-        return $this->id ? Plugin::getInstance()->getStoreSettings()->getStoreSettingsByStoreId($this->id) : null;
     }
 
     /**

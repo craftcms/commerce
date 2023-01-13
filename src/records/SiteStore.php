@@ -11,22 +11,20 @@ use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
- * Store record.
+ * Site Settings record.
  *
- * @property int $id
- * @property string $name
- * @property string $handle
- * @property bool $primary
+ * @property int $siteId
+ * @property int $storeId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class Store extends ActiveRecord
+class SiteStore extends ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::STORES;
+        return Table::SITESTORES;
     }
 }

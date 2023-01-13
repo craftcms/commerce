@@ -1,0 +1,36 @@
+{% extends 'commerce/_layouts/settings' %}
+{% set title = "Sites"|t('app') %}
+{% set fullPageForm = true %}
+{% block content %}
+    {{ actionInput('commerce/stores/save-site-stores') }}
+    {{ redirectInput('commerce/settings/sites') }}
+
+    {% import "_includes/forms" as forms %}
+    <div class="tablepane">
+        <table class="data fullwidth">
+            <thead>
+            <tr>
+                <th scope="col" data-title="Site">{{ "Site"|t('app') }}</th>
+                <th scope="col" data-title="Default Store">{{ "Default Store"|t('commerce') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for siteStore in sitesStores %}
+                <td>
+                    {{ siteStore.site.name|t('site') }}
+                </td>
+                <td>
+                    {{ forms.selectField({
+                        id: 'siteStores-'~siteStore.siteId,
+                        name: 'siteStores['~siteStore.siteId~'][storeId]',
+                        options: stores|map((store) => ({ label: store.name, value: store.id })),
+                        value: siteStore.storeId ?? primaryStoreId,
+                        errors: siteStore.getErrors('storeId'),
+                    }) }}
+                </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

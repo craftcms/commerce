@@ -33,6 +33,17 @@
         required: true
     }) }}
 
+    {% if brandNewStore %}
+        {{ forms.selectField({
+            label: 'Sites'|t('commerce'),
+            instructions: 'Every new store must be assigned to at least one site.'|t('commerce'),
+            id: 'siteId',
+            name: 'siteId',
+            value: null,
+            options: availableSiteOptions,
+        }) }}
+    {% endif %}
+
     {% if not store.primary %}
         {{ forms.lightswitchField({
             label: "Make this the primary store"|t('commerce'),

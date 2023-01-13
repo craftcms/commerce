@@ -2,7 +2,9 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
 
@@ -42,6 +44,7 @@ class m221122_055725_multi_store extends Migration
             ->from([Table::STORES])
             ->one();
 
+        // Add the store settings from the old stores table
         $this->insert(Table::STORESETTINGS, $storeSettings);
 
         $this->dropColumn(Table::STORES, 'locationAddressId');
@@ -59,14 +62,28 @@ class m221122_055725_multi_store extends Migration
             $this->addColumn(Table::STORES, 'primary', $this->boolean()->defaultValue(false)->notNull());
         }
 
+        $config = ['name' => 'Primary Store', 'handle' => 'primaryStore', 'primary' => true];
+
         $this->update(table: Table::STORES,
-            columns: ['name' => 'Primary Store', 'handle' => 'primaryStore', 'primary' => true],
+            columns: $config,
             condition: ['id' => $storeSettings['id']],
             updateTimestamp: false
         );
 
+        $storeUid = (new Query())
+            ->select(['uid'])
+            ->from([Table::STORES])
+            ->scalar();
 
-        // TODO: Add Project Config migration / creation of primary store in Project Config
+        // Make project config updates
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        if (version_compare($schemaVersion, '5.0.6', '<')) {
+            $projectConfig->set(Stores::CONFIG_STORES_KEY . $storeUid,
+                $config,
+                'Migration creating the initial primary store in the project config');
+        }
 
         return true;
     }

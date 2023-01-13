@@ -33,6 +33,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $gatewayId
  * @property OrderHistory[] $histories
  * @property int $id
+ * @property int $storeId
  * @property bool $isCompleted
  * @property float $itemSubtotal
  * @property float $itemTotal

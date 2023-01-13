@@ -28,6 +28,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/payment-currencies/save">
+    <input type="hidden" name="storeId" value="{{ storeId ? storeId : craft.commmerce.stores.getPrimaryStore().id }}">
     {{ redirectInput('commerce/store-settings/paymentcurrencies') }}
     {% if currency.id %}<input type="hidden" name="currencyId"
                                value="{{ currency.id }}">{% endif %}

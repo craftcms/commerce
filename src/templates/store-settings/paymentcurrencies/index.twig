@@ -1,4 +1,5 @@
 {% extends "commerce/_layouts/store-settings" %}
+{% set selectedItem = 'payment-currencies' %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Base',
