@@ -86,18 +86,14 @@ class OrderAdjustments extends Component
     {
         $adjusters = [];
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
-            $adjusters[] = Shipping::class;
-        }
+        $adjusters[] = Shipping::class;
 
         foreach ($this->getDiscountAdjusters() as $discountAdjuster) {
             $adjusters[] = $discountAdjuster;
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
-            $engine = Plugin::getInstance()->getTaxes()->getEngine();
-            $adjusters[] = $engine->taxAdjusterClass();
-        }
+        $taxEngine = Plugin::getInstance()->getTaxes()->getEngine();
+        $adjusters[] = $taxEngine->taxAdjusterClass();
 
         $event = new RegisterComponentTypesEvent([
             'types' => $adjusters,

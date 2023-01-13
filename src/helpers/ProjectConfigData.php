@@ -34,6 +34,7 @@ class ProjectConfigData
         $output['pdfs'] = self::_getPdfData();
         $output['gateways'] = self::_rebuildGatewayProjectConfig();
         $output['stores'] = self::_getStoresData();
+        $output['siteStores'] = self::_getSiteStoresData();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
@@ -100,6 +101,15 @@ class ProjectConfigData
         $data = [];
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
             $data[$store->uid] = $store->getConfig();
+        }
+        return $data;
+    }
+
+    private static function _getSiteStoresData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getStores()->getAllSiteStores() as $siteStore) {
+            $data[$siteStore->uid] = $siteStore->getConfig();
         }
         return $data;
     }

@@ -108,7 +108,6 @@ use craft\console\controllers\ResaveController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
-use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -159,8 +158,6 @@ use yii\web\User;
  */
 class Plugin extends BasePlugin
 {
-    // Edition constants
-    public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
 
     public static function config(): array
@@ -216,7 +213,6 @@ class Plugin extends BasePlugin
     public static function editions(): array
     {
         return [
-            self::EDITION_LITE,
             self::EDITION_PRO,
         ];
     }
@@ -224,7 +220,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.3';
+    public string $schemaVersion = '5.0.7';
 
     /**
      * @inheritdoc
@@ -274,7 +270,6 @@ class Plugin extends BasePlugin
             $this->_defineResaveCommand();
         } elseif ($request->getIsCpRequest()) {
             $this->_registerCpRoutes();
-            $this->_registerStoreAddressAuthHandlers();
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
@@ -341,35 +336,10 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $ret['subnav']['promotions'] = [
-                'label' => Craft::t('commerce', 'Promotions'),
-                'url' => 'commerce/promotions',
-            ];
-        }
-
-        if (self::getInstance()->is(self::EDITION_PRO, '>=')) {
-            if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
-                $ret['subnav']['shipping'] = [
-                    'label' => Craft::t('commerce', 'Shipping'),
-                    'url' => 'commerce/shipping',
-                ];
-            }
-
-            if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-                $ret['subnav']['tax'] = [
-                    'label' => Craft::t('commerce', 'Tax'),
-                    'url' => 'commerce/tax',
-                ];
-            }
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
-            $ret['subnav']['store-settings'] = [
-                'label' => Craft::t('commerce', 'Store Settings'),
-                'url' => 'commerce/store-settings',
-            ];
-        }
+        $ret['subnav']['store-settings'] = [
+            'label' => Craft::t('commerce', 'Store Settings'),
+            'url' => 'commerce/store-settings',
+        ];
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
@@ -580,6 +550,10 @@ class Plugin extends BasePlugin
             ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
             ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
 
+        $projectConfigService->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
+            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
+            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleDeletedSiteStore']);
+
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
             ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
@@ -609,6 +583,8 @@ class Plugin extends BasePlugin
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getStores(), 'afterSaveCraftSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_DELETE_SITE, [$this->getStores(), 'afterDeleteCraftSiteHandler']);
 
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
@@ -635,28 +611,6 @@ class Plugin extends BasePlugin
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
         Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSavePurchasableHandler']);
-    }
-
-    /**
-     * Registers store address authorization event handlers
-     */
-    private function _registerStoreAddressAuthHandlers(): void
-    {
-        $checkAuth = function(AuthorizationCheckEvent $event) {
-            /** @var Address $address */
-            $address = $event->sender;
-            $canonicalId = $address->getCanonicalId();
-            if (
-                $canonicalId && $canonicalId === Plugin::getInstance()->getStoreSettings()->getStore()->getLocationAddressId() &&
-                $event->user->can('commerce-manageStoreSettings')
-            ) {
-                $event->authorized = true;
-                $event->handled = true;
-            }
-        };
-
-        Event::on(Address::class, Address::EVENT_AUTHORIZE_VIEW, $checkAuth);
-        Event::on(Address::class, Address::EVENT_AUTHORIZE_SAVE, $checkAuth);
     }
 
     /**

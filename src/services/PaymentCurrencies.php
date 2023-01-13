@@ -35,12 +35,12 @@ use yii\db\StaleObjectException;
 class PaymentCurrencies extends Component
 {
     /**
-     * @var PaymentCurrency[]|null
+     * @var array
      */
     private ?array $_allCurrenciesByIso = null;
 
     /**
-     * @var PaymentCurrency[]|null
+     * @var array
      */
     private ?array $_allCurrenciesById = null;
 

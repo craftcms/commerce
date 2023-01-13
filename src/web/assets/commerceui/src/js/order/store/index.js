@@ -68,10 +68,6 @@ export default new Vuex.Store({
       return window.orderEdit.edition == 'pro';
     },
 
-    isLiteEdition() {
-      return window.orderEdit.edition == 'lite';
-    },
-
     hasOrderChanged(state) {
       return !_isEqual(state.draft, state.originalDraft);
     },
@@ -101,10 +97,6 @@ export default new Vuex.Store({
     },
 
     maxLineItems(state, getters) {
-      if (getters.edition === 'lite') {
-        return 1;
-      }
-
       return null;
     },
 

@@ -2,48 +2,37 @@
 {% set selectedSubnavItem = 'store-settings' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
 
-{% set title = "Store Settings"|t('commerce') %}
-
-{% set navItems = {} %}
-
-{% if currentUser.admin or currentUser.can('commerce-manageStoreSettings')%}
-{% set navItems = {
-    'store-heading': { heading: "Store"|t('commerce'), minEdition: 'lite' },
-    'store': { title: "Store"|t('commerce'), minEdition: 'lite' },
-    'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: 'lite' },
-    'donation': { title: "Donations"|t('commerce'), minEdition: 'lite' },
-    'subscriptions': { heading: 'Subscriptions'|t('commerce'), minEdition: 'lite' },
-    'subscription-plans': { title: 'Plans'|t('commerce'), minEdition: 'lite' }
-} %}
-{% endif %}
-
-{% if currentUser.can('commerce-manageStoreSettings') and craft.commerce.is('lite') %}
-{% set navItems = navItems|merge({
-    'taxandshipping-heading': { heading: "Tax & Shipping (Lite)"|t('commerce'), minEdition: 'lite' },
-    'shipping': { title: "Shipping"|t('commerce'), minEdition: 'lite' },
-    'tax': { title: "Tax"|t('commerce'), minEdition: 'lite' },
-}) %}
-{% endif %}
-
 {% if selectedItem is not defined %}
     {% set selectedItem = craft.app.request.getSegment(3) %}
 {% endif %}
 
-{% if selectedItem %}
-{% set docTitle = navItems[selectedItem].title~' - '~title %}
-{% else %}
-{% set docTitle = 'Store Settings' %}
+{% if store is not defined %}
+    {% set store = craft.commerce.stores.getPrimaryStore() %}
 {% endif %}
 
+{% set title = "Settings"|t('commerce') %}
+
+{% block toolbar %}
+    {# store selector dropdown input #}
+    {% if craft.commerce.stores.getAllStores().count() > 1 %}
+        <div class="select">
+            <select id="store-selector" class="text">
+                {% for storeOption in craft.commerce.stores.getAllStores() %}
+                    <option value="{{ storeOption.getStoreSettingsUrl() }}" {% if store.id == storeOption.id %}selected{% endif %}>{{ storeOption.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    {% endif %}
+{% endblock %}
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in storeSettingsNav %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}
                     <li>
-                        <a href="{{ url('commerce/store-settings/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                        <a href="{{ store.getStoreSettingsUrl(item.path) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.label }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -51,3 +40,9 @@
     </nav>
 {% endblock %}
 
+{% js %}
+    $('#store-selector').on('change', function() {
+        var storeUrl = $(this).val();
+        window.location.href = storeUrl;
+    });
+{% endjs %}

@@ -101,4 +101,25 @@ class SettingsController extends BaseAdminController
 
         return $this->redirectToPostedUrl();
     }
+
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionSites(): Response
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+
+        return $this->renderTemplate('commerce/settings/sites/_edit', [
+            'sites' => $sites,
+            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'stores' => Plugin::getInstance()->getStores()->getAllStores(),
+            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(function($store) {
+                return [
+                    'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
+                    'value' => $store->id,
+                ];
+            }),
+        ]);
+    }
 }

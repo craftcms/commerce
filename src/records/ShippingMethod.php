@@ -17,7 +17,6 @@ use yii\db\ActiveQueryInterface;
  * @property bool $enabled
  * @property string $handle
  * @property int $id
- * @property bool $isLite
  * @property string $name
  * @property ShippingRule[] $rules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

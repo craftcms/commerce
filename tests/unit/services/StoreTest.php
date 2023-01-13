@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\Plugin;
+use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\elements\Address;
 use UnitTester;
@@ -29,21 +30,22 @@ class StoreTest extends Unit
     /**
      * @var Store
      */
-    protected StoreSettings $service;
+    protected Stores $service;
 
     public function testGetStore(): void
     {
-        $store = $this->service->getStore();
+        $store = $this->service->getPrimaryStore();
 
-        self::assertInstanceOf(Address::class, $store->getLocationAddress());
-        self::assertEquals('US', $store->getLocationAddress()->countryCode);
-        self::assertEquals('Store', $store->getLocationAddress()->title);
+        self::assertInstanceOf(Address::class, $store->getSettings()->getLocationAddress());
+        self::assertEquals('US', $store->getSettings()->getLocationAddress()->countryCode);
+        self::assertEquals('Store', $store->getSettings()->getLocationAddress()->title);
     }
 
     public function testGetAllEnabledCountriesAsList(): void
     {
-        $this->service->getStore()->setCountries(['US', 'AU', 'PH', 'GB']);
-        $countriesAsList = $this->service->getStore()->getCountriesList();
+        $store = $this->service->getPrimaryStore();
+        $store->getSettings()->setCountries(['US', 'AU', 'PH', 'GB']);
+        $countriesAsList = $store->getSettings()->getCountriesList();
 
         self::assertIsArray($countriesAsList);
         self::assertArrayHasKey('US', $countriesAsList);
@@ -58,6 +60,6 @@ class StoreTest extends Unit
     {
         parent::_before();
 
-        $this->service = Plugin::getInstance()->getStoreSettings();
+        $this->service = Plugin::getInstance()->getStores();
     }
 }

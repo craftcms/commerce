@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\elements\Address;
+use craft\elements\Address as AddressElement;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\InvalidConfigException;
@@ -41,9 +42,9 @@ class StoreSettings extends Model
     private ?int $_locationAddressId = null;
 
     /**
-     * @var Address|false|null
+     * @var Address|null
      */
-    private Address|bool|null $_locationAddress = null;
+    private ?Address $_locationAddress = null;
 
     /**
      * @var array
@@ -58,10 +59,14 @@ class StoreSettings extends Model
     /**
      * Sets the store location address ID.
      *
-     * @param int|int[] $locationAddressId
+     * @param null|int|int[] $locationAddressId
      */
-    public function setLocationAddressId(array|int $locationAddressId): void
+    public function setLocationAddressId(array|int|null $locationAddressId): void
     {
+        if ($locationAddressId === null) {
+            $this->_locationAddressId = $this->getLocationAddress()->id;
+        }
+
         if (is_array($locationAddressId)) {
             $this->_locationAddressId = ArrayHelper::firstValue($locationAddressId) ?: null;
         } else {
@@ -85,16 +90,24 @@ class StoreSettings extends Model
     public function getLocationAddress(): ?Address
     {
         if (!isset($this->_locationAddress)) {
-            if (!$this->getLocationAddressId()) {
-                return null;
+            if ($this->_locationAddressId && $location = Address::findOne($this->_locationAddressId)) {
+                $this->_locationAddress = $location;
+            } else {
+                $storeLocationAddress = new AddressElement();
+                $storeLocationAddress->title = 'Store';
+                $storeLocationAddress->countryCode = 'US';
+                if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
+                    $this->_locationAddress = $storeLocationAddress;
+                    $this->_locationAddressId = $storeLocationAddress->id;
+                } else {
+                    throw new \Exception('Could not save store location address');
+                }
             }
 
-            if (($this->_locationAddress = Address::findOne($this->getLocationAddressId())) === null) {
-                $this->_locationAddress = false;
-            }
+            return $this->_locationAddress;
         }
 
-        return $this->_locationAddress ?: null;
+        return $this->_locationAddress;
     }
 
     /**
