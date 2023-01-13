@@ -242,14 +242,6 @@ class Donation extends Purchasable
     }
 
     /**
-     * @inheritdoc
-     */
-    public function getIsAvailable(): bool
-    {
-        return $this->availableForPurchase;
-    }
-
-    /**
      * @throws Exception
      */
     public function afterSave(bool $isNew): void
