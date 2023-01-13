@@ -224,15 +224,12 @@ class Variant extends Purchasable
         return $behaviors;
     }
 
-    /**
-     * @return array
-     */
-    public function currencyAttributes(): array
+    public function safeAttributes()
     {
-        return [
-            'price',
-            'salePrice',
-        ];
+        $attributes = parent::safeAttributes();
+        $attributes[] = 'productId';
+
+        return $attributes;
     }
 
     /**
@@ -307,6 +304,18 @@ class Variant extends Purchasable
         }
 
         return $product->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        if (parent::canDelete($user)) {
+            return true;
+        }
+
+        return $this->canSave($user);
     }
 
     /**
