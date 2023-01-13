@@ -188,8 +188,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         if (!empty($values)) {
             // @TODO figure out the cleanest way to do this
-            $values['price'] = $values['basePrice'];
-            $values['promotionalPrice'] = $values['basePromotionalPrice'];
+            $values['price'] = $values['basePrice'] ?? null;
+            $values['promotionalPrice'] = $values['basePromotionalPrice'] ?? null;
             Typecast::properties(PurchasableStoreModel::class, $values);
             $values['basePrice'] = $values['price'];
             $values['basePromotionalPrice'] = $values['promotionalPrice'];
