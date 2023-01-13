@@ -773,45 +773,6 @@ class Variant extends Purchasable
      * @inheritdoc
      * @throws InvalidConfigException
      */
-    public function getIsAvailable(): bool
-    {
-        $product = $this->getProduct();
-
-        if (!$product) {
-            return false;
-        }
-
-        // is the parent product available for sale?
-        if (!$product->availableForPurchase) {
-            return false;
-        }
-
-        // is the variant enabled?
-        if ($this->getStatus() !== Element::STATUS_ENABLED) {
-            return false;
-        }
-
-        // is parent product enabled?
-        if ($product->getStatus() !== Product::STATUS_LIVE) {
-            return false;
-        }
-
-        if (!$this->hasUnlimitedStock && $this->stock < 1) {
-            return false;
-        }
-
-        // Temporary SKU can not be added to the cart
-        if (PurchasableHelper::isTempSku($this->getSku())) {
-            return false;
-        }
-
-        return $this->stock >= 1 || $this->hasUnlimitedStock;
-    }
-
-    /**
-     * @inheritdoc
-     * @throws InvalidConfigException
-     */
     public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'product') {

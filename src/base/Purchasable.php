@@ -417,6 +417,33 @@ abstract class Purchasable extends Element implements PurchasableInterface
     }
 
     /**
+     * @inheritdoc
+     * @throws InvalidConfigException
+     */
+    public function getIsAvailable(?Store $store = null): bool
+    {
+        if (!$this->getAvailableForPurchase($store)) {
+            return false;
+        }
+
+        // is the variant enabled?
+        if ($this->getStatus() !== Element::STATUS_ENABLED) {
+            return false;
+        }
+
+        if (!$this->getHasUnlimitedStock($store) && $this->getStock($store) < 1) {
+            return false;
+        }
+
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
+        return $this->getStock($store) >= 1 || $this->getHasUnlimitedStock($store);
+    }
+
+    /**
      * @param int|null $minQty
      * @param Store|null $store
      * @return void
@@ -762,14 +789,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
             ],
             [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getIsAvailable(): bool
-    {
-        return $this->getAvailableForPurchase();
     }
 
     /**
