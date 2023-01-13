@@ -28,37 +28,6 @@
     }) }}
 {% endmacro %}
 
-
-{% macro behavioralMetaFields(product) %}
-    {%- import "_includes/forms" as forms -%}
-
-    {% set taxCategories = [] %}
-    {% for taxCategory in product.getType().taxCategories %}
-        {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
-    {% endfor %}
-
-    {{ forms.selectField({
-        label: 'Tax'|t('commerce'),
-        name: 'taxCategoryId',
-        value: product.taxCategoryId,
-        required: true,
-        options: taxCategories
-    }) }}
-
-    {% set shippingCategories = [] %}
-    {% for shippingCategory in product.getType().shippingCategories %}
-        {% set shippingCategories = shippingCategories|merge([{'value': shippingCategory.id, 'label': shippingCategory.name}]) %}
-    {% endfor %}
-
-    {{ forms.selectField({
-        label: 'Shipping'|t('commerce'),
-        name: 'shippingCategoryId',
-        value: product.shippingCategoryId,
-        required: true,
-        options: shippingCategories
-    }) }}
-{% endmacro %}
-
 {% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}

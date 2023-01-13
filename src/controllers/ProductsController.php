@@ -478,15 +478,8 @@ class ProductsController extends BaseController
             } else {
                 $variables['product'] = new Product();
                 $variables['product']->typeId = $variables['productType']->id;
-                $taxCategories = $variables['productType']->getTaxCategories();
-                $variables['product']->taxCategoryId = key($taxCategories);
-                $shippingCategories = $variables['productType']->getShippingCategories();
-                $variables['product']->shippingCategoryId = key($shippingCategories);
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
-                $variables['product']->promotable = true;
-                $variables['product']->availableForPurchase = true;
-                $variables['product']->freeShipping = false;
             }
         }
 

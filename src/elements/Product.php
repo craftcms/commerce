@@ -85,31 +85,6 @@ class Product extends Element
     public ?int $typeId = null;
 
     /**
-     * @var int|null Tax category ID
-     */
-    public ?int $taxCategoryId = null;
-
-    /**
-     * @var int|null Shipping category ID
-     */
-    public ?int $shippingCategoryId = null;
-
-    /**
-     * @var bool Whether the product is promotable
-     */
-    public bool $promotable = false;
-
-    /**
-     * @var bool Whether the product has free shipping
-     */
-    public bool $freeShipping = false;
-
-    /**
-     * @var bool Is this product available to be purchased
-     */
-    public bool $availableForPurchase = true;
-
-    /**
      * @var int|null defaultVariantId
      */
     public ?int $defaultVariantId = null;
@@ -462,49 +437,6 @@ class Product extends Element
     }
 
     /**
-     * Returns the tax category.
-     *
-     * @throws InvalidConfigException
-     */
-    public function getTaxCategory(): TaxCategory
-    {
-        $taxCategory = null;
-
-        if ($this->taxCategoryId) {
-            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
-        }
-
-        if (!$taxCategory) {
-            // Use default as we must have a category ID
-            $taxCategory = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
-            $this->taxCategoryId = $taxCategory->id;
-        }
-
-        return $taxCategory;
-    }
-
-    /**
-     * Returns the shipping category.
-     *
-     * @throws InvalidConfigException
-     */
-    public function getShippingCategory(): ShippingCategory
-    {
-        $shippingCategory = null;
-        if ($this->shippingCategoryId) {
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
-        }
-
-        if (!$shippingCategory) {
-            // Use default as we must have a category ID
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
-            $this->shippingCategoryId = $shippingCategory->id;
-        }
-
-        return $shippingCategory;
-    }
-
-    /**
      * @inheritdoc
      */
     public function getCpEditUrl(): ?string
@@ -800,19 +732,7 @@ class Product extends Element
 
         $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
 
-        $html[] = Html::tag('div', Craft::$app->getView()->renderObjectTemplate(
-            '{% import "commerce/products/_fields" as productFields %}{{ productFields.behavioralMetaFields(product) }}',
-            null,
-            ['product' => $this],
-            Craft::$app->getView()::TEMPLATE_MODE_CP
-        ), ['class' => 'meta']);
-
         $html[] = parent::getSidebarHtml(false);
-
-        // Custom styling
-        $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
-
-        Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
 
         return implode('', $html);
     }
@@ -1018,7 +938,7 @@ class Product extends Element
     protected function defineRules(): array
     {
         return array_merge(parent::defineRules(), [
-            [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true],
+            [['typeId'], 'number', 'integerOnly' => true],
             [['postDate', 'expiryDate'], DateTimeValidator::class],
             [
                 ['variants'],
@@ -1080,16 +1000,6 @@ class Product extends Element
      */
     public function beforeSave(bool $isNew): bool
     {
-        $taxCategoryIds = array_keys($this->getType()->getTaxCategories());
-        if (!in_array($this->taxCategoryId, $taxCategoryIds, false)) {
-            $this->taxCategoryId = $taxCategoryIds[0];
-        }
-
-        $shippingCategoryIds = array_keys($this->getType()->getShippingCategories());
-        if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false)) {
-            $this->shippingCategoryId = $shippingCategoryIds[0];
-        }
-
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
 
