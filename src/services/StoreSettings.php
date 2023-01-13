@@ -13,6 +13,7 @@ use craft\commerce\models\StoreSettings as StoreSettingsModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\db\Query;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -25,6 +26,11 @@ use yii\base\InvalidConfigException;
  */
 class StoreSettings extends Component
 {
+    /**
+     * @var Collection<StoreSettingsModel>|null
+     */
+    private ?Collection $_allStoreSettings = null;
+
     /**
      * Returns the store record.
      *
@@ -39,22 +45,41 @@ class StoreSettings extends Component
             throw new InvalidConfigException('Store not found');
         }
 
-        $storeSettingsResults = $this->_createStoreSettingsQuery()->where(['id' => $id])->one();
+        $storeSettings = $this->getAllStoreSettings()->firstWhere('id', $id);
 
-        if (!$storeSettingsResults) {
+        if (!$storeSettings) {
             $storeSettingsRecord = new StoreSettingsRecord();
-            $storeSettings = new StoreSettingsModel();
             $storeSettingsRecord->id = $id;
             $storeSettingsRecord->save();
-            $storeSettings->id = $storeSettingsRecord->id;
-        } else {
             $storeSettings = Craft::createObject([
                 'class' => StoreSettingsModel::class,
-                'attributes' => $storeSettingsResults,
+                'id' => $storeSettingsRecord->id,
             ]);
+            $this->getAllStoreSettings()->put($storeSettings->id, $storeSettings);
         }
 
         return $storeSettings;
+    }
+
+    /**
+     * @return Collection
+     * @throws InvalidConfigException
+     */
+    public function getAllStoreSettings(): Collection
+    {
+        if ($this->_allStoreSettings === null) {
+            $this->_allStoreSettings = collect();
+            $storeSettings = $this->_createStoreSettingsQuery()->all();
+
+            foreach ($storeSettings as $storeSetting) {
+                $this->_allStoreSettings->put($storeSetting['id'], Craft::createObject([
+                    'class' => StoreSettingsModel::class,
+                    'attributes' => $storeSetting,
+                ]));
+            }
+        }
+
+        return $this->_allStoreSettings ?? collect();
     }
 
     /**
@@ -80,6 +105,7 @@ class StoreSettings extends Component
             return false;
         }
 
+        $this->getAllStoreSettings()->put($store->id, $store);
         return true;
     }
 
