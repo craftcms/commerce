@@ -230,7 +230,6 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::DONATIONS);
         $this->createTable(Table::DONATIONS, [
             'id' => $this->primaryKey(),
-            'storeId' => $this->integer()->notNull(),
             'sku' => $this->string()->notNull(),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -756,7 +755,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(storeId)',
+            'PRIMARY KEY(siteId)',
         ]);
 
         $this->archiveTableIfExists(Table::STORES);
@@ -767,7 +766,6 @@ class Install extends Migration
             'primary' => $this->boolean()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
-            'dateDeleted' => $this->dateTime()->null(),
             'uid' => $this->uid(),
         ]);
 
@@ -1036,7 +1034,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::DONATIONS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
@@ -1132,25 +1129,11 @@ class Install extends Migration
         }
 
         // The following defaults are not stored in the project config.
-        $this->_defaultStore();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
         $this->_defaultDonationPurchasable();
-    }
-
-    /**
-     * Make USD the default currency.
-     */
-    private function _defaultStore(): void
-    {
-        $data = [
-            'name' => 'Primary',
-            'handle' => 'primary',
-            'primary' => true,
-        ];
-        $this->insert(Table::STORES, $data);
     }
 
     /**
