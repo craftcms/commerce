@@ -589,10 +589,8 @@ class Product extends Element
         if (!isset($this->_variants) && $this->id) {
             $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
 
-            if (!empty($variants)) {
-                $variant = array_shift($variants);
-                $variant->isDefault = true;
-                $variants = [$variant];
+            if (!empty($variants) && $this->getType()->maxVariants) {
+                $variants = array_slice($variants, 0, $this->getType()->maxVariants);
             }
 
             $this->setVariants($variants);
