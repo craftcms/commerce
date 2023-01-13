@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
@@ -21,6 +22,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
+use craft\db\Query;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -278,11 +280,16 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @return Collection
+     * @throws InvalidConfigException
      * @since 5.0.0
      */
     public function getPurchasableStores(): Collection
     {
-        return $this->_purchasableStores ?? collect([]);
+        if ($this->_purchasableStores === null) {
+            $this->_purchasableStores = $this->id ? Plugin::getInstance()->getPurchasables()->getPurchasableStoresByPurchasableId($this->id) : collect([]);
+        }
+
+        return $this->_purchasableStores ?? collect();
     }
 
     /**
@@ -929,6 +936,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
                     $purchasableStores->add($ps);
                 }
 
+                $ps->purchasableId = $purchasableElement->id;
                 $purchasableStore->price = $ps->price;
                 $purchasableStore->promotionalPrice = $ps->promotionalPrice;
                 $purchasableStore->stock = $ps->stock;
@@ -938,6 +946,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 $purchasableStore->promotable = $ps->promotable;
                 $purchasableStore->availableForPurchase = $ps->availableForPurchase;
                 $purchasableStore->freeShipping = $ps->freeShipping;
+                $purchasableStore->purchasableId = $ps->purchasableId;
 
                 $purchasableStore->save(false);
                 $ps->id = $purchasableStore->id;

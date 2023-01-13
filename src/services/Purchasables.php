@@ -13,11 +13,15 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
+use craft\commerce\models\PurchasableStore;
+use craft\commerce\records\PurchasableStore as PurchasableStoreRecord;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Product type service.
@@ -182,5 +186,28 @@ class Purchasables extends Component
         $this->trigger(self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, $event);
 
         return $event->types;
+    }
+
+    /**
+     * @param int $purchasableId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getPurchasableStoresByPurchasableId(int $purchasableId): Collection
+    {
+        $purchasableStoresResults = PurchasableStoreRecord::find()
+            ->where(['purchasableId' => $purchasableId])
+            ->all();
+
+        $purchasableStores = [];
+        foreach ($purchasableStoresResults as $row) {
+            $purchasableStores[] = Craft::createObject([
+                'class' => PurchasableStore::class,
+                'attributes' => $row,
+            ]);
+        }
+
+        return collect($purchasableStores);
     }
 }
