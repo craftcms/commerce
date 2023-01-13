@@ -65,8 +65,7 @@ abstract class Table
     public const CATALOG_PRICING_RULES = '{{%commerce_catalogpricingrules}}';
     public const CATALOG_PRICING_RULES_USERS = '{{%commerce_catalogpricingrules_users}}';
     public const PURCHASABLES_STORES = '{{%commerce_purchasables_stores}}';
-    public const SITESETTINGS = '{{%commerce_sitesettings}}';
-
+    public const SITESTORES = '{{%commerce_site_stores}}';
     public const STORES = '{{%commerce_stores}}';
     public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
 }

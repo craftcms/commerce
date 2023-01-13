@@ -749,13 +749,14 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->archiveTableIfExists(Table::SITESETTINGS);
-        $this->createTable(Table::SITESETTINGS, [
+        $this->archiveTableIfExists(Table::SITESTORES);
+        $this->createTable(Table::SITESTORES, [
             'siteId' => $this->integer(),
             'storeId' => $this->integer()->null(), // defaults to primary store in app
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
+            'PRIMARY KEY(storeId)',
         ]);
 
         $this->archiveTableIfExists(Table::STORES);
@@ -1149,7 +1150,7 @@ class Install extends Migration
             'handle' => 'primary',
             'primary' => true,
         ];
-        $this->insert(Store::tableName(), $data);
+        $this->insert(Table::STORES, $data);
     }
 
     /**
@@ -1220,7 +1221,6 @@ class Install extends Migration
     {
         $donation = new Donation();
         $donation->sku = 'DONATION-CC4';
-        $donation->storeId = 1;
         $donation->availableForPurchase = false;
         $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
         $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;

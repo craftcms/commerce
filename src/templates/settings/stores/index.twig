@@ -6,10 +6,12 @@
     'Primary',
 ]) %}
 {% set title = "Stores"|t('app') %}
-
+{% set stores = craft.commerce.stores.getAllStores() %}
 {% block actionButton %}
-    {% set newStoreUrl = url('commerce/settings/stores/new') %}
-    <a href="{{ newStoreUrl }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+    {% if craft.app.sites.getAllSites()|length < stores|length %}
+        {% set newStoreUrl = url('commerce/settings/stores/new') %}
+        <a href="{{ newStoreUrl }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -25,6 +27,7 @@
         url: url('commerce/settings/stores/'~store.id),
         handle: store.handle,
         primary: store.primary ? true : false,
+        sites: store.getSitesNames()|join(', '),
         _showDelete : store.primary ? false : true
     }]) %}
 {% endfor %}
@@ -33,6 +36,7 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'sites', title: Craft.t('commerce', 'Sites') },
         {
             name: 'primary',
             title: Craft.t('commerce', 'Primary'),

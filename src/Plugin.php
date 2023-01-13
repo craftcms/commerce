@@ -220,7 +220,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.6';
+    public string $schemaVersion = '5.0.7';
 
     /**
      * @inheritdoc
@@ -550,9 +550,9 @@ class Plugin extends BasePlugin
             ->onUpdate(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleChangedStore'])
             ->onRemove(Stores::CONFIG_STORES_KEY . '.{uid}', [$storesService, 'handleDeletedStore']);
 
-        $projectConfigService->onAdd(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleChangedSiteSettings'])
-            ->onUpdate(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleChangedSiteSettings'])
-            ->onRemove(Stores::CONFIG_SITESETTINGS_KEY . '.{uid}', [$storesService, 'handleDeletedSiteSettings']);
+        $projectConfigService->onAdd(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
+            ->onUpdate(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleChangedSiteStore'])
+            ->onRemove(Stores::CONFIG_SITESTORES_KEY . '.{uid}', [$storesService, 'handleDeletedSiteStore']);
 
         $pdfService = $this->getPdfs();
         $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])

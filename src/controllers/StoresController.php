@@ -137,6 +137,8 @@ class StoresController extends BaseStoreSettingsController
         return $this->renderTemplate('commerce/settings/stores/index', [
             'stores' => $stores,
             'crumbs' => $crumbs,
+            'sitesStores' => Plugin::getInstance()->getStores()->getAllSiteStores(),
+            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
         ]);
     }
 
@@ -157,12 +159,60 @@ class StoresController extends BaseStoreSettingsController
         return $this->asSuccess();
     }
 
+    public function actionEditSiteStores(array $siteStores = null): Response
+    {
+        // Breadcrumbs
+        $crumbs = [
+            [
+                'label' => Craft::t('commerce', 'Settings'),
+                'url' => UrlHelper::url('commerce/settings/stores'),
+            ],
+        ];
+
+        return $this->renderTemplate('commerce/settings/stores/_siteStore', [
+            'crumbs' => $crumbs,
+            'stores' => Plugin::getInstance()->getStores()->getAllStores(),
+            'sitesStores' => $siteStores ?? Plugin::getInstance()->getStores()->getAllSiteStores(),
+            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+        ]);
+    }
+
     /**
      * Saves the site settings records
      *
-     * @return Response
+     * @return ?Response
      */
-    public function actionSaveSiteSettings(): Response
+    public function actionSaveSiteStores(): ?Response
     {
+        $siteStoresData = $this->request->getBodyParam('siteStores', []);
+        $siteStores = Plugin::getInstance()->getStores()->getAllSiteStores();
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        foreach ($siteStores as $siteStore) {
+            if (isset($siteStoresData[$siteStore->siteId])) {
+                $siteStore->storeId = $siteStoresData[$siteStore->siteId]['storeId'];
+            }
+        }
+
+        foreach ($stores as $store) {
+            $storeAssigned = false;
+            foreach ($siteStores as $siteStore) {
+                if ($siteStore->storeId == $store->id) {
+                    $storeAssigned = true;
+                }
+            }
+            if (!$storeAssigned) {
+                return $this->asFailure(
+                    Craft::t('commerce', 'You need every store to be assigned to a site.'),
+                    routeParams: ['siteStores' => $siteStores]
+                );
+            }
+        }
+
+        foreach ($siteStores as $siteStore) {
+            Plugin::getInstance()->getStores()->saveSiteStore($siteStore);
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Site store mapping saved.'));
     }
 }

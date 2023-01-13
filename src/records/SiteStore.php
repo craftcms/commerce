@@ -18,13 +18,13 @@ use craft\db\ActiveRecord;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class SiteSettings extends ActiveRecord
+class SiteStore extends ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::SITESETTINGS;
+        return Table::SITESTORES;
     }
 }

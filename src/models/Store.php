@@ -52,11 +52,6 @@ class Store extends Model
     public ?string $uid = null;
 
     /**
-     * @var StoreSettings|null
-     */
-    private ?StoreSettings $_storeSettings = null;
-
-    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -104,9 +99,8 @@ class Store extends Model
         ];
     }
 
-
     /**
-     * Gets the CP url to this stores settings
+     * Gets the CP url to these stores settings
      * @return string
      */
     public function getStoreSettingsUrl(?string $path = null): string
@@ -121,6 +115,30 @@ class Store extends Model
     public function getSettings(): StoreSettings
     {
         return Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($this->id);
+    }
+
+    /**
+     * Returns the sites that are related to this store.
+     *
+     * @return array
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getSites(): array
+    {
+        return Plugin::getInstance()->getStores()->getAllSitesForStore($this);
+    }
+
+    /**
+     * Returns the names of the sites related to this store
+     *
+     * @return string[]
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function getSitesNames(): array
+    {
+        return collect($this->getSites())->map(function($site) {
+            return $site->name;
+        })->all();
     }
 
     /**

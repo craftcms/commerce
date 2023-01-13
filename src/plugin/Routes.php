@@ -68,7 +68,7 @@ trait Routes
             $event->rules['commerce/settings/stores/new'] = 'commerce/stores/edit-store';
             $event->rules['commerce/settings/stores/<storeId:\d+>'] = 'commerce/stores/edit-store';
 
-            $event->rules['commerce/settings/sites'] = 'commerce/settings/sites';
+            $event->rules['commerce/settings/sites'] = 'commerce/stores/edit-site-stores';
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';
 

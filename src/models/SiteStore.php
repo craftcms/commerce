@@ -7,7 +7,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\Db;
 
 /**
@@ -16,7 +18,7 @@ use craft\helpers\Db;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0
  */
-class SiteSettings extends Model
+class SiteStore extends Model
 {
     /**
      * @var int Site ID
@@ -43,6 +45,22 @@ class SiteSettings extends Model
         $rules[] = [['storeId', 'siteId'], 'safe'];
 
         return $rules;
+    }
+
+    /**
+     * @return Store
+     */
+    public function getStore(): Store
+    {
+        return Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getSite()
+    {
+        return Craft::$app->getSites()->getSiteById($this->siteId);
     }
 
     /**

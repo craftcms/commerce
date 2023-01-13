@@ -42,7 +42,7 @@ class StoreSettings extends Model
     private ?int $_locationAddressId = null;
 
     /**
-     * @var Address|false|null
+     * @var Address|null
      */
     private ?Address $_locationAddress = null;
 
