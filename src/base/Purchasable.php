@@ -40,7 +40,9 @@ use yii\validators\Validator;
  * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the base price the item will be added to the line item with
  * @property-read float $salePrice the base price the item will be added to the line item with
- * @property-read string $priceAsCurrency the base price the item will be added to the line item with
+ * @property-read string $priceAsCurrency the price
+ * @property-read string $basePriceAsCurrency the base price
+ * @property-read string $basePromotionalPriceAsCurrency the base promotional price
  * @property-read string $salePriceAsCurrency the base price the item will be added to the line item with
  * @property int $shippingCategoryId the purchasable's shipping category ID
  * @property string $sku a unique code as per the commerce_purchasables table
@@ -186,8 +188,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
     {
         if (!empty($values)) {
             // @TODO figure out the cleanest way to do this
-            $values['price'] = $values['basePrice'];
-            $values['promotionalPrice'] = $values['basePromotionalPrice'];
+            $values['price'] = $values['basePrice'] ?? null;
+            $values['promotionalPrice'] = $values['basePromotionalPrice'] ?? null;
             Typecast::properties(PurchasableStoreModel::class, $values);
             $values['basePrice'] = $values['price'];
             $values['basePromotionalPrice'] = $values['promotionalPrice'];
@@ -195,6 +197,19 @@ abstract class Purchasable extends Element implements PurchasableInterface
         }
 
         parent::setAttributes($values, $safeOnly);
+    }
+
+    /**
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+            'basePrice',
+            'basePromotionalPrice',
+            'salePrice',
+        ];
     }
 
     /**

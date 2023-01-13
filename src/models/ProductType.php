@@ -356,10 +356,22 @@ class ProductType extends Model
         $variantFieldLayout = $this->getVariantFieldLayout();
 
         $variantFieldLayout->reservedFieldHandles = [
+            'availableForPurchase',
             'description',
+            'freeShipping',
+            'hasUnlimitedStock',
+            'height',
+            'length',
+            'maxQty',
+            'minQty',
             'price',
             'product',
+            'promotable',
+            'promotionalPrice',
             'sku',
+            'stock',
+            'weight',
+            'width',
         ];
 
         if (!$variantFieldLayout->validate()) {
