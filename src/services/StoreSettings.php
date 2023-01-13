@@ -13,7 +13,6 @@ use craft\commerce\models\StoreSettings as StoreSettingsModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\db\Query;
-use craft\elements\Address;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 

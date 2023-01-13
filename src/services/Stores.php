@@ -14,7 +14,6 @@ use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
@@ -297,7 +296,8 @@ class Stores extends Component
             ]));
         }
 
-        Craft::$app->getProjectConfig()->remove(self::CONFIG_STORES_KEY . '.' . $store->uid);
+        $path = self::CONFIG_STORES_KEY . '.' . $store->uid;
+        Craft::$app->getProjectConfig()->remove($path, "Delete the “{$store->handle}” store");
 
         return true;
     }
@@ -320,6 +320,7 @@ class Stores extends Component
             $storeRecord = $this->_getStoreRecord($storeUid);
             $isNewStore = $storeRecord->getIsNewRecord();
 
+            $storeRecord->uid = $storeUid;
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
@@ -379,7 +380,7 @@ class Stores extends Component
 
         try {
             Craft::$app->getDb()->createCommand()
-                ->softDelete(Table::STORES, ['id' => $storeRecord->id])
+                ->delete(Table::STORES, ['id' => $storeRecord->id])
                 ->execute();
 
             $transaction->commit();
@@ -394,6 +395,13 @@ class Stores extends Component
         // Was this the current store?
         if (isset($this->_currentStore) && $this->_currentStore->id == $store->id) {
             $this->setCurrentStore($this->getPrimaryStore());
+        }
+
+        // Make sure any site store for this store is reassigned to the primary store
+        $siteStores = collect($this->getAllSiteStores())->where('storeId', $store->id)->all();
+        foreach ($siteStores as $siteStore) {
+            $siteStore->storeId = $this->getPrimaryStore()->id;
+            $this->saveSiteStore($siteStore);
         }
 
         // Fire an 'afterDeleteStore' event
@@ -451,16 +459,13 @@ class Stores extends Component
             ->select([
                 'id',
                 'name',
+                'name',
                 'handle',
                 'primary',
                 'uid',
             ])
-            ->andWhere(['dateDeleted' => null])
             ->from([Table::STORES]);
     }
-
-
-    // STORES ///
 
     public function getAllSitesForStore(Store $store)
     {
@@ -471,7 +476,7 @@ class Stores extends Component
     }
 
     /**
-     * @return array
+     * @return SiteStore[]
      */
     public function getAllSiteStores(): array
     {
@@ -480,6 +485,28 @@ class Stores extends Component
             $siteStores[] = new SiteStore($store);
         }
         return $siteStores;
+    }
+
+    /**
+     * Returns sites that are assigned to more than one store assigned, so that other new stores can use them.
+     *
+     * @return array
+     */
+    public function getSiteIdsAvailableForAssignmentToNewStores(): array
+    {
+        // Sites that are assigned to more than one store
+        $subQuery = (new Query())
+            ->select('storeId')
+            ->from(Table::SITESTORES)
+            ->groupBy('storeId')
+            ->having(['>', 'COUNT(storeId)', 1]);
+
+        return (new Query())
+            ->select('siteId')
+            ->from(Table::SITESTORES)
+            ->where(['IN', 'storeId', $subQuery])
+            ->groupBy('siteId')
+            ->column();
     }
 
     public function saveSiteStore(SiteStore $siteStore, bool $runValidation = true): bool
@@ -503,21 +530,6 @@ class Stores extends Component
             $siteStore->getConfig(),
             "Save the “{$craftSite->handle}” commerce site store mapping"
         );
-
-        return true;
-    }
-
-    /**
-     * @param int $siteStoreId
-     * @return bool
-     * @throws Exception
-     */
-    public function deleteSiteStoreByStoreId(int $siteStoreId): bool
-    {
-        // get uid from site store table
-        $siteStoreUid = Db::uidById(Table::SITESTORES, $siteStoreId);
-
-        Craft::$app->getProjectConfig()->remove(self::CONFIG_SITESTORES_KEY . '.' . $siteStoreUid);
 
         return true;
     }
@@ -615,7 +627,11 @@ class Stores extends Component
      */
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {
-        $this->deleteSiteStoreByStoreId($event->site->id);
+        $siteStore = collect($this->getAllSiteStores())->firstWhere('siteId', $event->site->id);
+        $orphanedStoreId = $siteStore->storeId;
+
+        // Delete the old siteStore record
+        Craft::$app->getProjectConfig()->remove(self::CONFIG_SITESTORES_KEY . '.' . $siteStore->uid);
     }
 
     /**

@@ -9,7 +9,6 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
-use craft\db\SoftDeleteTrait;
 
 /**
  * Store record.
@@ -23,8 +22,6 @@ use craft\db\SoftDeleteTrait;
  */
 class Store extends ActiveRecord
 {
-    use SoftDeleteTrait;
-
     /**
      * @inheritdoc
      */

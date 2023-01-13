@@ -66,11 +66,22 @@ class StoresController extends BaseStoreSettingsController
             ],
         ];
 
+        // map sites into select box options array
+        $availableSiteOptions = collect(Craft::$app->getSites()->getAllSites())->map(function($site) {
+            $availableForAssignmentToNewStores = Plugin::getInstance()->getStores()->getSiteIdsAvailableForAssignmentToNewStores();
+            return [
+                'label' => $site->name,
+                'value' => $site->id,
+                'disabled' => collect($availableForAssignmentToNewStores)->contains($site->id) === false,
+            ];
+        })->all();
+
         return $this->renderTemplate('commerce/settings/stores/_edit', [
             'brandNewStore' => $brandNewStore,
             'title' => $title,
             'crumbs' => $crumbs,
             'store' => $storeModel,
+            'availableSiteOptions' => $availableSiteOptions,
         ]);
     }
 
@@ -111,6 +122,13 @@ class StoresController extends BaseStoreSettingsController
             ]);
 
             return null;
+        }
+
+        // Create the site store relationship for this new order
+        if ($siteId = $this->request->getBodyParam('siteId')) {
+            $siteStore = collect($storesService->getAllSiteStores())->where('siteId', $siteId)->first();
+            $siteStore->storeId = $store->id;
+            $storesService->saveSiteStore($siteStore);
         }
 
         $this->setSuccessFlash(Craft::t('app', 'Store saved.'));
@@ -194,6 +212,7 @@ class StoresController extends BaseStoreSettingsController
             }
         }
 
+        $unassignedStores = [];
         foreach ($stores as $store) {
             $storeAssigned = false;
             foreach ($siteStores as $siteStore) {
@@ -202,11 +221,16 @@ class StoresController extends BaseStoreSettingsController
                 }
             }
             if (!$storeAssigned) {
-                return $this->asFailure(
-                    Craft::t('commerce', 'You need every store to be assigned to a site.'),
-                    routeParams: ['siteStores' => $siteStores]
-                );
+                $unassignedStores[] = $store->getName();
             }
+        }
+        if ($unassignedStores) {
+            return $this->asFailure(
+                Craft::t('commerce', '{storeNames} have not been assigned to a site.', [
+                    'storeNames' => implode(', ', $unassignedStores),
+                ]),
+                routeParams: ['siteStores' => $siteStores]
+            );
         }
 
         foreach ($siteStores as $siteStore) {
