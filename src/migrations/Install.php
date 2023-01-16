@@ -15,6 +15,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
+use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
@@ -1207,16 +1208,21 @@ class Install extends Migration
 
     private function _insertPrimaryStore(): void
     {
-        $store = Craft::createObject(Store::class);
-        $store->name = 'Primary';
-        $store->handle = 'primary';
-        $store->primary = true;
+        $store = Craft::createObject([
+            'class' => Store::class,
+            'name' => 'Primary',
+            'handle' => 'primary',
+            'primary' => true,
+        ]);
+
         Plugin::getInstance()->getStores()->saveStore($store);
 
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $siteStore = Craft::createObject(SiteStore::class);
-            $siteStore->siteId = $site->id;
-            $siteStore->storeId = $store->id;
+            $siteStore = Craft::createObject([
+                'class' => SiteStore::class,
+                'siteId' => $site->id,
+                'storeId' => $store->id,
+            ]);
             Plugin::getInstance()->getStores()->saveSiteStore($siteStore, false);
         }
     }
