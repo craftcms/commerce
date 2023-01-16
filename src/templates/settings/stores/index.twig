@@ -28,6 +28,7 @@
         handle: store.handle,
         primary: store.primary ? true : false,
         sites: store.getSitesNames()|join(', '),
+        storeManagement: url('commerce/store-settings/' ~ store.handle),
         _showDelete : store.primary ? false : true
     }]) %}
 {% endfor %}
@@ -44,6 +45,13 @@
                 if (value) {
                     return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
+            }
+        },
+        {
+            name: 'storeManagement',
+            title: '',
+            callback: function(value) {
+              return '<a href="'+value+'">' + Craft.escapeHtml(Craft.t('commerce', 'Store Management')) + '</a>';
             }
         }
     ];
