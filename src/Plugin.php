@@ -337,7 +337,7 @@ class Plugin extends BasePlugin
         }
 
         $ret['subnav']['store-settings'] = [
-            'label' => Craft::t('commerce', 'Store Settings'),
+            'label' => Craft::t('commerce', 'Store Management'),
             'url' => 'commerce/store-settings',
         ];
 
