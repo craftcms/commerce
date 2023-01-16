@@ -1212,6 +1212,13 @@ class Install extends Migration
         $store->handle = 'primary';
         $store->primary = true;
         Plugin::getInstance()->getStores()->saveStore($store);
+
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            $siteStore = Craft::createObject(SiteStore::class);
+            $siteStore->siteId = $site->id;
+            $siteStore->storeId = $store->id;
+            Plugin::getInstance()->getStores()->saveSiteStore($siteStore, false);
+        }
     }
 
     /**
