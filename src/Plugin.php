@@ -569,13 +569,6 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners(): void
     {
-        Event::on(Plugins::class, Plugins::EVENT_AFTER_INSTALL_PLUGIN, function(PluginEvent $event) {
-            if ($event->plugin === $this) {
-                (new Install())->insertDefaultData();
-            }
-        });
-
-
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
