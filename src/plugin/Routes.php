@@ -145,10 +145,6 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
-            $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
-            $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
-            $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
-
             $event->rules['commerce/promotions/catalog-pricing-rules'] = 'commerce/catalog-pricing-rules/index';
             $event->rules['commerce/promotions/catalog-pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
             $event->rules['commerce/promotions/catalog-pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
