@@ -27,7 +27,7 @@
         url: url('commerce/settings/stores/'~store.id),
         handle: store.handle,
         primary: store.primary ? true : false,
-        sites: store.getSitesNames()|join(', '),
+        sites: store.getSiteNames()|join(', '),
         storeManagement: url('commerce/store-settings/' ~ store.handle),
         _showDelete : store.primary ? false : true
     }]) %}

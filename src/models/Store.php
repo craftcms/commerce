@@ -13,6 +13,9 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
+use Illuminate\Support\Collection;
+use yii\base\InvalidConfigException;
 
 /**
  * Store model.
@@ -131,14 +134,14 @@ class Store extends Model
     /**
      * Returns the names of the sites related to this store
      *
-     * @return string[]
+     * @return Collection<string>
      * @throws \yii\base\InvalidConfigException
      */
-    public function getSitesNames(): array
+    public function getSiteNames(): Collection
     {
-        return collect($this->getSites())->map(function($site) {
-            return $site->name;
-        })->all();
+        return collect($this->getSites())->map(function(Site $site) {
+            return $site->getName();
+        });
     }
 
     /**

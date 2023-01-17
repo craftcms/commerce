@@ -10,6 +10,7 @@ namespace craft\commerce\helpers;
 use Craft;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\elements\Address;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 
@@ -70,6 +71,9 @@ JS, [
         ]);
 
         return
+            // @TODO remove debug heading
+            (!empty($purchasables) ? Html::tag('h3', 'Store: ' . ArrayHelper::firstValue($purchasables)->getStore()->name) : '') .
+
             Html::beginTag('ul', [
                 'id' => $config['id'],
                 'class' => 'purchasable-cards',
@@ -103,8 +107,7 @@ JS, [
             'name' => null,
         ];
 
-        // $canDelete = Craft::$app->getElements()->canDelete($purchasable);
-        $canDelete = true;
+        $canDelete = Craft::$app->getElements()->canDelete($purchasable);
         $actionMenuId = sprintf('purchasable-card-action-menu-%s', mt_rand());
 
         $statusText = match ($purchasable->getStatus()) {

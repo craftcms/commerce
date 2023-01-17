@@ -183,6 +183,24 @@ class Stores extends Component
     }
 
     /**
+     * @param int $siteId
+     * @return Store|null
+     */
+    public function getStoreBySiteId(int $siteId): ?Store
+    {
+        $storeId = $this->_createSiteStoresQuery()
+            ->select(['storeId'])
+            ->where(['siteId' => $siteId])
+            ->scalar();
+
+        if (!$storeId) {
+            return null;
+        }
+
+        return $this->getStoreById($storeId);
+    }
+
+    /**
      * @param string $handle
      * @return Store|null
      */
@@ -467,6 +485,10 @@ class Stores extends Component
             ->from([Table::STORES]);
     }
 
+    /**
+     * @param Store $store
+     * @return mixed
+     */
     public function getAllSitesForStore(Store $store)
     {
         return collect($this->getAllSiteStores())
@@ -509,6 +531,18 @@ class Stores extends Component
             ->column();
     }
 
+    /**
+     * @param SiteStore $siteStore
+     * @param bool $runValidation
+     * @return bool
+     * @throws BusyResourceException
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     * @throws StaleResourceException
+     * @throws YiiBaseException
+     */
     public function saveSiteStore(SiteStore $siteStore, bool $runValidation = true): bool
     {
         if ($runValidation && !$siteStore->validate()) {
@@ -519,6 +553,10 @@ class Stores extends Component
         // We use the same UID as the site since we only have one record per site.
         // This also makes it easier to see what site a store is mapped to in the project config.
         $craftSite = Craft::$app->getSites()->getSiteById($siteStore->siteId);
+        if (!$craftSite) {
+            throw new InvalidConfigException('Invalid site ID: ' . $siteStore->siteId);
+        }
+
         if (!$siteStore->uid) {
             $siteStore->uid = Db::uidById(CraftTable::SITES, $siteStore->siteId);
         }
@@ -604,6 +642,13 @@ class Stores extends Component
      *
      * @param SiteEvent $event
      * @return void
+     * @throws BusyResourceException
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     * @throws StaleResourceException
+     * @throws YiiBaseException
      */
     public function afterSaveCraftSiteHandler(SiteEvent $event): void
     {
@@ -624,6 +669,13 @@ class Stores extends Component
     /**
      * @param SiteEvent $event
      * @return void
+     * @throws BusyResourceException
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     * @throws StaleResourceException
+     * @throws YiiBaseException
      */
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {

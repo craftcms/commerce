@@ -234,9 +234,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 throw new InvalidConfigException('Purchasable::siteId cannot be null');
             }
 
-            // @TODO implement this when we have site to store mapping
-            // $this->_store = Plugin::getInstance()->getStores()->getStoreBySiteId($this->siteId) ?? Plugin::getInstance()->getStores()->getCurrentStore();
-            $this->_store = Plugin::getInstance()->getStores()->getCurrentStore();
+            $this->_store = Plugin::getInstance()->getStores()->getStoreBySiteId($this->siteId);
+            if ($this->_store === null) {
+                throw new InvalidConfigException('Unable to retrieve store.');
+            }
         }
 
         return $this->_store;
