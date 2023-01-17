@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use yii\web\Response as YiiResponse;
 
 /**
  * Class BaseStoreSettingsController
@@ -20,17 +21,18 @@ class BaseStoreSettingsController extends BaseCpController
     public array $storeSettingsNav = [];
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function init(): void
+    public function renderTemplate(string $template, array $variables = [], ?string $templateMode = null): YiiResponse
     {
-        parent::init();
+        $variables['storeSettingsNav'] = $this->getStoreSettingsNav();
+        return parent::renderTemplate($template, $variables, $templateMode);
     }
 
     /**
      * @return array
      */
-    protected function getStoreSettingsNav()
+    protected function getStoreSettingsNav(): array
     {
         $this->storeSettingsNav['general'] = [
             'label' => Craft::t('commerce', "General"),

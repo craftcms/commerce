@@ -35,8 +35,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     public function actionIndex(): Response
     {
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
-        $storeSettingsNav = $this->getStoreSettingsNav();
-        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/index', compact('currencies', 'storeSettingsNav'));
+        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/index', compact('currencies'));
     }
 
     /**
