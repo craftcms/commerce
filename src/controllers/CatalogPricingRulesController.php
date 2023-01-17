@@ -34,7 +34,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingRulesController extends BaseCpController
+class CatalogPricingRulesController extends BaseStoreSettingsController
 {
     public function beforeAction($action): bool
     {
@@ -50,10 +50,16 @@ class CatalogPricingRulesController extends BaseCpController
     /**
      * @throws InvalidConfigException
      */
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $catalogPricingRules = Plugin::getInstance()->getcatalogPricingRules()->getAllcatalogPricingRules();
-        return $this->renderTemplate('commerce/promotions/catalog-pricing-rules/index', compact('catalogPricingRules'));
+        if ($storeHandle !== null) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $catalogPricingRules = Plugin::getInstance()->getcatalogPricingRules()->getAllcatalogPricingRules($store);
+        return $this->renderTemplate('commerce/store-settings/pricing-rules/index', compact('catalogPricingRules', 'storeHandle'));
     }
 
     /**
@@ -62,7 +68,7 @@ class CatalogPricingRulesController extends BaseCpController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, CatalogPricingRule $catalogPricingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, CatalogPricingRule $catalogPricingRule = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createCatalogPricingRules');
@@ -70,19 +76,27 @@ class CatalogPricingRulesController extends BaseCpController
             $this->requirePermission('commerce-editCatalogPricingRules');
         }
 
-        $variables = compact('id', 'catalogPricingRule');
+        $store = null;
+        if ($storeHandle !== null) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        }
+
+        $store = $store ?? Plugin::getInstance()->getStores()->getPrimaryStore();
+
+        $variables = compact('id', 'catalogPricingRule', 'storeHandle');
 
         if (!$variables['catalogPricingRule']) {
             if ($variables['id']) {
                 $variables['catalogPricingRule'] = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($variables['id']);
 
-                if (!$variables['catalogPricingRule']) {
+                if (!$variables['catalogPricingRule'] || $variables['catalogPricingRule']->storeId !== $store->id) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['catalogPricingRule'] = Craft::createObject(CatalogPricingRule::class, ['config' => [
-                    'attributes' => ['allPurchasables' => true, 'allGroups' => true],
-                ]]);
+                $variables['catalogPricingRule'] = Craft::createObject([
+                    'class' => CatalogPricingRule::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
 
@@ -90,7 +104,7 @@ class CatalogPricingRulesController extends BaseCpController
 
         $this->_populateVariables($variables);
 
-        return $this->renderTemplate('commerce/promotions/catalog-pricing-rules/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/pricing-rules/_edit', $variables);
     }
 
     /**
@@ -112,6 +126,7 @@ class CatalogPricingRulesController extends BaseCpController
         }
 
         $catalogPricingRule->id = $this->request->getBodyParam('id');
+        $catalogPricingRule->storeId = $this->request->getBodyParam('storeId');
         $catalogPricingRule->name = $this->request->getBodyParam('name');
         $catalogPricingRule->description = $this->request->getBodyParam('description');
         $catalogPricingRule->apply = $this->request->getBodyParam('apply');

@@ -1,5 +1,5 @@
-{% extends "commerce/_layouts/promotions" %}
-{% set selectedSidebarNavItem = 'catalogPricingRules' %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set selectedItem = 'pricing' %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -17,7 +17,7 @@
 
 {% block actionButton %}
     {% if currentUser.can('commerce-createPricingCatalogRules') %}
-        <a href="{{ url('commerce/promotions/catalog-pricing-rules/new') }}" class="btn submit add icon">{{ 'New catalog pricing rule'|t('commerce') }}</a>
+        <a href="{{ url("commerce/store-settings/#{storeHandle}/pricing-rules/new") }}" class="btn submit add icon">{{ 'New catalog pricing rule'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 

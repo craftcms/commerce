@@ -3,8 +3,8 @@
 {% set selectedSubnavItem = "promotions" %}
 
 {% set crumbs = [
-    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-    { label: "Catalog Pricing Rules"|t('commerce'), url: url('commerce/promotions/catalog-pricing-rules') },
+    { label: "Store Management"|t('commerce'), url: url('commerce/store-settings/' ~ storeHandle) },
+    { label: "Price Rules"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/catalog-pricing-rules") },
 ] %}
 
 {% set fullPageForm = true %}
@@ -63,10 +63,11 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/catalog-pricing-rules/save">
-    {{ redirectInput('commerce/promotions/catalog-pricing-rules') }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/catalog-pricing-rules") }}
     {% if catalogPricingRule.id %}
-        <input type="hidden" name="id" value="{{ catalogPricingRule.id }}">
+        {{ hiddenInput('id', catalogPricingRule.id) }}
     {% endif %}
+    {{ hiddenInput('storeId', catalogPricingRule.storeId) }}
 
     <div id="rule">
         {{ forms.textField({

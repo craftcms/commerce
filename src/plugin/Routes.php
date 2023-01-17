@@ -136,7 +136,7 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-            // Sales going away
+            // @TODO Sales going away
 //            $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
 //            $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
 //            $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
@@ -145,9 +145,9 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
-            $event->rules['commerce/promotions/catalog-pricing-rules'] = 'commerce/catalog-pricing-rules/index';
-            $event->rules['commerce/promotions/catalog-pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
-            $event->rules['commerce/promotions/catalog-pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules'] = 'commerce/catalog-pricing-rules/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
         });
     }
 }

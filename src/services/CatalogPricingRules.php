@@ -196,6 +196,7 @@ class CatalogPricingRules extends Component
             'enabled',
             'isPromotionalPrice',
             'name',
+            'storeId',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
