@@ -777,6 +777,7 @@ return [
     'Preview' => 'Preview',
     'Previous Status' => 'Previous Status',
     'Price' => 'Price',
+    'Pricing Rules' => 'Pricing Rules',
     'Catalog pricing rule description.' => 'Catalog pricing rule description.',
     'Catalog pricing rule saved.' => 'Catalog pricing rule saved.',
     'Catalog pricing rules deleted.' => 'Catalog pricing rules deleted.',
