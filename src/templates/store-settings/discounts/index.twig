@@ -1,5 +1,5 @@
-{% extends "commerce/_layouts/promotions" %}
-{% set selectedSidebarNavItem = 'discounts' %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set selectedItem = 'discounts' %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -22,7 +22,7 @@
 
 {% block actionButton %}
     {% if currentUser.can('commerce-createDiscounts') %}
-        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+        <a href="{{ url('commerce/store-settings/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 
@@ -44,7 +44,7 @@
     {% set tableData = tableData|merge([{
         id: discount.id,
         title: discount.name|t('site'),
-        url: url('commerce/promotions/discounts/' ~ discount.id),
+        url: url('commerce/store-settings/discounts/' ~ discount.id),
         status: discount.enabled ? true : false,
         duration: dateRange,
         timesUsed: discount.totalDiscountUses,

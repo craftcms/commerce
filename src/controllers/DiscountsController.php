@@ -41,7 +41,7 @@ use function get_class;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DiscountsController extends BaseCpController
+class DiscountsController extends BaseStoreSettingsController
 {
     public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
@@ -63,7 +63,7 @@ class DiscountsController extends BaseCpController
     public function actionIndex(): Response
     {
         $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-        return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
+        return $this->renderTemplate('commerce/store-settings/discounts/index', compact('discounts'));
     }
 
     /**
@@ -103,7 +103,7 @@ class DiscountsController extends BaseCpController
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
 
-        return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/discounts/_edit', $variables);
     }
 
     /**
