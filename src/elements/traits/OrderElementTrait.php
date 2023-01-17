@@ -282,7 +282,7 @@ trait OrderElementTrait
             case 'lineItemDescriptions':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
             case 'customerName':
-                return $this->getCustomer()->fullName;
+                return $this->getCustomer()->fullName ?? '';
             default:
                 return parent::getSearchKeywords($attribute);
         }
