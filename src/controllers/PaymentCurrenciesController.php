@@ -44,19 +44,31 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
+    public function actionEdit(int $id = null, PaymentCurrency $currency = null, string $storeHandle = null): Response
     {
         $variables = compact('id', 'currency');
+
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
 
         if (!$variables['currency']) {
             if ($variables['id']) {
                 $variables['currency'] = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($variables['id']);
 
-                if (!$variables['currency']) {
+                if (!$variables['currency'] || $variables['currency']->storeId !== $store->id) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['currency'] = new PaymentCurrency();
+                $variables['currency'] = Craft::createObject([
+                    'class' => PaymentCurrency::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
 

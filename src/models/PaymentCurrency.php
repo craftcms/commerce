@@ -8,10 +8,12 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Currency model.
@@ -75,9 +77,22 @@ class PaymentCurrency extends Model
         return (string)$this->iso;
     }
 
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/store-settings/paymentcurrencies/' . $this->id);
+        if ($this->storeId === null) {
+            return '';
+        }
+
+        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+        if ($store === null) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return UrlHelper::cpUrl(sprintf('commerce/store-settings/%s/payment-currencies/%s', $store->handle, $this->id));
     }
 
     /**
@@ -164,6 +179,7 @@ class PaymentCurrency extends Model
             [['iso'], 'required'],
             [['rate'], 'required'],
             [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+            [['storeId'], 'safe'],
         ];
     }
 }
