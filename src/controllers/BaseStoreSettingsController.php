@@ -67,9 +67,9 @@ class BaseStoreSettingsController extends BaseCpController
                 'path' => 'discounts',
             ];
 
-            $this->storeSettingsNav['pricing'] = [
+            $this->storeSettingsNav['pricing-rules'] = [
                 'label' => Craft::t('commerce', 'Pricing Rules'),
-                'path' => 'price-rules',
+                'path' => 'pricing-rules',
             ];
         }
 

@@ -59,7 +59,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         }
 
         $catalogPricingRules = Plugin::getInstance()->getcatalogPricingRules()->getAllcatalogPricingRules($store);
-        return $this->renderTemplate('commerce/store-settings/pricing-rules/index', compact('catalogPricingRules', 'storeHandle'));
+        return $this->renderTemplate('commerce/store-settings/pricing-rules/index', compact('catalogPricingRules'));
     }
 
     /**

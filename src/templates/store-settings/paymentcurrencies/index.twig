@@ -1,5 +1,4 @@
 {% extends "commerce/_layouts/store-settings" %}
-{% set selectedItem = 'payment-currencies' %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Base',
@@ -11,7 +10,7 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/store-settings/paymentcurrencies/new') }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
+    <a href="{{ url("commerce/store-settings/#{storeHandle}/payment-currencies/new") }}" class="btn submit add icon">{{ 'New currency'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}
