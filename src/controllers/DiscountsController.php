@@ -71,7 +71,7 @@ class DiscountsController extends BaseStoreSettingsController
      * @param Discount|null $discount
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Discount $discount = null): Response
+    public function actionEdit(int $id = null, Discount $discount = null, string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createDiscounts');
@@ -81,6 +81,16 @@ class DiscountsController extends BaseStoreSettingsController
 
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
+
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+        $variables['storeHandle'] = $store->handle;
 
         if (!$variables['discount']) {
             if ($variables['id']) {

@@ -21,7 +21,7 @@
 
 {% block actionButton %}
     {% if currentUser.can('commerce-createDiscounts') %}
-        <a href="{{ url('commerce/store-settings/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+        <a href="{{ url("commerce/store-settings/#{storeHandle}/discounts/new") }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 

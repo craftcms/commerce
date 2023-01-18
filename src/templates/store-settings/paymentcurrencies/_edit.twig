@@ -1,11 +1,9 @@
-{% extends "commerce/_layouts/cp" %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
-    { label: "Currencies"|t('commerce'), url: url('commerce/store-settings/paymentcurrencies') },
+    { label: "Payment Currencies"|t('commerce'), url: url('commerce/store-settings/payment-currencies') },
 ] %}
-
-{% set selectedSubnavItem = 'store-settings' %}
 
 {% set fullPageForm = true %}
 

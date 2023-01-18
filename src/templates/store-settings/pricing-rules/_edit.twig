@@ -1,7 +1,6 @@
-{% extends "commerce/_layouts/cp" %}
-
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% set crumbs = [
-    { label: "Store Management"|t('commerce'), url: url('commerce/store-settings/' ~ storeHandle) },
     { label: "Pricing Rules"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/pricing-rules") },
 ] %}
 

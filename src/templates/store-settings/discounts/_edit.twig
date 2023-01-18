@@ -1,10 +1,8 @@
-{% extends "commerce/_layouts/cp" %}
-
-{% set selectedSubnavItem = "promotions" %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-    { label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
+    { label: "Discounts"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/discounts") },
 ] %}
 
 {% set fullPageForm = false %}
