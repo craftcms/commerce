@@ -88,6 +88,11 @@ class Stores extends Component
     private ?Collection $_allStores = null;
 
     /**
+     * @var Collection<store>|null
+     */
+    private ?Collection $_allStoresBySiteId = null;
+
+    /**
      * @var Store|null the current store
      * @see getCurrentStore()
      * @see setCurrentStore()
@@ -188,16 +193,20 @@ class Stores extends Component
      */
     public function getStoreBySiteId(int $siteId): ?Store
     {
-        $storeId = $this->_createSiteStoresQuery()
-            ->select(['storeId'])
-            ->where(['siteId' => $siteId])
-            ->scalar();
+        if ($this->_allStoresBySiteId === null) {
+            $storeSites = $this->_createSiteStoresQuery()
+                ->select(['storeId', 'siteId'])
+                ->all();
 
-        if (!$storeId) {
-            return null;
+            $_allStoresBySiteId = [];
+            foreach ($storeSites as $storeSite) {
+                $_allStoresBySiteId[$storeSite['siteId']] = $this->getAllStores()->firstWhere('id', $storeSite['storeId']);
+            }
+
+            $this->_allStoresBySiteId = collect($_allStoresBySiteId);
         }
 
-        return $this->getStoreById($storeId);
+        return $this->_allStoresBySiteId?->get($siteId);
     }
 
     /**
