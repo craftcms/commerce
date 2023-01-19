@@ -975,6 +975,8 @@ class Install extends Migration
         $this->createIndex(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId', 'taxCategoryId'], true);
         $this->createIndex(null, Table::PRODUCTTYPES_TAXCATEGORIES, 'taxCategoryId', false);
         $this->createIndex(null, Table::PURCHASABLES, 'sku', false); // Application layer enforces unique
+        $this->createIndex(null, Table::PURCHASABLES_STORES, 'purchasableId', false); // Application layer enforces unique
+        $this->createIndex(null, Table::PURCHASABLES_STORES, 'storeId', false); // Application layer enforces unique
         $this->createIndex(null, Table::SALE_PURCHASABLES, ['saleId', 'purchasableId'], true);
         $this->createIndex(null, Table::SALE_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::SALE_CATEGORIES, ['saleId', 'categoryId'], true);
