@@ -124,7 +124,7 @@ JS, [
             Html::encode($purchasable->getSku()),
         ];
 
-        if ($purchasable->getBasePromotionalPrice($purchasable->getStore())) {
+        if ($purchasable->basePromotionalPrice) {
             $title[] = Html::tag('del', $purchasable->basePriceAsCurrency) . ' ' .
                 $purchasable->basePromotionalPriceAsCurrency;
         } else {

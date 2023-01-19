@@ -66,13 +66,13 @@ class PurchasableStockField extends BaseNativeField
             Cp::textHtml([
                 'id' => 'stock',
                 'name' => 'stock',
-                'value' => ($element->getHasUnlimitedStock($element->getStore()) || $element->getStock($element->getStore()) === null ? '' : $element->getStock($element->getStore())),
+                'value' => ($element->hasUnlimitedStock || $element->stock === null ? '' : $element->stock),
                 'placeholder' => Craft::t('commerce', 'Enter stock'),
-                'disabled' => $element->getHasUnlimitedStock($element->getStore()),
+                'disabled' => $element->hasUnlimitedStock,
             ]) .
             Html::endTag('div') .
             Html::beginTag('div', ['class' => 'nowrap']) .
-                Html::checkbox('hasUnlimitedStock', $element->getHasUnlimitedStock($element->getStore()), [
+                Html::checkbox('hasUnlimitedStock', $element->hasUnlimitedStock, [
                     'id' => 'unlimited-stock',
                     'class' => 'unlimited-stock',
                     'label' => Craft::t('commerce', 'Unlimited'),

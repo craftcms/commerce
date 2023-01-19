@@ -53,7 +53,7 @@ class PurchasablePriceField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        $basePrice = $element->getBasePrice($element->getStore());
+        $basePrice = $element->basePrice;
         if (empty($element->getErrors('basePrice'))) {
             if ($basePrice === null) {
                 $basePrice = 0;
@@ -62,7 +62,7 @@ class PurchasablePriceField extends BaseNativeField
             $basePrice = Craft::$app->getFormatter()->asDecimal($basePrice);
         }
 
-        $basePromotionalPrice = $element->getBasePromotionalPrice($element->getStore());
+        $basePromotionalPrice = $element->basePromotionalPrice;
         if (empty($element->getErrors('basePromotionalPrice')) && $basePromotionalPrice !== null) {
             $basePromotionalPrice = Craft::$app->getFormatter()->asDecimal($basePromotionalPrice);
         }

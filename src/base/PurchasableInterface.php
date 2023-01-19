@@ -34,6 +34,13 @@ interface PurchasableInterface
     public function getStore(): Store;
 
     /**
+     * Returns the store ID for the current instance of the purchasable.
+     *
+     * @return int
+     */
+    public function getStoreId(): int;
+
+    /**
      * Returns the element’s status.
      *
      * @return string|null
@@ -41,100 +48,35 @@ interface PurchasableInterface
      */
     public function getStatus(): ?string;
 
-    /**
-     * Returns the base price the item will be added to the line item with.
-     *
-     * @return float|null decimal(14,4)
-     */
-    public function getBasePrice(?Store $store = null): ?float;
-
-    /**
-     * @param Store|null $store
-     * @return float|null
-     * @since 5.0.0
-     */
-    public function getBasePromotionalPrice(?Store $store = null): ?float;
-
-    /**
-     * @param Store|null $store
-     * @return int|null
-     * @since 5.0.0
-     */
-    public function getStock(?Store $store = null): ?int;
-
-    /**
-     * @param Store|null $store
-     * @return bool
-     * @since 5.0.0
-     */
-    public function getHasUnlimitedStock(?Store $store = null): bool;
-
-    /**
-     * @param Store|null $store
-     * @return bool
-     * @since 5.0.0
-     */
-    public function getPromotable(?Store $store = null): bool;
-
-    /**
-     * @param Store|null $store
-     * @return bool
-     * @since 5.0.0
-     */
-    public function getAvailableForPurchase(?Store $store = null): bool;
-
-    /**
-     * @param Store|null $store
-     * @return int|null
-     * @since 5.0.0
-     */
-    public function getMinQty(?Store $store = null): ?int;
-
-    /**
-     * @param Store|null $store
-     * @return int|null
-     * @since 5.0.0
-     */
-    public function getMaxQty(?Store $store = null): ?int;
-
-    /**
-     * @param Store|null $store
-     * @return bool|null
-     * @since 5.0.0
-     */
-    public function getFreeShipping(?Store $store = null): ?bool;
 
     /**
      * Returns the live price including catalog rule pricing.
      *
-     * @param Store|null $store
      * @return float|null decimal(14,4)
      */
-    public function getPrice(?Store $store = null): ?float;
+    public function getPrice(): ?float;
 
     /**
      * Returns the live promotional price including the catalog rule pricing.
      *
-     * @param Store|null $store
      * @return float|null decimal(14,4)
      * @since 5.0.0
      */
-    public function getPromotionalPrice(?Store $store = null): ?float;
+    public function getPromotionalPrice(): ?float;
 
     /**
      * Returns the actual price the purchasable will be sold for.
      *
-     * @param Store|null $store
      * @return float|null decimal(14,4)
      */
-    public function getSalePrice(?Store $store = null): ?float;
+    public function getSalePrice(): ?float;
 
     /**
      * @param Store|null $store
      * @return bool
      * @since 5.0.0
      */
-    public function getOnPromotion(?Store $store = null): bool;
+    public function getOnPromotion(): bool;
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.

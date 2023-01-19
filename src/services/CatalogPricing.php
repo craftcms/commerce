@@ -44,29 +44,17 @@ class CatalogPricing extends Component
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function generateCatalogPrices(?array $purchasables = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false): void
+    public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false): void
     {
-        $isAllPurchasables = $purchasables === null;
+        $isAllPurchasables = $purchasableIds === null;
         if ($isAllPurchasables) {
-            $purchasableElementTypes = Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes();
-            if (empty($purchasableElementTypes)) {
-                return;
-            }
-
-            $purchasables = [];
-            foreach ($purchasableElementTypes as $purchasableElementType) {
-                $query = Craft::$app->getElements()->createElementQuery($purchasableElementType);
-
-                $foundPurchasables = $query->all();
-                if (empty($foundPurchasables)) {
-                    continue;
-                }
-
-                $purchasables = [...$purchasables, ...$foundPurchasables];
-            }
+            $purchasableIds = (new Query())
+                ->select(['id'])
+                ->from([Table::PURCHASABLES])
+                ->column();
         }
 
-        if (empty($purchasables)) {
+        if (empty($purchasableIds)) {
             return;
         }
 
@@ -80,14 +68,14 @@ class CatalogPricing extends Component
                 ->all();
 
             // Generate original pricing records
-            foreach ($purchasables as $purchasable) {
-                if (!isset($priceByPurchasableId[$purchasable->id]) || !isset($priceByPurchasableId[$purchasable->id]['price'])) {
+            foreach ($purchasableIds as $purchasableId) {
+                if (!isset($priceByPurchasableId[$purchasableId]) || !isset($priceByPurchasableId[$purchasableId]['price'])) {
                     continue;
                 }
 
                 $catalogPricing[] = [
-                    $purchasable->id, // purchasableId
-                    $priceByPurchasableId[$purchasable->id]['price'], // price
+                    $purchasableId, // purchasableId
+                    $priceByPurchasableId[$purchasableId]['price'], // price
                     $store->id, // storeId
                     0, // isPromotionalPrice
                     null, // catalogPricingRuleId
@@ -95,10 +83,10 @@ class CatalogPricing extends Component
                     null, // dateTo
                 ];
 
-                if ($priceByPurchasableId[$purchasable->id]['promotionalPrice'] !== null) {
+                if ($priceByPurchasableId[$purchasableId]['promotionalPrice'] !== null) {
                     $catalogPricing[] = [
-                        $purchasable->id, // purchasableId
-                        $priceByPurchasableId[$purchasable->id]['promotionalPrice'], // price
+                        $purchasableId, // purchasableId
+                        $priceByPurchasableId[$purchasableId]['promotionalPrice'], // price
                         $store->id, // storeId
                         1, // isPromotionalPrice
                         null, // catalogPricingRuleId
@@ -108,30 +96,42 @@ class CatalogPricing extends Component
                 }
             }
 
-            $catalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store)->all();
+            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store)->all();
 
-            foreach ($catalogPricingRules as $catalogPricingRule) {
-                // If `getPurchasableIds()` is `null` this means all purchasables
-                if ($catalogPricingRule->getPurchasableIds() === null) {
-                    $purchasableIds = ArrayHelper::getColumn($purchasables, 'id');
-                } else {
-                    $purchasableIds = $isAllPurchasables ? $catalogPricingRule->getPurchasableIds() : array_intersect($catalogPricingRule->getPurchasableIds(), ArrayHelper::getColumn($purchasables, 'id'));
-                }
-
-                if (empty($purchasableIds)) {
+            foreach ($runCatalogPricingRules as $catalogPricingRule) {
+                // Skip rule processing if it isn't for this store.
+                // This is in case incompatible rules were passed in.
+                if ($catalogPricingRule->storeId !== $store->id) {
                     continue;
                 }
 
-                foreach ($purchasableIds as $purchasableId) {
+                // If `getPurchasableIds()` is `null` this means all purchasables
+                if ($catalogPricingRule->getPurchasableIds() === null) {
+                    $applyPurchasableIds = $purchasableIds;
+                } else {
+                    $applyPurchasableIds = $isAllPurchasables ? $catalogPricingRule->getPurchasableIds() : array_intersect($catalogPricingRule->getPurchasableIds(), $purchasableIds);
+                }
+
+                if (empty($applyPurchasableIds)) {
+                    continue;
+                }
+
+                foreach ($applyPurchasableIds as $purchasableId) {
                     if (!isset($priceByPurchasableId[$purchasableId])) {
                         continue;
                     }
 
                     $price = null;
+                    // A third option may be required for catalog pricing rules that allow store admins to select `salePrice`.
+                    // So that just want to create a catalog price from the `price` or the `promotionalPrice` if there is one.
                     if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
                         $price = $priceByPurchasableId[$purchasableId]['price'];
                     } elseif ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
-                        $price = $priceByPurchasableId[$purchasableId]['promotionalPrice'] ?? $priceByPurchasableId[$purchasableId]['price'];
+                        // Skip if there is no promotional price
+                        if ($priceByPurchasableId[$purchasableId]['promotionalPrice'] === null) {
+                            continue;
+                        }
+                        $price = $priceByPurchasableId[$purchasableId]['promotionalPrice'];
                     }
 
                     if ($price === null) {
@@ -153,7 +153,26 @@ class CatalogPricing extends Component
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
-        Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+        if (!$isAllPurchasables) {
+            // Batch through purchasable IDs and delete them
+            foreach (array_chunk($purchasableIds, 1000) as $purchasableIdsChunk) {
+                // Delete base prices from the catalog pricing table
+                $where = ['purchasableId' => $purchasableIdsChunk, 'catalogPricingRuleId' => null];
+                Craft::$app->getDb()->createCommand()
+                    ->delete(Table::CATALOG_PRICING, $where)
+                    ->execute();
+
+                // Delete catalog pricing rules price from the catalog pricing table if rules were passed to the method
+                if (!empty($catalogPricingRules)) {
+                    $where['catalogPricingRuleId'] = ArrayHelper::getColumn($catalogPricingRules, 'id');
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(Table::CATALOG_PRICING, $where)
+                        ->execute();
+                }
+            }
+        } else {
+            Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
+        }
 
         if (!empty($catalogPricing)) {
             // Batch through `$catalogPricing` and insert into the catalog pricing table
@@ -225,7 +244,7 @@ class CatalogPricing extends Component
      * @param bool|null $isPromotionalPrice
      * @return Query
      */
-    public function createCatalogPricingQuery(?int $userId = null, ?int $storeId = null, ?bool $isPromotionalPrice = null): Query
+    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null): Query
     {
         $catalogPricingRuleIdWhere = [
             'or',

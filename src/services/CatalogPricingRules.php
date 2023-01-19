@@ -64,8 +64,6 @@ class CatalogPricingRules extends Component
      */
     public function getAllCatalogPricingRules(?Store $store = null): Collection
     {
-        $store = $store ?? Plugin::getInstance()->getStores()->getCurrentStore();
-
         if (!isset($this->_allCatalogPricingRules)) {
             $catalogPricingRules = $this->_createCatalogPricingRuleQuery()->all();
 
@@ -78,6 +76,10 @@ class CatalogPricingRules extends Component
         }
 
         return $this->_allCatalogPricingRules->filter(function(CatalogPricingRule $catalogPricingRule) use ($store) {
+            if ($store === null) {
+                return true;
+            }
+
             return $catalogPricingRule->storeId === $store->id;
         });
     }
@@ -155,7 +157,7 @@ class CatalogPricingRules extends Component
     {
         /** @var Purchasable $purchasable */
         $purchasable = $event->sender;
-        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices([$purchasable]);
+        // Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices([$purchasable->id]);
     }
 
     /**

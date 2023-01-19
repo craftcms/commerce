@@ -12,12 +12,14 @@ use craft\base\Element;
 use craft\commerce\base\Model;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
+use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as PricingCatalogRuleRecord;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Catalog Pricing Rule model.
@@ -139,7 +141,16 @@ class CatalogPricingRule extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/promotions/catalog-pricing-rules/' . $this->id);
+        if ($this->storeId === null) {
+            return '';
+        }
+
+        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+        if ($store === null) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return UrlHelper::cpUrl(sprintf('commerce/store-settings/%s/pricing-rules/%s', $store->handle, $this->id));
     }
 
     /**

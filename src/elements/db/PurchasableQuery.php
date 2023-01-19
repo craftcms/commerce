@@ -33,11 +33,6 @@ class PurchasableQuery extends ElementQuery
     /**
      * @var mixed|null
      */
-    public mixed $store = null;
-
-    /**
-     * @var mixed|null
-     */
     public mixed $price = null;
 
     /**
@@ -210,63 +205,8 @@ class PurchasableQuery extends ElementQuery
         return $this;
     }
 
-    /**
-     * Narrows the query results based on the purchasables’ store.
-     * Setting `null` will narrow the query based on the request's store.
-     * Setting `false` will cause the join of prices for all stores.
-     *
-     * @param mixed|null $store
-     * @return static
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function store(mixed $store = null): static
-    {
-        if ($store instanceof Store) {
-            $this->store = $store;
-        } elseif (is_numeric($store)) {
-            $this->store = Plugin::getInstance()->getStores()->getStoreById($store);
-        } elseif (is_string($store)) {
-            $this->store = Plugin::getInstance()->getStores()->getStoreByHandle($store);
-        } else {
-            $this->store = $store;
-        }
-        return $this;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function populate($rows): array
-    {
-        if (empty($rows)) {
-            return [];
-        }
-
-        $purchasableStoresAttributes = array_merge(Craft::createObject(PurchasableStore::class)->safeAttributes(), ['id']);
-        foreach ($rows as &$row) {
-            $purchasableStores = [];
-            Plugin::getInstance()->getStores()->getAllStores()->each(function($store) use (&$row, $purchasableStoresAttributes, &$purchasableStores) {
-                if (!isset($purchasableStores[$store->id])) {
-                    $purchasableStores[$store->id] = [];
-                }
-
-                foreach ($purchasableStoresAttributes as $attribute) {
-                    $purchasableStores[$store->id][$attribute] = $row[$store->handle . '_' . $attribute] ?? null;
-                    unset($row[$store->handle . '_' . $attribute]);
-                }
-            });
-            $row['purchasableStores'] = $purchasableStores;
-        }
-
-        return parent::populate($rows);
-    }
-
     protected function beforePrepare(): bool
     {
-        // If a store hasn't been specified use the store for the current request.
-        if ($this->store === null) {
-            $this->store = Plugin::getInstance()->getStores()->getCurrentStore();
-        }
 
         $this->joinElementTable('commerce_purchasables');
         $this->query->addSelect([
@@ -277,27 +217,27 @@ class PurchasableQuery extends ElementQuery
             'commerce_purchasables.weight',
             'commerce_purchasables.taxCategoryId',
             'commerce_purchasables.shippingCategoryId',
+            'purchasables_stores.price as basePrice',
+            'purchasables_stores.promotionalPrice as basePromotionalPrice',
+            'purchasables_stores.promotable',
+            'purchasables_stores.availableForPurchase',
+            'purchasables_stores.freeShipping',
+            'purchasables_stores.hasUnlimitedStock',
+            'purchasables_stores.stock',
+            'purchasables_stores.minQty',
+            'purchasables_stores.maxQty',
         ]);
 
-        // Get all purchasable stores data in one query by joining the table multiple times.
-        foreach (Plugin::getInstance()->getStores()->getAllStores()->all() as $store) {
-            $storeTableNameAlias = $store->handle . '_commerce_purchasables_stores';
-            $storeTableName = Table::PURCHASABLES_STORES . ' ' . $storeTableNameAlias;
-            $selectColumns = collect(array_merge(Craft::createObject(PurchasableStore::class)->safeAttributes(), ['id']))->map(function($column) use ($storeTableNameAlias, $store) {
-                return $storeTableNameAlias . '.' . $column . ' as ' . $store->handle . '_' . $column;
-            })->all();
-            $this->query->addSelect($selectColumns);
-            $onStatement = sprintf('[[%s]] = [[%s]] AND [[%s]] = %s', $storeTableNameAlias . '.purchasableId', 'commerce_purchasables.id', $storeTableNameAlias . '.storeId', $store->id);
-            $this->query->leftJoin($storeTableName, $onStatement);
-        }
+        $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+        $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
-        if (isset($this->price) && $this->store !== false) {
+        if (isset($this->price)) {
             $priceQuery = (new Query())
                 ->select(['purchasableId'])
                 ->from([
                     'ruleprice' => Plugin::getInstance()
                         ->getCatalogPricing()
-                        ->createCatalogPricingQuery(null, $this->store->id)
+                        ->createCatalogPricingQuery(null, 'purchasables_stores.storeId')
                         ->addSelect(['cp.purchasableId']),
                 ])
                 ->where(Db::parseNumericParam('price', $this->price));
@@ -305,13 +245,13 @@ class PurchasableQuery extends ElementQuery
             $this->subQuery->andWhere(['commerce_purchasables.id' => $priceQuery]);
         }
 
-        if (isset($this->promotionalPrice) && $this->store !== false) {
+        if (isset($this->promotionalPrice)) {
             $promotionalPriceQuery = (new Query())
                 ->select(['purchasableId'])
                 ->from([
                     'promotionalpricequery' => Plugin::getInstance()
                         ->getCatalogPricing()
-                        ->createCatalogPricingQuery(null, $this->store->id, true)
+                        ->createCatalogPricingQuery(null, 'purchasables_stores.storeId', true)
                         ->addSelect(['cp.purchasableId']),
                 ])
                 ->where(Db::parseNumericParam('price', $this->promotionalPrice));
@@ -353,7 +293,7 @@ class PurchasableQuery extends ElementQuery
 
         if (isset($this->hasUnlimitedStock)) {
             $this->subQuery->andWhere([
-                $this->store->handle . '_commerce_purchasables_stores.hasUnlimitedStock' => $this->hasUnlimitedStock,
+                'purchasables_stores.hasUnlimitedStock' => $this->hasUnlimitedStock,
             ]);
         }
 

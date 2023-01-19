@@ -55,7 +55,7 @@ class PurchasableFreeShippingField extends BaseNativeField
             'id' => 'free-shipping',
             'name' => 'freeShipping',
             'small' => true,
-            'on' => $element->getFreeShipping($element->getStore()),
+            'on' => $element->freeShipping,
         ]);
     }
 

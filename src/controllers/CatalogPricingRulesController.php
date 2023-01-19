@@ -132,6 +132,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $catalogPricingRule->apply = $this->request->getBodyParam('apply');
         $catalogPricingRule->enabled = (bool)$this->request->getBodyParam('enabled');
         $catalogPricingRule->isPromotionalPrice = (bool)$this->request->getBodyParam('isPromotionalPrice');
+        $catalogPricingRule->applyPriceType = $this->request->getBodyParam('applyPriceType');
 
         $dateFields = [
             'dateFrom',
@@ -148,7 +149,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $applyAmount = $this->request->getBodyParam('applyAmount');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
-        if ($catalogPricingRule->apply == SaleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == SaleRecord::APPLY_TO_PERCENT) {
+        if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
             $catalogPricingRule->applyAmount = (float)$applyAmount / -100;
         } else {
             $catalogPricingRule->applyAmount = (float)$applyAmount * -1;
@@ -168,9 +169,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         $this->setFailFlash(Craft::t('commerce', 'Couldn’t save catalog pricing rule.'));
 
-        $variables = [
-            'catalogPricingRule' => $catalogPricingRule,
-        ];
+        $variables = compact('catalogPricingRule');
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);

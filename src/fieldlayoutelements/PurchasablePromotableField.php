@@ -55,7 +55,7 @@ class PurchasablePromotableField extends BaseNativeField
             'id' => 'promotable',
             'name' => 'promotable',
             'small' => true,
-            'on' => $element->getPromotable($element->getStore()),
+            'on' => $element->promotable,
         ]);
     }
 

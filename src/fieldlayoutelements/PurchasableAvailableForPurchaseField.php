@@ -55,7 +55,7 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
             'id' => 'available-for-purchase',
             'name' => 'availableForPurchase',
             'small' => true,
-            'on' => $element->getAvailableForPurchase($element->getStore()),
+            'on' => $element->availableForPurchase,
         ]);
     }
 

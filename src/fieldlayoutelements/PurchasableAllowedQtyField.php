@@ -57,7 +57,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
                 Cp::textHtml([
                     'id' => 'minQty',
                     'name' => 'minQty',
-                    'value' => $element->getMinQty($element->getStore()),
+                    'value' => $element->minQty,
                     'placeholder' => Craft::t('commerce', 'Any'),
                     'title' => Craft::t('commerce', 'Minimum allowed quantity'),
                 ]) .
@@ -67,7 +67,7 @@ class PurchasableAllowedQtyField extends BaseNativeField
                 Cp::textHtml([
                     'id' => 'maxQty',
                     'name' => 'maxQty',
-                    'value' => $element->getMaxQty($element->getStore()),
+                    'value' => $element->maxQty,
                     'placeholder' => Craft::t('commerce', 'Any'),
                     'title' => Craft::t('commerce', 'Maximum allowed quantity'),
                 ]) .

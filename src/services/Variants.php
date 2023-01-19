@@ -41,7 +41,6 @@ class Variants extends Component
     public function getAllVariantsByProductId(int $productId, int $siteId = null, bool $includeDisabled = true): array
     {
         $variantQuery = Variant::find()
-            ->store(false) // Retrieve all the purchasable's prices
             ->productId($productId)
             ->limit(null)
             ->siteId($siteId);
