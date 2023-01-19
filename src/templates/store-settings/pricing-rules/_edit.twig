@@ -60,7 +60,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/catalog-pricing-rules/save">
-    {{ redirectInput("commerce/store-settings/#{storeHandle}/catalog-pricing-rules") }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/pricing-rules") }}
     {% if catalogPricingRule.id %}
         {{ hiddenInput('id', catalogPricingRule.id) }}
     {% endif %}
