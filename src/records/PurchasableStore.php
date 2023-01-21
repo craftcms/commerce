@@ -17,8 +17,8 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property int $purchasableId
  * @property int $storeId
- * @property float $price
- * @property float $promotionalPrice
+ * @property float $basePrice
+ * @property float $basePromotionalPrice
  * @property int $stock
  * @property bool $hasUnlimitedStock
  * @property int $minQty

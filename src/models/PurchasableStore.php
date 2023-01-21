@@ -35,12 +35,12 @@ class PurchasableStore extends Model
     /**
      * @var float|null
      */
-    public ?float $price = null;
+    public ?float $basePrice = null;
 
     /**
      * @var float|null
      */
-    public ?float $promotionalPrice = null;
+    public ?float $basePromotionalPrice = null;
 
     /**
      * @var int|null
@@ -85,7 +85,7 @@ class PurchasableStore extends Model
         $rules = parent::defineRules();
         $rules[] = [['purchasableId', 'storeId'], 'required'];
         $rules[] = [['purchasableId', 'storeId', 'stock', 'minQty', 'maxQty'], 'integer'];
-        $rules[] = [['price', 'promotionalPrice'], 'number'];
+        $rules[] = [['basePrice', 'basePromotionalPrice'], 'number'];
         $rules[] = [['hasUnlimitedStock', 'promotable', 'availableForPurchase', 'freeShipping'], 'boolean'];
 
         return $rules;

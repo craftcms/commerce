@@ -654,8 +654,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 $purchasableStoreRecord->storeId = $this->getStore()->id;
             }
 
-            $purchasableStoreRecord->price = $this->basePrice;
-            $purchasableStoreRecord->promotionalPrice = $this->basePromotionalPrice;
+            $purchasableStoreRecord->basePrice = $this->basePrice;
+            $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
             $purchasableStoreRecord->stock = $this->stock;
             $purchasableStoreRecord->hasUnlimitedStock = $this->hasUnlimitedStock;
             $purchasableStoreRecord->minQty = $this->minQty;

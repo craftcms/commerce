@@ -65,7 +65,7 @@ class CatalogPricing extends Component
         $catalogPricing = [];
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
             $priceByPurchasableId = (new Query())
-                ->select(['purchasableId', 'price', 'promotionalPrice'])
+                ->select(['purchasableId', 'basePrice', 'basePromotionalPrice'])
                 ->from([Table::PURCHASABLES_STORES])
                 ->where(['storeId' => $store->id])
                 ->indexBy('purchasableId')
@@ -100,13 +100,13 @@ class CatalogPricing extends Component
                     // A third option may be required for catalog pricing rules that allow store admins to select `salePrice`.
                     // So that just want to create a catalog price from the `price` or the `promotionalPrice` if there is one.
                     if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
-                        $price = $priceByPurchasableId[$purchasableId]['price'];
+                        $price = $priceByPurchasableId[$purchasableId]['basePrice'];
                     } elseif ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
                         // Skip if there is no promotional price
-                        if ($priceByPurchasableId[$purchasableId]['promotionalPrice'] === null) {
+                        if ($priceByPurchasableId[$purchasableId]['basePromotionalPrice'] === null) {
                             continue;
                         }
-                        $price = $priceByPurchasableId[$purchasableId]['promotionalPrice'];
+                        $price = $priceByPurchasableId[$purchasableId]['basePromotionalPrice'];
                     }
 
                     if ($price === null) {
@@ -168,13 +168,13 @@ class CatalogPricing extends Component
 
             Craft::$app->getDb()->createCommand()->setSql('
 INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[dateCreated]], [[dateUpdated]])
-SELECT [[price]], [[purchasableId]], [[storeId]], NOW(), NOW() FROM [[commerce_purchasables_stores]]
+SELECT [[basePrice]], [[purchasableId]], [[storeId]], NOW(), NOW() FROM [[commerce_purchasables_stores]]
 WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
             ')->execute();
             Craft::$app->getDb()->createCommand()->setSql('
 INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[dateCreated]], [[dateUpdated]])
-SELECT [[promotionalPrice]], [[purchasableId]], [[storeId]], 1, NOW(), NOW() FROM [[commerce_purchasables_stores]]
-WHERE (NOT ([[promotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, NOW(), NOW() FROM [[commerce_purchasables_stores]]
+WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
             ')->execute();
             if ($showConsoleOutput) {
                 Console::stdout('done!');

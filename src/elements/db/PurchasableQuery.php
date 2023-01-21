@@ -7,11 +7,8 @@
 
 namespace craft\commerce\elements\db;
 
-use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
-use craft\commerce\models\PurchasableStore;
-use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -217,8 +214,8 @@ class PurchasableQuery extends ElementQuery
             'commerce_purchasables.weight',
             'commerce_purchasables.taxCategoryId',
             'commerce_purchasables.shippingCategoryId',
-            'purchasables_stores.price as basePrice',
-            'purchasables_stores.promotionalPrice as basePromotionalPrice',
+            'purchasables_stores.basePrice',
+            'purchasables_stores.basePromotionalPrice',
             'purchasables_stores.promotable',
             'purchasables_stores.availableForPurchase',
             'purchasables_stores.freeShipping',
