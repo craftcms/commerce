@@ -9,12 +9,10 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\Element;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
-use craft\commerce\models\PurchasableStore as PurchasableStoreModel;
 use craft\commerce\models\Sale;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\Store;
@@ -22,14 +20,10 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
-use craft\db\Query;
 use craft\errors\SiteNotFoundException;
-use craft\helpers\Console;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\helpers\Typecast;
 use craft\validators\UniqueValidator;
-use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
