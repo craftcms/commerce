@@ -58,6 +58,10 @@ class CatalogPricing extends Component
             return;
         }
 
+        $cprStartTime = microtime(true);
+        if ($showConsoleOutput) {
+            Console::stdout(PHP_EOL . 'Generating price data from catalog pricing rules... ');
+        }
         $catalogPricing = [];
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
             $priceByPurchasableId = (new Query())
@@ -66,35 +70,6 @@ class CatalogPricing extends Component
                 ->where(['storeId' => $store->id])
                 ->indexBy('purchasableId')
                 ->all();
-
-            // Generate original pricing records
-            foreach ($purchasableIds as $purchasableId) {
-                if (!isset($priceByPurchasableId[$purchasableId]) || !isset($priceByPurchasableId[$purchasableId]['price'])) {
-                    continue;
-                }
-
-                $catalogPricing[] = [
-                    $purchasableId, // purchasableId
-                    $priceByPurchasableId[$purchasableId]['price'], // price
-                    $store->id, // storeId
-                    0, // isPromotionalPrice
-                    null, // catalogPricingRuleId
-                    null, // dateFrom
-                    null, // dateTo
-                ];
-
-                if ($priceByPurchasableId[$purchasableId]['promotionalPrice'] !== null) {
-                    $catalogPricing[] = [
-                        $purchasableId, // purchasableId
-                        $priceByPurchasableId[$purchasableId]['promotionalPrice'], // price
-                        $store->id, // storeId
-                        1, // isPromotionalPrice
-                        null, // catalogPricingRuleId
-                        null, // dateFrom
-                        null, // dateTo
-                    ];
-                }
-            }
 
             $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store)->all();
 
@@ -151,6 +126,12 @@ class CatalogPricing extends Component
             }
         }
 
+        $cprExecutionLength = microtime(true) - $cprStartTime;
+        if ($showConsoleOutput) {
+            Console::stdout('done!');
+            Console::stdout(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
         if (!$isAllPurchasables) {
@@ -174,16 +155,47 @@ class CatalogPricing extends Component
             Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
         }
 
+        $chunkSize = 1000;
+        $total = count($purchasableIds);
+        $baseStateTime = microtime(true);
+        $count = 1;
+        foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
+            $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
+            $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
+            if ($showConsoleOutput) {
+                Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
+            }
+
+            Craft::$app->getDb()->createCommand()->setSql('
+INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[dateCreated]], [[dateUpdated]])
+SELECT [[price]], [[purchasableId]], [[storeId]], NOW(), NOW() FROM [[commerce_purchasables_stores]]
+WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+            ')->execute();
+            Craft::$app->getDb()->createCommand()->setSql('
+INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[dateCreated]], [[dateUpdated]])
+SELECT [[promotionalPrice]], [[purchasableId]], [[storeId]], 1, NOW(), NOW() FROM [[commerce_purchasables_stores]]
+WHERE (NOT ([[promotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+            ')->execute();
+            if ($showConsoleOutput) {
+                Console::stdout('done!');
+            }
+            $count += $chunkSize;
+        }
+        $baseExecutionLength = microtime(true) - $baseStateTime;
+        if ($showConsoleOutput) {
+            Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
+        }
+
         if (!empty($catalogPricing)) {
             // Batch through `$catalogPricing` and insert into the catalog pricing table
             $count = 1;
             $startTime = microtime(true);
             $total = Craft::$app->getFormatter()->asDecimal(count($catalogPricing), 0);
-            foreach (array_chunk($catalogPricing, 2000) as $catalogPricingChunk) {
+            foreach (array_chunk($catalogPricing, $chunkSize) as $catalogPricingChunk) {
                 $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
-                $toCount = ($count + 1999) > count($catalogPricing) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($catalogPricingChunk) - 1, 0);
+                $toCount = ($count + ($chunkSize - 1)) > count($catalogPricing) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($catalogPricingChunk) - 1, 0);
                 if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Generating prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
+                    Console::stdout(PHP_EOL . sprintf('Inserting prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
                 }
                 Craft::$app->getDb()->createCommand()->batchInsert(Table::CATALOG_PRICING, [
                     'purchasableId',
@@ -194,7 +206,7 @@ class CatalogPricing extends Component
                     'dateFrom',
                     'dateTo',
                 ], $catalogPricingChunk)->execute();
-                $count += 2000;
+                $count += $chunkSize;
                 if ($showConsoleOutput) {
                     Console::stdout('done!');
                 }
@@ -202,7 +214,7 @@ class CatalogPricing extends Component
 
             $executionLength = microtime(true) - $startTime;
             if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . 'Generated ' . $total . ' prices in ' . round($executionLength) . ' seconds' . PHP_EOL);
+                Console::stdout(PHP_EOL . 'Generated ' . $total . ' prices in ' . round($executionLength, 2) . ' seconds' . PHP_EOL);
             }
         }
 
