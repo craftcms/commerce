@@ -159,6 +159,8 @@ class CatalogPricing extends Component
         $total = count($purchasableIds);
         $baseStateTime = microtime(true);
         $count = 1;
+        // Copy base prices into the catalog pricing table with a query for speed
+        // Batch through the purchasable IDs as we don't know what is passed in and don't want to hit the int limit in the where clause
         foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
             $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
             $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
@@ -186,8 +188,8 @@ WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . imp
             Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
         }
 
+        // Batch through `$catalogPricing` and insert into the catalog pricing table
         if (!empty($catalogPricing)) {
-            // Batch through `$catalogPricing` and insert into the catalog pricing table
             $count = 1;
             $startTime = microtime(true);
             $total = Craft::$app->getFormatter()->asDecimal(count($catalogPricing), 0);
@@ -195,7 +197,7 @@ WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . imp
                 $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
                 $toCount = ($count + ($chunkSize - 1)) > count($catalogPricing) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($catalogPricingChunk) - 1, 0);
                 if ($showConsoleOutput) {
-                    Console::stdout(PHP_EOL . sprintf('Inserting prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
+                    Console::stdout(PHP_EOL . sprintf('Inserting catalog pricing rule prices rows %s to %s of %s... ', $fromCount, $toCount, $total));
                 }
                 Craft::$app->getDb()->createCommand()->batchInsert(Table::CATALOG_PRICING, [
                     'purchasableId',
