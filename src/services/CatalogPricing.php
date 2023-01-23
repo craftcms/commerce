@@ -186,13 +186,13 @@ class CatalogPricing extends Component
             }
 
             Craft::$app->getDb()->createCommand()->setSql('
-INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[dateCreated]], [[dateUpdated]])
-SELECT [[basePrice]], [[purchasableId]], [[storeId]], NOW(), NOW() FROM [[commerce_purchasables_stores]]
+INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
+SELECT [[basePrice]], [[purchasableId]], [[storeId]], UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
 WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
             ')->execute();
             Craft::$app->getDb()->createCommand()->setSql('
-INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[dateCreated]], [[dateUpdated]])
-SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, NOW(), NOW() FROM [[commerce_purchasables_stores]]
+INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
+SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
 WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
             ')->execute();
             if ($showConsoleOutput) {
