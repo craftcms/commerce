@@ -11,38 +11,25 @@
 ### Development
 
 ### Extensibility
+- Added `craft\commerce\base\Purchasable::$availableForPurchase`.
+- Added `craft\commerce\base\Purchasable::$freeShipping`.
+- Added `craft\commerce\base\Purchasable::$hasUnlimitedStock`.
 - Added `craft\commerce\base\Purchasable::$height`.
 - Added `craft\commerce\base\Purchasable::$length`.
-- Added `craft\commerce\base\Purchasable::$taxCategoryId`.
+- Added `craft\commerce\base\Purchasable::$maxQty`.
+- Added `craft\commerce\base\Purchasable::$minQty`.
+- Added `craft\commerce\base\Purchasable::$promotable`.
 - Added `craft\commerce\base\Purchasable::$shippingCategoryId`.
+- Added `craft\commerce\base\Purchasable::$stock`.
+- Added `craft\commerce\base\Purchasable::$taxCategoryId`.
 - Added `craft\commerce\base\Purchasable::$weight`.
 - Added `craft\commerce\base\Purchasable::$width`.
-- Added `craft\commerce\base\Purchasable::getAvailableForPurchase()`.
-- Added `craft\commerce\base\Purchasable::getFreeShipping()`.
-- Added `craft\commerce\base\Purchasable::getHasUnlimitedStock()`.
-- Added `craft\commerce\base\Purchasable::getMaxQty()`.
-- Added `craft\commerce\base\Purchasable::getMinQty()`.
 - Added `craft\commerce\base\Purchasable::getOnPromotion()`.
 - Added `craft\commerce\base\Purchasable::getPrice()`.
-- Added `craft\commerce\base\Purchasable::getPromotable()`.
 - Added `craft\commerce\base\Purchasable::getPromotionalPrice()`.
-- Added `craft\commerce\base\Purchasable::getPurchasableStores()`.
-- Added `craft\commerce\base\Purchasable::getPurchasableStoreValue()`.
-- Added `craft\commerce\base\Purchasable::getStock()`.
 - Added `craft\commerce\base\Purchasable::getStore()`.
-- Added `craft\commerce\base\Purchasable::setAvailableForPurchase()`.
-- Added `craft\commerce\base\Purchasable::setFreeShipping()`.
-- Added `craft\commerce\base\Purchasable::setHasUnlimitedStock()`.
-- Added `craft\commerce\base\Purchasable::setMaxQty()`.
-- Added `craft\commerce\base\Purchasable::setMinQty()`.
 - Added `craft\commerce\base\Purchasable::setPrice()`.
-- Added `craft\commerce\base\Purchasable::setPromotable()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
-- Added `craft\commerce\base\Purchasable::setPurchasableStores()`.
-- Added `craft\commerce\base\Purchasable::setPurchasableStoreValue()`.
-- Added `craft\commerce\base\Purchasable::setShippingCategoryId()`.
-- Added `craft\commerce\base\Purchasable::setStock()`.
-- Added `craft\commerce\base\Purchasable::setTaxCategoryId()`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.
 - Added `craft\commerce\controllers\VariantsController`.
