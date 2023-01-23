@@ -13,6 +13,7 @@ use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\CatalogPricing;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
@@ -20,6 +21,7 @@ use craft\elements\User;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Queue;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
@@ -145,19 +147,6 @@ class CatalogPricingRules extends Component
                 CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
             }
         });
-    }
-
-    /**
-     * @param ModelEvent $event
-     * @return void
-     * @throws InvalidConfigException
-     * @throws \yii\db\Exception
-     */
-    public function afterSavePurchasableHandler(ModelEvent $event): void
-    {
-        /** @var Purchasable $purchasable */
-        $purchasable = $event->sender;
-        // Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices([$purchasable->id]);
     }
 
     /**
