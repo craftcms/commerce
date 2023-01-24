@@ -124,13 +124,14 @@
             'accept-charset': 'UTF-8',
             data: {
                 saveshortcut: true,
-                'saveshortcut-redirect':  'commerce/promotions/discounts'|hash,
+                'saveshortcut-redirect':  "commerce/store-settings/#{storeHandle}/discounts"|hash,
                 'confirm-unload': true
             },
         } %}
     <form {{ attr(formAttributes) }}>
     <input type="hidden" name="action" value="commerce/discounts/save">
-    {{ redirectInput('commerce/promotions/discounts') }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/discounts") }}
+    {{ hiddenInput('storeId', discount.storeId) }}
     {% if discount.id %}
         <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">
         <input type="hidden" name="id" value="{{ discount.id }}">

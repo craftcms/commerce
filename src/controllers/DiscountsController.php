@@ -100,9 +100,14 @@ class DiscountsController extends BaseStoreSettingsController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['discount'] = new Discount();
-                $variables['discount']->allCategories = true;
-                $variables['discount']->allPurchasables = true;
+                $variables['discount'] = Craft::createObject([
+                    'class' => Discount::class,
+                    'attributes' => [
+                        'allCategories' => true,
+                        'allPurchasables' => true,
+                        'storeId' => $store->id,
+                    ],
+                ]);
                 $variables['isNewDiscount'] = true;
             }
         }
@@ -133,6 +138,7 @@ class DiscountsController extends BaseStoreSettingsController
             $this->requirePermission('commerce-editDiscounts');
         }
 
+        $discount->storeId = $this->request->getBodyParam('storeId');
         $discount->name = $this->request->getBodyParam('name');
         $discount->description = $this->request->getBodyParam('description');
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
