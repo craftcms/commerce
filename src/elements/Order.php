@@ -116,7 +116,7 @@ use yii\log\Logger;
  * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
  * @property-read float $total
  * @property-read float $totalPrice
- * @property-read int $totalSaleAmount the total sale amount
+ * @property-read int $totalPromotionalAmount the total sale amount
  * @property-read int $totalQty the total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml

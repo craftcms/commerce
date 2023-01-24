@@ -542,7 +542,8 @@ class LineItem extends Model
     {
         $attributes = [];
         $attributes[] = 'price';
-        $attributes[] = 'saleAmount';
+        $attributes[] = 'promotionalPrice';
+        $attributes[] = 'promotionalAmount';
         $attributes[] = 'salePrice';
         $attributes[] = 'subtotal';
         $attributes[] = 'total';
