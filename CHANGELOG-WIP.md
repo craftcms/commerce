@@ -50,6 +50,7 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
 - Added `craft\commerce\models\CatalogPricingRule`.
+- Added `craft\commerce\models\Discount::$storeId`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
 - Added `craft\commerce\records\CatalogPricing`.

@@ -48,6 +48,12 @@ class Discount extends Model
     public ?int $id = null;
 
     /**
+     * @var int|null
+     * @since 5.0.0
+     */
+    public ?int $storeId = null;
+
+    /**
      * @var string Name of the discount
      */
     public string $name = '';
@@ -545,6 +551,7 @@ class Discount extends Model
                     }
                 },
             ],
+            [['allPurchasables', 'allCategories', 'storeId'], 'safe'],
         ];
     }
 
