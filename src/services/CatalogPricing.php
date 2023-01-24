@@ -53,6 +53,7 @@ class CatalogPricing extends Component
      */
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, Queue|QueueInterface $queue = null): void
     {
+        $chunkSize = 1000;
         $queue?->setProgress(0.1, 'Retrieving purchasables');
 
         $isAllPurchasables = $purchasableIds === null;
@@ -146,21 +147,15 @@ class CatalogPricing extends Component
         $queue?->setProgress(0.4, 'Clearing existing catalog prices');
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
-        if (!$isAllPurchasables) {
-            // Batch through purchasable IDs and delete them
+        if (!$isAllPurchasables || !empty($catalogPricingRules)) {
+            // If purchasable IDs are passed in or catalog pricing rules are passed in
+            // only delete the rows for those purchasable IDs and catalog pricing rules
             foreach (array_chunk($purchasableIds, 1000) as $purchasableIdsChunk) {
-                // Delete base prices from the catalog pricing table
-                $where = ['purchasableId' => $purchasableIdsChunk, 'catalogPricingRuleId' => null];
-                Craft::$app->getDb()->createCommand()
-                    ->delete(Table::CATALOG_PRICING, $where)
-                    ->execute();
+                $where = ['purchasableId' => $purchasableIdsChunk];
 
                 // If passing catalog pricing rules only delete the rows for those rules
                 if (!empty($catalogPricingRules)) {
                     $where['catalogPricingRuleId'] = ArrayHelper::getColumn($catalogPricingRules, 'id');
-                } else {
-                    // Otherwise blanket delete all catalog pricing rows for the purchasable IDs
-                    unset($where['catalogPricingRuleId']);
                 }
 
                 Craft::$app->getDb()->createCommand()
@@ -171,38 +166,40 @@ class CatalogPricing extends Component
             Craft::$app->getDb()->createCommand()->truncateTable(Table::CATALOG_PRICING)->execute();
         }
 
-        $queue?->setProgress(0.6, 'Copying base prices to catalog pricing');
-        $chunkSize = 1000;
-        $total = count($purchasableIds);
-        $baseStateTime = microtime(true);
-        $count = 1;
-        // Copy base prices into the catalog pricing table with a query for speed
-        // Batch through the purchasable IDs as we don't know what is passed in and don't want to hit the int limit in the where clause
-        foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
-            $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
-            $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
-            if ($showConsoleOutput) {
-                Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
-            }
+        // If there are no specific catalog pricing rules passed in then copy the base prices into the catalog pricing table
+        if (empty($catalogPricingRules)) {
+            $queue?->setProgress(0.6, 'Copying base prices to catalog pricing');
+            $total = count($purchasableIds);
+            $baseStateTime = microtime(true);
+            $count = 1;
+            // Copy base prices into the catalog pricing table with a query for speed
+            // Batch through the purchasable IDs as we don't know what is passed in and don't want to hit the int limit in the where clause
+            foreach (array_chunk($purchasableIds, $chunkSize) as $purchasableIdsChunk) {
+                $fromCount = Craft::$app->getFormatter()->asDecimal($count, 0);
+                $toCount = ($count + ($chunkSize - 1)) > count($purchasableIds) ? $total : Craft::$app->getFormatter()->asDecimal($count + count($purchasableIdsChunk) - 1, 0);
+                if ($showConsoleOutput) {
+                    Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
+                }
 
-            Craft::$app->getDb()->createCommand()->setSql('
-INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
-SELECT [[basePrice]], [[purchasableId]], [[storeId]], UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
-WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-            ')->execute();
-            Craft::$app->getDb()->createCommand()->setSql('
-INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
-SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
-WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-            ')->execute();
-            if ($showConsoleOutput) {
-                Console::stdout('done!');
+                Craft::$app->getDb()->createCommand()->setSql('
+    INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
+    SELECT [[basePrice]], [[purchasableId]], [[storeId]], UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
+    WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+                ')->execute();
+                Craft::$app->getDb()->createCommand()->setSql('
+    INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
+    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
+    WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
+                ')->execute();
+                if ($showConsoleOutput) {
+                    Console::stdout('done!');
+                }
+                $count += $chunkSize;
             }
-            $count += $chunkSize;
-        }
-        $baseExecutionLength = microtime(true) - $baseStateTime;
-        if ($showConsoleOutput) {
-            Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
+            $baseExecutionLength = microtime(true) - $baseStateTime;
+            if ($showConsoleOutput) {
+                Console::stdout(PHP_EOL . 'Generated ' . $total . ' base prices in ' . round($baseExecutionLength, 2) . ' seconds' . PHP_EOL);
+            }
         }
 
         $queue?->setProgress(0.8, 'Inserting catalog pricing');
@@ -272,6 +269,7 @@ WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . imp
     /**
      * @param ModelEvent $event
      * @return void
+     * @throws InvalidConfigException
      * @since 5.0.0
      */
     public function afterSavePurchasableHandler(ModelEvent $event): void
@@ -280,7 +278,8 @@ WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . imp
             return;
         }
 
-        QueueHelper::push(new CatalogPricingJob([
+        QueueHelper::push(Craft::createObject([
+            'class' => CatalogPricingJob::class,
             'purchasableIds' => [$event->sender->id],
         ]), 100);
     }
