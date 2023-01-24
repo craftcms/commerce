@@ -34,6 +34,11 @@
               product: product.title
             })) }}
 
+            <div class="text-right text-xs text-gray-400">
+              {% set totalVariants = product.getVariants()|length %}
+              {{ '{total} variant(s)'|t('site', { total: totalVariants }) }}
+            </div>
+
             <div style="overflow-y: scroll; max-height: 6rem;">
               {% for variant in product.getVariants() %}
                 {# @var variant \craft\commerce\elements\Variant #}
@@ -43,6 +48,8 @@
                     type: 'radio',
                     value: variant.id,
                     checked: loop.first,
+                    class: not variant.availableForPurchase ? 'opacity-50' : '',
+                    disabled: not variant.availableForPurchase,
                   }) }} <span class="pl-1">{{ variant.sku }}</span><span class="ml-auto">{% if variant.onPromotion %} <del class="text-gray-400 text-xs">{{ variant.price|currency(cart.currency) }}</del>{% endif %} {{ variant.salePrice|currency(cart.currency) }}</span>
                 </label>
               {% endfor %}
@@ -54,19 +61,11 @@
                 min: 1,
                 placeholder: 'Quantity'|t
               }) }}
-              {% if product.availableForPurchase %}
-                {{ tag('button', {
-                  type: 'submit',
-                  class: ['m-0', 'text-center', 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white'],
-                  text: 'Add to cart'|t
-                }) }}
-              {% else %}
-                {{ tag('button', {
-                  type: 'submit',
-                  class: ['m-0', 'text-center', 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white'],
-                  text: 'Unavailable'|t
-                }) }}
-              {% endif %}
+              {{ tag('button', {
+                type: 'submit',
+                class: ['m-0', 'text-center', 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white'],
+                text: 'Add to cart'|t
+              }) }}
             </div>
             <div class="mt-1">
               <label>
