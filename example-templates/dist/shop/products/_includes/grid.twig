@@ -36,7 +36,7 @@
 
             <div class="text-right text-xs text-gray-400">
               {% set totalVariants = product.getVariants()|length %}
-              {{ '{total} variant(s)'|t('site', { total: totalVariants }) }}
+              {{ '{total} variant(s)'|t({ total: totalVariants }) }}
             </div>
 
             <div style="overflow-y: scroll; max-height: 6rem;">
