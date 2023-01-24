@@ -8,11 +8,9 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\Store;
-use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
@@ -156,22 +154,22 @@ class CatalogPricingRules extends Component
      * @throws Exception
      * @throws \Exception
      */
-    public function saveCatalogPricingRule(CatalogPricingRule $model, bool $runValidation = true): bool
+    public function saveCatalogPricingRule(CatalogPricingRule $catalogPricingRule, bool $runValidation = true): bool
     {
-        $isNew = !$model->id;
+        $isNew = !$catalogPricingRule->id;
 
         if ($isNew) {
             $record = Craft::createObject(CatalogPricingRuleRecord::class);
         } else {
-            $record = CatalogPricingRuleRecord::findOne($model->id);
+            $record = CatalogPricingRuleRecord::findOne($catalogPricingRule->id);
 
             if (!$record) {
                 throw new Exception(Craft::t('commerce', 'No catalog pricing rule exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                    ['id' => $catalogPricingRule->id]));
             }
         }
 
-        if ($runValidation && !$model->validate()) {
+        if ($runValidation && !$catalogPricingRule->validate()) {
             Craft::info('Catalog pricing rule not saved due to validation error.', __METHOD__);
 
             return false;
@@ -190,27 +188,27 @@ class CatalogPricingRules extends Component
             'storeId',
         ];
         foreach ($fields as $field) {
-            $record->$field = $model->$field;
+            $record->$field = $catalogPricingRule->$field;
         }
 
-        $record->customerCondition = $model->getCustomerCondition()->getConfig();
-        $record->purchasableCondition = $model->getPurchasableCondition()->getConfig();
+        $record->customerCondition = $catalogPricingRule->getCustomerCondition()->getConfig();
+        $record->purchasableCondition = $catalogPricingRule->getPurchasableCondition()->getConfig();
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
             $record->save(false);
-            $model->id = $record->id;
+            $catalogPricingRule->id = $record->id;
 
-            CatalogPricingRuleUser::deleteAll(['catalogPricingRuleId' => $model->id]);
+            CatalogPricingRuleUser::deleteAll(['catalogPricingRuleId' => $catalogPricingRule->id]);
 
             // Batch insert user relationships in case we are dealing with a large number
-            $userIds = $model->getUserIds() ?? [];
+            $userIds = $catalogPricingRule->getUserIds() ?? [];
             foreach (array_chunk($userIds, 1000) as $userIdsChunk) {
                 $userRecords = [];
                 foreach ($userIdsChunk as $userId) {
-                    $userRecords[] = [$model->id, $userId];
+                    $userRecords[] = [$catalogPricingRule->id, $userId];
                 }
                 $db->createCommand()
                     ->batchInsert(
@@ -222,6 +220,11 @@ class CatalogPricingRules extends Component
             }
 
             $transaction->commit();
+
+            Queue::push(Craft::createObject([
+                'class' => CatalogPricing::class,
+                'catalogPricingRules' => [$catalogPricingRule]
+            ]), 100);
 
             $this->_clearCaches();
 
