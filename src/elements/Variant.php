@@ -417,7 +417,7 @@ class Variant extends Purchasable
         /** @var Product|null $product */
         $product = Product::find()
             ->id($this->productId)
-            ->siteId($this->siteId)
+            //->siteId($this->siteId)
             ->status(null)
             ->trashed(null)
             ->one();
