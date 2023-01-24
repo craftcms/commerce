@@ -9,6 +9,7 @@
 ### Administration
 
 ### Development
+- `craft\commerce\services\Discounts::getAllDiscounts()` now returns a collection.
 
 ### Extensibility
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
@@ -60,6 +61,7 @@
 - Added `craft\commerce\records\PurchasableStore`.
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
+- Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 
 ### System

@@ -60,9 +60,18 @@ class DiscountsController extends BaseStoreSettingsController
     /**
      * @throws HttpException
      */
-    public function actionIndex(): Response
+    public function actionIndex(string $storeHandle = null): Response
     {
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscountsByStoreId($store->id);
         return $this->renderTemplate('commerce/store-settings/discounts/index', compact('discounts'));
     }
 

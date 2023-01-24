@@ -34,6 +34,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -189,9 +190,14 @@ class Discounts extends Component
     public const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
-     * @var Discount[]|null
+     * @var Collection<Discount>|null
      */
-    private ?array $_allDiscounts = null;
+    private ?Collection $_allDiscounts = null;
+
+    /**
+     * @var Collection|null
+     */
+    private ?Collection $_allStoreDiscounts = null;
 
     /**
      * @var Discount[][]|null
@@ -224,17 +230,37 @@ class Discounts extends Component
     /**
      * Get all discounts.
      *
-     * @return Discount[]
+     * @return Collection<Discount>
      */
-    public function getAllDiscounts(): array
+    public function getAllDiscounts(): Collection
     {
-        if (!isset($this->_allDiscounts)) {
+        if ($this->_allDiscounts === null) {
             $discounts = $this->_createDiscountQuery()->all();
 
-            $this->_allDiscounts = $this->_populateDiscounts($discounts);
+            $this->_allDiscounts = collect($this->_populateDiscounts($discounts));
         }
 
         return $this->_allDiscounts;
+    }
+
+    /**
+     * @param int $storeId
+     * @return Collection|null
+     * @since 5.0.0
+     */
+    public function getAllDiscountsByStoreId(int $storeId): ?Collection
+    {
+        if ($this->_allStoreDiscounts === null || !isset($this->_allStoreDiscounts[$storeId])) {
+            if ($this->_allStoreDiscounts === null) {
+                $this->_allStoreDiscounts = collect();
+            }
+
+            $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.storeId]]' => $storeId])->all();
+
+            $this->_allStoreDiscounts->put($storeId, collect($this->_populateDiscounts($discounts)));
+        }
+
+        return $this->_allStoreDiscounts->get($storeId);
     }
 
     /**
@@ -647,6 +673,7 @@ class Discounts extends Component
             return false;
         }
 
+        $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->description = $model->description;
         $record->dateFrom = $model->dateFrom;
@@ -1168,6 +1195,7 @@ class Discounts extends Component
                 '[[discounts.purchaseQty]]',
                 '[[discounts.sortOrder]]',
                 '[[discounts.stopProcessing]]',
+                '[[discounts.storeId]]',
                 '[[discounts.totalDiscountUseLimit]]',
                 '[[discounts.totalDiscountUses]]',
                 '[[discounts.customerCondition]]',
