@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-      - '5.0'
+#      - '5.0' # uncomment when 5.0 is more stable
   pull_request:
 permissions:
   contents: read
