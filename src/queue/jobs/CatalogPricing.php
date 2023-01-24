@@ -10,6 +10,7 @@ namespace craft\commerce\queue\jobs;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;
+use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 
@@ -21,13 +22,13 @@ class CatalogPricing extends BaseJob
     public ?array $purchasableIds = null;
 
     /**
-     * @var array|null
+     * @var CatalogPricingRule[]|null
      */
-    public ?array $catalogPricingRuleIds = null;
+    public ?array $catalogPricingRules = null;
 
     public function execute($queue): void
     {
-        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $this->catalogPricingRuleIds, queue: $queue);
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $this->catalogPricingRules, queue: $queue);
     }
 
     protected function defaultDescription(): ?string
