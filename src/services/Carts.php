@@ -68,38 +68,6 @@ class Carts extends Component
     private int $_getCartCount = 0;
 
     /**
-     * Initializes the cart service
-     *
-     * @return void
-     * @throws MissingComponentException
-     */
-    public function init()
-    {
-        parent::init();
-
-        if (Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
-            $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
-
-            // Complete the cart cookie config
-            if (!isset($this->cartCookie['name'])) {
-                $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
-            }
-
-            $request = Craft::$app->getRequest();
-            if (!$request->getIsConsoleRequest()) {
-                $this->cartCookie = Craft::cookieConfig($this->cartCookie);
-
-                $requestCookies = $request->getCookies();
-
-                // If we have a cart cookie, assign it to the cart number.
-                if ($requestCookies->has($this->cartCookie['name'])) {
-                    $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
-                }
-            }
-        }
-    }
-
-    /**
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart to save when requesting it.
@@ -109,6 +77,8 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
+        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
 
@@ -345,6 +315,33 @@ class Carts extends Component
             ->execute();
 
         return $cartIdsQuery->count();
+    }
+
+    /**
+     * @return void
+     * @throws \craft\commerce\errors\StoreNotFoundException
+     * @throws \yii\base\InvalidConfigException
+     */
+    protected function loadCookie()
+    {
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
+        // Complete the cart cookie config
+        if (!isset($this->cartCookie['name'])) {
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+        }
+
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+
+            $requestCookies = $request->getCookies();
+
+            // If we have a cart cookie, assign it to the cart number.
+            if ($requestCookies->has($this->cartCookie['name'])) {
+                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            }
+        }
     }
 
     /**
