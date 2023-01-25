@@ -486,7 +486,6 @@ class Stores extends Component
             ->select([
                 'id',
                 'name',
-                'name',
                 'handle',
                 'primary',
                 'uid',
