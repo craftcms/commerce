@@ -21,6 +21,14 @@ use craft\db\ActiveRecord;
 class SiteStore extends ActiveRecord
 {
     /**
+     * @inheritDoc
+     */
+    public static function primaryKey(): array
+    {
+        return ['siteId'];
+    }
+
+    /**
      * @inheritdoc
      */
     public static function tableName(): string

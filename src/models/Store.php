@@ -14,7 +14,9 @@ use craft\commerce\Plugin;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
+use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
+use craft\commerce\records\Store as StoreRecord;
 use yii\base\InvalidConfigException;
 
 /**
@@ -60,6 +62,7 @@ class Store extends Model
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => StoreRecord::class, 'targetAttribute' => ['handle']];
         $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [['primary', 'id', 'uid'], 'safe'];
 

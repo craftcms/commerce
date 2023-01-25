@@ -113,7 +113,7 @@ class StoresController extends BaseStoreSettingsController
         }
 
         // Save it
-        if (!$storesService->saveStore($store)) {
+        if (!$store->validate() || !$storesService->saveStore($store)) {
             $this->setFailFlash(Craft::t('app', 'Couldn’t save the store.'));
 
             // Send the store back to the template
