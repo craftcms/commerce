@@ -84,11 +84,22 @@ class Carts extends Component
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
-            $this->_cart = new Order();
-            $this->_cart->number = $this->getSessionCartNumber();
+            $cartAttributes = [
+                'number' => $this->getSessionCartNumber(),
+                'orderSiteId' => Craft::$app->getSites()->getCurrentSite()->id,
+                'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
+            ];
             if ($currentUser) {
-                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
+                $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
+
+            $this->_cart = Craft::createObject([
+                'class' => Order::class,
+                'attributes' => $cartAttributes,
+            ]);
+        } else if ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
+            $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $forceSave = true;
         }
 
         if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
@@ -146,6 +157,7 @@ class Carts extends Component
             ->withLineItems()
             ->withAdjustments()
             ->number($number)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
             ->trashed(null)
             ->status(null)
             ->one();
