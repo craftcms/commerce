@@ -1490,7 +1490,7 @@ class Order extends Element
             [['paymentSourceId'], 'validatePaymentSourceId'],
             [['email'], 'email'],
 
-            [['number', 'user'], 'safe'],
+            [['number', 'user', 'customer', 'storeId', 'orderSiteId'], 'safe'],
         ]);
     }
 
