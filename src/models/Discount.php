@@ -270,7 +270,20 @@ class Discount extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('discounts/' . $this->id);
+    }
+
+    /**
+     * @return Store
+     * @throws InvalidConfigException
+     */
+    public function getStore(): Store
+    {
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return $store;
     }
 
     /**

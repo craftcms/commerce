@@ -141,16 +141,20 @@ class CatalogPricingRule extends Model
 
     public function getCpEditUrl(): string
     {
-        if ($this->storeId === null) {
-            return '';
-        }
+        return $this->getStore()->getStoreSettingsUrl('pricing-rules/' . $this->id);
+    }
 
-        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
-        if ($store === null) {
+    /**
+     * @return Store
+     * @throws InvalidConfigException
+     */
+    public function getStore(): Store
+    {
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
             throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
         }
 
-        return UrlHelper::cpUrl(sprintf('commerce/store-settings/%s/pricing-rules/%s', $store->handle, $this->id));
+        return $store;
     }
 
     /**
