@@ -287,7 +287,8 @@ class Discounts extends Component
         // Coupon condition key
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
-        $cacheKey = implode(':', [$dateKey, $couponKey]);
+        $storeKey = ($order && $order->getStore()) ? $order->getStore()->id : '*';
+        $cacheKey = implode(':', [$storeKey, $dateKey, $couponKey]);
 
         if (isset($this->_activeDiscountsByKey[$cacheKey])) {
             return $this->_activeDiscountsByKey[$cacheKey];
@@ -311,33 +312,39 @@ class Discounts extends Component
             ]);
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
-        if ($order && $order->couponCode) {
-            $couponSubQuery = (new Query())
-                ->from(Table::COUPONS)
-                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
-
-            if (Craft::$app->getDb()->getIsPgsql()) {
-                $codeWhere = ['ilike', 'code', $order->couponCode];
-            } else {
-                $codeWhere = ['code' => $order->couponCode];
+        if ($order) {
+            if ($order->storeId) {
+                $discountQuery->andWhere(['[[discounts.storeId]]' => $order->storeId]);
             }
 
-            $discountQuery->andWhere([
-                'or',
-                // Find discount where the coupon code matches
-                [
-                    'exists', (clone $couponSubQuery)
-                    ->andWhere($codeWhere)
-                    ->andWhere([
-                            'or',
-                            ['maxUses' => null],
-                            new Expression('[[uses]] < [[maxUses]]'),
-                        ]
-                    ),
-                ],
-                // OR find discounts that do not have a coupon code requirement
-                ['not exists', $couponSubQuery],
-            ]);
+            if ($order->couponCode) {
+                $couponSubQuery = (new Query())
+                    ->from(Table::COUPONS)
+                    ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
+                if (Craft::$app->getDb()->getIsPgsql()) {
+                    $codeWhere = ['ilike', 'code', $order->couponCode];
+                } else {
+                    $codeWhere = ['code' => $order->couponCode];
+                }
+
+                $discountQuery->andWhere([
+                    'or',
+                    // Find discount where the coupon code matches
+                    [
+                        'exists', (clone $couponSubQuery)
+                        ->andWhere($codeWhere)
+                        ->andWhere([
+                                'or',
+                                ['maxUses' => null],
+                                new Expression('[[uses]] < [[maxUses]]'),
+                            ]
+                        ),
+                    ],
+                    // OR find discounts that do not have a coupon code requirement
+                    ['not exists', $couponSubQuery],
+                ]);
+            }
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
