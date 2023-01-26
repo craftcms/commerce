@@ -9,7 +9,7 @@
     'Duration',
     'Enabled',
     'Has Coupons?',
-    'Ignore Sales?',
+    'Ignore Promtoions?',
     'Name',
     'No discounts exist yet.',
     'No',
@@ -43,12 +43,12 @@
     {% set tableData = tableData|merge([{
         id: discount.id,
         title: discount.name|t('site'),
-        url: url('commerce/store-settings/discounts/' ~ discount.id),
+        url: discount.cpEditUrl,
         status: discount.enabled ? true : false,
         duration: dateRange,
         timesUsed: discount.totalDiscountUses,
         hasCoupons: discount.coupons|length ? true : false,
-        ignore: discount.ignoreSales ? true : false,
+        ignore: discount.ignorePromotions ? true : false,
         stop: discount.stopProcessing ? true : false,
     }]) %}
 {% endfor %}
@@ -109,7 +109,7 @@
                 return '';
             }
         },
-        { name: 'ignore', title: Craft.t('commerce', 'Ignore Sales?'),
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Promotions?'),
             callback: function(value) {
                 if (value) {
                     return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';

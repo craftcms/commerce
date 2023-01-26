@@ -470,7 +470,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->getOnPromotion() && $discount->excludeOnSale) {
+        if ($lineItem->getOnPromotion() && $discount->excludeOnPromotion) {
             return false;
         }
 
@@ -695,11 +695,11 @@ class Discounts extends Component
         $record->percentageOffSubject = $model->percentageOffSubject;
         $record->hasFreeShippingForMatchingItems = $model->hasFreeShippingForMatchingItems;
         $record->hasFreeShippingForOrder = $model->hasFreeShippingForOrder;
-        $record->excludeOnSale = $model->excludeOnSale;
+        $record->excludeOnPromotion = $model->excludeOnPromotion;
         $record->perUserLimit = $model->perUserLimit;
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
-        $record->ignoreSales = $model->ignoreSales;
+        $record->ignorePromotions = $model->ignorePromotions;
         $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
@@ -1177,11 +1177,11 @@ class Discounts extends Component
                 '[[discounts.dateUpdated]]',
                 '[[discounts.description]]',
                 '[[discounts.enabled]]',
-                '[[discounts.excludeOnSale]]',
+                '[[discounts.excludeOnPromotion]]',
                 '[[discounts.hasFreeShippingForMatchingItems]]',
                 '[[discounts.hasFreeShippingForOrder]]',
                 '[[discounts.id]]',
-                '[[discounts.ignoreSales]]',
+                '[[discounts.ignorePromotions]]',
                 '[[discounts.maxPurchaseQty]]',
                 '[[discounts.name]]',
                 '[[discounts.orderCondition]]',

@@ -28,7 +28,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property ActiveQueryInterface $discountUserGroups
  * @property bool $enabled
- * @property bool $excludeOnSale
+ * @property bool $excludeOnPromotion
  * @property bool $hasFreeShippingForMatchingItems
  * @property bool $hasFreeShippingForOrder
  * @property UserGroup[] $groups
@@ -50,7 +50,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $sortOrder
  * @property bool $stopProcessing
  * @property bool $storeId
- * @property bool $ignoreSales
+ * @property bool $ignorePromotions
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses
  * @property string $categoryRelationshipType

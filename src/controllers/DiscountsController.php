@@ -162,12 +162,12 @@ class DiscountsController extends BaseStoreSettingsController
         $discount->percentageOffSubject = $this->request->getBodyParam('percentageOffSubject');
         $discount->hasFreeShippingForMatchingItems = (bool)$this->request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$this->request->getBodyParam('hasFreeShippingForOrder');
-        $discount->excludeOnSale = (bool)$this->request->getBodyParam('excludeOnSale');
+        $discount->excludeOnPromotion = (bool)$this->request->getBodyParam('excludeOnPromotion');
         $discount->couponFormat = $this->request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
         $discount->perUserLimit = $this->request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $this->request->getBodyParam('perEmailLimit');
         $discount->totalDiscountUseLimit = $this->request->getBodyParam('totalDiscountUseLimit');
-        $discount->ignoreSales = (bool)$this->request->getBodyParam('ignoreSales');
+        $discount->ignorePromotions = (bool)$this->request->getBodyParam('ignorePromotions');
         $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
         $discount->baseDiscountType = $this->request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $this->request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;

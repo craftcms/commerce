@@ -640,19 +640,19 @@ class LineItem extends Model
         $this->setDescription($purchasable->getDescription());
 
         // Check to see if there is a discount applied that ignores Sales for this line item
-        $ignoreSales = false;
+        $ignorePromotions = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
-                $ignoreSales = $discount->ignoreSales;
-                if ($ignoreSales) {
+                $ignorePromotions = $discount->ignorePromotions;
+                if ($ignorePromotions) {
                     break;
                 }
             }
         }
 
-        // One of the matching discounts has ignored sales, so we don't want the salePrice to be the original price.
-        if ($ignoreSales) {
-            $this->salePrice = $this->price;
+        // One of the matching discounts has ignored promotions, so we want to remove any promotional price.
+        if ($ignorePromotions) {
+            $this->setPromotionalPrice(null);
         }
 
         $snapshot = [
@@ -662,7 +662,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
+            'sales' => $ignorePromotions ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.

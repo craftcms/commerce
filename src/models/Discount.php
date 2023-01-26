@@ -177,7 +177,7 @@ class Discount extends Model
     /**
      * @var bool Exclude the “On Sale” Purchasables
      */
-    public bool $excludeOnSale = false;
+    public bool $excludeOnPromotion = false;
 
     /**
      * @var bool Matching products have free shipping.
@@ -232,7 +232,7 @@ class Discount extends Model
     /**
      * @var bool Discount ignores sales
      */
-    public bool $ignoreSales = true;
+    public bool $ignorePromotions = true;
 
     /**
      * @var string What the per item amount and per item percentage off amounts can apply to

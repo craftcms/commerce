@@ -477,11 +477,11 @@
 
 
         {{ forms.lightswitchField({
-            label: "Exclude this discount for products that are already on sale"|t('commerce'),
-            id: 'excludeOnSale',
-            name: 'excludeOnSale',
-            on: discount.excludeOnSale ? true : false,
-            errors: discount.getErrors('excludeOnSale')
+            label: "Exclude this discount for products that are already on promotion"|t('commerce'),
+            id: 'excludeOnPromotion',
+            name: 'excludeOnPromotion',
+            on: discount.excludeOnPromotion ? true : false,
+            errors: discount.getErrors('excludeOnPromotion')
         }) }}
     </div>
 
@@ -552,10 +552,10 @@
         }, pctDiscountInput) }}
 
         {{ forms.lightswitchField({
-            label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
-            id: 'ignoreSales',
-            name: 'ignoreSales',
-            on: discount.ignoreSales ? true : false
+            label: "Ignore promotional prices when this discount is applied to matching line items"|t('commerce'),
+            id: 'ignorePromotions',
+            name: 'ignorePromotions',
+            on: discount.ignorePromotions ? true : false
         }) }}
 
         <hr>
