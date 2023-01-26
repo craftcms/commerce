@@ -68,7 +68,6 @@ class Install extends Migration
         return true;
     }
 
-
     /**
      * Creates the tables for Craft Commerce
      */
@@ -89,6 +88,7 @@ class Install extends Migration
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'isPromotionalPrice' => $this->boolean()->notNull()->defaultValue(false),
+            'metadata' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

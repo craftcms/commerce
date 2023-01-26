@@ -31,6 +31,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $storeId
  * @property-read ActiveQueryInterface $users
  * @property string $name
+ * @property mixed $metadata
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */

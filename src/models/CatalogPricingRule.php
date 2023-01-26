@@ -127,6 +127,12 @@ class CatalogPricingRule extends Model
     private ?array $_userIds = null;
 
     /**
+     * @var array
+     * @TODO remove at next major version
+     */
+    private array $_metadata = [];
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -135,7 +141,7 @@ class CatalogPricingRule extends Model
             [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
             [['enabled'], 'boolean'],
             [['name', 'apply'], 'required'],
-            [['id', 'storeId', 'applyAmount', 'applyPriceType', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition'], 'safe'],
+            [['id', 'storeId', 'applyAmount', 'applyPriceType', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition', 'metadata'], 'safe'],
         ];
     }
 
@@ -168,14 +174,43 @@ class CatalogPricingRule extends Model
         return $fields;
     }
 
+    /**
+     * @return string
+     */
     public function getApplyAmountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
     }
 
+    /**
+     * @return string
+     */
     public function getApplyAmountAsFlat(): string
     {
         return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
+    }
+
+    /**
+     * @param string|array $metadata
+     * @return void
+     */
+    public function setMetadata(string|array $metadata): void
+    {
+        $metadata = Json::decodeIfJson($metadata);
+
+        if (!is_array($metadata)) {
+            $metadata = [];
+        }
+
+        $this->_metadata = $metadata;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMetadata(): array
+    {
+        return $this->_metadata;
     }
 
     /**

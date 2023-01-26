@@ -175,7 +175,7 @@ class CatalogPricingRules extends Component
             return false;
         }
 
-        $fields = [
+        $attributes = [
             'apply',
             'applyAmount',
             'applyPriceType',
@@ -186,9 +186,10 @@ class CatalogPricingRules extends Component
             'isPromotionalPrice',
             'name',
             'storeId',
+            'metadata',
         ];
-        foreach ($fields as $field) {
-            $record->$field = $catalogPricingRule->$field;
+        foreach ($attributes as $attribute) {
+            $record->$attribute = $catalogPricingRule->$attribute;
         }
 
         $record->customerCondition = $catalogPricingRule->getCustomerCondition()->getConfig();
