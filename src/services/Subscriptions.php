@@ -405,7 +405,7 @@ class Subscriptions extends Component
 
         // If there are any subscriptions, make sure that this is not allowed.
         if ($this->doesUserHaveSubscriptions($user->id)) {
-            $event->isValid = false;
+            throw new Exception("Unable to delete a user with an existing subscription, user ID “{$user->id}”");
         }
     }
 

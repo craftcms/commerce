@@ -170,7 +170,7 @@ class Orders extends Component
 
         // If there are any orders, make sure that this is not allowed.
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            $event->isValid = false;
+            throw new Exception("Unable to delete a user with an existing order, user ID “{$user->id}”");
         }
     }
 }
