@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\Db;
+use craft\models\Site;
 
 /**
  * Store model.
@@ -56,7 +57,7 @@ class SiteStore extends Model
     }
 
     /**
-     * @return mixed
+     * @return Site|null
      */
     public function getSite()
     {
