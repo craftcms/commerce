@@ -41,6 +41,8 @@
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
+- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.
+- Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAvailableForPurchaseField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleDimensionsField`.
