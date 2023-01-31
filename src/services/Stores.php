@@ -25,6 +25,7 @@ use craft\events\SiteEvent;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
+use craft\models\Site;
 use Exception;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -495,14 +496,13 @@ class Stores extends Component
 
     /**
      * @param Store $store
-     * @return mixed
+     * @return Collection<Site>
      */
-    public function getAllSitesForStore(Store $store)
+    public function getAllSitesForStore(Store $store): Collection
     {
         return collect($this->getAllSiteStores())
-            ->filter(fn($siteStore) => $siteStore->getStore()->id == $store->id)
-            ->map(fn($siteStore) => $siteStore->getSite())
-            ->all();
+            ->filter(fn(SiteStore $siteStore) => $siteStore->getStore()->id == $store->id)
+            ->map(fn(SiteStore $siteStore) => $siteStore->getSite());
     }
 
     /**
