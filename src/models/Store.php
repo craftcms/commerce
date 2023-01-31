@@ -126,10 +126,10 @@ class Store extends Model
     /**
      * Returns the sites that are related to this store.
      *
-     * @return array
-     * @throws \yii\base\InvalidConfigException
+     * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getSites(): array
+    public function getSites(): Collection
     {
         return Plugin::getInstance()->getStores()->getAllSitesForStore($this);
     }
@@ -138,7 +138,7 @@ class Store extends Model
      * Returns the names of the sites related to this store
      *
      * @return Collection<string>
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function getSiteNames(): Collection
     {
