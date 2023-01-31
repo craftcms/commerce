@@ -87,15 +87,6 @@
             value: catalogPricingRule.description,
             errors: catalogPricingRule.getErrors('description'),
         }) }}
-
-        {{ forms.lightswitchField({
-            label: 'Is Promotional Price?'|t('commerce'),
-            id: 'isPromotionalPrice',
-            name: 'isPromotionalPrice',
-            value: 1,
-            on: catalogPricingRule.isPromotionalPrice ? true : false,
-            errors: catalogPricingRule.getErrors('isPromotionalPrice'),
-        }) }}
     </div>
 
     <div id="conditions" class="hidden">
@@ -180,6 +171,15 @@
             id: 'applyAmount',
             errors: catalogPricingRule.getErrors('applyAmount')
         }, applyAmountInput) }}
+
+        {{ forms.lightswitchField({
+          label: 'Is Promotional Price?'|t('commerce'),
+          id: 'isPromotionalPrice',
+          name: 'isPromotionalPrice',
+          value: 1,
+          on: catalogPricingRule.isPromotionalPrice ? true : false,
+          errors: catalogPricingRule.getErrors('isPromotionalPrice'),
+        }) }}
     </div>
 
     {% hook "cp.commerce.catalogPricingRules.edit.content" %}

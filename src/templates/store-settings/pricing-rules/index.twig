@@ -7,6 +7,7 @@
   'Duration',
   'Effect',
   'Enabled',
+  'Is Promotional Price?',
   'Name',
   'No catalog pricing rules exist yet.',
   'No',
@@ -49,6 +50,7 @@
     status: pcr.enabled ? true : false,
     duration: dateRange,
     effect: effect,
+    isPromotionalPrice: pcr.isPromotionalPrice,
   }]) %}
 {% endfor %}
 
@@ -89,6 +91,13 @@ var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'duration', title: Craft.t('commerce', 'Duration') },
     { name: 'effect', title: Craft.t('commerce', 'Effect') },
+    { name: 'isPromotionalPrice', title: Craft.t('commerce', 'Is Promotional Price?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        }
+    },
 ];
 
 new Craft.VueAdminTable({
