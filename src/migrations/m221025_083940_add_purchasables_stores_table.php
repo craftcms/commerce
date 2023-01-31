@@ -83,8 +83,8 @@ class m221025_083940_add_purchasables_stores_table extends Migration
             'id' => $this->primaryKey(),
             'purchasableId' => $this->integer()->notNull(),
             'storeId' => $this->integer()->notNull(),
-            'price' => $this->decimal(14, 4), // @TODO - should this be a string?
-            'promotionalPrice' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'basePrice' => $this->decimal(14, 4), // @TODO - should this be a string?
+            'basePromotionalPrice' => $this->decimal(14, 4), // @TODO - should this be a string?
             'promotable' => $this->boolean()->notNull()->defaultValue(false),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
