@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\Model;
+use craft\commerce\base\Purchasable;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\Plugin;
@@ -219,7 +220,7 @@ class CatalogPricingRule extends Model
     public function getPurchasableIds(): ?array
     {
         if ($this->_purchasableIds === null && !empty($this->getPurchasableCondition()->getConditionRules())) {
-            $purchasableQuery = Element::find();
+            $purchasableQuery = Purchasable::find();
             $this->getPurchasableCondition()->modifyQuery($purchasableQuery);
             $this->_purchasableIds = $purchasableQuery->ids();
         }

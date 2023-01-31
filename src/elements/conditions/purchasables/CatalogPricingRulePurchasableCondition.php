@@ -30,6 +30,7 @@ class CatalogPricingRulePurchasableCondition extends ElementCondition
             ], true);
         });
 
+        $types[] = PurchasableConditionRule::class;
         $types[] = SkuConditionRule::class;
         $types[] = PurchasableTypeConditionRule::class;
 
