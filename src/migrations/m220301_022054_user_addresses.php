@@ -41,7 +41,8 @@ class m220301_022054_user_addresses extends Migration
         $this->dropForeignKeyIfExists('{{%commerce_orders}}', ['customerId']);
         $this->dropIndexIfExists('{{%commerce_orders}}', ['customerId']);
         $this->renameColumn('{{%commerce_orders}}', 'customerId', 'v3customerId'); // move the data
-        
+        $this->createIndex(null, '{{%commerce_orders}}', 'v3customerId', false);
+
         $this->addColumn('{{%commerce_orders}}', 'customerId', $this->integer());
         $this->createIndex(null, '{{%commerce_orders}}', 'customerId', false);
         $this->addForeignKey(null, '{{%commerce_orders}}', ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
@@ -140,7 +141,6 @@ class m220301_022054_user_addresses extends Migration
         $this->dropIndexIfExists('{{%commerce_orderhistories}}', ['customerId']);
         $this->renameColumn('{{%commerce_orderhistories}}', 'customerId', 'v3customerId'); // move the data
 
-
         if ($isPgsql) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)
@@ -148,6 +148,7 @@ class m220301_022054_user_addresses extends Migration
         } else {
             $this->alterColumn('{{%commerce_orderhistories}}', 'v3customerId', $this->integer()->null());
         }
+        $this->createIndex(null, '{{%commerce_orderhistories}}', 'v3customerId', false);
 
         $this->addColumn('{{%commerce_orderhistories}}', 'userId', $this->integer()->null());
         $this->addForeignKey(null, '{{%commerce_orderhistories}}', ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
