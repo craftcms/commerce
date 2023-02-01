@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.5 - 2023-02-01
 
 - Added support for searching for orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
 - Fixed a PHP error that occurred if `null` was passed to `craft\commerce\services\Discounts::getDiscountByCode()`. ([#3045](https://github.com/craftcms/commerce/issues/3045))
@@ -21,7 +21,7 @@
 - Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
 - Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
 - Fixed an error that could occur when purging inactive carts.
-- Fixed an bug where products and variants weren’t always available as link options in Redactor. ([#3041](https://github.com/craftcms/commerce/issues/3041))
+- Fixed a bug where products and variants weren’t always available as link options in Redactor. ([#3041](https://github.com/craftcms/commerce/issues/3041))
 
 ## 4.2.2 - 2022-11-06
 
