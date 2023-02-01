@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => '{location}へコピー',
     'Copy' => 'コピー',
     'Costs' => '料金',
-    'Could delete shipping method and it’s rules.' => '配送方法とそのルールを削除できませんでした。',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'ゲートウェイをアーカイブできませんでした。',
     'Could not cancel “{reference}”.' => '「{reference}」をキャンセルできませんでした。',
     'Could not create the payment source.' => '支払い元を作成できませんでした。',
