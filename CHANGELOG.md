@@ -6,7 +6,7 @@
 - Fixed a bug that could cause a large number of shipping rule category queries.
 - Fixed a PHP error that would occur when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not logged in. 
 - Added support for searching orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
-- Fixed a bug where environment variable for 'Enabled for customers to select during checkout' does not save. ([#3052](https://github.com/craftcms/commerce/issues/3052))
+- Fixed a bug where 'Enabled for customers to select during checkout' did not correctly support environment variables. ([#3052](https://github.com/craftcms/commerce/issues/3052))
 
 ## 4.2.4 - 2022-11-29
 
