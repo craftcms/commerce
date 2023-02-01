@@ -2,15 +2,15 @@
 
 ## Unreleased
 
-- Fixed a PHP error that occurred when retrieving a discount via a null coupon code. ([#3045](https://github.com/craftcms/commerce/issues/3045))
-- Fixed a bug that could cause a large number of shipping rule category queries.
-- Fixed a PHP error that occurred when re-saving all products that had never finished propagating to all sites. ([#1954](https://github.com/craftcms/commerce/issues/1954))
-- Fixed a PHP error that would occur when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not logged in. 
+- Added support for searching for orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
+- Fixed a PHP error that occurred if `null` was passed to `craft\commerce\services\Discounts::getDiscountByCode()`. ([#3045](https://github.com/craftcms/commerce/issues/3045))
+- Fixed a bug where a large number of shipping rule category queries could be executed.
+- Fixed a PHP error that occurred if a product was re-saved before it had finished propagating to all sites. ([#1954](https://github.com/craftcms/commerce/issues/1954))
+- Fixed a PHP error that occurred if `craft\commerce\services\ProductTypes::getEditableProductTypes()` was called when no user was logged in. 
 - Fixed a PHP error that occurred when saving an invalid shipping method.
-- Added support for searching orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
-- Fixed a bug where 'Enabled for customers to select during checkout' did not correctly support environment variables. ([#3052](https://github.com/craftcms/commerce/issues/3052))
-- Fixed a PHP error that could occur when entering values on the Edit Discount page. ([#3067](https://github.com/craftcms/commerce/issues/3067))
-- Fixed a PHP error that could occur when validating an address’ organization tax ID. ([#3046](https://github.com/craftcms/commerce/issues/3046))
+- Fixed a bug where gateways’ “Enabled for customers to select during checkout” setting wasn’t properly supporting environment variables. ([#3052](https://github.com/craftcms/commerce/issues/3052))
+- Fixed a PHP error that could occur when entering values on an Edit Discount page. ([#3067](https://github.com/craftcms/commerce/issues/3067))
+- Fixed a PHP error that could occur when validating an address’s Organization Tax ID field. ([#3046](https://github.com/craftcms/commerce/issues/3046))
 
 ## 4.2.4 - 2022-11-29
 
