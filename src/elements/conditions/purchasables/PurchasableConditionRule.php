@@ -116,7 +116,6 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
                     'elementType' => $purchasableType,
                     'sources' => null,
                     'criteria' => null,
-                    'condition' => $this->getCondition(),
                     'single' => false,
                 ])
             );
