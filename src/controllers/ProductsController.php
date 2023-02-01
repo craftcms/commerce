@@ -285,8 +285,8 @@ class ProductsController extends BaseController
                         $message,
                         'product'
                     );
-                } catch (Throwable $e) {
-                    throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0, $e);
+                } catch (Throwable) {
+                    throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0);
                 }
             } else {
                 $product = $oldProduct;
@@ -480,10 +480,8 @@ class ProductsController extends BaseController
             } else {
                 $variables['product'] = new Product();
                 $variables['product']->typeId = $variables['productType']->id;
-                $taxCategories = $variables['productType']->getTaxCategories();
-                $variables['product']->taxCategoryId = key($taxCategories);
-                $shippingCategories = $variables['productType']->getShippingCategories();
-                $variables['product']->shippingCategoryId = key($shippingCategories);
+                $variables['product']->taxCategoryId = collect($variables['productType']->getTaxCategories())->pluck('id')->first();
+                $variables['product']->shippingCategoryId = collect($variables['productType']->getShippingCategories())->pluck('id')->first();
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;

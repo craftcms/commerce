@@ -422,8 +422,21 @@ class Variant extends Purchasable
             ->trashed(null)
             ->one();
 
+        // A variant should always have a product owner of the same site.
+        // Sometimes there may not be a product of that site if it doesn't exist yet,
+        // which usually only happens during propagation of the product, or if propagation queue jobs fail after making a new site.
         if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: ' . $this->productId);
+            /** @var Product|null $product */
+            $product = Product::find()
+                ->id($this->productId)
+                ->status(null)
+                ->trashed(null)
+                ->one();
+        }
+
+        // If we still don't have a product, there is something configured wrong.
+        if ($product === null) {
+            throw new InvalidConfigException('Invalid product ID: ' . $this->productId . ', Try re-saving all products.');
         }
 
         return $this->_product = $product;
@@ -1044,7 +1057,7 @@ class Variant extends Purchasable
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
-            if ($product) {
+            if ($product instanceof Product) {
                 $this->setProduct($product);
             }
         } else {

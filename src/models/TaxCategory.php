@@ -9,8 +9,11 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
+use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -62,6 +65,12 @@ class TaxCategory extends Model
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
+
+    /**
+     * @var DateTime|null Date deleted
+     * @since 4.2.0.1
+     */
+    public ?DateTime $dateDeleted = null;
 
     /**
      * @var array|null Product Types
@@ -140,6 +149,8 @@ class TaxCategory extends Model
     {
         return [
             [['handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => TaxCategoryRecord::class],
+            [['handle'], HandleValidator::class],
         ];
     }
 

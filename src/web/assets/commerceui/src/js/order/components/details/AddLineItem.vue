@@ -23,6 +23,7 @@
             </template>
         </template>
         <template v-else>
+            <hr />
             <div>
                 <div class="flex add-line-item-table-header pb">
                     <h2>
@@ -55,6 +56,7 @@
                     </form>
                 </div>
                 <admin-table
+                    ref="addAdminTable"
                     :allow-multiple-selections="true"
                     table-data-endpoint="commerce/orders/purchasables-table"
                     :checkboxes="true"
@@ -142,6 +144,10 @@
                         },
                     },
                     {
+                        name: '__component:qty-input',
+                        title: this.$options.filters.t('Qty', 'commerce'),
+                    },
+                    {
                         name: '__slot:detail',
                         title: '',
                         titleClass: 'thin',
@@ -209,7 +215,7 @@
                                 id: null,
                                 lineItemStatusId: null,
                                 salePrice: purchasable.price,
-                                qty: '1',
+                                qty: purchasable.qty,
                                 note: '',
                                 privateNote: '',
                                 orderId: this.orderId,
@@ -246,7 +252,21 @@
                 if (ids && ids.length) {
                     let $this = this;
                     this.selectedPurchasables = ids.map((id) => {
-                        return _find($this.currentTableData, {id: id});
+                        for (
+                            let i = 0;
+                            i < $this.currentTableData.length;
+                            i++
+                        ) {
+                            if ($this.currentTableData[i].id == id) {
+                                if ($this.currentTableData[i].qty === '') {
+                                    $this.currentTableData[i].qty = '1';
+                                }
+
+                                return $this.currentTableData[i];
+                            }
+                        }
+
+                        return false;
                     });
                 } else {
                     this.selectedPurchasables = [];
@@ -255,6 +275,38 @@
 
             handleTableData(data) {
                 this.currentTableData = data;
+            },
+        },
+
+        watch: {
+            currentTableData: {
+                deep: true,
+
+                handler(newVal, oldVal) {
+                    if (!newVal || !oldVal) {
+                        return;
+                    }
+
+                    let selectedPurchasableIds = this.selectedPurchasables.map(
+                        (p) => p.id
+                    );
+
+                    for (let i = 0; i < newVal.length; i++) {
+                        let index = selectedPurchasableIds.indexOf(
+                            newVal[i].id
+                        );
+                        if (!newVal[i].qty && index >= 0) {
+                            // Remove the select if there is one
+                            this.$refs.addAdminTable.removeCheck(newVal[i].id);
+                            // haveIdsChanged = true;
+                        } else if (newVal[i].qty && index < 0) {
+                            // Add selected if we have a qty
+                            this.$refs.addAdminTable.addCheck(newVal[i].id);
+                            // selectedPurchasableIds.push(newVal[i].id);
+                            // haveIdsChanged = true;
+                        }
+                    }
+                },
             },
         },
     };

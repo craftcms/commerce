@@ -394,8 +394,10 @@
                         id: 'perUserLimit',
                         name: 'perUserLimit',
                         value: discount.perUserLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -412,7 +414,7 @@
         {% endset %}
         {{ forms.field({
             label: "Per User Discount Limit"|t('commerce'),
-            instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+            instructions: "How many times one user is allowed to use this discount. If this is set to something besides zero, the discount will only be available to signed in users."|t('commerce'),
             errors: discount.getErrors('perUserLimit')
         }, userCounterMarkup) }}
 
@@ -424,8 +426,10 @@
                         id: 'perEmailLimit',
                         name: 'perEmailLimit',
                         value: discount.perEmailLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -454,8 +458,10 @@
                         id: 'totalDiscountUseLimit',
                         name: 'totalDiscountUseLimit',
                         value: discount.totalDiscountUseLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -472,7 +478,7 @@
         {% endset %}
         {{ forms.field({
             label: 'Total Discount Use Limit'|t('commerce'),
-            instructions: "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            instructions: "How many times this discount can be used in total by guests or signed in users. Set zero for unlimited use."|t('commerce'),
             errors: discount.getErrors('totalDiscountUseLimit'),
         }, totalDiscountLimitMarkup) }}
 
@@ -570,7 +576,6 @@
                             id: 'baseDiscount',
                             name: 'baseDiscount',
                             type: 'text',
-                            step: 'any',
                             size: 10,
                             value: discount.baseDiscount ? discount.baseDiscount|number : 0,
                         }) }}

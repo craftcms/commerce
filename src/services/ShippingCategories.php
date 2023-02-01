@@ -38,23 +38,34 @@ class ShippingCategories extends Component
     private ?array $_allShippingCategories = null;
 
     /**
+     * @var ShippingCategory[]|null
+     */
+    private ?array $_allShippingCategoriesWithTrashed = null;
+
+    /**
      * Returns all Shipping Categories
      *
-     * @return ShippingCategory[]
+     * @param bool $withTrashed
+     * @return array|ShippingCategory[]
      */
-    public function getAllShippingCategories(): array
+    public function getAllShippingCategories(bool $withTrashed = false): array
     {
         if ($this->_allShippingCategories === null) {
-            $results = $this->_createShippingCategoryQuery()->all();
+            $results = $this->_createShippingCategoryQuery(true)->all();
 
             $this->_allShippingCategories = [];
+            $this->_allShippingCategoriesWithTrashed = [];
             foreach ($results as $result) {
                 $shippingCategory = new ShippingCategory($result);
-                $this->_allShippingCategories[] = $shippingCategory;
+
+                if (!$shippingCategory->dateDeleted) {
+                    $this->_allShippingCategories[] = $shippingCategory;
+                }
+                $this->_allShippingCategoriesWithTrashed[] = $shippingCategory;
             }
         }
 
-        return $this->_allShippingCategories;
+        return $withTrashed ? $this->_allShippingCategoriesWithTrashed : $this->_allShippingCategories;
     }
 
     /**
@@ -215,14 +226,16 @@ class ShippingCategories extends Component
     public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 
-        $record = ShippingCategoryRecord::findOne($id);
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::SHIPPINGCATEGORIES, ['id' => $id])
+            ->execute();
 
-        if ($record) {
-            return (bool)$record->delete();
+        if ($affectedRows > 0) {
+            return true;
         }
 
         // Clear cache
@@ -266,12 +279,16 @@ class ShippingCategories extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping categories.
+     *
+     * @param bool $withTrashed
+     * @return Query
      */
-    private function _createShippingCategoryQuery(): Query
+    private function _createShippingCategoryQuery(bool $withTrashed = false): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'shippingCategories.dateCreated',
+                'shippingCategories.dateDeleted',
                 'shippingCategories.dateUpdated',
                 'shippingCategories.default',
                 'shippingCategories.description',
@@ -280,5 +297,11 @@ class ShippingCategories extends Component
                 'shippingCategories.name',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
+
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
+        }
+
+        return $query;
     }
 }

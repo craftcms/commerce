@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -24,7 +23,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\web\Cookie;
-use function count;
 
 /**
  * Cart service. This manages the cart currently in the session, this service should mainly be used by web controller actions.
@@ -123,9 +121,18 @@ class Carts extends Component
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
         }
+        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
+            $forceSave = true;
+        }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod()) {
-            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
@@ -174,14 +181,13 @@ class Carts extends Component
     private function _getCart(): ?Order
     {
         $number = $this->getSessionCartNumber();
-        /** @var OrderQuery $orderQuery */
-        $orderQuery = Order::find()
-            ->number($number)
-            ->trashed(null)
-            ->status(null);
-        $cart = $orderQuery
+        /** @var Order|null $cart */
+        $cart = Order::find()
             ->withLineItems()
             ->withAdjustments()
+            ->number($number)
+            ->trashed(null)
+            ->status(null)
             ->one();
 
         // If the cart is already completed or trashed, forget the cart and start again.
@@ -212,7 +218,7 @@ class Carts extends Component
      */
     public function generateCartNumber(): string
     {
-        return md5(uniqid(mt_rand(), true));
+        return md5(uniqid((string)mt_rand(), true));
     }
 
     /**
@@ -254,7 +260,7 @@ class Carts extends Component
      * Get the session cart number or generates one if none exists.
      *
      */
-    private function getSessionCartNumber(): string
+    protected function getSessionCartNumber(): string
     {
         if ($this->_cartNumber === null) {
             $this->_cartNumber = $this->generateCartNumber();
@@ -295,10 +301,14 @@ class Carts extends Component
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        /** @var OrderQuery $orderQuery */
-        $orderQuery = Order::find()
-            ->trashed(false);
-        $previousCart = $orderQuery->customer($currentUser)->isCompleted(false)->hasLineItems()->one();
+        /** @var Order|null $previousCart */
+        $previousCart = Order::find()
+            ->customer($currentUser)
+            ->isCompleted(false)
+            ->hasLineItems()
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
             $cart->getIsEmpty() &&
             $previousCart
@@ -326,26 +336,25 @@ class Carts extends Component
         $interval = DateTimeHelper::secondsToInterval($configInterval);
         $edge->sub($interval);
 
-        $cartIds = (new Query())
+        $cartIdsQuery = (new Query())
             ->select(['orders.id'])
             ->where(['not', ['isCompleted' => true]])
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
-            ->from(['orders' => Table::ORDERS])
-            ->column();
+            ->from(['orders' => Table::ORDERS]);
 
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%elements}}', ['id' => $cartIds])
+            ->delete('{{%elements}}', ['id' => $cartIdsQuery])
             ->execute();
 
         // The searchindex table is probably MyISAM, though
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
             ->execute();
 
-        return count($cartIds);
+        return $cartIdsQuery->count();
     }
 
     /**

@@ -96,8 +96,9 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $shippingCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
+        $postedProductTypes = $this->request->getBodyParam('productTypes', []) ?: [];
         $productTypes = [];
-        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($postedProductTypes as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
