@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => 'Copier vers {location}',
     'Copy' => 'Copier',
     'Costs' => 'Coûts',
-    'Could delete shipping method and it’s rules.' => 'A pu supprimer une méthode de livraison avec ses règles.',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'Impossible d’archiver le portail.',
     'Could not cancel “{reference}”.' => 'Échec de l\'annulation de « {reference} ».',
     'Could not create the payment source.' => 'Impossible de créer la source de paiement.',
