@@ -12,7 +12,6 @@ use craft\commerce\elements\Product;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
-use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 
 /**

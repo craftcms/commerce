@@ -426,6 +426,7 @@ class Variant extends Purchasable
         // Sometimes there may not be a product of that site if it doesn't exist yet,
         // which usually only happens during propagation of the product, or if propagation queue jobs fail after making a new site.
         if ($product === null) {
+            /** @var Product|null $product */
             $product = Product::find()
                 ->id($this->productId)
                 ->status(null)
