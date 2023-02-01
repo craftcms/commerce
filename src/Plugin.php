@@ -13,6 +13,7 @@ use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -600,6 +601,10 @@ class Plugin extends BasePlugin
             $owner = $address->getOwner();
             if ($owner instanceof UserElement) {
                 $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+            }
+
+            if (self::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
+                $event->behaviors['commerce:validateOrganizationTaxId'] = ValidateOrganizationTaxIdBehavior::class;
             }
         });
 

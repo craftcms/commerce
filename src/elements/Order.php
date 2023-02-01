@@ -1296,15 +1296,6 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        if (!$this->isCompleted) {
-            if (Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getBillingAddress()) {
-                $this->getBillingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-            if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getShippingAddress()) {
-                $this->getShippingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-        }
-
         return parent::beforeValidate();
     }
 

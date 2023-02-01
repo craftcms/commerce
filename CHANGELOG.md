@@ -10,6 +10,7 @@
 - Added support for searching orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
 - Fixed a bug where 'Enabled for customers to select during checkout' did not correctly support environment variables. ([#3052](https://github.com/craftcms/commerce/issues/3052))
 - Fixed a PHP error that could occur when entering values on the Edit Discount page. ([#3067](https://github.com/craftcms/commerce/issues/3067))
+- Fixed a PHP error that could occur when validating an address’ organization tax ID. ([#3064](https://github.com/craftcms/commerce/issues/3064))
 
 ## 4.2.4 - 2022-11-29
 
