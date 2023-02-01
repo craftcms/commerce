@@ -18,7 +18,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
-use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
@@ -1294,15 +1293,6 @@ class Order extends Element
         // If the gateway ID doesn't exist, just drop it.
         if ($this->gatewayId && !$this->getGateway()) {
             $this->gatewayId = null;
-        }
-
-        if (!$this->isCompleted) {
-            if (Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getBillingAddress()) {
-                $this->getBillingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-            if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getShippingAddress()) {
-                $this->getShippingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
         }
 
         return parent::beforeValidate();

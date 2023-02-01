@@ -394,8 +394,10 @@
                         id: 'perUserLimit',
                         name: 'perUserLimit',
                         value: discount.perUserLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -424,8 +426,10 @@
                         id: 'perEmailLimit',
                         name: 'perEmailLimit',
                         value: discount.perEmailLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -454,8 +458,10 @@
                         id: 'totalDiscountUseLimit',
                         name: 'totalDiscountUseLimit',
                         value: discount.totalDiscountUseLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -570,7 +576,6 @@
                             id: 'baseDiscount',
                             name: 'baseDiscount',
                             type: 'text',
-                            step: 'any',
                             size: 10,
                             value: discount.baseDiscount ? discount.baseDiscount|number : 0,
                         }) }}
