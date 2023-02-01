@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => 'Copiar para {location}',
     'Copy' => 'Copiar',
     'Costs' => 'Custos',
-    'Could delete shipping method and it’s rules.' => 'Foi possível eliminar o método de envio e as suas regras.',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'Não foi possível arquivar o gateway.',
     'Could not cancel “{reference}”.' => 'Não foi possível cancelar “{reference}”.',
     'Could not create the payment source.' => 'Não foi possível criar a fonte de pagamento.',
