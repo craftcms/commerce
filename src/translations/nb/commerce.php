@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => 'Kopier til {location}',
     'Copy' => 'Kopier',
     'Costs' => 'Kostnader',
-    'Could delete shipping method and it’s rules.' => 'Kunne slette forsendelsesmetode og tilhørende regler.',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'Kunne ikke arkivere portal.',
     'Could not cancel “{reference}”.' => 'Kunne ikke kansellere «{reference}».',
     'Could not create the payment source.' => 'Kunne ikke opprette betalingskilde.',
