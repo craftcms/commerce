@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => 'Kopírovať do {location}',
     'Copy' => 'Kopírovať',
     'Costs' => 'Náklady',
-    'Could delete shipping method and it’s rules.' => 'Odstránenie spôsobu dodania a jeho pravidiel bolo úspešné.',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'Brána sa nedá archivovať.',
     'Could not cancel “{reference}”.' => 'Nebolo možné zrušiť „{reference}“.',
     'Could not create the payment source.' => 'Zdroj platby sa nedá vytvoriť.',
