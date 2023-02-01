@@ -7,6 +7,7 @@ use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
+use craft\elements\Address;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -56,7 +57,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
      */
     public function getCondition(): ZoneAddressCondition
     {
-        return $this->_condition ?? new ZoneAddressCondition();
+        return $this->_condition ?? new ZoneAddressCondition(Address::class);
     }
 
     /**
