@@ -221,9 +221,10 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function currencyAttributes(): array
     {
         return [
-            'price',
             'basePrice',
             'basePromotionalPrice',
+            'price',
+            'promotionalPrice',
             'salePrice',
         ];
     }
