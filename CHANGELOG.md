@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 4.2.5.1 - 2023-02-02
+
+- Fixed a PHP error that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))
+
 ## 4.2.5 - 2023-02-01
 
 - Added support for searching for orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
