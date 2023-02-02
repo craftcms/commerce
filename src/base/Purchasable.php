@@ -61,6 +61,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @var float|null
+     * @see getPrice()
+     * @see setPrice()
      */
     private ?float $_price = null;
 
@@ -73,6 +75,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @var float|null
+     * @see getPromotionalPrice()
+     * @see setPromotionalPrice()
      */
     private ?float $_promotionalPrice = null;
 
@@ -319,6 +323,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * @return float|null
      * @throws InvalidConfigException
      * @throws \Throwable
+     * @since 5.0.0
      */
     public function getPromotionalPrice(): ?float
     {
@@ -331,6 +336,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @param float|null $price
      * @return void
+     * @since 5.0.0
      */
     public function setPromotionalPrice(?float $price): void
     {
