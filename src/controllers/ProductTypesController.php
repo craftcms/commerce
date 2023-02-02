@@ -116,7 +116,7 @@ class ProductTypesController extends BaseAdminController
         $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
         $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
-        $productType->maxVariants = (int)$this->request->getBodyParam('maxVariants');
+        $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
         $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
