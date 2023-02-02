@@ -320,11 +320,14 @@ class CatalogPricing extends Component
             ->select([new Expression('MIN(price) as price')])
             ->from([Table::CATALOG_PRICING . ' cp'])
             ->where($catalogPricingRuleIdWhere)
-            ->andWhere(['storeId' => $storeId])
             ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
             ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
             ->groupBy(['purchasableId'])
             ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC]);
+
+        if ($storeId) {
+            $query->andWhere(['storeId' => $storeId]);
+        }
 
         if ($isPromotionalPrice !== null) {
             $query->andWhere(['isPromotionalPrice' => $isPromotionalPrice]);
