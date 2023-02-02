@@ -7,13 +7,16 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
@@ -63,6 +66,11 @@ class PurchasableQuery extends ElementQuery
     public ?bool $hasUnlimitedStock = null;
 
     /**
+     * @var int|false|null
+     */
+    public int|false|null $forCustomer = null;
+
+    /**
      * Narrows the query results to only variants that have been set to unlimited stock.
      *
      * Possible values include:
@@ -79,6 +87,27 @@ class PurchasableQuery extends ElementQuery
     public function hasUnlimitedStock(?bool $value = true): static
     {
         $this->hasUnlimitedStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the pricing query results to only prices related for the specified customer.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with user ID of `1`.
+     * | `false` | with prices for guest customers.
+     * | `null` | with prices for current user scenario.
+     *
+     * @param int|false|null $value
+     * @return static self reference
+     * @noinspection PhpUnused
+     */
+    public function forCustomer(int|false|null $value = null): static
+    {
+        $this->forCustomer = $value;
         return $this;
     }
 
@@ -202,9 +231,11 @@ class PurchasableQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function beforePrepare(): bool
     {
-
         $this->joinElementTable('commerce_purchasables');
         $this->query->addSelect([
             'commerce_purchasables.sku',
@@ -223,37 +254,48 @@ class PurchasableQuery extends ElementQuery
             'purchasables_stores.stock',
             'purchasables_stores.minQty',
             'purchasables_stores.maxQty',
+            'catalogprices.price',
+            'catalogpromotionalprices.price as promotionalPrice',
         ]);
+
+        $customerId = $this->forCustomer;
+        if ($customerId === null) {
+            $customerId = Craft::$app->getUser()->getIdentity()?->id;
+        } elseif ($customerId === false) {
+            $customerId = null;
+        }
+
+        $catalogPricingQuery = Plugin::getInstance()
+            ->getCatalogPricing()
+            ->createCatalogPricingQuery(userId: $customerId)
+            ->addSelect(['cp.purchasableId', 'cp.storeId']);
+        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
+        $catalogPromotionalPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => true]);
 
         $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+        $this->query->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+        $this->query->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
 
-        if (isset($this->price)) {
-            $priceQuery = (new Query())
-                ->select(['purchasableId'])
-                ->from([
-                    'ruleprice' => Plugin::getInstance()
-                        ->getCatalogPricing()
-                        ->createCatalogPricingQuery(null, 'purchasables_stores.storeId')
-                        ->addSelect(['cp.purchasableId']),
-                ])
-                ->where(Db::parseNumericParam('price', $this->price));
+        if (isset($this->price) || isset($this->promotionalPrice)) {
+            $this->subQuery->leftJoin(['comelsites' => \craft\db\Table::ELEMENTS_SITES], '[[comelsites.elementId]] = [[elements.id]]');
+            $this->subQuery->andWhere(['comelsites.siteId' => $this->siteId]);
+            $this->subQuery->leftJoin(Table::SITESTORES . ' sitestores', '[[comelsites.siteId]] = [[sitestores.siteId]]');
+            $this->subQuery->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
-            $this->subQuery->andWhere(['commerce_purchasables.id' => $priceQuery]);
-        }
+            if (isset($this->price)) {
+                $this->subQuery->leftJoin([
+                    'catalogprices' => $catalogPricesQuery
+                ], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+                $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
+            }
 
-        if (isset($this->promotionalPrice)) {
-            $promotionalPriceQuery = (new Query())
-                ->select(['purchasableId'])
-                ->from([
-                    'promotionalpricequery' => Plugin::getInstance()
-                        ->getCatalogPricing()
-                        ->createCatalogPricingQuery(null, 'purchasables_stores.storeId', true)
-                        ->addSelect(['cp.purchasableId']),
-                ])
-                ->where(Db::parseNumericParam('price', $this->promotionalPrice));
-
-            $this->subQuery->andWhere(['commerce_purchasables.id' => $promotionalPriceQuery]);
+            if (isset($this->promotionalPrice)) {
+                $this->subQuery->leftJoin([
+                    'catalogpromotionalprices' => $catalogPromotionalPricesQuery
+                ], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
+                $this->subQuery->andWhere(Db::parseNumericParam('catalogpromotionalprices.price', $this->promotionalPrice));
+            }
         }
 
         if ($this->width !== false) {

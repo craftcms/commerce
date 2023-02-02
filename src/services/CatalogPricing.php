@@ -305,6 +305,7 @@ class CatalogPricing extends Component
                 ->groupBy(['[[cpr.id]]']),
             ],
         ];
+
         // Sub query to figure out which catalog pricing rules are using user conditions
         if ($userId) {
             $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
@@ -322,7 +323,7 @@ class CatalogPricing extends Component
             ->where($catalogPricingRuleIdWhere)
             ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
             ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
-            ->groupBy(['purchasableId'])
+            ->groupBy(['purchasableId', 'storeId'])
             ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC]);
 
         if ($storeId) {

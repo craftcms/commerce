@@ -312,14 +312,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPrice(): ?float
     {
-        if ($this->id && $this->_price === null) {
-            // Live get catalog price
-            $catalogPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $this->getStoreId(), Craft::$app->getUser()->getIdentity()?->id, false);
-            if ($catalogPrice !== null) {
-                $this->setPrice($catalogPrice);
-            }
-        }
-
         return $this->_price ?? $this->basePrice;
     }
 
@@ -330,13 +322,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getPromotionalPrice(): ?float
     {
-        if ($this->id && $this->_promotionalPrice === null) {
-            $catalogPromotionalPrice = Plugin::getInstance()->getCatalogPricing()->getCatalogPrice($this->id, $this->getStoreId(), Craft::$app->getUser()->getIdentity()?->id, true);
-            if ($catalogPromotionalPrice !== null) {
-                $this->setPromotionalPrice($catalogPromotionalPrice);
-            }
-        }
-
         $price = $this->getPrice();
         $promotionalPrice = $this->_promotionalPrice ?? $this->basePromotionalPrice;
 
@@ -562,7 +547,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             [['basePrice'], 'number'],
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
             [['freeShipping', 'hasUnlimitedStock', 'promotable', 'availableForPurchase'], 'boolean'],
-            [['taxCategoryId', 'shippingCategoryId'], 'safe'],
+            [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice'], 'safe'],
         ]);
     }
 
