@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a PHP that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))
+- Fixed a PHP error that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))
 
 ## 4.2.5 - 2023-02-01
 
