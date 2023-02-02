@@ -13,6 +13,7 @@ use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -382,12 +383,18 @@ class Plugin extends BasePlugin
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 
-            $currentSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $sites = Craft::$app->getSites()->getAllSites();
+
             foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
-                if (isset($productType->getSiteSettings()[$currentSiteId]) && $productType->getSiteSettings()[$currentSiteId]->hasUrls) {
-                    $productSources[] = 'productType:' . $productType->uid;
+                foreach ($sites as $site) {
+                    $productTypeSettings = $productType->getSiteSettings();
+                    if (isset($productTypeSettings[$site->id]) && $productTypeSettings[$site->id]->hasUrls) {
+                        $productSources[] = 'productType:' . $productType->uid;
+                    }
                 }
             }
+
+            $productSources = array_unique($productSources);
 
             if ($productSources) {
                 $event->linkOptions[] = [
@@ -599,6 +606,10 @@ class Plugin extends BasePlugin
             $owner = $address->getOwner();
             if ($owner instanceof UserElement) {
                 $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+            }
+
+            if (self::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
+                $event->behaviors['commerce:validateOrganizationTaxId'] = ValidateOrganizationTaxIdBehavior::class;
             }
         });
 

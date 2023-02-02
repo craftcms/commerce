@@ -150,6 +150,16 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypes(): array
     {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            return $this->getAllProductTypes();
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return [];
+        }
+
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
 
@@ -954,9 +964,8 @@ class ProductTypes extends Component
             ->from([Table::PRODUCTTYPES . ' productTypes']);
 
         // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if (version_compare($commerce['schemaVersion'], '4.0.0', '>=')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
             $query->addSelect('productTypes.titleFormat');

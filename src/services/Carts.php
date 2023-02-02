@@ -101,9 +101,18 @@ class Carts extends Component
             $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             $forceSave = true;
         }
+        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
+            $forceSave = true;
+        }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
-            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
@@ -232,7 +241,7 @@ class Carts extends Component
      * Get the session cart number or generates one if none exists.
      *
      */
-    private function getSessionCartNumber(): string
+    protected function getSessionCartNumber(): string
     {
         if ($this->_cartNumber === null) {
             $this->_cartNumber = $this->generateCartNumber();

@@ -328,14 +328,17 @@ class LineItem extends Model
     }
 
     /**
-     * @param string $description
+     * @param ?string $description
      * @return void
      */
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
-        $this->_description = $description;
+        $this->_description = (string)$description;
     }
 
+    /**
+     * @return string
+     */
     public function getSku(): string
     {
         if (!$this->_sku) {
@@ -346,9 +349,13 @@ class LineItem extends Model
         return $this->_sku;
     }
 
-    public function setSku(string $sku): void
+    /**
+     * @param ?string $sku
+     * @return void
+     */
+    public function setSku(?string $sku): void
     {
-        $this->_sku = $sku;
+        $this->_sku = (string)$sku;
     }
 
     /**

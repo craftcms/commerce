@@ -412,9 +412,9 @@ class Discounts extends Component
      *
      * @throws \Exception
      */
-    public function getDiscountByCode(string $code): ?Discount
+    public function getDiscountByCode(?string $code): ?Discount
     {
-        if (!$code) {
+        if ($code === null || $code === '') {
             return null;
         }
 

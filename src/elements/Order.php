@@ -18,7 +18,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
-use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
@@ -827,6 +826,7 @@ class Order extends Element
 
     /**
      * @var string|null Shipping Method Handle
+     * @TODO change this to be just string at next breaking change
      */
     public ?string $shippingMethodHandle = '';
 
@@ -1309,15 +1309,6 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        if (!$this->isCompleted) {
-            if (Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getBillingAddress()) {
-                $this->getBillingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-            if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getShippingAddress()) {
-                $this->getShippingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-        }
-
         return parent::beforeValidate();
     }
 
@@ -1496,6 +1487,7 @@ class Order extends Element
 
     /**
      * Automatically set addresses on the order if it's a cart and `autoSetNewCartAddresses` is `true`.
+     *
      *
      * @return bool returns true if order is mutated
      * @throws Throwable
@@ -2064,8 +2056,8 @@ class Order extends Element
 
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
-        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
-        $orderRecord->shippingMethodName = $this->shippingMethodName;
+        $orderRecord->shippingMethodHandle = $this->shippingMethodHandle ?? '';
+        $orderRecord->shippingMethodName = $this->shippingMethodName ?? '';
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;

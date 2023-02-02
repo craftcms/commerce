@@ -164,9 +164,9 @@ class DiscountsController extends BaseStoreSettingsController
         $discount->hasFreeShippingForOrder = (bool)$this->request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnPromotion = (bool)$this->request->getBodyParam('excludeOnPromotion');
         $discount->couponFormat = $this->request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
-        $discount->perUserLimit = $this->request->getBodyParam('perUserLimit');
-        $discount->perEmailLimit = $this->request->getBodyParam('perEmailLimit');
-        $discount->totalDiscountUseLimit = $this->request->getBodyParam('totalDiscountUseLimit');
+        $discount->perUserLimit = (int)$this->request->getBodyParam('perUserLimit');
+        $discount->perEmailLimit = (int)$this->request->getBodyParam('perEmailLimit');
+        $discount->totalDiscountUseLimit = (int)$this->request->getBodyParam('totalDiscountUseLimit');
         $discount->ignorePromotions = (bool)$this->request->getBodyParam('ignorePromotions');
         $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
         $discount->baseDiscountType = $this->request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
@@ -174,14 +174,18 @@ class DiscountsController extends BaseStoreSettingsController
         $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
 
         $baseDiscount = $this->request->getBodyParam('baseDiscount') ?: 0;
+        $baseDiscount = preg_replace('/[^0-9\.\-\,]/', '', $baseDiscount);
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
 
         $perItemDiscount = $this->request->getBodyParam('perItemDiscount') ?: 0;
+        $perItemDiscount = preg_replace('/[^0-9\.\-\,]/', '', $perItemDiscount);
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
 
-        $discount->purchaseTotal = Localization::normalizeNumber($this->request->getBodyParam('purchaseTotal', 0));
+        $purchaseTotal = $this->request->getBodyParam('purchaseTotal', 0);
+        $purchaseTotal = preg_replace('/[^0-9\.\-\,]/', '', $purchaseTotal);
+        $discount->purchaseTotal = (float)Localization::normalizeNumber($purchaseTotal);
 
         $date = $this->request->getBodyParam('dateFrom');
         if ($date) {
@@ -195,7 +199,9 @@ class DiscountsController extends BaseStoreSettingsController
             $discount->dateTo = $dateTime;
         }
 
-        $discount->percentDiscount = -Localization::normalizePercentage($this->request->getBodyParam('percentDiscount'));
+        $percentDiscount = $this->request->getBodyParam('percentDiscount', 0);
+        $percentDiscount = preg_replace('/[^0-9\.\-\,]/', '', $percentDiscount);
+        $discount->percentDiscount = -Localization::normalizePercentage($percentDiscount);
 
         // Set purchasable conditions
         if ($discount->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {

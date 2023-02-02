@@ -1,7 +1,38 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))
+
+## 4.2.5 - 2023-02-01
+
+- Added support for searching for orders by customer name. ([#3050](https://github.com/craftcms/commerce/issues/3050))
+- Fixed a PHP error that occurred if `null` was passed to `craft\commerce\services\Discounts::getDiscountByCode()`. ([#3045](https://github.com/craftcms/commerce/issues/3045))
+- Fixed a bug where a large number of shipping rule category queries could be executed.
+- Fixed a PHP error that occurred if a product was re-saved before it had finished propagating to all sites. ([#1954](https://github.com/craftcms/commerce/issues/1954))
+- Fixed a PHP error that occurred if `craft\commerce\services\ProductTypes::getEditableProductTypes()` was called when no user was logged in. 
+- Fixed a PHP error that occurred when saving an invalid shipping method.
+- Fixed a bug where gateways’ “Enabled for customers to select during checkout” setting wasn’t properly supporting environment variables. ([#3052](https://github.com/craftcms/commerce/issues/3052))
+- Fixed a PHP error that could occur when entering values on an Edit Discount page. ([#3067](https://github.com/craftcms/commerce/issues/3067))
+- Fixed a PHP error that could occur when validating an address’s Organization Tax ID field. ([#3046](https://github.com/craftcms/commerce/issues/3046))
+
+## 4.2.4 - 2022-11-29
+
+- The “Customer” order condition rule now supports orders with no customer.
+
+## 4.2.3 - 2022-11-23
+
+- Fixed a bug where saving an invalid tax category failed silently. ([#3013](https://github.com/craftcms/commerce/issues/3013))
+- Fixed a bug where using the `autoSetNewCartAddresses` config setting was getting applied for guest carts.
+- Fixed an error that could occur when purging inactive carts.
+- Fixed a bug where products and variants weren’t always available as link options in Redactor. ([#3041](https://github.com/craftcms/commerce/issues/3041))
+
 ## 4.2.2 - 2022-11-06
 
+### Fixed
+
+- Fixed a bug where saving an invalid tax category doesn't return an error notice.
+- Fixed an error that could occur when purging inactive carts.
 - Fixed a bug where the `commerce/cart/update-cart` action wasn’t fully clearing the cart when the `clearLineItems` param was submitted, if the quantity of an exsiting line item was being increased in the same request. ([#3014](https://github.com/craftcms/commerce/issues/3014))
 - Fixed an error that could occur when purging a large number of inactive carts.
 - Fixed an error where addresses were assumed to have an owner. ([#3021](https://github.com/craftcms/commerce/pull/3021))

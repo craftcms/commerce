@@ -172,7 +172,7 @@ return [
     'Copy to {location}' => 'Copy to {location}',
     'Copy' => 'Copy',
     'Costs' => 'Costs',
-    'Could delete shipping method and it’s rules.' => 'Could delete shipping method and it’s rules.',
+    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
     'Could not archive gateway.' => 'Could not archive gateway.',
     'Could not cancel “{reference}”.' => 'Could not cancel “{reference}”.',
     'Could not create the payment source.' => 'Could not create the payment source.',
