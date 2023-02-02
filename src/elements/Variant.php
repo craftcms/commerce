@@ -348,9 +348,9 @@ class Variant extends Purchasable
     {
         $fieldLayout = parent::getFieldLayout();
 
-        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout() #COM-41
         if (!$fieldLayout && $this->productId) {
             $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+            $this->fieldLayoutId = $fieldLayout->id;
         }
 
         return $fieldLayout;

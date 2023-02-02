@@ -992,7 +992,18 @@ class Product extends Element
      */
     public function getFieldLayout(): ?FieldLayout
     {
-        return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
+        $fieldLayout = parent::getFieldLayout();
+        if ($fieldLayout) {
+            return $fieldLayout;
+        }
+
+        $fieldLayout = $this->getType()->getFieldLayout();
+        if ($fieldLayout) {
+            $this->fieldLayoutId = $fieldLayout->id;
+            return $fieldLayout;
+        }
+
+        return null;
     }
 
     /**
