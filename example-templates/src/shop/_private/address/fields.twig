@@ -27,7 +27,7 @@ Outputs address form fields for editing an address.
     }) }}
     {{ _self.displayErrors(address, 'title') }}
   </div>
-  {% set countries = craft.commerce.store.store.getCountriesList() %}
+  {% set countries = cart.store.settings.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
 
   <div class="my-2">
@@ -107,7 +107,7 @@ Outputs address form fields for editing an address.
         {{- 'State'|t -}}
       </label>
 
-      {% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
+      {% set administrativeAreas = cart.store.settings.getAdministrativeAreasListByCountryCode() %}
 
       {% tag 'select' with {
         id: 'administrativeArea',

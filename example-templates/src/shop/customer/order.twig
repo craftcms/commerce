@@ -133,18 +133,18 @@
             <td class="py-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
               <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                 <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
-                <div class="text-sm tabular-nums">{% if item.onSale %}
-                  <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onSale %}</del>{% endif %}
+                <div class="text-sm tabular-nums">{% if item.onPromotion %}
+                  <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onPromotion %}</del>{% endif %}
                 </div>
               </div>
-              {% if item.onSale %}
-                <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
+              {% if item.onPromotion %}
+                <div class="flex items-center w-full justify-end" title="{{ item.promotionalPrice }}">
                   <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
-                  <div class="text-sm tabular-nums">{{ item.salePriceAsCurrency }}</div>
+                  <div class="text-sm tabular-nums">{{ item.promotionalPriceAsCurrency }}</div>
                 </div>
-                <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
+                <div class="flex items-center w-full justify-end" title="{{ item.promotionalAmount }}">
                   <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                  <div class="text-sm tabular-nums">{{ item.saleAmountAsCurrency }}</div>
+                  <div class="text-sm tabular-nums">{{ item.promotionalAmountAsCurrency }}</div>
                 </div>
               {% endif %}
               <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
