@@ -16,6 +16,7 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
@@ -163,6 +164,7 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderElementTrait;
     use OrderNoticesTrait;
+    use StoreTrait;
 
     /**
      * Payments exceed order total.
@@ -3270,20 +3272,6 @@ class Order extends Element
         }
 
         return $nestedTransactions;
-    }
-
-    /**
-     * Get the store for the order.
-     *
-     * @since 5.0.0
-     */
-    public function getStore(): ?Store
-    {
-        if (!isset($this->storeId)) {
-            throw new InvalidConfigException('Order is missing its store ID');
-        }
-
-        return Plugin::getInstance()->getStores()->getStoreById($this->storeId);
     }
 
     /**

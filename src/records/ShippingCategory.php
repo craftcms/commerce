@@ -7,10 +7,10 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
-use yii\db\ActiveQueryInterface;
 
 /**
  * Tax category record.
@@ -27,19 +27,13 @@ use yii\db\ActiveQueryInterface;
 class ShippingCategory extends ActiveRecord
 {
     use SoftDeleteTrait;
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
         return Table::SHIPPINGCATEGORIES;
-    }
-
-    /**
-     * @return ActiveQueryInterface
-     */
-    public function getStore(): ActiveQueryInterface
-    {
-        return $this->hasOne(Store::class, ['id' => 'storeId']);
     }
 }

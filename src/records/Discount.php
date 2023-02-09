@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Category;
@@ -59,6 +60,8 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     public const TYPE_ORIGINAL_SALEPRICE = 'original';
     public const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
 

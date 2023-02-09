@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\elements\User;
@@ -37,6 +38,8 @@ use yii\db\ActiveQueryInterface;
  */
 class CatalogPricingRule extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     public const APPLY_BY_PERCENT = 'byPercent';
     public const APPLY_BY_FLAT = 'byFlat';
     public const APPLY_TO_PERCENT = 'toPercent';

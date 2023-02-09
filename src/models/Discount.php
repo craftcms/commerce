@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
@@ -21,7 +22,6 @@ use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
-use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -42,16 +42,12 @@ use yii\base\InvalidConfigException;
  */
 class Discount extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
     public ?int $id = null;
-
-    /**
-     * @var int|null
-     * @since 5.0.0
-     */
-    public ?int $storeId = null;
 
     /**
      * @var string Name of the discount
@@ -271,19 +267,6 @@ class Discount extends Model
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('discounts/' . $this->id);
-    }
-
-    /**
-     * @return Store
-     * @throws InvalidConfigException
-     */
-    public function getStore(): Store
-    {
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
-            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
-        }
-
-        return $store;
     }
 
     /**
