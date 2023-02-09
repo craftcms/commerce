@@ -693,7 +693,7 @@ class Stores extends Component
         $store = $this->getStoreById($orphanedStoreId);
 
         // If this was the primary store, make another the primary
-        if($store->primary){
+        if ($store->primary) {
             // make another store primary
             $store = collect($this->getAllStores())->firstWhere('primary', false);
             $store->primary = true;

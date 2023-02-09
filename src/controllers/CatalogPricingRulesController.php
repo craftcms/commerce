@@ -14,7 +14,6 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
-use craft\commerce\records\Sale as SaleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization;

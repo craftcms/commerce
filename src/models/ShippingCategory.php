@@ -149,7 +149,7 @@ class ShippingCategory extends Model
                 UniqueValidator::class,
                 'targetClass' => ShippingCategoryRecord::class,
                 'targetAttribute' => ['handle', 'storeId'],
-                'message' => '{attribute} "{value}" has already been taken.'
+                'message' => '{attribute} "{value}" has already been taken.',
             ],
             [['handle'], HandleValidator::class],
             [[

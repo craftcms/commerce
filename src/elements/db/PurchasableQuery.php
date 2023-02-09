@@ -12,11 +12,9 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
-use yii\db\Expression;
 
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
@@ -285,14 +283,14 @@ class PurchasableQuery extends ElementQuery
 
             if (isset($this->price)) {
                 $this->subQuery->leftJoin([
-                    'catalogprices' => $catalogPricesQuery
+                    'catalogprices' => $catalogPricesQuery,
                 ], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
                 $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
             }
 
             if (isset($this->promotionalPrice)) {
                 $this->subQuery->leftJoin([
-                    'catalogpromotionalprices' => $catalogPromotionalPricesQuery
+                    'catalogpromotionalprices' => $catalogPromotionalPricesQuery,
                 ], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
                 $this->subQuery->andWhere(Db::parseNumericParam('catalogpromotionalprices.price', $this->promotionalPrice));
             }

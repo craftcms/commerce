@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\services;
 use Codeception\Test\Unit;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
-use craft\commerce\services\StoreSettings;
 use craft\elements\Address;
 use UnitTester;
 

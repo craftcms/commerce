@@ -16,7 +16,6 @@ use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use yii\base\InvalidConfigException;
 
 /**
  * Purchasable Condition Rule

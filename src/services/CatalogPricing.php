@@ -20,7 +20,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\Queue as QueueHelper;
-use craft\queue\BaseJob;
 use craft\queue\Queue;
 use craft\queue\QueueInterface;
 use DateTime;

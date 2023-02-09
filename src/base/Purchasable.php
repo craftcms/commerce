@@ -638,7 +638,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
         // Set purchasables stores data
         if ($purchasable->id) {
-
             $purchasableStoreRecord = PurchasableStore::findOne([
                 'purchasableId' => $this->id,
                 'storeId' => $this->getStoreId(),

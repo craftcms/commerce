@@ -21,7 +21,6 @@ use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
-use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
 

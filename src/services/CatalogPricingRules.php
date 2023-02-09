@@ -224,7 +224,7 @@ class CatalogPricingRules extends Component
 
             Queue::push(Craft::createObject([
                 'class' => CatalogPricing::class,
-                'catalogPricingRules' => [$catalogPricingRule]
+                'catalogPricingRules' => [$catalogPricingRule],
             ]), 100);
 
             $this->_clearCaches();

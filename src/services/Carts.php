@@ -97,7 +97,7 @@ class Carts extends Component
                 'class' => Order::class,
                 'attributes' => $cartAttributes,
             ]);
-        } else if ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
+        } elseif ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
             $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
             $forceSave = true;
         }

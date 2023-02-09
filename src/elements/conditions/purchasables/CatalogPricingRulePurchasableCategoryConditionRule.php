@@ -11,14 +11,11 @@ use Craft;
 use craft\base\conditions\BaseConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
-use craft\commerce\base\PurchasableInterface;
-use craft\commerce\Plugin;
 use craft\elements\Category;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use yii\base\InvalidConfigException;
 
 /**
  * Catalog Pricing Rule Purchasable Category Condition Rule

@@ -11,12 +11,12 @@ use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Store as StoreRecord;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
-use craft\commerce\records\Store as StoreRecord;
 use yii\base\InvalidConfigException;
 
 /**

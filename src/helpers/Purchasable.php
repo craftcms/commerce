@@ -9,7 +9,6 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\elements\Address;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
@@ -119,7 +118,7 @@ JS, [
             Html::tag('span', '', [
                 'class' => ['status', $purchasable->getStatus()],
                 'role' => 'img',
-                'aria-label' => Craft::t('app', 'Status:') . ' ' . $statusText
+                'aria-label' => Craft::t('app', 'Status:') . ' ' . $statusText,
             ]) . Html::tag('strong', Html::encode($purchasable->title)),
             Html::encode($purchasable->getSku()),
         ];
