@@ -414,7 +414,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getShippingCategory(): ShippingCategory
     {
-        return $this->shippingCategoryId ? Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId) : Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
+        return $this->shippingCategoryId ?
+            Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($this->getStore()->id)->firstWhere('id', $this->shippingCategoryId)
+            : Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStore()->id);
     }
 
     /**
@@ -721,7 +723,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             'id' => 'shipping-category',
             'name' => 'shippingCategoryId',
             'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList(),
+            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()),
             'value' => $this->shippingCategoryId,
         ]);
 
