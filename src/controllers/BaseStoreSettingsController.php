@@ -78,9 +78,19 @@ class BaseStoreSettingsController extends BaseCpController
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
-            $this->storeSettingsNav['shipping'] = [
-                'label' => Craft::t('commerce', 'Shipping'),
-                'path' => 'shipping',
+            $this->storeSettingsNav['shippingmethods'] = [
+                'label' => Craft::t('commerce', 'Shipping Methods'),
+                'path' => 'shipping/shippingmethods',
+            ];
+
+            $this->storeSettingsNav['shippingzones'] = [
+                'label' => Craft::t('commerce', 'Shipping Zones'),
+                'path' => 'shipping/shippingzones',
+            ];
+
+            $this->storeSettingsNav['shippingcategories'] = [
+                'label' => Craft::t('commerce', 'Shipping Categories'),
+                'path' => 'shipping/shippingcategories',
             ];
         }
 

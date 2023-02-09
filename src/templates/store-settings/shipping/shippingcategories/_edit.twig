@@ -1,8 +1,7 @@
-{% extends "commerce/_layouts/cp" %}
-
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% set crumbs = [
-    { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
-    { label: "Shipping Categories"|t('commerce'), url: url('commerce/shipping/shippingcategories') },
+  { label: "Shipping Categories"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shipping/shippingcategories") },
 ] %}
 
 {% set selectedSubnavItem = 'shipping' %}
@@ -29,9 +28,9 @@
 {% block content %}
     <input type="hidden" name="action"
            value="commerce/shipping-categories/save">
-    {{ redirectInput('commerce/shipping/shippingcategories') }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/shipping/shippingcategories") }}
     {% if shippingCategory.id -%}
         <input type="hidden" name="shippingCategoryId" value="{{ shippingCategory.id }}">
     {%- endif %}
-    {% include "commerce/shipping/shippingcategories/_fields" %}
+    {% include "commerce/store-settings/shipping/shippingcategories/_fields" %}
 {% endblock %}

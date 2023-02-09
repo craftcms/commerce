@@ -13,6 +13,7 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -25,10 +26,21 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseShippingSettingsController
 {
-    public function actionIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
-        return $this->renderTemplate('commerce/shipping/shippingcategories/index', compact('shippingCategories'));
+        if ($storeHandle !== null) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($store->id);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/index', compact('shippingCategories'));
     }
 
     /**
@@ -36,13 +48,21 @@ class ShippingCategoriesController extends BaseShippingSettingsController
      * @param ShippingCategory|null $shippingCategory
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, ShippingCategory $shippingCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingCategory $shippingCategory = null): Response
     {
         $variables = [
             'id' => $id,
             'shippingCategory' => $shippingCategory,
             'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
+            'storeHandle' => $storeHandle,
         ];
+
+        $store = null;
+        if ($storeHandle !== null) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+        }
+
+        $store = $store ?? Plugin::getInstance()->getStores()->getPrimaryStore();
 
         if (!$variables['shippingCategory']) {
             if ($variables['id']) {
@@ -52,7 +72,10 @@ class ShippingCategoriesController extends BaseShippingSettingsController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingCategory'] = new ShippingCategory();
+                $variables['shippingCategory'] = Craft::createObject([
+                    'class' => ShippingCategory::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -71,10 +94,10 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             });
         }
 
-        $allShippingCategoryIds = ArrayHelper::getColumn(Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(), 'id');
-        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allShippingCategoryIds) === 1 && in_array($variables['id'], $allShippingCategoryIds);
+        $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($store->id);
+        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $variables['id']);
 
-        return $this->renderTemplate('commerce/shipping/shippingcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/_edit', $variables);
     }
 
     /**
@@ -90,6 +113,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         // Shared attributes
         $shippingCategory->id = $this->request->getBodyParam('shippingCategoryId');
+        $shippingCategory->storeId = $this->request->getBodyParam('storeId');
         $shippingCategory->name = $this->request->getBodyParam('name');
         $shippingCategory->handle = $this->request->getBodyParam('handle');
         $shippingCategory->description = $this->request->getBodyParam('description');

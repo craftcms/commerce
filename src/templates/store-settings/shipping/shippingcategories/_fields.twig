@@ -1,5 +1,7 @@
 {% import "_includes/forms" as forms %}
 
+{{ hiddenInput('storeId', shippingCategory is defined ? shippingCategory.storeId : null) }}
+
 {{ forms.textField({
     first: true,
     label: "Name"|t('commerce'),

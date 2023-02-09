@@ -11,7 +11,6 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\helpers\ArrayHelper;
-use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -32,6 +31,12 @@ class ShippingCategory extends Model
      * @var int|null ID
      */
     public ?int $id = null;
+
+    /**
+     * @var int|null storeId
+     * @since 5.0.0
+     */
+    public ?int $storeId = null;
 
     /**
      * @var string|null Name
@@ -86,9 +91,22 @@ class ShippingCategory extends Model
         return (string)$this->name;
     }
 
+    /**
+     * @return Store
+     * @throws InvalidConfigException
+     */
+    public function getStore(): Store
+    {
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return $store;
+    }
+
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/shipping/shippingcategories/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('shipping/shippingcategories/' . $this->id);
     }
 
     /**
@@ -127,8 +145,24 @@ class ShippingCategory extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['handle'], UniqueValidator::class, 'targetClass' => ShippingCategoryRecord::class],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => ShippingCategoryRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.'
+            ],
             [['handle'], HandleValidator::class],
+            [[
+                'dateCreated',
+                'dateDeleted',
+                'dateUpdated',
+                'default',
+                'description',
+                'handle',
+                'id',
+                'name',
+                'storeId',
+            ], 'safe'],
         ];
     }
 

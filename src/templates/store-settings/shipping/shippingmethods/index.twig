@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/shipping" %}
+{% extends "commerce/_layouts/store-settings" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Disabled',
@@ -10,7 +10,7 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/shipping/shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+    <a href="{{ url("commerce/store-settings/#{storeHandle}/pricing-rules/new") }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}

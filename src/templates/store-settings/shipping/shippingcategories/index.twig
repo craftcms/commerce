@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/shipping" %}
+{% extends "commerce/_layouts/store-settings" %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -10,7 +10,7 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/shipping/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
+    <a href="{{ url("commerce/store-settings/#{storeHandle}/shipping/shippingcategories/new") }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +22,7 @@
     {% set tableData = tableData|merge([{
         id: shippingCategory.id,
         title: shippingCategory.name|t('site'),
-        url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
+        url: shippingCategory.cpEditUrl,
         handle: shippingCategory.handle|e,
         description: shippingCategory.description ? shippingCategory.description|t('site')|e,
         default: shippingCategory.default ? true : false,

@@ -670,6 +670,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGCATEGORIES);
         $this->createTable(Table::SHIPPINGCATEGORIES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
@@ -984,6 +985,7 @@ class Install extends Migration
         $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', true);
+        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', true);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
@@ -1080,6 +1082,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
@@ -1200,11 +1203,12 @@ class Install extends Migration
      */
     public function _defaultDonationPurchasable(): void
     {
+        $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
         $donation = new Donation();
         $donation->sku = 'DONATION-CC4';
         $donation->availableForPurchase = false;
         $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory()->id;
+        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
         Craft::$app->getElements()->saveElement($donation);
     }
 

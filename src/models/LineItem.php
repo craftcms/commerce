@@ -717,7 +717,7 @@ class LineItem extends Model
         }
 
         // Category may have been archived
-        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(true);
+        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(withTrashed: true);
         return ArrayHelper::firstWhere($categories, 'id', $this->shippingCategoryId);
     }
 
