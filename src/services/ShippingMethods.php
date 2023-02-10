@@ -239,7 +239,7 @@ class ShippingMethods extends Component
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
 
-        $this->_allShippingMethods = null; //clear the cache
+        $this->clearCache();
 
         return true;
     }
@@ -268,7 +268,7 @@ class ShippingMethods extends Component
             $record->delete();
 
             $transaction->commit();
-            $this->_allShippingMethods = null; //clear the cache
+            $this->clearCache();
             return true;
         } catch (\Exception) {
             $transaction->rollBack();
@@ -293,5 +293,15 @@ class ShippingMethods extends Component
                 'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);
+    }
+
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    protected function clearCache(): void
+    {
+        $this->_allShippingMethods = null;
+        $this->_fetchedAll = false;
     }
 }
