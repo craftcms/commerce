@@ -47,12 +47,18 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('methodId', 'ruleId', 'shippingRule');
 
         $plugin = Plugin::getInstance();
-        $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId']);
+        $variables['shippingMethod'] = $plugin->getShippingMethods()
+            ->getAllShippingMethodsByStoreId($store->id)
+            ->firstWhere('id', $variables['methodId']);
 
         if (!$variables['shippingMethod']) {
             throw new HttpException(404);
@@ -84,7 +90,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         ]);
 
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
+            $this->getView()->renderTemplate('commerce/store-settings/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
 
@@ -97,7 +103,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
-        $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
+        $shippingZones = $plugin->getShippingZones()->getAllShippingZonesByStoreId($store->id)->all();
         $variables['shippingZones'] = [];
         $variables['shippingZones'][] = Craft::t('commerce', 'Anywhere');
         foreach ($shippingZones as $model) {
@@ -109,7 +115,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
+        $variables['storeHandle'] = $store->handle;
+
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingrules/_edit', $variables);
     }
 
     /**

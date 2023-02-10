@@ -1,9 +1,8 @@
-{% extends "commerce/_layouts/cp" %}
-
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% set crumbs = [
-    { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
-    { label: "Shipping Methods"|t('commerce'), url: url('commerce/shipping/shippingmethods') },
-    { label: shippingMethod.getName()|t('commerce'), url: url('commerce/shipping/shippingmethods/'~methodId) },
+    { label: "Shipping Methods"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shippingmethods") },
+    { label: shippingMethod.getName()|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shippingmethods/#{methodId}") },
 ] %}
 
 {% set selectedSubnavItem = 'shipping' %}
@@ -394,7 +393,7 @@
         }, minMaxTotalWeightInput) }}
 
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
-        {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories %}
+        {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategoriesbyStoreId(shippingMethod.storeId) %}
         {% if shippingCategories %}
             <table id="shipping-categories-conditions"
                    class="data fullwidth collapsible">
@@ -463,7 +462,7 @@
         }) }}
 
         <h3>{{ "Item Rates"|t('commerce') }}</h3>
-        {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories %}
+        {% set shippingCategories = craft.commerce.shippingCategories.getAllShippingCategoriesByStoreId(shippingMethod.storeId) %}
         {% if shippingCategories %}
             <table id="shipping-categories-rates"
                    class="data fullwidth collapsible">
@@ -579,7 +578,7 @@
 {% js "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
 
 {% js %}
-    window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }};
+    window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategoriesByStoreId(shippingMethod.storeId).all()|json_encode|raw }};
 
     function toggleCategoryOverridesHeading() {
       if ($('.js-category-override-row.hidden').length == Object.keys(window.shippingCategories).length) {
