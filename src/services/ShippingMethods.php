@@ -112,7 +112,7 @@ class ShippingMethods extends Component
         }
 
 
-        return $this->_allShippingMethods[$storeId];
+        return $this->_allShippingMethods[$storeId] ?? collect();
     }
 
     /**
