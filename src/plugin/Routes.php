@@ -105,19 +105,19 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/donation'] = 'commerce/donations/edit';
 
             // Shipping
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones'] = 'commerce/shipping-zones/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingzones'] = 'commerce/shipping-zones/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingzones/new'] = 'commerce/shipping-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
 
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories'] = 'commerce/shipping-categories/index';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories/new'] = 'commerce/shipping-categories/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
 
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods'] = 'commerce/shipping-methods/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/new'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods'] = 'commerce/shipping-methods/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods/new'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods/<id:\d+>'] = 'commerce/shipping-methods/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
             // Subscription plans
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
