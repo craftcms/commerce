@@ -17,10 +17,11 @@ use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping method service.
@@ -54,47 +55,93 @@ class ShippingMethods extends Component
 
 
     /**
-     * @var null|ShippingMethod[]
+     * @var null|Collection<ShippingMethod>[]
      */
     private ?array $_allShippingMethods = null;
 
     /**
+     * @var bool
+     */
+    private bool $_fetchedAll = false;
+
+    /**
      * Returns the Commerce managed shipping methods stored in the database.
      *
-     * @return ShippingMethod[]
+     * @param int|null $storeId
+     * @return Collection<ShippingMethod>
+     * @throws InvalidConfigException
      */
-    public function getAllShippingMethods(): array
+    public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        if ($this->_allShippingMethods !== null) {
-            return $this->_allShippingMethods;
+        if ($this->_allShippingMethods === null || ($storeId && !isset($this->_allShippingMethods[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
+            $query = $this->_createShippingMethodQuery();
+
+            if ($storeId) {
+                $query->where(['storeId' => $storeId]);
+            }
+
+            $results = $query->all();
+
+            if ($this->_allShippingMethods === null || $storeId === null) {
+                $this->_allShippingMethods = [];
+            }
+
+            foreach ($results as $result) {
+                $shippingMethod = Craft::createObject([
+                    'class' => ShippingMethod::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allShippingMethods[$shippingMethod->storeId])) {
+                    $this->_allShippingMethods[$shippingMethod->storeId] = collect();
+                }
+
+                $this->_allShippingMethods[$shippingMethod->storeId]->push($shippingMethod);
+            }
         }
 
-        $results = $this->_createShippingMethodQuery()->all();
-        $this->_allShippingMethods = [];
+        if ($storeId === null) {
+            $allShippingMethods = collect();
+            foreach ($this->_allShippingMethods as $shippingMethodByStore) {
+                $methods = $shippingMethodByStore->all();
+                $allShippingMethods->push(...$methods);
+            }
 
-        foreach ($results as $result) {
-            $shippingMethod = new ShippingMethod($result);
-
-            $this->_allShippingMethods[] = $shippingMethod;
+            $this->_fetchedAll = true;
+            return $allShippingMethods;
         }
 
-        return $this->_allShippingMethods;
+
+        return $this->_allShippingMethods[$storeId];
+    }
+
+    /**
+     * @param int $storeId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @since 5.0.0.
+     */
+    public function getAllShippingMethodsByStoreId(int $storeId): Collection
+    {
+        return $this->getAllShippingMethods($storeId);
     }
 
     /**
      * Get a shipping method by its handle.
+     * @deprecated in 5.0.0. use `getAllShippingMethodsByStoreId($storeId)->firstWhere('handle', $shippingMethodHandle)` instead.
      */
     public function getShippingMethodByHandle(string $shippingMethodHandle): ?ShippingMethod
     {
-        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'handle', $shippingMethodHandle);
+        return $this->getAllShippingMethods()->firstWhere('handle', $shippingMethodHandle);
     }
 
     /**
      * Get a shipping method by its ID.
+     * @deprecated in 5.0.0. use `getAllShippingMethodsByStoreId($storeId)->firstWhere('id', $shippingMethodId)` instead.
      */
     public function getShippingMethodById(int $shippingMethodId): ?ShippingMethod
     {
-        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'id', $shippingMethodId);
+        return $this->getAllShippingMethods()->firstWhere('id', $shippingMethodId);
     }
 
     /**
@@ -106,7 +153,7 @@ class ShippingMethods extends Component
     {
         $matchingMethods = [];
 
-        $methods = $this->getAllShippingMethods();
+        $methods = $this->getAllShippingMethodsByStoreId($order->storeId);
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
@@ -178,6 +225,7 @@ class ShippingMethods extends Component
             return false;
         }
 
+        $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
@@ -234,7 +282,7 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
                 'dateCreated',
                 'dateUpdated',
@@ -242,9 +290,8 @@ class ShippingMethods extends Component
                 'handle',
                 'id',
                 'name',
+                'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);
-
-        return $query;
     }
 }

@@ -26,6 +26,8 @@ use DateTime;
  */
 abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -57,7 +59,6 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
-
 
     /**
      * @inheritdoc
@@ -113,6 +114,17 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public function getIsEnabled(): bool
     {
         throw new NotImplementedException();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['id', 'name', 'handle', 'storeId', 'enabled', 'dateCreated', 'dateUpdated'], 'safe'];
+
+        return $rules;
     }
 
     /**

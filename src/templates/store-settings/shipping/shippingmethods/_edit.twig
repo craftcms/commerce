@@ -1,4 +1,5 @@
-{% extends "commerce/_layouts/cp" %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Couldn’t reorder rules.',
@@ -9,11 +10,8 @@
 ]) %}
 
 {% set crumbs = [
-    { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
-    { label: "Shipping Methods"|t('commerce'), url: url('commerce/shipping/shippingmethods') },
+    { label: "Shipping Methods"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shippingmethods") },
 ] %}
-
-{% set selectedSubnavItem = 'shipping' %}
 
 {% set fullPageForm = true %}
 
@@ -50,35 +48,36 @@
 {% endblock %}
 
 {% block content %}
-        <input type="hidden" name="action" value="commerce/shipping-methods/save">
-        {{ redirectInput('commerce/shipping/shippingmethods/{id}#rules') }}
+    {{ hiddenInput('storeId', shippingMethod.storeId) }}
+    {{ actionInput('commerce/shipping-methods/save') }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/shippingmethods/{id}#rules") }}
 
-        {% if shippingMethod.id %}
-            <input type="hidden" name="shippingMethodId" value="{{ shippingMethod.id }}">
-        {% endif %}
+    {% if shippingMethod.id %}
+        {{ hiddenInput('shippingMethodId', shippingMethod.id) }}
+    {% endif %}
 
-        {{ forms.textField({
-            first: true,
-            label: "Name"|t('commerce'),
-            id: 'name',
-            name: 'name',
-            value: shippingMethod.getName(),
-            errors: shippingMethod.getErrors('name'),
-            autofocus: true,
-            required: true,
-        }) }}
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: shippingMethod.getName(),
+        errors: shippingMethod.getErrors('name'),
+        autofocus: true,
+        required: true,
+    }) }}
 
-        {{ forms.textField({
-            first: true,
-            label: "Handle"|t('commerce'),
-            instructions: "How this shipping method will be referred to in templates and forms."|t('commerce'),
-            id: 'handle',
-            class: 'code',
-            name: 'handle',
-            value: shippingMethod.handle,
-            errors: shippingMethod.getErrors('handle'),
-            required: true,
-        }) }}
+    {{ forms.textField({
+        first: true,
+        label: "Handle"|t('commerce'),
+        instructions: "How this shipping method will be referred to in templates and forms."|t('commerce'),
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: shippingMethod.handle,
+        errors: shippingMethod.getErrors('handle'),
+        required: true,
+    }) }}
 
 {% if shippingMethod.id %}
 <div class="vue-admin-table vue-admin-table-padded">
@@ -86,7 +85,7 @@
 <div id="rules-vue-admin-table"></div>
 
   <div class="buttons">
-    <a href="{{ url('commerce/shipping/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}"
+    <a href="{{ url("commerce/store-settings/#{storeHandle}/shippingmethods/#{shippingMethod.id}/shippingrules/new") }}"
        class="btn submit add icon">{{ 'New shipping rule'|t('commerce') }}</a>
   </div>
 </div>

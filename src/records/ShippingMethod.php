@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
@@ -17,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $enabled
  * @property string $handle
  * @property int $id
+ * @property int $storeId
  * @property string $name
  * @property ShippingRule[] $rules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -24,6 +26,8 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingMethod extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */

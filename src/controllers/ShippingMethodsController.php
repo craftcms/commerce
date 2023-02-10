@@ -29,10 +29,14 @@ class ShippingMethodsController extends BaseShippingSettingsController
     /**
      * @throws InvalidConfigException
      */
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        return $this->renderTemplate('commerce/shipping/shippingmethods/index', compact('shippingMethods'));
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods($store->id);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/index', compact('shippingMethods'));
     }
 
     /**
@@ -41,21 +45,31 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, ShippingMethod $shippingMethod = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingMethod $shippingMethod = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('id', 'shippingMethod');
 
         $variables['newMethod'] = false;
 
         if (!$variables['shippingMethod']) {
             if ($variables['id']) {
-                $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['id']);
+                $variables['shippingMethod'] = Plugin::getInstance()
+                    ->getShippingMethods()
+                    ->getAllShippingMethodsByStoreId($store->id)
+                    ->firstWhere('id', $variables['id']);
 
                 if (!$variables['shippingMethod']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingMethod'] = new ShippingMethod();
+                $variables['shippingMethod'] = Craft::createObject([
+                    'class' => ShippingMethod::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -65,13 +79,15 @@ class ShippingMethodsController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
+        $variables['storeHandle'] = $store->handle;
+
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
 
         $variables['shippingRules'] = $variables['shippingMethod']->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
             : [];
 
-        return $this->renderTemplate('commerce/shipping/shippingmethods/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/_edit', $variables);
     }
 
     /**
@@ -87,6 +103,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $shippingMethod->id = $this->request->getBodyParam('shippingMethodId');
         $shippingMethod->name = $this->request->getBodyParam('name');
         $shippingMethod->handle = $this->request->getBodyParam('handle');
+        $shippingMethod->storeId = $this->request->getBodyParam('storeId');
         $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
 
         // Save it

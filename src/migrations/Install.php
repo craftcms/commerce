@@ -684,6 +684,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGMETHODS);
         $this->createTable(Table::SHIPPINGMETHODS, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
@@ -985,6 +986,7 @@ class Install extends Migration
         $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', true);
+        $this->createIndex(null, Table::SHIPPINGMETHODS, 'storeId', true);
         $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', true);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
@@ -1083,6 +1085,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id']);
+        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
