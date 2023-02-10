@@ -120,9 +120,9 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
             // Subscription plans
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/store-settings/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/subscription-plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories'] = 'commerce/tax-categories/index';
