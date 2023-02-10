@@ -27,10 +27,14 @@ use yii\web\Response;
  */
 class ShippingZonesController extends BaseShippingSettingsController
 {
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/shipping/shippingzones/index', compact('shippingZones'));
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZonesByStoreId($store->id);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingzones/index', compact('shippingZones'));
     }
 
     /**
@@ -38,19 +42,29 @@ class ShippingZonesController extends BaseShippingSettingsController
      * @param ShippingAddressZone|null $shippingZone
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, ShippingAddressZone $shippingZone = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('id', 'shippingZone');
 
         if (!$variables['shippingZone']) {
             if ($variables['id']) {
-                $variables['shippingZone'] = Plugin::getInstance()->getShippingZones()->getShippingZoneById($variables['id']);
+                $variables['shippingZone'] = Plugin::getInstance()
+                    ->getShippingZones()
+                    ->getAllShippingZonesByStoreId($store->id)
+                    ->firstWhere('id', $variables['id']);
 
                 if (!$variables['shippingZone']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['shippingZone'] = new ShippingAddressZone();
+                $variables['shippingZone'] = Craft::createObject([
+                    'class' => ShippingAddressZone::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -59,6 +73,8 @@ class ShippingZonesController extends BaseShippingSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
+
+        $variables['storeHandle'] = $store->handle;
 
         $condition = $variables['shippingZone']->getCondition();
         $condition->mainTag = 'div';
@@ -70,7 +86,7 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingZone'], prepend: true);
 
-        return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingzones/_edit', $variables);
     }
 
     /**
@@ -85,6 +101,7 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         // Shared attributes
         $shippingZone->id = $this->request->getBodyParam('shippingZoneId');
+        $shippingZone->storeId = $this->request->getBodyParam('storeId');
         $shippingZone->name = $this->request->getBodyParam('name');
         $shippingZone->description = $this->request->getBodyParam('description');
         $shippingZone->setCondition($this->request->getBodyParam('condition'));

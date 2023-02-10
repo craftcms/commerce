@@ -25,6 +25,6 @@ class ShippingAddressZone extends Zone
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/shipping/shippingzones/' . $this->id);
+        return UrlHelper::cpUrl('commerce/store-settings/' . $this->getStore()->handle . '/shippingzones/' . $this->id);
     }
 }

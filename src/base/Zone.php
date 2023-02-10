@@ -18,6 +18,8 @@ use DateTime;
  */
 abstract class Zone extends BaseModel implements ZoneInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -93,6 +95,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
             [['name'], 'required'],
             [['condition'], 'required'],
             [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
+            [['storeId', 'id', 'description', 'dateCreated', 'dateUpdated'], 'safe'],
         ];
     }
 }

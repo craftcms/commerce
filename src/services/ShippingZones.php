@@ -15,7 +15,9 @@ use craft\db\Query;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
+use Illuminate\Support\Collection;
 
 /**
  * Shipping zone service.
@@ -27,44 +29,83 @@ use yii\db\StaleObjectException;
 class ShippingZones extends Component
 {
     /**
-     * @var ShippingAddressZone[]
+     * @var Collection<ShippingAddressZone>[]
      */
-    private array $_allZones = [];
+    private ?array $_allZones = null;
+
+    /**
+     * @var bool
+     */
+    private bool $_fetchedAll = false;
 
     /**
      * Get all shipping zones.
      *
-     * @return ShippingAddressZone[]
+     * @param int|null $storeId
+     * @return Collection<ShippingAddressZone>
+     * @throws InvalidConfigException
      */
-    public function getAllShippingZones(): array
+    public function getAllShippingZones(?int $storeId = null): Collection
     {
-        $rows = $this->_createQuery()->all();
+        if ($this->_allZones === null || ($storeId && !isset($this->_allZones[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
+            $query = $this->_createQuery();
 
-        foreach ($rows as $row) {
-            $this->_allZones[$row['id']] = new ShippingAddressZone($row);
+            if ($storeId) {
+                $query->where(['storeId' => $storeId]);
+            }
+
+            $results = $query->all();
+
+            if ($this->_allZones === null || $storeId === null) {
+                $this->_allZones = [];
+            }
+
+            foreach ($results as $result) {
+                $shippingAddressZone = Craft::createObject([
+                    'class' => ShippingAddressZone::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allZones[$shippingAddressZone->storeId])) {
+                    $this->_allZones[$shippingAddressZone->storeId] = collect();
+                }
+
+                $this->_allZones[$shippingAddressZone->storeId]->push($shippingAddressZone);
+            }
         }
 
-        return $this->_allZones;
+        if ($storeId === null) {
+            $allZones = collect();
+            foreach ($this->_allZones as $zoneByStore) {
+                $methods = $zoneByStore->all();
+                $allZones->push(...$methods);
+            }
+
+            $this->_fetchedAll = true;
+            return $allZones;
+        }
+
+        return $this->_allZones[$storeId] ?? collect();
+    }
+
+    /**
+     * @param int $storeId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @since 5.0.0.
+     */
+    public function getAllShippingZonesByStoreId(int $storeId): Collection
+    {
+        return $this->getAllShippingZones($storeId);
     }
 
     /**
      * Get a shipping zone by its ID.
+     * @deprecated in 5.0.0. Use `getAllShippingZonesByStoreId($storeId)->firstWhere('id', $id)` instead.
      */
     public function getShippingZoneById(int $id): ?ShippingAddressZone
     {
-        if (isset($this->_allZones[$id])) {
-            return $this->_allZones[$id];
-        }
-
-        $result = $this->_createQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allZones[$id] = new ShippingAddressZone($result);
+        return $this->getAllShippingZones()->firstWhere('id', $id);
     }
 
     /**
@@ -94,6 +135,7 @@ class ShippingZones extends Component
 
         //setting attributes
         $record->name = $model->name;
+        $record->storeId = $model->storeId;
         $record->description = $model->description;
         $record->condition = $model->getCondition()->getConfig();
         $this->_clearCaches();
@@ -137,6 +179,7 @@ class ShippingZones extends Component
                 'description',
                 'id',
                 'name',
+                'storeId',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);
@@ -150,5 +193,6 @@ class ShippingZones extends Component
     private function _clearCaches(): void
     {
         $this->_allZones = [];
+        $this->_fetchedAll = false;
     }
 }

@@ -1,11 +1,8 @@
-{% extends "commerce/_layouts/cp" %}
-
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% set crumbs = [
-    { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
-    { label: "Shipping Zones"|t('commerce'), url: url('commerce/shipping/shippingzones') },
+    { label: "Shipping Zones"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shippingzones") },
 ] %}
-
-{% set selectedSubnavItem = 'shipping' %}
 
 {% set fullPageForm = true %}
 
@@ -27,8 +24,11 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/shipping-zones/save">
-    {{ redirectInput('commerce/shipping/shippingzones') }}
-    {% if shippingZone.id %}<input type="hidden" name="shippingZoneId" value="{{ shippingZone.id }}">{% endif %}
-    {% include "commerce/shipping/shippingzones/_fields" %}
+    {{ hiddenInput('storeId', shippingZone.storeId) }}
+    {{ actionInput('commerce/shipping-zones/save') }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/shippingzones") }}
+    {% if shippingZone.id %}
+      {{ hiddenInput('shippingZoneId', shippingZone.id) }}
+    {% endif %}
+    {% include "commerce/store-settings/shipping/shippingzones/_fields" %}
 {% endblock %}

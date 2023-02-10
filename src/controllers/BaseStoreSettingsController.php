@@ -85,7 +85,7 @@ class BaseStoreSettingsController extends BaseCpController
 
             $this->storeSettingsNav['shippingzones'] = [
                 'label' => Craft::t('commerce', 'Shipping Zones'),
-                'path' => 'shipping/shippingzones',
+                'path' => 'shippingzones',
             ];
 
             $this->storeSettingsNav['shippingcategories'] = [

@@ -738,6 +738,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGZONES);
         $this->createTable(Table::SHIPPINGZONES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'condition' => $this->text(),
@@ -994,6 +995,7 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'shippingZoneId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
+        $this->createIndex(null, Table::SHIPPINGZONES, 'storeId', true);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);
@@ -1090,6 +1092,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
