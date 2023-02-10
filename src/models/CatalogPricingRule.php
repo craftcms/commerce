@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\conditions\customers\CatalogPricingRuleCustomerCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\Plugin;
@@ -34,6 +35,8 @@ use yii\base\InvalidConfigException;
  */
 class CatalogPricingRule extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -48,11 +51,6 @@ class CatalogPricingRule extends Model
      * @var string|null Description
      */
     public ?string $description = null;
-
-    /**
-     * @var int|null
-     */
-    public ?int $storeId = null;
 
     /**
      * @var DateTime|null Date From
@@ -147,19 +145,6 @@ class CatalogPricingRule extends Model
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('pricing-rules/' . $this->id);
-    }
-
-    /**
-     * @return Store
-     * @throws InvalidConfigException
-     */
-    public function getStore(): Store
-    {
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
-            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
-        }
-
-        return $store;
     }
 
     /**

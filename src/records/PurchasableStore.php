@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
@@ -31,6 +32,8 @@ use yii\db\ActiveQueryInterface;
  */
 class PurchasableStore extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */
@@ -45,13 +48,5 @@ class PurchasableStore extends ActiveRecord
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);
-    }
-
-    /**
-     * @return ActiveQueryInterface
-     */
-    public function getStore(): ActiveQueryInterface
-    {
-        return $this->hasOne(Store::class, ['id' => 'storeId']);
     }
 }

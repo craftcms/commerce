@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\helpers\ArrayHelper;
@@ -27,16 +28,12 @@ use yii\base\InvalidConfigException;
  */
 class ShippingCategory extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
     public ?int $id = null;
-
-    /**
-     * @var int|null storeId
-     * @since 5.0.0
-     */
-    public ?int $storeId = null;
 
     /**
      * @var string|null Name
@@ -89,19 +86,6 @@ class ShippingCategory extends Model
     public function __toString()
     {
         return (string)$this->name;
-    }
-
-    /**
-     * @return Store
-     * @throws InvalidConfigException
-     */
-    public function getStore(): Store
-    {
-        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
-            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
-        }
-
-        return $store;
     }
 
     public function getCpEditUrl(): string

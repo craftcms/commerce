@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
@@ -24,6 +25,8 @@ use craft\db\ActiveRecord;
  */
 class CatalogPricing extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */

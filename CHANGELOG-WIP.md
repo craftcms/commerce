@@ -31,6 +31,8 @@
 - Added `craft\commerce\base\Purchasable::getStore()`.
 - Added `craft\commerce\base\Purchasable::setPrice()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
+- Added `craft\commerce\base\StoreTrait`.
+- Added `craft\commerce\base\StoreRecordTrait`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.
 - Added `craft\commerce\controllers\VariantsController`.
