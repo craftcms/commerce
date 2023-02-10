@@ -53,7 +53,7 @@ class ShippingCategories extends Component
      * @return Collection
      * @throws InvalidConfigException
      */
-    public function getAllShippingCategories(int|null $storeId = null, bool $withTrashed = false): Collection
+    public function getAllShippingCategories(?int $storeId = null, bool $withTrashed = false): Collection
     {
         if ($this->_allShippingCategories === null || ($storeId && !isset($this->_allShippingCategories[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
             $query = $this->_createShippingCategoryQuery(true);

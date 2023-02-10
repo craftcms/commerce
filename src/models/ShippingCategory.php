@@ -90,7 +90,7 @@ class ShippingCategory extends Model
 
     public function getCpEditUrl(): string
     {
-        return $this->getStore()->getStoreSettingsUrl('shipping/shippingcategories/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('shippingcategories/' . $this->id);
     }
 
     /**

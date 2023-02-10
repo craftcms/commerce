@@ -109,9 +109,9 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
 
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories'] = 'commerce/shipping-categories/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories/new'] = 'commerce/shipping-categories/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories'] = 'commerce/shipping-categories/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories/new'] = 'commerce/shipping-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/shippingcategories/<id:\d+>'] = 'commerce/shipping-categories/edit';
 
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods'] = 'commerce/shipping-methods/index';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/shipping/shippingmethods/new'] = 'commerce/shipping-methods/edit';

@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/store-settings" %}
 {% set isIndex = false %}
 {% set crumbs = [
-  { label: "Shipping Categories"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shipping/shippingcategories") },
+  { label: "Shipping Categories"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/shippingcategories") },
 ] %}
 
 {% set selectedSubnavItem = 'shipping' %}
@@ -28,7 +28,7 @@
 {% block content %}
     <input type="hidden" name="action"
            value="commerce/shipping-categories/save">
-    {{ redirectInput("commerce/store-settings/#{storeHandle}/shipping/shippingcategories") }}
+    {{ redirectInput("commerce/store-settings/#{storeHandle}/shippingcategories") }}
     {% if shippingCategory.id -%}
         <input type="hidden" name="shippingCategoryId" value="{{ shippingCategory.id }}">
     {%- endif %}
