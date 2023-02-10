@@ -55,8 +55,8 @@
                 {
                     label: Craft.t('commerce', 'Set Default Category'),
                     action: 'commerce/shipping-categories/set-default-category',
-                    param: 'default',
-                    value: 1,
+                    param: 'storeHandle',
+                    value: '{{ storeHandle }}',
                     allowMultiple: false
                 }
             ]

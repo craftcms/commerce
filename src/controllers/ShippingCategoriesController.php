@@ -12,6 +12,7 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use http\Exception\InvalidArgumentException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -40,7 +41,11 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($store->id);
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/index', compact('shippingCategories'));
+        $variables = [
+            'shippingCategories' => $shippingCategories,
+            'storeHandle' => $store->handle,
+        ];
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/index', $variables);
     }
 
     /**
@@ -66,7 +71,10 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         if (!$variables['shippingCategory']) {
             if ($variables['id']) {
-                $variables['shippingCategory'] = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($variables['id']);
+                $variables['shippingCategory'] = Plugin::getInstance()
+                    ->getShippingCategories()
+                    ->getAllShippingCategoriesByStoreId($store->id)
+                    ->firstWhere('id', $variables['id']);
 
                 if (!$variables['shippingCategory']) {
                     throw new HttpException(404);
@@ -177,11 +185,17 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $this->requirePostRequest();
 
         $ids = $this->request->getRequiredBodyParam('ids');
+        $storeHandle = $this->request->getRequiredBodyParam('storeHandle');
+        if (!$storeHandle || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            throw new InvalidConfigException('Invalid store.');
+        }
 
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);
 
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id);
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()
+                ->getAllShippingCategoriesByStoreId($store->id)
+                ->firstWhere('id', $id);
             if ($shippingCategory) {
                 $shippingCategory->default = true;
                 if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {

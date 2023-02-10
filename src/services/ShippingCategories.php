@@ -129,6 +129,7 @@ class ShippingCategories extends Component
      * Get a shipping category by its ID.
      *
      * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use `getAllShippingCategoriesByStoreId($storeId)->firstWhere('id', $shippingCategoryId)` instead.
      */
     public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
     {
