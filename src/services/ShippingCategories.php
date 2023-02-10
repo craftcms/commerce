@@ -96,6 +96,10 @@ class ShippingCategories extends Component
             return $allShippingCategories;
         }
 
+        if (!isset($this->_allShippingCategories[$storeId])) {
+            return collect();
+        }
+
         return $this->_allShippingCategories[$storeId]->filter(fn(ShippingCategory $sc) => (!$withTrashed && $sc->dateDeleted === null) || $withTrashed);
     }
 
