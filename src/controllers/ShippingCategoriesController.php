@@ -34,9 +34,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
      */
     public function actionIndex(?string $storeHandle = null): Response
     {
-        if ($storeHandle !== null) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
-        } else {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
