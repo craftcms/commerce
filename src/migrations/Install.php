@@ -994,8 +994,8 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
-        $this->createIndex(null, Table::SHIPPINGZONES, 'storeId', true);
+        $this->createIndex(null, Table::SHIPPINGZONES, 'name', false);
+        $this->createIndex(null, Table::SHIPPINGZONES, 'storeId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);

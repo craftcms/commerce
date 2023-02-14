@@ -8,7 +8,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Zone;
+use craft\commerce\records\TaxZone;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Tax zone model.
@@ -31,5 +33,17 @@ class TaxAddressZone extends Zone
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxzones/' . $this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZone::class, 'targetAttribute' => ['name', 'storeId']];
+
+        return $rules;
+
     }
 }

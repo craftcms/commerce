@@ -93,6 +93,7 @@ class ShippingRulesController extends BaseShippingSettingsController
             $this->getView()->renderTemplate('commerce/store-settings/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
+        $this->getView()->setNamespace(null);
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;

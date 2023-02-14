@@ -92,9 +92,7 @@ abstract class Zone extends BaseModel implements ZoneInterface
     protected function defineRules(): array
     {
         return [
-            [['name'], 'required'],
-            [['condition'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
+            [['name', 'condition', 'storeId'], 'required'],
             [['storeId', 'id', 'description', 'dateCreated', 'dateUpdated'], 'safe'],
         ];
     }
