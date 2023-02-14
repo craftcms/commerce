@@ -83,7 +83,7 @@
                                 selectize.addOption({
                                     value: response.data.id,
                                     text: response.data.name,
-                                    $order: selectize.data.order - 1
+                                    $order: selectize.order - 1
                                 });
                                 selectize.setValue(response.data.id);
                                 modal.hide();
@@ -98,7 +98,6 @@
 
                                 modal.updateSizeAndPosition();
                                 Garnish.shake($form);
-
                             });
                     });
 
