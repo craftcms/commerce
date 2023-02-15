@@ -57,10 +57,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         if (!$variables['shippingMethod']) {
             if ($variables['id']) {
-                $variables['shippingMethod'] = Plugin::getInstance()
-                    ->getShippingMethods()
-                    ->getAllShippingMethodsByStoreId($store->id)
-                    ->firstWhere('id', $variables['id']);
+                $variables['shippingMethod'] = Plugin::getInstance()->getShippingMethods()->getShippingMethodById($variables['id'], $store->id);
 
                 if (!$variables['shippingMethod']) {
                     throw new HttpException(404);

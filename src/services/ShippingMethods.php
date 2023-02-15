@@ -53,16 +53,10 @@ class ShippingMethods extends Component
      */
     public const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
-
     /**
      * @var null|Collection<ShippingMethod>[]
      */
     private ?array $_allShippingMethods = null;
-
-    /**
-     * @var bool
-     */
-    private bool $_fetchedAll = false;
 
     /**
      * Returns the Commerce managed shipping methods stored in the database.
@@ -73,16 +67,14 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        if ($this->_allShippingMethods === null || ($storeId && !isset($this->_allShippingMethods[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
-            $query = $this->_createShippingMethodQuery();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            if ($storeId) {
-                $query->where(['storeId' => $storeId]);
-            }
+        if ($this->_allShippingMethods === null || ($storeId && !isset($this->_allShippingMethods[$storeId]))) {
+            $results = $this->_createShippingMethodQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
 
-            $results = $query->all();
-
-            if ($this->_allShippingMethods === null || $storeId === null) {
+            if ($this->_allShippingMethods === null) {
                 $this->_allShippingMethods = [];
             }
 
@@ -100,48 +92,23 @@ class ShippingMethods extends Component
             }
         }
 
-        if ($storeId === null) {
-            $allShippingMethods = collect();
-            foreach ($this->_allShippingMethods as $shippingMethodByStore) {
-                $methods = $shippingMethodByStore->all();
-                $allShippingMethods->push(...$methods);
-            }
-
-            $this->_fetchedAll = true;
-            return $allShippingMethods;
-        }
-
-
         return $this->_allShippingMethods[$storeId] ?? collect();
     }
 
     /**
-     * @param int $storeId
-     * @return Collection
-     * @throws InvalidConfigException
-     * @since 5.0.0.
-     */
-    public function getAllShippingMethodsByStoreId(int $storeId): Collection
-    {
-        return $this->getAllShippingMethods($storeId);
-    }
-
-    /**
      * Get a shipping method by its handle.
-     * @deprecated in 5.0.0. use `getAllShippingMethodsByStoreId($storeId)->firstWhere('handle', $shippingMethodHandle)` instead.
      */
-    public function getShippingMethodByHandle(string $shippingMethodHandle): ?ShippingMethod
+    public function getShippingMethodByHandle(string $shippingMethodHandle, ?int $storeId = null): ?ShippingMethod
     {
-        return $this->getAllShippingMethods()->firstWhere('handle', $shippingMethodHandle);
+        return $this->getAllShippingMethods($storeId)->firstWhere('handle', $shippingMethodHandle);
     }
 
     /**
      * Get a shipping method by its ID.
-     * @deprecated in 5.0.0. use `getAllShippingMethodsByStoreId($storeId)->firstWhere('id', $shippingMethodId)` instead.
      */
-    public function getShippingMethodById(int $shippingMethodId): ?ShippingMethod
+    public function getShippingMethodById(int $shippingMethodId, ?int $storeId = null): ?ShippingMethod
     {
-        return $this->getAllShippingMethods()->firstWhere('id', $shippingMethodId);
+        return $this->getAllShippingMethods($storeId)->firstWhere('id', $shippingMethodId);
     }
 
     /**
@@ -153,7 +120,7 @@ class ShippingMethods extends Component
     {
         $matchingMethods = [];
 
-        $methods = $this->getAllShippingMethodsByStoreId($order->storeId);
+        $methods = $this->getAllShippingMethods($order->storeId);
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
@@ -302,6 +269,5 @@ class ShippingMethods extends Component
     protected function clearCache(): void
     {
         $this->_allShippingMethods = null;
-        $this->_fetchedAll = false;
     }
 }
