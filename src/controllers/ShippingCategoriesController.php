@@ -38,7 +38,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($store->id);
+        $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
         $variables = [
             'shippingCategories' => $shippingCategories,
             'storeHandle' => $store->handle,
@@ -71,8 +71,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             if ($variables['id']) {
                 $variables['shippingCategory'] = Plugin::getInstance()
                     ->getShippingCategories()
-                    ->getAllShippingCategoriesByStoreId($store->id)
-                    ->firstWhere('id', $variables['id']);
+                    ->getShippingCategoryById($variables['id'], $store->id);
 
                 if (!$variables['shippingCategory']) {
                     throw new HttpException(404);
@@ -100,7 +99,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             });
         }
 
-        $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesByStoreId($store->id);
+        $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
         $variables['isDefaultAndOnlyCategory'] = $variables['id'] && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $variables['id']);
 
         return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/_edit', $variables);
@@ -191,9 +190,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         if (!empty($ids)) {
             $id = ArrayHelper::firstValue($ids);
 
-            $shippingCategory = Plugin::getInstance()->getShippingCategories()
-                ->getAllShippingCategoriesByStoreId($store->id)
-                ->firstWhere('id', $id);
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($id, $store->id);
             if ($shippingCategory) {
                 $shippingCategory->default = true;
                 if (Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {

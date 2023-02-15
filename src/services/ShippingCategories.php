@@ -10,8 +10,9 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\Store;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -40,32 +41,25 @@ class ShippingCategories extends Component
     private ?array $_allShippingCategories = null;
 
     /**
-     * @var bool
-     * @since 5.0.0
-     */
-    private bool $_fetchedAll = false;
-
-    /**
      * Returns all Shipping Categories
      *
      * @param int|null $storeId
      * @param bool $withTrashed
      * @return Collection
      * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
     public function getAllShippingCategories(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        if ($this->_allShippingCategories === null || ($storeId && !isset($this->_allShippingCategories[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
-            $query = $this->_createShippingCategoryQuery(true);
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            if ($storeId) {
-                $query->where(['storeId' => $storeId]);
-            }
-
-            $results = $query->all();
+        if ($this->_allShippingCategories === null || ($storeId && !isset($this->_allShippingCategories[$storeId]))) {
+            $results = $this->_createShippingCategoryQuery(true)
+                ->where(['storeId' => $storeId])
+                ->all();
 
             // Start with a blank slate if it isn't memoized, or we're fetching all shipping categories
-            if ($this->_allShippingCategories === null || !$storeId) {
+            if ($this->_allShippingCategories === null) {
                 $this->_allShippingCategories = [];
             }
 
@@ -83,19 +77,6 @@ class ShippingCategories extends Component
             }
         }
 
-        if ($storeId === null) {
-            $allShippingCategories = collect();
-            foreach ($this->_allShippingCategories as $storeShippingCategories) {
-                $ssc = $storeShippingCategories
-                    ->filter(fn(ShippingCategory $sc) => (!$withTrashed && $sc->dateDeleted === null) || $withTrashed)
-                    ->all();
-                $allShippingCategories->push(...$ssc);
-            }
-
-            $this->_fetchedAll = true;
-            return $allShippingCategories;
-        }
-
         if (!isset($this->_allShippingCategories[$storeId])) {
             return collect();
         }
@@ -104,25 +85,13 @@ class ShippingCategories extends Component
     }
 
     /**
-     * @param int $storeId
-     * @param bool $withTrashed
-     * @return Collection
-     * @throws InvalidConfigException
-     * @since 5.0.0
-     */
-    public function getAllShippingCategoriesByStoreId(int $storeId, bool $withTrashed = false): Collection
-    {
-        return $this->getAllShippingCategories($storeId, $withTrashed);
-    }
-
-    /**
      * Returns all Shipping category names, by ID.
      *
      * @throws InvalidConfigException
      */
-    public function getAllShippingCategoriesAsList(?Store $store = null): array
+    public function getAllShippingCategoriesAsList(?int $storeId = null): array
     {
-        $categories = $this->getAllShippingCategories($store);
+        $categories = $this->getAllShippingCategories($storeId);
 
         return $categories->mapWithKeys(function(ShippingCategory $category) {
             return [$category->id => $category->name];
@@ -132,12 +101,14 @@ class ShippingCategories extends Component
     /**
      * Get a shipping category by its ID.
      *
+     * @param int $shippingCategoryId
+     * @param int|null $storeId
+     * @return ShippingCategory|null
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use `getAllShippingCategoriesByStoreId($storeId)->firstWhere('id', $shippingCategoryId)` instead.
      */
-    public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
+    public function getShippingCategoryById(int $shippingCategoryId, ?int $storeId = null): ?ShippingCategory
     {
-        return $this->getAllShippingCategories()->firstWhere('id', $shippingCategoryId);
+        return $this->getAllShippingCategories($storeId)->firstWhere('id', $shippingCategoryId);
     }
 
     /**
@@ -146,9 +117,9 @@ class ShippingCategories extends Component
      * @noinspection PhpUnused
      * @throws InvalidConfigException
      */
-    public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle, ?int $storeId = null): ?ShippingCategory
     {
-        return $this->getAllShippingCategories()->firstWhere('handle', $shippingCategoryHandle);
+        return $this->getAllShippingCategories($storeId)->firstWhere('handle', $shippingCategoryHandle);
     }
 
     /**
@@ -158,7 +129,7 @@ class ShippingCategories extends Component
      */
     public function getDefaultShippingCategory(int $storeId): ShippingCategory
     {
-        $categories = $this->getAllShippingCategoriesByStoreId($storeId);
+        $categories = $this->getAllShippingCategories($storeId);
 
         $default = $categories->firstWhere('default', true);
 
@@ -256,7 +227,6 @@ class ShippingCategories extends Component
 
         // Clear Service cache
         $this->_allShippingCategories = null;
-        $this->_fetchedAll = false;
 
         return true;
     }
@@ -298,7 +268,6 @@ class ShippingCategories extends Component
 
         // Clear cache
         $this->_allShippingCategories = null;
-        $this->_fetchedAll = false;
 
         return false;
     }
