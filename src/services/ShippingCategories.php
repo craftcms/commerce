@@ -53,7 +53,7 @@ class ShippingCategories extends Component
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        if ($this->_allShippingCategories === null || ($storeId && !isset($this->_allShippingCategories[$storeId]))) {
+        if ($this->_allShippingCategories === null || !isset($this->_allShippingCategories[$storeId])) {
             $results = $this->_createShippingCategoryQuery(true)
                 ->where(['storeId' => $storeId])
                 ->all();

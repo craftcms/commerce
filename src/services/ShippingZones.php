@@ -50,7 +50,7 @@ class ShippingZones extends Component
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        if ($this->_allZones === null || ($storeId && !isset($this->_allZones[$storeId]))) {
+        if ($this->_allZones === null || !isset($this->_allZones[$storeId])) {
             $results = $this->_createQuery()->where(['storeId' => $storeId])->all();
 
             if ($this->_allZones === null) {

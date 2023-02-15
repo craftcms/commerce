@@ -69,7 +69,7 @@ class ShippingMethods extends Component
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        if ($this->_allShippingMethods === null || ($storeId && !isset($this->_allShippingMethods[$storeId]))) {
+        if ($this->_allShippingMethods === null || !isset($this->_allShippingMethods[$storeId])) {
             $results = $this->_createShippingMethodQuery()
                 ->where(['storeId' => $storeId])
                 ->all();
