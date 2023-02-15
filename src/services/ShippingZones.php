@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\db\Query;
 use Throwable;
@@ -47,16 +48,12 @@ class ShippingZones extends Component
      */
     public function getAllShippingZones(?int $storeId = null): Collection
     {
-        if ($this->_allZones === null || ($storeId && !isset($this->_allZones[$storeId])) || ($storeId === null && !$this->_fetchedAll)) {
-            $query = $this->_createQuery();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            if ($storeId) {
-                $query->where(['storeId' => $storeId]);
-            }
+        if ($this->_allZones === null || ($storeId && !isset($this->_allZones[$storeId]))) {
+            $results = $this->_createQuery()->where(['storeId' => $storeId])->all();
 
-            $results = $query->all();
-
-            if ($this->_allZones === null || $storeId === null) {
+            if ($this->_allZones === null) {
                 $this->_allZones = [];
             }
 
@@ -74,38 +71,15 @@ class ShippingZones extends Component
             }
         }
 
-        if ($storeId === null) {
-            $allZones = collect();
-            foreach ($this->_allZones as $zoneByStore) {
-                $methods = $zoneByStore->all();
-                $allZones->push(...$methods);
-            }
-
-            $this->_fetchedAll = true;
-            return $allZones;
-        }
-
         return $this->_allZones[$storeId] ?? collect();
     }
 
     /**
-     * @param int $storeId
-     * @return Collection
-     * @throws InvalidConfigException
-     * @since 5.0.0.
-     */
-    public function getAllShippingZonesByStoreId(int $storeId): Collection
-    {
-        return $this->getAllShippingZones($storeId);
-    }
-
-    /**
      * Get a shipping zone by its ID.
-     * @deprecated in 5.0.0. Use `getAllShippingZonesByStoreId($storeId)->firstWhere('id', $id)` instead.
      */
-    public function getShippingZoneById(int $id): ?ShippingAddressZone
+    public function getShippingZoneById(int $id, ?int $storeId = null): ?ShippingAddressZone
     {
-        return $this->getAllShippingZones()->firstWhere('id', $id);
+        return $this->getAllShippingZones($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -193,6 +167,5 @@ class ShippingZones extends Component
     private function _clearCaches(): void
     {
         $this->_allZones = [];
-        $this->_fetchedAll = false;
     }
 }

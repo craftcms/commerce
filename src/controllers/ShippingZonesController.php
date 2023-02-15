@@ -33,7 +33,7 @@ class ShippingZonesController extends BaseShippingSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZonesByStoreId($store->id);
+        $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
         return $this->renderTemplate('commerce/store-settings/shipping/shippingzones/index', compact('shippingZones'));
     }
 
@@ -52,10 +52,7 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         if (!$variables['shippingZone']) {
             if ($variables['id']) {
-                $variables['shippingZone'] = Plugin::getInstance()
-                    ->getShippingZones()
-                    ->getAllShippingZonesByStoreId($store->id)
-                    ->firstWhere('id', $variables['id']);
+                $variables['shippingZone'] = Plugin::getInstance()->getShippingZones()->getShippingZoneById($variables['id'], $store->id);
 
                 if (!$variables['shippingZone']) {
                     throw new HttpException(404);
