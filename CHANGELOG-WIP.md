@@ -3,6 +3,7 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
+- Order conditions can now have a “Total Weight” rule.
 
 ### Accessibility
 
@@ -43,6 +44,7 @@
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
+- Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
