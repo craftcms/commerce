@@ -125,7 +125,7 @@
 	{% set tableData = tableData|merge([{
         id: shippingRule.id,
         title: shippingRule.name|t('site')|e,
-        url: url('commerce/shipping/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id),
+        url: url("commerce/store-settings/#{storeHandle}/shippingmethods/#{shippingMethod.id}/shippingrules/#{shippingRule.id}"),
         status: shippingRule.enabled ? true : false,
         description: shippingRule.description|t('site')|e,
         detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show rule details'|t('commerce')|e }) , content: details }
