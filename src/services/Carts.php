@@ -190,8 +190,19 @@ class Carts extends Component
             ->status(null)
             ->one();
 
-        // If the cart is already completed or trashed, forget the cart and start again.
-        if ($cart && ($cart->isCompleted || $cart->trashed)) {
+        if (!$cart) {
+            return null;
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $customerMismatch =
+            $currentUser &&
+            $cart->customer &&
+            $cart->customer->getIsCredentialed() &&
+            $currentUser->id !== $cart->customerId;
+
+        // If the cart is already completed, trashed, or belongs to another active user, forget the cart and start again.
+        if ($cart->isCompleted || $cart->trashed || $customerMismatch) {
             $this->forgetCart();
             return null;
         }
