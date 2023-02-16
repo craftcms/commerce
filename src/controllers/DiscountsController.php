@@ -71,7 +71,7 @@ class DiscountsController extends BaseStoreSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscountsByStoreId($store->id);
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts($store->id);
         return $this->renderTemplate('commerce/store-settings/discounts/index', compact('discounts'));
     }
 
@@ -103,7 +103,7 @@ class DiscountsController extends BaseStoreSettingsController
 
         if (!$variables['discount']) {
             if ($variables['id']) {
-                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id']);
+                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id'], $store->id);
 
                 if (!$variables['discount']) {
                     throw new HttpException(404);

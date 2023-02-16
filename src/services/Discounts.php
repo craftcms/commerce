@@ -13,6 +13,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\events\MatchOrderEvent;
@@ -190,14 +191,9 @@ class Discounts extends Component
     public const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
-     * @var Collection<Discount>|null
+     * @var Collection<Discount>[]|null
      */
-    private ?Collection $_allDiscounts = null;
-
-    /**
-     * @var Collection|null
-     */
-    private ?Collection $_allStoreDiscounts = null;
+    private ?array $_allDiscounts = null;
 
     /**
      * @var Discount[][]|null
@@ -211,14 +207,22 @@ class Discounts extends Component
 
     /**
      * Get a discount by its ID.
+     *
+     * @param int $id
+     * @param int|null $storeId
+     * @return Discount|null
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getDiscountById(int $id): ?Discount
+    public function getDiscountById(int $id, ?int $storeId = null): ?Discount
     {
-        if (!$id) {
-            return null;
-        }
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.id]]' => $id])->all();
+        // Keep this as a query for the performance boost
+        $discounts = $this->_createDiscountQuery()
+            ->andWhere(['[[discounts.id]]' => $id])
+            ->andWhere(['storeId' => $storeId])
+            ->all();
 
         if (!$discounts) {
             return null;
@@ -230,37 +234,28 @@ class Discounts extends Component
     /**
      * Get all discounts.
      *
-     * @return Collection<Discount>
+     * @param int|null $storeId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getAllDiscounts(): Collection
+    public function getAllDiscounts(?int $storeId = null): Collection
     {
-        if ($this->_allDiscounts === null) {
-            $discounts = $this->_createDiscountQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            $this->_allDiscounts = collect($this->_populateDiscounts($discounts));
-        }
+        if ($this->_allDiscounts === null || !isset($this->_allDiscounts[$storeId])) {
+            $discounts = $this->_createDiscountQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
 
-        return $this->_allDiscounts;
-    }
-
-    /**
-     * @param int $storeId
-     * @return Collection|null
-     * @since 5.0.0
-     */
-    public function getAllDiscountsByStoreId(int $storeId): ?Collection
-    {
-        if ($this->_allStoreDiscounts === null || !isset($this->_allStoreDiscounts[$storeId])) {
-            if ($this->_allStoreDiscounts === null) {
-                $this->_allStoreDiscounts = collect();
+            if ($this->_allDiscounts === null) {
+                $this->_allDiscounts = [];
             }
 
-            $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.storeId]]' => $storeId])->all();
-
-            $this->_allStoreDiscounts->put($storeId, collect($this->_populateDiscounts($discounts)));
+            $this->_allDiscounts[$storeId] = collect($this->_populateDiscounts($discounts));
         }
 
-        return $this->_allStoreDiscounts->get($storeId);
+        return $this->_allDiscounts[$storeId] ?? collect();
     }
 
     /**
@@ -284,6 +279,8 @@ class Discounts extends Component
             $date->setTime((int)$date->format('H'), (int)(round($date->format('i') / 1) * 1));
         }
 
+        $store = $order ? $order->getStore() : Plugin::getInstance()->getStores()->getCurrentStore();
+
         // Coupon condition key
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
@@ -299,6 +296,8 @@ class Discounts extends Component
             ->where([
                 'enabled' => true,
             ])
+            // Restricted by store
+            ->andWhere(['storeId' => $store->id])
             // Restrict by things that a definitely not in date
             ->andWhere([
                 'or',
@@ -312,39 +311,33 @@ class Discounts extends Component
             ]);
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
-        if ($order) {
-            if ($order->storeId) {
-                $discountQuery->andWhere(['[[discounts.storeId]]' => $order->storeId]);
+        if ($order && $order->couponCode) {
+            $couponSubQuery = (new Query())
+                ->from(Table::COUPONS)
+                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
+            if (Craft::$app->getDb()->getIsPgsql()) {
+                $codeWhere = ['ilike', 'code', $order->couponCode];
+            } else {
+                $codeWhere = ['code' => $order->couponCode];
             }
 
-            if ($order->couponCode) {
-                $couponSubQuery = (new Query())
-                    ->from(Table::COUPONS)
-                    ->where(new Expression('[[discountId]] = [[discounts.id]]'));
-
-                if (Craft::$app->getDb()->getIsPgsql()) {
-                    $codeWhere = ['ilike', 'code', $order->couponCode];
-                } else {
-                    $codeWhere = ['code' => $order->couponCode];
-                }
-
-                $discountQuery->andWhere([
-                    'or',
-                    // Find discount where the coupon code matches
-                    [
-                        'exists', (clone $couponSubQuery)
-                        ->andWhere($codeWhere)
-                        ->andWhere([
-                                'or',
-                                ['maxUses' => null],
-                                new Expression('[[uses]] < [[maxUses]]'),
-                            ]
-                        ),
-                    ],
-                    // OR find discounts that do not have a coupon code requirement
-                    ['not exists', $couponSubQuery],
-                ]);
-            }
+            $discountQuery->andWhere([
+                'or',
+                // Find discount where the coupon code matches
+                [
+                    'exists', (clone $couponSubQuery)
+                    ->andWhere($codeWhere)
+                    ->andWhere([
+                            'or',
+                            ['maxUses' => null],
+                            new Expression('[[uses]] < [[maxUses]]'),
+                        ]
+                    ),
+                ],
+                // OR find discounts that do not have a coupon code requirement
+                ['not exists', $couponSubQuery],
+            ]);
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
@@ -361,7 +354,7 @@ class Discounts extends Component
      */
     public function orderCouponAvailable(Order $order, string &$explanation = null): bool
     {
-        $discount = $this->getDiscountByCode($order->couponCode);
+        $discount = $this->getDiscountByCode($order->couponCode, $order->storeId);
 
         if (!$discount || !$this->_isDiscountCouponCodeValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Coupon not valid.');
@@ -412,13 +405,15 @@ class Discounts extends Component
      *
      * @throws \Exception
      */
-    public function getDiscountByCode(?string $code): ?Discount
+    public function getDiscountByCode(?string $code, ?int $storeId = null): ?Discount
     {
         if ($code === null || $code === '') {
             return null;
         }
 
-        $query = $this->_createDiscountQuery();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $query = $this->_createDiscountQuery()->where(['storeId' => $storeId]);
         $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
         if (Craft::$app->getDb()->getIsPgsql()) {
             $query->andWhere(['ilike', '[[coupons.code]]', $code]);
@@ -447,7 +442,7 @@ class Discounts extends Component
         $discounts = [];
 
         if ($purchasable->getId()) {
-            foreach ($this->getAllDiscounts() as $discount) {
+            foreach ($this->getAllDiscounts($purchasable->getStoreId()) as $discount) {
                 // Get discount by related purchasable
                 $purchasableIds = $discount->getPurchasableIds();
                 $id = $purchasable->getId();
@@ -784,7 +779,7 @@ class Discounts extends Component
         }
 
         // Get the Discount model before deletion to pass to the Event.
-        $discount = $this->getDiscountById($id);
+        $discount = $this->getDiscountById($id, $discountRecord->storeId);
 
         $result = (bool)$discountRecord->delete();
 
