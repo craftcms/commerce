@@ -2072,6 +2072,7 @@ class Order extends Element
         $orderRecord->totalTax = $this->getTotalTax();
         $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
         $orderRecord->totalQty = $this->getTotalQty();
+        $orderRecord->totalWeight = $this->getTotalWeight();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;

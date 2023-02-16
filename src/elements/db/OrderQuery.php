@@ -149,6 +149,12 @@ class OrderQuery extends ElementQuery
     public mixed $totalQty = null;
 
     /**
+     * @var mixed The total weight of the order resulting orders must have.
+     * @since 5.0.0
+     */
+    public mixed $totalWeight = null;
+
+    /**
      * @var mixed The total discount of the order resulting orders must have.
      * @since 4.2.0
      */
@@ -1071,6 +1077,26 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the total weight of items.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total weight of 10.
+     * | `[10, 20]` | an order with a total weight of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalWeight(mixed $value): OrderQuery
+    {
+        $this->totalWeight = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the total discount.
      *
      * Possible values include:
@@ -1634,6 +1660,10 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->totalQty)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalQty', $this->totalQty));
+        }
+
+        if (isset($this->totalWeight)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalWeight', $this->totalWeight));
         }
 
         if (isset($this->totalDiscount)) {

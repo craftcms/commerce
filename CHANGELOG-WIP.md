@@ -45,6 +45,8 @@
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
+- Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
+- Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAvailableForPurchaseField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleDimensionsField`.

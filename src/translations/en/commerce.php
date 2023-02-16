@@ -1090,6 +1090,7 @@ return [
     'Total Revenue' => 'Total Revenue',
     'Total Shipping' => 'Total Shipping',
     'Total Tax' => 'Total Tax',
+    'Total Weight' => 'Total Weight',
     'Total' => 'Total',
     'Transaction Hash' => 'Transaction Hash',
     'Transaction ID' => 'Transaction ID',

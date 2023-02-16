@@ -402,6 +402,7 @@ class Install extends Migration
             'itemTotal' => $this->decimal(14, 4)->defaultValue(0),
             'itemSubtotal' => $this->decimal(14, 4)->defaultValue(0),
             'totalQty' => $this->integer()->unsigned(),
+            'totalWeight' => $this->decimal(14, 4)->defaultValue(0)->unsigned(),
             'total' => $this->decimal(14, 4)->defaultValue(0),
             'totalPrice' => $this->decimal(14, 4)->defaultValue(0),
             'totalPaid' => $this->decimal(14, 4)->defaultValue(0),
