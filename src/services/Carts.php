@@ -195,11 +195,11 @@ class Carts extends Component
         }
 
         $currentUser = Craft::$app->getUser()->getIdentity();
+        $cartCustomer = $cart->getCustomer();
+
         $customerMismatch =
-            $currentUser &&
-            $cart->customer &&
-            $cart->customer->getIsCredentialed() &&
-            $currentUser->id !== $cart->customerId;
+            ($currentUser && $cartCustomer && $currentUser->id !== $cartCustomer->id) ||
+            (!$currentUser && $cartCustomer && $cartCustomer->getIsCredentialed());
 
         // If the cart is already completed, trashed, or belongs to another active user, forget the cart and start again.
         if ($cart->isCompleted || $cart->trashed || $customerMismatch) {
