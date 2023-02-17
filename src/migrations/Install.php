@@ -711,20 +711,13 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGRULES);
         $this->createTable(Table::SHIPPINGRULES, [
             'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer(),
             'methodId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
-            'minQty' => $this->integer()->notNull()->defaultValue(0),
-            'maxQty' => $this->integer()->notNull()->defaultValue(0),
-            'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'maxTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'minMaxTotalType' => $this->enum('minMaxTotalType', ['salePrice', 'salePriceWithDiscounts'])->notNull()->defaultValue('salePrice'),
-            'minWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'maxWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'orderCondition' => $this->text(),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'perItemRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'weightRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -994,7 +987,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
-        $this->createIndex(null, Table::SHIPPINGRULES, 'shippingZoneId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'storeId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
@@ -1090,7 +1082,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
-        $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');

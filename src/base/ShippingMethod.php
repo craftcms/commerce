@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
 use DateTime;
+use Illuminate\Support\Collection;
 
 /**
  * Base ShippingMethod
@@ -103,9 +104,9 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @inheritdoc
      */
-    public function getShippingRules(): array
+    public function getShippingRules(): Collection
     {
-        return [];
+        return collect();
     }
 
     /**
@@ -133,7 +134,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public function matchOrder(Order $order): bool
     {
         /** @var ShippingRuleInterface $rule */
-        foreach ($this->getShippingRules() as $rule) {
+        foreach ($this->getShippingRules()->all() as $rule) {
             if ($rule->matchOrder($order)) {
                 return true;
             }

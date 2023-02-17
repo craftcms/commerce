@@ -39,6 +39,7 @@ class OrderCondition extends ElementCondition
             TotalQtyConditionRule::class,
             TotalTaxConditionRule::class,
             TotalConditionRule::class,
+            TotalWeightConditionRule::class,
         ]);
     }
 }

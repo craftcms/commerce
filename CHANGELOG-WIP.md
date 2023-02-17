@@ -44,11 +44,16 @@
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
+- Added `craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
+- Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
+- Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAvailableForPurchaseField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleDimensionsField`.
@@ -71,5 +76,17 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
+- Removed `craft\commerce\models\ShippingRule::$maxQty`.
+- Removed `craft\commerce\models\ShippingRule::$maxTotal`.
+- Removed `craft\commerce\models\ShippingRule::$maxWeight`.
+- Removed `craft\commerce\models\ShippingRule::$minMaxTotalType`.
+- Removed `craft\commerce\models\ShippingRule::$minQty`.
+- Removed `craft\commerce\models\ShippingRule::$minTotal`.
+- Removed `craft\commerce\models\ShippingRule::$minWeight`.
+- Removed `craft\commerce\models\ShippingRule::$shippingZoneId`.
+- Removed `craft\commerce\models\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
+- Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
+- Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
 
 ### System

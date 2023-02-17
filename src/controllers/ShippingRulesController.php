@@ -56,9 +56,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables = compact('methodId', 'ruleId', 'shippingRule');
 
         $plugin = Plugin::getInstance();
-        $variables['shippingMethod'] = $plugin->getShippingMethods()
-            ->getAllShippingMethodsByStoreId($store->id)
-            ->firstWhere('id', $variables['methodId']);
+        $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId'], $store->id);
 
         if (!$variables['shippingMethod']) {
             throw new HttpException(404);
@@ -104,7 +102,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
-        $shippingZones = $plugin->getShippingZones()->getAllShippingZonesByStoreId($store->id)->all();
+        $shippingZones = $plugin->getShippingZones()->getAllShippingZones($store->id)->all();
         $variables['shippingZones'] = [];
         $variables['shippingZones'][] = Craft::t('commerce', 'Anywhere');
         foreach ($shippingZones as $model) {
@@ -148,23 +146,16 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $shippingRule->name = $this->request->getBodyParam('name');
         $shippingRule->description = $this->request->getBodyParam('description');
-        $shippingRule->shippingZoneId = $this->request->getBodyParam('shippingZoneId');
         $shippingRule->methodId = $this->request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
         $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
-        $shippingRule->minQty = $this->request->getBodyParam('minQty');
-        $shippingRule->maxQty = $this->request->getBodyParam('maxQty');
-        $shippingRule->minTotal = Localization::normalizeNumber($this->request->getBodyParam('minTotal'));
-        $shippingRule->maxTotal = Localization::normalizeNumber($this->request->getBodyParam('maxTotal'));
-        $shippingRule->minMaxTotalType = $this->request->getBodyParam('minMaxTotalType');
-        $shippingRule->minWeight = Localization::normalizeNumber($this->request->getBodyParam('minWeight'));
-        $shippingRule->maxWeight = Localization::normalizeNumber($this->request->getBodyParam('maxWeight'));
         $shippingRule->baseRate = Localization::normalizeNumber($this->request->getBodyParam('baseRate'));
         $shippingRule->perItemRate = Localization::normalizeNumber($this->request->getBodyParam('perItemRate'));
         $shippingRule->weightRate = Localization::normalizeNumber($this->request->getBodyParam('weightRate'));
         $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
         $shippingRule->minRate = Localization::normalizeNumber($this->request->getBodyParam('minRate'));
         $shippingRule->maxRate = Localization::normalizeNumber($this->request->getBodyParam('maxRate'));
+        $shippingRule->setOrderCondition($this->request->getBodyParam('orderCondition'));
 
         $ruleCategories = [];
         $allRulesCategories = $this->request->getBodyParam('ruleCategories');

@@ -12,6 +12,7 @@ use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\validators\UniqueValidator;
+use Illuminate\Support\Collection;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -78,7 +79,7 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function getShippingRules(): array
+    public function getShippingRules(): Collection
     {
         return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
     }
