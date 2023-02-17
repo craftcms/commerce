@@ -121,30 +121,37 @@
           errors: shippingRule.getErrors('orderCondition')
         }, orderConditionInput) }}
 
-        {% embed '_includes/forms/field' with {
-            label: 'Order Condition Formula'|t('commerce'),
-            id: 'orderConditionFormula',
-            rows: 5,
-            instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping rule should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
-                url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
-            }),
-            errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
-            } %}
-            {% block input %}
-                {% import "_includes/forms" as forms %}
-                <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
-                    <div  class="zip-condition">
-                        {{ forms.textarea({
-                            value: shippingRule is defined ? shippingRule.orderConditionFormula,
-                            name: 'orderConditionFormula',
-                            class: 'code',
-                            rows: 5,
-                            placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
-                        }) }}
+        <a class="fieldtoggle {% if shippingRule.orderConditionFormula %}expanded{% endif %}"
+           data-target="orderConditionFormula-advanced">{{ 'Advanced'|t('commerce') }}</a>
+
+        <div id="orderConditionFormula-advanced"
+             class="{% if not shippingRule.orderConditionFormula %}hidden{% endif %}">
+            {% embed '_includes/forms/field' with {
+                label: 'Order Condition Formula'|t('commerce'),
+                id: 'orderConditionFormula',
+                rows: 5,
+                instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping rule should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
+                    url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
+                }),
+                warning: 'Blah',
+                errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
+                } %}
+                {% block input %}
+                    {% import "_includes/forms" as forms %}
+                    <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
+                        <div  class="zip-condition">
+                            {{ forms.textarea({
+                                value: shippingRule is defined ? shippingRule.orderConditionFormula,
+                                name: 'orderConditionFormula',
+                                class: 'code',
+                                rows: 5,
+                                placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
+                            }) }}
+                        </div>
                     </div>
-                </div>
-            {% endblock %}
-        {% endembed %}
+                {% endblock %}
+            {% endembed %}
+        </div>
 
         <hr>
 

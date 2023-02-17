@@ -41,6 +41,7 @@ return [
     'Address not found.' => 'Address not found.',
     'Adjust price when included rate is disqualified?' => 'Adjust price when included rate is disqualified?',
     'Adjustments' => 'Adjustments',
+    'Advanced' => 'Advanced',
     'All Orders' => 'All Orders',
     'All Totals' => 'All Totals',
     'All active subscriptions' => 'All active subscriptions',
