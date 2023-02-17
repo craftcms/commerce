@@ -13,7 +13,7 @@ use craft\helpers\ArrayHelper;
 use yii\db\QueryInterface;
 
 /**
- * Element status condition rule.
+ * Shipping Method condition rule.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
