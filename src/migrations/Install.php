@@ -688,6 +688,7 @@ class Install extends Migration
             'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'orderCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

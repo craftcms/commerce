@@ -7,12 +7,16 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\commerce\base\Model as BaseModel;
+use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
+use craft\helpers\Json;
 use DateTime;
 use Illuminate\Support\Collection;
+use JsonSchema\Exception\InvalidConfigException;
 
 /**
  * Base ShippingMethod
@@ -48,6 +52,12 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @var bool Enabled
      */
     public bool $enabled = true;
+
+    /**
+     * @var ShippingMethodOrderCondition|null
+     * @since 5.0.0
+     */
+    private ?ShippingMethodOrderCondition $_orderCondition = null;
 
     /**
      * @var DateTime|null
@@ -123,9 +133,54 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
-        $rules[] = [['id', 'name', 'handle', 'storeId', 'enabled', 'dateCreated', 'dateUpdated'], 'safe'];
+        $rules[] = [[
+            'id',
+            'name',
+            'handle',
+            'storeId',
+            'orderCondition',
+            'enabled',
+            'dateCreated',
+            'dateUpdated',
+        ], 'safe'];
 
         return $rules;
+    }
+
+    /**
+     * @param ShippingMethodOrderCondition|string|array|null $condition
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function setOrderCondition(ShippingMethodOrderCondition|string|array|null $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ShippingMethodOrderCondition) {
+            $condition['class'] = ShippingMethodOrderCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var ShippingMethodOrderCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * @return ShippingMethodOrderCondition
+     * @since 5.0.0
+     */
+    public function getOrderCondition(): ShippingMethodOrderCondition
+    {
+        $condition = $this->_orderCondition ?? new ShippingMethodOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+        $condition->storeId = $this->storeId;
+
+        return $condition;
     }
 
     /**
@@ -133,6 +188,11 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      */
     public function matchOrder(Order $order): bool
     {
+        // Match the method's order condition first to see if we need to even check the rules.
+        if (!$this->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
         /** @var ShippingRuleInterface $rule */
         foreach ($this->getShippingRules()->all() as $rule) {
             if ($rule->matchOrder($order)) {

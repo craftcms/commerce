@@ -4,6 +4,8 @@
 
 ### Store Management
 - Order conditions can now have a “Total Weight” rule.
+- Shipping methods can now have condition builders, enabling flexible matching based on the order.
+- Shipping rules can now have condition builders, enabling flexible matching based on the order.
 
 ### Accessibility
 
@@ -46,6 +48,7 @@
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule`.
+- Added `craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.

@@ -13,12 +13,12 @@ use craft\elements\db\ElementQueryInterface;
 use Imagine\Exception\NotSupportedException;
 
 /**
- * Shipping Rule Order query condition.
+ * Shipping Method Order query condition.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class ShippingRuleOrderCondition extends OrderCondition
+class ShippingMethodOrderCondition extends OrderCondition
 {
     use StoreTrait;
 
@@ -51,7 +51,7 @@ class ShippingRuleOrderCondition extends OrderCondition
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        throw new NotSupportedException('Shipping Rule Order Condition does not support queries');
+        throw new NotSupportedException('Shipping Method Order Condition does not support queries');
     }
 
     /**

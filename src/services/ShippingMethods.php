@@ -195,6 +195,7 @@ class ShippingMethods extends Component
         $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->handle = $model->handle;
+        $record->orderCondition = $model->getOrderCondition()->getConfig();
         $record->enabled = $model->enabled;
 
         $record->validate();
@@ -257,6 +258,7 @@ class ShippingMethods extends Component
                 'handle',
                 'id',
                 'name',
+                'orderCondition',
                 'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);

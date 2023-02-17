@@ -162,6 +162,7 @@ return [
     'Condition' => 'Condition',
     'Conditions Rules' => 'Conditions Rules',
     'Conditions' => 'Conditions',
+    'Conditions here are matched against am order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are conditions common to all rules for this method.' => 'Conditions here are matched against am order before looking through the rules. This is useful if you want qualify a method’s availability early or if there are conditions common to all rules for this method.',
     'Configure the product types’s site-specific settings.' => 'Configure the product types’s site-specific settings.',
     'Control Panel Settings' => 'Control Panel Settings',
     'Control panel' => 'Control panel',

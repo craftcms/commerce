@@ -79,6 +79,17 @@
         required: true,
     }) }}
 
+    {% set orderConditionInput %}
+      {{ shippingMethod.orderCondition.getBuilderHtml()|raw }}
+    {% endset %}
+
+    {{ forms.field({
+        id: 'orderCondition',
+        label: 'Match Order'|t('commerce'),
+        errors: shippingMethod.getErrors('orderCondition'),
+        instructions: 'Conditions here are matched against an order before looking through the rules. This is useful if you want qualify a method’s availabililty early or if there are common conditions to all rules for this method.'|t('commerce'),
+    }, orderConditionInput) }}
+
 {% if shippingMethod.id %}
 <div class="vue-admin-table vue-admin-table-padded">
 

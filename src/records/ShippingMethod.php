@@ -20,6 +20,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property int $storeId
  * @property string $name
+ * @property array|string $orderCondition
  * @property ShippingRule[] $rules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
