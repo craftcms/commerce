@@ -34,7 +34,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         }
 
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones($store->id);
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingzones/index', compact('shippingZones'));
+        return $this->renderTemplate('commerce/store-settings/shipping/shippingzones/index', compact('shippingZones', 'store'));
     }
 
     /**

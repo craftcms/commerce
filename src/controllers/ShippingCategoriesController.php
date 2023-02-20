@@ -42,6 +42,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $variables = [
             'shippingCategories' => $shippingCategories,
             'storeHandle' => $store->handle,
+            'store' => $store,
         ];
         return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/index', $variables);
     }

@@ -7,7 +7,7 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url("commerce/store-settings/#{storeHandle}/shippingzones/new") }}" class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
+    <a href="{{ store.getStoreSettingsUrl('shippingzones/new') }}" class="btn submit add icon">{{ 'New shipping zone'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}
