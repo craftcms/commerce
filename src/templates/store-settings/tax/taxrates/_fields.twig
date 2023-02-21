@@ -7,21 +7,22 @@
 
     {% js at endBody %}
     (function() {
-        var $select = $('#{{ selectParams.id }}').selectize({
+            taxRatesSelects['{{ selectParams.id }}'] = $('#{{ selectParams.id }}').selectize({
                 dropdownParent: 'body'
             });
 
-            var selectize = $select.get(0).selectize;
+            taxRatesSelectize['{{ selectParams.id }}'] = taxRatesSelects['{{ selectParams.id }}'].get(0).selectize;
 
-            selectize.addOption({
+            taxRatesSelectize['{{ selectParams.id }}'].addOption({
                 value: 'new',
                 text: '{{ newOptionLabel|e("js") }}'
             });
 
-            selectize.on('item_add', function(value, $item) {
+            taxRatesSelectize['{{ selectParams.id }}'].on('item_add', function(value, $item) {
                 if (value == 'new') {
+                    var _this = this;
                     // Not a real option
-                    selectize.clear();
+                    _this.clear();
 
                     var $form = $(
                     '<form class="modal lazy-create-modal">' +
@@ -74,13 +75,24 @@
                             $form.find('.spinner').addClass('hidden');
                             Craft.cp.displayNotice('{{ successText|e("js") }}');
 
-                            selectize.addOption({
-                                value: response.data.id,
-                                text: response.data.name,
-                                $order: selectize.order - 1
+                            if (!response.data) {
+                                return;
+                            }
+
+                            var data = {};
+                            if (Object.keys(response.data).indexOf('taxCategory') !== -1) {
+                                data = response.data.taxCategory;
+                            } else {
+                                data = response.data.taxZone;
+                            }
+
+                            _this.addOption({
+                                value: data.id,
+                                text: data.name,
+                                $order: _this.order - 1
                             });
 
-                            selectize.setValue(response.data.id);
+                            _this.setValue(data.id);
                             modal.hide();
 
                         })
@@ -259,6 +271,11 @@
         }) }}
     </div>
 </div>
+
+{% js at head %}
+    var taxRatesSelects = {};
+    var taxRatesSelectize = {};
+{% endjs %}
 
 {% js %}
 {% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}

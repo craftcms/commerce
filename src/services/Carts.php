@@ -188,7 +188,11 @@ class Carts extends Component
         $this->_cart = null;
         $this->_cartNumber = null;
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            Craft::$app->getResponse()->getCookies()->remove($this->cartCookie['name'], true);
+            $cookie = Craft::createObject(array_merge($this->cartCookie, [
+                'class' => Cookie::class,
+            ]));
+
+            Craft::$app->getResponse()->getCookies()->remove($cookie, true);
         }
     }
 

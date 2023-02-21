@@ -266,8 +266,10 @@ class Payments extends Component
             }
         }
 
-        /** @var Gateway $gateway */
         $gateway = $order->getGateway();
+        if (!$gateway) {
+            throw new InvalidConfigException(Craft::t('commerce', 'Missing Gateway'));
+        }
 
         //choosing default action
         $defaultAction = $gateway->paymentType;

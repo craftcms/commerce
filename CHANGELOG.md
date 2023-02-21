@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
+- Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
+- Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
+
 ## 4.2.5.1 - 2023-02-02
 
 - Fixed a PHP error that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))
