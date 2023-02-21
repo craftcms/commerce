@@ -9,15 +9,18 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 
 /**
@@ -30,60 +33,74 @@ use yii\db\StaleObjectException;
 class TaxRates extends Component
 {
     /**
-     * @var TaxRate[]|null
+     * @var Collection<TaxRate>[]|null
      */
     private ?array $_allTaxRates = null;
 
     /**
      * Returns an array of all existing tax rates.
      *
-     * @return TaxRate[]
+     * @param int|null $storeId
+     * @return Collection
+     * @throws StoreNotFoundException
+     * @throws InvalidConfigException
      */
-    public function getAllTaxRates(): array
+    public function getAllTaxRates(?int $storeId = null): Collection
     {
-        if (!isset($this->_allTaxRates)) {
-            $rows = $this->_createTaxRatesQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            foreach ($rows as $row) {
-                $this->_allTaxRates[$row['id']] = new TaxRate($row);
+        if ($this->_allTaxRates === null || !isset($this->_allTaxRates[$storeId])) {
+            $results = $this->_createTaxRatesQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            if ($this->_allTaxRates === null) {
+                $this->_allTaxRates = [];
+            }
+
+            foreach ($results as $result) {
+                $taxRate = Craft::createObject([
+                    'class' => TaxRate::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allTaxRates[$taxRate->storeId])) {
+                    $this->_allTaxRates[$taxRate->storeId] = collect();
+                }
+
+                $this->_allTaxRates[$taxRate->storeId]->push($taxRate);
             }
         }
 
-        return $this->_allTaxRates ?? [];
-    }
-
-    /**
-     * Returns an array of all rates belonging to the specified zone.
-     *
-     * @param TaxAddressZone $zone The tax zone whose rates we’d like returned
-     * @return TaxRate[]
-     * @deprecated in 4.0. Use [[getTaxRatesByTaxZoneId]] instead.
-     */
-    public function getTaxRatesForZone(TaxAddressZone $zone): array
-    {
-        return $this->getTaxRatesByTaxZoneId($zone->id);
+        return $this->_allTaxRates[$storeId] ?? collect();
     }
 
     /**
      * Returns an array of all rates belonging to the specified zone.
      *
      * @param int $taxZoneId The ID of the tax zone whose rates we’d like returned
-     * @return TaxRate[]
+     * @param int|null $storeId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getTaxRatesByTaxZoneId(int $taxZoneId): array
+    public function getTaxRatesByTaxZoneId(int $taxZoneId, ?int $storeId = null): Collection
     {
-        return ArrayHelper::where($this->getAllTaxRates(), 'taxZoneId', $taxZoneId);
+        return $this->getAllTaxRates($storeId)->where('taxZoneId', $taxZoneId);
     }
 
     /**
      * Returns a tax rate by ID.
      *
      * @param int $id The ID of the desired tax rate
+     * @param int|null $storeId
      * @return ?TaxRate
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getTaxRateById(int $id): ?TaxRate
+    public function getTaxRateById(int $id, ?int $storeId = null): ?TaxRate
     {
-        return ArrayHelper::firstWhere($this->getAllTaxRates(), 'id', $id);
+        return $this->getAllTaxRates($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -117,6 +134,7 @@ class TaxRates extends Component
         $record->name = $model->name;
         $record->code = $model->code;
         $record->rate = $model->rate;
+        $record->storeId = $model->storeId;
 
         // if not an included tax, then can not be removed.
         $record->include = $model->include;
@@ -147,6 +165,7 @@ class TaxRates extends Component
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
+        $this->clearCache();
 
         return true;
     }
@@ -162,6 +181,7 @@ class TaxRates extends Component
         $record = TaxRateRecord::findOne($id);
 
         if ($record) {
+            $this->clearCache();
             return (bool)$record->delete();
         }
 
@@ -185,6 +205,7 @@ class TaxRates extends Component
                 'rate',
                 'removeIncluded',
                 'removeVatIncluded',
+                'storeId',
                 'taxable',
                 'taxCategoryId',
                 'taxZoneId',
@@ -193,5 +214,14 @@ class TaxRates extends Component
             ->from([Table::TAXRATES]);
 
         return $query;
+    }
+
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    protected function clearCache(): void
+    {
+        $this->_allTaxRates = null;
     }
 }

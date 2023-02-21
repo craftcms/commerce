@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/tax" %}
+{% extends "commerce/_layouts/store-settings" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Include in price?',
@@ -15,7 +15,7 @@
     {{ craft.commerce.taxes.taxRateActionHtml()|raw }}
 
     {% if craft.commerce.taxes.createTaxRates() %}
-        <a href="{{ url('commerce/tax/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+        <a href="{{ url("commerce/store-settings/#{storeHandle}/taxrates/new") }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 

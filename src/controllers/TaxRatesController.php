@@ -35,8 +35,12 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $plugin = Plugin::getInstance();
         $taxRates = $plugin->getTaxRates()->getAllTaxRates();
 
@@ -44,7 +48,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxZones()->getAllTaxZones();
         $plugin->getTaxCategories()->getAllTaxCategories();
 
-        return $this->renderTemplate('commerce/tax/taxrates/index', [
+        return $this->renderTemplate('commerce/store-settings/tax/taxrates/index', [
             'taxRates' => $taxRates,
         ]);
     }
@@ -59,13 +63,19 @@ class TaxRatesController extends BaseTaxSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, TaxRate $taxRate = null): Response
     {
         if (!Plugin::getInstance()->getTaxes()->viewTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
         }
 
-        $variables = compact('id', 'taxRate');
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $storeHandle = $store->handle;
+
+        $variables = compact('id', 'taxRate', 'store', 'storeHandle');
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
@@ -78,7 +88,10 @@ class TaxRatesController extends BaseTaxSettingsController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['taxRate'] = new TaxRate();
+                $variables['taxRate'] = Craft::createObject([
+                    'class' => TaxRate::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
 
@@ -127,7 +140,6 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $view->startJsBuffer();
 
-
         $newZone = new TaxAddressZone();
         $condition = $newZone->getCondition();
         $condition->mainTag = 'div';
@@ -138,7 +150,7 @@ class TaxRatesController extends BaseTaxSettingsController
         ]);
 
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxzones/_fields', ['conditionField' => $conditionField])
+            $view->renderTemplate('commerce/store-settings/tax/taxzones/_fields', ['conditionField' => $conditionField, 'storeId' => $store->id])
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
@@ -152,11 +164,13 @@ class TaxRatesController extends BaseTaxSettingsController
             });
         }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
+            $view->renderTemplate('commerce/store-settings/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
-        return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
+        $view->setNamespace(null);
+
+        return $this->renderTemplate('commerce/store-settings/tax/taxrates/_edit', $variables);
     }
 
     /**
@@ -176,6 +190,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Shared attributes
         $taxRate->id = $this->request->getBodyParam('taxRateId');
+        $taxRate->storeId = $this->request->getBodyParam('storeId');
         $taxRate->name = $this->request->getBodyParam('name');
         $taxRate->code = $this->request->getBodyParam('code');
         $taxRate->include = (bool)$this->request->getBodyParam('include');

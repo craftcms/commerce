@@ -125,16 +125,16 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories'] = 'commerce/tax-categories/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxcategories'] = 'commerce/tax-categories/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxcategories/new'] = 'commerce/tax-categories/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
 
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones'] = 'commerce/tax-zones/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones/new'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates'] = 'commerce/tax-rates/index';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/new'] = 'commerce/tax-rates/edit';
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxzones'] = 'commerce/tax-zones/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxzones/new'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxzones/<id:\d+>'] = 'commerce/tax-zones/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxrates'] = 'commerce/tax-rates/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxrates/new'] = 'commerce/tax-rates/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
             // @TODO Sales going away
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';

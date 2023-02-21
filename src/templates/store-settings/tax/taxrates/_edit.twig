@@ -1,7 +1,6 @@
-{% extends "commerce/_layouts/cp" %}
-
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 {% set crumbs = [
-    { label: "Tax"|t('commerce'), url: url('commerce/tax') },
     { label: "Tax Rates"|t('commerce'), url: url('commerce/tax/taxrates') },
 ] %}
 
@@ -25,9 +24,13 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/tax-rates/save">
+    {{ hiddenInput('storeId', taxRate.storeId) }}
+    {{ actionInput('commerce/tax-rates/save') }}
     {{ redirectInput('commerce/tax/taxrates') }}
-    {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
-    {% include "commerce/tax/taxrates/_fields" %}
+    {% if taxRate.id %}
+      {{ hiddenInput('id', taxRate.id) }}
+    {% endif %}
+
+    {% include "commerce/store-settings/tax/taxrates/_fields" %}
 {% endblock %}
 

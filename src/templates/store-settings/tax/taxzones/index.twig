@@ -1,6 +1,4 @@
-{% extends "commerce/_layouts/tax" %}
-
-{% from "commerce/_includes/settings" import indexInlineList %}
+{% extends "commerce/_layouts/store-settings" %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -10,7 +8,7 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/tax/taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
+    <a href="{{ store.getStoreSettingsUrl('taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
 {% endblock %}
 
 {% block content %}
@@ -22,7 +20,7 @@
     {% set tableData = tableData|merge([{
         id: taxZone.id,
         title: taxZone.name|t('site'),
-        url: url('commerce/tax/taxzones/'~taxZone.id),
+        url: taxZone.getCpEditUrl(),
         description: taxZone.description|t('site')|e,
         default: taxZone.default,
     }]) %}

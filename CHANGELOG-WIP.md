@@ -91,5 +91,6 @@
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 
 ### System

@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
@@ -28,6 +29,8 @@ use yii\base\InvalidConfigException;
  */
 class TaxRate extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -119,16 +122,18 @@ class TaxRate extends Model
      */
     protected function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [
-                ['taxCategoryId'],
-                'required',
-                'when' => function($model): bool {
-                    return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-                },
-            ],
+        $rules = parent::defineRules();
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
+            ['taxCategoryId'],
+            'required',
+            'when' => function($model): bool {
+                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
+            },
         ];
+        $rules[] = [['storeId'], 'safe'];
+
+        return $rules;
     }
 
     /**

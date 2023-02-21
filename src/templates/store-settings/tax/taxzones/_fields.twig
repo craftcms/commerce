@@ -4,6 +4,10 @@
     "Example"
 ]) %}
 
+    {% if storeId is defined %}
+        {{ hiddenInput('storeId', storeId) }}
+    {% endif %}
+
     {{ forms.textField({
         first: true,
         label: "Name"|t('commerce'),

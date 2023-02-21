@@ -1,8 +1,8 @@
-{% extends "commerce/_layouts/cp" %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Tax"|t('commerce'), url: url('commerce/tax') },
-    { label: "Tax Zones"|t('commerce'), url: url('commerce/tax/taxzones') },
+    { label: "Tax Zones"|t('commerce'), url: store.getStoreSettingsUrl('taxzones') },
 ] %}
 
 {% set selectedSubnavItem = 'tax' %}
@@ -25,9 +25,11 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/tax-zones/save">
-    {{ redirectInput('commerce/tax/taxzones') }}
-    {% if taxZone.id %}<input type="hidden" name="taxZoneId"
-                              value="{{ taxZone.id }}">{% endif %}
-    {% include "commerce/tax/taxzones/_fields" %}
+    {{ actionInput('commerce/tax-zones/save') }}
+    {{ redirectInput(store.getStoreSettingsUrl('taxzones')) }}
+    {% if taxZone.id %}
+        {{ hiddenInput('taxZoneId', taxZone.id) }}
+    {% endif %}
+
+    {% include "commerce/store-settings/tax/taxzones/_fields" with {storeId: store.id} %}
 {% endblock %}
