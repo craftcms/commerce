@@ -28,7 +28,7 @@
     {%- set tableData = tableData|merge([{
         id: taxRate.id,
         title: taxRate.name|t('site'),
-        url: url('commerce/tax/taxrates/'~taxRate.id),
+        url: taxRate.getCpEditUrl(),
         rate: taxRate.rateAsPercent,
         included: taxRate.include ? true : false,
         removeIncluded: taxRate.removeIncluded ? true : false,

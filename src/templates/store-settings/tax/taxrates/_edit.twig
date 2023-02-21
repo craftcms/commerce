@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/store-settings" %}
 {% set isIndex = false %}
 {% set crumbs = [
-    { label: "Tax Rates"|t('commerce'), url: url('commerce/tax/taxrates') },
+    { label: "Tax Rates"|t('commerce'), url: store.getStoreSettingsUrl('taxrates') },
 ] %}
 
 {% set selectedSubnavItem = 'tax' %}
@@ -26,9 +26,9 @@
 {% block content %}
     {{ hiddenInput('storeId', taxRate.storeId) }}
     {{ actionInput('commerce/tax-rates/save') }}
-    {{ redirectInput('commerce/tax/taxrates') }}
+    {{ redirectInput(store.getStoreSettingsUrl('taxrates')) }}
     {% if taxRate.id %}
-      {{ hiddenInput('id', taxRate.id) }}
+      {{ hiddenInput('taxRateId', taxRate.id) }}
     {% endif %}
 
     {% include "commerce/store-settings/tax/taxrates/_fields" %}

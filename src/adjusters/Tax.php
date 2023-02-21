@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;
@@ -20,6 +21,8 @@ use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\elements\Address;
 use DvK\Vat\Validator;
 use Exception;
+use Illuminate\Support\Collection;
+use yii\base\InvalidConfigException;
 use function in_array;
 
 /**
@@ -51,9 +54,9 @@ class Tax extends Component implements AdjusterInterface
     private ?Address $_address = null;
 
     /**
-     * @var TaxRate[]
+     * @var Collection<TaxRate>
      */
-    private array $_taxRates;
+    private Collection $_taxRates;
 
     /**
      * @var bool
@@ -88,7 +91,7 @@ class Tax extends Component implements AdjusterInterface
     {
         $this->_order = $order;
         $this->_address = $this->_getTaxAddress();
-        $this->_taxRates = $this->getTaxRates();
+        $this->_taxRates = $this->getTaxRates($order->storeId);
 
         return $this->_adjustInternal();
     }
@@ -277,11 +280,13 @@ class Tax extends Component implements AdjusterInterface
     }
 
     /**
-     * @return TaxRate[]
+     * @return Collection
+     * @throws StoreNotFoundException
+     * @throws InvalidConfigException
      */
-    protected function getTaxRates(): array
+    protected function getTaxRates(?int $storeId = null): Collection
     {
-        return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
+        return Plugin::getInstance()->getTaxRates()->getAllTaxRates($storeId);
     }
 
     /**

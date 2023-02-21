@@ -131,7 +131,20 @@ class TaxRate extends Model
                 return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
             },
         ];
-        $rules[] = [['storeId'], 'safe'];
+        $rules[] = [[
+            'code',
+            'id',
+            'include',
+            'isVat',
+            'name',
+            'rate',
+            'removeIncluded',
+            'removeVatIncluded',
+            'storeId',
+            'taxable',
+            'taxCategoryId',
+            'taxZoneId',
+        ], 'safe'];
 
         return $rules;
     }
@@ -154,10 +167,11 @@ class TaxRate extends Model
      * Returns the tax rate’s control panel edit page URL.
      *
      * @return string
+     * @throws InvalidConfigException
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('taxrates/' . $this->id);
     }
 
     /**
@@ -179,7 +193,7 @@ class TaxRate extends Model
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
-            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
+            $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId, $this->storeId);
         }
 
         return $this->_taxZone;

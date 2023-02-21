@@ -44,7 +44,7 @@ class TaxAddressZone extends Zone
     {
         $rules = parent::defineRules();
         $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZone::class, 'targetAttribute' => ['name', 'storeId']];
-        $rules[] = [['storeId'], 'safe'];
+        $rules[] = [['storeId', 'id', 'default'], 'safe'];
 
         return $rules;
 

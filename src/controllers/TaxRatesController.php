@@ -82,7 +82,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         if (!$variables['taxRate']) {
             if ($variables['id']) {
-                $variables['taxRate'] = $plugin->getTaxRates()->getTaxRateById($variables['id']);
+                $variables['taxRate'] = $plugin->getTaxRates()->getTaxRateById($variables['id'], $store->id);
 
                 if (!$variables['taxRate']) {
                     throw new HttpException(404);
@@ -103,14 +103,8 @@ class TaxRatesController extends BaseTaxSettingsController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
 
-        $taxZones = $plugin->getTaxZones()->getAllTaxZones();
-        $variables['taxZones'] = [
-            ['value' => '', 'label' => ''],
-        ];
-
-        foreach ($taxZones as $model) {
-            $variables['taxZones'][$model->id] = $model->name;
-        }
+        $variables['taxZones'] = $plugin->getTaxZones()->getAllTaxZones($store->id)->mapWithKeys(fn(TaxAddressZone $zone) => [$zone->id => $zone->name])->all();
+        ArrayHelper::prependOrAppend($variables['taxZones'], ['value' => '', 'label' => ''], true);
 
         $taxCategories = $plugin->getTaxCategories()->getAllTaxCategories();
         $variables['taxCategories'] = [];
