@@ -1,12 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.20 - 2023-02-21
 
-### Fixed
 - Fixed a bug that could occur when updating to Commerce 3.
 - Fixed a bug that could cause a large number of shipping rule category queries.
-- Fixed a PHP error that would occur when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not logged in. 
-- Fixed a bug where calling a shipping method with an integer handle throws an error. ([#3093])(https://github.com/craftcms/commerce/issues/3093)
+- Fixed a PHP error that occurred when eager-loading variant fields.
+- Fixed a PHP error that occurred when calling `craft\commerce\services\ProductTypes::getEditableProductTypes()` while not signed in. 
 
 ## 3.4.19 - 2022-11-23
 
