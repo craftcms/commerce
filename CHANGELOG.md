@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.20 - 2023-02-21
 
 - Fixed a bug that could occur when updating to Commerce 3.
 - Fixed a bug that could cause a large number of shipping rule category queries.
