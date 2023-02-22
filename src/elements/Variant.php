@@ -841,7 +841,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle)
     {
         if ($handle == 'product') {
             // Get the source element IDs
