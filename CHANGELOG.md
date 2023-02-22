@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+### Unreleased
+
+- Fixed a bug where calling a shipping method with an integer handle throws an error. ([#3093])(https://github.com/craftcms/commerce/issues/3093)
+
 ## 3.4.20 - 2023-02-21
 
 - Fixed a bug that could occur when updating to Commerce 3.
