@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-### Fixed
 - Fixed a bug that could occur when updating to Commerce 3.
 - Fixed a bug that could cause a large number of shipping rule category queries.
 - Fixed a PHP error that occurred when eager loading in a variant query.
