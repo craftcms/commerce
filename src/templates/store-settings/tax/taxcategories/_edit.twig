@@ -1,11 +1,9 @@
-{% extends "commerce/_layouts/cp" %}
+{% extends "commerce/_layouts/store-settings" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Tax"|t('commerce'), url: url('commerce/tax') },
-    { label: "Tax Categories"|t('commerce'), url: url('commerce/tax/taxcategories') },
+    { label: "Tax Categories"|t('commerce'), url: store.getStoreSettingsUrl('taxcategories') },
 ] %}
-
-{% set selectedSubnavItem = 'tax' %}
 
 {% set fullPageForm = true %}
 
@@ -27,8 +25,9 @@
 {% endblock %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/tax-categories/save">
-    {{ redirectInput('commerce/tax/taxcategories') }}
-    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}
+    {{ actionInput('commerce/tax-categories/save') }}
+    {{ redirectInput(store.getStoreSettingsUrl('taxcategories')) }}
+    {% if taxCategory.id %}{{ hiddenInput('taxCategoryId', taxCategory.id) }}{% endif %}
+
     {% include "commerce/store-settings/tax/taxcategories/_fields" %}
 {% endblock %}

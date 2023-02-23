@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
@@ -22,6 +23,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -35,6 +37,12 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws StoreNotFoundException
+     * @throws InvalidConfigException
+     */
     public function actionIndex(?string $storeHandle = null): Response
     {
         if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
@@ -42,10 +50,10 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $plugin = Plugin::getInstance();
-        $taxRates = $plugin->getTaxRates()->getAllTaxRates();
+        $taxRates = $plugin->getTaxRates()->getAllTaxRates($store->id);
 
         // Preload all zone and category data for listing.
-        $plugin->getTaxZones()->getAllTaxZones();
+        $plugin->getTaxZones()->getAllTaxZones($store->id);
         $plugin->getTaxCategories()->getAllTaxCategories();
 
         return $this->renderTemplate('commerce/store-settings/tax/taxrates/index', [

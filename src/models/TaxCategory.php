@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\helpers\ArrayHelper;
@@ -15,6 +16,7 @@ use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
+use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
 
 /**
@@ -89,25 +91,28 @@ class TaxCategory extends Model
     }
 
     /**
-     * @return TaxRate[]
+     * @param int|null $storeId
+     * @return Collection<TaxRate>
      * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getTaxRates(): array
+    public function getTaxRates(?int $storeId = null): Collection
     {
-        $taxRates = [];
-
-        foreach (Plugin::getInstance()->getTaxRates()->getAllTaxRates() as $rate) {
-            if ($this->id === $rate->taxCategoryId) {
-                $taxRates[] = $rate;
-            }
-        }
-
-        return $taxRates;
+        return Plugin::getInstance()->getTaxRates()->getAllTaxRates($storeId)->where('taxCategoryId', $this->id);
     }
 
-    public function getCpEditUrl(): string
+    /**
+     * @param int|null $storeId
+     * @return string
+     * @throws InvalidConfigException
+     */
+    public function getCpEditUrl(?int $storeId = null): string
     {
-        return UrlHelper::cpUrl('commerce/tax/taxcategories/' . $this->id);
+        if ($storeId === null || !$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        return $store->getStoreSettingsUrl('taxcategories/' . $this->id);
     }
 
     /**

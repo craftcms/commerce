@@ -107,6 +107,10 @@ class BaseStoreSettingsController extends BaseCpController
                 'label' => Craft::t('commerce', 'Tax Zones'),
                 'path' => 'taxzones',
             ];
+            $this->storeSettingsNav['taxcategories'] = [
+                'label' => Craft::t('commerce', 'Tax Categories'),
+                'path' => 'taxcategories',
+            ];
         }
 
         return $this->storeSettingsNav;
