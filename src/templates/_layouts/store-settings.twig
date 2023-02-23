@@ -1,5 +1,6 @@
 {% extends "commerce/_layouts/cp" %}
 {% set isIndex = isIndex is not defined ? true : isIndex %}
+{% set hasStoreSelector = hasStoreSelector is not defined ? true : hasStoreSelector %}
 {% set selectedSubnavItem = 'store-settings' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commercesettings" %}
 
@@ -18,7 +19,7 @@
 {% set title = title is not defined ? 'Store Management'|t('commerce') : title %}
 
 {% block toolbar %}
-    {% if isIndex %}
+    {% if isIndex and hasStoreSelector %}
         {# store selector dropdown input #}
         {% if craft.commerce.stores.getAllStores().count() > 1 %}
             <div class="select">
