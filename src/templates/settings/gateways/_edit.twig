@@ -13,7 +13,6 @@
 
 {% block content %}
     {{ hiddenInput('id', gateway.id) }}
-    {{ hiddenInput('storeId', gateway.storeId) }}
     {{ actionInput('commerce/gateways/save') }}
     {{ redirectInput('commerce/settings/gateways') }}
 
@@ -34,6 +33,16 @@
         value : gateway.handle,
         required: true,
         errors: gateway.getErrors('handle'),
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Store'|t('commerce'),
+        name: 'storeId',
+        id: 'storeId',
+        options: storeOptions,
+        value : gateway.storeId,
+        required: true,
+        errors: gateway.getErrors('storeId'),
     }) }}
 
     {% if gateway.supportsWebhooks() %}

@@ -12,6 +12,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\helpers\DebugPanel;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\errors\DeprecationException;
 use craft\helpers\Json;
@@ -93,6 +94,7 @@ class GatewaysController extends BaseAdminController
         $variables['gatewayTypes'] = $allGatewayTypes;
         $variables['gatewayInstances'] = $gatewayInstances;
         $variables['gatewayOptions'] = $gatewayOptions;
+        $variables['storeOptions'] = Plugin::getInstance()->getStores()->getAllStores()->mapWithKeys(fn(Store $store) => [$store->id => $store->getName()])->all();
 
         if ($variables['gateway']->id) {
             $variables['title'] = $variables['gateway']->name;

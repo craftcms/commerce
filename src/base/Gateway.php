@@ -85,7 +85,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function defineRules(): array
     {
         $rules = parent::defineRules();
-        $rules[] = [['paymentType', 'handle'], 'required'];
+        $rules[] = [['paymentType', 'handle', 'storeId'], 'required'];
 
         $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder', 'storeId'], 'safe'];
 
