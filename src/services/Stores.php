@@ -189,6 +189,15 @@ class Stores extends Component
     }
 
     /**
+     * @param string $uid
+     * @return Store|null
+     */
+    public function getStoreByUid(string $uid): ?Store
+    {
+        return $this->getAllStores()->firstWhere('uid', $uid);
+    }
+
+    /**
      * @param int $siteId
      * @return Store|null
      */

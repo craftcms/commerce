@@ -12,8 +12,9 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="id" value="{{ gateway.id }}">
-    <input type="hidden" name="action" value="commerce/gateways/save">
+    {{ hiddenInput('id', gateway.id) }}
+    {{ hiddenInput('storeId', gateway.storeId) }}
+    {{ actionInput('commerce/gateways/save') }}
     {{ redirectInput('commerce/settings/gateways') }}
 
     {{ forms.textField({
