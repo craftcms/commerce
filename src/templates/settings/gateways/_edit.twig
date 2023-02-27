@@ -12,8 +12,8 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="id" value="{{ gateway.id }}">
-    <input type="hidden" name="action" value="commerce/gateways/save">
+    {{ hiddenInput('id', gateway.id) }}
+    {{ actionInput('commerce/gateways/save') }}
     {{ redirectInput('commerce/settings/gateways') }}
 
     {{ forms.textField({
@@ -33,6 +33,16 @@
         value : gateway.handle,
         required: true,
         errors: gateway.getErrors('handle'),
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Store'|t('commerce'),
+        name: 'storeId',
+        id: 'storeId',
+        options: storeOptions,
+        value : gateway.storeId,
+        required: true,
+        errors: gateway.getErrors('storeId'),
     }) }}
 
     {% if gateway.supportsWebhooks() %}

@@ -33,6 +33,7 @@
             missing: gateway is missing ? true : false,
             name: gateway is missing? gateway.expectedType : gateway.displayName()
         },
+        store: gateway.store.name,
         customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
     }]) %}
 {% endfor %}
@@ -53,6 +54,7 @@
                 return value.name;
             }
         },
+        { name: 'store', title: Craft.t('commerce', 'Store') },
         {
             name: 'customerEnabled',
             title: Craft.t('commerce', 'Customer Enabled?'),

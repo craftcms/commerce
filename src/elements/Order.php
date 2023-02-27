@@ -3115,7 +3115,7 @@ class Order extends Element
             }
         } else {
             if ($this->gatewayId) {
-                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId, $this->storeId);
             }
         }
 
