@@ -8,20 +8,24 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
+use craft\models\Site;
 use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\Cookie;
 
 /**
@@ -344,10 +348,10 @@ class Carts extends Component
 
     /**
      * @return void
-     * @throws \craft\commerce\errors\StoreNotFoundException
-     * @throws \yii\base\InvalidConfigException
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      */
-    protected function loadCookie()
+    protected function loadCookie(): void
     {
         $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
 

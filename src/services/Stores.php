@@ -14,11 +14,13 @@ use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
+use craft\commerce\Plugin;
 use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\errors\BusyResourceException;
+use craft\errors\SiteNotFoundException;
 use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
 use craft\events\SiteEvent;
@@ -94,13 +96,6 @@ class Stores extends Component
     private ?Collection $_allStoresBySiteId = null;
 
     /**
-     * @var Store|null the current store
-     * @see getCurrentStore()
-     * @see setCurrentStore()
-     */
-    private ?Store $_currentStore = null;
-
-    /**
      * @return void
      */
     private function _loadAllStores(): void
@@ -121,50 +116,11 @@ class Stores extends Component
      * Returns the current store.
      *
      * @return Store the current store
-     * @throws StoreNotFoundException if no stores exist
+     * @throws SiteNotFoundException
      */
     public function getCurrentStore(): Store
     {
-        if (isset($this->_currentStore)) {
-            return $this->_currentStore;
-        }
-
-        // Default to the primary store
-        // TODO: Lookup the current default based on the current site.
-        return $this->_currentStore = $this->getPrimaryStore();
-    }
-
-    /**
-     * Sets the current store.
-     *
-     * @param Store|string|int|null $store the current store, or its handle/ID, or null
-     * @throws InvalidArgumentException if $store is invalid
-     */
-    public function setCurrentStore(mixed $store): void
-    {
-        // In case this was called from the constructor...
-        $this->_loadAllStores();
-
-        if ($store === null) {
-            $this->_currentStore = null;
-            return;
-        }
-
-        if ($store instanceof Store) {
-            $this->_currentStore = $store;
-        } elseif (is_numeric($store)) {
-            $this->_currentStore = $this->getStoreById($store);
-        } else {
-            $this->_currentStore = $this->getStoreByHandle($store);
-        }
-
-        // Did something go wrong?
-        if (!$this->_currentStore) {
-            // Fail silently if Craft isn't installed yet or is in the middle of updating
-            if (Craft::$app->getIsInstalled() && !Craft::$app->getUpdates()->getIsCraftUpdatePending() && Craft::$app->getPlugins()->isPluginInstalled('commerce')) {
-                throw new InvalidArgumentException('Invalid store: ' . $store);
-            }
-        }
+        return $this->getStoreBySiteId(Craft::$app->getSites()->getCurrentSite()->id) ?? $this->getPrimaryStore();
     }
 
     /**
@@ -429,11 +385,6 @@ class Stores extends Component
         // Refresh stores
         $this->refreshStores();
 
-        // Was this the current store?
-        if (isset($this->_currentStore) && $this->_currentStore->id == $store->id) {
-            $this->setCurrentStore($this->getPrimaryStore());
-        }
-
         // Make sure any site store for this store is reassigned to the primary store
         $siteStores = collect($this->getAllSiteStores())->where('storeId', $store->id)->all();
         foreach ($siteStores as $siteStore) {
@@ -457,6 +408,7 @@ class Stores extends Component
     public function refreshStores(): void
     {
         $this->_allStores = null;
+        $this->_allStoresBySiteId = null;
         $this->_loadAllStores();
     }
 
@@ -586,6 +538,8 @@ class Stores extends Component
             "Save the “{$craftSite->handle}” commerce site store mapping"
         );
 
+        $this->refreshStores();
+
         return true;
     }
 
@@ -619,6 +573,8 @@ class Stores extends Component
             $siteStoreRecord->save(false);
 
             $transaction->commit();
+
+            $this->refreshStores();
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
@@ -649,6 +605,8 @@ class Stores extends Component
                 ->execute();
 
             $transaction->commit();
+
+            $this->refreshStores();
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;

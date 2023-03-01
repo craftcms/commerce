@@ -13,6 +13,7 @@ use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
@@ -129,6 +130,7 @@ use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\Site;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
@@ -594,6 +596,10 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        Event::on(Site::class, Site::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
+            $event->behaviors['commerce:store'] = StoreBehavior::class;
+        });
 
         Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);
         Event::on(Users::class, Users::EVENT_AFTER_ASSIGN_USER_TO_GROUPS, [$this->getCatalogPricingRules(), 'afterSaveUserHandler']);

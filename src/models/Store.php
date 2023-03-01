@@ -107,6 +107,8 @@ class Store extends Model
 
     /**
      * Gets the CP url to these stores settings
+     *
+     * @param string|null $path
      * @return string
      */
     public function getStoreSettingsUrl(?string $path = null): string
