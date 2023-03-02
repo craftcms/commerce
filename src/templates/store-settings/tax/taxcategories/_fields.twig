@@ -71,28 +71,30 @@
     label: "Default Category"|t('commerce'),
 }, defaultInput) }}
 
-<hr>
+{% if taxRates is defined %}
+    <hr>
 
-<h2>{{ 'Used By Tax Rates'|t('commerce') }}</h2>
+    <h2>{{ 'Used By Tax Rates'|t('commerce') }}</h2>
 
-<div class="tablepane" style="margin-top: 0;">
-    <table class="data fullwidth">
-        <thead>
-            <tr>
-              <th>{{ 'Rate'|t('commerce') }}</th>
-              <th>{{ 'Store'|t('commerce') }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for taxRate in taxRates %}
+    <div class="tablepane" style="margin-top: 0;">
+        <table class="data fullwidth">
+            <thead>
                 <tr>
-                    <td>{{ tag('a', { text: taxRate.name, href: taxRate.getCpEditUrl() }) }}</td>
-                    <td>{{ taxRate.getStore().name }}</td>
+                  <th>{{ 'Rate'|t('commerce') }}</th>
+                  <th>{{ 'Store'|t('commerce') }}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                {% for taxRate in taxRates %}
+                    <tr>
+                        <td>{{ tag('a', { text: taxRate.name, href: taxRate.getCpEditUrl() }) }}</td>
+                        <td>{{ taxRate.getStore().name }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
 
 {% if taxCategory is not defined or not taxCategory.handle %}
     {% set nameId = 'name'|namespaceInputId|e('js') %}

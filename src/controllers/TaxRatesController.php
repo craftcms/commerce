@@ -168,6 +168,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
             $view->renderTemplate('commerce/store-settings/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
+
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
         $view->setNamespace(null);
