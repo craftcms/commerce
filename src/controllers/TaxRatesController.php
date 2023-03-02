@@ -111,8 +111,12 @@ class TaxRatesController extends BaseTaxSettingsController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['taxRate'], prepend: true);
 
-        $variables['taxZones'] = $plugin->getTaxZones()->getAllTaxZones($store->id)->mapWithKeys(fn(TaxAddressZone $zone) => [$zone->id => $zone->name])->all();
-        ArrayHelper::prependOrAppend($variables['taxZones'], ['value' => '', 'label' => ''], true);
+        $variables['taxZones'] = [
+            ['value' => '', 'label' => ''],
+        ];
+        foreach ($plugin->getTaxZones()->getAllTaxZones($store->id)->all() as $zone) {
+            $variables['taxZones'][] = ['value' => $zone->id, 'label' => $zone->name];
+        }
 
         $taxCategories = $plugin->getTaxCategories()->getAllTaxCategories();
         $variables['taxCategories'] = [];
