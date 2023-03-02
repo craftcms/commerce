@@ -279,6 +279,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::GATEWAYS);
         $this->createTable(Table::GATEWAYS, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'type' => $this->string()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
@@ -932,6 +933,7 @@ class Install extends Migration
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
         $this->createIndex(null, Table::GATEWAYS, 'isArchived', false);
+        $this->createIndex(null, Table::GATEWAYS, 'storeId', false);
         $this->createIndex(null, Table::LINEITEMS, ['orderId', 'purchasableId', 'optionsSignature'], true);
         $this->createIndex(null, Table::LINEITEMS, 'purchasableId', false);
         $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
@@ -1034,6 +1036,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::GATEWAYS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
