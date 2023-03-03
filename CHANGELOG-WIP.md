@@ -13,9 +13,19 @@
 
 ### Development
 - `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
+- `craft\commerce\services\Gateways::getAllCustomerEnabledGateways()` now returns a `Collection`.
+- `craft\commerce\services\Gateways::getAllGateways()` now returns a `Collection`.
 - `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` now returns a `Collection`.
 - `craft\commerce\services\PaymentSources::getAllPaymentSourcesByCustomerId()` now returns a `Collection`.
 - `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()` now returns a `Collection`.
+- `craft\commerce\services\ShippingCategories::getAllShippingCategories()` now returns a `Collection`.
+- `craft\commerce\services\ShippingMethods::getAllShippingMethods()` now returns a `Collection`.
+- `craft\commerce\services\ShippingRules::getAllShippingRules()` now returns a `Collection`.
+- `craft\commerce\services\ShippingRules::getAllShippingRulesByShippingMethodId()` now returns a `Collection`.
+- `craft\commerce\services\TaxRates::getAllTaxRates()` now returns a `Collection`.
+- `craft\commerce\services\TaxRates::getTaxRatesByTaxZoneId()` now returns a `Collection`.
+- `craft\commerce\services\TaxZones::getAllTaxZones()` now returns a `Collection`.
+
 
 ### Extensibility
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
