@@ -168,8 +168,7 @@ class Gateways extends Component
             return false;
         }
 
-        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id);
-        $paymentSourceIds = ArrayHelper::getColumn($paymentSources, 'id');
+        $paymentSourceIds = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id)->map(fn(Gateway $g) => $g->id)->all();
 
         // Clear this gateway from all active carts since it has been now been archived
         Craft::$app->getDb()->createCommand()

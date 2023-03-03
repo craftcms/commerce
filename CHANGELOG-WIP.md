@@ -12,7 +12,10 @@
 ### Administration
 
 ### Development
-- `craft\commerce\services\Discounts::getAllDiscounts()` now returns a collection.
+- `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
+- `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` now returns a `Collection`.
+- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByCustomerId()` now returns a `Collection`.
+- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()` now returns a `Collection`.
 
 ### Extensibility
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
@@ -68,6 +71,7 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\models\Discount::$storeId`.
+- Added `craft\commerce\models\PaymentSources::getStore()`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
 - Added `craft\commerce\records\CatalogPricing`.
@@ -91,6 +95,8 @@
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
+- Removed `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 
 ### System

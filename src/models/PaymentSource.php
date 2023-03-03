@@ -129,6 +129,20 @@ class PaymentSource extends Model
     }
 
     /**
+     * @return Store
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getStore(): Store
+    {
+        if (!$gateway = $this->getGateway()) {
+            throw new InvalidConfigException('Gateway not found');
+        }
+
+        return $gateway->getStore();
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -136,6 +150,7 @@ class PaymentSource extends Model
         return [
             [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
             [['gatewayId', 'customerId', 'token', 'description'], 'required'],
+            [['id', 'response'], 'safe']
         ];
     }
 }
