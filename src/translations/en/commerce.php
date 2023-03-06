@@ -7,7 +7,6 @@
 
 return [
     '(Purchasable)' => '(Purchasable)',
-    '(Trashed)' => '(Trashed)',
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',
     '(off original price)' => '(off original price)',
@@ -1229,6 +1228,7 @@ return [
     '{description} is no longer available.' => '{description} is no longer available.',
     '{description} only has {stock} in stock.' => '{description} only has {stock} in stock.',
     '{name} (Primary)' => '{name} (Primary)',
+    '{name} (Trashed)' => '{name} (Trashed)',
     '{num, plural, =1{order}, other{orders}} updated.' => '{num, plural, =1{order}, other{orders}} updated.',
     '{number} more…' => '{number} more…',
     '{pct} off the discounted item price' => '{pct} off the discounted item price',
