@@ -132,7 +132,7 @@ class Stores extends Component
             $this->_loadAllStores();
         }
 
-        return $this->_allStores ?? collect([]);
+        return $this->_allStores ?? collect();
     }
 
     /**
@@ -317,6 +317,7 @@ class Stores extends Component
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
+            $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
 
@@ -423,6 +424,35 @@ class Stores extends Component
     }
 
     /**
+     * @param array $ids
+     * @return bool
+     * @throws BusyResourceException
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     * @throws StaleResourceException
+     * @throws YiiBaseException
+     */
+    public function reorderStores(array $ids): bool
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        $uidsByIds = Db::uidsByIds(Table::STORES, $ids);
+
+        foreach ($ids as $sortOrder => $id) {
+            if (!empty($uidsByIds[$id])) {
+                $uid = $uidsByIds[$id];
+                $projectConfig->set(self::CONFIG_STORES_KEY . '.' . $uid . '.sortOrder', $sortOrder + 1);
+            }
+        }
+
+        $this->refreshStores();
+
+        return true;
+    }
+
+    /**
      * Gets a store record by uid.
      *
      * @param string $uid
@@ -450,9 +480,11 @@ class Stores extends Component
                 'name',
                 'handle',
                 'primary',
+                'sortOrder',
                 'uid',
             ])
-            ->from([Table::STORES]);
+            ->from([Table::STORES])
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
     /**

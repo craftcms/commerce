@@ -52,6 +52,11 @@ class Store extends Model
     public bool $primary = false;
 
     /**
+     * @var int Sort order
+     */
+    public int $sortOrder = 99;
+
+    /**
      * @var string|null Store UID
      */
     public ?string $uid = null;
@@ -64,7 +69,7 @@ class Store extends Model
         $rules = parent::defineRules();
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => StoreRecord::class, 'targetAttribute' => ['handle']];
         $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['primary', 'id', 'uid'], 'safe'];
+        $rules[] = [['primary', 'id', 'uid', 'sortOrder'], 'safe'];
 
         return $rules;
     }
@@ -180,6 +185,7 @@ class Store extends Model
             'name' => $this->_name,
             'handle' => $this->handle,
             'primary' => $this->primary,
+            'sortOrder' => $this->sortOrder,
         ];
     }
 }

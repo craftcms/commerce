@@ -17,6 +17,7 @@ use craft\db\ActiveRecord;
  * @property string $name
  * @property string $handle
  * @property bool $primary
+ * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */

@@ -8,12 +8,22 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\db\Query;
+use craft\errors\BusyResourceException;
+use craft\errors\StaleResourceException;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Stores Controller
@@ -89,6 +99,14 @@ class StoresController extends BaseStoreSettingsController
      * Saves a store.
      *
      * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws BusyResourceException
+     * @throws StaleResourceException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function actionSaveStore(): ?Response
     {
@@ -110,6 +128,13 @@ class StoresController extends BaseStoreSettingsController
         $store->handle = $this->request->getBodyParam('handle');
         if ($this->request->getBodyParam('primary') !== null) {
             $store->primary = (bool)$this->request->getBodyParam('primary');
+        }
+
+        if ($storeId && $savedStore = $storesService->getStoreById($storeId)) {
+            $store->uid = $savedStore->uid;
+            $store->sortOrder = $savedStore->sortOrder;
+        } elseif (!$storeId) {
+            $store->sortOrder = (new Query())->from(Table::STORES)->max('[[sortOrder]]') + 1;
         }
 
         // Save it
@@ -177,6 +202,34 @@ class StoresController extends BaseStoreSettingsController
         return $this->asSuccess();
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     */
+    public function actionReorderStores(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
+
+        if (!Plugin::getInstance()->getStores()->reorderStores($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder stores.'));
+        }
+
+        return $this->asSuccess();
+    }
+
+    /**
+     * @param array|null $siteStores
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionEditSiteStores(array $siteStores = null): Response
     {
         // Breadcrumbs
