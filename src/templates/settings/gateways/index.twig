@@ -15,64 +15,91 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/settings/gateways/new') }}" class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
+    <div class="btngroup">
+        <button type="button" class="btn submit add icon menubtn">{{ 'New gateway'|t('commerce') }}</button>
+        <div class="menu">
+            <ul>
+                {% for store in stores %}
+                    <li>
+                        <a href="{{ url("commerce/settings/gateways/#{store.handle}/new") }}">{{ store.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
-{% block content %}
-    <div id="gateways-vue-admin-table"></div>
+{% block main %}
+    <div id="content">
+        {% for store in stores %}
+                <h2 id="{{ store.handle }}" class="gateways-margin-top">{{ store.name }}</h2>
+                <div class="content-pane">
+                    <div id="gateways-vue-admin-table-{{ store.handle }}"></div>
+                </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for gateway in gateways %}
-    {% set tableData = tableData|merge([{
-        id: gateway.id,
-        title: gateway.name|t('site'),
-        url: gateway.cpEditUrl,
-        handle: gateway.handle|e,
-        type: {
-            missing: gateway is missing ? true : false,
-            name: gateway is missing? gateway.expectedType : gateway.displayName()
-        },
-        store: gateway.store.name,
-        customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
-    }]) %}
+{% for handle, storeGateways in gateways %}
+
+    {% set tableData = [] %}
+    {% for gateway in storeGateways %}
+        {% set tableData = tableData|merge([{
+            id: gateway.id,
+            title: gateway.name|t('site'),
+            url: gateway.cpEditUrl,
+            handle: gateway.handle|e,
+            type: {
+                missing: gateway is missing ? true : false,
+                name: gateway is missing? gateway.expectedType : gateway.displayName()
+            },
+            store: gateway.store.name,
+            customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
+        }]) %}
+    {% endfor %}
+
+    {% js %}
+        var columns = [
+            { name: 'id', title: Craft.t('commerce', 'ID') },
+            { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+            { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+            {
+                name: 'type',
+                title: Craft.t('commerce', 'Type'),
+                callback: function(value) {
+                    if (value.missing) {
+                        return '<span class="error">'+value.name+'</span>';
+                    }
+
+                    return value.name;
+                }
+            },
+            { name: 'store', title: Craft.t('commerce', 'Store') },
+            {
+                name: 'customerEnabled',
+                title: Craft.t('commerce', 'Customer Enabled?'),
+                callback: function(value) {
+                    if (value) {
+                        return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
+                    }
+                }
+            }
+        ];
+
+        new Craft.VueAdminTable({
+            columns: columns,
+            container: '#gateways-vue-admin-table-{{ handle }}',
+            deleteAction: 'commerce/gateways/archive',
+            reorderAction: 'commerce/gateways/reorder',
+            reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
+            reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways.'),
+            tableData: {{ tableData|json_encode|raw }}
+        });
+    {% endjs %}
 {% endfor %}
 
-{% js %}
-    var columns = [
-        { name: 'id', title: Craft.t('commerce', 'ID') },
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        {
-            name: 'type',
-            title: Craft.t('commerce', 'Type'),
-            callback: function(value) {
-                if (value.missing) {
-                    return '<span class="error">'+value.name+'</span>';
-                }
-
-                return value.name;
-            }
-        },
-        { name: 'store', title: Craft.t('commerce', 'Store') },
-        {
-            name: 'customerEnabled',
-            title: Craft.t('commerce', 'Customer Enabled?'),
-            callback: function(value) {
-                if (value) {
-                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
-                }
-            }
-        }
-    ];
-
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#gateways-vue-admin-table',
-        deleteAction: 'commerce/gateways/archive',
-        reorderAction: 'commerce/gateways/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways.'),
-        tableData: {{ tableData|json_encode|raw }}
-    });
-{% endjs %}
+{% css %}
+.gateways-margin-top {
+  margin-top: var(--xl);
+}
+{% endcss %}

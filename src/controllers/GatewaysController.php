@@ -32,10 +32,16 @@ class GatewaysController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
-        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
+        $gateways = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        $stores->each(function(Store $store) use (&$gateways) {
+            $gateways[$store->handle] = Plugin::getInstance()->getGateways()->getAllGateways($store->id);
+        });
 
         return $this->renderTemplate('commerce/settings/gateways/index', [
             'gateways' => $gateways,
+            'stores' => $stores->all(),
         ]);
     }
 
@@ -47,7 +53,7 @@ class GatewaysController extends BaseAdminController
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, ?GatewayInterface $gateway = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, ?GatewayInterface $gateway = null): Response
     {
         /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
@@ -62,9 +68,12 @@ class GatewaysController extends BaseAdminController
                     throw new HttpException(404);
                 }
             } else {
+                if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+                    $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+                }
                 $variables['gateway'] = $gatewayService->createGateway([
                     'type' => Dummy::class,
-                    'storeId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+                    'storeId' => $store->id,
                 ]);
             }
         }
@@ -94,7 +103,6 @@ class GatewaysController extends BaseAdminController
         $variables['gatewayTypes'] = $allGatewayTypes;
         $variables['gatewayInstances'] = $gatewayInstances;
         $variables['gatewayOptions'] = $gatewayOptions;
-        $variables['storeOptions'] = Plugin::getInstance()->getStores()->getAllStores()->mapWithKeys(fn(Store $store) => [$store->id => $store->getName()])->all();
 
         if ($variables['gateway']->id) {
             $variables['title'] = $variables['gateway']->name;
