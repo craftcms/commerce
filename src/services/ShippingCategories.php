@@ -58,7 +58,6 @@ class ShippingCategories extends Component
                 ->where(['storeId' => $storeId])
                 ->all();
 
-            // Start with a blank slate if it isn't memoized, or we're fetching all shipping categories
             if ($this->_allShippingCategories === null) {
                 $this->_allShippingCategories = [];
             }
