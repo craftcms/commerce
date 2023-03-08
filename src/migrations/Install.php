@@ -449,6 +449,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::ORDERSTATUSES);
         $this->createTable(Table::ORDERSTATUSES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
@@ -956,8 +957,9 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERS, 'email', false);
         $this->createIndex(null, Table::ORDERS, 'storeId', false);
-        $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
+        $this->createIndex(null, Table::ORDERSTATUSES, 'storeId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
+        $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
         $this->createIndex(null, Table::PDFS, 'handle', false);
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
@@ -1058,6 +1060,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ORDERS, ['paymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERSTATUSES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['emailId'], Table::EMAILS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTCURRENCIES, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');

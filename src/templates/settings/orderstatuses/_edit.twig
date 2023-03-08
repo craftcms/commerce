@@ -13,11 +13,12 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/order-statuses/save">
+    {{ actionInput('commerce/order-statuses/save') }}
+    {{ hiddenInput('storeId', orderStatus.storeId) }}
     {{ redirectInput('commerce/settings/orderstatuses') }}
     {% if orderStatus.id %}
-        <input type="hidden" name="sortOrder" value="{{ orderStatus.sortOrder }}">
-        <input type="hidden" name="id" value="{{ orderStatus.id }}">
+        {{ hiddenInput('sortOrder', orderStatus.sortOrder) }}
+        {{ hiddenInput('id', orderStatus.id) }}
     {% endif %}
 
     {{ forms.textField({

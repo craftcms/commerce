@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -37,6 +38,7 @@ class OrderStatus extends Model
     use SoftDeleteTrait {
         SoftDeleteTrait::behaviors as softDeleteBehaviors;
     }
+    use StoreTrait;
 
     /**
      * @var int|null ID
@@ -112,12 +114,18 @@ class OrderStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => OrderStatusRecord::class,
+                'targetAttribute' => ['name', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.',
+            ],
             [
                 ['handle'],
                 HandleValidator::class,
                 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
             ],
+            [['id', 'color', 'description', 'default', 'sortOrder', 'dateDeleted', 'uid', 'storeId'], 'safe'],
         ];
     }
 
@@ -136,7 +144,7 @@ class OrderStatus extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     /**

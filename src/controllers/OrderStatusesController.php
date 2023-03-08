@@ -8,9 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\OrderStatus;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use Throwable;
@@ -32,9 +35,15 @@ class OrderStatusesController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        $orderStatuses = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
 
-        return $this->renderTemplate('commerce/settings/orderstatuses/index', compact('orderStatuses'));
+        $stores->each(function(Store $store) use (&$orderStatuses) {
+            $orderStatuses[$store->handle] = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id);
+        });
+        $stores = $stores->all();
+
+        return $this->renderTemplate('commerce/settings/orderstatuses/index', compact('orderStatuses', 'stores'));
     }
 
     /**
@@ -42,19 +51,25 @@ class OrderStatusesController extends BaseAdminController
      * @param OrderStatus|null $orderStatus
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, OrderStatus $orderStatus = null): Response
     {
         $variables = compact('id', 'orderStatus');
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
 
         if (!$variables['orderStatus']) {
             if ($variables['id']) {
-                $variables['orderStatus'] = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($variables['id']);
+                $variables['orderStatus'] = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($variables['id'], $store->id);
 
                 if (!$variables['orderStatus']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['orderStatus'] = new OrderStatus();
+                $variables['orderStatus'] = Craft::createObject([
+                    'class' => OrderStatus::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -81,12 +96,14 @@ class OrderStatusesController extends BaseAdminController
         $this->requirePostRequest();
 
         $id = $this->request->getBodyParam('id');
-        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id) : false;
+        $storeId = $this->request->getBodyParam('storeId');
+        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id, $storeId) : false;
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();
         }
 
+        $orderStatus->storeId = $storeId;
         $orderStatus->name = $this->request->getBodyParam('name');
         $orderStatus->handle = $this->request->getBodyParam('handle');
         $orderStatus->color = $this->request->getBodyParam('color');
@@ -96,6 +113,10 @@ class OrderStatusesController extends BaseAdminController
 
         if (!$emailIds) {
             $emailIds = [];
+        }
+
+        if (!$id) {
+            $orderStatus->sortOrder = (new Query())->from(Table::ORDERSTATUSES)->where(['storeId' => $storeId])->max('sortOrder') + 1;
         }
 
         // Save it
@@ -137,10 +158,15 @@ class OrderStatusesController extends BaseAdminController
     public function actionDelete(): ?Response
     {
         $this->requireAcceptsJson();
-
         $orderStatusId = $this->request->getRequiredParam('id');
 
-        if (!Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
+        if (!$orderStatusId) {
+            $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
+        }
+
+        $storeId = (new Query())->from(Table::ORDERSTATUSES)->select(['storeId'])->where(['id' => $orderStatusId])->scalar();
+
+        if (!$storeId || !Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId, $storeId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
