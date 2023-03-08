@@ -26,6 +26,7 @@ use craft\commerce\records\ShippingRule;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
+use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
@@ -41,6 +42,11 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
+    /**
+     * @var int|null
+     */
+    private ?int $_primaryStoreId = null;
+
     /**
      * @inheritdoc
      */
@@ -1200,6 +1206,7 @@ class Install extends Migration
             'name' => 'General',
             'handle' => 'general',
             'default' => true,
+            'storeId' => $this->_getPrimaryStoreId(),
         ];
         $this->insert(ShippingCategory::tableName(), $data);
     }
@@ -1253,8 +1260,9 @@ class Install extends Migration
             'handle' => 'new',
             'color' => 'green',
             'default' => true,
+            'storeId' => $this->_getPrimaryStoreId(),
         ];
-        $orderStatus = new OrderStatusModel($data);
+        $orderStatus = Craft::createObject(['class' => OrderStatusModel::class, 'attributes' => $data]);
         Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
@@ -1268,6 +1276,7 @@ class Install extends Migration
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
             'isArchived' => false,
+            'storeId' => $this->_getPrimaryStoreId(),
         ];
         $gateway = new Dummy($data);
         Plugin::getInstance()->getGateways()->saveGateway($gateway);
@@ -1310,5 +1319,17 @@ class Install extends Migration
     {
         $class = new ReflectionClass(Table::class);
         return $class->getConstants();
+    }
+
+    /**
+     * @return int|null
+     */
+    private function _getPrimaryStoreId(): ?int
+    {
+        if ($this->_primaryStoreId === null) {
+            $this->_primaryStoreId = (new Query())->from(Table::STORES)->select(['id'])->where(['primary' => true])->scalar();
+        }
+
+        return $this->_primaryStoreId;
     }
 }

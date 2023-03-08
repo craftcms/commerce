@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
+use craft\commerce\models\OrderStatus;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -232,6 +233,19 @@ class Stores extends Component
         // Now that we have a store ID, save it on the model
         if ($isNewStore) {
             $store->id = Db::idByUid(Table::STORES, $store->uid);
+
+            // Create any default data we need for the store
+            $orderStatus = Craft::createObject([
+                'class' => OrderStatus::class,
+                'attributes' => [
+                    'name' => 'New',
+                    'handle' => 'new',
+                    'color' => 'green',
+                    'default' => true,
+                    'storeId' => $store->id,
+                ],
+            ]);
+            Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus);
         }
 
         // Update the other primary store.
