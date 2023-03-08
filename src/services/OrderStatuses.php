@@ -214,11 +214,17 @@ class OrderStatuses extends Component
     /**
      * @since 3.0.11
      */
-    public function getOrderCountByStatus(): array
+    public function getOrderCountByStatus(?int $storeId = null): array
     {
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
-            ->where(['[[o.isCompleted]]' => true, '[[e.dateDeleted]]' => null])
+            ->where([
+                '[[o.isCompleted]]' => true,
+                '[[e.dateDeleted]]' => null,
+                '[[o.storeId]]' => $storeId,
+            ])
             ->from([Table::ORDERS . ' o'])
             ->innerJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
             ->groupBy(['[[o.orderStatusId]]'])
@@ -226,7 +232,7 @@ class OrderStatuses extends Component
             ->all();
 
         // For those not in the groupBy
-        $allStatuses = $this->getAllOrderStatuses();
+        $allStatuses = $this->getAllOrderStatuses($storeId);
         foreach ($allStatuses as $status) {
             if (!isset($countGroupedByStatusId[$status->id])) {
                 $countGroupedByStatusId[$status->id] = [
@@ -379,6 +385,12 @@ class OrderStatuses extends Component
 
         // Can only delete if we have one that can remain as the default
         if (count($statuses) < 2 || $orderStatus == null) {
+            return false;
+        }
+
+        // Prevent deletion of order status if there are orders with this status
+        $orderCounts = $this->getOrderCountByStatus($storeId);
+        if (!isset($orderCounts[$id]) || $orderCounts[$id] > 0) {
             return false;
         }
 
