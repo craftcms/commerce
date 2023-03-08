@@ -99,7 +99,22 @@
 {% endfor %}
 
 {% css %}
-.gateways-margin-top {
-  margin-top: var(--xl);
-}
+    table.data thead th.vuetable-th-slot-title,
+    table.data thead th.vuetable-th-slot-handle {
+        width: 20%;
+    }
+
+    table.data thead th.vuetable-th-type,
+    table.data thead th.vuetable-th-store {
+        width: 10%;
+    }
+
+    table.data thead th.vuetable-th-id,
+    table.data thead th.vuetable-th-customerEnabled {
+        width: 5%;
+    }
+
+    .gateways-margin-top {
+      margin-top: var(--xl);
+    }
 {% endcss %}
