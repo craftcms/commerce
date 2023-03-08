@@ -76,7 +76,7 @@ trait Routes
 
             $event->rules['commerce/settings/gateways'] = 'commerce/gateways/index';
             $event->rules['commerce/settings/gateways/<storeHandle:{handle}>/new'] = 'commerce/gateways/edit';
-            $event->rules['commerce/settings/gateways/<id:\d+>'] = 'commerce/gateways/edit';
+            $event->rules['commerce/settings/gateways/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/gateways/edit';
 
             $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
             $event->rules['commerce/settings/emails/new'] = 'commerce/emails/edit';
