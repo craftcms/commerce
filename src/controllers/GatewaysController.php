@@ -57,20 +57,20 @@ class GatewaysController extends BaseAdminController
     {
         /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
 
         $gatewayService = Plugin::getInstance()->getGateways();
 
         if (!$variables['gateway']) {
             if ($variables['id']) {
-                $variables['gateway'] = $gatewayService->getGatewayById($variables['id']);
+                $variables['gateway'] = $gatewayService->getGatewayById($variables['id'], $store->id);
 
                 if (!$variables['gateway']) {
                     throw new HttpException(404);
                 }
             } else {
-                if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-                    $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-                }
                 $variables['gateway'] = $gatewayService->createGateway([
                     'type' => Dummy::class,
                     'storeId' => $store->id,

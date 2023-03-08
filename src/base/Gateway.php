@@ -65,7 +65,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     /**
