@@ -49,7 +49,7 @@ class Dummy extends SubscriptionGateway
         if (Craft::$app->getConfig()->general->devMode) {
             $paymentFormModel->firstName = 'Jenny';
             $paymentFormModel->lastName = 'Andrews';
-            $paymentFormModel->number = '4242424242424242';
+            $paymentFormModel->cardNumber = '4242424242424242';
             $paymentFormModel->expiry = '01/2023';
             $paymentFormModel->cvv = '123';
         }
@@ -125,7 +125,7 @@ class Dummy extends SubscriptionGateway
         $paymentSource->gatewayId = $this->id;
         $paymentSource->token = StringHelper::randomString();
         $paymentSource->response = '';
-        $paymentSource->description = 'Card ending with ' . StringHelper::last($sourceData->number, 4);
+        $paymentSource->description = 'Card ending with ' . StringHelper::last($sourceData->cardNumber, 4);
 
         return $paymentSource;
     }
@@ -166,9 +166,9 @@ class Dummy extends SubscriptionGateway
         $form = new DummyPaymentForm();
 
         if ($transaction->note != 'fail') {
-            $form->number = '4242424242424242';
+            $form->cardNumber = '4242424242424242';
         } else {
-            $form->number = '378282246310005';
+            $form->cardNumber = '378282246310005';
         }
 
         return new DummyRequestResponse($form);

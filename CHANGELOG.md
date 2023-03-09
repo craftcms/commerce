@@ -5,6 +5,8 @@
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
 - Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
 - Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
+- Fixed a bug where submitting card information to Dummy Gateway throws an error because of the order number conflict.
+
 
 ## 4.2.5.1 - 2023-02-02
 

@@ -36,7 +36,7 @@ class Dummy implements RequestResponseInterface
             return;
         }
 
-        $number = (string)$form->number;
+        $number = (string)$form->cardNumber;
         $isValid = (substr($number, -1) % 2 === 0);
 
         if (!$isValid) {

@@ -30,7 +30,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @var string|null Card number
      */
-    public ?string $number = null;
+    public ?string $cardNumber = null;
 
     /**
      * @var string|null Expiry month
@@ -69,7 +69,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     {
         parent::setAttributes($values, $safeOnly);
 
-        $this->number = preg_replace('/\D/', '', $values['number'] ?? '');
+        $this->cardNumber = preg_replace('/\D/', '', $values['cardNumber'] ?? '');
 
         if (isset($values['expiry'])) {
             $expiry = explode('/', $values['expiry']);
@@ -90,14 +90,14 @@ class CreditCardPaymentForm extends BasePaymentForm
     protected function defineRules(): array
     {
         return [
-            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
+            [['firstName', 'lastName', 'month', 'year', 'cvv', 'cardNumber'], 'required'],
             [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
             [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => (int)date('Y') + 12],
             [['cvv'], 'integer', 'integerOnly' => true],
             [['cvv'], 'string', 'length' => [3, 4]],
-            [['number'], 'integer', 'integerOnly' => true],
-            [['number'], 'string', 'max' => 19],
-            [['number'], 'creditCardLuhn'],
+            [['cardNumber'], 'integer', 'integerOnly' => true],
+            [['cardNumber'], 'string', 'max' => 19],
+            [['cardNumber'], 'creditCardLuhn'],
         ];
     }
 
