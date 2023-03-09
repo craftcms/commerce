@@ -326,7 +326,7 @@ trait OrderElementTrait
             $sources[] = ['heading' => $store->getName()];
 
             foreach ($orderStatuses as $orderStatus) {
-                $key = 'orderStatus:' . $orderStatus->handle;
+                $key = 'orderStatus:' . $orderStatus->handle . ':' . $store->handle;
                 $criteriaStatus = [
                     'storeId' => $store->id,
                     'orderStatusId' => $orderStatus->id,
@@ -348,7 +348,7 @@ trait OrderElementTrait
             }
 
             $sources[] = [
-                'key' => 'carts:active',
+                'key' => 'carts:active:' . $store->handle,
                 'label' => Craft::t('commerce', 'Active Carts'),
                 'criteria' => array_merge($criteriaActive, ['storeId' => $store->id]),
                 'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
@@ -359,7 +359,7 @@ trait OrderElementTrait
             ];
 
             $sources[] = [
-                'key' => 'carts:inactive',
+                'key' => 'carts:inactive:' . $store->handle,
                 'label' => Craft::t('commerce', 'Inactive Carts'),
                 'criteria' => array_merge($criteriaInactive, ['storeId' => $store->id]),
                 'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
@@ -370,7 +370,7 @@ trait OrderElementTrait
             ];
 
             $sources[] = [
-                'key' => 'carts:attempted-payment',
+                'key' => 'carts:attempted-payment:' . $store->handle,
                 'label' => Craft::t('commerce', 'Attempted Payments'),
                 'criteria' => array_merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
                 'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
