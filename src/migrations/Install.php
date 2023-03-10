@@ -334,6 +334,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::LINEITEMSTATUSES);
         $this->createTable(Table::LINEITEMSTATUSES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'color' => $this->enum('color', ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'])->notNull()->defaultValue('green'),
@@ -946,6 +947,7 @@ class Install extends Migration
         $this->createIndex(null, Table::LINEITEMS, 'purchasableId', false);
         $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
         $this->createIndex(null, Table::LINEITEMS, 'shippingCategoryId', false);
+        $this->createIndex(null, Table::LINEITEMSTATUSES, 'storeId', false);
         $this->createIndex(null, Table::ORDERADJUSTMENTS, 'orderId', false);
         $this->createIndex(null, Table::ORDERNOTICES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
@@ -1050,6 +1052,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, Table::LINEITEMSTATUSES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');

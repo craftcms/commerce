@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\Json;
@@ -228,9 +229,11 @@ class ProjectConfigData
     private static function _getLineItemStatusData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses() as $status) {
-            $data[$status->uid] = $status->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id) as $status) {
+                $data[$status->uid] = $status->getConfig();
+            }
+        });
         return $data;
     }
 

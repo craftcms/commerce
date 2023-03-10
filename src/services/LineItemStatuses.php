@@ -12,16 +12,20 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DefaultLineItemStatusEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\LineItemStatus;
+use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\ServerErrorHttpException;
 
@@ -57,49 +61,17 @@ class LineItemStatuses extends Component
     public const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
 
     /**
-     * @var bool
+     * @var array|null
+     * @since 5.0.0
      */
-    private bool $_fetchedAllStatuses = false;
-
-    /**
-     * @var LineItemStatus[]
-     */
-    private array $_lineItemStatusesById = [];
-
-    /**
-     * @var LineItemStatus[]
-     */
-    private array $_lineItemStatusesByHandle = [];
-
-    /**
-     * @var LineItemStatus|null
-     */
-    private ?LineItemStatus $_defaultLineItemStatus = null;
+    private ?array $_allLineItemStatuses = null;
 
     /**
      * Get line item status by its handle.
      */
-    public function getLineItemStatusByHandle(string $handle): ?LineItemStatus
+    public function getLineItemStatusByHandle(string $handle, ?int $storeId = null): ?LineItemStatus
     {
-        if (isset($this->_lineItemStatusesByHandle[$handle])) {
-            return $this->_lineItemStatusesByHandle[$handle];
-        }
-
-        if ($this->_fetchedAllStatuses) {
-            return null;
-        }
-
-        $result = $this->_createLineItemStatusesQuery()
-            ->andWhere(['handle' => $handle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeLineItemStatus(new LineItemStatus($result));
-
-        return $this->_lineItemStatusesByHandle[$handle];
+        return $this->getAllLineItemStatuses($storeId)->firstWhere('handle', $handle);
     }
 
     /**
@@ -107,35 +79,17 @@ class LineItemStatuses extends Component
      *
      * @noinspection PhpUnused
      */
-    public function getDefaultLineItemStatusId(): ?int
+    public function getDefaultLineItemStatusId(?int $storeId = null): ?int
     {
-        $defaultStatus = $this->getDefaultLineItemStatus();
-
-        if ($defaultStatus && $defaultStatus->id) {
-            return $defaultStatus->id;
-        }
-
-        return null;
+        return $this->getDefaultLineItemStatus($storeId)?->id;
     }
 
     /**
      * Get default lineItem status from the DB
      */
-    public function getDefaultLineItemStatus(): ?LineItemStatus
+    public function getDefaultLineItemStatus(?int $storeId = null): ?LineItemStatus
     {
-        if ($this->_defaultLineItemStatus !== null) {
-            return $this->_defaultLineItemStatus;
-        }
-
-        $result = $this->_createLineItemStatusesQuery()
-            ->andWhere(['default' => true])
-            ->one();
-
-        if ($result) {
-            $this->_defaultLineItemStatus = new LineItemStatus($result);
-        }
-
-        return $this->_defaultLineItemStatus;
+        return $this->getAllLineItemStatuses($storeId)->firstWhere('default', true);
     }
 
     /**
@@ -144,7 +98,11 @@ class LineItemStatuses extends Component
      */
     public function getDefaultLineItemStatusForLineItem(LineItem $lineItem): ?LineItemStatus
     {
-        $lineItemStatus = $this->getDefaultLineItemStatus();
+        if (!$order = $lineItem->getOrder()) {
+            return null;
+        }
+
+        $lineItemStatus = $this->getDefaultLineItemStatus($order->getStore()->id);
 
         $event = new DefaultLineItemStatusEvent();
         $event->lineItemStatus = $lineItemStatus;
@@ -164,7 +122,7 @@ class LineItemStatuses extends Component
      */
     public function saveLineItemStatus(LineItemStatus $lineItemStatus, bool $runValidation = true): bool
     {
-        $isNewStatus = !(bool)$lineItemStatus->id;
+        $isNewStatus = !$lineItemStatus->id;
 
         if ($runValidation && !$lineItemStatus->validate()) {
             Craft::info('Line item status not saved due to validation error.', __METHOD__);
@@ -179,7 +137,8 @@ class LineItemStatuses extends Component
         }
 
         // Make sure no statuses that are not archived share the handle
-        $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle);
+        // @TODO can this be removed now it is handled by validation?
+        $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle, $lineItemStatus->storeId);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
             $lineItemStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
@@ -219,7 +178,9 @@ class LineItemStatuses extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $statusRecord = $this->_getLineItemStatusRecord($statusUid);
+            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
+            $statusRecord->storeId = $store->id;
             $statusRecord->name = $data['name'];
             $statusRecord->handle = $data['handle'];
             $statusRecord->color = $data['color'];
@@ -231,7 +192,10 @@ class LineItemStatuses extends Component
             $statusRecord->save(false);
 
             if ($statusRecord->default) {
-                LineItemStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
+                // Reset all defaults in store
+                LineItemStatusRecord::updateAll(['default' => 0], ['storeId' => $statusRecord->storeId]);
+                // Set this one as default
+                LineItemStatusRecord::updateAll(['default' => 1], ['id' => $statusRecord->id]);
             }
 
             $transaction->commit();
@@ -246,9 +210,9 @@ class LineItemStatuses extends Component
      *
      * @throws Throwable
      */
-    public function archiveLineItemStatusById(int $id): bool
+    public function archiveLineItemStatusById(int $id, ?int $storeId = null): bool
     {
-        $status = $this->getLineItemStatusById($id);
+        $status = $this->getLineItemStatusById($id, $storeId);
         if ($status) {
             $status->isArchived = true;
             return $this->saveLineItemStatus($status);
@@ -288,48 +252,48 @@ class LineItemStatuses extends Component
     /**
      * Returns all Order Statuses
      *
-     * @return LineItemStatus[]
+     * @param int|null $storeId
+     * @return Collection<LineItemStatus>
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      */
-    public function getAllLineItemStatuses(): array
+    public function getAllLineItemStatuses(?int $storeId = null): Collection
     {
-        if (!$this->_fetchedAllStatuses) {
-            $results = $this->_createLineItemStatusesQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            foreach ($results as $row) {
-                $status = new LineItemStatus($row);
-                $this->_memoizeLineItemStatus($status);
+        if ($this->_allLineItemStatuses === null || !isset($this->_allLineItemStatuses[$storeId])) {
+            $results = $this->_createLineItemStatusesQuery()
+                ->andWhere(['storeId' => $storeId])
+                ->all();
+
+            // Start with a blank slate if it isn't memoized
+            if ($this->_allLineItemStatuses === null) {
+                $this->_allLineItemStatuses = [];
             }
 
-            $this->_fetchedAllStatuses = true;
+            foreach ($results as $result) {
+                $lineItemStatus = Craft::createObject([
+                    'class' => LineItemStatus::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allLineItemStatuses[$lineItemStatus->storeId])) {
+                    $this->_allLineItemStatuses[$lineItemStatus->storeId] = collect();
+                }
+
+                $this->_allLineItemStatuses[$lineItemStatus->storeId]->push($lineItemStatus);
+            }
         }
 
-        return $this->_lineItemStatusesById;
+        return $this->_allLineItemStatuses[$storeId] ?? collect();
     }
 
     /**
      * Get a line item status by ID
      */
-    public function getLineItemStatusById(int $id): ?LineItemStatus
+    public function getLineItemStatusById(int $id, ?int $storeId = null): ?LineItemStatus
     {
-        if (isset($this->_lineItemStatusesById[$id])) {
-            return $this->_lineItemStatusesById[$id];
-        }
-
-        if ($this->_fetchedAllStatuses) {
-            return null;
-        }
-
-        $result = $this->_createLineItemStatusesQuery()
-            ->andWhere(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeLineItemStatus(new LineItemStatus($result));
-
-        return $this->_lineItemStatusesById[$id];
+        return $this->getAllLineItemStatuses($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -358,16 +322,6 @@ class LineItemStatuses extends Component
         return true;
     }
 
-
-    /**
-     * Memoize an line item status by its ID and handle.
-     */
-    private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus): void
-    {
-        $this->_lineItemStatusesById[$lineItemStatus->id] = $lineItemStatus;
-        $this->_lineItemStatusesByHandle[$lineItemStatus->handle] = $lineItemStatus;
-    }
-
     /**
      * Returns a Query object prepped for retrieving line item statuses
      */
@@ -381,6 +335,7 @@ class LineItemStatuses extends Component
                 'id',
                 'name',
                 'sortOrder',
+                'storeId',
                 'uid',
             ])
             ->where(['isArchived' => false])
@@ -407,9 +362,6 @@ class LineItemStatuses extends Component
      */
     public function _clearCaches(): void
     {
-        $this->_defaultLineItemStatus = null;
-        $this->_fetchedAllStatuses = false;
-        $this->_lineItemStatusesById = [];
-        $this->_lineItemStatusesByHandle = [];
+        $this->_allLineItemStatuses = null;
     }
 }

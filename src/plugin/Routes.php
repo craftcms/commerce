@@ -91,8 +91,8 @@ trait Routes
             $event->rules['commerce/settings/orderstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/order-statuses/edit';
 
             $event->rules['commerce/settings/lineitemstatuses'] = 'commerce/line-item-statuses/index';
-            $event->rules['commerce/settings/lineitemstatuses/new'] = 'commerce/line-item-statuses/edit';
-            $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
+            $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/new'] = 'commerce/line-item-statuses/edit';
+            $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
             $event->rules['commerce/store-settings'] = 'commerce/store-settings/edit'; // Redirects to the first store

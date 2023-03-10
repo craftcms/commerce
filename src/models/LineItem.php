@@ -252,7 +252,7 @@ class LineItem extends Model
     {
         if (!isset($this->_lineItemStatus) && isset($this->lineItemStatusId)) {
             $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
-            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
+            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId, $this->getOrder()?->getStore()->id);
         }
 
         return $this->_lineItemStatus;
