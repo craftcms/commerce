@@ -73,10 +73,22 @@ class OrderStatusesController extends BaseAdminController
             }
         }
 
+        $variables['statusColors'] = ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+
         if ($variables['orderStatus']->id) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new order status');
+
+            $statusColors = $variables['statusColors'];
+            Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->each(function(OrderStatus $status) use (&$statusColors) {
+                $key = array_search($status->color, $statusColors, true);
+                if ($key !== false) {
+                    unset($statusColors[$key]);
+                }
+            });
+
+            $variables['nextAvailableColor'] = !empty($statusColors) ? array_shift($statusColors) : 'green';
         }
 
         DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);

@@ -52,22 +52,23 @@
         errors: orderStatus.getErrors('description'),
     }) }}
 
+    {% set statusColor = not orderStatus.id and nextAvailableColor is defined and nextAvailableColor and not orderStatus.hasErrors() ? nextAvailableColor : orderStatus.color %}
     {{ forms.hidden({
         id: 'color',
         name: 'color',
-        value: orderStatus.color
+        value: statusColor,
     }) }}
 
     {% set colorField %}
         <div>
             <a id="color-menu-btn" class="btn menubtn" href="#">
-                <span class="status {{ orderStatus.color }}"></span>{{ orderStatus.color|t('commerce')|title }}
+                <span class="status {{ statusColor }}"></span>{{ statusColor|t('commerce')|title }}
             </a>
             <div class="menu">
                 <ul class="padded">
-                    {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
+                    {% for color in statusColors %}
                         <li>
-                            <a data-val="{{ color }}" {% if orderStatus.color == color %}class="sel"{% endif %} href="#">
+                            <a data-val="{{ color }}" {% if statusColor == color %}class="sel"{% endif %} href="#">
                                 <span class="status {{ color }}"></span>{{ color|t('commerce')|title }}
                             </a>
                         </li>
