@@ -117,7 +117,7 @@ class OrderStatus extends Model
             [['handle'],
                 UniqueValidator::class,
                 'targetClass' => OrderStatusRecord::class,
-                'targetAttribute' => ['name', 'storeId'],
+                'targetAttribute' => ['handle', 'storeId'],
                 'message' => '{attribute} "{value}" has already been taken.',
             ],
             [
