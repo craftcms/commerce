@@ -322,7 +322,7 @@ trait OrderElementTrait
             if (empty($orderStatuses)) {
                 continue;
             }
-            // $sources[] = ['heading' => Craft::t('site', $store->getName())];
+
             $sources[] = ['heading' => $store->getName()];
 
             foreach ($orderStatuses as $orderStatus) {
@@ -380,8 +380,6 @@ trait OrderElementTrait
                 ],
             ];
         }
-
-
 
         return $sources;
     }
