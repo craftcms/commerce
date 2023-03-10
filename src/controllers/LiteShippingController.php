@@ -62,8 +62,8 @@ class LiteShippingController extends BaseStoreSettingsController
         $this->requirePostRequest();
 
         $settings = new LiteShippingSettings();
-        $settings->shippingPerItemRate = $this->request->getBodyParam('shippingPerItemRate');
-        $settings->shippingBaseRate = $this->request->getBodyParam('shippingBaseRate');
+        $settings->shippingPerItemRate = $this->request->getBodyParam('shippingPerItemRate') ?: 0;
+        $settings->shippingBaseRate = $this->request->getBodyParam('shippingBaseRate') ?: 0;
 
         if (!$settings->validate()) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping settings.'));
