@@ -433,7 +433,10 @@ class CartController extends BaseFrontEndController
             // $fields will be null so
             if ($submittedFields = $this->request->getBodyParam('fields')) {
                 $this->_cart->setScenario(Element::SCENARIO_LIVE);
-                $customFieldAttributes = array_keys($submittedFields);
+                $customFieldAttributes = array_map(
+                    fn($value) => 'field:'.$value,
+                    array_keys($submittedFields)
+                );
             }
         }
 
