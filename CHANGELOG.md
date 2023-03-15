@@ -7,6 +7,8 @@
 - Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
 - Fixed a bug where saving an empty tax name on Commerce Lite throws a validation error. ([#3089](https://github.com/craftcms/commerce/issues/3089))
 - Fixed a bug where saving an empty shipping base and item rate on Commerce Lite throws a PHP error. 
+- Ajax requests to`commerce/payments/pay` actions now includes `redirectData` data in their response.
+- Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
 
 ## 4.2.5.1 - 2023-02-02
 
