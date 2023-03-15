@@ -17,21 +17,21 @@ use craft\elements\User;
 use yii\base\NotSupportedException;
 
 /**
- * Logged In Condition Rule
+ * Signed In Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.6
  *
  * @property null|array|OrderCondition $orderCondition
  */
-class LoggedInConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
+class SignedInConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
     /**
      * @inheritdoc
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Logged In');
+        return Craft::t('app', 'Signed In');
     }
 
     /**
@@ -47,7 +47,7 @@ class LoggedInConditionRule extends BaseLightswitchConditionRule implements Elem
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        throw new NotSupportedException('Logged in condition rule does not support element queries.');
+        throw new NotSupportedException('Signed in condition rule does not support element queries.');
     }
 
     /**

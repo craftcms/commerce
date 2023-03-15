@@ -3,10 +3,10 @@
 ## Unreleased
 
 ### Store Management
-- Discounts’ “Match Customer” conditions can now have a “Logged In” rule.
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
 
 ### Extensibility
-- Added `craft\commmerce\elements\conditions\customer\LoggedInConditionRule`.
+- Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
 
 ### System
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))

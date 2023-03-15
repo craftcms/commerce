@@ -548,7 +548,6 @@ return [
     'Link to a variant' => 'Link to a variant',
     'Link' => 'Link',
     'Live' => 'Live',
-    'Logged In' => 'Logged In',
     'MM' => 'MM',
     'Make a payment' => 'Make a payment',
     'Manage All Shipping Categories' => 'Manage All Shipping Categories',
