@@ -434,7 +434,7 @@ class CartController extends BaseFrontEndController
             if ($submittedFields = $this->request->getBodyParam('fields')) {
                 $this->_cart->setScenario(Element::SCENARIO_LIVE);
                 $customFieldAttributes = array_map(
-                    fn($value) => 'field:'.$value,
+                    fn($value) => 'field:' . $value,
                     array_keys($submittedFields)
                 );
             }
