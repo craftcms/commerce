@@ -364,6 +364,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         $redirect = '';
+        $redirectData = [];
         $transaction = null;
         $paymentForm->validate();
 
@@ -403,7 +404,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
-                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
+                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
                 $success = true;
             } catch (PaymentException $exception) {
                 $error = $exception->getMessage();
@@ -438,6 +439,7 @@ class PaymentsController extends BaseFrontEndController
                 [
                     $this->_cartVariableName => $this->cartArray($order),
                     'redirect' => $redirect,
+                    'redirectData' => $redirectData,
                     'transactionId' => $transaction->reference ?? null,
                     'transactionHash' => $transaction->hash ?? null,
                 ],
