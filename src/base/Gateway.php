@@ -42,7 +42,9 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * @return true
+     * Shows the payment button on the payment form.
+     *
+     * @return bool
      */
     public function showPaymentFormSubmitButton(): bool
     {
