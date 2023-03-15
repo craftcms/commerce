@@ -42,6 +42,14 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * @return true
+     */
+    public function showPaymentFormSubmitButton(): bool
+    {
+        return true;
+    }
+
+    /**
      * Returns the webhook url for this gateway.
      *
      * @param array $params Parameters for the url.

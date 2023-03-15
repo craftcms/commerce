@@ -68,8 +68,26 @@
               {{ hiddenInput('gatewayId', cart.gatewayId) }}
               {% set params = {} %}
 
+              {# Special params for Paypal checkout #}
               {% if className(cart.gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
                 {% set params = { currency: cart.paymentCurrency } %}
+              {% endif %}
+
+              {# Special params for Stripe Elements and Checkout#}
+              {# see https://stripe.com/docs/elements/appearance-api #}
+              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntentsElementsCheckout' %}
+                {% set params = {
+                  paymentFormType : 'elements',
+                  appearance: {
+                    theme: 'stripe'
+                  },
+                  layout: {
+                    type: 'tabs',
+                    defaultCollapsed: false,
+                    radios: false,
+                    spacedAccordionItems: false
+                  }
+                } %}
               {% endif %}
 
               <div class="gateway-payment-form max-w-3/4">
@@ -110,9 +128,7 @@
 
             {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
 
-            {% if className(cart.gateway) not in [
-              'craft\\commerce\\paypalcheckout\\gateways\\Gateway',
-            ] %}
+            {% if cart.gateway.showPaymentFormSubmitButton() %}
               <div class="mt-3 text-right">
                 {{ tag('button', {
                   type: 'submit',
