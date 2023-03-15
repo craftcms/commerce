@@ -7,6 +7,7 @@
 - Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
 - Ajax requests to`commerce/payments/pay` actions now includes `redirectData` data in their response.
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
+- Fixed a bug where custom field validation doesn't work when updating a cart. ([#3109](https://github.com/craftcms/commerce/issues/3109))
 
 ## 4.2.5.1 - 2023-02-02
 
