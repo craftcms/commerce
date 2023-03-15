@@ -77,7 +77,6 @@
               {# see https://stripe.com/docs/elements/appearance-api #}
               {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntentsElementsCheckout' %}
                 {% set params = {
-                  paymentFormType : 'elements',
                   appearance: {
                     theme: 'stripe'
                   },

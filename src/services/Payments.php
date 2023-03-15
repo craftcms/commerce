@@ -458,9 +458,10 @@ class Payments extends Component
             ]));
         }
 
+        $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $mutex->release($transactionLockName);
-            $this->_handleRedirect($response, $redirect);
+            $this->_handleRedirect($response, $redirect, $redirectData);
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }

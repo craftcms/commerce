@@ -129,7 +129,7 @@
                   {% endtag %}
 
                   {% set paymentSources = craft.commerce.getPaymentSources()
-                    .getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
+                    .getAllGatewayPaymentSourcesByCustomerId(plan.gateway.id, currentUser.id ?? null) %}
 
                   {% if not paymentSources|length %}
                     <div class="paymentForm mt-3">
