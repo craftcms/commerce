@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Store Management
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
+
+### Extensibility
+- Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
+
+### System
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
 - Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
 - Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
