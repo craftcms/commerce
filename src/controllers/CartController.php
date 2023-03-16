@@ -7,6 +7,8 @@
 
 namespace craft\commerce\controllers;
 
+use Composer\Semver\Comparator;
+use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
@@ -433,10 +435,20 @@ class CartController extends BaseFrontEndController
             // $fields will be null so
             if ($submittedFields = $this->request->getBodyParam('fields')) {
                 $this->_cart->setScenario(Element::SCENARIO_LIVE);
-                $customFieldAttributes = array_map(
-                    fn($value) => 'field:' . $value,
-                    array_keys($submittedFields)
-                );
+
+                $vp = new VersionParser();
+                $currentCraftVersion = $vp->normalize(Craft::$app->getVersion());
+                $v44 = $vp->normalize('4.4.0');
+
+                // since Craft 4.4.0, custom fields passed to Element::validate() need to be prepended with 'field:'
+                if (Comparator::greaterThanOrEqualTo($currentCraftVersion, $v44)) {
+                    $customFieldAttributes = array_map(
+                        fn($value) => 'field:' . $value,
+                        array_keys($submittedFields)
+                    );
+                } else {
+                    $customFieldAttributes = array_keys($submittedFields);
+                }
             }
         }
 
