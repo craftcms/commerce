@@ -8,14 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
-use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\base\ErrorException;
 use yii\base\Exception;
