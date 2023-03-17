@@ -8,12 +8,14 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\base\ErrorException;
 use yii\base\Exception;
@@ -164,8 +166,14 @@ class EmailsController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $id = $this->request->getRequiredBodyParam('id');
+        if (!$id) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t delete email.'));
+        }
 
-        Plugin::getInstance()->getEmails()->deleteEmailById($id);
+        if (!Plugin::getInstance()->getEmails()->deleteEmailById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t delete email.'));
+        }
+
         return $this->asSuccess();
     }
 }
