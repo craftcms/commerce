@@ -8,9 +8,11 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\UrlHelper;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -26,6 +28,8 @@ use yii\base\InvalidConfigException;
  */
 class Email extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -143,6 +147,26 @@ class Email extends Model
                     return $model->recipientType == EmailRecord::TYPE_CUSTOM;
                 },
             ],
+            [
+                [
+                    'bcc',
+                    'cc',
+                    'enabled',
+                    'id',
+                    'language',
+                    'name',
+                    'pdfId',
+                    'plainTextTemplatePath',
+                    'recipientType',
+                    'replyTo',
+                    'storeId',
+                    'subject',
+                    'templatePath',
+                    'to',
+                    'uid',
+                ],
+                'safe'
+            ],
         ];
     }
 
@@ -166,6 +190,7 @@ class Email extends Model
     public function getConfig(): array
     {
         $config = [
+            'store' => $this->getStore()->uid,
             'name' => $this->name,
             'subject' => $this->subject,
             'recipientType' => $this->recipientType,
@@ -184,5 +209,15 @@ class Email extends Model
         }
 
         return $config;
+    }
+
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/settings/emails/' . $this->getStore()->handle. '/' . $this->id);
     }
 }

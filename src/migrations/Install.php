@@ -248,6 +248,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::EMAILS);
         $this->createTable(Table::EMAILS, [
             'id' => $this->primaryKey(),
+            'store' => $this->integer(),
             'name' => $this->string()->notNull(),
             'subject' => $this->string()->notNull(),
             'recipientType' => $this->enum('recipientType', ['customer', 'custom'])->defaultValue('custom'),
@@ -940,6 +941,7 @@ class Install extends Migration
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateFrom', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
+        $this->createIndex(null, Table::EMAILS, 'storeId', false);
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
         $this->createIndex(null, Table::GATEWAYS, 'isArchived', false);
         $this->createIndex(null, Table::GATEWAYS, 'storeId', false);
@@ -1046,8 +1048,9 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::GATEWAYS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::GATEWAYS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');

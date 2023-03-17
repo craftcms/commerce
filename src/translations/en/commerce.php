@@ -410,6 +410,7 @@ return [
     'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}' => 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}',
     'Email “{email}” for order {order} was cancelled.' => 'Email “{email}” for order {order} was cancelled.',
     'Email' => 'Email',
+    'Email unavailable.' => 'Email unavailable.',
     'Emails' => 'Emails',
     'Enable if this rate should be built into the taxable subject price instead of adding a cost to the order.' => 'Enable if this rate should be built into the taxable subject price instead of adding a cost to the order.',
     'Enable this discount' => 'Enable this discount',

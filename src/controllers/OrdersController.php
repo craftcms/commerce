@@ -718,15 +718,14 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Bad Request'));
         }
 
-        $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
-
-        if ($email === null || !$email->enabled) {
-            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
-        }
-
         if ($order === null) {
             return $this->asFailure(Craft::t('commerce', 'Can not find order'));
+        }
+
+        $email = Plugin::getInstance()->getEmails()->getEmailById($id, $order->id);
+        if ($email === null || !$email->enabled) {
+            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         // Set language by email's set locale
@@ -1195,7 +1194,7 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
+        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($variables['order']->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];

@@ -205,9 +205,11 @@ class ProjectConfigData
     private static function _getEmailData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getEmails()->getAllEmails() as $email) {
-            $data[$email->uid] = $email->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getEmails()->getAllEmails($store->id) as $email) {
+                $data[$email->uid] = $email->getConfig();
+            }
+        });
         return $data;
     }
 

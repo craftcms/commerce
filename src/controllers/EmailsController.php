@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
@@ -36,8 +37,15 @@ class EmailsController extends BaseAdminController
      */
     public function actionIndex(): Response
     {
-        $emails = Plugin::getInstance()->getEmails()->getAllEmails();
-        return $this->renderTemplate('commerce/settings/emails/index', compact('emails'));
+        $emails = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        $stores->each(function(Store $store) use (&$emails) {
+            $emails[$store->handle] = Plugin::getInstance()->getEmails()->getAllEmails($store->id);;
+        });
+        $stores = $stores->all();
+
+        return $this->renderTemplate('commerce/settings/emails/index', compact('emails', 'stores'));
     }
 
     /**
@@ -45,19 +53,26 @@ class EmailsController extends BaseAdminController
      * @param Email|null $email
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Email $email = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, Email $email = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('email', 'id');
 
         if (!$variables['email']) {
             if ($variables['id']) {
-                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id']);
+                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id'], $store->id);
 
                 if (!$variables['email']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['email'] = new Email();
+                $variables['email'] = Craft::createObject([
+                    'class' => Email::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -96,9 +111,14 @@ class EmailsController extends BaseAdminController
 
         $emailsService = Plugin::getInstance()->getEmails();
         $emailId = $this->request->getBodyParam('emailId');
+        $storeId = $this->request->getBodyParam('storeId');
+
+        if (!$storeId) {
+            throw new BadRequestHttpException("Invalid store ID: $storeId");
+        }
 
         if ($emailId) {
-            $email = $emailsService->getEmailById($emailId);
+            $email = $emailsService->getEmailById($emailId, $storeId);
             if (!$email) {
                 throw new BadRequestHttpException("Invalid email ID: $emailId");
             }
@@ -107,6 +127,7 @@ class EmailsController extends BaseAdminController
         }
 
         // Shared attributes
+        $email->storeId = $storeId;
         $email->name = $this->request->getBodyParam('name');
         $email->subject = $this->request->getBodyParam('subject');
         $email->recipientType = $this->request->getBodyParam('recipientType');

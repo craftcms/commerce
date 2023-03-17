@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\helpers\DebugPanel;
+use craft\commerce\models\Email;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -93,8 +94,7 @@ class OrderStatusesController extends BaseAdminController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['orderStatus'], prepend: true);
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEmails();
-        $variables['emails'] = ArrayHelper::map($emails, 'id', 'name');
+        $variables['emails'] = Plugin::getInstance()->getEmails()->getAllEmails($store->id)->mapWithKeys(fn(Email $email) => [$email->id => $email->name])->all();
 
         return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
