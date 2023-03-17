@@ -173,7 +173,7 @@ class OrderStatusesController extends BaseAdminController
         $orderStatusId = $this->request->getRequiredParam('id');
 
         if (!$orderStatusId) {
-            $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
         }
 
         $storeId = (new Query())->from(Table::ORDERSTATUSES)->select(['storeId'])->where(['id' => $orderStatusId])->scalar();
