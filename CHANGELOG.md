@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+### Store Management
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
 - Ajax requests to`commerce/payments/pay` actions now includes `redirectData` data in their response.
+
+### Extensibility
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
+- Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
+
+### System
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
 - Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
 - Fixed a bug where order custom fields weren’t validating. ([#3109](https://github.com/craftcms/commerce/issues/3109))
