@@ -15,6 +15,7 @@
 - Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
 - Fixed a bug where order custom fields weren’t validating. ([#3109](https://github.com/craftcms/commerce/issues/3109))
 - Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
+- Fixed a bug where the update order status action flash message displayed incorrectly. ([#3116](https://github.com/craftcms/commerce/issues/3116))
 
 ## 4.2.5.1 - 2023-02-02
 
