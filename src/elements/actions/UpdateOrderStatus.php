@@ -109,9 +109,9 @@ EOT;
         }
 
         if ($failureCount > 0) {
-            $message = Craft::t('commerce', 'Failed updating order status on {num, plural, =1{order}, other{orders}}.', ['num' => $failureCount]);
+            $message = Craft::t('commerce', 'Failed updating order status on {num, plural, =1{Order} other{Orders}}.', ['num' => $failureCount]);
             if ($orderCount === $failureCount) {
-                $message = Craft::t('commerce', 'Failed to update {num, plural, =1{order status}, other{order statuses}}.', ['num' => $failureCount]);
+                $message = Craft::t('commerce', 'Failed to update {num, plural, =1{order status} other{order statuses}}.', ['num' => $failureCount]);
             }
 
             $this->setMessage($message);
