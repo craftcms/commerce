@@ -41,7 +41,7 @@ class EmailsController extends BaseAdminController
         $stores = Plugin::getInstance()->getStores()->getAllStores();
 
         $stores->each(function(Store $store) use (&$emails) {
-            $emails[$store->handle] = Plugin::getInstance()->getEmails()->getAllEmails($store->id);;
+            $emails[$store->handle] = Plugin::getInstance()->getEmails()->getAllEmails($store->id);
         });
         $stores = $stores->all();
 
