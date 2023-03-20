@@ -12,8 +12,9 @@ use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
+use yii\queue\RetryableJobInterface;
 
-class SendEmail extends BaseJob
+class SendEmail extends BaseJob implements RetryableJobInterface
 {
     /**
      * @var int Order ID
@@ -34,7 +35,6 @@ class SendEmail extends BaseJob
      * @var int the order history ID
      */
     public int $orderHistoryId;
-
 
     public function execute($queue): void
     {
@@ -57,6 +57,10 @@ class SendEmail extends BaseJob
         $this->setProgress($queue, 1);
     }
 
+    public function canRetry($attempt, $error)
+    {
+        return $attempt < 5;
+    }
 
     protected function defaultDescription(): ?string
     {
