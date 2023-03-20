@@ -57,7 +57,12 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         $this->setProgress($queue, 1);
     }
 
-    public function canRetry($attempt, $error)
+    public function getTtr(): int
+    {
+        return 60;
+    }
+
+    public function canRetry($attempt, $error): bool
     {
         return $attempt < 5;
     }
