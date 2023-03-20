@@ -31,6 +31,23 @@
                             <ul v-html="address.html"></ul>
                         </label>
                     </div>
+
+                    <div
+                        class="order-edit-modal-load-more"
+                        v-if="isLoadMoreVisible"
+                    >
+                        <div>
+                            <btn-link button-class="btn" @click="loadMore">
+                                {{
+                                    $options.filters.t('Load more', 'commerce')
+                                }}
+                            </btn-link>
+                            <div
+                                class="spinner"
+                                :class="{hidden: !isLoadingMore}"
+                            ></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="footer">
                     <div class="buttons right">
@@ -59,6 +76,7 @@
     /* global Garnish, Craft */
     import {mapGetters} from 'vuex';
     import _find from 'lodash.find';
+    import customer from './Customer.vue';
 
     export default {
         props: {
@@ -76,13 +94,19 @@
             return {
                 addresses: [],
                 isVisible: false,
+                isLoadingMore: false,
                 modal: null,
+                perPage: 15,
+                page: 1,
                 save: false,
                 selectedAddress: null,
             };
         },
 
         computed: {
+            customer() {
+                return customer;
+            },
             ...mapGetters([]),
 
             isDoneDisabled() {
@@ -106,6 +130,17 @@
 
                 return true;
             },
+
+            isLoadMoreVisible() {
+                if (
+                    this.$store.state.draft.order.customer.totalAddresses ==
+                    this.addresses.length
+                ) {
+                    return false;
+                }
+
+                return true;
+            },
         },
 
         methods: {
@@ -123,6 +158,9 @@
 
                         $this.save = false;
                     },
+                    onShow() {
+                        console.log($this.addresses, 'on show');
+                    },
                 });
             },
 
@@ -133,6 +171,8 @@
 
                 const data = {
                     id: this.customerId,
+                    page: this.page,
+                    per_page: this.perPage,
                 };
 
                 Craft.sendActionRequest(
@@ -141,13 +181,26 @@
                     {data}
                 )
                     .then((response) => {
-                        this.addresses = response.data.addresses;
+                        this.addresses = [
+                            ...this.addresses,
+                            ...response.data.addresses,
+                        ];
+
+                        console.log(this.addresses);
                     })
                     .finally(() => {
                         if (this.modal) {
                             this.modal.updateSizeAndPosition();
                         }
+                        this.isLoadingMore = false;
                     });
+            },
+
+            loadMore() {
+                this.isLoadingMore = true;
+                this.page++;
+
+                this.getAddresses();
             },
 
             open() {
@@ -168,6 +221,7 @@
 
                 if (this.isVisible) {
                     this.modal.hide();
+                    this.modal = null;
                 }
             },
 
@@ -180,7 +234,13 @@
         watch: {
             customerId(newId, oldId) {
                 if (newId !== oldId) {
-                    this.getAddresses();
+                    console.log('reset addresses');
+                    this.addresses = [];
+
+                    if (newId) {
+                        console.log('get new addresses');
+                        this.getAddresses();
+                    }
                 }
             },
         },
@@ -213,6 +273,23 @@
 
         .address-card-header-actions {
             display: none;
+        }
+    }
+
+    .order-edit-modal-load-more {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        div {
+            position: relative;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            right: -34px;
+            transform: translateY(-50%);
         }
     }
 </style>
