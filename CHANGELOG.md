@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.20.1 - 2023-03-21
 
 ### Fixed
 - Fixed a PHP error that occurred when using a third party shipping method. ([#3093])(https://github.com/craftcms/commerce/issues/3093)
