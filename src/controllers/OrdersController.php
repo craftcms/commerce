@@ -135,7 +135,7 @@ class OrdersController extends Controller
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
+        if (!Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
 

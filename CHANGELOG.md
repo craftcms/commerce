@@ -20,6 +20,7 @@
 - Ajax requests to`commerce/payments/pay` actions now includes `redirectData` data in their response.
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
 - Fixed a bug where the update order status action flash message displayed incorrectly. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where creating manual orders in the CP throws an exception error. ([#3115](https://github.com/craftcms/commerce/issues/3115))
 
 ## 4.2.5.1 - 2023-02-02
 
