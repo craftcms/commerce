@@ -191,6 +191,7 @@ return [
     'Couldn’t archive Order Status.' => 'Couldn’t archive Order Status.',
     'Couldn’t capture transaction.' => 'Couldn’t capture transaction.',
     'Couldn’t capture transaction: {message}' => 'Couldn’t capture transaction: {message}',
+    'Couldn’t delete email.' => 'Couldn’t delete email.',
     'Couldn’t delete product.' => 'Couldn’t delete product.',
     'Couldn’t delete the payment source.' => 'Couldn’t delete the payment source.',
     'Couldn’t duplicate product.' => 'Couldn’t duplicate product.',

@@ -26,6 +26,7 @@ use craft\helpers\StringHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -205,57 +206,72 @@ class Pdfs extends Component
     public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
-     * @return array|null
+     * @return Collection<Pdf>|null
      * @since 3.2
      */
-    public function getAllPdfs(): ?array
+    public function getAllPdfs(?int $storeId = null): Collection
     {
-        if ($this->_allPdfs === null) {
-            $pdfResults = $this->_createPdfsQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            $this->_allPdfs = [];
+        if ($this->_allPdfs === null || !isset($this->_allPdfs[$storeId])) {
+            $results = $this->_createPdfsQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
 
-            foreach ($pdfResults as $result) {
-                $this->_allPdfs[] = new Pdf($result);
+            // Start with a blank slate if it isn't memoized, or we're fetching all shipping categories
+            if ($this->_allPdfs === null) {
+                $this->_allPdfs = [];
+            }
+
+            foreach ($results as $result) {
+                $pdf = Craft::createObject([
+                    'class' => Pdf::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allPdfs[$pdf->storeId])) {
+                    $this->_allPdfs[$pdf->storeId] = collect();
+                }
+
+                $this->_allPdfs[$pdf->storeId]->push($pdf);
             }
         }
 
-        return $this->_allPdfs;
+        return $this->_allPdfs[$storeId] ?? collect();
     }
 
     /**
      * @since 3.2
      */
-    public function getHasEnabledPdf(): bool
+    public function getHasEnabledPdf(?int $storeId = null): bool
     {
-        $pdfs = $this->getAllPdfs();
-        return ArrayHelper::contains($pdfs, 'enabled', true);
+        return $this->getAllPdfs($storeId)->contains('enabled', true);
     }
 
     /**
-     * @return Pdf[]
+     * @param int|null $storeId
+     * @return Collection<Pdf>
      * @since 3.2
      */
-    public function getAllEnabledPdfs(): array
+    public function getAllEnabledPdfs(?int $storeId = null): Collection
     {
-        $pdfs = $this->getAllPdfs();
-        return ArrayHelper::where($pdfs, 'enabled', true);
-    }
-
-    /**
-     * @since 3.2
-     */
-    public function getDefaultPdf(): ?Pdf
-    {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'isDefault', true);
+        return $this->getAllPdfs($storeId)->where('enabled', true);
     }
 
     /**
      * @since 3.2
      */
-    public function getPdfByHandle(string $handle): ?Pdf
+    public function getDefaultPdf(?int $storeId = null): ?Pdf
     {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
+        return $this->getAllPdfs($storeId)->firstWhere('isDefault', true);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public function getPdfByHandle(string $handle, ?int $storeId = null): ?Pdf
+    {
+        return $this->getAllPdfs($storeId)->firstWhere('handle', $handle);
     }
 
     /**
@@ -263,9 +279,9 @@ class Pdfs extends Component
      *
      * @since 3.2
      */
-    public function getPdfById(int $id): ?Pdf
+    public function getPdfById(int $id, ?int $storeId = null): ?Pdf
     {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
+        return $this->getAllPdfs($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -324,7 +340,9 @@ class Pdfs extends Component
         try {
             $pdfRecord = $this->_getPdfRecord($pdfUid);
             $isNewPdf = $pdfRecord->getIsNewRecord();
+            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
+            $pdfRecord->storeId = $store->id;
             $pdfRecord->name = $data['name'];
             $pdfRecord->handle = $data['handle'];
             $pdfRecord->description = $data['description'];
@@ -340,7 +358,10 @@ class Pdfs extends Component
             $pdfRecord->save(false);
 
             if ($pdfRecord->isDefault) {
-                PdfRecord::updateAll(['isDefault' => false], ['not', ['id' => $pdfRecord->id]]);
+                PdfRecord::updateAll(['isDefault' => false], ['and',
+                    ['not', ['id' => $pdfRecord->id]],
+                    ['storeId' => $pdfRecord->storeId],
+                ]);
             }
 
             $transaction->commit();
@@ -352,7 +373,7 @@ class Pdfs extends Component
         // Fire a 'afterSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
             $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfEvent([
-                'pdf' => $this->getPdfById($pdfRecord->id),
+                'pdf' => $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
                 'isNew' => $isNewPdf,
             ]));
         }
@@ -367,13 +388,13 @@ class Pdfs extends Component
      */
     public function deletePdfById(int $id): bool
     {
-        $pdf = $this->getPdfById($id);
+        $pdf = PdfRecord::findOne($id);
 
         if ($pdf) {
             // Fire a 'beforeDeletePdf' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
-                    'pdf' => $pdf,
+                    'pdf' => $this->getPdfById($pdf->id, $pdf->storeId),
                 ]));
             }
             Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
@@ -411,6 +432,7 @@ class Pdfs extends Component
     public function reorderPdfs(array $ids): bool
     {
         // TODO Add event
+        // @TODO make reordering consistent across features
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -593,6 +615,7 @@ class Pdfs extends Component
                 'language',
                 'name',
                 'sortOrder',
+                'storeId',
                 'templatePath',
                 'uid',
             ])

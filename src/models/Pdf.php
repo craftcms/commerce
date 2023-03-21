@@ -8,9 +8,13 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\records\Pdf as PdfRecord;
+use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * PDF model.
@@ -22,6 +26,8 @@ use yii\base\InvalidArgumentException;
  */
 class Pdf extends Model
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -77,6 +83,17 @@ class Pdf extends Model
      */
     public string $language = PdfRecord::LOCALE_ORDER_LANGUAGE;
 
+
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/settings/pdfs/' . $this->getStore()->handle. '/' . $this->id);
+    }
+
     /**
      * @inheritdoc
      */
@@ -84,6 +101,26 @@ class Pdf extends Model
     {
         return [
             [['name', 'handle', 'templatePath', 'language'], 'required'],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => PdfRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.'
+            ],
+            [[
+                'description',
+                'enabled',
+                'fileNameFormat',
+                'handle',
+                'id',
+                'isDefault',
+                'language',
+                'name',
+                'sortOrder',
+                'storeId',
+                'templatePath',
+                'uid',
+            ], 'safe'],
         ];
     }
 
@@ -133,6 +170,7 @@ class Pdf extends Model
             'fileNameFormat' => $this->fileNameFormat,
             'enabled' => $this->enabled,
             'sortOrder' => $this->sortOrder ?: 9999,
+            'store' => $this->getStore()->uid,
             'isDefault' => $this->isDefault,
             'language' => $this->language,
         ];

@@ -83,8 +83,8 @@ trait Routes
             $event->rules['commerce/settings/emails/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/emails/edit';
 
             $event->rules['commerce/settings/pdfs'] = 'commerce/pdfs/index';
-            $event->rules['commerce/settings/pdfs/new'] = 'commerce/pdfs/edit';
-            $event->rules['commerce/settings/pdfs/<id:\d+>'] = 'commerce/pdfs/edit';
+            $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/new'] = 'commerce/pdfs/edit';
+            $event->rules['commerce/settings/pdfs/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/pdfs/edit';
 
             $event->rules['commerce/settings/orderstatuses'] = 'commerce/order-statuses/index';
             $event->rules['commerce/settings/orderstatuses/<storeHandle:{handle}>/new'] = 'commerce/order-statuses/edit';

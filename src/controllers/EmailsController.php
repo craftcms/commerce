@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
+use craft\commerce\models\Pdf;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
@@ -84,9 +85,9 @@ class EmailsController extends BaseAdminController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['email']->storeId);
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
-        $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
+        $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name]));
         $variables['pdfList'] = $pdfList;
 
         $emailLanguageOptions = [

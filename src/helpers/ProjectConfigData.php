@@ -219,9 +219,11 @@ class ProjectConfigData
     private static function _getPdfData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getPdfs()->getAllPdfs() as $pdf) {
-            $data[$pdf->uid] = $pdf->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getPdfs()->getAllPdfs($store->id) as $pdf) {
+                $data[$pdf->uid] = $pdf->getConfig();
+            }
+        });
         return $data;
     }
 

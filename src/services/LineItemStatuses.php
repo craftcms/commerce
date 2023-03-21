@@ -192,10 +192,10 @@ class LineItemStatuses extends Component
             $statusRecord->save(false);
 
             if ($statusRecord->default) {
-                // Reset all defaults in store
-                LineItemStatusRecord::updateAll(['default' => 0], ['storeId' => $statusRecord->storeId]);
-                // Set this one as default
-                LineItemStatusRecord::updateAll(['default' => 1], ['id' => $statusRecord->id]);
+                LineItemStatusRecord::updateAll(['default' => 0], ['and',
+                    ['not', ['id' => $statusRecord->id]],
+                    ['storeId' => $statusRecord->storeId],
+                ]);
             }
 
             $transaction->commit();

@@ -11,11 +11,13 @@ use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
 use craft\helpers\Json;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -35,18 +37,33 @@ class PdfsController extends BaseAdminController
      */
     public function actionIndex(): Response
     {
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
-        return $this->renderTemplate('commerce/settings/pdfs/index', compact('pdfs'));
+        $pdfs = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        $stores->each(function(Store $store) use (&$pdfs) {
+            $pdfs[$store->handle] = Plugin::getInstance()->getPdfs()->getAllPdfs($store->id);
+        });
+        $stores = $stores->all();
+
+        return $this->renderTemplate('commerce/settings/pdfs/index', compact('pdfs', 'stores'));
     }
 
     /**
+     * @param string|null $storeHandle
      * @param int|null $id
      * @param Pdf|null $pdf
+     * @return Response
+     * @throws Exception
      * @throws HttpException
+     * @throws InvalidConfigException
      * @since 3.2
      */
-    public function actionEdit(int $id = null, Pdf $pdf = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, Pdf $pdf = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('pdf', 'id');
 
         $pdfLanguageOptions = [
@@ -57,13 +74,16 @@ class PdfsController extends BaseAdminController
 
         if (!$variables['pdf']) {
             if ($variables['id']) {
-                $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id']);
+                $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id'], $store->id);
 
                 if (!$variables['pdf']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['pdf'] = new Pdf();
+                $variables['pdf'] = Craft::createObject([
+                    'class' => Pdf::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -72,6 +92,8 @@ class PdfsController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
+
+        $variables['isDefault'] = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['pdf']->storeId)->count() === 0 || $variables['pdf']->isDefault;
 
         DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
 
@@ -92,9 +114,10 @@ class PdfsController extends BaseAdminController
 
         $pdfsService = Plugin::getInstance()->getPdfs();
         $pdfId = $this->request->getBodyParam('id');
+        $storeId = $this->request->getBodyParam('storeId');
 
         if ($pdfId) {
-            $pdf = $pdfsService->getPdfById($pdfId);
+            $pdf = $pdfsService->getPdfById($pdfId, $storeId);
             if (!$pdf) {
                 throw new BadRequestHttpException("Invalid PDF ID: $pdfId");
             }
@@ -103,6 +126,7 @@ class PdfsController extends BaseAdminController
         }
 
         // Shared attributes
+        $pdf->storeId = $storeId;
         $pdf->name = $this->request->getBodyParam('name');
         $pdf->handle = $this->request->getBodyParam('handle');
         $pdf->description = $this->request->getBodyParam('description');

@@ -178,7 +178,7 @@ class Email extends Model
         if (!$this->pdfId) {
             return null;
         }
-        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
+        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId, $this->storeId);
     }
 
     /**

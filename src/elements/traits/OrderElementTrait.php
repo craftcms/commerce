@@ -394,8 +394,17 @@ trait OrderElementTrait
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
 
-            if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
-                $actions[] = DownloadOrderPdfAction::class;
+            $sourceParts = explode(':', $source);
+            $store = null;
+            if (!empty($sourceParts) && in_array($sourceParts[0], ['carts', 'orderStatus']) && isset($sourceParts[2])) {
+                $store = Plugin::getInstance()->getStores()->getStoreByHandle($sourceParts[2]);
+            }
+
+            if ($store && Plugin::getInstance()->getPdfs()->getHasEnabledPdf($store->id)) {
+                $actions[] = $elementService->createAction([
+                    'type' => DownloadOrderPdfAction::class,
+                    'storeId' => $store->id,
+                ]);
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
