@@ -81,7 +81,7 @@ class LiteTaxController extends BaseStoreSettingsController
         if (!$settings->validate()) {
             return $this->asModelFailure(
                 $settings,
-                Craft::t('commerce', 'Couldn’t save tax.'),
+                Craft::t('commerce', 'Couldn’t save settings.'),
                 'settings'
             );
         }
