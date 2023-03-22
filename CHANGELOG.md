@@ -1,5 +1,20 @@
 # Release Notes for Craft Commerce
 
+## 4.2.6 - 2023-03-22
+
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
+- Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
+- Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
+- The `commerce/payments/pay` action now includes a `redirectData` key in JSON responses.
+- Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
+- Fixed a bug where cart cookies weren’t getting removed on logout, if the `defaultCookieDomain` Craft config setting was set. ([#3091](https://github.com/craftcms/commerce/pull/3091))
+- Fixed a bug where the `validateCartCustomFieldsOnSubmission` setting wasn’t being respected in Craft 4.4. ([#3109](https://github.com/craftcms/commerce/issues/3109))
+- Fixed a bug where the “Tax Zone” and “Tax Category” selects could be incorrectly populated when editing a tax category.
+- Fixed a PHP error that occurred when saving a tax zone with an empty name on Commerce Lite. ([#3089](https://github.com/craftcms/commerce/issues/3089))
+- Fixed a PHP error that occurred when saving shipping settings with empty “Shipping Base Rate” or “Shipping Per Item Rate” settings on Commerce Lite.
+- Fixed a bug where the flash message that was shown for order status changes was malformed. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a PHP error that could occur when creating an order in the control panel. ([#3115](https://github.com/craftcms/commerce/issues/3115))
+
 ## 4.2.5.1 - 2023-02-02
 
 - Fixed a PHP error that occurred when retrieving orders with missing line item descriptions or SKUs. ([#2936](https://github.com/craftcms/commerce/issues/2936))

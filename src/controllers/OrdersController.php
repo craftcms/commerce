@@ -135,7 +135,7 @@ class OrdersController extends Controller
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
+        if (!Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
 
@@ -1555,9 +1555,11 @@ class OrdersController extends Controller
      */
     private function _customerToArray(User $customer): array
     {
+        $totalAddresses = Address::find()->ownerId($customer->id)->count();
+
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
-                'totalAddresses' => count($customer->getAddresses()),
+                'totalAddresses' => $totalAddresses,
                 'photoThumbUrl' => $customer->getThumbUrl(100),
             ];
     }
