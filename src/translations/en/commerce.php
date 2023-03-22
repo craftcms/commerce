@@ -897,6 +897,7 @@ return [
     'Show the Dimensions and Weight fields for products of this type' => 'Show the Dimensions and Weight fields for products of this type',
     'Show the Title field for products' => 'Show the Title field for products',
     'Show the Title field for variants' => 'Show the Title field for variants',
+    'Signed In' => 'Signed In',
     'Site Languages' => 'Site Languages',
     'Slug' => 'Slug',
     'Snapshot' => 'Snapshot',
