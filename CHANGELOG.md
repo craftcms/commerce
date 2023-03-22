@@ -2,14 +2,9 @@
 
 ## Unreleased
 
-### Store Management
 - Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
-
-### Extensibility
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
 - Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
-
-### System
 - The `commerce/payments/pay` action now includes a `redirectData` key in JSON responses.
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
 - Fixed a bug where cart cookies weren’t getting removed on logout, if the `defaultCookieDomain` Craft config setting was set. ([#3091](https://github.com/craftcms/commerce/pull/3091))
