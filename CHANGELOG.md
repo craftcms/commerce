@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+
 ## 4.2.6 - 2023-03-22
 
 - Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
