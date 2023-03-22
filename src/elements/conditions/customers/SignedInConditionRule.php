@@ -31,7 +31,7 @@ class SignedInConditionRule extends BaseLightswitchConditionRule implements Elem
      */
     public function getLabel(): string
     {
-        return Craft::t('app', 'Signed In');
+        return Craft::t('commerce', 'Signed In');
     }
 
     /**
