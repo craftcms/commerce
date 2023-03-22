@@ -13,6 +13,7 @@
 - Fixed a PHP error that occurred when saving a tax zone with an empty name on Commerce Lite. ([#3089](https://github.com/craftcms/commerce/issues/3089))
 - Fixed a PHP error that occurred when saving shipping settings with empty “Shipping Base Rate” or “Shipping Per Item Rate” settings on Commerce Lite.
 - Fixed a bug where the flash message that was shown for order status changes was malformed. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where creating manual orders in the CP throws an exception error. ([#3115](https://github.com/craftcms/commerce/issues/3115))
 
 ## 4.2.5.1 - 2023-02-02
 
