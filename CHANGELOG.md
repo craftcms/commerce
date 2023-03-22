@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.6 - 2023-03-22
 
 - Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
