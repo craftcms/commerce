@@ -1896,7 +1896,7 @@ class Order extends Element
             $option->id = $method->getId();
             $option->name = $method->getName();
             $option->handle = $method->getHandle();
-            $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $availableMethods);
+            $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
 
             $options[$option->getHandle()] = $option;
