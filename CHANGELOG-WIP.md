@@ -94,6 +94,10 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
+- Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
+- Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderNamePlaceholder`.
 - Removed `craft\commerce\models\ShippingRule::$maxQty`.
 - Removed `craft\commerce\models\ShippingRule::$maxTotal`.
 - Removed `craft\commerce\models\ShippingRule::$maxWeight`.

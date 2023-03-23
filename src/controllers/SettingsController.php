@@ -30,17 +30,7 @@ class SettingsController extends BaseAdminController
      */
     public function actionEdit(): Response
     {
-        $settings = Plugin::getInstance()->getSettings();
-
-        $craftSettings = App::mailSettings();
-        $settings->emailSenderAddressPlaceholder = $craftSettings['fromEmail'] ?? '';
-        $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
-
-        $variables = [
-            'settings' => $settings,
-        ];
-
-        return $this->renderTemplate('commerce/settings/general', $variables);
+        return $this->renderTemplate('commerce/settings/general', ['settings' => Plugin::getInstance()->getSettings()]);
     }
 
     /**
@@ -55,8 +45,6 @@ class SettingsController extends BaseAdminController
         $data = $params['settings'];
 
         $settings = Plugin::getInstance()->getSettings();
-        $settings->emailSenderAddress = $data['emailSenderAddress'] ?? $settings->emailSenderAddress;
-        $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
         $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;

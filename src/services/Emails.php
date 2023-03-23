@@ -348,6 +348,8 @@ class Emails extends Component
             $emailRecord->cc = $data['cc'] ?? null;
             $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
+            $emailRecord->senderAddress = $data['senderAddress'];
+            $emailRecord->senderName = $data['senderName'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
@@ -470,20 +472,16 @@ class Emails extends Component
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
-        $craftMailSettings = App::mailSettings();
 
-        $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
-        $fromEmail = App::parseEnv($fromEmail);
-
-        $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
-        $fromName = App::parseEnv($fromName);
+        $fromEmail = $email->getSenderAddress();
+        $fromName = $email->getSenderName();
 
         if ($fromEmail) {
             $newEmail->setFrom($fromEmail);
         }
 
         if ($fromName && $fromEmail) {
-            $newEmail->setFrom([(string)$fromEmail => (string)$fromName]);
+            $newEmail->setFrom([$fromEmail => $fromName]);
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
@@ -922,6 +920,8 @@ class Emails extends Component
                 'emails.plainTextTemplatePath',
                 'emails.recipientType',
                 'emails.replyTo',
+                'emails.senderAddress',
+                'emails.senderName',
                 'emails.storeId',
                 'emails.subject',
                 'emails.templatePath',

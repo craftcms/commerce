@@ -31,6 +31,28 @@
         required: true
     }) }}
 
+    {{ forms.autosuggestField({
+        label: 'Status Email Address'|t('commerce'),
+        instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
+        id: 'senderAddress',
+        name: 'senderAddress',
+        placeholder: senderAddressPlaceholder,
+        value: email.getSenderAddress(false),
+        errors: email.getErrors('senderAddress'),
+        suggestEnvVars: true,
+    }) }}
+
+    {{ forms.autosuggestField({
+        label: 'From Name'|t('commerce'),
+        instructions: 'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
+        id: 'senderName',
+        name: 'senderName',
+        placeholder: senderNamePlaceholder,
+        value: email.getSenderName(false),
+        errors: email.getErrors('senderName'),
+        suggestEnvVars: true,
+    }) }}
+
     {{ forms.textField({
         label: "Email Subject"|t('commerce'),
         instructions: "The subject line of the email. Twig code can be used here."|t('commerce'),

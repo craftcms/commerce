@@ -21,6 +21,8 @@ use craft\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $recipientType
+ * @property string $senderAddress
+ * @property string $senderName
  * @property string $subject
  * @property string $templatePath
  * @property string $plainTextTemplatePath

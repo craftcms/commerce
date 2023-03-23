@@ -129,42 +129,6 @@ class Settings extends Model
     public string $dimensionUnits = 'mm';
 
     /**
-     * @var string|null Default email address Commerce system messages should be sent from.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderAddress = null;
-
-    /**
-     * @var string|null Placeholder value displayed for the sender address control panel settings field.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderAddressPlaceholder = null;
-
-    /**
-     * @var string|null Default from name used for Commerce system emails.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderName = null;
-
-    /**
-     * @var string|null Placeholder value displayed for the sender name control panel settings field.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderNamePlaceholder = null;
-
-    /**
      * @var string How Commerce should handle free orders.
      *
      * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
@@ -398,7 +362,14 @@ class Settings extends Model
      */
     public function setAttributes($values, $safeOnly = true): void
     {
-        unset($values['orderPdfFilenameFormat'], $values['orderPdfPath']);
+        unset(
+            $values['orderPdfFilenameFormat'],
+            $values['orderPdfPath'],
+            $values['emailSenderAddress'],
+            $values['emailSenderAddressPlaceholder'],
+            $values['emailSenderName'],
+            $values['emailSenderNamePlaceholder']
+        );
         parent::setAttributes($values, $safeOnly);
     }
 

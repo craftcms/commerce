@@ -12,6 +12,7 @@ use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
@@ -25,6 +26,7 @@ use yii\base\InvalidConfigException;
  * @property-read string $pdfTemplatePath
  * @property-read null|Pdf $pdf
  * @property-read array $config
+ * @property string|null $senderAddress
  */
 class Email extends Model
 {
@@ -96,6 +98,22 @@ class Email extends Model
     public string $language = EmailRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
+     * @var string|null
+     * @since 5.0.0
+     * @see setSenderAddress()
+     * @see getSenderAddress()
+     */
+    private ?string $_senderAddress = null;
+
+    /**
+     * @var string|null
+     * @since 5.0.0
+     * @see setSenderName()
+     * @see getSenderName()
+     */
+    private ?string $_senderName = null;
+
+    /**
      * @var string|null UID
      */
     public ?string $uid = null;
@@ -159,6 +177,8 @@ class Email extends Model
                     'plainTextTemplatePath',
                     'recipientType',
                     'replyTo',
+                    'senderAddress',
+                    'senderName',
                     'storeId',
                     'subject',
                     'templatePath',
@@ -182,6 +202,68 @@ class Email extends Model
     }
 
     /**
+     * @param string|null $senderAddress
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSenderAddress(?string $senderAddress): void
+    {
+        $this->_senderAddress = $senderAddress;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Default email address Commerce system messages should be sent from.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
+     *
+     * @since 5.0.0
+     */
+    public function getSenderAddress(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_senderAddress;
+        }
+
+        if (!$senderAddress = App::parseEnv($this->_senderAddress)) {
+            $senderAddress = App::mailSettings()->fromEmail;
+        }
+
+        return $senderAddress;
+    }
+
+    /**
+     * @param string|null $senderName
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSenderName(?string $senderName): void
+    {
+        $this->_senderName = $senderName;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null Placeholder value displayed for the sender name control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
+
+     * @since 5.0.0
+     */
+    public function getSenderName(bool $parse = true): ?string
+    {
+        if (!$parse) {
+            return $this->_senderName;
+        }
+
+        if (!$senderName = App::parseEnv($this->_senderName)) {
+            $senderName = App::mailSettings()->fromName;
+        }
+
+        return $senderName;
+    }
+
+    /**
      * Returns the field layout config for this email.
      *
      * @throws InvalidConfigException
@@ -189,26 +271,23 @@ class Email extends Model
      */
     public function getConfig(): array
     {
-        $config = [
-            'store' => $this->getStore()->uid,
-            'name' => $this->name,
-            'subject' => $this->subject,
-            'recipientType' => $this->recipientType,
-            'to' => $this->to ?: null,
+        return [
             'bcc' => $this->bcc ?: null,
             'cc' => $this->cc ?: null,
-            'replyTo' => $this->replyTo ?: null,
+            'senderAddress' => $this->getSenderAddress(false) ?: null,
+            'senderName' => $this->getSenderName(false) ?: null,
             'enabled' => $this->enabled,
-            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
-            'templatePath' => $this->templatePath ?: null,
             'language' => $this->language,
+            'name' => $this->name,
+            'pdf' => $this->getPdf()?->uid,
+            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
+            'recipientType' => $this->recipientType,
+            'replyTo' => $this->replyTo ?: null,
+            'store' => $this->getStore()->uid,
+            'subject' => $this->subject,
+            'templatePath' => $this->templatePath ?: null,
+            'to' => $this->to ?: null,
         ];
-
-        if ($pdf = $this->getPdf()) {
-            $config['pdf'] = $pdf->uid;
-        }
-
-        return $config;
     }
 
     /**

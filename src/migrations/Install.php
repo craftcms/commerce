@@ -250,6 +250,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'store' => $this->integer(),
             'name' => $this->string()->notNull(),
+            'senderAddress' => $this->string(),
+            'senderName' => $this->string(),
             'subject' => $this->string()->notNull(),
             'recipientType' => $this->enum('recipientType', ['customer', 'custom'])->defaultValue('custom'),
             'to' => $this->string(),
