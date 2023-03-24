@@ -28,7 +28,7 @@
 {% block main %}
     <div id="content">
         {% for store in stores %}
-            <h2 id="{{ store.handle }}" class="lis-margin-top">{{ store.name }}</h2>
+            <h2 id="{{ store.handle }}" class="emails-margin-top">{{ store.name }}</h2>
             <div class="content-pane">
                 <div id="emails-vue-admin-table-{{ store.handle }}"></div>
             </div>
@@ -87,3 +87,9 @@
         });
     {% endjs %}
 {% endfor %}
+
+{% css %}
+  .emails-margin-top {
+    margin-top: var(--xl);
+  }
+{% endcss %}
