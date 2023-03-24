@@ -1145,13 +1145,13 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($variables['order']->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
 
         $orderSites = Craft::$app->getSites()->getAllSites();
         Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(ArrayHelper::toArray($orderSites)) . ';', View::POS_BEGIN);
 
-        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($variables['order']->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
@@ -1183,7 +1183,7 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($variables['order']->storeId);
         $pdfUrls = [];
         foreach ($pdfs as $pdf) {
             $pdfUrls[] = [
