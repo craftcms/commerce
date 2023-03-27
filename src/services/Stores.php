@@ -331,6 +331,17 @@ class Stores extends Component
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
+            $storeRecord->autoSetNewCartAddresses = $data['autoSetNewCartAddresses'];
+            $storeRecord->autoSetCartShippingMethodOption = $data['autoSetCartShippingMethodOption'];
+            $storeRecord->autoSetPaymentSource = $data['autoSetPaymentSource'];
+            $storeRecord->allowEmptyCartOnCheckout = $data['allowEmptyCartOnCheckout'];
+            $storeRecord->allowCheckoutWithoutPayment = $data['allowCheckoutWithoutPayment'];
+            $storeRecord->allowPartialPaymentOnCheckout = $data['allowPartialPaymentOnCheckout'];
+            $storeRecord->requireShippingAddressAtCheckout = $data['requireShippingAddressAtCheckout'];
+            $storeRecord->requireBillingAddressAtCheckout = $data['requireBillingAddressAtCheckout'];
+            $storeRecord->requireShippingMethodSelectionAtCheckout = $data['requireShippingMethodSelectionAtCheckout'];
+            $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
+            $storeRecord->validateBusinessTaxIdAsVatId = $data['validateBusinessTaxIdAsVatId'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
@@ -490,9 +501,20 @@ class Stores extends Component
     {
         return (new Query())
             ->select([
+                'autoSetNewCartAddresses',
+                'autoSetCartShippingMethodOption',
+                'autoSetPaymentSource',
+                'allowEmptyCartOnCheckout',
+                'allowCheckoutWithoutPayment',
+                'allowPartialPaymentOnCheckout',
+                'requireShippingAddressAtCheckout',
+                'requireBillingAddressAtCheckout',
+                'requireShippingMethodSelectionAtCheckout',
+                'useBillingAddressForTax',
+                'validateBusinessTaxIdAsVatId',
+                'handle',
                 'id',
                 'name',
-                'handle',
                 'primary',
                 'sortOrder',
                 'uid',

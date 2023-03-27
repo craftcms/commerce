@@ -15,32 +15,6 @@
         {{ redirectInput('commerce/settings/general') }}
         {{ csrfInput() }}
 
-        <h3>{{ 'Email'|t('commerce') }}</h3>
-        {{ forms.autosuggestField({
-            first: true,
-            label: 'Status Email Address'|t('commerce'),
-            instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
-            id: 'emailSenderAddress',
-            name: 'settings[emailSenderAddress]',
-            placeholder: settings.emailSenderAddressPlaceholder,
-            value: settings.emailSenderAddress,
-            errors: settings.getErrors('emailSenderAddress'),
-            suggestEnvVars: true,
-            autofocus: true,
-        }) }}
-
-        {{ forms.autosuggestField({
-            label: 'From Name'|t('commerce'),
-            instructions: 'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
-            id: 'emailSenderName',
-            name: 'settings[emailSenderName]',
-            placeholder: settings.emailSenderNamePlaceholder,
-            value: settings.emailSenderName,
-            errors: settings.getErrors('emailSenderName'),
-            suggestEnvVars: true,
-            autofocus: true,
-        }) }}
-        <hr>
         <h3>{{ 'Units'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Weight Unit"|t('commerce'),

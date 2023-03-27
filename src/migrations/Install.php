@@ -771,6 +771,17 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'primary' => $this->boolean()->notNull(),
+            'autoSetCartShippingMethodOption' => $this->boolean()->notNull()->defaultValue(false),
+            'autoSetPaymentSource' => $this->boolean()->notNull()->defaultValue(false),
+            'allowEmptyCartOnCheckout' => $this->boolean()->notNull()->defaultValue(false),
+            'allowCheckoutWithoutPayment' => $this->boolean()->notNull()->defaultValue(false),
+            'allowPartialPaymentOnCheckout' => $this->boolean()->notNull()->defaultValue(false),
+            'requireShippingAddressAtCheckout' => $this->boolean()->notNull()->defaultValue(false),
+            'requireBillingAddressAtCheckout' => $this->boolean()->notNull()->defaultValue(false),
+            'requireShippingMethodSelectionAtCheckout' => $this->boolean()->notNull()->defaultValue(false),
+            'useBillingAddressForTax' => $this->boolean()->notNull()->defaultValue(false),
+            'validateBusinessTaxIdAsVatId' => $this->boolean()->notNull()->defaultValue(false),
+            'orderReferenceFormat' => $this->string(),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -788,7 +799,6 @@ class Install extends Migration
             'uid' => $this->uid(),
             'PRIMARY KEY(id)',
         ]);
-
 
         $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
         $this->createTable(Table::SUBSCRIPTIONS, [

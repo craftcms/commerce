@@ -126,6 +126,19 @@ class StoresController extends BaseStoreSettingsController
 
         $store->setName($this->request->getBodyParam('name'));
         $store->handle = $this->request->getBodyParam('handle');
+        $store->setAutoSetNewCartAddresses($this->request->getBodyParam('autoSetNewCartAddresses'));
+        $store->setAutoSetCartShippingMethodOption($this->request->getBodyParam('autoSetCartShippingMethodOption'));
+        $store->setAutoSetPaymentSource($this->request->getBodyParam('autoSetPaymentSource'));
+        $store->setAllowEmptyCartOnCheckout($this->request->getBodyParam('allowEmptyCartOnCheckout'));
+        $store->setAllowCheckoutWithoutPayment($this->request->getBodyParam('allowCheckoutWithoutPayment'));
+        $store->setAllowPartialPaymentOnCheckout($this->request->getBodyParam('allowPartialPaymentOnCheckout'));
+        $store->setRequireShippingAddressAtCheckout($this->request->getBodyParam('requireShippingAddressAtCheckout'));
+        $store->setRequireBillingAddressAtCheckout($this->request->getBodyParam('requireBillingAddressAtCheckout'));
+        $store->setRequireShippingMethodSelectionAtCheckout($this->request->getBodyParam('requireShippingMethodSelectionAtCheckout'));
+        $store->setUseBillingAddressForTax($this->request->getBodyParam('useBillingAddressForTax'));
+        $store->setValidateBusinessTaxIdAsVatId($this->request->getBodyParam('validateBusinessTaxIdAsVatId'));
+        $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
+
         if ($this->request->getBodyParam('primary') !== null) {
             $store->primary = (bool)$this->request->getBodyParam('primary');
         }

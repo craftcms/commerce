@@ -17,6 +17,18 @@ use craft\db\ActiveRecord;
  * @property string $name
  * @property string $handle
  * @property bool $primary
+ * @property bool $autoSetNewCartAddresses
+ * @property bool $autoSetCartShippingMethodOption
+ * @property bool $allowEmptyCartOnCheckout
+ * @property bool $allowCheckoutWithoutPayment
+ * @property bool $allowPartialPaymentOnCheckout
+ * @property bool $requireShippingAddressAtCheckout
+ * @property bool $requireBillingAddressAtCheckout
+ * @property bool $requireShippingMethodSelectionAtCheckout
+ * @property bool $useBillingAddressForTax
+ * @property bool $validateBusinessTaxIdAsVatId
+ * @property bool $autoSetPaymentSource
+ * @property string $orderReferenceFormat
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
