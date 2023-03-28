@@ -519,10 +519,10 @@ class Store extends Model
     }
 
     /**
-     * @param bool|string $orderReferenceFormat
+     * @param string $orderReferenceFormat
      * @return void
      */
-    public function setOrderReferenceFormat(bool|string $orderReferenceFormat): void
+    public function setOrderReferenceFormat(string $orderReferenceFormat): void
     {
         $this->_orderReferenceFormat = $orderReferenceFormat;
     }
