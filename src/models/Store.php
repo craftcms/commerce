@@ -370,6 +370,8 @@ class Store extends Model
     }
 
     /**
+     * Whether carts are allowed to be empty on checkout.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -388,6 +390,8 @@ class Store extends Model
     }
 
     /**
+     * Whether carts are can be marked as completed without a payment.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -406,6 +410,10 @@ class Store extends Model
     }
 
     /**
+     * Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
+     *
+     * The `false` default does not allow partial payments on the front end.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -442,6 +450,8 @@ class Store extends Model
     }
 
     /**
+     * Whether a billing address is required before making payment on an order.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -460,6 +470,8 @@ class Store extends Model
     }
 
     /**
+     * Whether shipping method selection is required before making payment on an order.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -478,6 +490,8 @@ class Store extends Model
     }
 
     /**
+     * Whether taxes should be calculated based on the billing address instead of the shipping address.
+     *
      * @param bool $parse
      * @return bool|string
      */
@@ -514,6 +528,10 @@ class Store extends Model
     }
 
     /**
+     * Human-friendly reference number format for orders. Result must be unique.
+     *
+     * See [Order Numbers](orders-carts.md#order-numbers).
+     *
      * @param bool $parse
      * @return string
      */

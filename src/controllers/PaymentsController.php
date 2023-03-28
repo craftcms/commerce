@@ -119,21 +119,21 @@ class PaymentsController extends BaseFrontEndController
             ]);
         }
 
-        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
+        if ($order->getStore()->getRequireShippingAddressAtCheckout() && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
+        if ($order->getStore()->getRequireBillingAddressAtCheckout() && !$order->billingAddressId) {
             $error = Craft::t('commerce', 'Billing address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
+        if (!$order->getStore()->getAllowEmptyCartOnCheckout() && $order->getIsEmpty()) {
             $error = Craft::t('commerce', 'Order can not be empty.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
@@ -296,7 +296,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
+        if ($order->hasShippableItems() && $order->getStore()->getRequireShippingMethodSelectionAtCheckout() && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             return $this->asModelFailure(
@@ -373,7 +373,7 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+        $partialAllowed = (($this->request->isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $this->request->isCpRequest);
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {

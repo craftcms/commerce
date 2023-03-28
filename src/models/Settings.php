@@ -59,46 +59,9 @@ class Settings extends Model
     /**
      * @var bool Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
      * @group Cart
+     * @TODO fix test usages and remove property
      */
     public bool $autoSetNewCartAddresses = true;
-
-    /**
-     * @var bool Whether the first available shipping method option should be set automatically on carts.
-     *
-     * @group Cart
-     */
-    public bool $autoSetCartShippingMethodOption = false;
-
-    /**
-     * @var bool Whether the user’s primary payment source should be set automatically on new carts.
-     *
-     * @group Cart
-     * @since 4.2
-     */
-    public bool $autoSetPaymentSource = false;
-
-    /**
-     * @var bool Whether carts are allowed to be empty on checkout.
-     * @group Cart
-     * @since 2.2
-     */
-    public bool $allowEmptyCartOnCheckout = false;
-
-    /**
-     * @var bool Whether carts are can be marked as completed without a payment.
-     * @group Cart
-     * @since 3.3
-     */
-    public bool $allowCheckoutWithoutPayment = false;
-
-    /**
-     * @var bool Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
-     *
-     * The `false` default does not allow partial payments on the front end.
-     *
-     * @group Payments
-     */
-    public bool $allowPartialPaymentOnCheckout = false;
 
     /**
      * @var string Key to be used when returning cart information in a response.
@@ -200,15 +163,6 @@ class Settings extends Model
     public string $minimumTotalPriceStrategy = 'default';
 
     /**
-     * @var string Human-friendly reference number format for orders. Result must be unique.
-     *
-     * See [Order Numbers](orders-carts.md#order-numbers).
-     *
-     * @group Orders
-     */
-    public string $orderReferenceFormat = '{{number[:7]}}';
-
-    /**
      * @var array|null ISO codes for supported payment currencies.
      *
      * See [Payment Currencies](payment-currencies.md).
@@ -263,24 +217,6 @@ class Settings extends Model
     public mixed $purgeInactiveCartsDuration = 7776000;
 
     /**
-     * @var bool Whether a shipping address is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireShippingAddressAtCheckout = false;
-
-    /**
-     * @var bool Whether a billing address is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireBillingAddressAtCheckout = false;
-
-    /**
-     * @var bool Whether shipping method selection is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireShippingMethodSelectionAtCheckout = false;
-
-    /**
      * @var bool Whether the [Commerce Tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
      * @group System
      * @since 4.0
@@ -311,12 +247,6 @@ class Settings extends Model
      * @since 3.1.5
      */
     public bool $updateCartSearchIndexes = true;
-
-    /**
-     * @var bool Whether taxes should be calculated based on the billing address instead of the shipping address.
-     * @group Orders
-     */
-    public bool $useBillingAddressForTax = false;
 
     /**
      * @var bool Whether to enable validation requiring the `businessTaxId` to be a valid VAT ID.
@@ -356,7 +286,6 @@ class Settings extends Model
      */
     public bool $validateCartCustomFieldsOnSubmission = false;
 
-
     /**
      * @inheritDoc
      */
@@ -368,7 +297,18 @@ class Settings extends Model
             $values['emailSenderAddress'],
             $values['emailSenderAddressPlaceholder'],
             $values['emailSenderName'],
-            $values['emailSenderNamePlaceholder']
+            $values['emailSenderNamePlaceholder'],
+            $values['autoSetNewCartAddresses'],
+            $values['autoSetCartShippingMethodOption'],
+            $values['autoSetPaymentSource'],
+            $values['allowEmptyCartOnCheckout'],
+            $values['allowCheckoutWithoutPayment'],
+            $values['allowPartialPaymentOnCheckout'],
+            $values['orderReferenceFormat'],
+            $values['requireShippingAddressAtCheckout'],
+            $values['requireBillingAddressAtCheckout'],
+            $values['requireShippingMethodSelectionAtCheckout'],
+            $values['useBillingAddressForTax']
         );
         parent::setAttributes($values, $safeOnly);
     }

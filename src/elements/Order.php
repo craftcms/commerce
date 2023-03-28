@@ -1499,7 +1499,7 @@ class Order extends Element
      */
     public function autoSetAddresses(): bool
     {
-        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+        if ($this->isCompleted || !$this->getStore()->getAutoSetNewCartAddresses()) {
             return false;
         }
 
@@ -1535,7 +1535,7 @@ class Order extends Element
      */
     public function autoSetPaymentSource(): bool
     {
-        if ($this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetPaymentSource || $this->paymentSourceId || $this->gatewayId) {
+        if ($this->isCompleted || !$this->getStore()->getAutoSetPaymentSource() || $this->paymentSourceId || $this->gatewayId) {
             return false;
         }
 
@@ -1564,7 +1564,7 @@ class Order extends Element
      */
     public function autoSetShippingMethod(): bool
     {
-        if ($this->shippingMethodHandle || $this->isCompleted || !Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+        if ($this->shippingMethodHandle || $this->isCompleted || !$this->getStore()->getAutoSetCartShippingMethodOption()) {
             return false;
         }
 
@@ -1699,7 +1699,7 @@ class Order extends Element
         }
 
         if ($this->reference == null) {
-            $referenceTemplate = Plugin::getInstance()->getSettings()->orderReferenceFormat;
+            $referenceTemplate = $this->getStore()->getOrderReferenceFormat();
 
             try {
                 $this->reference = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $this);
@@ -1854,7 +1854,7 @@ class Order extends Element
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
 
             // Make sure we set a default shipping method option
-            if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            if (!$this->isCompleted && $this->getStore()->getAutoSetCartShippingMethodOption()) {
                 $availableMethodOptions = $this->getAvailableShippingMethodOptions();
                 if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
                     $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);

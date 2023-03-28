@@ -94,6 +94,16 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
+- Removed `craft\commerce\models\Settings::$autoSetNewCartAddresses`. Use `craft\commerce\models\Store::getAutoSetNewCartAddresses()` instead.
+- Removed `craft\commerce\models\Settings::$autoSetCartShippingMethodOption`. Use `craft\commerce\models\Store::getAutoSetCartShippingMethodOption()` instead.
+- Removed `craft\commerce\models\Settings::$autoSetPaymentSource`. Use `craft\commerce\models\Store::getAutoSetPaymentSource()` instead.
+- Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
+- Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. Use `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$requireBillingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireBillingAddressAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
 - Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
 - Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
 - Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.

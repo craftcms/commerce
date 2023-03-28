@@ -341,31 +341,31 @@ class CartController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
         $this->requirePostRequest();
 
-        if (!$plugin->getSettings()->allowCheckoutWithoutPayment) {
-            throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
-        }
-
         $this->_cart = $this->_getCart();
         $errors = [];
+
+        if (!$this->_cart->getStore()->getAllowCheckoutWithoutPayment()) {
+            throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
+        }
 
         // Check email address exists on order.
         if (empty($this->_cart->email)) {
             $errors['email'] = Craft::t('commerce', 'No customer email address exists on this cart.');
         }
 
-        if ($plugin->getSettings()->allowEmptyCartOnCheckout && $this->_cart->getIsEmpty()) {
+        if ($this->_cart->getStore()->getAllowEmptyCartOnCheckout() && $this->_cart->getIsEmpty()) {
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
+        if ($this->_cart->getStore()->getRequireShippingMethodSelectionAtCheckout() && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 
-        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$this->_cart->billingAddressId) {
+        if ($this->_cart->getStore()->getRequireBillingAddressAtCheckout() && !$this->_cart->billingAddressId) {
             $errors['billingAddressId'] = Craft::t('commerce', 'Billing address required.');
         }
 
-        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$this->_cart->shippingAddressId) {
+        if ($this->_cart->getStore()->getRequireShippingAddressAtCheckout() && !$this->_cart->shippingAddressId) {
             $errors['shippingAddressId'] = Craft::t('commerce', 'Shipping address required.');
         }
 

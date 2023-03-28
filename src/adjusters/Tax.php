@@ -414,7 +414,7 @@ class Tax extends Component implements AdjusterInterface
     private function _getTaxAddress(): ?Address
     {
         $this->_isEstimated = false;
-        if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
+        if (!$this->_order->getStore()->getUseBillingAddressForTax()) {
             $address = $this->_order->getShippingAddress();
             if (!$address) {
                 $address = $this->_order->getEstimatedShippingAddress();
