@@ -251,7 +251,7 @@ class Stores extends Component
         // Update the other primary store.
         if ($store->primary) {
             foreach ($projectConfigService->get(self::CONFIG_STORES_KEY) as $uid => $config) {
-                if ($uid !== $store->uid && $config['primary'] === true) {
+                if ($uid !== $store->uid && isset($config['primary']) && $config['primary'] === true) {
                     $configPath = self::CONFIG_STORES_KEY . '.' . $uid;
                     $config['primary'] = false; // Set the other to false
                     $projectConfigService->set(
