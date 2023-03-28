@@ -2,7 +2,7 @@
 
 {% set fullPageForm = true %}
 {% set selectedSubnavItem = 'settings' %}
-{% import "_includes/forms" as forms %}
+{% import '_includes/forms' as forms %}
 
 {% set tabs = {
   0: {'label':'Store'|t('commerce'),'url':'#store'},
@@ -121,6 +121,18 @@
             value: store.getAllowPartialPaymentOnCheckout(false),
             errors: store.getErrors('allowPartialPaymentOnCheckout'),
             includeEnvVars: true,
+        }) }}
+
+        {{ forms.selectizeField({
+            label: 'Free Order Payment Strategy'|t('commerce'),
+            instructions: 'Strategy to apply when an order is free or has a zero balance.'|t('commerce'),
+            name: 'freeOrderPaymentStrategy',
+            value: store.getFreeOrderPaymentStrategy(false),
+            options: store.getFreeOrderPaymentStrategyOptions(),
+            errors: store.getErrors('freeOrderPaymentStrategy'),
+            required: true,
+            includeEnvVars: true,
+            allowedEnvValues: store.getFreeOrderPaymentStrategyOptions()|keys,
         }) }}
 
         {{ forms.booleanMenuField({

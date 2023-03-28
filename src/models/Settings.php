@@ -21,7 +21,6 @@ use yii\base\InvalidConfigException;
  * @property-read array $weightUnitsOptions
  * @property-read array $dimensionsUnits
  * @property-read array $minimumTotalPriceStrategyOptions
- * @property-read array $freeOrderPaymentStrategyOptions
  * @property-read array $defaultViewOptions
  * @property-read string $paymentCurrency
  *
@@ -33,9 +32,6 @@ class Settings extends Model
     public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
-
-    public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
-    public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
 
     public const VIEW_URI_ORDERS = 'commerce/orders';
     public const VIEW_URI_PRODUCTS = 'commerce/products';
@@ -90,18 +86,6 @@ class Settings extends Model
      * @group Units
      */
     public string $dimensionUnits = 'mm';
-
-    /**
-     * @var string How Commerce should handle free orders.
-     *
-     * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
-     *
-     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance
-     * needs to be updated or otherwise adjusted by the payment gateway.
-     *
-     * @group Orders
-     */
-    public string $freeOrderPaymentStrategy = 'complete';
 
     /**
      * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
@@ -308,7 +292,8 @@ class Settings extends Model
             $values['requireShippingAddressAtCheckout'],
             $values['requireBillingAddressAtCheckout'],
             $values['requireShippingMethodSelectionAtCheckout'],
-            $values['useBillingAddressForTax']
+            $values['useBillingAddressForTax'],
+            $values['freeOrderPaymentStrategy']
         );
         parent::setAttributes($values, $safeOnly);
     }
@@ -348,17 +333,6 @@ class Settings extends Model
             self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
-        ];
-    }
-
-    /**
-     * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
-     */
-    public function getFreeOrderPaymentStrategyOptions(): array
-    {
-        return [
-            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Craft::t('commerce', 'Free orders complete immediately'),
-            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Craft::t('commerce', 'Free orders are processed by the payment gateway'),
         ];
     }
 

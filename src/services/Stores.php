@@ -342,6 +342,7 @@ class Stores extends Component
             $storeRecord->requireShippingMethodSelectionAtCheckout = $data['requireShippingMethodSelectionAtCheckout'];
             $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
             $storeRecord->validateBusinessTaxIdAsVatId = $data['validateBusinessTaxIdAsVatId'];
+            $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);

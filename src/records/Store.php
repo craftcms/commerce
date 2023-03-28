@@ -29,6 +29,7 @@ use craft\db\ActiveRecord;
  * @property bool $validateBusinessTaxIdAsVatId
  * @property bool $autoSetPaymentSource
  * @property string $orderReferenceFormat
+ * @property string $freeOrderPaymentStrategy
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0

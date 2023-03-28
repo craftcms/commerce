@@ -31,6 +31,9 @@ use yii\base\InvalidConfigException;
  */
 class Store extends Model
 {
+    public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
+    public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
+
     /**
      * @var int|null ID
      */
@@ -141,6 +144,13 @@ class Store extends Model
     private string $_orderReferenceFormat = '{{number[:7]}}';
 
     /**
+     * @var string
+     * @see setFreeOrderPaymentStrategy()
+     * @see getFreeOrderPaymentStrategy()
+     */
+    private string $_freeOrderPaymentStrategy = 'complete';
+
+    /**
      * @var string|null Store UID
      */
     public ?string $uid = null;
@@ -154,21 +164,23 @@ class Store extends Model
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => StoreRecord::class, 'targetAttribute' => ['handle']];
         $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [[
-            'autoSetNewCartAddresses',
-            'autoSetCartShippingMethodOption',
-            'autoSetPaymentSource',
-            'allowEmptyCartOnCheckout',
             'allowCheckoutWithoutPayment',
+            'allowEmptyCartOnCheckout',
             'allowPartialPaymentOnCheckout',
-            'requireShippingAddressAtCheckout',
-            'requireBillingAddressAtCheckout',
-            'requireShippingMethodSelectionAtCheckout',
-            'useBillingAddressForTax',
-            'validateBusinessTaxIdAsVatId',
+            'autoSetCartShippingMethodOption',
+            'autoSetNewCartAddresses',
+            'autoSetPaymentSource',
+            'freeOrderPaymentStrategy',
             'id',
+            'orderReferenceFormat',
             'primary',
+            'requireBillingAddressAtCheckout',
+            'requireShippingAddressAtCheckout',
+            'requireShippingMethodSelectionAtCheckout',
             'sortOrder',
             'uid',
+            'useBillingAddressForTax',
+            'validateBusinessTaxIdAsVatId',
         ], 'safe'];
 
         return $rules;
@@ -282,21 +294,33 @@ class Store extends Model
     public function getConfig(): array
     {
         return [
-            'autoSetNewCartAddresses' => $this->getAutoSetCartShippingMethodOption(false),
-            'autoSetCartShippingMethodOption' => $this->getAutoSetCartShippingMethodOption(false),
-            'autoSetPaymentSource' => $this->getAutoSetPaymentSource(false),
-            'allowEmptyCartOnCheckout' => $this->getAllowEmptyCartOnCheckout(false),
             'allowCheckoutWithoutPayment' => $this->getAllowCheckoutWithoutPayment(false),
+            'allowEmptyCartOnCheckout' => $this->getAllowEmptyCartOnCheckout(false),
             'allowPartialPaymentOnCheckout' => $this->getAllowPartialPaymentOnCheckout(false),
-            'requireShippingAddressAtCheckout' => $this->getRequireShippingAddressAtCheckout(false),
-            'requireBillingAddressAtCheckout' => $this->getRequireBillingAddressAtCheckout(false),
-            'requireShippingMethodSelectionAtCheckout' => $this->getRequireShippingMethodSelectionAtCheckout(false),
-            'useBillingAddressForTax' => $this->getUseBillingAddressForTax(false),
-            'validateBusinessTaxIdAsVatId' => $this->getValidateBusinessTaxIdAsVatId(false),
+            'autoSetCartShippingMethodOption' => $this->getAutoSetCartShippingMethodOption(false),
+            'autoSetNewCartAddresses' => $this->getAutoSetCartShippingMethodOption(false),
+            'autoSetPaymentSource' => $this->getAutoSetPaymentSource(false),
+            'freeOrderPaymentStrategy' => $this->getFreeOrderPaymentStrategy(false),
             'handle' => $this->handle,
             'name' => $this->_name,
             'primary' => $this->primary,
+            'requireBillingAddressAtCheckout' => $this->getRequireBillingAddressAtCheckout(false),
+            'requireShippingAddressAtCheckout' => $this->getRequireShippingAddressAtCheckout(false),
+            'requireShippingMethodSelectionAtCheckout' => $this->getRequireShippingMethodSelectionAtCheckout(false),
             'sortOrder' => $this->sortOrder,
+            'useBillingAddressForTax' => $this->getUseBillingAddressForTax(false),
+            'validateBusinessTaxIdAsVatId' => $this->getValidateBusinessTaxIdAsVatId(false),
+        ];
+    }
+
+    /**
+     * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
+     */
+    public function getFreeOrderPaymentStrategyOptions(): array
+    {
+        return [
+            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Craft::t('commerce', 'Free orders complete immediately'),
+            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Craft::t('commerce', 'Free orders are processed by the payment gateway'),
         ];
     }
 
@@ -538,5 +562,30 @@ class Store extends Model
     public function getOrderReferenceFormat(bool $parse = true): string
     {
         return $parse ? App::parseEnv($this->_orderReferenceFormat) : $this->_orderReferenceFormat;
+    }
+
+    /**
+     * @param string $freeOrderPaymentStrategy
+     * @return void
+     */
+    public function setFreeOrderPaymentStrategy(string $freeOrderPaymentStrategy): void
+    {
+        $this->_freeOrderPaymentStrategy = $freeOrderPaymentStrategy;
+    }
+
+    /**
+     * How Commerce should handle free orders.
+     *
+     * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
+     *
+     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance
+     * needs to be updated or otherwise adjusted by the payment gateway.
+     *
+     * @param bool $parse
+     * @return string
+     */
+    public function getFreeOrderPaymentStrategy(bool $parse = true): string
+    {
+        return $parse ? App::parseEnv($this->_freeOrderPaymentStrategy) : $this->_freeOrderPaymentStrategy;
     }
 }

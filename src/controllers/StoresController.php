@@ -138,6 +138,7 @@ class StoresController extends BaseStoreSettingsController
         $store->setUseBillingAddressForTax($this->request->getBodyParam('useBillingAddressForTax'));
         $store->setValidateBusinessTaxIdAsVatId($this->request->getBodyParam('validateBusinessTaxIdAsVatId'));
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
+        $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
 
         if ($this->request->getBodyParam('primary') !== null) {
             $store->primary = (bool)$this->request->getBodyParam('primary');
