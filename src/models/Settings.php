@@ -29,10 +29,6 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
-
     public const VIEW_URI_ORDERS = 'commerce/orders';
     public const VIEW_URI_PRODUCTS = 'commerce/products';
     public const VIEW_URI_CUSTOMERS = 'commerce/customers';
@@ -132,19 +128,6 @@ class Settings extends Model
      * @since 3.1
      */
     public ?string $loadCartRedirectUrl = null;
-
-    /**
-     * @var string How Commerce should handle minimum total price for an order.
-     *
-     * Options:
-     *
-     * - `'default'` [rounds](commerce4:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
-     * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
-     * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
-     *
-     * @group Orders
-     */
-    public string $minimumTotalPriceStrategy = 'default';
 
     /**
      * @var array|null ISO codes for supported payment currencies.
@@ -293,7 +276,8 @@ class Settings extends Model
             $values['requireBillingAddressAtCheckout'],
             $values['requireShippingMethodSelectionAtCheckout'],
             $values['useBillingAddressForTax'],
-            $values['freeOrderPaymentStrategy']
+            $values['freeOrderPaymentStrategy'],
+            $values['minimumTotalPriceStrategy']
         );
         parent::setAttributes($values, $safeOnly);
     }
@@ -321,18 +305,6 @@ class Settings extends Model
             'm' => Craft::t('commerce', 'Meters (m)'),
             'ft' => Craft::t('commerce', 'Feet (ft)'),
             'in' => Craft::t('commerce', 'Inches (in)'),
-        ];
-    }
-
-    /**
-     * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
-     */
-    public function getMinimumTotalPriceStrategyOptions(): array
-    {
-        return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
         ];
     }
 
@@ -380,7 +352,7 @@ class Settings extends Model
     protected function defineRules(): array
     {
         return [
-            [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
+            [['weightUnits', 'dimensionUnits'], 'required'],
         ];
     }
 }

@@ -47,7 +47,6 @@ class SettingsController extends BaseAdminController
         $settings = Plugin::getInstance()->getSettings();
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
-        $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
         $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 

@@ -2475,18 +2475,18 @@ class Order extends Element
     }
 
     /**
-     * Get the total price of the order, whose minimum value is enforced by the configured {@link Settings::minimumTotalPriceStrategy strategy set for minimum total price}.
+     * Get the total price of the order, whose minimum value is enforced by the configured {@link Store::getMinimumTotalPriceStrategy() strategy set for minimum total price}.
      */
     public function getTotalPrice(): float
     {
         $total = $this->getItemSubtotal() + $this->getAdjustmentsTotal(); // Don't get the pre-rounded total.
-        $strategy = Plugin::getInstance()->getSettings()->minimumTotalPriceStrategy;
+        $strategy = $this->getStore()->getMinimumTotalPriceStrategy();
 
-        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
+        if ($strategy === Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO) {
             return Currency::round(max(0, $total));
         }
 
-        if ($strategy === Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
+        if ($strategy === Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING) {
             return Currency::round(max($this->getTotalShippingCost(), $total));
         }
 

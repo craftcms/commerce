@@ -783,6 +783,7 @@ class Install extends Migration
             'validateBusinessTaxIdAsVatId' => $this->boolean()->notNull()->defaultValue(false),
             'orderReferenceFormat' => $this->string(),
             'freeOrderPaymentStrategy' => $this->string()->defaultValue('complete'),
+            'minimumTotalPriceStrategy' => $this->string()->defaultValue('default'),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),

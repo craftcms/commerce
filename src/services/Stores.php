@@ -343,6 +343,7 @@ class Stores extends Component
             $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
             $storeRecord->validateBusinessTaxIdAsVatId = $data['validateBusinessTaxIdAsVatId'];
             $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
+            $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
@@ -502,23 +503,25 @@ class Stores extends Component
     {
         return (new Query())
             ->select([
-                'autoSetNewCartAddresses',
-                'autoSetCartShippingMethodOption',
-                'autoSetPaymentSource',
-                'allowEmptyCartOnCheckout',
                 'allowCheckoutWithoutPayment',
+                'allowEmptyCartOnCheckout',
                 'allowPartialPaymentOnCheckout',
-                'requireShippingAddressAtCheckout',
-                'requireBillingAddressAtCheckout',
-                'requireShippingMethodSelectionAtCheckout',
-                'useBillingAddressForTax',
-                'validateBusinessTaxIdAsVatId',
+                'autoSetCartShippingMethodOption',
+                'autoSetNewCartAddresses',
+                'autoSetPaymentSource',
+                'freeOrderPaymentStrategy',
                 'handle',
                 'id',
+                'minimumTotalPriceStrategy',
                 'name',
                 'primary',
+                'requireBillingAddressAtCheckout',
+                'requireShippingAddressAtCheckout',
+                'requireShippingMethodSelectionAtCheckout',
                 'sortOrder',
                 'uid',
+                'useBillingAddressForTax',
+                'validateBusinessTaxIdAsVatId',
             ])
             ->from([Table::STORES])
             ->orderBy(['sortOrder' => SORT_ASC]);

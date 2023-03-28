@@ -31,6 +31,10 @@ use yii\base\InvalidConfigException;
  */
 class Store extends Model
 {
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
+    public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
+
     public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
     public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
 
@@ -149,6 +153,13 @@ class Store extends Model
      * @see getFreeOrderPaymentStrategy()
      */
     private string $_freeOrderPaymentStrategy = 'complete';
+
+    /**
+     * @var string
+     * @see setMinimumTotalPriceStrategy()
+     * @see getMinimumTotalPriceStrategy()
+     */
+    private string $_minimumTotalPriceStrategy = 'default';
 
     /**
      * @var string|null Store UID
@@ -321,6 +332,18 @@ class Store extends Model
         return [
             self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Craft::t('commerce', 'Free orders complete immediately'),
             self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Craft::t('commerce', 'Free orders are processed by the payment gateway'),
+        ];
+    }
+
+    /**
+     * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
+     */
+    public function getMinimumTotalPriceStrategyOptions(): array
+    {
+        return [
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
         ];
     }
 
@@ -587,5 +610,31 @@ class Store extends Model
     public function getFreeOrderPaymentStrategy(bool $parse = true): string
     {
         return $parse ? App::parseEnv($this->_freeOrderPaymentStrategy) : $this->_freeOrderPaymentStrategy;
+    }
+
+    /**
+     * @param string $minimumTotalPriceStrategy
+     * @return void
+     */
+    public function setMinimumTotalPriceStrategy(string $minimumTotalPriceStrategy): void
+    {
+        $this->_minimumTotalPriceStrategy = $minimumTotalPriceStrategy;
+    }
+
+    /**
+     * How Commerce should handle minimum total price for an order.
+     *
+     * Options:
+     *
+     * - `'default'` [rounds](commerce4:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
+     * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
+     * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
+     *
+     * @param bool $parse
+     * @return string
+     */
+    public function getMinimumTotalPriceStrategy(bool $parse = true): string
+    {
+        return $parse ? App::parseEnv($this->_minimumTotalPriceStrategy) : $this->_minimumTotalPriceStrategy;
     }
 }

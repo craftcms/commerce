@@ -105,12 +105,16 @@
 - Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
 - Removed `craft\commerce\models\Settings::$freeOrderPaymentStrategy`. Use `craft\commerce\models\Store::getFreeOrderPaymentStrategy()` instead.
+- Removed `craft\commerce\models\Settings::$minimumTotalPriceStrategy`. Use `craft\commerce\models\Store::getMinimumTotalPriceStrategy()` instead.
 - Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
 - Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
 - Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.
 - Removed `craft\commerce\models\Settings::$emailSenderNamePlaceholder`.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO` instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING` instead.
 - Removed `craft\commerce\models\ShippingRule::$maxQty`.
 - Removed `craft\commerce\models\ShippingRule::$maxTotal`.
 - Removed `craft\commerce\models\ShippingRule::$maxWeight`.

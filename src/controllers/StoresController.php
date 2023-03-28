@@ -92,6 +92,8 @@ class StoresController extends BaseStoreSettingsController
             'crumbs' => $crumbs,
             'store' => $storeModel,
             'availableSiteOptions' => $availableSiteOptions,
+            'freeOrderPaymentStrategyOptions' => $storeModel->getFreeOrderPaymentStrategyOptions(),
+            'minimumTotalPriceStrategyOptions' => $storeModel->getMinimumTotalPriceStrategyOptions(),
         ]);
     }
 
@@ -139,6 +141,7 @@ class StoresController extends BaseStoreSettingsController
         $store->setValidateBusinessTaxIdAsVatId($this->request->getBodyParam('validateBusinessTaxIdAsVatId'));
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
+        $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
 
         if ($this->request->getBodyParam('primary') !== null) {
             $store->primary = (bool)$this->request->getBodyParam('primary');
