@@ -39,19 +39,6 @@
         }) }}
 
         <hr>
-        <h3>{{ 'Order Settings'|t('commerce') }}</h3>
-        {{ forms.selectField({
-            label: "Minimum Total Price Strategy"|t('commerce'),
-            instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
-            name: 'settings[minimumTotalPriceStrategy]',
-            value: settings.minimumTotalPriceStrategy,
-            options: settings.getMinimumTotalPriceStrategyOptions(),
-            errors: settings.getErrors('minimumTotalPriceStrategy'),
-            required: true,
-            warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
-        }) }}
-
-        <hr>
         <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
         {{ forms.autosuggestField({
             label: "Billing detail update URL"|t('commerce'),
