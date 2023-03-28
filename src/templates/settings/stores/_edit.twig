@@ -189,6 +189,11 @@
             label: 'Order Reference Number Format'|t('commerce'),
             id: 'orderReferenceFormat',
             name: 'orderReferenceFormat',
+            instructions: "A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique."|t('commerce', {
+              ex1: "<code>2018-{number[:7]}</code>",
+              ex2: "<code>{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}</code>"
+            }),
+            class: 'code ltr',
             suggestEnvVars: true,
             value: store.getOrderReferenceFormat(false),
             errors: store.getErrors('orderReferenceForamt'),

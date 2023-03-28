@@ -51,32 +51,6 @@
             warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
         }) }}
 
-        {{ forms.selectField({
-            label: "Free Order Payment Strategy"|t('commerce'),
-            instructions: "Strategy to apply when an order is free or has a zero balance."|t('commerce'),
-            name: 'settings[freeOrderPaymentStrategy]',
-            value: settings.freeOrderPaymentStrategy,
-            options: settings.getFreeOrderPaymentStrategyOptions(),
-            errors: settings.getErrors('freeOrderPaymentStrategy'),
-            required: true,
-            warning: configWarning('freeOrderPaymentStrategy', 'commerce'),
-        }) }}
-
-        {{ forms.textField({
-            label: "Order Reference Number Format"|t('commerce'),
-            instructions: "A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique."|t('commerce', {
-            ex1: "<code>2018-{number[:7]}</code>",
-            ex2: "<code>{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}</code>"
-            }),
-            id: 'orderReferenceFormat',
-            name: 'settings[orderReferenceFormat]',
-            value: settings.orderReferenceFormat,
-            class: 'code ltr',
-            errors: settings.getErrors('orderReferenceFormat'),
-            required: true,
-            warning: configWarning('orderReferenceFormat', 'commerce'),
-        }) }}
-
         <hr>
         <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
         {{ forms.autosuggestField({
