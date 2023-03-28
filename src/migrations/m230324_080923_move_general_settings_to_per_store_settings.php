@@ -60,7 +60,7 @@ class m230324_080923_move_general_settings_to_per_store_settings extends Migrati
             $projectConfig->muteEvents = true;
 
             foreach ($stores as $uid => $store) {
-                $projectConfig->set("commerce.stores.$uid", $data);
+                $projectConfig->set("commerce.stores.$uid", array_merge($store, $data));
             }
 
             $projectConfig->muteEvents = $muteEvents;
