@@ -12,6 +12,7 @@ use craft\commerce\elements\Product;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
+use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 
 /**
@@ -46,13 +47,12 @@ class Products extends Component
             ];
 
             foreach ($elementTypes as $elementType) {
-                Queue::push(new PropagateElements([
+                Queue::push(new ResaveElements([
                     'elementType' => $elementType,
                     'criteria' => [
                         'siteId' => $oldPrimarySiteId,
                         'status' => null,
                     ],
-                    'siteId' => null, // all sites
                 ]));
             }
         }
