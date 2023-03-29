@@ -87,6 +87,24 @@
         hasOptgroups: true
     }) }}
 
+    {{ forms.selectField({
+        label: 'Paper Orientation'|t('commerce'),
+        id: 'paperOrientation',
+        name: 'paperOrientation',
+        options: paperOrientationOptions,
+        value: pdf.paperOrientation,
+        errors: pdf.getErrors('paperOrientation') ?? null,
+    }) }}
+
+    {{ forms.selectizeField({
+        label: 'Paper Size'|t('commerce'),
+        id: 'paperSize',
+        name: 'paperSize',
+        options: paperSizeOptions,
+        value: pdf.paperSize,
+        errors: pdf.getErrors('paperSize') ?? null,
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this PDF will not be available or sent with emails.'|t('commerce'),

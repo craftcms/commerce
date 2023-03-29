@@ -94,22 +94,24 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
-- Removed `craft\commerce\models\Settings::$autoSetNewCartAddresses`. Use `craft\commerce\models\Store::getAutoSetNewCartAddresses()` instead.
-- Removed `craft\commerce\models\Settings::$autoSetCartShippingMethodOption`. Use `craft\commerce\models\Store::getAutoSetCartShippingMethodOption()` instead.
-- Removed `craft\commerce\models\Settings::$autoSetPaymentSource`. Use `craft\commerce\models\Store::getAutoSetPaymentSource()` instead.
-- Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
+- Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. Use `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$requireBillingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireBillingAddressAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
+- Removed `craft\commerce\models\Settings::$autoSetCartShippingMethodOption`. Use `craft\commerce\models\Store::getAutoSetCartShippingMethodOption()` instead.
+- Removed `craft\commerce\models\Settings::$autoSetNewCartAddresses`. Use `craft\commerce\models\Store::getAutoSetNewCartAddresses()` instead.
+- Removed `craft\commerce\models\Settings::$autoSetPaymentSource`. Use `craft\commerce\models\Store::getAutoSetPaymentSource()` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
+- Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderNamePlaceholder`.
+- Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.
 - Removed `craft\commerce\models\Settings::$freeOrderPaymentStrategy`. Use `craft\commerce\models\Store::getFreeOrderPaymentStrategy()` instead.
 - Removed `craft\commerce\models\Settings::$minimumTotalPriceStrategy`. Use `craft\commerce\models\Store::getMinimumTotalPriceStrategy()` instead.
-- Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
-- Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
-- Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.
-- Removed `craft\commerce\models\Settings::$emailSenderNamePlaceholder`.
+- Removed `craft\commerce\models\Settings::$pdfPaperOrientation`. Use `craft\commerce\models\Pdf::$paperOrientation` instead.
+- Removed `craft\commerce\models\Settings::$pdfPaperSize`. Use `craft\commerce\models\Pdf::$paperSize` instead.
+- Removed `craft\commerce\models\Settings::$requireBillingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireBillingAddressAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
+- Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` instead.
 - Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` instead.

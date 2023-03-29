@@ -94,6 +94,8 @@ class PdfsController extends BaseAdminController
         }
 
         $variables['isDefault'] = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['pdf']->storeId)->count() === 0 || $variables['pdf']->isDefault;
+        $variables['paperOrientationOptions'] = Pdf::getPaperOrientationOptions();
+        $variables['paperSizeOptions'] = Pdf::getPaperSizeOptions();
 
         DebugPanel::prependOrAppendModelTab(model: $variables['pdf'], prepend: true);
 
@@ -135,6 +137,8 @@ class PdfsController extends BaseAdminController
         $pdf->enabled = $this->request->getBodyParam('enabled');
         $pdf->isDefault = $this->request->getBodyParam('isDefault');
         $pdf->language = $this->request->getBodyParam('language');
+        $pdf->paperSize = $this->request->getBodyParam('paperSize');
+        $pdf->paperOrientation = $this->request->getBodyParam('paperOrientation');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {

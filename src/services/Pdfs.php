@@ -352,6 +352,8 @@ class Pdfs extends Component
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
             $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
+            $pdfRecord->paperOrientation = $data['paperOrientation'] ?? PdfRecord::PAPER_ORIENTATION_PORTRAIT;
+            $pdfRecord->paperSize = $data['paperSize'] ?? 'letter';
 
             $pdfRecord->uid = $pdfUid;
 
@@ -560,12 +562,8 @@ class Pdfs extends Component
         // Set the options
         $dompdf->setOptions($options);
 
-        // Paper size and orientation
-        $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
-        $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
 
-
-        $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
+        $dompdf->setPaper($pdf->paperSize, $pdf->paperOrientation);
 
         $dompdf->loadHtml($html);
         $dompdf->render();
@@ -614,6 +612,8 @@ class Pdfs extends Component
                 'isDefault',
                 'language',
                 'name',
+                'paperOrientation',
+                'paperSize',
                 'sortOrder',
                 'storeId',
                 'templatePath',

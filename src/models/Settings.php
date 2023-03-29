@@ -139,24 +139,6 @@ class Settings extends Model
     public ?array $paymentCurrency = null;
 
     /**
-     * @var string The orientation of the paper to use for generated order PDF files.
-     *
-     * Options are `'portrait'` and `'landscape'`.
-     *
-     * @group Orders
-     */
-    public string $pdfPaperOrientation = 'portrait';
-
-    /**
-     * @var string The size of the paper to use for generated order PDFs.
-     *
-     * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
-     *
-     * @group Orders
-     */
-    public string $pdfPaperSize = 'letter';
-
-    /**
      * @var bool Whether to allow non-local images in generated order PDFs.
      * @group Orders
      */
