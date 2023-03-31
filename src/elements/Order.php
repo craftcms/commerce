@@ -1179,8 +1179,12 @@ class Order extends Element
             $this->orderLanguage = Craft::$app->language;
         }
 
+        if ($this->storeId === null) {
+            $this->storeId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        }
+
         if ($this->orderSiteId === null) {
-            $this->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
+            $this->orderSiteId = $this->getStore()->getSites()->first()->id;
         }
 
         if ($this->currency === null) {
@@ -1301,8 +1305,8 @@ class Order extends Element
         // Set default gateway if none present and no payment source selected
         if (!$this->gatewayId && !$this->paymentSourceId) {
             $gateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();
-            if (count($gateways)) {
-                $this->gatewayId = key($gateways);
+            if ($gateways->isNotEmpty()) {
+                $this->gatewayId = $gateways->first()->id;
             }
         }
 
@@ -1443,6 +1447,7 @@ class Order extends Element
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
+        $names[] = 'store';
         $names[] = 'transactions';
         return $names;
     }

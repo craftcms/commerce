@@ -24,7 +24,8 @@
         elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
         context: '{{ context }}',
         storageKey: 'elementindex.{{ elementType|e("js") }}',
-        toolbarSelector: '#toolbar'
+        toolbarSelector: '#toolbar',
+        stores: {{ stores|json_encode|raw }},
     });
 {% endblock %}
 

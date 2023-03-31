@@ -29,13 +29,28 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       window.orderEdit &&
       window.orderEdit.currentUserPermissions['commerce-editOrders']
     ) {
-      // Add the New Order button
-      var $btn = $('<a/>', {
-        class: 'btn submit icon add',
-        href: Craft.getUrl('commerce/orders/create'),
+      let $btnContainer = $('<div class="btngroup submit"/>');
+      const $btn = $('<button/>', {
+        type: 'button',
+        class: 'btn menubtn submit icon add',
         text: Craft.t('commerce', 'New Order'),
+      }).appendTo($btnContainer);
+
+      const $menu = $('<div/>', {class: 'menu'}).appendTo($btnContainer);
+      const $ul = $('<ul/>').appendTo($menu);
+
+      this.settings.stores.forEach((store) => {
+        const $link = $('<a/>', {
+          href: Craft.getUrl('commerce/orders/' + store.handle + '/create'),
+          text: store.name,
+        });
+
+        $('<li/>').append($link).appendTo($ul);
       });
-      this.addButton($btn);
+
+      const $menuBtn = new Garnish.MenuBtn($btn);
+      // Add the New Order button
+      this.addButton($btnContainer);
     }
   },
 

@@ -57,6 +57,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 use yii\web\BadRequestHttpException;
@@ -102,7 +103,10 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
-        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
+        // @TODO store permissions
+        $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
+
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'stores'));
     }
 
     /**
@@ -113,9 +117,15 @@ class OrdersController extends Controller
      * @throws ForbiddenHttpException
      * @throws Throwable
      */
-    public function actionCreate(): Response
+    public function actionCreate(string $storeHandle): Response
     {
         $this->requirePermission('commerce-manageOrders');
+
+        $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+
+        if (!$store) {
+            throw new InvalidArgumentException('Invalid store handle: ' . $storeHandle);
+        }
 
         $userId = $this->request->getParam('customerId');
         $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
@@ -124,16 +134,25 @@ class OrdersController extends Controller
             throw new BadRequestHttpException("Invalid user ID: $userId");
         }
 
-        $order = new Order();
+        $attributes = [
+            'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
+            'origin' => Order::ORIGIN_CP,
+            'storeId' => $store->id,
+        ];
         if ($user) {
-            $order->setCustomer($user);
+            $attributes['customer'] = $user;
+        }
 
+        $order = Craft::createObject([
+            'class' => Order::class,
+            'attributes' => $attributes,
+        ]);
+
+        if ($user) {
             // Try to set defaults
             $order->autoSetAddresses();
             $order->autoSetShippingMethod();
         }
-        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-        $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -448,6 +467,7 @@ class OrdersController extends Controller
             'orderSite',
             'notices',
             'loadCartUrl',
+            'store',
         ];
 
         $lineItems = $order->getLineItems();
@@ -504,17 +524,20 @@ class OrdersController extends Controller
         $sort = $this->request->getParam('sort');
         $limit = $this->request->getParam('per_page', 10);
         $search = $this->request->getParam('search');
+        $storeId = $this->request->getQueryParam('storeId', Plugin::getInstance()->getStores()->getPrimaryStore()->id);
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['purchasables.id', 'purchasables.price', 'purchasables.description', 'purchasables.sku'])
+            ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
                 '[[elements.id]] = [[purchasables.id]]',
             ])
+            ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
+            ->andWhere(['pstores.storeId' => $storeId])
             ->from(['purchasables' => Table::PURCHASABLES]);
 
         // Are they searching for a SKU or purchasable description?
@@ -548,11 +571,9 @@ class OrdersController extends Controller
         $sqlQuery->offset($offset);
         $result = $sqlQuery->all();
 
-        $purchasables = $this->_addLivePurchasableInfo($result);
-
         return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
-            'data' => $purchasables,
+            'data' => $this->_addLivePurchasableInfo($result),
         ]);
     }
 
@@ -1118,7 +1139,7 @@ class OrdersController extends Controller
             if ($gateway && !$gateway instanceof MissingGateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
-                $gateway = ArrayHelper::firstValue(Plugin::getInstance()->getGateways()->getAllGateways());
+                $gateway = Plugin::getInstance()->getGateways()->getAllGateways($order->storeId)->first();
 
                 if ($gateway && !$gateway instanceof MissingGateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
@@ -1137,22 +1158,24 @@ class OrdersController extends Controller
      */
     private function _registerJavascript(array $variables): void
     {
+        /** @var Order $order */
+        $order = $variables['order'];
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
-        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode($variables['order']->getAutoSetNewCartAddresses()) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.autoSetNewCartAddresses = ' . Json::encode($order->getStore()->getAutoSetNewCartAddresses()) . ';', View::POS_BEGIN);
 
-        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $variables['order']->id . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.orderId = ' . $order->id . ';', View::POS_BEGIN);
 
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($variables['order']->storeId);
-        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($order->storeId)->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode($orderStatuses) . ';', View::POS_BEGIN);
 
-        $orderSites = Craft::$app->getSites()->getAllSites();
-        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(ArrayHelper::toArray($orderSites)) . ';', View::POS_BEGIN);
+        $orderSites = $order->getStore()->getSites()->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(array_values($orderSites)) . ';', View::POS_BEGIN);
 
-        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($variables['order']->storeId);
-        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
+        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)->all();
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
@@ -1173,41 +1196,41 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $order->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = $variables['order']->customerId ? $variables['order']->getCustomer() : null;
+        $customer = $order->customerId ? $order->getCustomer() : null;
         if ($customer) {
             $customer = $this->_customerToArray($customer);
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($variables['order']->storeId);
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($order->storeId);
         $pdfUrls = [];
         foreach ($pdfs as $pdf) {
             $pdfUrls[] = [
                 'name' => $pdf->name,
-                'url' => $variables['order']->getPdfUrl(null, $pdf->handle),
+                'url' => $order->getPdfUrl(null, $pdf->handle),
             ];
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
-        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($variables['order']->storeId);
+        $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
 
         $response = [];
-        $response['order'] = $this->_orderToArray($variables['order']);
+        $response['order'] = $this->_orderToArray($order);
 
-        if ($variables['order']->hasErrors()) {
-            $response['order']['errors'] = $variables['order']->getErrors();
+        if ($order->hasErrors()) {
+            $response['order']['errors'] = $order->getErrors();
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 
         Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', View::POS_BEGIN);
 
-        $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
+        $forceEdit = ($order->hasErrors() || !$order->isCompleted);
 
         Craft::$app->getView()->registerJs('window.orderEdit.forceEdit = ' . Json::encode($forceEdit) . ';', View::POS_BEGIN);
     }
@@ -1527,7 +1550,7 @@ class OrdersController extends Controller
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 } else {
-                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['basePrice'], $baseCurrency, [], [], true);
                 }
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [

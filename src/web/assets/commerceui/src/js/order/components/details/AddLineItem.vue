@@ -58,7 +58,10 @@
                 <admin-table
                     ref="addAdminTable"
                     :allow-multiple-selections="true"
-                    table-data-endpoint="commerce/orders/purchasables-table"
+                    :table-data-endpoint="
+                        'commerce/orders/purchasables-table?storeId=' +
+                        $store.state.draft.order.storeId
+                    "
                     :checkboxes="true"
                     :checkbox-status="isCheckboxEnabled"
                     :columns="purchasableTableColumns"
