@@ -138,6 +138,7 @@
         {{ forms.selectizeField({
             label: "Minimum Total Price Strategy"|t('commerce'),
             instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
+            id: 'minimumTotalPriceStrategy',
             name: 'minimumTotalPriceStrategy',
             value: store.getMinimumTotalPriceStrategy(false),
             options: minimumTotalPriceStrategyOptions,

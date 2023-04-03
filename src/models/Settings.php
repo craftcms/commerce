@@ -20,7 +20,6 @@ use yii\base\InvalidConfigException;
  *
  * @property-read array $weightUnitsOptions
  * @property-read array $dimensionsUnits
- * @property-read array $minimumTotalPriceStrategyOptions
  * @property-read array $defaultViewOptions
  * @property-read string $paymentCurrency
  *

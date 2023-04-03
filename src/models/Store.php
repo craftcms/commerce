@@ -313,6 +313,7 @@ class Store extends Model
             'autoSetPaymentSource' => $this->getAutoSetPaymentSource(false),
             'freeOrderPaymentStrategy' => $this->getFreeOrderPaymentStrategy(false),
             'handle' => $this->handle,
+            'minimumTotalPriceStrategy' => $this->getMinimumTotalPriceStrategy(false),
             'name' => $this->_name,
             'primary' => $this->primary,
             'requireBillingAddressAtCheckout' => $this->getRequireBillingAddressAtCheckout(false),
