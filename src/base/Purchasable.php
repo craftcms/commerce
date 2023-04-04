@@ -792,6 +792,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     protected static function defineSearchableAttributes(): array
     {
         return [...parent::defineSearchableAttributes(), ...[
+            'description',
             'sku',
             'price',
             'width',
