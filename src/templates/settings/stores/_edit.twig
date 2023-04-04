@@ -191,10 +191,10 @@
         {{ forms.booleanMenuField({
             label: 'Validate Business Tax ID as Vat ID'|t('commerce'),
             instructions: ''|t('commerce'),
-            id: 'validateBusinessTaxIdAsVatId',
-            name: 'validateBusinessTaxIdAsVatId',
-            value: store.getValidateBusinessTaxIdAsVatId(false),
-            errors: store.getErrors('validateBusinessTaxIdAsVatId'),
+            id: 'validateOrganizationTaxIdAsVatId',
+            name: 'validateOrganizationTaxIdAsVatId',
+            value: store.getValidateOrganizationTaxIdAsVatId(false),
+            errors: store.getErrors('validateOrganizationTaxIdAsVatId'),
             includeEnvVars: true,
         }) }}
 

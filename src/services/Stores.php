@@ -341,7 +341,7 @@ class Stores extends Component
             $storeRecord->requireBillingAddressAtCheckout = $data['requireBillingAddressAtCheckout'];
             $storeRecord->requireShippingMethodSelectionAtCheckout = $data['requireShippingMethodSelectionAtCheckout'];
             $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
-            $storeRecord->validateBusinessTaxIdAsVatId = $data['validateBusinessTaxIdAsVatId'];
+            $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
             $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
             $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
@@ -521,7 +521,7 @@ class Stores extends Component
                 'sortOrder',
                 'uid',
                 'useBillingAddressForTax',
-                'validateBusinessTaxIdAsVatId',
+                'validateOrganizationTaxIdAsVatId',
             ])
             ->from([Table::STORES])
             ->orderBy(['sortOrder' => SORT_ASC]);

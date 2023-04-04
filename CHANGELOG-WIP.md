@@ -69,6 +69,7 @@
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
+- Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
@@ -85,6 +86,7 @@
 - Added `craft\commerce\models\PaymentSources::getStore()`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
+- Added `craft\commerce\plugin\Services::getVat()`.
 - Added `craft\commerce\records\CatalogPricing`.
 - Added `craft\commerce\records\CatalogPricingRule`.
 - Added `craft\commerce\records\CatalogPricingRulePurchasable`.
@@ -93,6 +95,7 @@
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
+- Added `craft\commerce\services\Vat`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
@@ -112,6 +115,7 @@
 - Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
+- Removed `craft\commerce\models\Settings::$validateBusinessTaxIdasVatId`. Use `craft\commerce\models\Store::getValidateOrganizationTaxIdasVatId()` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` instead.
 - Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` instead.

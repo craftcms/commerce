@@ -161,4 +161,27 @@ trait OrderValidatorsTrait
             $this->$attribute = null;
         }
     }
+
+    /**
+     * @param $attribute
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function validateOrganizationTaxIdAsVatId($attribute): void
+    {
+        $address = $this->$attribute;
+
+        // Skip on empty
+        if (!$address->organizationTaxId) {
+            return;
+        }
+
+        if (Plugin::getInstance()->getVat()->isValidVatId($address->organizationTaxId)) {
+            return;
+        }
+
+        $address->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
+        $this->addModelErrors($address, $attribute);
+    }
 }

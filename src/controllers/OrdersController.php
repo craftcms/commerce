@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -1545,12 +1546,12 @@ class OrdersController extends Controller
         $purchasables = [];
         foreach ($results as $row) {
             /** @var PurchasableElement|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($row['id']);
+            $purchasable = Craft::$app->getElements()->getElementById($row['id'], siteId: $row['siteId'], criteria: ['forCustomer' => null]);
             if ($purchasable) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
                     $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 } else {
-                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['basePrice'], $baseCurrency, [], [], true);
+                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($purchasable->getPrice(), $baseCurrency, [], [], true);
                 }
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [

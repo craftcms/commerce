@@ -47,6 +47,7 @@ use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
 use craft\commerce\services\Variants;
+use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
 use yii\base\InvalidConfigException;
 
@@ -531,6 +532,17 @@ trait Services
     public function getVariants(): Variants
     {
         return $this->get('variants');
+    }
+
+    /**
+     * Returns the VAT service
+     *
+     * @return Vat The VAT service
+     * @throws InvalidConfigException
+     */
+    public function getVat(): Vat
+    {
+        return $this->get('vat');
     }
 
     /**

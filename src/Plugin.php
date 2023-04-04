@@ -90,6 +90,7 @@ use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
 use craft\commerce\services\Variants as VariantsService;
+use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
@@ -206,6 +207,7 @@ class Plugin extends BasePlugin
                 'transactions' => ['class' => Transactions::class],
                 'customers' => ['class' => Customers::class],
                 'variants' => ['class' => VariantsService::class],
+                'vat' => ['class' => Vat::class],
                 'webhooks' => ['class' => Webhooks::class],
             ],
         ];
@@ -221,7 +223,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.37';
+    public string $schemaVersion = '5.0.38';
 
     /**
      * @inheritdoc
@@ -615,10 +617,6 @@ class Plugin extends BasePlugin
             $owner = $address->getOwner();
             if ($owner instanceof UserElement) {
                 $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
-            }
-
-            if (self::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
-                $event->behaviors['commerce:validateOrganizationTaxId'] = ValidateOrganizationTaxIdBehavior::class;
             }
         });
 

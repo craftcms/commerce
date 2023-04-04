@@ -197,21 +197,6 @@ class Settings extends Model
     public bool $updateCartSearchIndexes = true;
 
     /**
-     * @var bool Whether to enable validation requiring the `businessTaxId` to be a valid VAT ID.
-     *
-     * When set to `false`, no validation is applied to `businessTaxId`.
-     *
-     * When set to `true`, `businessTaxId` must contain a valid VAT ID.
-     *
-     * ::: tip
-     * This setting strictly toggles input validation and has no impact on tax configuration or behavior elsewhere in the system.
-     * :::
-     *
-     * @group Orders
-     */
-    public bool $validateBusinessTaxIdAsVatId = false;
-
-    /**
      * @var string Units to be used for weight measurements.
      *
      * Options:

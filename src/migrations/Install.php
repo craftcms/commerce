@@ -780,7 +780,7 @@ class Install extends Migration
             'requireBillingAddressAtCheckout' => $this->boolean()->notNull()->defaultValue(false),
             'requireShippingMethodSelectionAtCheckout' => $this->boolean()->notNull()->defaultValue(false),
             'useBillingAddressForTax' => $this->boolean()->notNull()->defaultValue(false),
-            'validateBusinessTaxIdAsVatId' => $this->boolean()->notNull()->defaultValue(false),
+            'validateOrganizationTaxIdAsVatId' => $this->boolean()->notNull()->defaultValue(false),
             'orderReferenceFormat' => $this->string(),
             'freeOrderPaymentStrategy' => $this->string()->defaultValue('complete'),
             'minimumTotalPriceStrategy' => $this->string()->defaultValue('default'),

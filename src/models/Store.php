@@ -135,10 +135,10 @@ class Store extends Model
 
     /**
      * @var bool
-     * @see setValidateBusinessTaxIdAsVatId()
-     * @see getValidateBusinessTaxIdAsVatId()
+     * @see setValidateOrganizationTaxIdAsVatId()
+     * @see getValidateOrganizationTaxIdAsVatId()
      */
-    private bool|string $_validateBusinessTaxIdAsVatId = false;
+    private bool|string $_validateOrganizationTaxIdAsVatId = false;
 
     /**
      * @var string
@@ -191,7 +191,7 @@ class Store extends Model
             'sortOrder',
             'uid',
             'useBillingAddressForTax',
-            'validateBusinessTaxIdAsVatId',
+            'validateOrganizationTaxIdAsVatId',
         ], 'safe'];
 
         return $rules;
@@ -321,7 +321,7 @@ class Store extends Model
             'requireShippingMethodSelectionAtCheckout' => $this->getRequireShippingMethodSelectionAtCheckout(false),
             'sortOrder' => $this->sortOrder,
             'useBillingAddressForTax' => $this->getUseBillingAddressForTax(false),
-            'validateBusinessTaxIdAsVatId' => $this->getValidateBusinessTaxIdAsVatId(false),
+            'validateOrganizationTaxIdAsVatId' => $this->getValidateOrganizationTaxIdAsVatId(false),
         ];
     }
 
@@ -549,21 +549,29 @@ class Store extends Model
     }
 
     /**
-     * @param bool|string $validateBusinessTaxIdAsVatId
+     * @param bool|string $validateOrganizationTaxIdAsVatId
      * @return void
      */
-    public function setValidateBusinessTaxIdAsVatId(bool|string $validateBusinessTaxIdAsVatId): void
+    public function setValidateOrganizationTaxIdAsVatId(bool|string $validateOrganizationTaxIdAsVatId): void
     {
-        $this->_validateBusinessTaxIdAsVatId = $validateBusinessTaxIdAsVatId;
+        $this->_validateOrganizationTaxIdAsVatId = $validateOrganizationTaxIdAsVatId;
     }
 
     /**
      * @param bool $parse
-     * @return bool|string
+     * @return bool|string Whether to enable validation requiring the `organizationTaxId` to be a valid VAT ID.
+     *
+     * When set to `false`, no validation is applied to `organizationTaxId`.
+     *
+     * When set to `true`, `organizationTaxId` must contain a valid VAT ID.
+     *
+     * ::: tip
+     * This setting strictly toggles input validation and has no impact on tax configuration or behavior elsewhere in the system.
+     * :::
      */
-    public function getValidateBusinessTaxIdAsVatId(bool $parse = true): bool|string
+    public function getValidateOrganizationTaxIdAsVatId(bool $parse = true): bool|string
     {
-        return $parse ? App::parseBooleanEnv($this->_validateBusinessTaxIdAsVatId) : $this->_validateBusinessTaxIdAsVatId;
+        return $parse ? App::parseBooleanEnv($this->_validateOrganizationTaxIdAsVatId) : $this->_validateOrganizationTaxIdAsVatId;
     }
 
     /**
