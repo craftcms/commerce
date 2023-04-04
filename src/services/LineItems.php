@@ -237,6 +237,8 @@ class LineItems extends Component
         $lineItemRecord->sku = $lineItem->getSku();
         $lineItemRecord->description = $lineItem->getDescription();
 
+        $lineItemRecord->dateCreated = $lineItem->dateCreated;
+
         $lineItemRecord->options = $lineItem->getOptions();
         $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();
 
