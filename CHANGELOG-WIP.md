@@ -12,6 +12,7 @@
 ### Administration
 
 ### Development
+- `craft\commerce\base\PurchasableInterface` now extends `ElementInterface`.
 - `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
 - `craft\commerce\services\Gateways::getAllCustomerEnabledGateways()` now returns a `Collection`.
 - `craft\commerce\services\Gateways::getAllGateways()` now returns a `Collection`.

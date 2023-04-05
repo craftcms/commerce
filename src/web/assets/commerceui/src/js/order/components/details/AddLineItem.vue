@@ -58,10 +58,7 @@
                 <admin-table
                     ref="addAdminTable"
                     :allow-multiple-selections="true"
-                    :table-data-endpoint="
-                        'commerce/orders/purchasables-table?storeId=' +
-                        $store.state.draft.order.storeId
-                    "
+                    :table-data-endpoint="endpoint"
                     :checkboxes="true"
                     :checkbox-status="isCheckboxEnabled"
                     :columns="purchasableTableColumns"
@@ -170,6 +167,7 @@
         computed: {
             ...mapState({
                 purchasables: (state) => state.purchasables,
+                draft: (state) => state.draft,
             }),
 
             ...mapGetters(['getErrors', 'canAddLineItem', 'orderId']),
@@ -188,6 +186,19 @@
 
             lineItems() {
                 return this.$store.state.draft.order.lineItems;
+            },
+
+            endpoint() {
+                let endpoint =
+                    'commerce/orders/purchasables-table?siteId=' +
+                    this.draft.order.orderSiteId;
+
+                if (this.draft.order.customerId) {
+                    endpoint =
+                        endpoint + '&customerId=' + this.draft.order.customerId;
+                }
+
+                return endpoint;
             },
         },
 

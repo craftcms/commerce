@@ -12,7 +12,9 @@ use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\errors\CurrencyException;
@@ -525,13 +527,24 @@ class OrdersController extends Controller
         $sort = $this->request->getParam('sort');
         $limit = $this->request->getParam('per_page', 10);
         $search = $this->request->getParam('search');
-        $storeId = $this->request->getQueryParam('storeId', Plugin::getInstance()->getStores()->getPrimaryStore()->id);
+        $siteId = $this->request->getQueryParam('siteId');
+        $customerId = $this->request->getQueryParam('customerId', false);
+
+        if (!$siteId) {
+            throw new InvalidArgumentException('siteId is required');
+        }
+
+        $storeId = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        if (!$storeId) {
+            throw new InvalidArgumentException('Store not found');
+        }
+
         $offset = ($page - 1) * $limit;
 
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku'])
+            ->select(['purchasables.id', 'pstores.basePrice', 'purchasables.description', 'purchasables.sku', 'elements.type'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
                 '[[elements.id]] = [[purchasables.id]]',
@@ -574,7 +587,7 @@ class OrdersController extends Controller
 
         return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
-            'data' => $this->_addLivePurchasableInfo($result),
+            'data' => $this->_addLivePurchasableInfo($result, $siteId, $customerId),
         ]);
     }
 
@@ -1540,19 +1553,17 @@ class OrdersController extends Controller
     /**
      * @throws InvalidConfigException
      */
-    private function _addLivePurchasableInfo(array $results): array
+    private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
+
         foreach ($results as $row) {
-            /** @var PurchasableElement|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($row['id'], siteId: $row['siteId'], criteria: ['forCustomer' => null]);
+            /** @var PurchasableInterface|null $purchasable */
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
             if ($purchasable) {
-                if ($purchasable->getBehavior('currencyAttributes')) {
-                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
-                } else {
-                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($purchasable->getPrice(), $baseCurrency, [], [], true);
-                }
+                // @TODO revisit when updating currencies for stores
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($purchasable->getSalePrice(), $baseCurrency, [], [], true);
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
@@ -1567,6 +1578,7 @@ class OrdersController extends Controller
                 $purchasables[] = $row;
             }
         }
+
         return $purchasables;
     }
 

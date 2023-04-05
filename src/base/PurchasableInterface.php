@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ShippingCategory;
@@ -19,13 +20,8 @@ use craft\commerce\models\TaxCategory;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-interface PurchasableInterface
+interface PurchasableInterface extends ElementInterface
 {
-    /**
-     * Returns the element’s ID.
-     */
-    public function getId(): ?int;
-
     /**
      * Returns the store for the current instance of the purchasable.
      *
@@ -39,14 +35,6 @@ interface PurchasableInterface
      * @return int
      */
     public function getStoreId(): int;
-
-    /**
-     * Returns the element’s status.
-     *
-     * @return string|null
-     * @TODO figure out what to do with this as it comes from the `ElementInterface`
-     */
-    public function getStatus(): ?string;
 
 
     /**
@@ -72,7 +60,6 @@ interface PurchasableInterface
     public function getSalePrice(): ?float;
 
     /**
-     * @param Store|null $store
      * @return bool
      * @since 5.0.0
      */

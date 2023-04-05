@@ -9,11 +9,13 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
+use craft\errors\SiteNotFoundException;
 use craft\events\RegisterComponentTypesEvent;
 use Throwable;
 use yii\base\Component;
@@ -153,15 +155,37 @@ class Purchasables extends Component
      * Get a purchasable by its ID.
      *
      * @param int $purchasableId
+     * @param int|null $siteId
+     * @param int|false|null $forCustomer
      * @return PurchasableInterface|null
-     * @throws InvalidArgumentException if $purchasableId is an element ID but not a purchasable
+     * @throws SiteNotFoundException
      */
-    public function getPurchasableById(int $purchasableId): ?PurchasableInterface
+    public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
     {
-        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        $siteId = $siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+        $elementType = Craft::$app->getElements()->getElementTypeById($purchasableId);
+
+        if ($elementType === null || !class_exists($elementType)) {
+            return null;
+        }
+
+        $query = Craft::$app->getElements()->createElementQuery($elementType)
+            ->id($purchasableId)
+            ->siteId($siteId)
+            ->status(null)
+            ->drafts(null)
+            ->provisionalDrafts(null)
+            ->revisions(null);
+
+        if ($query instanceof PurchasableQuery) {
+            $query->forCustomer($forCustomer);
+        }
+
+        $purchasable = $query->one();
         if ($purchasable && !$purchasable instanceof PurchasableInterface) {
             throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
         }
+
         return $purchasable;
     }
 

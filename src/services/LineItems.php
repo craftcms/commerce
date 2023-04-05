@@ -337,7 +337,8 @@ class LineItems extends Component
         $lineItem->setOrder($order);
 
         /** @var PurchasableInterface|null $purchasable */
-        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        $forCustomer = $order->customerId ?? false;
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 
         if ($purchasable instanceof PurchasableInterface) {
             $lineItem->setPurchasable($purchasable);

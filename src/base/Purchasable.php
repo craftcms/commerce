@@ -282,7 +282,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             return false;
         }
 
-        // is the variant enabled?
+        // is the element enabled?
         if ($this->getStatus() !== Element::STATUS_ENABLED) {
             return false;
         }
