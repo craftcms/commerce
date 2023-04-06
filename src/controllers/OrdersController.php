@@ -1395,7 +1395,7 @@ class OrdersController extends Controller
             $lineItem->setOrder($order);
 
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
-            if ($purchasableId && !Craft::$app->getElements()->getElementById($purchasableId)) {
+            if ($purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
                 $lineItem->purchasableId = null;
             }
 

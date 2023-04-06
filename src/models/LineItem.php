@@ -462,7 +462,8 @@ class LineItem extends Model
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $order = $this->getOrder();
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
                     $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
@@ -620,8 +621,9 @@ class LineItem extends Model
     public function getPurchasable(): ?PurchasableInterface
     {
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
+            $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             $this->_purchasable = $purchasable;
         }
 
