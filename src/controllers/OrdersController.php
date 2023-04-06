@@ -30,6 +30,7 @@ use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
+use craft\commerce\models\Pdf;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -1220,16 +1221,12 @@ class OrdersController extends Controller
 
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($order->storeId);
-        $pdfUrls = [];
-        foreach ($pdfs as $pdf) {
-            $pdfUrls[] = [
-                'name' => $pdf->name,
-                'url' => $order->getPdfUrl(null, $pdf->handle),
-            ];
-        }
+        $pdfUrls = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($order->storeId)->map(fn(Pdf $pdf) => [
+            'name' => $pdf->name,
+            'url' => $order->getPdfUrl(null, $pdf->handle),
+        ])->all();
 
-        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode($pdfUrls) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.emailTemplates = ' . Json::encode(ArrayHelper::toArray($emails)) . ';', View::POS_BEGIN);
