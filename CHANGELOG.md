@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `craft\commerce\elements\conditions\orders\OrderSiteConditionRule`.
 - Fixed a bug where variants did not propagate when a new site was added. ([#3124](https://github.com/craftcms/commerce/issues/3124))
 - Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
 - Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
