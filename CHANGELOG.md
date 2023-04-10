@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Craft Commerce now requires Dompdf 2.0.0 or later.
+
 ### Fixed
 - Fixed a bug where calling a shipping method with an integer handle throws an error. ([#3093])(https://github.com/craftcms/commerce/issues/3093)
 
