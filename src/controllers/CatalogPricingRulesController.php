@@ -234,15 +234,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         }
 
         $rules = [];
-        // $purchasableSales = Plugin::getInstance()->getcatalogPricingRules()->get($purchasable);
-        // foreach ($purchasableSales as $sale) {
-        //     if (!ArrayHelper::firstWhere($rules, 'id', $sale->id)) {
-        //         /** @var Sale $sale */
-        //         $saleArray = $sale->toArray();
-        //         $saleArray['cpEditUrl'] = $sale->getCpEditUrl();
-        //         $rules[] = $saleArray;
-        //     }
-        // }
 
         return $this->asSuccess(data: [
             'catalogPricingRules' => $rules,
