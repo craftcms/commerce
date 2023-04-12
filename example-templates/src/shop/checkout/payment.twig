@@ -75,7 +75,7 @@
 
               {# Special params for Stripe Elements and Checkout#}
               {# see https://stripe.com/docs/elements/appearance-api #}
-              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
+              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntentsElementsCheckout' %}
                 {% set params = {
                   appearance: {
                     theme: 'stripe'
@@ -85,8 +85,7 @@
                     defaultCollapsed: false,
                     radios: false,
                     spacedAccordionItems: false
-                  },
-                  submitButtonClasses: '[[classes.btn.base]] [[classes.btn.mainColor]]'
+                  }
                 } %}
               {% endif %}
 
