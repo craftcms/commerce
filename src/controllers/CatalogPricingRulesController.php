@@ -291,12 +291,8 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         }
 
         //getting user groups map
-        if (Craft::$app->getEdition() == Craft::Pro) {
-            $groups = Craft::$app->getUserGroups()->getAllGroups();
-            $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
-        } else {
-            $variables['groups'] = [];
-        }
+        $groups = Craft::$app->getUserGroups()->getAllGroups();
+        $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
 
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
