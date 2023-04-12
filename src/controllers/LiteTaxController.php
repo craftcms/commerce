@@ -44,13 +44,15 @@ class LiteTaxController extends BaseStoreSettingsController
     /**
      * Commerce Settings Form
      */
-    public function actionEdit(): Response
+    public function actionEdit(LiteTaxSettings $settings = null): Response
     {
-        $settings = new LiteTaxSettings([
-            'taxRate' => 0,
-            'taxName' => 'Tax',
-            'taxInclude' => false,
-        ]);
+        if ($settings === null) {
+            $settings = new LiteTaxSettings([
+                'taxRate' => 0,
+                'taxName' => 'Tax',
+                'taxInclude' => false,
+            ]);
+        }
 
         $taxRate = Plugin::getInstance()->getTaxRates()->getLiteTaxRate();
         $settings->taxName = $taxRate->name;
@@ -77,8 +79,11 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
-            return $this->renderTemplate('commerce/store-settings/tax', compact('settings'));
+            return $this->asModelFailure(
+                $settings,
+                Craft::t('commerce', 'Couldn’t save settings.'),
+                'settings'
+            );
         }
 
         $taxRate = Plugin::getInstance()->getTaxRates()->getLiteTaxRate();

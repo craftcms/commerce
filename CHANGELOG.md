@@ -2,20 +2,26 @@
 
 ## Unreleased
 
-### Store Management
-- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
-- Ajax requests to`commerce/payments/pay` actions now includes `redirectData` data in their response.
+- Added `craft\commerce\elements\conditions\orders\OrderSiteConditionRule`. ([#3131](https://github.com/craftcms/commerce/issues/3131))
+- Fixed a bug where variants did not propagate when a new site was added. ([#3124](https://github.com/craftcms/commerce/issues/3124))
+- Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
+- Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
 
-### Extensibility
+## 4.2.6 - 2023-03-22
+
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
 - Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
 - Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
-
-### System
+- The `commerce/payments/pay` action now includes a `redirectData` key in JSON responses.
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
-- Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
-- Fixed a bug where order custom fields weren’t validating. ([#3109](https://github.com/craftcms/commerce/issues/3109))
-- Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
-- Fixed a bug where the update order status action flash message displayed incorrectly. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where cart cookies weren’t getting removed on logout, if the `defaultCookieDomain` Craft config setting was set. ([#3091](https://github.com/craftcms/commerce/pull/3091))
+- Fixed a bug where the `validateCartCustomFieldsOnSubmission` setting wasn’t being respected in Craft 4.4. ([#3109](https://github.com/craftcms/commerce/issues/3109))
+- Fixed a bug where the “Tax Zone” and “Tax Category” selects could be incorrectly populated when editing a tax category.
+- Fixed a PHP error that occurred when saving a tax zone with an empty name on Commerce Lite. ([#3089](https://github.com/craftcms/commerce/issues/3089))
+- Fixed a PHP error that occurred when saving shipping settings with empty “Shipping Base Rate” or “Shipping Per Item Rate” settings on Commerce Lite.
+- Fixed a bug where the flash message that was shown for order status changes was malformed. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a PHP error that could occur when creating an order in the control panel. ([#3115](https://github.com/craftcms/commerce/issues/3115))
 
 ## 4.2.5.1 - 2023-02-02
 
