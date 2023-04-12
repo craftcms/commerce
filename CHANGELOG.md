@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Email jobs now retry automatically 5 times if they fail due to a error. ([#3121](https://github.com/craftcms/commerce/pull/3121))
 - Added `craft\commerce\elements\conditions\orders\OrderSiteConditionRule`. ([#3131](https://github.com/craftcms/commerce/issues/3131))
 - Fixed a bug where variants did not propagate when a new site was added. ([#3124](https://github.com/craftcms/commerce/issues/3124))
 - Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
