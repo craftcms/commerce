@@ -7,6 +7,7 @@
 - Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
 - Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
 - Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
+- Fixed a bug where the `commerce/upgrade` console command would fail with a large number of orphaned customers.
 
 ## 4.2.6 - 2023-03-22
 
