@@ -36,6 +36,9 @@ class SendEmail extends BaseJob implements RetryableJobInterface
      */
     public int $orderHistoryId;
 
+    /**
+     * @inheritDoc
+     */
     public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
@@ -57,16 +60,25 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         $this->setProgress($queue, 1);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getTtr(): int
     {
         return 60;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function canRetry($attempt, $error): bool
     {
         return $attempt < 5;
     }
 
+    /**
+     * @inheritDoc
+     */
     protected function defaultDescription(): ?string
     {
         return 'Sending email for order #' . $this->orderId;
