@@ -58,6 +58,6 @@ class OrderSiteConditionRule extends BaseMultiSelectConditionRule implements Ele
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Order $element */
-        return $this->matchValue($element->orderSiteId);
+        return $this->matchValue((string)$element->orderSiteId);
     }
 }
