@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => '"{reference}" konnte nicht storniert werden.',
     'Could not create the payment source.' => 'Die Zahlungsquelle konnte nicht erstellt werden.',
     'Could not delete shipping category' => 'Versandkategorie konnte nicht gelöscht werden',
-    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
+    'Could not delete shipping method and its rules.' => 'Konnte die Versandart und ihre Regeln nicht löschen.',
     'Could not delete shipping rule' => 'Lieferregel konnte nicht gelöscht werden',
     'Could not delete shipping zone' => 'Lieferzone konnte nicht gelöscht werden',
     'Could not delete tax category' => 'Steuerklasse konnte nicht gelöscht werden',
