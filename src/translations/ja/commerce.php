@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => '「{reference}」をキャンセルできませんでした。',
     'Could not create the payment source.' => '支払い元を作成できませんでした。',
     'Could not delete shipping category' => '配送カテゴリを削除できませんでした',
-    'Could not delete shipping method and it’s rules.' => '配送方法とそのルールを削除できませんでした。',
+    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
     'Could not delete shipping rule' => '配送ルールを削除できませんでした',
     'Could not delete shipping zone' => '配送地域を削除できませんでした',
     'Could not delete tax category' => '税カテゴリを削除できませんでした',
