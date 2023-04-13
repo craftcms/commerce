@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.7 - 2023-04-13
 
 - Added the “Order Site” order condition rule. ([#3131](https://github.com/craftcms/commerce/issues/3131))
 - Email jobs are now reattempted up to five times on failure. ([#3121](https://github.com/craftcms/commerce/pull/3121))
