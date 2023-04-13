@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => 'Kunne ikke kansellere «{reference}».',
     'Could not create the payment source.' => 'Kunne ikke opprette betalingskilde.',
     'Could not delete shipping category' => 'Kunne ikke slette fraktkategori',
-    'Could not delete shipping method and it’s rules.' => 'Kunne ikke slette forsendelsesmetode og tilhørende regler.',
+    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
     'Could not delete shipping rule' => 'Kunne ikke slette regel for forsendelse',
     'Could not delete shipping zone' => 'Kunne ikke slette forsendelsessone',
     'Could not delete tax category' => 'Kunne ikke slette avgiftskategori',
