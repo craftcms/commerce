@@ -8,7 +8,7 @@
 {% else %}
   {{ forms.multiselectField({
     label: 'Order Statuses'|t('commerce'),
-    instructions: 'Only orders with the following order statuses will be included. Leave blank to include all statuses.'|t,
+    instructions: 'Only orders with the following order statuses will be included. Leave blank to include all statuses.'|t('commerce'),
     id: 'orderStatuses',
     name: 'orderStatuses',
     options : orderStatuses,

@@ -40,4 +40,12 @@ class LiteShippingSettings extends Model
             'shippingPerItemRate',
         ];
     }
+
+    /**
+     * @return array[]
+     */
+    protected function defineRules(): array
+    {
+        return [[['shippingBaseRate', 'shippingPerItemRate'], 'required']];
+    }
 }

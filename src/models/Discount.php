@@ -441,11 +441,18 @@ class Discount extends Model
         $this->_purchasableIds = array_unique($purchasableIds);
     }
 
+    /**
+     * @param bool $value
+     * @return void
+     */
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
     }
 
+    /**
+     * @return bool
+     */
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;

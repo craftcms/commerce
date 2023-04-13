@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\engines\Tax;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\helpers\ArrayHelper;
@@ -147,10 +148,14 @@ class TaxCategory extends Model
      */
     protected function defineRules(): array
     {
+        $engine = Plugin::getInstance()->getTaxes()->getEngine();
+        $isStandardTaxEngine = $engine instanceof Tax;
         return [
             [['handle'], 'required'],
             [['handle'], UniqueValidator::class, 'targetClass' => TaxCategoryRecord::class],
-            [['handle'], HandleValidator::class],
+            [['handle'], HandleValidator::class, 'when' => function($model) use ($isStandardTaxEngine) {
+                return $isStandardTaxEngine;
+            }],
         ];
     }
 
