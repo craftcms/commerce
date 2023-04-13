@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => 'Nebolo možné zrušiť „{reference}“.',
     'Could not create the payment source.' => 'Zdroj platby sa nedá vytvoriť.',
     'Could not delete shipping category' => 'Kategória dopravy sa nedala vymazať',
-    'Could not delete shipping method and it’s rules.' => 'Nepodarilo sa odstrániť spôsob dopravy a jeho pravidlá.',
+    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
     'Could not delete shipping rule' => 'Pravidlo dodania sa nedá odstrániť',
     'Could not delete shipping zone' => 'Dodacia oblasť sa nedá odstrániť',
     'Could not delete tax category' => 'Nemožno zmazať daňovú kategóriu',
