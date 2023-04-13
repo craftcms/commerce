@@ -963,9 +963,11 @@ SQL;
 
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
         // Delete all customers that don't have any orders
-        Craft::$app->getDb()->createCommand()
-            ->delete(Table::CUSTOMERS, ['id' => $orphanedCustomerIds])
-            ->execute();
+        foreach (collect($orphanedCustomerIds)->chunk(10000) as $chunk) {
+            Craft::$app->getDb()->createCommand()
+                ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
+                ->execute();
+        }
 
         // Remove guest customer's primary address IDs if the customer is not related to a user
         // Guest users no longer have an address book anyway.
@@ -1018,14 +1020,17 @@ SQL;
         }
 
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
-        // Clear out orphaned customers again now that we have consolidated them to emails
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_customers_addresses}}', ['customerId' => $orphanedCustomerIds])
-            ->execute();
-        // Delete all customers that don't have any orders
-        Craft::$app->getDb()->createCommand()
-            ->delete(Table::CUSTOMERS, ['id' => $orphanedCustomerIds])
-            ->execute();
+
+        foreach (collect($orphanedCustomerIds)->chunk(10000) as $chunk) {
+            // Clear out orphaned customers again now that we have consolidated them to emails
+            Craft::$app->getDb()->createCommand()
+                ->delete('{{%commerce_customers_addresses}}', ['customerId' => $chunk->all()])
+                ->execute();
+            // Delete all customers that don't have any orders
+            Craft::$app->getDb()->createCommand()
+                ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
+                ->execute();
+        }
 
         Console::endProgress($totalEmails . ' customers migrated.');
     }

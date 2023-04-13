@@ -108,7 +108,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
-            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping method and it’s rules.'));
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping method and its rules.'));
         }
 
         return $this->asSuccess();

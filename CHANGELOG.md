@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce
 
+## 4.2.7 - 2023-04-13
+
+- Added the “Order Site” order condition rule. ([#3131](https://github.com/craftcms/commerce/issues/3131))
+- Email jobs are now reattempted up to five times on failure. ([#3121](https://github.com/craftcms/commerce/pull/3121))
+- Fixed a bug where variants weren’t getting propagated properly when new sites were created. ([#3124](https://github.com/craftcms/commerce/issues/3124))
+- Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
+- Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
+- Fixed a bug where the `commerce/upgrade` command could fail if there was a large number of orphaned customers.
+
 ## 4.2.6 - 2023-03-22
 
 - Discounts’ “Match Customer” conditions can now have a “Signed In” rule.

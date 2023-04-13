@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => 'Could not cancel “{reference}”.',
     'Could not create the payment source.' => 'Could not create the payment source.',
     'Could not delete shipping category' => 'Could not delete shipping category',
-    'Could not delete shipping method and it’s rules.' => 'Could not delete shipping method and it’s rules.',
+    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
     'Could not delete shipping rule' => 'Could not delete shipping rule',
     'Could not delete shipping zone' => 'Could not delete shipping zone',
     'Could not delete tax category' => 'Could not delete tax category',
