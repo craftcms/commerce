@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => 'Kan niet annuleren “{reference}”.',
     'Could not create the payment source.' => 'Betaalbron aanmaken niet mogelijk.',
     'Could not delete shipping category' => 'Verzendcategorie verwijderen niet mogelijk',
-    'Could not delete shipping method and it’s rules.' => 'Kan verzendmethode en bijbehorende regels niet verwijderen.',
+    'Could not delete shipping method and its rules.' => 'Could not delete shipping method and its rules.',
     'Could not delete shipping rule' => 'Verzendingsregel verwijderen niet mogelijk',
     'Could not delete shipping zone' => 'Verzendingszone verwijderen niet mogelijk',
     'Could not delete tax category' => 'Belastingcategorie verwijderen niet mogelijk',
