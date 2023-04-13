@@ -176,7 +176,7 @@ return [
     'Could not cancel “{reference}”.' => 'Échec de l\'annulation de « {reference} ».',
     'Could not create the payment source.' => 'Impossible de créer la source de paiement.',
     'Could not delete shipping category' => 'Impossible de supprimer la catégorie d’expédition',
-    'Could not delete shipping method and it’s rules.' => 'Impossible de supprimer le mode de livraison et ses règles.',
+    'Could not delete shipping method and its rules.' => 'Impossible de supprimer le mode de livraison et ses règles.',
     'Could not delete shipping rule' => 'Impossible de supprimer la règle de livraison',
     'Could not delete shipping zone' => 'Impossible de supprimer la zone de livraison',
     'Could not delete tax category' => 'Impossible de supprimer la catégorie de taxe',
