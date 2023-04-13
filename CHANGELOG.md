@@ -9,6 +9,7 @@
 - Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
 - Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
 - Fixed a bug where the `commerce/upgrade` console command would fail with a large number of orphaned customers.
+- Fixed a bug where updating a user’s email address with an existing cart creates a new user from a previous email address. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 
 ## 4.2.6 - 2023-03-22
 

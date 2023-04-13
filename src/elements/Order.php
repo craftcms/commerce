@@ -2312,7 +2312,12 @@ class Order extends Element
             return;
         }
 
-        $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+        $user = null;
+        // Create user only if no associated user on the cart.
+        if ($this->customerId === null) {
+            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+        }
+
         $this->_email = $email;
         $this->setCustomer($user);
     }
