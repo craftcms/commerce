@@ -10,12 +10,13 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
-use craft\commerce\models\Store;
+use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
 use craft\elements\User;
+use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
 use craft\helpers\ArrayHelper;
@@ -39,81 +40,117 @@ use yii\db\StaleObjectException;
 class CatalogPricingRules extends Component
 {
     /**
-     * @var Collection<CatalogPricingRule>|null
+     * @var Collection[]|null
      */
-    private ?Collection $_allCatalogPricingRules = null;
+    private ?array $_allCatalogPricingRules = null;
 
     /**
      * Get a catalog pricing rule by its ID.
      *
      * @param int $id
+     * @param int|null $storeId
      * @return CatalogPricingRule|null
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getCatalogPricingRuleById(int $id): ?CatalogPricingRule
+    public function getCatalogPricingRuleById(int $id, ?int $storeId = null): ?CatalogPricingRule
     {
-        return ArrayHelper::firstWhere($this->getAllCatalogPricingRules(), 'id', $id);
+        return $this->getAllCatalogPricingRules($storeId, false)->firstWhere('id', $id);
     }
 
     /**
      * Get all catalog pricing rules.
      *
-     * @param Store|null $store
-     * @return Collection
+     * @param int|null $storeId
+     * @param bool $storeOnly If true, only return rules that are store specific (not those created on purchasables)
+     * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getAllCatalogPricingRules(?Store $store = null): Collection
+    public function getAllCatalogPricingRules(?int $storeId = null, bool $storeOnly = true): Collection
     {
-        if (!isset($this->_allCatalogPricingRules)) {
-            $catalogPricingRules = $this->_createCatalogPricingRuleQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        $key = $storeId . '-' . (int)$storeOnly;
 
-            $this->_allCatalogPricingRules = collect($catalogPricingRules)->map(function($row) {
-                $row['customerCondition'] = $row['customerCondition'] ?? '';
-                $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
+        if ($this->_allCatalogPricingRules === null || !isset($this->_allCatalogPricingRules[$key])) {
+            $query = $this->_createCatalogPricingRuleQuery()
+                ->where(['storeId' => $storeId]);
 
-                return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $row]]);
-            })->keyBy('id');
-        }
-
-        return $this->_allCatalogPricingRules->filter(function(CatalogPricingRule $catalogPricingRule) use ($store) {
-            if ($store === null) {
-                return true;
+            if ($storeOnly) {
+                $query->andWhere(['purchasableId' => null]);
             }
 
-            return $catalogPricingRule->storeId === $store->id;
-        });
+            $results = $query->all();
+
+            if ($this->_allCatalogPricingRules === null) {
+                $this->_allCatalogPricingRules = [];
+            }
+
+            $models = $this->_createCatalogPricingRuleModels($results);
+            $this->_allCatalogPricingRules[$key] = collect($models);
+        }
+
+        return $this->_allCatalogPricingRules[$key] ?? collect();
     }
 
     /**
-     * @param Store|null $store
+     * @param int $purchasableId
+     * @param int|null $storeId
+     * @return Collection
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
+    public function getAllCatalogPricingRulesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
+    {
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+        // @TODO figure out if memoization is needed here
+        $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
+            ->andWhere([
+                'or',
+                ['purchasableId' => $purchasableId],
+                ['id' => (new Query())
+                    ->select(['catalogPricingRuleId'])
+                    ->from([Table::CATALOG_PRICING])
+                    ->where(['purchasableId' => $purchasableId])
+                ]
+            ])
+            ->andWhere(['storeId' => $storeId])
+            ->all();
+
+        return $this->_createCatalogPricingRuleModels($catalogPricingRules);
+    }
+
+    /**
+     * @param int|null $storeId
      * @return Collection
      * @throws InvalidConfigException
      */
-    public function getAllEnabledCatalogPricingRules(?Store $store = null): Collection
+    public function getAllEnabledCatalogPricingRules(?int $storeId = null): Collection
     {
-        return $this->getAllCatalogPricingRules($store)->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
+        return $this->getAllCatalogPricingRules($storeId)->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
     }
 
     /**
-     * @param Store|null $store
+     * @param int|null $storeId
      * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
-    public function getAllActiveCatalogPricingRules(?Store $store = null): Collection
+    public function getAllActiveCatalogPricingRules(?int $storeId = null): Collection
     {
-        return $this->getAllEnabledCatalogPricingRules($store)->where(function(CatalogPricingRule $pcr) {
+        return $this->getAllEnabledCatalogPricingRules($storeId)->where(function(CatalogPricingRule $pcr) {
             // If there are no dates or rule is currently in the date range add it to the active list
             return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
         });
     }
 
     /**
-     * @return Collection<CatalogPricingRule>
+     * @param int|null $storeId
+     * @return Collection
      * @throws InvalidConfigException
      */
-    public function getAllCatalogPricingRulesWithUserConditions(): Collection
+    public function getAllCatalogPricingRulesWithUserConditions(?int $storeId = null): Collection
     {
-        return $this->getAllCatalogPricingRules()->where(function(CatalogPricingRule $pcr) {
+        return $this->getAllCatalogPricingRules($storeId)->where(function(CatalogPricingRule $pcr) {
             return !empty($pcr->getCustomerCondition()->getConditionRules());
         });
     }
@@ -126,25 +163,30 @@ class CatalogPricingRules extends Component
      */
     public function afterSaveUserHandler(ModelEvent|UserGroupsAssignEvent $event): void
     {
-        $rules = $this->getAllCatalogPricingRulesWithUserConditions();
-        if ($rules->isEmpty()) {
-            return;
-        }
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
 
-        /** @var User $user */
-        $user = $event instanceof ModelEvent ? $event->sender : Craft::$app->getUsers()->getUserById($event->userId);
-        $rules->each(function(CatalogPricingRule $rule) use ($user) {
-            $customerCondition = $rule->getCustomerCondition();
-            if ($customerCondition->matchElement($user)) {
-                if (!CatalogPricingRuleUser::find()->where(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])->exists()) {
-                    Craft::$app->getDb()->createCommand()
-                        ->insert(Table::CATALOG_PRICING_RULES_USERS, ['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])
-                        ->execute();
-                }
-            } else {
-                CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
+        foreach ($stores as $store) {
+            $rules = $this->getAllCatalogPricingRulesWithUserConditions($store->id);
+            if ($rules->isEmpty()) {
+                continue;
             }
-        });
+
+            /** @var User $user */
+            $user = $event instanceof ModelEvent ? $event->sender : Craft::$app->getUsers()->getUserById($event->userId);
+            $rules->each(function(CatalogPricingRule $rule) use ($user) {
+                $customerCondition = $rule->getCustomerCondition();
+                if ($customerCondition->matchElement($user)) {
+                    if (!CatalogPricingRuleUser::find()->where(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])->exists()) {
+                        Craft::$app->getDb()->createCommand()
+                            ->insert(Table::CATALOG_PRICING_RULES_USERS, ['userId' => $user->id, 'catalogPricingRuleId' => $rule->id])
+                            ->execute();
+                    }
+                } else {
+                    CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
+                }
+            });
+
+        }
     }
 
     /**
@@ -187,6 +229,7 @@ class CatalogPricingRules extends Component
             'name',
             'storeId',
             'metadata',
+            'purchasableId',
         ];
         foreach ($attributes as $attribute) {
             $record->$attribute = $catalogPricingRule->$attribute;
@@ -224,7 +267,8 @@ class CatalogPricingRules extends Component
 
             Queue::push(Craft::createObject([
                 'class' => CatalogPricing::class,
-                'catalogPricingRules' => [$catalogPricingRule],
+                'catalogPricingRuleIds' => [$catalogPricingRule->id],
+                'storeId' => $catalogPricingRule->storeId,
             ]), 100);
 
             $this->_clearCaches();
@@ -260,21 +304,22 @@ class CatalogPricingRules extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'description',
-                'storeId',
-                'dateFrom',
-                'dateTo',
                 'apply',
                 'applyAmount',
                 'applyPriceType',
                 'customerCondition',
-                'purchasableCondition',
-                'enabled',
-                'isPromotionalPrice',
                 'dateCreated',
+                'dateFrom',
+                'dateTo',
                 'dateUpdated',
+                'description',
+                'enabled',
+                'id',
+                'isPromotionalPrice',
+                'name',
+                'purchasableCondition',
+                'purchasableId',
+                'storeId',
             ])
             ->from(Table::CATALOG_PRICING_RULES);
     }
@@ -285,5 +330,21 @@ class CatalogPricingRules extends Component
     protected function _clearCaches(): void
     {
         $this->_allCatalogPricingRules = null;
+    }
+
+    /**
+     * Takes the results array from a `_createCatalogPricingRuleQuery()` call and creates a collection of CatalogPricingRule models.
+     *
+     * @param array $rows
+     * @return Collection
+     */
+    protected function _createCatalogPricingRuleModels(array $rows): Collection
+    {
+        return collect($rows)->map(function($row) {
+            $row['customerCondition'] = $row['customerCondition'] ?? '';
+            $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
+
+            return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $row]]);
+        })->keyBy('id');
     }
 }

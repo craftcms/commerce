@@ -1,0 +1,76 @@
+{% set applyId = 'apply'|namespaceInputId %}
+{% set applyPriceTypeId = 'applyPriceType'|namespaceInputId %}
+{% set applyAmountCurrencySymbolId = 'applyAmountCurrencySymbol'|namespaceInputId %}
+{% set applyAmountPercentSymbolId = 'applyAmountPercentSymbol'|namespaceInputId %}
+
+{% import "_includes/forms" as forms %}
+{% set applyAmountInput %}
+  <table class="inputs">
+    <tr>
+      <td>
+        {{ forms.select({
+          id: 'apply',
+          name: 'apply',
+          options: applyOptions,
+          value: catalogPricingRule.apply
+        }) }}
+      </td>
+      <td id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
+        {{ forms.select({
+          id: 'applyPriceType',
+          name: 'applyPriceType',
+          options: applyPriceTypeOptions,
+          value: catalogPricingRule.applyPriceType,
+        }) }}
+      </td>
+      <td>
+        <span id="applyAmountCurrencySymbol" class="{% if catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply %}hidden{% endif %}">{{ currencySymbol }}</span>
+        {{ forms.text({
+          id: 'applyAmount',
+          name: 'applyAmount',
+          value: applyAmount,
+          class: 'code ltr',
+          size: 5,
+        }) }}
+        <span id="applyAmountPercentSymbol" class="{% if catalogPricingRule.apply == 'byFlat' or catalogPricingRule.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
+      </td>
+    </tr>
+  </table>
+{% endset %}
+
+{{ forms.field({
+  label: "Effect"|t('commerce'),
+  instructions: "Select how the catalog pricing rule will be applied to the purchasable(s)."|t('commerce'),
+  id: 'applyAmount',
+  errors: catalogPricingRule.getErrors('applyAmount')
+}, applyAmountInput) }}
+
+{{ forms.lightswitchField({
+  label: 'Is Promotional Price?'|t('commerce'),
+  id: 'isPromotionalPrice',
+  name: 'isPromotionalPrice',
+  value: 1,
+  on: catalogPricingRule.isPromotionalPrice ? true : false,
+  errors: catalogPricingRule.getErrors('isPromotionalPrice'),
+}) }}
+
+{% js %}
+$(function() {
+  $('#{{ applyId }}').change(function() {
+
+    if (this.value == 'byPercent' || this.value == 'toPercent') {
+      $('#{{ applyAmountPercentSymbolId }}').removeClass('hidden');
+      $('#{{ applyAmountCurrencySymbolId }}').addClass('hidden');
+    } else {
+      $('#{{ applyAmountPercentSymbolId }}').addClass('hidden');
+      $('#{{ applyAmountCurrencySymbolId }}').removeClass('hidden');
+    }
+
+    if (this.value == 'toFlat') {
+      $('#{{ applyPriceTypeId }}').addClass('hidden');
+    } else {
+      $('#{{ applyPriceTypeId }}').removeClass('hidden');
+    }
+  });
+});
+{% endjs %}

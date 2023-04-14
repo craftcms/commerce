@@ -130,78 +130,8 @@
     </div>
 
     <div id="actions" class="hidden">
-
-        {% set applyAmountInput %}
-            <table class="inputs">
-                <tr>
-                    <td>
-                        {{ forms.select({
-                            id: 'apply',
-                            name: 'apply',
-                            options: applyOptions,
-                            value: catalogPricingRule.apply
-                        }) }}
-                    </td>
-                    <td id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
-                        {{ forms.select({
-                            id: 'applyPriceType',
-                            name: 'applyPriceType',
-                            options: applyPriceTypeOptions,
-                            value: catalogPricingRule.applyPriceType,
-                        }) }}
-                    </td>
-                    <td>
-                        <span id="applyAmount-currency-symbol" class="{% if catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply %}hidden{% endif %}">{{ currencySymbol }}</span>
-                        {{ forms.text({
-                            id: 'applyAmount',
-                            name: 'applyAmount',
-                            value: applyAmount,
-                            class: 'code ltr',
-                            size: 5,
-                        }) }}
-                        <span id="applyAmount-percent-symbol" class="{% if catalogPricingRule.apply == 'byFlat' or catalogPricingRule.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
-                    </td>
-                </tr>
-            </table>
-        {% endset %}
-
-        {{ forms.field({
-            label: "Effect"|t('commerce'),
-            instructions: "Select how the catalog pricing rule will be applied to the purchasable(s)."|t('commerce'),
-            id: 'applyAmount',
-            errors: catalogPricingRule.getErrors('applyAmount')
-        }, applyAmountInput) }}
-
-        {{ forms.lightswitchField({
-          label: 'Is Promotional Price?'|t('commerce'),
-          id: 'isPromotionalPrice',
-          name: 'isPromotionalPrice',
-          value: 1,
-          on: catalogPricingRule.isPromotionalPrice ? true : false,
-          errors: catalogPricingRule.getErrors('isPromotionalPrice'),
-        }) }}
+        {% include 'commerce/store-settings/pricing-rules/_actions-fields' %}
     </div>
 
     {% hook "cp.commerce.catalogPricingRules.edit.content" %}
 {% endblock %}
-
-{% js %}
-$(function() {
-    $('select[name=apply]').change(function() {
-
-        if (this.value == 'byPercent' || this.value == 'toPercent') {
-            $('#applyAmount-percent-symbol').removeClass('hidden');
-            $('#applyAmount-currency-symbol').addClass('hidden');
-        } else {
-            $('#applyAmount-percent-symbol').addClass('hidden');
-            $('#applyAmount-currency-symbol').removeClass('hidden');
-        }
-
-        if (this.value == 'toFlat') {
-            $('#applyPriceType-input').addClass('hidden');
-        } else {
-            $('#applyPriceType-input').removeClass('hidden');
-        }
-    });
-});
-{% endjs %}

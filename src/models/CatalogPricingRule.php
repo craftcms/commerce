@@ -102,6 +102,11 @@ class CatalogPricingRule extends Model
     public bool $isPromotionalPrice = false;
 
     /**
+     * @var int|null Purchasable ID set if this is a specific rule for a purchasable
+     */
+    public ?int $purchasableId = null;
+
+    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -138,7 +143,19 @@ class CatalogPricingRule extends Model
             [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
             [['enabled'], 'boolean'],
             [['name', 'apply'], 'required'],
-            [['id', 'storeId', 'applyAmount', 'applyPriceType', 'customerCondition', 'dateFrom', 'dateTo', 'isPromotionalPrice', 'purchasableCondition', 'metadata'], 'safe'],
+            [[
+                'applyAmount',
+                'applyPriceType',
+                'customerCondition',
+                'dateFrom',
+                'dateTo',
+                'id',
+                'isPromotionalPrice',
+                'metadata',
+                'purchasableCondition',
+                'purchasableId',
+                'storeId',
+            ], 'safe'],
         ];
     }
 
@@ -306,5 +323,13 @@ class CatalogPricingRule extends Model
         };
 
         return max($price, 0);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStoreRule(): bool
+    {
+        return $this->purchasableId === null;
     }
 }

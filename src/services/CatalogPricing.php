@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
+use craft\commerce\models\CatalogPricing as CatalogPricingModel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
@@ -23,6 +24,7 @@ use craft\helpers\Queue as QueueHelper;
 use craft\queue\Queue;
 use craft\queue\QueueInterface;
 use DateTime;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -82,7 +84,7 @@ class CatalogPricing extends Component
                 ->indexBy('purchasableId')
                 ->all();
 
-            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store)->all();
+            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store->id)->all();
 
             foreach ($runCatalogPricingRules as $catalogPricingRule) {
                 // Skip rule processing if it isn't for this store.
@@ -266,6 +268,29 @@ class CatalogPricing extends Component
     }
 
     /**
+     * @return Collection
+     */
+    public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
+    {
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $allPriceRows = $this->createCatalogPricingQuery(storeId: $storeId, allPrices: true)
+            ->select([
+                'id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid'
+            ])
+            ->andWhere(['purchasableId' => $purchasableId])
+            ->andWhere(['not', ['catalogPricingRuleId' => null]])
+            ->all();
+
+        $allPrices = [];
+        foreach ($allPriceRows as $catalogPrice) {
+            $allPrices[] = Craft::createObject(['class' => CatalogPricingModel::class, 'attributes' => $catalogPrice]);
+        }
+
+        return collect($allPrices);
+    }
+
+    /**
      * @param ModelEvent $event
      * @return void
      * @throws InvalidConfigException
@@ -291,19 +316,21 @@ class CatalogPricing extends Component
      * @param bool|null $isPromotionalPrice
      * @return Query
      */
-    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null): Query
+    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false): Query
     {
-        $catalogPricingRuleIdWhere = [
-            'or',
-            ['catalogPricingRuleId' => null],
-            ['catalogPricingRuleId' => (new Query())
+        $catalogPricingRuleIdWhere = ['or'];
+
+        // If we are looking for all prices, we don't need to worry about the user's table
+        if (!$allPrices) {
+            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => null];
+            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
                 ->select(['cpr.id as cprid'])
                 ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
                 ->where(['[[cpru.id]]' => null])
                 ->groupBy(['[[cpr.id]]']),
-            ],
-        ];
+            ];
+        }
 
         // Sub query to figure out which catalog pricing rules are using user conditions
         if ($userId) {
@@ -322,8 +349,12 @@ class CatalogPricing extends Component
             ->where($catalogPricingRuleIdWhere)
             ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
             ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
-            ->groupBy(['purchasableId', 'storeId'])
             ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC]);
+
+        // If we're not getting all prices, we need to group by purchasableId and storeId
+        if (!$allPrices) {
+            $query->groupBy(['purchasableId', 'storeId']);
+        }
 
         if ($storeId) {
             $query->andWhere(['storeId' => $storeId]);

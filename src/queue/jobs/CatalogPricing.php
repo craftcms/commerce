@@ -19,13 +19,23 @@ class CatalogPricing extends BaseJob
     public ?array $purchasableIds = null;
 
     /**
-     * @var CatalogPricingRule[]|null
+     * @var array|null
      */
-    public ?array $catalogPricingRules = null;
+    public ?array $catalogPricingRuleIds = null;
+
+    /**
+     * @var int|null
+     */
+    public ?int $storeId = null;
 
     public function execute($queue): void
     {
-        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $this->catalogPricingRules, queue: $queue);
+        $catalogPricingRules = [];
+        if (!empty($this->catalogPricingRuleIds) && $this->storeId) {
+            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules($this->storeId, false)->whereIn('id', $this->catalogPricingRuleIds)->all();
+        }
+
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $catalogPricingRules, queue: $queue);
     }
 
     protected function defaultDescription(): ?string
