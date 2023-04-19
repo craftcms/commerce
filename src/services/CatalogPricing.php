@@ -109,26 +109,15 @@ class CatalogPricing extends Component
                         continue;
                     }
 
-                    $price = null;
-                    // A third option may be required for catalog pricing rules that allow store admins to select `salePrice`.
-                    // So that just want to create a catalog price from the `price` or the `promotionalPrice` if there is one.
-                    if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
-                        $price = $priceByPurchasableId[$purchasableId]['basePrice'];
-                    } elseif ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
-                        // Skip if there is no promotional price
-                        if ($priceByPurchasableId[$purchasableId]['basePromotionalPrice'] === null) {
-                            continue;
-                        }
-                        $price = $priceByPurchasableId[$purchasableId]['basePromotionalPrice'];
-                    }
+                    $catalogPrice = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($priceByPurchasableId[$purchasableId]['basePrice'], $priceByPurchasableId[$purchasableId]['basePromotionalPrice'], $catalogPricingRule);
 
-                    if ($price === null) {
+                    if ($catalogPrice === null) {
                         continue;
                     }
 
                     $catalogPricing[] = [
                         $purchasableId, // purchasableId
-                        $catalogPricingRule->getRulePriceFromPrice($price), // price
+                        $catalogPrice, // price
                         $store->id, // storeId
                         $catalogPricingRule->isPromotionalPrice, // isPromotionalPrice
                         $catalogPricingRule->id, // catalogPricingRuleId

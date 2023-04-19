@@ -156,6 +156,35 @@ class CatalogPricingRules extends Component
     }
 
     /**
+     * @param float|null $basePrice
+     * @param float|null $basePromotionalPrice
+     * @param CatalogPricingRule $catalogPricingRule
+     * @return float|null
+     */
+    public function generateRulePriceFromPrice(?float $basePrice, ?float $basePromotionalPrice, CatalogPricingRule $catalogPricingRule): ?float
+    {
+        $price = null;
+
+        // A third option may be required for catalog pricing rules that allow store admins to select `salePrice`.
+        // So that just want to create a catalog price from the `price` or the `promotionalPrice` if there is one.
+        if ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PRICE) {
+            $price = $basePrice;
+        } elseif ($catalogPricingRule->applyPriceType === CatalogPricingRuleRecord::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE) {
+            // Skip if there is no promotional price
+            if ($basePromotionalPrice === null) {
+                return null;
+            }
+            $price = $basePromotionalPrice;
+        }
+
+        if ($price === null) {
+            return null;
+        }
+
+        return $catalogPricingRule->getRulePriceFromPrice($price);
+    }
+
+    /**
      * @param ModelEvent $event
      * @return void
      * @throws InvalidConfigException

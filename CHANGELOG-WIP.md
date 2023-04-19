@@ -52,6 +52,7 @@
 - Added `craft\commerce\base\StoreRecordTrait`.
 - Added `craft\commerce\behaviors\StoreBehavior`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
+- Added `craft\commerce\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.
 - Added `craft\commerce\controllers\VariantsController`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES_USERS`.
