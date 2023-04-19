@@ -835,7 +835,7 @@ return [
     'Sales updated.' => 'Aktionen aktualisiert.',
     'Sales' => 'Verkäufe',
     'Save and continue editing' => 'Speichern und mit Bearbeitung fortfahren',
-    'Save and return to all orders' => 'Speichern und alle Bestellungen wiedergeben',
+    'Save and return to all orders' => 'Speichern und zur Bestellungsübersicht zurückkehren',
     'Save and set rules' => 'Speichern und Regeln angeben',
     'Save as a new rule' => 'Als eine neue Regel speichern',
     'Save' => 'Speichern',
