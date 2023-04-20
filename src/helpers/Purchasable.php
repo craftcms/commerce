@@ -240,7 +240,9 @@ JS, [
 
         $catalogPricingRules->each(function(CatalogPricingRule $catalogPricingRule) use (&$html, $catalogPricing, $purchasableId) {
             $html .= Html::beginTag('tr') .
-                Html::tag('td', Html::a($catalogPricingRule->name, $catalogPricingRule->getCpEditUrl(),
+                Html::tag('td',
+                    Html::tag('span', '', ['class' => 'status ' . ($catalogPricingRule->enabled ? 'enabled' : 'disabled')]) .
+                    Html::a($catalogPricingRule->name, $catalogPricingRule->getCpEditUrl(),
                     $catalogPricingRule->isStoreRule()
                         ? ['target' => '_blank', 'data-icon' => 'external']
                         : ['class' => 'js-purchasable-cpr-slideout', 'data-id' => $catalogPricingRule->id, 'data-store-id' => $catalogPricingRule->storeId]

@@ -28,32 +28,7 @@
 {% hook "cp.commerce.catalogPricingRules.edit" %}
 
 {% block details %}
-
-    <div class="meta">
-        {{ forms.lightSwitchField({
-            label: "Enable this rule"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: catalogPricingRule.enabled,
-            checked: catalogPricingRule.enabled,
-            errors: catalogPricingRule.getErrors('enabled'),
-            instructions: 'Whether this catalog pricing rule should be available for use, regardless of other conditions.'|t('commerce')
-        }) }}
-    </div>
-
-    {% if catalogPricingRule and catalogPricingRule.id %}
-        <div class="meta read-only">
-            <div class="data">
-                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                <div id="date-created-value" class="value">{{ catalogPricingRule.dateCreated|datetime('short') }}</div>
-            </div>
-            <div class="data">
-                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                <div id="date-updated-value" class="value">{{ catalogPricingRule.dateUpdated|datetime('short') }}</div>
-            </div>
-        </div>
-    {% endif %}
+    {% include 'commerce/store-settings/pricing-rules/_sidebar' %}
 
     {% hook "cp.commerce.catalogPricingRules.edit.details" %}
 {% endblock %}

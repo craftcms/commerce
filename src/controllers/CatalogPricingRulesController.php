@@ -337,14 +337,13 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         return $this->asCpScreen()
             ->title('Create a new catalog pricing rule')
-            // ->addCrumb(Craft::t('app', 'Settings'), 'settings')
-            // ->addCrumb(Craft::t('app', 'Filesystems'), 'settings/filesystems')
             ->tabs([
                 ['label' => Craft::t('commerce', 'Conditions'), 'url' => '#conditions', 'visible' => true],
                 ['label' => Craft::t('commerce', 'Actions'), 'url' => '#actions', 'visible' => false],
             ])
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl('commerce/catalog-pricing-rules/')
+            ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', compact('catalogPricingRule'))
             ->contentTemplate($template, $this->_populateVariables($variables));
     }
 
