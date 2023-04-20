@@ -10,16 +10,13 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
-use craft\commerce\models\CatalogPricing;
-use craft\commerce\models\CatalogPricingRule;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\Plugin;
-use craft\errors\SiteNotFoundException;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
 
 /**
  * PurchasablePriceField represents a Prie field that is included within a variant field layout designer.
@@ -54,6 +51,8 @@ class PurchasablePriceField extends BaseNativeField
      */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
+        $view = Craft::$app->getView();
+
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
@@ -72,74 +71,98 @@ class PurchasablePriceField extends BaseNativeField
             $basePromotionalPrice = Craft::$app->getFormatter()->asDecimal($basePromotionalPrice);
         }
 
-        $view = Craft::$app->getView();
-
         $priceNamespace = $view->namespaceInputName('basePrice');
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
-        $tableId = 'purchasable-prices-' . $element->id;
-        $namespacedTableId = $view->namespaceInputId($tableId);
+        $priceListContainer = $view->namespaceInputId('purchasable-prices');
 
         $title = Json::encode($element->title);
+
         $js = <<<JS
 (() => {
-        $('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]').on('change', function(e) {
-            console.log('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]');
-            const _tableContainer = $(this).parents('.js-purchasable-price-field').find('#$namespacedTableId');
-            const _loadingElements = _tableContainer.find('.js-prices-table-loading');
-            _loadingElements.removeClass('hidden');
+    if (typeof initPurchasablePriceList === 'undefined') {
+        let initPurchasablePriceList = function() {
+            let _priceFields = $('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]');
+            const _newButton = $('button.js-cpr-slideout-new');
+            const _editLink = $('a.js-purchasable-cpr-slideout');
             
-            Craft.sendActionRequest('POST', 'commerce/catalog-pricing/generate-catalog-prices', {
-                data: {
-                    purchasableId: $element->id,
-                    storeId: $element->storeId,
-                    basePrice: $('input[name="$priceNamespace"]').val(),
-                    basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
-                }
-            })
-            .then((response) => {
-                _loadingElements.addClass('hidden');
+            const getPriceList = function(_el) {
+                const _tableContainer = _el.parents('.js-purchasable-price-field').find('.js-price-list-container');
+                const _loadingElements = _tableContainer.find('.js-prices-table-loading');
+                _loadingElements.removeClass('hidden');
+                console.log('asd');
+              Craft.sendActionRequest('POST', 'commerce/catalog-pricing/generate-catalog-prices', {
+                    data: {
+                        purchasableId: $element->id,
+                        storeId: $element->storeId,
+                        basePrice: $('input[name="$priceNamespace"]').val(),
+                        basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
+                    }
+                })
+                .then((response) => {
+                    _loadingElements.addClass('hidden');
+                    if (response.data) {
+                        $('#$priceListContainer .tableview').replaceWith(response.data);
+                    }
+                    _priceFields.off('change');
+                    _newButton.off('click');
+                    _editLink.off('click');
+                    
+                    initPurchasablePriceList();
+                })
+                .catch(({response}) => {
+                    _loadingElements.addClass('hidden');
+                    if (response.data && response.data.message) {
+                        Craft.cp.displayError(response.data.message);
+                    }
+                    _priceFields.off('change');
+                    _newButton.off('click');
+                    _editLink.off('click');
+                    
+                    initPurchasablePriceList();
+                });
+            };
+            
+            _priceFields.on('change', function(e) {               
+                getPriceList($(this));
+            });
+            
+            // New catalog price
+            _newButton.on('click', function(e) {
+                e.preventDefault();
+                let _this = $(this);
+                let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {
+                    params: {
+                        storeId: $element->storeId,
+                        purchasableId: $element->id,
+                        title: $title,
+                    }
+                });
+                slideout.on('submit', function({response, data}) {
+                    getPriceList(_this);
+                });
+            });
+            
+            // Edit catalog price        
+            _editLink.on('click', function(e) {
+                e.preventDefault();
+                let _this = $(this);
+                let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {
+                    params: {
+                        id: _this.data('id'),
+                        storeId: _this.data('store-id'),
+                        purchasableId: $element->id,
+                    }
+                });
+                slideout.on('submit', function({response, data}) {
+                    getPriceList(_this);
+                });
+            });
+        }
         
-                if (response.data) {
-                    Object.keys(response.data).forEach((id) => {
-                        const data = response.data[id];
-                        let selector = '[data-catalog-pricing-rule-id="' + id + '"]';
-                        selector += data.isPromotionalPrice ? '.js-purchasable-rule-promotional-price' : '.js-purchasable-rule-price';
-                        const _row = _tableContainer.find(selector)
-                        
-                        if (_row) {
-                            _row.text(data.price);
-                        }
-                    });
-                }
-        })
-        .catch(({response}) => {
-            _loadingElements.addClass('hidden');
-            console.log(response);
-            // Craft.cp.displayError(response.message);
-        });; 
-    });
-  
-    $('button.js-cpr-slideout-new').on('click', function(e) {
-        e.preventDefault();
-        let _this = $(this);
-        let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {params: {
-          storeId: $element->storeId,
-          purchasableId: $element->id,
-          title: $title,
-        }});
-        console.log(slideout);
-    });
-
-    $('a.js-purchasable-cpr-slideout').on('click', function(e) {
-        e.preventDefault();
-        let _this = $(this);
-        let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {params: {
-          id: _this.data('id'),
-          storeId: _this.data('store-id'),
-          purchasableId: $element->id,
-        }});
-        console.log(slideout);
-    });
+        initPurchasablePriceList();
+    } else {
+        initPurchasablePriceList();
+    }
 })();
 JS;
         $view->registerJs($js);
@@ -167,100 +190,44 @@ JS;
             Html::beginTag('div') .
                 Html::tag('div',
                     Html::tag('a', 'See all prices', ['class' => 'fieldtoggle', 'data-target' => 'purchasable-prices']) .
-                    Html::tag('div', $this->_getCatalogPricingListByPurchasableId($element->id, $element->storeId, $tableId), ['id' => 'purchasable-prices', 'class' => 'hidden'])
+                    Html::beginTag('div', ['class' => 'js-price-list-container', 'style' => ['position' => 'relative']]) .
+                    Html::tag(
+                        'div',
+                        // Prices table
+                        PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
+                        // New catalog price button
+                        Html::button(Craft::t('commerce', 'Add catalog price'), ['class' => 'btn icon add js-cpr-slideout-new', 'data-icon' => 'plus']),
+                        [
+                            'id' => 'purchasable-prices',
+                            'class' => 'hidden'
+                        ]
+                    ) .
+                    Html::tag('div', '', [
+                        'class' => 'js-prices-table-loading hidden',
+                        'style' => [
+                            'position' => 'absolute',
+                            'top' => 0,
+                            'left' => 0,
+                            'width' => '100%',
+                            'height' => '100%',
+                            'background-color' => 'rgba(255, 255, 255, 0.5)',
+                        ]
+                    ]) .
+                    Html::tag('div', Html::tag('span', '', ['class' => 'spinner']), [
+                        'class' => 'js-prices-table-loading flex hidden',
+                        'style' => [
+                            'position' => 'absolute',
+                            'top' => 0,
+                            'left' => 0,
+                            'width' => '100%',
+                            'height' => '100%',
+                            'align-items' => 'center',
+                            'justify-content' => 'center',
+                        ]
+                    ]) .
+                    Html::endTag('div')
                 ).
             Html::endTag('div') .
         Html::endTag('div');
-    }
-
-    /**
-     * @param int $purchasableId
-     * @param int $storeId
-     * @param string $tableId
-     * @return string
-     * @throws InvalidConfigException
-     * @throws SiteNotFoundException
-     */
-    private function _getCatalogPricingListByPurchasableId(int $purchasableId, int $storeId, string $tableId): string
-    {
-        $prices = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
-        $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
-
-        if ($catalogPricingRules->isEmpty()) {
-            return '';
-        }
-
-        $html = Html::beginTag('div', ['style' => ['position' => 'relative'], 'id' => $tableId]) .
-        Html::beginTag('div', ['class' => 'tableview']) .
-            Html::beginTag('div', ['class' => 'tablepane', 'style' => 'margin: 0']) .
-            Html::beginTag('table', ['class' => 'data fullwidth']) .
-                Html::beginTag('thead') .
-                    Html::beginTag('tr') .
-                        Html::tag('th') .
-                        Html::tag('th', Craft::t('commerce', 'Price')) .
-                        Html::tag('th', Craft::t('commerce', 'Promotional Price')) .
-                        Html::tag('th', Craft::t('commerce', 'Store Rule')) .
-                    Html::endTag('tr') .
-                Html::endTag('thead') .
-                Html::beginTag('tbody');
-
-
-        $catalogPricingRules->each(function(CatalogPricingRule $catalogPricingRule) use (&$html, $prices, $purchasableId) {
-            $html .= Html::beginTag('tr') .
-                Html::tag('td', Html::a($catalogPricingRule->name, $catalogPricingRule->getCpEditUrl(),
-                        $catalogPricingRule->isStoreRule()
-                            ? ['target' => '_blank', 'data-icon' => 'external']
-                            : ['class' => 'js-purchasable-cpr-slideout', 'data-id' => $catalogPricingRule->id, 'data-store-id' => $catalogPricingRule->storeId]
-                    )
-                ) .
-                Html::tag(
-                    'td',
-                    !$catalogPricingRule->isPromotionalPrice ? $prices->firstWhere('catalogPricingRuleId', '=', $catalogPricingRule->id)?->price : '',
-                    ['class' => 'js-purchasable-rule-price', 'data-purchasable-id' => $purchasableId, 'data-catalog-pricing-rule-id' => $catalogPricingRule->id]
-                ) .
-                Html::tag(
-                    'td',
-                    $catalogPricingRule->isPromotionalPrice ? $prices->firstWhere('catalogPricingRuleId', '=', $catalogPricingRule->id)?->price : '',
-                    ['class' => 'js-purchasable-rule-promotional-price', 'data-purchasable-id' => $purchasableId, 'data-catalog-pricing-rule-id' => $catalogPricingRule->id]
-                ) .
-                Html::tag('td', $catalogPricingRule->isStoreRule() ? Html::tag('span', '', [
-                    'data-icon' => 'check',
-                    'title' => Craft::t('commerce', 'Yes')
-                ]) : '') .
-            Html::endTag('tr');
-        });
-
-        $html .= Html::endTag('tbody') .
-                Html::endTag('table') .
-            Html::endTag('div') .
-            Html::endTag('div') .
-            Html::tag('div', '', [
-                'class' => 'js-prices-table-loading hidden',
-                'style' => [
-                    'position' => 'absolute',
-                    'top' => 0,
-                    'left' => 0,
-                    'width' => '100%',
-                    'height' => '100%',
-                    'background-color' => 'rgba(255, 255, 255, 0.5)',
-                ]
-            ]) .
-            Html::tag('div', Html::tag('span', '', ['class' => 'spinner']), [
-                'class' => 'js-prices-table-loading flex hidden',
-                'style' => [
-                    'position' => 'absolute',
-                    'top' => 0,
-                    'left' => 0,
-                    'width' => '100%',
-                    'height' => '100%',
-                    'align-items' => 'center',
-                    'justify-content' => 'center',
-                ]
-            ]) .
-        Html::endTag('div');
-
-        $html .= Html::button(Craft::t('commerce', 'Add catalog price'), ['class' => 'btn icon add js-cpr-slideout-new', 'data-icon' => 'plus']);
-
-        return $html;
     }
 }

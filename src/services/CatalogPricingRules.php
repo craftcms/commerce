@@ -125,9 +125,9 @@ class CatalogPricingRules extends Component
      * @return Collection
      * @throws InvalidConfigException
      */
-    public function getAllEnabledCatalogPricingRules(?int $storeId = null): Collection
+    public function getAllEnabledCatalogPricingRules(?int $storeId = null, bool $storeOnly = true): Collection
     {
-        return $this->getAllCatalogPricingRules($storeId)->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
+        return $this->getAllCatalogPricingRules($storeId, $storeOnly)->where(fn(CatalogPricingRule $pcr) => $pcr->enabled);
     }
 
     /**
@@ -135,9 +135,9 @@ class CatalogPricingRules extends Component
      * @return Collection<CatalogPricingRule>
      * @throws InvalidConfigException
      */
-    public function getAllActiveCatalogPricingRules(?int $storeId = null): Collection
+    public function getAllActiveCatalogPricingRules(?int $storeId = null, bool $storeOnly = true): Collection
     {
-        return $this->getAllEnabledCatalogPricingRules($storeId)->where(function(CatalogPricingRule $pcr) {
+        return $this->getAllEnabledCatalogPricingRules($storeId, $storeOnly)->where(function(CatalogPricingRule $pcr) {
             // If there are no dates or rule is currently in the date range add it to the active list
             return (($pcr->dateFrom === null || $pcr->dateFrom->getTimestamp() <= time()) && ($pcr->dateTo === null || $pcr->dateTo->getTimestamp() >= time()));
         });

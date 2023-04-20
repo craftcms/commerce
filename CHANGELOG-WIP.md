@@ -83,6 +83,7 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleSkuField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
+- Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\models\Discount::$storeId`.
 - Added `craft\commerce\models\PaymentSources::getStore()`.

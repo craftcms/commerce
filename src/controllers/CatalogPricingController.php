@@ -7,7 +7,8 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\models\CatalogPricingRule;
+use craft\commerce\helpers\Purchasable;
+use craft\commerce\models\CatalogPricing;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
 use yii\base\InvalidConfigException;
@@ -37,7 +38,7 @@ class CatalogPricingController extends BaseStoreSettingsController
      * @throws SiteNotFoundException
      * @throws InvalidConfigException
      */
-    public function actionGenerateCatalogPrices(): ?Response
+    public function actionGenerateCatalogPrices(): ?string
     {
         $purchasableId = $this->request->getBodyParam('purchasableId');
         $storeId = $this->request->getBodyParam('storeId');
@@ -50,28 +51,31 @@ class CatalogPricingController extends BaseStoreSettingsController
             return $this->asFailure('Store ID is required');
         }
 
+        $isPriceRecalculation = array_key_exists('basePrice', $this->request->getBodyParams()) || array_key_exists('basePromotionalPrice', $this->request->getBodyParams());
+
+        if (!$isPriceRecalculation) {
+            // No need to generate prices if we are just getting the standard price list
+            return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId);
+        }
+
         $basePrice = $this->request->getBodyParam('basePrice');
         $basePromotionalPrice = $this->request->getBodyParam('basePromotionalPrice');
 
         $basePrice = $basePrice ? (float)$basePrice : null;
         $basePromotionalPrice = $basePromotionalPrice ? (float)$basePromotionalPrice : null;
 
-        $allRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        $allPurchasableRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+        $catalogPricing = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
 
-        if ($allRules->isEmpty()) {
-            return $this->asJson([]);
-        }
+        $catalogPricing->each(function(CatalogPricing $cp) use ($basePrice, $basePromotionalPrice, $allPurchasableRules) {
+            $rule = $allPurchasableRules->firstWhere('id', $cp->catalogPricingRuleId);
+            if (!$rule) {
+                return;
+            }
 
-        $pricesByRuleId = [];
-        $allRules->each(function(CatalogPricingRule $cpr) use (&$pricesByRuleId, $basePrice, $basePromotionalPrice) {
-            $pricesByRuleId[$cpr->id] = [
-                // @TODO review conversion to string if prices change from floats
-                // Convert to string to prevent rounding errors in JS
-                'price' => (string)Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $cpr),
-                'isPromotionalPrice' => $cpr->isPromotionalPrice,
-            ];
+            $cp->price = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($basePrice, $basePromotionalPrice, $rule);
         });
 
-        return $this->asJson($pricesByRuleId);
+        return Purchasable::catalogPricingRulesTableByPurchasableId($purchasableId, $storeId, $catalogPricing);
     }
 }

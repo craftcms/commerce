@@ -8,12 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
@@ -330,7 +328,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                 'class' => CatalogPricingRule::class,
                 'storeId' => $storeId,
                 'purchasableId' => $purchasableId,
-                'name' => Craft::t('commerce', '{name} pricing rule', ['name' => Craft::$app->getRequest()->getQueryParam('title', Craft::t('commerce', 'Purchasable'))]),
+                'name' => Craft::t('commerce', '{name} catalog price', ['name' => Craft::$app->getRequest()->getQueryParam('title', Craft::t('commerce', 'Purchasable'))]),
             ]);
         }
 

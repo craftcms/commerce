@@ -1251,7 +1251,7 @@ return [
     '{description} only has {stock} in stock.' => '{description} only has {stock} in stock.',
     '{name} (Primary)' => '{name} (Primary)',
     '{name} (Trashed)' => '{name} (Trashed)',
-    '{name} pricing rule' => '{name} pricing rule',
+    '{name} catalog price' => '{name} catalog price',
     '{num, plural, =1{order}, other{orders}} updated.' => '{num, plural, =1{order}, other{orders}} updated.',
     '{number} more…' => '{number} more…',
     '{pct} off the discounted item price' => '{pct} off the discounted item price',
