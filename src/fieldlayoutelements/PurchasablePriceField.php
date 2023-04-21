@@ -89,37 +89,42 @@ class PurchasablePriceField extends BaseNativeField
                 const _tableContainer = _el.parents('.js-purchasable-price-field').find('.js-price-list-container');
                 const _loadingElements = _tableContainer.find('.js-prices-table-loading');
                 _loadingElements.removeClass('hidden');
-                console.log('asd');
-              Craft.sendActionRequest('POST', 'commerce/catalog-pricing/generate-catalog-prices', {
-                    data: {
-                        purchasableId: $element->id,
-                        storeId: $element->storeId,
-                        basePrice: $('input[name="$priceNamespace"]').val(),
-                        basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
-                    }
-                })
-                .then((response) => {
-                    _loadingElements.addClass('hidden');
-                    if (response.data) {
-                        $('#$priceListContainer .tableview').replaceWith(response.data);
-                    }
-                    _priceFields.off('change');
-                    _newButton.off('click');
-                    _editLink.off('click');
+                
+                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/generate-catalog-prices', {
+                        data: {
+                            purchasableId: $element->id,
+                            storeId: $element->storeId,
+                            basePrice: $('input[name="$priceNamespace"]').val(),
+                            basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
+                        }
+                    })
+                    .then((response) => {
+                        _loadingElements.addClass('hidden');
+                        
+                        if (response.data) {
+                            $('#$priceListContainer .tableview').replaceWith(response.data);
+                        }
+                        
+                        _priceFields.off('change');
+                        _newButton.off('click');
+                        _editLink.off('click');
                     
-                    initPurchasablePriceList();
-                })
-                .catch(({response}) => {
-                    _loadingElements.addClass('hidden');
-                    if (response.data && response.data.message) {
-                        Craft.cp.displayError(response.data.message);
-                    }
-                    _priceFields.off('change');
-                    _newButton.off('click');
-                    _editLink.off('click');
+                        initPurchasablePriceList();
+                    })
+                    .catch(({response}) => {
+                        _loadingElements.addClass('hidden');
+                        
+                        if (response.data && response.data.message) {
+                            Craft.cp.displayError(response.data.message);
+                        }
+                        
+                        _priceFields.off('change');
+                        _newButton.off('click');
+                        _editLink.off('click');
                     
-                    initPurchasablePriceList();
-                });
+                        initPurchasablePriceList();
+                    }
+                );
             };
             
             _priceFields.on('change', function(e) {               
