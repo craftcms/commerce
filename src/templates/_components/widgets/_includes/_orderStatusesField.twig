@@ -31,7 +31,6 @@
           return `<div class="item"><div><span class="status ${status}"></span><span>${data.text}</span></div></div>`;
         },
         option: data => {
-          console.log({data});
           const status = data.color != undefined ? data.color : 'gray';
 
           return `<div><span class="status ${status}"></span>${data.text}</div>`;
