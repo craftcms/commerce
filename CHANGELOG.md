@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where pdf Formatting Locale language where not always being respected. ([#3145](https://github.com/craftcms/commerce/issues/3145))
+
 ## 4.2.7 - 2023-04-13
 
 - Added the “Order Site” order condition rule. ([#3131](https://github.com/craftcms/commerce/issues/3131))
