@@ -8,8 +8,11 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\base\Purchasable;
+use craft\commerce\base\PurchasableInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
+use craft\errors\SiteNotFoundException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -68,23 +71,56 @@ class CatalogPricing extends Model
     private ?CatalogPricingRule $_catalogPricingRule = null;
 
     /**
+     * @var PurchasableInterface|null
+     */
+    private ?PurchasableInterface $_purchasable = null;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
     {
         $rules = parent::defineRules();
         $rules[] = [[
-            'id',
-            'purchasableId',
-            'price',
             'catalogPricingRuleId',
             'dateFrom',
             'dateTo',
+            'id',
             'isPromotionalPrice',
+            'price',
+            'purchasableId',
+            'storeId',
             'uid',
         ], 'safe'];
 
         return $rules;
+    }
+
+    /**
+     * @return PurchasableInterface|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
+    public function getPurchasable(): ?PurchasableInterface
+    {
+        if ($this->_purchasable !== null) {
+            return $this->_purchasable;
+        }
+
+        if ($this->purchasableId === null || $this->storeId === null) {
+            return null;
+        }
+
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($this->storeId)) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        // @TODO need to figure out looking at this from a site perspective
+        $site = $store->getSites()->first();
+
+        $this->_purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $site->id);
+
+        return $this->_purchasable;
     }
 
     /**
