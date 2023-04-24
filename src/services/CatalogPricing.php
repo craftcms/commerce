@@ -109,6 +109,10 @@ class CatalogPricing extends Component
                         continue;
                     }
 
+                    if ($catalogPricingRule->purchasableId && $purchasableId != $catalogPricingRule->purchasableId) {
+                        continue;
+                    }
+
                     $catalogPrice = Plugin::getInstance()->getCatalogPricingRules()->generateRulePriceFromPrice($priceByPurchasableId[$purchasableId]['basePrice'], $priceByPurchasableId[$purchasableId]['basePromotionalPrice'], $catalogPricingRule);
 
                     if ($catalogPrice === null) {
