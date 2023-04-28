@@ -1,0 +1,39 @@
+{% extends "commerce/_layouts/store-settings" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Price',
+    'Promotional Price',
+    'Source',
+    'Store Rule',
+]) %}
+
+{% block toolbar %}
+    {{ parent() }}
+    {% set showStatusMenu = false %}
+    {# Changing the context forces the status menu not to show #}
+    {% set context = 'pricing' %}
+    {% include '_elements/toolbar' with { showSitesMenu: 'auto', elementType: 'craft\\commerce\\elements\\Variant'} %}
+
+{% endblock %}
+
+{% block content %}
+
+  <div id="commerce-catalog-prices">
+    {% include 'commerce/store-settings/catalog-pricing/_table' with { catalogPrices: catalogPrices } %}
+  </div>
+{% endblock %}
+
+{% js at endBody %}
+(() => {
+  const CatalogPricingFilterHud = new Craft.Commerce.CatalogPricing(
+    $('#main'),
+    $('#commerce-catalog-prices'),
+    {
+      siteId: {{ craft.app.sites.currentSite.id }},
+      condition: {{ condition|json_encode|raw }},
+    }
+  );
+})();
+{% endjs %}

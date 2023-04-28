@@ -1,0 +1,24 @@
+<div class="tableview tablepane">
+  <table class="data fullwidth">
+    <thead>
+    <tr>
+      <th scope="col">{{ 'Name'|t('commerce') }}</th>
+      <th scope="col">{{ 'Price'|t('commerce') }}</th>
+      <th scope="col">{{ 'Promotional Price'|t('commerce') }}</th>
+      <th scope="col">{{ 'Source'|t('commerce') }}</th>
+      <th scope="col">{{ 'Store Rule'|t('commerce') }}</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for price in catalogPrices %}
+      <tr>
+        <td>{{ price.purchasable.title }}</td>
+        <td>{{ price.isPromotionalPrice ? '' : price.price }}</td>
+        <td>{{ price.isPromotionalPrice ? price.price : '' }}</td>
+        <td>{{ price.catalogPricingRule ? price.catalogPricingRule.name : '' }}</td>
+        <td>{{ price.catalogPricingRule and price.catalogPricingRule.isStoreRule ? tag('span', {'data-icon': 'check'}) : '' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
