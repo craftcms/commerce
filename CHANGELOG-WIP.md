@@ -29,6 +29,7 @@
 
 
 ### Extensibility
+- Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
 - Added `craft\commerce\base\Purchasable::$freeShipping`.
 - Added `craft\commerce\base\Purchasable::$hasUnlimitedStock`.
@@ -67,7 +68,8 @@
 - Added `craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
-- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableCondition`.
+- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCondition`.
+- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
