@@ -967,6 +967,7 @@ return [
     'Stock' => 'Stock',
     'Stops Processing?' => 'Stops Processing?',
     'Stops subsequent?' => 'Stops subsequent?',
+    'Store ID is required.' => 'Store ID is required.',
     'Store Location' => 'Store Location',
     'Store Management' => 'Store Management',
     'Store Markets' => 'Store Markets',
