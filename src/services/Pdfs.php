@@ -465,6 +465,7 @@ class Pdfs extends Component
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLanguage = Craft::$app->formattingLocale;
         $pdfLanguage = $pdf->getRenderLanguage($order);
 
         // TODO add event
@@ -476,7 +477,7 @@ class Pdfs extends Component
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
-            Locale::switchAppLanguage($originalLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -527,7 +528,6 @@ class Pdfs extends Component
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
-
         // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([

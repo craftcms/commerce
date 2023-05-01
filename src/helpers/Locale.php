@@ -26,11 +26,16 @@ class Locale
      * @param $toLanguage
      * @throws InvalidConfigException
      */
-    public static function switchAppLanguage($toLanguage): void
+    public static function switchAppLanguage($appLanguage, $formattingLanguage = null): void
     {
-        Craft::$app->language = $toLanguage;
-        $locale = Craft::$app->getI18n()->getLocaleById($toLanguage);
+        Craft::$app->language = $appLanguage;
+        $locale = Craft::$app->getI18n()->getLocaleById($appLanguage);
         Craft::$app->set('locale', $locale);
+
+        if ($formattingLanguage !== null) {
+            $locale = Craft::$app->getI18n()->getLocaleById($formattingLanguage);
+        }
+
         Craft::$app->set('formattingLocale', $locale);
     }
 
