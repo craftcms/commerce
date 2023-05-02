@@ -480,8 +480,7 @@ class OrderStatuses extends Component
 
         // Set previous language back
         Craft::$app->language = $originalLanguage;
-        Craft::$app->set('formattingLocale', Craft::$app->getI18n()->getLocaleById($originalFormattingLocale));
-        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
     }
 
     /**
