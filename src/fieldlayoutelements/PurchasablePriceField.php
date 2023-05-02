@@ -90,7 +90,7 @@ class PurchasablePriceField extends BaseNativeField
                 const _loadingElements = _tableContainer.find('.js-prices-table-loading');
                 _loadingElements.removeClass('hidden');
                 
-                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/generate-catalog-prices', {
+                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/get-catalog-prices', {
                         data: {
                             purchasableId: $element->id,
                             storeId: $element->storeId,

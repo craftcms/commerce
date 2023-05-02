@@ -174,7 +174,7 @@ class CatalogPricingController extends BaseStoreSettingsController
      * @throws SiteNotFoundException
      * @throws InvalidConfigException
      */
-    public function actionGenerateCatalogPrices(): ?string
+    public function actionGetCatalogPrices(): ?string
     {
         $purchasableId = $this->request->getBodyParam('purchasableId');
         $storeId = $this->request->getBodyParam('storeId');
