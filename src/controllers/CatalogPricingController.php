@@ -9,18 +9,14 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\behaviors\StoreBehavior;
-use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\CatalogPricing;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
-use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Html;
-use craft\helpers\Json;
-use craft\helpers\StringHelper;
-use craft\helpers\UrlHelper;
 use craft\models\Site;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
@@ -47,6 +43,12 @@ class CatalogPricingController extends BaseStoreSettingsController
         return true;
     }
 
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws NotFoundHttpException
+     */
     public function actionIndex(?string $storeHandle = null): Response
     {
         $store = Plugin::getInstance()->getStores()->getPrimaryStore();
@@ -54,34 +56,27 @@ class CatalogPricingController extends BaseStoreSettingsController
             throw new NotFoundHttpException('Store not found');
         }
 
-        $allPrices = true;
-        $catalogPricingQuery = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $store->id, allPrices: $allPrices)
-            ->select([
-                'id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid'
-            ]);
-
-        // Temp limit
-        $catalogPricingQuery->limit(100);
-        $results = $catalogPricingQuery->all();
-
-        $catalogPrices = [];
-        foreach ($results as $result) {
-            $catalogPrices[] = Craft::createObject([
-                'class' => CatalogPricing::class,
-                'attributes' => $result,
-            ]);
-        }
-
-        Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
-
+        $purchasableId = Craft::$app->getRequest()->getQueryParam('purchasableId');
         $conditionBuilder = Craft::$app->getConditions()->createCondition([
             'class' => CatalogPricingCondition::class,
         ]);
 
+        if ($purchasableId && $purchasableElementType = Craft::$app->getElements()->getElementTypeById($purchasableId)) {
+            $purchasableConditionRule = Craft::$app->getConditions()->createConditionRule([
+                'class' => CatalogPricingPurchasableConditionRule::class,
+                'elementIds' => [$purchasableElementType => [$purchasableId]],
+            ]);
+
+            $conditionBuilder->addConditionRule($purchasableConditionRule);
+        }
+
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder);
+
+        Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
 
         return $this->renderTemplate('commerce/store-settings/catalog-pricing/_index', [
-            'catalogPrices' => $catalogPrices,
-            'condition' => $conditionBuilder->getConfig(),
+            'catalogPrices' => $catalogPrices->all(),
+            'condition' => $conditionBuilder,
         ]);
     }
 
@@ -91,15 +86,14 @@ class CatalogPricingController extends BaseStoreSettingsController
      */
     public function actionFilter(): Response
     {
-        $condition = $this->request->getBodyParam('condition');
-        $conditionBuilder = Craft::$app->getConditions()->createCondition([
-            'class' => CatalogPricingCondition::class,
-        ]);
+        $condition = $this->request->getBodyParam('condition') ?? ['class' => CatalogPricingCondition::class];
+        $conditionBuilder = Craft::$app->getConditions()->createCondition($condition);
         $conditionBuilderHtml = $conditionBuilder->getBuilderHtml();
 
         $view = Craft::$app->getView();
 
-        return $this->asSuccess('Filtering', [
+        return $this->asJson([
+            'condition' => $conditionBuilder->getConfig(),
             'hudHtml' => $conditionBuilderHtml,
             'headHtml' => $view->getHeadHtml(),
             'bodyHtml' => $view->getBodyHtml(),
@@ -116,7 +110,6 @@ class CatalogPricingController extends BaseStoreSettingsController
         $condition = $this->request->getBodyParam('condition');
         $searchText = $this->request->getBodyParam('searchText');
 
-        parse_str($condition, $condition);
         $conditionBuilder = null;
         if ($condition && isset($condition['condition'])) {
             /** @var CatalogPricingCondition $conditionBuilder */
@@ -129,40 +122,15 @@ class CatalogPricingController extends BaseStoreSettingsController
             throw new InvalidArgumentException('Invalid site ID: ' . $siteId);
         }
 
-        // @TODO change this depending on condition rules
-        $allPrices = true;
-
-        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $site->getStore()->id, allPrices: $allPrices)
-            ->select([
-                'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'
-            ]);
-
-        if ($searchText) {
-            $query->innerJoin(Table::PURCHASABLES . ' purchasables', 'cp.purchasableId = purchasables.id');
-            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
-            $query->andWhere([$likeOperator, 'purchasables.description', $searchText]);
-        }
-
-        // If there is a condition builder, modify the query
-        $conditionBuilder?->modifyQuery($query);
-
-        // @TODO pagination/limit
-        $query->limit(100);
-        $results = $query->all();
-        $catalogPrices = [];
-        foreach ($results as $result) {
-            $catalogPrices[] = Craft::createObject([
-                'class' => CatalogPricing::class,
-                'attributes' => $result,
-            ]);
-        }
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $searchText);
 
         $view = Craft::$app->getView();
-        // $conditionBuilderHtml = $conditionBuilder->getBuilderHtml();
-        $tableHtml = $view->renderTemplate('commerce/store-settings/catalog-pricing/_table', compact('catalogPrices'));
+
+        $tableHtml = $view->renderTemplate('commerce/store-settings/catalog-pricing/_table', [
+            'catalogPrices' => $catalogPrices->all(),
+        ]);
 
         return $this->asJson([
-            // 'hudHtml' => $conditionBuilderHtml,
             'headHtml' => $view->getHeadHtml(),
             'bodyHtml' => $view->getBodyHtml(),
             'tableHtml' => $tableHtml,

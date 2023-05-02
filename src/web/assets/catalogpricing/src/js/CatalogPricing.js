@@ -25,6 +25,10 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     this.$filterBtn = this.$searchContainer.children('.filter-btn:first');
     this.setSettings(settings, this.defaults);
 
+    if (this.settings.filterBtnActive) {
+      this.$filterBtn.addClass('active');
+    }
+
     this.addListener(this.$filterBtn, 'click', 'showFilterHud');
 
     this.addListener(this.$search, 'input', () => {
@@ -111,14 +115,36 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     }
   },
 
-  serializedCondition: function () {
-    if (this.getFilterHud()) {
-      return this.getFilterHud()
-        .$body.find('.condition-container:first')
-        .serialize();
+  serializeConditionForm: function () {
+    if (!this.getFilterHud()) {
+      return null;
     }
 
-    return null;
+    const el = this.getFilterHud().$body.find('.condition-container:first');
+    let _ = {};
+
+    $.map(el.serializeArray(), function (n) {
+      const keys = n.name.match(/[a-zA-Z0-9_\\]+|(?=\[\])/g);
+
+      if (keys.length > 1) {
+        let tmp = _;
+        let pop = keys.pop();
+        for (let i = 0; i < keys.length; i++) {
+          let j = keys[i];
+          (tmp[j] = !tmp[j] ? (pop == '' ? [] : {}) : tmp[j]), (tmp = tmp[j]);
+        }
+        if (pop == '') {
+          tmp = !Array.isArray(tmp) ? [] : tmp;
+          tmp.push(n.value);
+        } else {
+          tmp[pop] = n.value;
+        }
+      } else {
+        _[keys.pop()] = n.value;
+      }
+    });
+
+    return _;
   },
 
   getFilterHudKey: function () {
@@ -157,7 +183,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     let params = {
       searchText: this.$search.val(),
       siteId: this.settings.siteId,
-      condition: this.serializedCondition(),
+      condition: this.serializeConditionForm(),
     };
 
     Craft.sendActionRequest('POST', 'commerce/catalog-pricing/prices', {
@@ -233,6 +259,8 @@ Craft.Commerce.CatalogPricingHud = Garnish.HUD.extend({
         this.$main.append(response.data.hudHtml);
         Craft.appendHeadHtml(response.data.headHtml);
         Craft.appendBodyHtml(response.data.bodyHtml);
+        this.view.settings.condition = response.data.condition;
+        this.serialized = this.view.serializeConditionForm();
 
         const $btnContainer = $('<div/>', {
           class: 'flex flex-nowrap',
@@ -332,6 +360,8 @@ Craft.Commerce.CatalogPricingHud = Garnish.HUD.extend({
     // Cancel => Clear
     if (this.$clearBtn && this.hasRules()) {
       this.$clearBtn.text(Craft.t('app', 'Clear'));
+    } else if (this.$clearBtn && !this.hasRules()) {
+      this.$clearBtn.text(Craft.t('app', 'Cancel'));
     }
 
     this.view.updateFilterBtn();
@@ -342,7 +372,9 @@ Craft.Commerce.CatalogPricingHud = Garnish.HUD.extend({
     this.base();
 
     // If something changed, update the elements
-    if (this.serialized !== (this.serialized = this.serialize())) {
+    if (
+      this.serialized !== (this.serialized = this.view.serializeConditionForm())
+    ) {
       this.view.updateTable();
     }
 
@@ -357,14 +389,6 @@ Craft.Commerce.CatalogPricingHud = Garnish.HUD.extend({
 
   hasRules: function () {
     return this.$main.has('.condition-rule').length !== 0;
-  },
-
-  serialize: function () {
-    if (this.cleared || !this.hasRules()) {
-      return null;
-    }
-
-    return this.view.serializedCondition();
   },
 
   destroy: function () {

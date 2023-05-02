@@ -10,12 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
 use craft\commerce\models\CatalogPricing as CatalogPricingModel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
@@ -261,7 +263,11 @@ class CatalogPricing extends Component
     }
 
     /**
-     * @return Collection
+     * @param int $purchasableId
+     * @param int|null $storeId
+     * @return Collection<CatalogPricingModel>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
     public function getCatalogPricesByPurchasableId(int $purchasableId, ?int $storeId = null): Collection
     {
@@ -281,6 +287,49 @@ class CatalogPricing extends Component
         }
 
         return collect($allPrices);
+    }
+
+    /**
+     * @param int $storeId
+     * @param CatalogPricingCondition|null $conditionBuilder
+     * @param string|null $searchText
+     * @param int $limit
+     * @param int $offset
+     * @return Collection
+     * @throws InvalidConfigException
+     */
+    public function getCatalogPrices(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, ?string $searchText = null, int $limit = 100, int $offset = 0): Collection
+    {
+        $allPrices = true;
+
+        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $storeId, allPrices: $allPrices)
+            ->select([
+                'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'
+            ]);
+
+        if ($searchText) {
+            $query->innerJoin(Table::PURCHASABLES . ' purchasables', 'cp.purchasableId = purchasables.id');
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $query->andWhere([$likeOperator, 'purchasables.description', $searchText]);
+        }
+
+        // If there is a condition builder, modify the query
+        $conditionBuilder?->modifyQuery($query);
+
+        // @TODO pagination/limit
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $results = $query->all();
+        $catalogPrices = [];
+        foreach ($results as $result) {
+            $catalogPrices[] = Craft::createObject([
+                'class' => CatalogPricingModel::class,
+                'attributes' => $result,
+            ]);
+        }
+
+        return collect($catalogPrices);
     }
 
     /**

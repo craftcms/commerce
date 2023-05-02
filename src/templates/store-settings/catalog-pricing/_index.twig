@@ -32,7 +32,8 @@
     $('#commerce-catalog-prices'),
     {
       siteId: {{ craft.app.sites.currentSite.id }},
-      condition: {{ condition|json_encode|raw }},
+      condition: {{ condition.getConfig()|json_encode|raw }},
+      filterBtnActive: {{ condition.getConditionRules()|length ? 'true' : 'false' }},
     }
   );
 })();
