@@ -749,7 +749,6 @@ class OrdersController extends Controller
         }
 
         // Set previous language back
-        Craft::$app->language = $originalLanguage;
         Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         if (!$success) {

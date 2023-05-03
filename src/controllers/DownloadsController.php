@@ -72,8 +72,7 @@ class DownloadsController extends BaseFrontEndController
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
 
         // Set previous language back
-        Craft::$app->language = $originalLanguage;
-        Locale::switchAppLanguage($language, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {

@@ -61,8 +61,7 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         }
 
         // Set previous language back
-        Craft::$app->language = $originalLanguage;
-        Locale::switchAppLanguage($language, $originalFormattingLocale);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         $this->setProgress($queue, 1);
     }

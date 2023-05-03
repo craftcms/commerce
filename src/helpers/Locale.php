@@ -23,17 +23,19 @@ class Locale
     /**
      * Set language of the application
      *
-     * @param $toLanguage
+     * @param string $toLanguage
+     * @param string|null $formattingLocale
      * @throws InvalidConfigException
+     * @TODO rename `toLanguage` to `locale` in Commerce 5
      */
-    public static function switchAppLanguage($appLanguage, $formattingLanguage = null): void
+    public static function switchAppLanguage(string $toLanguage, ?string $formattingLocale = null): void
     {
-        Craft::$app->language = $appLanguage;
-        $locale = Craft::$app->getI18n()->getLocaleById($appLanguage);
+        Craft::$app->language = $toLanguage;
+        $locale = Craft::$app->getI18n()->getLocaleById($toLanguage);
         Craft::$app->set('locale', $locale);
 
-        if ($formattingLanguage !== null) {
-            $locale = Craft::$app->getI18n()->getLocaleById($formattingLanguage);
+        if ($formattingLocale !== null) {
+            $locale = Craft::$app->getI18n()->getLocaleById($formattingLocale);
         }
 
         Craft::$app->set('formattingLocale', $locale);
