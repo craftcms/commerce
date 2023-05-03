@@ -7,6 +7,7 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;
@@ -47,6 +48,8 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
         $language = $email->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
 
@@ -56,6 +59,10 @@ class SendEmail extends BaseJob implements RetryableJobInterface
         if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
             throw new EmailException($error);
         }
+
+        // Set previous language back
+        Craft::$app->language = $originalLanguage;
+        Locale::switchAppLanguage($language, $originalFormattingLocale);
 
         $this->setProgress($queue, 1);
     }

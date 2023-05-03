@@ -64,6 +64,7 @@ class DownloadsController extends BaseFrontEndController
         }
 
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
 
         $language = $pdf->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
@@ -72,7 +73,7 @@ class DownloadsController extends BaseFrontEndController
 
         // Set previous language back
         Craft::$app->language = $originalLanguage;
-        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
+        Locale::switchAppLanguage($language, $originalFormattingLocale);
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
