@@ -13,6 +13,7 @@ use craft\base\Element;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -31,6 +32,14 @@ use yii\db\Expression;
  */
 class Customers extends Component
 {
+    // Events
+    // -------------------------------------------------------------------------
+
+    /**
+     * @event RegisterElementSourcesEvent The event that is triggered when a primary payment method is saved.
+     */
+    public const EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE = 'updatePrimaryPaymentSource';
+
     /**
      * @param User $user
      * @param int|null $addressId
@@ -68,6 +77,14 @@ class Customers extends Component
     public function savePrimaryPaymentSourceId(User $user, ?int $paymentSourceId): bool
     {
         $customerRecord = $this->ensureCustomer($user);
+
+        $originalPaymentSourceId = $customerRecord->primaryPaymentSourceId;
+
+        // Only save customer record if the source is not already primary
+        if ($customerRecord->primaryPaymentSourceId == $paymentSourceId) {
+            return true;
+        }
+
         $customerRecord->primaryPaymentSourceId = $paymentSourceId;
 
         if (!$customerRecord->save()) {
@@ -76,6 +93,18 @@ class Customers extends Component
 
         /** @var User|CustomerBehavior $user */
         $user->primaryPaymentSourceId = $paymentSourceId;
+
+        if ($originalPaymentSourceId != $paymentSourceId) {
+            $event = new UpdatePrimaryPaymentSourceEvent([
+                'previousPrimaryPaymentSourceId' => $originalPaymentSourceId,
+                'newPrimaryPaymentSourceId' => $paymentSourceId,
+                'customer' => $user,
+            ]);
+
+            // trigger the update primary payment source event
+            $this->trigger(self::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE, $event);
+        }
+
         return true;
     }
 

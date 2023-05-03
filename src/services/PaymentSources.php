@@ -104,18 +104,24 @@ class PaymentSources extends Component
      * Returns a customer's payment sources, per the customer's ID.
      *
      * @param int|null $customerId the user's ID
+     * @param int|null $gatewayId the gateway's ID
      * @return PaymentSource[]
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByCustomerId(int $customerId = null): array
+    public function getAllPaymentSourcesByCustomerId(int $customerId = null, ?int $gatewayId = null): array
     {
         if ($customerId === null) {
             return [];
         }
 
-        $results = $this->_createPaymentSourcesQuery()
-            ->where(['customerId' => $customerId])
-            ->all();
+        $query = $this->_createPaymentSourcesQuery()
+            ->where(['customerId' => $customerId]);
+
+        if ($gatewayId) {
+            $query->andWhere(['gatewayId' => $gatewayId]);
+        }
+
+        $results = $query->all();
 
         $sources = [];
 
@@ -367,7 +373,6 @@ class PaymentSources extends Component
         return false;
     }
 
-
     /**
      * Returns a Query object prepped for retrieving gateways.
      *
@@ -384,6 +389,6 @@ class PaymentSources extends Component
                 'token',
                 'customerId',
             ])
-            ->from([Table::PAYMENTSOURCES]);
+            ->from(Table::PAYMENTSOURCES);
     }
 }
