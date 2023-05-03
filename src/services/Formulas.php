@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\web\twig\Environment;
 use Twig\Error\SyntaxError;
