@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.21 - 2023-05-03
 
 - Craft Commerce now requires Dompdf 2.0.0 or later.
 
