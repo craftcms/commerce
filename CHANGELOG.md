@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.8 - 2023-05-03
 
 - Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
 - Fixed a bug where PDFs could be generated using the wrong formatting locale. ([#3145](https://github.com/craftcms/commerce/issues/3145))
