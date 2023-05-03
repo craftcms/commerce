@@ -200,7 +200,7 @@ class Gateways extends Component
      */
     public function getGatewayByHandle(string $handle): ?Gateway
     {
-        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
+        return ArrayHelper::firstWhere($this->_getAllGateways(), 'handle', $handle);
     }
 
     /**

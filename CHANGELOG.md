@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
 - Fixed a bug where pdf Formatting Locale language where not always being respected. ([#3145](https://github.com/craftcms/commerce/issues/3145))
 
 ## 4.2.7 - 2023-04-13
