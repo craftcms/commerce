@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule;
 use craft\commerce\models\CatalogPricing as CatalogPricingModel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
@@ -300,9 +301,7 @@ class CatalogPricing extends Component
      */
     public function getCatalogPrices(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, ?string $searchText = null, int $limit = 100, int $offset = 0): Collection
     {
-        $allPrices = true;
-
-        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $storeId, allPrices: $allPrices)
+        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $storeId, allPrices: true, condition: $conditionBuilder)
             ->select([
                 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'
             ]);
@@ -358,37 +357,28 @@ class CatalogPricing extends Component
      * @param bool|null $isPromotionalPrice
      * @return Query
      */
-    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false): Query
+    public function createCatalogPricingQuery(?int $userId = null, int|string|null $storeId = null, ?bool $isPromotionalPrice = null, bool $allPrices = false, ?CatalogPricingCondition $condition = null): Query
     {
-        $catalogPricingRuleIdWhere = ['or'];
-
-        // If we are looking for all prices, we don't need to worry about the user's table
-        if (!$allPrices) {
-            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => null];
-            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
-                ->select(['cpr.id as cprid'])
-                ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
-                ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
-                ->where(['[[cpru.id]]' => null])
-                ->groupBy(['[[cpr.id]]']),
-            ];
-        }
-
-        // Sub query to figure out which catalog pricing rules are using user conditions
-        if ($userId) {
-            $catalogPricingRuleIdWhere[] = ['catalogPricingRuleId' => (new Query())
-                ->select(['cpr.id as cprid'])
-                ->from([Table::CATALOG_PRICING_RULES . ' cpr'])
-                ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
-                ->where(['[[cpru.userId]]' => $userId])
-                ->andWhere(['not', ['[[cpru.id]]' => null]])
-                ->groupBy(['[[cpr.id]]']), ];
-        }
-
         $query = (new Query())
             ->select([new Expression('MIN(price) as price')])
-            ->from([Table::CATALOG_PRICING . ' cp'])
-            ->where($catalogPricingRuleIdWhere)
+            ->from([Table::CATALOG_PRICING . ' cp']);
+
+        // Use condition builder to tweak the query for reusability
+        $condition = $condition ?? Craft::$app->getConditions()->createCondition([
+            'class' => CatalogPricingCondition::class,
+            'allPrices' => $allPrices,
+        ]);
+
+        if ($userId) {
+            $condition->addConditionRule(Craft::$app->getConditions()->createConditionRule([
+                'class' => CatalogPricingCustomerConditionRule::class,
+                'customerId' => $userId,
+            ]));
+        }
+
+        $condition->modifyQuery($query);
+
+        $query
             ->andWhere(['or', ['dateFrom' => null], ['<=', 'dateFrom', Db::prepareDateForDb(new DateTime())]])
             ->andWhere(['or', ['dateTo' => null], ['>=', 'dateTo', Db::prepareDateForDb(new DateTime())]])
             ->orderBy(['purchasableId' => SORT_ASC, 'price' => SORT_ASC]);

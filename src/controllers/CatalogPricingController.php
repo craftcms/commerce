@@ -59,6 +59,7 @@ class CatalogPricingController extends BaseStoreSettingsController
         $purchasableId = Craft::$app->getRequest()->getQueryParam('purchasableId');
         $conditionBuilder = Craft::$app->getConditions()->createCondition([
             'class' => CatalogPricingCondition::class,
+            'allPrices' => true,
         ]);
 
         if ($purchasableId && $purchasableElementType = Craft::$app->getElements()->getElementTypeById($purchasableId)) {

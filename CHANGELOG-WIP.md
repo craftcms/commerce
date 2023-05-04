@@ -69,6 +69,7 @@
 - Added `craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCondition`.
+- Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.

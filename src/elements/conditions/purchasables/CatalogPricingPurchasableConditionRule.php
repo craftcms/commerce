@@ -149,21 +149,4 @@ class CatalogPricingPurchasableConditionRule extends BaseConditionRule implement
 
         $query->andWhere(['purchasableId' => $ids]);
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function matchElement(ElementInterface $element): bool
-    {
-        $ids = $this->getElementIds();
-        if ($ids === null) {
-            return true;
-        }
-
-        if (!is_array($ids)) {
-            return false;
-        }
-
-        return in_array($element->id, $ids);
-    }
 }
