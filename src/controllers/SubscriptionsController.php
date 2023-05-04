@@ -108,7 +108,9 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
-        $this->enforceManageSubscriptionPermissions($subscription);
+        if (!$this->_canUpdateSubscription($subscription) === true) {
+            $this->enforceManageSubscriptionPermissions($subscription);
+        }
 
         $subscription->setFieldValuesFromRequest('fields');
 
@@ -256,7 +258,7 @@ class SubscriptionsController extends BaseController
             $validAction = $subscription->canReactivate();
             $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
-            if ($validData && $validAction && $canModifySubscription) {
+            if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
                     $error = Craft::t('commerce', 'Unable to reactivate subscription at this time.');
                 }
@@ -304,7 +306,7 @@ class SubscriptionsController extends BaseController
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
             $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
-            if ($validData && $validAction && $canModifySubscription) {
+            if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
                 $gateway = $subscription->getGateway();
                 $parameters = $gateway->getSwitchPlansFormModel();
@@ -362,9 +364,11 @@ class SubscriptionsController extends BaseController
             /** @var Subscription|null $subscription */
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
 
-            if ($validData && $canModifySubscription) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+            $canModifySubscription = $subscription->canSave($currentUser);
+
+            if (($validData === true && $canModifySubscription === true) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
                 $gateway = $subscription->getGateway();
                 $parameters = $gateway->getCancelSubscriptionFormModel();
@@ -412,5 +416,20 @@ class SubscriptionsController extends BaseController
         if (!$subscription->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User not authorized to view this subscription.');
         }
+    }
+
+    /**
+     * @param Subscription $subscription
+     * @return bool
+     * @throws Throwable
+     */
+    private function _canUpdateSubscription(Subscription $subscription): bool
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $isOwner = $subscription->userId === $currentUser->id;
+        $isFrontEnd = !Craft::$app->getRequest()->getIsCpRequest();
+
+        return ($isOwner === true && $isFrontEnd === true);
     }
 }
