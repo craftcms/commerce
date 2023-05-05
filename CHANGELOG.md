@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+
+- Fixed a bug where switching tabs on a dropdown on small screens is not working. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+
 ## 4.2.8 - 2023-05-03
 
 - Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
