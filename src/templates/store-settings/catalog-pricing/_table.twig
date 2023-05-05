@@ -3,21 +3,45 @@
     <thead>
     <tr>
       <th scope="col">{{ 'Name'|t('commerce') }}</th>
-      <th scope="col">{{ 'Price'|t('commerce') }}</th>
-      <th scope="col">{{ 'Promotional Price'|t('commerce') }}</th>
       <th scope="col">{{ 'Source'|t('commerce') }}</th>
-      <th scope="col">{{ 'Store Rule'|t('commerce') }}</th>
+      <th scope="col" style="text-align: right;">{{ 'Price'|t('commerce') }}</th>
     </tr>
     </thead>
     <tbody>
+    {% set lastPurchasable = null %}
     {% for price in catalogPrices %}
       <tr>
-        <td>{{ price.purchasable.title }}</td>
-        <td>{{ price.isPromotionalPrice ? '' : price.price }}</td>
-        <td>{{ price.isPromotionalPrice ? price.price : '' }}</td>
-        <td>{{ price.catalogPricingRule ? price.catalogPricingRule.name : '' }}</td>
-        <td>{{ price.catalogPricingRule and price.catalogPricingRule.isStoreRule ? tag('span', {'data-icon': 'check'}) : '' }}</td>
+        <td>
+          {% if lastPurchasable != price.purchasable.id %}
+            <div
+                class="element small hasstatus"
+                title="{{ price.purchasable.title }}"
+                data-status="{{ price.purchasable.getStatus() }}"
+                data-label="{{ price.purchasable.title }}">
+              <div class="label">
+                <span class="title">
+                  <a href="{{ price.purchasable.cpEditUrl }}">{{ price.purchasable.title }}</a>
+                </span>
+              </div>
+              <span class="status live" role="img" aria-label="Status: Live"></span>
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          {% if price.catalogPricingRule and price.catalogPricingRule.isStoreRule %}
+            <a href="{{ price.catalogPricingRule.cpEditUrl }}"
+               class="catalog-pricing-rule"
+               data-store-id="{{ price.catalogPricingRule.storeId }}"
+               data-purchasable-id="{{ price.purchasable.id }}"
+               data-catalog-pricing-rule-id="{{ price.catalogPricingRule.id }}"
+            >{{ price.catalogPricingRule.name }}</a>
+          {% else %}
+            {{ price.catalogPricingRule ? price.catalogPricingRule.name : '' }}
+          {% endif %}
+        </td>
+        <td style="text-align: right;">{{ price.price }}</td>
       </tr>
+      {% set lastPurchasable = price.purchasable.id %}
     {% endfor %}
     </tbody>
   </table>

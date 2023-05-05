@@ -5,6 +5,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 Craft.Commerce.CatalogPricing = Garnish.Base.extend({
+  $catalogPricingRules: null,
   $clearSearchBtn: null,
   $filterBtn: null,
   $search: null,
@@ -56,6 +57,8 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
         this.$search.trigger('focus');
       }
     });
+
+    this.iniCatalogPriceRules();
   },
 
   startSearching: function () {
@@ -189,12 +192,40 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     Craft.sendActionRequest('POST', 'commerce/catalog-pricing/prices', {
       data: params,
     }).then((response) => {
+      this.removeCatalogPricingRuleListeners();
+
       if (response.data && response.data.tableHtml) {
         Craft.appendHeadHtml(response.data.headHtml);
         Craft.appendBodyHtml(response.data.bodyHtml);
 
         this.$tableContainer.html(response.data.tableHtml);
+        this.iniCatalogPriceRules();
       }
+    });
+  },
+
+  removeCatalogPricingRuleListeners() {
+    this.$catalogPricingRules.off('click');
+  },
+
+  iniCatalogPriceRules() {
+    this.$catalogPricingRules = this.view.find('.catalog-pricing-rule');
+
+    this.$catalogPricingRules.on('click', function (e) {
+      e.preventDefault();
+      const slideout = new Craft.CpScreenSlideout(
+        'commerce/catalog-pricing-rules/slideout',
+        {
+          params: {
+            storeId: $(this).data('store-id'),
+            purchasableId: $(this).data('purchasable-id'),
+            id: $(this).data('catalog-pricing-rule-id'),
+          },
+        }
+      );
+      slideout.on('submit', function ({response, data}) {
+        console.log(response, data);
+      });
     });
   },
 });

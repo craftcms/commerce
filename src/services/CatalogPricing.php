@@ -318,6 +318,7 @@ class CatalogPricing extends Component
         // @TODO pagination/limit
         $query->limit($limit);
         $query->offset($offset);
+        $query->orderBy('purchasableId ASC, catalogPricingRuleId ASC');
 
         $results = $query->all();
         $catalogPrices = [];
