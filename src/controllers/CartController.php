@@ -213,7 +213,31 @@ class CartController extends BaseFrontEndController
             }
         }
 
-        $this->_setAddresses();
+        $assignAddresses = true;
+        // Can clear addresses updating the cart
+        if ($this->request->getParam('clearShippingAddress') !== null) {
+            $this->_cart->setShippingAddress(null);
+            $this->_cart->sourceShippingAddressId = null;
+            $assignAddresses = false;
+        }
+
+        if ($this->request->getParam('clearBillingAddress') !== null) {
+            $this->_cart->setBillingAddress(null);
+            $this->_cart->sourceBillingAddressId = null;
+            $assignAddresses = false;
+        }
+
+        if ($this->request->getParam('clearAddresses') !== null) {
+            $this->_cart->setShippingAddress(null);
+            $this->_cart->sourceShippingAddressId = null;
+            $this->_cart->setBillingAddress(null);
+            $this->_cart->sourceBillingAddressId = null;
+            $assignAddresses = false;
+        }
+
+        if ($assignAddresses) {
+            $this->_setAddresses();
+        }
 
         // Setting email only allowed for guest customers
         if (!$currentUser) {

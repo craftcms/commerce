@@ -1,5 +1,7 @@
 # Release Notes for Craft Commerce
 
+- Added `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params to the `commerce/cart/update-cart` action.
+
 ## 4.2.8 - 2023-05-03
 
 - Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
