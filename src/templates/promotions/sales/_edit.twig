@@ -28,10 +28,10 @@
 {% endif %}
 
 {% set tabs = {
-    0: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
-    1: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
-    2: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-    3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+    sale: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
+    matchingItems: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
+    conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    actions: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
 {% hook "cp.commerce.sales.edit" %}
