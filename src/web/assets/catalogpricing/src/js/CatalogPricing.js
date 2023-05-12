@@ -209,7 +209,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
   },
 
   iniCatalogPriceRules() {
-    this.$catalogPricingRules = this.view.find('.catalog-pricing-rule');
+    this.$catalogPricingRules = this.view.find('.js-cpr-slideout');
 
     this.$catalogPricingRules.on('click', function (e) {
       e.preventDefault();

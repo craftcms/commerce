@@ -3,6 +3,7 @@ import './scss/addresses.scss';
 import './scss/commerce.scss';
 import './scss/order.scss';
 import './scss/purchasables.scss';
+import './scss/prices.scss';
 import './scss/registration.scss';
 import './scss/subscriptions.scss';
 

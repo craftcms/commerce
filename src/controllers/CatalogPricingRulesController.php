@@ -94,10 +94,24 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['catalogPricingRule'] = Craft::createObject([
+                /** @var CatalogPricingRule $catalogPricingRule */
+                $catalogPricingRule = Craft::createObject([
                     'class' => CatalogPricingRule::class,
                     'storeId' => $store->id,
+                    'name' => Craft::$app->getRequest()->getParam('name'),
                 ]);
+
+                $purchasableId = Craft::$app->getRequest()->getParam('purchasableId');
+                if ($purchasableId && $purchasableType = Craft::$app->getElements()->getElementTypeById($purchasableId)) {
+                    $rule = Craft::$app->getConditions()->createConditionRule([
+                        'class' => PurchasableConditionRule::class,
+                        'elementIds' => [$purchasableType => [$purchasableId]],
+                    ]);
+
+                    $catalogPricingRule->getPurchasableCondition()->addConditionRule($rule);
+                }
+
+                $variables['catalogPricingRule'] = $catalogPricingRule;
             }
         }
 
@@ -105,7 +119,28 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         $variables = $this->_populateVariables($variables);
 
-        return $this->renderTemplate('commerce/store-settings/pricing-rules/_edit', $variables);
+        return $this->asCpScreen()
+            ->title('Test Title')
+            ->action('commerce/catalog-pricing-rules/save')
+            ->redirectUrl('commerce/store-settings/' . $store->handle . 'catalog-pricing-rules')
+            ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
+            ->tabs([
+                [
+                    'label' => Craft::t('commerce', 'Rule'),
+                    'url' => '#rule',
+                    'class' => array_filter([$variables['catalogPricingRule']->getErrors() ? 'error' : null]),
+                ],
+                [
+                    'label' => Craft::t('commerce', 'Conditions'),
+                    'url' => '#conditions',
+                ],
+                [
+                    'label' => Craft::t('commerce', 'Actions'),
+                    'url' => '#actions',
+                    'class' => array_filter([($variables['catalogPricingRule']->getErrors('applyAmount') or $variables['catalogPricingRule']->getErrors('apply')) ? 'error' : null]),
+                ]
+            ])
+            ->contentTemplate('commerce/store-settings/pricing-rules/_edit', $variables);
     }
 
     /**
@@ -140,7 +175,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $catalogPricingRule->enabled = (bool)$this->request->getBodyParam('enabled');
         $catalogPricingRule->isPromotionalPrice = (bool)$this->request->getBodyParam('isPromotionalPrice');
         $catalogPricingRule->applyPriceType = $this->request->getBodyParam('applyPriceType');
-        $catalogPricingRule->purchasableId = $this->request->getBodyParam('purchasableId');
 
         $dateFields = [
             'dateFrom',
@@ -169,19 +203,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
             $purchasableCondition = Craft::$app->getConditions()->createCondition([
                 'class' => CatalogPricingRulePurchasableCondition::class,
             ]);
-
-            if ($catalogPricingRule->purchasableId) {
-                $purchasableType = Craft::$app->getElements()->getElementTypeById($catalogPricingRule->purchasableId);
-                if ($purchasableType === null) {
-                    throw new Exception('Invalid purchasable ID: ' . $catalogPricingRule->purchasableId);
-                }
-
-                $rule = Craft::$app->getConditions()->createConditionRule([
-                    'class' => PurchasableConditionRule::class,
-                    'elementIds' => [$purchasableType => [$catalogPricingRule->purchasableId]]
-                ]);
-                $purchasableCondition->addConditionRule($rule);
-            }
         }
 
         $catalogPricingRule->setPurchasableCondition($purchasableCondition);
@@ -191,20 +212,13 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getcatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule)) {
-            $successMessage = $catalogPricingRule->isStoreRule()
-                ? Craft::t('commerce', 'Catalog pricing rule saved.')
-                : Craft::t('commerce', 'Catalog price saved.');
-            return $this->asSuccess($successMessage);
+            return $this->asSuccess(Craft::t('commerce', 'Catalog pricing rule saved.'));
         }
 
         $variables = compact('catalogPricingRule');
         $this->_populateVariables($variables);
 
-        $failureMessage = $catalogPricingRule->isStoreRule()
-            ? Craft::t('commerce', 'Couldn’t save catalog pricing rule.')
-            : Craft::t('commerce', 'Couldn’t save catalog price.');
-
-        return $this->asFailure($failureMessage, [], $variables);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t save catalog pricing rule.'), [], $variables);
     }
 
     /**
@@ -243,34 +257,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         return $this->redirect($this->request->getReferrer());
     }
 
-
-    /**
-     * @throws BadRequestHttpException
-     * @throws InvalidConfigException
-     */
-    public function actionGetcatalogPricingRulesByPurchasableId(): Response
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-        $id = $this->request->getParam('id');
-
-        if (!$id) {
-            return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
-        }
-
-        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
-
-        if (!$purchasable) {
-            return $this->asFailure(Craft::t('commerce', 'No purchasable available.'));
-        }
-
-        $rules = [];
-
-        return $this->asSuccess(data: [
-            'catalogPricingRules' => $rules,
-        ]);
-    }
-
     /**
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
@@ -303,48 +289,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $transaction->commit();
 
         $this->setSuccessFlash(Craft::t('commerce', 'Catalog pricing rules updated.'));
-    }
-
-    /**
-     * @return Response
-     */
-    public function actionSlideout(): Response
-    {
-        $id = Craft::$app->getRequest()->getQueryParam('id');
-        $storeId = Craft::$app->getRequest()->getQueryParam('storeId');
-        $purchasableId = Craft::$app->getRequest()->getQueryParam('purchasableId');
-        $catalogPricingRule = $id ? Plugin::getInstance()->getCatalogPricingRules()->getCatalogPricingRuleById($id, $storeId) : null;
-
-        if ($id && !$catalogPricingRule) {
-            throw new NotFoundHttpException('Catalog pricing rule not found');
-        }
-
-        if (!$id) {
-            if (!$storeId) {
-                throw new InvalidArgumentException('Store ID is required');
-            }
-
-            $catalogPricingRule = Craft::createObject([
-                'class' => CatalogPricingRule::class,
-                'storeId' => $storeId,
-                'purchasableId' => $purchasableId,
-                'name' => Craft::t('commerce', '{name} catalog price', ['name' => Craft::$app->getRequest()->getQueryParam('title', Craft::t('commerce', 'Purchasable'))]),
-            ]);
-        }
-
-        $template = 'commerce/store-settings/pricing-rules/_slideout';
-        $variables = compact('id', 'catalogPricingRule');
-
-        return $this->asCpScreen()
-            ->title('Create a new catalog pricing rule')
-            ->tabs([
-                ['label' => Craft::t('commerce', 'Conditions'), 'url' => '#conditions', 'visible' => true],
-                ['label' => Craft::t('commerce', 'Actions'), 'url' => '#actions', 'visible' => false],
-            ])
-            ->action('commerce/catalog-pricing-rules/save')
-            ->redirectUrl('commerce/catalog-pricing-rules/')
-            ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', compact('catalogPricingRule'))
-            ->contentTemplate($template, $this->_populateVariables($variables));
     }
 
     /**

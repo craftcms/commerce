@@ -102,11 +102,6 @@ class CatalogPricingRule extends Model
     public bool $isPromotionalPrice = false;
 
     /**
-     * @var int|null Purchasable ID set if this is a specific rule for a purchasable
-     */
-    public ?int $purchasableId = null;
-
-    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -153,7 +148,6 @@ class CatalogPricingRule extends Model
                 'isPromotionalPrice',
                 'metadata',
                 'purchasableCondition',
-                'purchasableId',
                 'storeId',
             ], 'safe'],
         ];
@@ -323,13 +317,5 @@ class CatalogPricingRule extends Model
         };
 
         return max($price, 0);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isStoreRule(): bool
-    {
-        return $this->purchasableId === null;
     }
 }

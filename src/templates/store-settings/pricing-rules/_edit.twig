@@ -1,112 +1,76 @@
-{% extends "commerce/_layouts/store-settings" %}
-{% set isIndex = false %}
-{% set crumbs = [
-    { label: "Pricing Rules"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/pricing-rules") },
-] %}
-
-{% set fullPageForm = true %}
-
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
-{% set actionClasses = "" %}
-{% if (catalogPricingRule.getErrors('applyAmount') or catalogPricingRule.getErrors('apply')) %}
-  {% set actionClasses = "error" %}
+{% if catalogPricingRule.id %}
+    {{ hiddenInput('id', catalogPricingRule.id) }}
 {% endif %}
+{{ hiddenInput('storeId', catalogPricingRule.storeId) }}
 
-{% set ruleClasses = "" %}
-{% if(catalogPricingRule.getErrors('name')) %}
-    {% set ruleClasses = "error" %}
-{% endif %}
+  <div id="rule">
+      {{ forms.textField({
+          first: true,
+          label: "Name"|t('commerce'),
+          instructions: "What this catalog pricing rule will be called in the control panel."|t('commerce'),
+          id: 'name',
+          name: 'name',
+          value: catalogPricingRule.name,
+          errors: catalogPricingRule.getErrors('name'),
+          autofocus: true,
+          required: true,
+      }) }}
 
-{% set tabs = {
-    0: {'label':'Rule'|t('commerce'),'url':'#rule','class': ruleClasses},
-    1: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-    2: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
-} %}
+      {{ forms.textField({
+          label: "Description"|t('commerce'),
+          instructions: "Catalog pricing rule description."|t('commerce'),
+          id: 'description',
+          name: 'description',
+          value: catalogPricingRule.description,
+          errors: catalogPricingRule.getErrors('description'),
+      }) }}
+  </div>
 
-{% hook "cp.commerce.catalogPricingRules.edit" %}
+  <div id="conditions" class="hidden">
+      {{ forms.dateTimeField({
+          label: "Start Date"|t('commerce'),
+          instructions: "Date from which the catalog pricing rule will be active. Leave blank for unlimited start date"|t('commerce'),
+          id: 'dateFrom',
+          name: 'dateFrom',
+          value: catalogPricingRule.dateFrom,
+          errors: catalogPricingRule.getErrors('dateFrom'),
+      }) }}
 
-{% block details %}
-    {% include 'commerce/store-settings/pricing-rules/_sidebar' %}
+      {{ forms.dateTimeField({
+          label: "End Date"|t('commerce'),
+          instructions: "Date when the catalog pricing rule will be finished. Leave blank for unlimited end date"|t('commerce'),
+          id: 'dateTo',
+          name: 'dateTo',
+          value: catalogPricingRule.dateTo,
+          errors: catalogPricingRule.getErrors('dateTo'),
+      }) }}
 
-    {% hook "cp.commerce.catalogPricingRules.edit.details" %}
-{% endblock %}
+      {% set purchasableConditionInput %}
+        {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
+      {% endset %}
 
-{% block content %}
-    <input type="hidden" name="action" value="commerce/catalog-pricing-rules/save">
-    {{ redirectInput("commerce/store-settings/#{storeHandle}/pricing-rules") }}
-    {% if catalogPricingRule.id %}
-        {{ hiddenInput('id', catalogPricingRule.id) }}
-    {% endif %}
-    {{ hiddenInput('storeId', catalogPricingRule.storeId) }}
+      {{ forms.field({
+        id: 'purchasableCondition',
+        label: 'Match Purchasable'|t('commerce'),
+        errors: catalogPricingRule.getErrors('purchasableCondition')
+      }, purchasableConditionInput) }}
 
-    <div id="rule">
-        {{ forms.textField({
-            first: true,
-            label: "Name"|t('commerce'),
-            instructions: "What this catalog pricing rule will be called in the control panel."|t('commerce'),
-            id: 'name',
-            name: 'name',
-            value: catalogPricingRule.name,
-            errors: catalogPricingRule.getErrors('name'),
-            autofocus: true,
-            required: true,
-        }) }}
+      {% set customerConditionInput %}
+        {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
+      {% endset %}
 
-        {{ forms.textField({
-            label: "Description"|t('commerce'),
-            instructions: "Catalog pricing rule description."|t('commerce'),
-            id: 'description',
-            name: 'description',
-            value: catalogPricingRule.description,
-            errors: catalogPricingRule.getErrors('description'),
-        }) }}
-    </div>
+      {{ forms.field({
+        id: 'customerCondition',
+        label: 'Match Customer'|t('commerce'),
+        errors: catalogPricingRule.getErrors('customerCondition')
+      }, customerConditionInput) }}
+  </div>
 
-    <div id="conditions" class="hidden">
-        {{ forms.dateTimeField({
-            label: "Start Date"|t('commerce'),
-            instructions: "Date from which the catalog pricing rule will be active. Leave blank for unlimited start date"|t('commerce'),
-            id: 'dateFrom',
-            name: 'dateFrom',
-            value: catalogPricingRule.dateFrom,
-            errors: catalogPricingRule.getErrors('dateFrom'),
-        }) }}
+  <div id="actions" class="hidden">
+      {% include 'commerce/store-settings/pricing-rules/_actions-fields' %}
+  </div>
 
-        {{ forms.dateTimeField({
-            label: "End Date"|t('commerce'),
-            instructions: "Date when the catalog pricing rule will be finished. Leave blank for unlimited end date"|t('commerce'),
-            id: 'dateTo',
-            name: 'dateTo',
-            value: catalogPricingRule.dateTo,
-            errors: catalogPricingRule.getErrors('dateTo'),
-        }) }}
-
-        {% set purchasableConditionInput %}
-          {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
-        {% endset %}
-
-        {{ forms.field({
-          id: 'purchasableCondition',
-          label: 'Match Purchasable'|t('commerce'),
-          errors: catalogPricingRule.getErrors('purchasableCondition')
-        }, purchasableConditionInput) }}
-
-        {% set customerConditionInput %}
-          {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
-        {% endset %}
-
-        {{ forms.field({
-          id: 'customerCondition',
-          label: 'Match Customer'|t('commerce'),
-          errors: catalogPricingRule.getErrors('customerCondition')
-        }, customerConditionInput) }}
-    </div>
-
-    <div id="actions" class="hidden">
-        {% include 'commerce/store-settings/pricing-rules/_actions-fields' %}
-    </div>
-
-    {% hook "cp.commerce.catalogPricingRules.edit.content" %}
-{% endblock %}
+  {% hook "cp.commerce.catalogPricingRules.edit.content" %}

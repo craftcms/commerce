@@ -13,6 +13,7 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use Illuminate\Support\Collection;
@@ -224,52 +225,10 @@ JS, [
             return '';
         }
 
-        $html = Html::beginTag('div', ['class' => 'tableview']) .
-            Html::beginTag('div', ['class' => 'tablepane', 'style' => 'margin: 0']) .
-                Html::beginTag('table', ['class' => 'data fullwidth']) .
-                    Html::beginTag('thead') .
-                        Html::beginTag('tr') .
-                            Html::tag('th') .
-                            Html::tag('th', Craft::t('commerce', 'Price')) .
-                            Html::tag('th', Craft::t('commerce', 'Promotional Price')) .
-                            Html::tag('th', Craft::t('commerce', 'Store Rule')) .
-                        Html::endTag('tr') .
-                    Html::endTag('thead') .
-                Html::beginTag('tbody');
-
-
-        $catalogPricingRules->each(function(CatalogPricingRule $catalogPricingRule) use (&$html, $catalogPricing, $purchasableId) {
-            $html .= Html::beginTag('tr') .
-                Html::tag('td',
-                    Html::tag('span', '', ['class' => 'status ' . ($catalogPricingRule->enabled ? 'enabled' : 'disabled')]) .
-                    Html::a($catalogPricingRule->name, $catalogPricingRule->getCpEditUrl(),
-                    $catalogPricingRule->isStoreRule()
-                        ? ['target' => '_blank', 'data-icon' => 'external']
-                        : ['class' => 'js-purchasable-cpr-slideout', 'data-id' => $catalogPricingRule->id, 'data-store-id' => $catalogPricingRule->storeId]
-                )
-                ) .
-                Html::tag(
-                    'td',
-                    !$catalogPricingRule->isPromotionalPrice ? $catalogPricing->firstWhere('catalogPricingRuleId', '=', $catalogPricingRule->id)?->price : '',
-                    ['class' => 'js-purchasable-rule-price', 'data-purchasable-id' => $purchasableId, 'data-catalog-pricing-rule-id' => $catalogPricingRule->id]
-                ) .
-                Html::tag(
-                    'td',
-                    $catalogPricingRule->isPromotionalPrice ? $catalogPricing->firstWhere('catalogPricingRuleId', '=', $catalogPricingRule->id)?->price : '',
-                    ['class' => 'js-purchasable-rule-promotional-price', 'data-purchasable-id' => $purchasableId, 'data-catalog-pricing-rule-id' => $catalogPricingRule->id]
-                ) .
-                Html::tag('td', $catalogPricingRule->isStoreRule() ? Html::tag('span', '', [
-                    'data-icon' => 'check',
-                    'title' => Craft::t('commerce', 'Yes')
-                ]) : '') .
-                Html::endTag('tr');
-        });
-
-        $html .= Html::endTag('tbody') .
-                    Html::endTag('table') .
-                Html::endTag('div') .
-            Html::endTag('div');
-
-        return $html;
+        return Cp::renderTemplate('commerce/store-settings/catalog-pricing/_table', [
+            'catalogPrices' => $catalogPricing,
+            'showPurchasable' => false,
+            'removeMargin' => true,
+        ]);
     }
 }

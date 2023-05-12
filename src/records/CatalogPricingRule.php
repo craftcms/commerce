@@ -28,7 +28,6 @@ use yii\db\ActiveQueryInterface;
  * @property string $applyPriceType
  * @property bool $enabled
  * @property bool $isPromotionalPrice
- * @property int $purchasableId
  * @property int $id
  * @property int $storeId
  * @property-read ActiveQueryInterface $users

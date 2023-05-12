@@ -75,15 +75,14 @@ class PurchasablePriceField extends BaseNativeField
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
         $priceListContainer = $view->namespaceInputId('purchasable-prices');
 
-        $title = Json::encode($element->title);
+        $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
         $js = <<<JS
 (() => {
     if (typeof initPurchasablePriceList === 'undefined') {
         let initPurchasablePriceList = function() {
-            let _priceFields = $('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]');
-            const _newButton = $('button.js-cpr-slideout-new');
-            const _editLink = $('a.js-purchasable-cpr-slideout');
+            let \$priceFields = $('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]');
+            const \$cprSlideouts = $('.js-cpr-slideout');
             
             const getPriceList = function(_el) {
                 const _tableContainer = _el.parents('.js-purchasable-price-field').find('.js-price-list-container');
@@ -105,59 +104,48 @@ class PurchasablePriceField extends BaseNativeField
                             $('#$priceListContainer .tableview').replaceWith(response.data);
                         }
                         
-                        _priceFields.off('change');
-                        _newButton.off('click');
-                        _editLink.off('click');
+                        \$priceFields.off('change');
+                        \$cprSlideouts.off('click');
                     
                         initPurchasablePriceList();
                     })
                     .catch(({response}) => {
+                        console.log(response);
                         _loadingElements.addClass('hidden');
                         
                         if (response.data && response.data.message) {
                             Craft.cp.displayError(response.data.message);
                         }
                         
-                        _priceFields.off('change');
-                        _newButton.off('click');
-                        _editLink.off('click');
+                        \$priceFields.off('change');
+                        \$cprSlideouts.off('click');
                     
                         initPurchasablePriceList();
                     }
                 );
             };
             
-            _priceFields.on('change', function(e) {               
+            \$priceFields.on('change', function(e) {               
                 getPriceList($(this));
             });
             
             // New catalog price
-            _newButton.on('click', function(e) {
+            \$cprSlideouts.on('click', function(e) {
                 e.preventDefault();
                 let _this = $(this);
-                let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {
-                    params: {
-                        storeId: $element->storeId,
-                        purchasableId: $element->id,
-                        title: $title,
-                    }
-                });
-                slideout.on('submit', function({response, data}) {
-                    getPriceList(_this);
-                });
-            });
-            
-            // Edit catalog price        
-            _editLink.on('click', function(e) {
-                e.preventDefault();
-                let _this = $(this);
-                let slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/slideout', {
-                    params: {
-                        id: _this.data('id'),
-                        storeId: _this.data('store-id'),
-                        purchasableId: $element->id,
-                    }
-                });
+                let params = {
+                    storeId: _this.data('store-id'),
+                };
+                
+                if (_this.data('catalog-pricing-rule-id')) {
+                    params.id = _this.data('catalog-pricing-rule-id');
+                } else {
+                    params.purchasableId = _this.data('purchasable-id');
+                    params.name = '$name';
+                }
+                
+                const slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/edit', {params});
+                
                 slideout.on('submit', function({response, data}) {
                     getPriceList(_this);
                 });
@@ -201,10 +189,15 @@ JS;
                         // Prices table
                         PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
                         // New catalog price button
-                        Html::button(Craft::t('commerce', 'Add catalog price'), ['class' => 'btn icon add js-cpr-slideout-new', 'data-icon' => 'plus']),
+                        Html::button(Craft::t('commerce', 'Add catalog price'), [
+                            'class' => 'btn icon add js-cpr-slideout',
+                            'data-icon' => 'plus',
+                            'data-store-id' => $element->storeId,
+                            'data-purchasable-id' => $element->id,
+                        ]),
                         [
                             'id' => 'purchasable-prices',
-                            'class' => 'hidden'
+                            'class' => 'hidden',
                         ]
                     ) .
                     Html::tag('div', '', [
