@@ -1,7 +1,7 @@
-import '../css/catalogpricing.scss';
-
 /* jshint esversion: 6 */
 /* globals Craft, Garnish, $ */
+import '../css/catalogpricing.scss';
+
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
@@ -18,6 +18,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
   searching: false,
   view: null,
   paginationDirection: null,
+  paginationListenersInit: false,
   defaults: {
     pageInfo: {
       first: 0,
@@ -75,7 +76,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
 
     this.iniCatalogPriceRules();
 
-    this.updatePagination();
+    this.updatePagination(this.settings.pageInfo);
   },
 
   startSearching: function () {
@@ -278,13 +279,6 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
         .attr('disabled', false)
         .prop('disabled', false)
         .removeClass('disabled');
-      $next.on('click', (e) => {
-        e.preventDefault();
-        this.settings.offset += this.settings.limit;
-        this.paginationDirection = 'next';
-
-        this.updateTable();
-      });
     }
 
     if (this.settings.pageInfo.first === 1) {
@@ -294,6 +288,16 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
         .attr('disabled', false)
         .prop('disabled', false)
         .removeClass('disabled');
+    }
+
+    if (this.paginationListenersInit === false) {
+      $next.on('click', (e) => {
+        e.preventDefault();
+        this.settings.offset += this.settings.limit;
+        this.paginationDirection = 'next';
+
+        this.updateTable();
+      });
       $prev.on('click', (e) => {
         e.preventDefault();
         this.settings.offset -= this.settings.limit;
@@ -304,6 +308,8 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
 
         this.updateTable();
       });
+
+      this.paginationListenersInit = true;
     }
 
     $pageInfo.text(
@@ -341,7 +347,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
         }
       );
       slideout.on('submit', function ({response, data}) {
-        console.log(response, data);
+        this.view.updateTable();
       });
     });
   },
