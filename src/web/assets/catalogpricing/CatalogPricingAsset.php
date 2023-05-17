@@ -32,6 +32,8 @@ class CatalogPricingAsset extends AssetBundle
 
         $this->js[] = 'CatalogPricing.js';
 
+        $this->css[] = 'css/catalogpricing.css';
+
         parent::init();
     }
 
