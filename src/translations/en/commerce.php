@@ -1237,6 +1237,8 @@ return [
     'new customers' => 'new customers',
     'order' => 'order',
     'orders' => 'orders',
+    'price' => 'price',
+    'prices' => 'prices',
     'product variant' => 'product variant',
     'product variants' => 'product variants',
     'product' => 'product',
