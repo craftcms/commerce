@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\models\Site;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
@@ -71,12 +72,14 @@ class CatalogPricingController extends BaseStoreSettingsController
             $conditionBuilder->addConditionRule($purchasableConditionRule);
         }
 
-        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder);
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder, limit: 100, offset: 0);
+        $pageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($store->id, $conditionBuilder);
 
         Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
 
         return $this->renderTemplate('commerce/store-settings/catalog-pricing/_index', [
             'catalogPrices' => $catalogPrices->all(),
+            'pageInfo' => $pageInfo,
             'condition' => $conditionBuilder,
         ]);
     }
@@ -110,6 +113,11 @@ class CatalogPricingController extends BaseStoreSettingsController
         $siteId = $this->request->getRequiredBodyParam('siteId');
         $condition = $this->request->getBodyParam('condition');
         $searchText = $this->request->getBodyParam('searchText');
+        $limit = $this->request->getBodyParam('limit');
+        $offset = $this->request->getBodyParam('offset', 0);
+        $includeBasePrices = $this->request->getBodyParam('includeBasePrices', true);
+        $forPurchasable = $this->request->getBodyParam('forPurchasable', false);
+        $isPriceRecalculation = array_key_exists('basePrice', $this->request->getBodyParams()) || array_key_exists('basePromotionalPrice', $this->request->getBodyParams());
 
         $conditionBuilder = null;
         if ($condition && isset($condition['condition'])) {
@@ -117,24 +125,27 @@ class CatalogPricingController extends BaseStoreSettingsController
             $conditionBuilder = Craft::$app->getConditions()->createCondition($condition['condition']);
         }
 
-
         /** @var Site|null|StoreBehavior $site */
         if (!$site = Craft::$app->getSites()->getSiteById($siteId)) {
             throw new InvalidArgumentException('Invalid site ID: ' . $siteId);
         }
 
-        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $searchText);
+        $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        $catalogPricesPageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
 
         $view = Craft::$app->getView();
 
         $tableHtml = $view->renderTemplate('commerce/store-settings/catalog-pricing/_table', [
             'catalogPrices' => $catalogPrices->all(),
+            'showPurchasable' => !$forPurchasable,
+            'removeMargin' => $forPurchasable,
         ]);
 
         return $this->asJson([
             'headHtml' => $view->getHeadHtml(),
             'bodyHtml' => $view->getBodyHtml(),
             'tableHtml' => $tableHtml,
+            'pageInfo' => $catalogPricesPageInfo,
         ]);
     }
 

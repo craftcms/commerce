@@ -1,3 +1,5 @@
+import '../css/catalogpricing.scss';
+
 /* jshint esversion: 6 */
 /* globals Craft, Garnish, $ */
 if (typeof Craft.Commerce === typeof undefined) {
@@ -15,7 +17,18 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
   searchTimeout: null,
   searching: false,
   view: null,
-  defaults: {},
+  paginationDirection: null,
+  defaults: {
+    pageInfo: {
+      first: 0,
+      last: 0,
+      total: 0,
+    },
+    itemLabel: Craft.t('commerce', 'price'),
+    itemLabels: Craft.t('commerce', 'prices'),
+    limit: 100,
+    offset: 0,
+  },
 
   init: function (view, tableContainer, settings) {
     this.view = view;
@@ -24,6 +37,8 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     this.$search = this.$searchContainer.find('input:first');
     this.$clearSearchBtn = this.$searchContainer.children('.clear-btn:first');
     this.$filterBtn = this.$searchContainer.children('.filter-btn:first');
+    this.$pagination = this.view.find('#footer .pagination:first');
+    this.$loading = this.view.find('#commerce-catalog-prices-loading:first');
     this.setSettings(settings, this.defaults);
 
     if (this.settings.filterBtnActive) {
@@ -59,6 +74,8 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     });
 
     this.iniCatalogPriceRules();
+
+    this.updatePagination();
   },
 
   startSearching: function () {
@@ -183,25 +200,125 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
   },
 
   updateTable: function () {
+    this.$tableContainer.addClass('busy');
+    this.$loading.removeClass('hidden');
     let params = {
       searchText: this.$search.val(),
       siteId: this.settings.siteId,
       condition: this.serializeConditionForm(),
+      limit: this.settings.limit,
+      offset: this.settings.offset,
     };
 
     Craft.sendActionRequest('POST', 'commerce/catalog-pricing/prices', {
       data: params,
-    }).then((response) => {
-      this.removeCatalogPricingRuleListeners();
+    })
+      .then((response) => {
+        this.$tableContainer.removeClass('busy');
+        this.$loading.addClass('hidden');
+        this.removeCatalogPricingRuleListeners();
 
-      if (response.data && response.data.tableHtml) {
-        Craft.appendHeadHtml(response.data.headHtml);
-        Craft.appendBodyHtml(response.data.bodyHtml);
+        if (response.data && response.data.tableHtml) {
+          Craft.appendHeadHtml(response.data.headHtml);
+          Craft.appendBodyHtml(response.data.bodyHtml);
 
-        this.$tableContainer.html(response.data.tableHtml);
-        this.iniCatalogPriceRules();
-      }
-    });
+          this.$tableContainer.html(response.data.tableHtml);
+          this.iniCatalogPriceRules();
+          this.updatePagination(response.data.pageInfo);
+        }
+      })
+      .catch(() => {
+        this.$tableContainer.removeClass('busy');
+        this.$loading.addClass('hidden');
+        Craft.cp.displayError(Craft.t('app', 'A server error occurred.'));
+
+        // Reset the pagination
+        if (this.paginationDirection === 'next') {
+          this.settings.offset -= this.settings.limit;
+        } else {
+          this.settings.offset += this.settings.limit;
+        }
+
+        if (this.settings.offset < 0) {
+          this.settings.offset = 0;
+        }
+
+        this.paginationDirection = null;
+      });
+  },
+
+  updatePagination: function (pageInfo) {
+    if (pageInfo) {
+      this.settings.pageInfo = pageInfo;
+    }
+
+    const $pageInfo = this.$pagination.find('.page-info:first');
+    const $prev = this.$pagination.find('nav button.prev-page:first');
+    const $next = this.$pagination.find('nav button.next-page:first');
+    const disableNext = function () {
+      $next.attr('disabled', true).prop('disabled', true).addClass('disabled');
+      $next.off('click');
+    };
+    const disablePrev = function () {
+      $prev.attr('disabled', true).prop('disabled', true).addClass('disabled');
+      $prev.off('click');
+    };
+
+    if (!this.settings.pageInfo || this.settings.pageInfo.total === 0) {
+      $pageInfo.text(Craft.t('app', 'No results'));
+      disableNext();
+      disablePrev();
+      return;
+    }
+
+    if (this.settings.pageInfo.total === this.settings.pageInfo.last) {
+      disableNext();
+    } else {
+      $next
+        .attr('disabled', false)
+        .prop('disabled', false)
+        .removeClass('disabled');
+      $next.on('click', (e) => {
+        e.preventDefault();
+        this.settings.offset += this.settings.limit;
+        this.paginationDirection = 'next';
+
+        this.updateTable();
+      });
+    }
+
+    if (this.settings.pageInfo.first === 1) {
+      disablePrev();
+    } else {
+      $prev
+        .attr('disabled', false)
+        .prop('disabled', false)
+        .removeClass('disabled');
+      $prev.on('click', (e) => {
+        e.preventDefault();
+        this.settings.offset -= this.settings.limit;
+        if (this.settings.offset < 0) {
+          this.settings.offset = 0;
+        }
+        this.paginationDirection = 'prev';
+
+        this.updateTable();
+      });
+    }
+
+    $pageInfo.text(
+      Craft.t(
+        'app',
+        '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
+        {
+          first: this.settings.pageInfo.first,
+          last: this.settings.pageInfo.last,
+          total: this.settings.pageInfo.total,
+          item: this.settings.itemLabel,
+          items: this.settings.itemsLabel,
+        }
+      )
+    );
   },
 
   removeCatalogPricingRuleListeners() {
@@ -214,7 +331,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     this.$catalogPricingRules.on('click', function (e) {
       e.preventDefault();
       const slideout = new Craft.CpScreenSlideout(
-        'commerce/catalog-pricing-rules/slideout',
+        'commerce/catalog-pricing-rules/edit',
         {
           params: {
             storeId: $(this).data('store-id'),

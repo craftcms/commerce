@@ -2,11 +2,15 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+    'A server error occurred.',
     'Name',
     'Price',
     'Promotional Price',
     'Source',
     'Store Rule',
+    'price',
+    'prices',
+    '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
 ]) %}
 
 {% block toolbar %}
@@ -19,9 +23,18 @@
 {% endblock %}
 
 {% block content %}
-
   <div id="commerce-catalog-prices">
     {% include 'commerce/store-settings/catalog-pricing/_table' with { catalogPrices: catalogPrices } %}
+  </div>
+  <div id="commerce-catalog-prices-loading" class="update-spinner spinner spinner-absolute hidden"></div>
+  <div id="footer" class="flex">
+    <div id="count-container" class="light flex-grow">
+      {% include '_includes/pagination' with {
+        'pageInfo' : pageInfo,
+        'itemLabel' : 'price'|t('app'),
+        'itemsLabel': 'prices'|t('app')
+      } %}
+    </div>
   </div>
 {% endblock %}
 
@@ -34,6 +47,9 @@
       siteId: {{ craft.app.sites.currentSite.id }},
       condition: {{ condition.getConfig()|json_encode|raw }},
       filterBtnActive: {{ condition.getConditionRules()|length ? 'true' : 'false' }},
+      itemLabel: "{{ 'price'|t('commerce') }}",
+      itemsLabel: "{{ 'prices'|t('commerce') }}",
+      pageInfo: {{ pageInfo|json_encode|raw }},
     }
   );
 })();

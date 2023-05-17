@@ -10,6 +10,8 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
+use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseNativeField;
@@ -77,6 +79,19 @@ class PurchasablePriceField extends BaseNativeField
 
         $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
+        /** @var CatalogPricingCondition $catalogPricingCondition */
+        $catalogPricingCondition = Craft::$app->getConditions()->createCondition([
+            'class' => CatalogPricingCondition::class,
+            'allPrices' => true,
+        ]);
+
+        $purchasableConditionRule = Craft::$app->getConditions()->createConditionRule([
+            'class' => CatalogPricingPurchasableConditionRule::class,
+            'elementIds' => [get_class($element) => [$element->id]],
+        ]);
+        $catalogPricingCondition->addConditionRule($purchasableConditionRule);
+        $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());
+
         $js = <<<JS
 (() => {
     if (typeof initPurchasablePriceList === 'undefined') {
@@ -89,19 +104,21 @@ class PurchasablePriceField extends BaseNativeField
                 const _loadingElements = _tableContainer.find('.js-prices-table-loading');
                 _loadingElements.removeClass('hidden');
                 
-                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/get-catalog-prices', {
+                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/prices', {
                         data: {
-                            purchasableId: $element->id,
-                            storeId: $element->storeId,
+                            siteId: $element->siteId,
+                            condition: {condition: $conditionBuilderConfig},
                             basePrice: $('input[name="$priceNamespace"]').val(),
                             basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
+                            forPurchasable: true,
+                            includeBasePrices: false,
                         }
                     })
                     .then((response) => {
                         _loadingElements.addClass('hidden');
                         
                         if (response.data) {
-                            $('#$priceListContainer .tableview').replaceWith(response.data);
+                            $('#$priceListContainer .tableview').replaceWith(response.data.tableHtml);
                         }
                         
                         \$priceFields.off('change');

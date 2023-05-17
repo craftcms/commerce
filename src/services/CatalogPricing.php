@@ -290,33 +290,22 @@ class CatalogPricing extends Component
      * @param int $storeId
      * @param CatalogPricingCondition|null $conditionBuilder
      * @param string|null $searchText
-     * @param int $limit
-     * @param int $offset
+     * @param int|null $limit
+     * @param int|null $offset
+     * @param bool $includeBasePrices
      * @return Collection
      * @throws InvalidConfigException
      */
-    public function getCatalogPrices(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, ?string $searchText = null, int $limit = 100, int $offset = 0): Collection
+    public function getCatalogPrices(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, ?int $limit = null, ?int $offset = null): Collection
     {
-        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $storeId, allPrices: true, condition: $conditionBuilder)
+        $query = $this->_createCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset)
             ->select([
                 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'
             ]);
 
-        if ($searchText) {
-            $query->innerJoin(Table::PURCHASABLES . ' purchasables', 'cp.purchasableId = purchasables.id');
-            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
-            $query->andWhere([$likeOperator, 'purchasables.description', $searchText]);
-        }
-
-        // If there is a condition builder, modify the query
-        $conditionBuilder?->modifyQuery($query);
-
-        // @TODO pagination/limit
-        $query->limit($limit);
-        $query->offset($offset);
         $query->orderBy('purchasableId ASC, catalogPricingRuleId ASC');
-
         $results = $query->all();
+
         $catalogPrices = [];
         foreach ($results as $result) {
             $catalogPrices[] = Craft::createObject([
@@ -326,6 +315,69 @@ class CatalogPricing extends Component
         }
 
         return collect($catalogPrices);
+    }
+
+    public function getCatalogPricesPageInfo(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, int $limit = 100, int $offset = 0)
+    {
+        $results = $this->_createCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText)
+            ->select(['purchasableId'])
+            ->groupBy(['purchasableId'])
+            ->all();
+
+        $total = count($results);
+
+        return [
+            'first' => $offset + 1,
+            'last' => $offset + $limit,
+            'total' => $total,
+            'prevUrl' => null,
+            'nextUrl' => null,
+        ];
+    }
+
+    /**
+     * @param int $storeId
+     * @param CatalogPricingCondition|null $conditionBuilder
+     * @param string|null $searchText
+     * @param bool $includeBasePrices
+     * @param int|null $limit
+     * @param int|null $offset
+     * @return Query
+     * @throws InvalidConfigException
+     */
+    private function _createCatalogPricesQuery(int $storeId, ?CatalogPricingCondition $conditionBuilder = null, bool $includeBasePrices = true, ?string $searchText = null, ?int $limit = null, ?int $offset = null): Query
+    {
+        $query = Plugin::getInstance()->getCatalogPricing()->createCatalogPricingQuery(storeId: $storeId, allPrices: true, condition: $conditionBuilder);
+
+        if ($includeBasePrices === false) {
+            $query->andWhere(['not', ['catalogPricingRuleId' => null]]);
+        }
+
+        $subQuery = (new Query())
+            ->from(Table::PURCHASABLES)
+            ->select(['id']);
+
+        if ($limit) {
+            $subQuery->limit($limit);
+        }
+
+        if ($offset) {
+            $subQuery->offset($offset);
+        }
+
+        if ($searchText) {
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ilike' : 'like';
+            $subQuery->andWhere([$likeOperator, 'purchasables.description', $searchText]);
+        }
+
+        $query->innerJoin(['purchasables' => $subQuery], 'purchasables.id = cp.purchasableId');
+
+        // $query->andWhere(['purchasableId' => $subQuery]);
+
+        // If there is a condition builder, modify the query
+        $conditionBuilder?->modifyQuery($query);
+
+        return $query;
     }
 
     /**
