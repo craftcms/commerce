@@ -246,23 +246,18 @@ class CatalogPricingRules extends Component
             return false;
         }
 
-        $attributes = [
-            'apply',
-            'applyAmount',
-            'applyPriceType',
-            'dateFrom',
-            'dateTo',
-            'description',
-            'enabled',
-            'isPromotionalPrice',
-            'name',
-            'storeId',
-            'metadata',
-            'purchasableId',
-        ];
-        foreach ($attributes as $attribute) {
-            $record->$attribute = $catalogPricingRule->$attribute;
-        }
+        // This was previously in a loops using an array of attributes, but this way gives actual references to the properties in the code
+        $record->apply = $catalogPricingRule->apply;
+        $record->applyAmount = $catalogPricingRule->applyAmount;
+        $record->applyPriceType = $catalogPricingRule->applyPriceType;
+        $record->dateFrom = $catalogPricingRule->dateFrom;
+        $record->dateTo = $catalogPricingRule->dateTo;
+        $record->description = $catalogPricingRule->description;
+        $record->enabled = $catalogPricingRule->enabled;
+        $record->isPromotionalPrice = $catalogPricingRule->isPromotionalPrice;
+        $record->name = $catalogPricingRule->name;
+        $record->storeId = $catalogPricingRule->storeId;
+        $record->metadata = $catalogPricingRule->getMetadata();
 
         $record->customerCondition = $catalogPricingRule->getCustomerCondition()->getConfig();
         $record->purchasableCondition = $catalogPricingRule->getPurchasableCondition()->getConfig();
