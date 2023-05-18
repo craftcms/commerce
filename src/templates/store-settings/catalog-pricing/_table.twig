@@ -43,6 +43,9 @@
                data-purchasable-id="{{ price.purchasable.id }}"
                data-catalog-pricing-rule-id="{{ price.catalogPricingRule.id }}"
             >{{ price.catalogPricingRule.name }}</a>
+
+          {% else %}
+            <span class="extralight">{{ price.isPromotionalPrice ? 'Base Promotional Price'|t('commerce') : 'Base Price'|t('commerce') }}</span>
           {% endif %}
         </td>
         <td class="{{ price.isPromotionalPrice ? 'commerce-promotional-price' : '' }}" style="text-align: right;">{{ price.price }}</td>
