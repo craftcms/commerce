@@ -17,6 +17,7 @@ use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization;
+use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use Exception;
 use Throwable;
@@ -121,6 +122,10 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         return $this->asCpScreen()
             ->title('Test Title')
+            ->crumbs([
+                ['label' => Craft::t('commerce', 'Store Management'), 'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle)],
+                ['label' => Craft::t('commerce', 'Pricing Rules'), 'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')],
+            ])
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')
             ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
