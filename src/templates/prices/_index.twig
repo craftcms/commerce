@@ -35,6 +35,9 @@
         'itemsLabel': 'prices'|t('app')
       } %}
     </div>
+    <div style="margin-left: auto;" hx-get="{{ actionUrl('commerce/catalog-pricing/queue-status') }}" hx-trigger="every 10s load delay:1s">
+      {% include 'commerce/prices/_polling' %}
+    </div>
   </div>
 {% endblock %}
 

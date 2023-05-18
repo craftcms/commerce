@@ -289,11 +289,10 @@ class CatalogPricingRules extends Component
 
             $transaction->commit();
 
-            Queue::push(Craft::createObject([
-                'class' => CatalogPricing::class,
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
                 'catalogPricingRuleIds' => [$catalogPricingRule->id],
                 'storeId' => $catalogPricingRule->storeId,
-            ]), 100);
+            ]);
 
             $this->_clearCaches();
 
@@ -342,7 +341,6 @@ class CatalogPricingRules extends Component
                 'isPromotionalPrice',
                 'name',
                 'purchasableCondition',
-                'purchasableId',
                 'storeId',
             ])
             ->from(Table::CATALOG_PRICING_RULES);

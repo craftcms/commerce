@@ -17,8 +17,8 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\catalogpricing\CatalogPricingAsset;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Html;
-use craft\helpers\Json;
 use craft\models\Site;
+use craft\web\assets\htmx\HtmxAsset;
 use yii\base\InvalidArgumentException;
 use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
@@ -79,12 +79,14 @@ class CatalogPricingController extends BaseStoreSettingsController
         $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($store->id, $conditionBuilder, limit: 100, offset: 0);
         $pageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($store->id, $conditionBuilder);
 
+        Craft::$app->getView()->registerAssetBundle(HtmxAsset::class);
         Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
 
         return $this->renderTemplate('commerce/prices/_index', [
             'catalogPrices' => $catalogPrices->all(),
             'pageInfo' => $pageInfo,
             'condition' => $conditionBuilder,
+            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
         ]);
     }
 
@@ -153,6 +155,13 @@ class CatalogPricingController extends BaseStoreSettingsController
         ]);
     }
 
+    public function actionQueueStatus(): Response
+    {
+        return $this->renderTemplate('commerce/prices/_polling', [
+            'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+        ]);
+    }
+
     /**
      * @return string|null
      * @throws SiteNotFoundException
@@ -160,6 +169,7 @@ class CatalogPricingController extends BaseStoreSettingsController
      */
     public function actionGetCatalogPrices(): ?string
     {
+        // @TODO remove this after taking out after refactor
         $purchasableId = $this->request->getBodyParam('purchasableId');
         $storeId = $this->request->getBodyParam('storeId');
 

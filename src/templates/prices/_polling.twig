@@ -1,0 +1,5 @@
+{% if areCatalogPricingJobsRunning %}
+  <p class="warning with-icon" title="{{ 'Data shown might be outdated.'|t('commerce') }}" aria-label="{{ 'Data shown might be outdated.'|t('commerce') }}">{{ 'Pricing jobs are currently running.'|t('commerce') }}</p>
+{% else %}
+  {# @TODO show a refresh button? #}
+{% endif %}

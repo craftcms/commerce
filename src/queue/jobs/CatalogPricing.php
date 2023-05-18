@@ -36,6 +36,8 @@ class CatalogPricing extends BaseJob
         }
 
         Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $catalogPricingRules, queue: $queue);
+
+        Plugin::getInstance()->getCatalogPricing()->clearCatalogPricingJob($this);
     }
 
     protected function defaultDescription(): ?string

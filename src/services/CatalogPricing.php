@@ -16,7 +16,6 @@ use craft\commerce\models\CatalogPricing as CatalogPricingModel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\CatalogPricing as CatalogPricingJob;
-use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\db\Query;
 use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
@@ -392,10 +391,60 @@ class CatalogPricing extends Component
             return;
         }
 
-        QueueHelper::push(Craft::createObject([
+        $this->createCatalogPricingJob(['purchasableIds' => [$event->sender->id]]);
+    }
+
+    /**
+     * @param array $config
+     * @param int $priority
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function createCatalogPricingJob(array $config = [], int $priority = 100): void
+    {
+        $config = array_merge([
             'class' => CatalogPricingJob::class,
-            'purchasableIds' => [$event->sender->id],
-        ]), 100);
+        ], $config);
+
+        $job = Craft::createObject($config);
+        QueueHelper::push($job, 100);
+
+        $jobsCache = Craft::$app->getCache()->get('catalog-pricing-jobs');
+        if ($jobsCache === false) {
+            $jobsCache = 0;
+        }
+
+        $jobsCache += 1;
+
+        Craft::$app->getCache()->set('catalog-pricing-jobs', $jobsCache, 0);
+    }
+
+    /**
+     * @param CatalogPricingJob $catalogPricingJob
+     * @return void
+     */
+    public function clearCatalogPricingJob(CatalogPricingJob $catalogPricingJob): void
+    {
+        $jobsCache = Craft::$app->getCache()->get('catalog-pricing-jobs');
+        if ($jobsCache === false) {
+            return;
+        }
+
+        $jobsCache -= 1;
+
+        Craft::$app->getCache()->set('catalog-pricing-jobs', $jobsCache, 0);
+    }
+
+    /**
+     * @return bool
+     */
+    public function areCatalogPricingJobsRunning(): bool
+    {
+        if (empty(Craft::$app->getCache()->get('catalog-pricing-jobs'))) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
