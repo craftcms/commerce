@@ -332,6 +332,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
   },
 
   iniCatalogPriceRules() {
+    const _this = this;
     this.$catalogPricingRules = this.view.find('.js-cpr-slideout');
 
     this.$catalogPricingRules.on('click', function (e) {
@@ -347,7 +348,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
         }
       );
       slideout.on('submit', function ({response, data}) {
-        this.view.updateTable();
+        _this.updateTable();
       });
     });
   },
