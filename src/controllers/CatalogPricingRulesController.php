@@ -122,7 +122,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         return $this->asCpScreen()
             ->title('Test Title')
             ->action('commerce/catalog-pricing-rules/save')
-            ->redirectUrl('commerce/store-settings/' . $store->handle . 'catalog-pricing-rules')
+            ->redirectUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')
             ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
             ->tabs([
                 [
