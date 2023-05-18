@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/store-settings" %}
+{% extends "commerce/_layouts/cp" %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -13,18 +13,18 @@
     '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
 ]) %}
 
-{% block toolbar %}
-    {{ parent() }}
-    {% set showStatusMenu = false %}
-    {# Changing the context forces the status menu not to show #}
-    {% set context = 'pricing' %}
-    {% include '_elements/toolbar' with { showSitesMenu: 'auto', elementType: 'craft\\commerce\\elements\\Variant'} %}
+{% set title = 'Prices'|t('commerce') %}
 
-{% endblock %}
+{% set toolbar %}
+  {% set showStatusMenu = false %}
+  {# Changing the context forces the status menu not to show #}
+  {% set context = 'pricing' %}
+  {% include '_elements/toolbar' with { showSitesMenu: 'auto', elementType: 'craft\\commerce\\elements\\Variant'} %}
+{% endset %}
 
 {% block content %}
   <div id="commerce-catalog-prices">
-    {% include 'commerce/store-settings/catalog-pricing/_table' with { catalogPrices: catalogPrices } %}
+    {% include 'commerce/prices/_table' with { catalogPrices: catalogPrices } %}
   </div>
   <div id="commerce-catalog-prices-loading" class="update-spinner spinner spinner-absolute hidden"></div>
   <div id="footer" class="flex">

@@ -332,6 +332,12 @@ class Plugin extends BasePlugin
             ];
         }
 
+        // @TODO add permissions check for pricing
+        $ret['subnav']['prices'] = [
+            'label' => Craft::t('commerce', 'Prices'),
+            'url' => 'commerce/prices',
+        ];
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),

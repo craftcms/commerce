@@ -45,17 +45,21 @@ class CatalogPricingController extends BaseStoreSettingsController
     }
 
     /**
-     * @param string|null $storeHandle
      * @return Response
      * @throws InvalidConfigException
      * @throws NotFoundHttpException
+     * @throws SiteNotFoundException
      */
-    public function actionIndex(?string $storeHandle = null): Response
+    public function actionIndex(): Response
     {
-        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-        if ($storeHandle && !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
-            throw new NotFoundHttpException('Store not found');
+        $siteHandle = Craft::$app->getRequest()->getQueryParam('site');
+        $site = $siteHandle === null ? Craft::$app->getSites()->getPrimarySite() : Craft::$app->getSites()->getSiteByHandle($siteHandle);
+        if ($site === null) {
+            throw new NotFoundHttpException('Site not found');
         }
+
+        /** @var Site|StoreBehavior $site */
+        $store = $site->getStore();
 
         $purchasableId = Craft::$app->getRequest()->getQueryParam('purchasableId');
         $conditionBuilder = Craft::$app->getConditions()->createCondition([
@@ -77,7 +81,7 @@ class CatalogPricingController extends BaseStoreSettingsController
 
         Craft::$app->getView()->registerAssetBundle(CatalogPricingAsset::class);
 
-        return $this->renderTemplate('commerce/store-settings/catalog-pricing/_index', [
+        return $this->renderTemplate('commerce/prices/_index', [
             'catalogPrices' => $catalogPrices->all(),
             'pageInfo' => $pageInfo,
             'condition' => $conditionBuilder,
@@ -135,7 +139,7 @@ class CatalogPricingController extends BaseStoreSettingsController
 
         $view = Craft::$app->getView();
 
-        $tableHtml = $view->renderTemplate('commerce/store-settings/catalog-pricing/_table', [
+        $tableHtml = $view->renderTemplate('commerce/prices/_table', [
             'catalogPrices' => $catalogPrices->all(),
             'showPurchasable' => !$forPurchasable,
             'removeMargin' => $forPurchasable,

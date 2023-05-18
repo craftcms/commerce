@@ -62,6 +62,9 @@ trait Routes
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
+            // Prices
+            $event->rules['commerce/prices'] = 'commerce/catalog-pricing/index';
+
             // Settings
 
             $event->rules['commerce/settings/stores'] = 'commerce/stores/stores-index';
@@ -148,8 +151,6 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules'] = 'commerce/catalog-pricing-rules/index';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
-
-            $event->rules['commerce/store-settings/<storeHandle:{handle}>/catalog-pricing'] = 'commerce/catalog-pricing/index';
         });
     }
 }

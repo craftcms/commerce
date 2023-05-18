@@ -225,7 +225,7 @@ JS, [
             return '';
         }
 
-        return Cp::renderTemplate('commerce/store-settings/catalog-pricing/_table', [
+        return Cp::renderTemplate('commerce/prices/_table', [
             'catalogPrices' => $catalogPricing,
             'showPurchasable' => false,
             'removeMargin' => true,
