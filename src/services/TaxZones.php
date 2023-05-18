@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
-use craft\commerce\records\TaxZone;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;

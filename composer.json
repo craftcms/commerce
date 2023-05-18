@@ -22,10 +22,10 @@
   "prefer-stable": true,
   "require": {
     "craftcms/cms": "^3.7.25",
-    "dompdf/dompdf": "^1.0.2",
-    "moneyphp/money": "^3.3.1",
+    "dompdf/dompdf": "^2.0",
     "ibericode/vat": "^1.1.2",
-    "iio/libmergepdf": "^4.0"
+    "iio/libmergepdf": "^4.0",
+    "moneyphp/money": "^3.3.1"
   },
   "require-dev": {
     "vlucas/phpdotenv": "^3.4",
@@ -48,7 +48,7 @@
   },
   "extra": {
     "handle": "commerce",
-    "version": "3.4.20.1",
+    "version": "3.4.21",
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",

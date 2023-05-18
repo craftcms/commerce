@@ -22,7 +22,6 @@ use craft\helpers\ArrayHelper;
 use LitEmoji\LitEmoji;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
-use yii\caching\TagDependency;
 use yii\db\Exception;
 use yii\db\Expression;
 
