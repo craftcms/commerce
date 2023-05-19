@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1205c6f558ce9d412474eb786c3bf087",
+    "content-hash": "c7e26717a1ae4348552c1b380d955e3e",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -7782,6 +7782,68 @@
                 "source": "https://github.com/Codeception/Stub/tree/4.0.2"
             },
             "time": "2022-01-31T19:25:15+00:00"
+        },
+        {
+            "name": "craftcms/ckeditor",
+            "version": "2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/craftcms/ckeditor.git",
+                "reference": "8da6048079d66d955efe9bf68b1fb2f694b92a79"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/8da6048079d66d955efe9bf68b1fb2f694b92a79",
+                "reference": "8da6048079d66d955efe9bf68b1fb2f694b92a79",
+                "shasum": ""
+            },
+            "require": {
+                "craftcms/cms": "^4.3.6",
+                "craftcms/html-field": "^2.0.0-alpha.2",
+                "php": "^8.0.2"
+            },
+            "require-dev": {
+                "craftcms/ecs": "dev-main",
+                "craftcms/phpstan": "dev-main",
+                "craftcms/rector": "dev-main"
+            },
+            "type": "craft-plugin",
+            "extra": {
+                "name": "CKEditor",
+                "handle": "ckeditor",
+                "documentationUrl": "https://github.com/craftcms/ckeditor/blob/master/README.md"
+            },
+            "autoload": {
+                "psr-4": {
+                    "craft\\ckeditor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pixel & Tonic",
+                    "homepage": "https://pixelandtonic.com/"
+                }
+            ],
+            "description": "Edit rich text content in Craft CMS using CKEditor.",
+            "keywords": [
+                "CKEditor",
+                "cms",
+                "craftcms",
+                "html",
+                "yii2"
+            ],
+            "support": {
+                "docs": "https://github.com/craftcms/ckeditor/blob/master/README.md",
+                "email": "support@craftcms.com",
+                "issues": "https://github.com/craftcms/ckeditor/issues?state=open",
+                "rss": "https://github.com/craftcms/ckeditor/commits/master.atom",
+                "source": "https://github.com/craftcms/ckeditor"
+            },
+            "time": "2023-01-04T22:32:39+00:00"
         },
         {
             "name": "craftcms/ecs",

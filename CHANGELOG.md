@@ -4,6 +4,7 @@
 
 - Added `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params to the `commerce/cart/update-cart` action.
 - Fixed an error that occurred when switching tabs on small screens in the control panel. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+- Added products and variants as link options for the CKEditor plugin ([#3150](https://github.com/craftcms/commerce/discussions/3150))
 
 ## 4.2.8 - 2023-05-03
 
