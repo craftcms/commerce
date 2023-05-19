@@ -371,8 +371,6 @@ class CatalogPricing extends Component
 
         $query->innerJoin(['purchasables' => $subQuery], 'purchasables.id = cp.purchasableId');
 
-        // $query->andWhere(['purchasableId' => $subQuery]);
-
         // If there is a condition builder, modify the query
         $conditionBuilder?->modifyQuery($query);
 
