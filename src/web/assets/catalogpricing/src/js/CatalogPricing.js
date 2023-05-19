@@ -1,5 +1,5 @@
 /* jshint esversion: 6 */
-/* globals Craft, Garnish, $ */
+/* globals Craft, Garnish, $, htmx */
 import '../css/catalogpricing.scss';
 
 if (typeof Craft.Commerce === typeof undefined) {
@@ -40,6 +40,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
     this.$filterBtn = this.$searchContainer.children('.filter-btn:first');
     this.$pagination = this.view.find('#footer .pagination:first');
     this.$loading = this.view.find('#commerce-catalog-prices-loading:first');
+    this.$refreshBtn = this.view.find('.commerce-refresh-prices');
     this.setSettings(settings, this.defaults);
 
     if (this.settings.filterBtnActive) {
@@ -72,6 +73,11 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
       if (!Garnish.isMobileBrowser(true)) {
         this.$search.trigger('focus');
       }
+    });
+
+    this.addListener(this.$refreshBtn, 'click', (e) => {
+      e.preventDefault();
+      this.updateTable();
     });
 
     this.iniCatalogPriceRules();
@@ -226,6 +232,9 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
           this.$tableContainer.html(response.data.tableHtml);
           this.iniCatalogPriceRules();
           this.updatePagination(response.data.pageInfo);
+          if (htmx) {
+            htmx.trigger('#commerce-catalog-prices-status', 'updateTable');
+          }
         }
       })
       .catch(() => {
