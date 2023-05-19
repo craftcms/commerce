@@ -87,6 +87,17 @@ class CatalogPricingCondition extends BaseCondition
     /**
      * @inheritdoc
      */
+    public function getConfig(): array
+    {
+        $config = parent::getConfig();
+        $config['allPrices'] = $this->allPrices;
+
+        return $config;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function modifyQuery(Query $query): void
     {
         $catalogPricingRuleIdWhere = ['or'];
