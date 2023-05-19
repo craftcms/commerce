@@ -35,17 +35,7 @@
         'itemsLabel': 'prices'|t('app')
       } %}
     </div>
-    <div id="commerce-catalog-prices-status"
-         class="flex"
-         style="margin-left: auto;"
-         hx-get="{{ actionUrl('commerce/catalog-pricing/queue-status') }}"
-         hx-trigger="every 20s, load delay:3s, updateTable"
-         hx-target="#commerce-catalog-prices-status-polling">
-      <div id="commerce-catalog-prices-status-polling">{% include 'commerce/prices/_polling' %}</div>
-      <div>
-        <button class="btn commerce-refresh-prices" data-icon="refresh" title="{{ 'Refresh'|t('app') }}" aria-label="{{ 'Refresh'|t('app') }}" role="button"></button>
-      </div>
-    </div>
+    {% include 'commerce/prices/_status' %}
   </div>
 {% endblock %}
 

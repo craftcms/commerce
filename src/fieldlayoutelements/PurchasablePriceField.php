@@ -18,6 +18,7 @@ use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\web\assets\htmx\HtmxAsset;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -54,6 +55,7 @@ class PurchasablePriceField extends BaseNativeField
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         $view = Craft::$app->getView();
+        $view->registerAssetBundle(HtmxAsset::class);
 
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
@@ -76,6 +78,7 @@ class PurchasablePriceField extends BaseNativeField
         $priceNamespace = $view->namespaceInputName('basePrice');
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
         $priceListContainer = $view->namespaceInputId('purchasable-prices');
+        $refreshBtn = $view->namespaceInputId('commerce-refresh-prices');
 
         $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
@@ -172,6 +175,10 @@ class PurchasablePriceField extends BaseNativeField
         initPurchasablePriceList();
     } else {
         initPurchasablePriceList();
+        
+        $('#$refreshBtn').on('click', (e) => {
+          e.preventDefault();
+        });
     }
 })();
 JS;
@@ -205,13 +212,18 @@ JS;
                         'div',
                         // Prices table
                         PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
-                        // New catalog price button
-                        Html::button(Craft::t('commerce', 'Add catalog price'), [
-                            'class' => 'btn icon add js-cpr-slideout',
-                            'data-icon' => 'plus',
-                            'data-store-id' => $element->storeId,
-                            'data-purchasable-id' => $element->id,
-                        ]),
+                        Html::beginTag('div', ['class' => 'flex']) .
+                            // New catalog price button
+                            Html::button(Craft::t('commerce', 'Add catalog price'), [
+                                'class' => 'btn icon add js-cpr-slideout',
+                                'data-icon' => 'plus',
+                                'data-store-id' => $element->storeId,
+                                'data-purchasable-id' => $element->id,
+                            ]) .
+                            Cp::renderTemplate('commerce/prices/_status', [
+                                'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+                            ]) .
+                        Html::endTag('div'),
                         [
                             'id' => 'purchasable-prices',
                             'class' => 'hidden',

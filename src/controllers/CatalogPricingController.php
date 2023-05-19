@@ -137,7 +137,10 @@ class CatalogPricingController extends BaseStoreSettingsController
         }
 
         $catalogPrices = Plugin::getInstance()->getCatalogPricing()->getCatalogPrices($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
-        $catalogPricesPageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        $catalogPricesPageInfo = null;
+        if ($limit !== null && $offset !== null) {
+            $catalogPricesPageInfo = Plugin::getInstance()->getCatalogPricing()->getCatalogPricesPageInfo($site->getStore()->id, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset);
+        }
 
         $view = Craft::$app->getView();
 
@@ -155,6 +158,10 @@ class CatalogPricingController extends BaseStoreSettingsController
         ]);
     }
 
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionQueueStatus(): Response
     {
         return $this->renderTemplate('commerce/prices/_polling', [
