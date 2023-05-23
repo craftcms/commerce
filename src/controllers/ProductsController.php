@@ -95,6 +95,7 @@ class ProductsController extends BaseController
     public function actionEditProduct(string $productTypeHandle, int $productId = null, string $site = null, Product $product = null): Response
     {
         $variables = compact('productTypeHandle', 'productId', 'product');
+        $variables['openVariantId'] = $this->request->getQueryParam('variantId');
 
         if ($site !== null) {
             $variables['site'] = Craft::$app->getSites()->getSiteByHandle($site);

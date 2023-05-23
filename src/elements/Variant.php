@@ -499,7 +499,11 @@ class Variant extends Purchasable
      */
     public function getCpEditUrl(): ?string
     {
-        return UrlHelper::cpUrl('commerce/variants/' . $this->id . ($this->getSku() ? '-' . $this->getSku() : ''));
+        // @TODO stop this from being slow in lists of variants. Some form of product memoization
+        $productType = $this->getProduct()->getType();
+        $editUrl = 'commerce/products/' . $productType->handle . '/' . $this->getProduct()->id . ($this->getProduct()->slug ? '-' . $this->getProduct()->slug : '');
+
+        return UrlHelper::cpUrl($editUrl, ['variantId' => $this->id]);
     }
 
     public function canView(User $user): bool

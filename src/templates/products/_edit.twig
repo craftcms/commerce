@@ -168,6 +168,8 @@
   {% endjs %}
 {% elseif product.id %}
   {% js %}
+      {{ openVariantId ? 'window.commerceOpenVariantId = ' ~ openVariantId ~ ';' : '' }}
+
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
         purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}

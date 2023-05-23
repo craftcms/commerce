@@ -39,6 +39,17 @@ Craft.Commerce.VariantsInput = Garnish.Base.extend(
       this.addListener(this.$addBtn, 'click', () => {
         this.createVariant();
       });
+
+      // Check to see if we need to open a variant edit immediately
+      if (window.commerceOpenVariantId) {
+        const $card = this.$container.find(
+          '> .purchasable-card[data-id="' + window.commerceOpenVariantId + '"]'
+        );
+
+        if ($card) {
+          $card.trigger('click');
+        }
+      }
     },
 
     initCard: function ($card) {
