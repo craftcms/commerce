@@ -34,15 +34,6 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
       '.js-prices-table-loading'
     );
     this.$refreshBtn = this.$container.find('.commerce-refresh-prices');
-    this.$priceFields = this.$container.find(
-      'input[name="' +
-        this.settings.fieldNames.price +
-        '"], input[name="' +
-        this.settings.fieldNames.promotionalPrice +
-        '"]'
-    );
-    this.$cprSlideouts = this.$container.find('.js-cpr-slideout');
-
     this.initPurchasablePriceList();
 
     this.$refreshBtn.on('click', (e) => {
@@ -101,6 +92,10 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
 
   initPurchasablePriceList: function () {
     const instance = this;
+    // prettier-ignore
+    this.$priceFields = this.$container.find('input[name="' + this.settings.fieldNames.price + '"], input[name="' + this.settings.fieldNames.promotionalPrice + '"]');
+    this.$cprSlideouts = this.$container.find('.js-cpr-slideout');
+
     this.$priceFields.on('change', function (e) {
       instance.updatePriceList();
     });
