@@ -40,6 +40,7 @@
             <a href="{{ price.catalogPricingRule.cpEditUrl }}"
                class="js-cpr-slideout"
                data-store-id="{{ price.catalogPricingRule.storeId }}"
+               data-store-handle="{{ price.catalogPricingRule.getStore().handle }}"
                data-purchasable-id="{{ price.purchasable.id }}"
                data-catalog-pricing-rule-id="{{ price.catalogPricingRule.id }}"
             >{{ price.catalogPricingRule.name }}</a>

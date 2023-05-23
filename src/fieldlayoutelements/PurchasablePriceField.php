@@ -77,12 +77,8 @@ class PurchasablePriceField extends BaseNativeField
         }
 
         $id = $view->namespaceInputId('commerce-purchasable-price-field');
-
         $priceNamespace = $view->namespaceInputName('basePrice');
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
-        $priceListContainer = $view->namespaceInputId('purchasable-prices');
-        $refreshBtn = $view->namespaceInputId('commerce-catalog-prices-status');
-
         $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
         /** @var CatalogPricingCondition $catalogPricingCondition */
@@ -152,6 +148,7 @@ JS;
                                 'class' => 'btn icon add js-cpr-slideout',
                                 'data-icon' => 'plus',
                                 'data-store-id' => $element->storeId,
+                                'data-store-handle' => $element->getStore()->handle,
                                 'data-purchasable-id' => $element->id,
                             ]) .
                             Cp::renderTemplate('commerce/prices/_status', [

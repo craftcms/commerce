@@ -111,6 +111,7 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
       let _this = $(this);
       let params = {
         storeId: _this.data('store-id'),
+        storeHandle: _this.data('store-handle'),
       };
 
       if (_this.data('catalog-pricing-rule-id')) {
