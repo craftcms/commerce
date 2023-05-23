@@ -14,6 +14,7 @@ use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -75,10 +76,12 @@ class PurchasablePriceField extends BaseNativeField
             $basePromotionalPrice = Craft::$app->getFormatter()->asDecimal($basePromotionalPrice);
         }
 
+        $id = $view->namespaceInputId('commerce-purchasable-price-field');
+
         $priceNamespace = $view->namespaceInputName('basePrice');
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
         $priceListContainer = $view->namespaceInputId('purchasable-prices');
-        $refreshBtn = $view->namespaceInputId('commerce-refresh-prices');
+        $refreshBtn = $view->namespaceInputId('commerce-catalog-prices-status');
 
         $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
@@ -95,96 +98,27 @@ class PurchasablePriceField extends BaseNativeField
         $catalogPricingCondition->addConditionRule($purchasableConditionRule);
         $conditionBuilderConfig = Json::encode($catalogPricingCondition->getConfig());
 
+        $view->registerAssetBundle(PurchasablePriceFieldAsset::class);
+
         $js = <<<JS
 (() => {
-    if (typeof initPurchasablePriceList === 'undefined') {
-        let initPurchasablePriceList = function() {
-            let \$priceFields = $('input[name="$priceNamespace"], input[name="$promotionalPriceNamespace"]');
-            const \$cprSlideouts = $('.js-cpr-slideout');
-            
-            const getPriceList = function(_el) {
-                const _tableContainer = _el.parents('.js-purchasable-price-field').find('.js-price-list-container');
-                const _loadingElements = _tableContainer.find('.js-prices-table-loading');
-                _loadingElements.removeClass('hidden');
-                
-                Craft.sendActionRequest('POST', 'commerce/catalog-pricing/prices', {
-                        data: {
-                            siteId: $element->siteId,
-                            condition: {condition: $conditionBuilderConfig},
-                            basePrice: $('input[name="$priceNamespace"]').val(),
-                            basePromotionalPrice: $('input[name="$promotionalPriceNamespace"]').val(),
-                            forPurchasable: true,
-                            includeBasePrices: false,
-                        }
-                    })
-                    .then((response) => {
-                        _loadingElements.addClass('hidden');
-                        
-                        if (response.data) {
-                            $('#$priceListContainer .tableview').replaceWith(response.data.tableHtml);
-                        }
-                        
-                        \$priceFields.off('change');
-                        \$cprSlideouts.off('click');
-                    
-                        initPurchasablePriceList();
-                    })
-                    .catch(({response}) => {
-                        console.log(response);
-                        _loadingElements.addClass('hidden');
-                        
-                        if (response.data && response.data.message) {
-                            Craft.cp.displayError(response.data.message);
-                        }
-                        
-                        \$priceFields.off('change');
-                        \$cprSlideouts.off('click');
-                    
-                        initPurchasablePriceList();
-                    }
-                );
-            };
-            
-            \$priceFields.on('change', function(e) {               
-                getPriceList($(this));
-            });
-            
-            // New catalog price
-            \$cprSlideouts.on('click', function(e) {
-                e.preventDefault();
-                let _this = $(this);
-                let params = {
-                    storeId: _this.data('store-id'),
-                };
-                
-                if (_this.data('catalog-pricing-rule-id')) {
-                    params.id = _this.data('catalog-pricing-rule-id');
-                } else {
-                    params.purchasableId = _this.data('purchasable-id');
-                    params.name = '$name';
-                }
-                
-                const slideout = new Craft.CpScreenSlideout('commerce/catalog-pricing-rules/edit', {params});
-                
-                slideout.on('submit', function({response, data}) {
-                    getPriceList(_this);
-                });
-            });
+    new Craft.Commerce.PurchasablePriceField('$id', {
+        catalogPricingRuleTempName: '$name',
+        siteId: $element->siteId,
+        conditionBuilderConfig: $conditionBuilderConfig,
+        fieldNames: {
+            price: '$priceNamespace',
+            promotionalPrice: '$promotionalPriceNamespace',
         }
-        
-        initPurchasablePriceList();
-    } else {
-        initPurchasablePriceList();
-        
-        $('#$refreshBtn').on('click', (e) => {
-          e.preventDefault();
-        });
-    }
+    });
 })();
 JS;
         $view->registerJs($js);
 
-        return Html::beginTag('div', ['class' => 'js-purchasable-price-field']) .
+        return Html::beginTag('div', [
+                'id' => 'commerce-purchasable-price-field',
+                'class' => 'js-purchasable-price-field',
+            ]) .
             Html::beginTag('div', ['class' => 'flex']) .
                 Cp::textFieldHtml([
                     'id' => 'base-price',
