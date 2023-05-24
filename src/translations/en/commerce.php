@@ -136,6 +136,7 @@ return [
     'Cart updated.' => 'Cart updated.',
     'Cart' => 'Cart',
     'Carts' => 'Carts',
+    'Catalog Pricing Rule' => 'Catalog Pricing Rule',
     'Categories Relationship Type' => 'Categories Relationship Type',
     'Categories that the matching purchasables must be related to.' => 'Categories that the matching purchasables must be related to.',
     'Categories that the purchasables must be related to.' => 'Categories that the purchasables must be related to.',
