@@ -234,7 +234,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
      */
     public function actionDelete(): Response
     {
-        $this->requirePermission('commerce-deletecatalogPricingRules');
+        $this->requirePermission('commerce-deleteCatalogPricingRules');
         $this->requirePostRequest();
 
         $id = $this->request->getBodyParam('id');
