@@ -183,17 +183,15 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $catalogPricingRule->isPromotionalPrice = (bool)$this->request->getBodyParam('isPromotionalPrice');
         $catalogPricingRule->applyPriceType = $this->request->getBodyParam('applyPriceType');
 
-        $dateFields = [
-            'dateFrom',
-            'dateTo',
-        ];
-        foreach ($dateFields as $field) {
-            if (($date = $this->request->getBodyParam($field)) !== false) {
-                $catalogPricingRule->$field = DateTimeHelper::toDateTime($date) ?: null;
-            } else {
-                $catalogPricingRule->$field = $catalogPricingRule->$date;
-            }
-        }
+        $catalogPricingRule->dateFrom =
+            ($date = $this->request->getBodyParam('dateFrom')) !== false
+            ? (DateTimeHelper::toDateTime($date) ?: null)
+            : $catalogPricingRule->dateFrom;
+
+        $catalogPricingRule->dateTo =
+            ($date = $this->request->getBodyParam('dateTo')) !== false
+            ? (DateTimeHelper::toDateTime($date) ?: null)
+            : $catalogPricingRule->dateTo;
 
         $applyAmount = $this->request->getBodyParam('applyAmount');
 
