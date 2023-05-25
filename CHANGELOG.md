@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-- Added `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params to the `commerce/cart/update-cart` action.
-- Fixed an error that occurred when switching tabs on small screens in the control panel. ([#3162](https://github.com/craftcms/commerce/issues/3162))
-- Fixed a bug where the `commerce/upgrade` command wasn’t migrating discounts’ coupons’ Max Uses values properly. ([#2947](https://github.com/craftcms/commerce/issues/2947))
+- The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
+- Fixed a JavaScript error that occurred when switching control panel tabs on small screens. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+- Fixed a bug where the `commerce/upgrade` command wasn’t migrating discounts’ and coupons’ Max Uses values properly. ([#2947](https://github.com/craftcms/commerce/issues/2947))
 
 ## 4.2.8 - 2023-05-03
 
