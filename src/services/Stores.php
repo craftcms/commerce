@@ -25,6 +25,7 @@ use craft\errors\SiteNotFoundException;
 use craft\errors\StaleResourceException;
 use craft\events\ConfigEvent;
 use craft\events\SiteEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
@@ -97,6 +98,11 @@ class Stores extends Component
     private ?Collection $_allStoresBySiteId = null;
 
     /**
+     * @var Collection|null
+     */
+    private ?Collection $_allSiteStores = null;
+
+    /**
      * @return void
      */
     private function _loadAllStores(): void
@@ -106,11 +112,25 @@ class Stores extends Component
         }
 
         $results = $this->_createStoreQuery()->all();
+        $siteStores = $this->_createSiteStoresQuery()
+            ->select(['storeId', 'siteId'])
+            ->all();
 
+        $allStores = [];
+        $allStoresBySiteId = [];
 
-        $this->_allStores = collect($results)->map(function($row) {
-            return Craft::createObject(array_merge(['class' => Store::class], $row));
-        });
+        foreach ($results as $row) {
+            $store = Craft::createObject(array_merge(['class' => Store::class], $row));
+
+            $allStores[] = $store;
+
+            foreach (ArrayHelper::where($siteStores, 'storeId', $store->id) as $siteStore) {
+                $allStoresBySiteId[$siteStore['siteId']] = $store;
+            }
+        }
+
+        $this->_allStores = collect($allStores);
+        $this->_allStoresBySiteId = collect($allStoresBySiteId);
     }
 
     /**
@@ -161,16 +181,8 @@ class Stores extends Component
     public function getStoreBySiteId(int $siteId): ?Store
     {
         if ($this->_allStoresBySiteId === null) {
-            $storeSites = $this->_createSiteStoresQuery()
-                ->select(['storeId', 'siteId'])
-                ->all();
-
-            $_allStoresBySiteId = [];
-            foreach ($storeSites as $storeSite) {
-                $_allStoresBySiteId[$storeSite['siteId']] = $this->getAllStores()->firstWhere('id', $storeSite['storeId']);
-            }
-
-            $this->_allStoresBySiteId = collect($_allStoresBySiteId);
+            // Population of `_allStoresBySiteId` is done in `_loadAllStores()`
+            $this->_loadAllStores();
         }
 
         return $this->_allStoresBySiteId?->get($siteId);
@@ -533,21 +545,28 @@ class Stores extends Component
      */
     public function getAllSitesForStore(Store $store): Collection
     {
-        return collect($this->getAllSiteStores())
-            ->filter(fn(SiteStore $siteStore) => $siteStore->getStore()->id == $store->id)
-            ->map(fn(SiteStore $siteStore) => $siteStore->getSite());
+        $sites = Craft::$app->getSites()->getAllSites();
+
+        return $this->getAllSiteStores()
+            ->filter(fn(SiteStore $siteStore) => $siteStore->storeId == $store->id)
+            ->map(fn(SiteStore $siteStore) => ArrayHelper::firstWhere($sites, 'id', $siteStore->siteId));
     }
 
     /**
      * @return SiteStore[]
      */
-    public function getAllSiteStores(): array
+    public function getAllSiteStores(): Collection
     {
+        if ($this->_allSiteStores !== null) {
+            return $this->_allSiteStores;
+        }
+
         $siteStores = [];
         foreach ($this->_createSiteStoresQuery()->all() as $store) {
             $siteStores[] = new SiteStore($store);
         }
-        return $siteStores;
+
+        return !empty($siteStores) ? $this->_allSiteStores = collect($siteStores) : collect();
     }
 
     /**
