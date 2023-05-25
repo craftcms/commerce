@@ -17,6 +17,7 @@ use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
 use craft\errors\SiteNotFoundException;
 use craft\events\RegisterComponentTypesEvent;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -99,6 +100,13 @@ class Purchasables extends Component
     public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
+     * Memoization of purchasables by ID to avoid duplicate queries.
+     *
+     * @var Collection|null
+     */
+    private ?Collection $_purchasableById = null;
+
+    /**
      * @param Order|null $order
      * @param User|null $currentUser
      * @since 3.3.1
@@ -148,6 +156,8 @@ class Purchasables extends Component
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
+        $this->_purchasableById?->pull($purchasableId);
+
         return Craft::$app->getElements()->deleteElementById($purchasableId);
     }
 
@@ -162,6 +172,11 @@ class Purchasables extends Component
      */
     public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
     {
+        // @TODO clarify that this change won't break anything
+        if ($this->_purchasableById !== null && $this->_purchasableById->has($purchasableId)) {
+            return $this->_purchasableById->get($purchasableId);
+        }
+
         $siteId = $siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
         $elementType = Craft::$app->getElements()->getElementTypeById($purchasableId);
 
@@ -185,6 +200,12 @@ class Purchasables extends Component
         if ($purchasable && !$purchasable instanceof PurchasableInterface) {
             throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
         }
+
+        if ($this->_purchasableById === null) {
+            $this->_purchasableById = collect();
+        }
+
+        $this->_purchasableById->put($purchasableId, $purchasable);
 
         return $purchasable;
     }
