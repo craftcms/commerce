@@ -28,7 +28,7 @@
     "moneyphp/money": "^3.3.1"
   },
   "require-dev": {
-    "vlucas/phpdotenv": "^3.4",
+    "vlucas/phpdotenv": "^5.5.0",
     "codeception/codeception": "^4.0.0",
     "fzaninotto/faker": "^1.8",
     "codeception/module-phpbrowser": "^1.0.0",
