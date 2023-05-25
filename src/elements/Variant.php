@@ -209,6 +209,20 @@ class Variant extends Purchasable
     private ?Product $_product = null;
 
     /**
+     * @var string|null
+     * @see getProductSlug()
+     * @see setProductSlug()
+     */
+    private ?string $_productSlug = null;
+
+    /**
+     * @var string|null
+     * @see getProductTypeHandle()
+     * @see setProductTypeHandle()
+     */
+    private ?string $_productTypeHandle = null;
+
+    /**
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -422,6 +436,58 @@ class Variant extends Purchasable
     }
 
     /**
+     * @param string|null $productSlug
+     * @return void
+     * @since 5.0.0
+     */
+    public function setProductSlug(?string $productSlug): void
+    {
+        $this->_productSlug = $productSlug;
+    }
+
+    /**
+     * @return string|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getProductSlug(): ?string
+    {
+        if ($this->_productSlug === null) {
+            $product = $this->getProduct();
+
+            $this->_productSlug = $product?->slug ?? null;
+        }
+
+        return $this->_productSlug;
+    }
+
+    /**
+     * @param string|null $productTypeHandle
+     * @return void
+     * @since 5.0.0
+     */
+    public function setProductTypeHandle(?string $productTypeHandle): void
+    {
+        $this->_productTypeHandle = $productTypeHandle;
+    }
+
+    /**
+     * @return string|null
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getProductTypeHandle(): ?string
+    {
+        if ($this->_productTypeHandle === null) {
+            $product = $this->getProduct();
+
+            $this->_productTypeHandle = $product ? ($product?->getType()?->handle ?? null) : null ;
+        }
+
+        return $this->_productTypeHandle;
+    }
+
+    /**
      * Returns the product title and variants title together for variable products.
      *
      * @throws Exception
@@ -499,9 +565,9 @@ class Variant extends Purchasable
      */
     public function getCpEditUrl(): ?string
     {
-        // @TODO stop this from being slow in lists of variants. Some form of product memoization
-        $productType = $this->getProduct()->getType();
-        $editUrl = 'commerce/products/' . $productType->handle . '/' . $this->getProduct()->id . ($this->getProduct()->slug ? '-' . $this->getProduct()->slug : '');
+        $productTypeHandle = $this->getProductTypeHandle();
+        $productSlug = $this->getProductSlug();
+        $editUrl = 'commerce/products/' . $productTypeHandle . '/' . $this->productId . ($productSlug ? '-' . $productSlug : '');
 
         return UrlHelper::cpUrl($editUrl, ['variantId' => $this->id]);
     }

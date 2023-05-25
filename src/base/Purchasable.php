@@ -555,7 +555,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
             [['basePrice'], 'number'],
             [['basePromotionalPrice', 'minQty', 'maxQty'], 'number', 'skipOnEmpty' => true],
             [['freeShipping', 'hasUnlimitedStock', 'promotable', 'availableForPurchase'], 'boolean'],
-            [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice'], 'safe'],
+            [['taxCategoryId', 'shippingCategoryId', 'price', 'promotionalPrice', 'productSlug', 'productTypeHandle'], 'safe'],
         ]);
     }
 

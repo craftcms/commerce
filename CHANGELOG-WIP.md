@@ -75,6 +75,10 @@
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
 - Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
+- Added `craft\commerce\elements\Variant::getProductSlug()`.
+- Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
+- Added `craft\commerce\elements\Variant::setProductSlug()`.
+- Added `craft\commerce\elements\Variant::setProductTypeHandle()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.

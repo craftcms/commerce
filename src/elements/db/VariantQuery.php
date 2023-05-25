@@ -400,7 +400,13 @@ class VariantQuery extends PurchasableQuery
             'commerce_variants.productId',
             'commerce_variants.isDefault',
             'commerce_variants.sortOrder',
+            'commerce_products_elements_sites.slug as productSlug',
+            'commerce_producttypes.handle as productTypeHandle',
         ]);
+
+        $this->query->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+        $this->query->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
+        $this->query->leftJoin(\craft\db\Table::ELEMENTS_SITES . ' commerce_products_elements_sites', '[[commerce_variants.productId]] = [[commerce_products_elements_sites.elementId]] and [[commerce_products_elements_sites.siteId]] =  [[elements_sites.siteId]]');
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
         $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
