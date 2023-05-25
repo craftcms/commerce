@@ -129,9 +129,6 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                 ['label' => Craft::t('commerce', 'Pricing Rules'), 'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')],
             ])
             ->action('commerce/catalog-pricing-rules/save')
-            ->addAltAction(Craft::t('commerce', 'Save and generate prices'), [
-                'params' => ['generatePrices' => true],
-            ])
             ->redirectUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')
             ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
             ->tabs([
@@ -219,8 +216,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         $catalogPricingRule->setCustomerCondition($this->request->getBodyParam('customerCondition'));
 
         // Save it
-        $generatePrices = $this->request->getParam('generatePrices', false);
-        if (Plugin::getInstance()->getcatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule, generatePricesImmediately: $generatePrices)) {
+        if (Plugin::getInstance()->getcatalogPricingRules()->saveCatalogPricingRule($catalogPricingRule)) {
             return $this->asSuccess(Craft::t('commerce', 'Catalog pricing rule saved.'));
         }
 
