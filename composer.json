@@ -38,7 +38,7 @@
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",
-    "vlucas/phpdotenv": "^5.5.0"
+    "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {
     "psr-4": {
