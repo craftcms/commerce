@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.2.9 - 2023-05-25
 
 - The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
 - Fixed a JavaScript error that occurred when switching control panel tabs on small screens. ([#3162](https://github.com/craftcms/commerce/issues/3162))
