@@ -118,7 +118,7 @@ class m220304_094835_discount_conditions extends Migration
     private function _getGroupUids(array $ids): array
     {
         return array_map(function($value) {
-            $userGroup = \Craft::$app->getUserGroups()->getGroupById(1);
+            $userGroup = \Craft::$app->getUserGroups()->getGroupById($value);
 
             return $userGroup->uid;
         }, $ids);
