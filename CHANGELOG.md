@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+-  Fixed a bug where where user group condition values are not migration from v3 to v4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+
 ## 4.2.9 - 2023-05-25
 
 - The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
