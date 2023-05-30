@@ -5,9 +5,9 @@ namespace craft\commerce\migrations;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
 use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
+use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\elements\conditions\users\GroupConditionRule;
 use craft\helpers\Json;
 
 /**
@@ -59,19 +59,19 @@ class m220304_094835_discount_conditions extends Migration
                 // do nothing
             } elseif ($discount['userGroupsCondition'] == 'userGroupsIncludeAll') {
                 foreach ($discountsUserGroupIds as $userGroupId) {
-                    $conditionRule = new GroupConditionRule();
+                    $conditionRule = new DiscountGroupConditionRule();
                     $userGroup = \Craft::$app->getUserGroups()->getGroupById($userGroupId);
                     $conditionRule->setValues($userGroup->uid);
                     $conditionRule->operator = 'in';
                     $userRules[] = $conditionRule;
                 }
             } elseif ($discount['userGroupsCondition'] == 'userGroupsIncludeAny') {
-                $conditionRule = new GroupConditionRule();
+                $conditionRule = new DiscountGroupConditionRule();
                 $conditionRule->setValues($userGroupUids);
                 $conditionRule->operator = 'in';
                 $userRules[] = $conditionRule;
             } elseif ($discount['userGroupsCondition'] == 'userGroupsExcludeAny') {
-                $conditionRule = new GroupConditionRule();
+                $conditionRule = new DiscountGroupConditionRule();
                 $conditionRule->setValues($userGroupUids);
                 $conditionRule->operator = 'ni';
                 $userRules[] = $conditionRule;
