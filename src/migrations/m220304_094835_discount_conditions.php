@@ -52,24 +52,27 @@ class m220304_094835_discount_conditions extends Migration
                 ->where(['discounts.id' => $id])
                 ->column();
 
+            $userGroupUids = $this->_getGroupUids($discountsUserGroupIds);
+
             $userRules = [];
             if ($discount['userGroupsCondition'] == 'userGroupsAnyOrNone') {
                 // do nothing
             } elseif ($discount['userGroupsCondition'] == 'userGroupsIncludeAll') {
                 foreach ($discountsUserGroupIds as $userGroupId) {
                     $conditionRule = new DiscountGroupConditionRule();
-                    $conditionRule->setValues($userGroupId);
+                    $userGroup = \Craft::$app->getUserGroups()->getGroupById($userGroupId);
+                    $conditionRule->setValues($userGroup->uid);
                     $conditionRule->operator = 'in';
                     $userRules[] = $conditionRule;
                 }
             } elseif ($discount['userGroupsCondition'] == 'userGroupsIncludeAny') {
                 $conditionRule = new DiscountGroupConditionRule();
-                $conditionRule->setValues($discountsUserGroupIds);
+                $conditionRule->setValues($userGroupUids);
                 $conditionRule->operator = 'in';
                 $userRules[] = $conditionRule;
             } elseif ($discount['userGroupsCondition'] == 'userGroupsExcludeAny') {
                 $conditionRule = new DiscountGroupConditionRule();
-                $conditionRule->setValues($discountsUserGroupIds);
+                $conditionRule->setValues($userGroupUids);
                 $conditionRule->operator = 'ni';
                 $userRules[] = $conditionRule;
             }
@@ -106,5 +109,18 @@ class m220304_094835_discount_conditions extends Migration
     {
         echo "m220304_094835_discount_conditions cannot be reverted.\n";
         return false;
+    }
+
+    /**
+     * @param array $ids
+     * @return array
+     */
+    private function _getGroupUids(array $ids): array
+    {
+        return array_map(function($value) {
+            $userGroup = \Craft::$app->getUserGroups()->getGroupById($value);
+
+            return $userGroup->uid;
+        }, $ids);
     }
 }
