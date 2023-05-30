@@ -244,7 +244,7 @@ class Payments extends Component
      * @throws TransactionException
      * @throws CurrencyException
      */
-    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData): void
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = []): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));

@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-### Fixed
-
 - Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
+- Fixed a PHP error that occurred when making a payment through the Payments service directly.
+- Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
 
 ## 4.2.9 - 2023-05-25
 
