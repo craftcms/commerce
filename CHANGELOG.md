@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when making a payment through the Payments service directly.
+
 ## 4.2.9 - 2023-05-25
 
 - The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
