@@ -435,7 +435,7 @@ class Plugin extends BasePlugin
     private function _registerCKEditorLinkOptions(): void
     {
         $ckEditorPlugin = Craft::$app->getPlugins()->getPlugin('ckeditor');
-        if (!$ckEditorPlugin && version_compare($ckEditorPlugin->getVerion(), '3.0', '<')) {
+        if (!class_exists(CKEditorField::class) || !$ckEditorPlugin || version_compare($ckEditorPlugin->getVersion(), '3.0', '<')) {
             return;
         }
 
@@ -458,14 +458,14 @@ class Plugin extends BasePlugin
 
             if ($productSources) {
                 $event->linkOptions[] = [
-                    'optionTitle' => Craft::t('commerce', 'Link to a product'),
+                    'label' => Craft::t('commerce', 'Link to a product'),
                     'elementType' => Product::class,
                     'refHandle' => Product::refHandle(),
                     'sources' => $productSources,
                 ];
 
                 $event->linkOptions[] = [
-                    'optionTitle' => Craft::t('commerce', 'Link to a variant'),
+                    'label' => Craft::t('commerce', 'Link to a variant'),
                     'elementType' => Variant::class,
                     'refHandle' => Variant::refHandle(),
                     'sources' => $productSources,
