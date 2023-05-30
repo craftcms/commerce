@@ -2,7 +2,7 @@
 
 namespace craft\commerce\elements\conditions\users;
 
-use craft\elements\conditions\users\GroupConditionRule as ElementGroupConditionRule;
+use craft\elements\conditions\users\GroupConditionRule;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
 
@@ -14,7 +14,7 @@ use yii\base\NotSupportedException;
  *
  * @property-read float|int $orderAttributeValue
  */
-class DiscountGroupConditionRule extends ElementGroupConditionRule
+class DiscountGroupConditionRule extends GroupConditionRule
 {
     /**
      * @inheritdoc
