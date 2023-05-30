@@ -58,10 +58,14 @@ class m211118_101920_split_coupon_codes extends Migration
 
             if (!empty($discountsWithCodes)) {
                 $coupons = array_map(static function($discount) use ($codeUsage) {
+                    $maxUses = $discount['totalDiscountUseLimit'] !== null && $discount['totalDiscountUseLimit'] > 0
+                        ? $discount['totalDiscountUseLimit']
+                        : null;
+
                     $row['code'] = $discount['code'];
                     $row['discountId'] = $discount['id'];
                     $row['uses'] = $codeUsage[$discount['code']] ?? 0;
-                    $row['maxUses'] = $discount['totalDiscountUseLimit'] ?? 0;
+                    $row['maxUses'] = $maxUses;
                     $row['dateCreated'] = $discount['dateCreated'];
                     $row['dateUpdated'] = $discount['dateUpdated'];
                     $row['uid'] = StringHelper::UUID();

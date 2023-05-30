@@ -36,12 +36,12 @@
 {% endif %}
 
 {% set tabs = {
-    0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
-    1: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
-    2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    3: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
-    4: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    5: {'label':'Actions'|t('commerce'),'url':'#actions'}
+    discount: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
+    coupons: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
+    matchingItems: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
+    conditionRules: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
+    conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    actions: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
 {% set couponsTable = {
@@ -394,8 +394,10 @@
                         id: 'perUserLimit',
                         name: 'perUserLimit',
                         value: discount.perUserLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -424,8 +426,10 @@
                         id: 'perEmailLimit',
                         name: 'perEmailLimit',
                         value: discount.perEmailLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -454,8 +458,10 @@
                         id: 'totalDiscountUseLimit',
                         name: 'totalDiscountUseLimit',
                         value: discount.totalDiscountUseLimit,
+                        type: 'number',
                         min: '0',
-                        size: 10
+                        step: '1',
+                        size: 5
                     }) }}
                 </div>
                 <div>
@@ -570,7 +576,6 @@
                             id: 'baseDiscount',
                             name: 'baseDiscount',
                             type: 'text',
-                            step: 'any',
                             size: 10,
                             value: discount.baseDiscount ? discount.baseDiscount|number : 0,
                         }) }}

@@ -78,7 +78,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @throws BadRequestHttpException
      * @throws \yii\base\Exception
      */
-    public function actionSave(): Response
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
@@ -90,17 +90,17 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $shippingMethod->enabled = (bool)$this->request->getBodyParam('enabled');
 
         // Save it
-        $success = Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod);
+        if (!Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
+            return $this->asModelFailure($shippingMethod, Craft::t('commerce', 'Couldn’t save shipping method.'), 'shippingMethod');
+        }
 
-        return $success ?
-            $this->asModelSuccess($shippingMethod, Craft::t('commerce', 'Shipping method saved.')) :
-            $this->asModelFailure($shippingMethod, Craft::t('commerce', 'Couldn’t save shipping method.'));
+        return $this->asModelSuccess($shippingMethod, Craft::t('commerce', 'Shipping method saved.'), 'shippingMethod');
     }
 
     /**
      * @throws HttpException
      */
-    public function actionDelete(): Response
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -108,7 +108,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $id = $this->request->getRequiredBodyParam('id');
 
         if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
-            return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping method and its rules.'));
         }
 
         return $this->asSuccess();

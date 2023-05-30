@@ -18,7 +18,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
-use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
@@ -1296,15 +1295,6 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        if (!$this->isCompleted) {
-            if (Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getBillingAddress()) {
-                $this->getBillingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-            if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getShippingAddress()) {
-                $this->getShippingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
-            }
-        }
-
         return parent::beforeValidate();
     }
 
@@ -1992,7 +1982,7 @@ class Order extends Element
             $option->id = $method->getId();
             $option->name = $method->getName();
             $option->handle = $method->getHandle();
-            $option->matchesOrder = ArrayHelper::isIn($method->handle, $matchingMethodHandles);
+            $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
             // Add all methods if completed, and only the matching methods when it is not completed.

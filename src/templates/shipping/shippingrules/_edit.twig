@@ -84,7 +84,7 @@
                                 selectize.addOption({
                                     value: response.data.id,
                                     text: response.data.name,
-                                    $order: selectize.data.order - 1
+                                    $order: selectize.order - 1
                                 });
                                 selectize.setValue(response.data.id);
                                 modal.hide();
@@ -99,7 +99,6 @@
 
                                 modal.updateSizeAndPosition();
                                 Garnish.shake($form);
-
                             });
                     });
 
@@ -118,9 +117,9 @@
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
     {% set tabs = {
-        0: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
-        1: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
-        2: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
+        rule: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
+        conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
+        costs: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
     } %}
 
 {% block actionButton %}

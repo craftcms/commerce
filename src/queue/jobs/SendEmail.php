@@ -7,13 +7,15 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
+use yii\queue\RetryableJobInterface;
 
-class SendEmail extends BaseJob
+class SendEmail extends BaseJob implements RetryableJobInterface
 {
     /**
      * @var int Order ID
@@ -35,7 +37,9 @@ class SendEmail extends BaseJob
      */
     public int $orderHistoryId;
 
-
+    /**
+     * @inheritDoc
+     */
     public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
@@ -44,6 +48,8 @@ class SendEmail extends BaseJob
         $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
         $language = $email->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
 
@@ -54,10 +60,31 @@ class SendEmail extends BaseJob
             throw new EmailException($error);
         }
 
+        // Set previous language back
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
+
         $this->setProgress($queue, 1);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function getTtr(): int
+    {
+        return 60;
+    }
 
+    /**
+     * @inheritDoc
+     */
+    public function canRetry($attempt, $error): bool
+    {
+        return $attempt < 5;
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected function defaultDescription(): ?string
     {
         return 'Sending email for order #' . $this->orderId;

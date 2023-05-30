@@ -52,4 +52,12 @@ class LiteTaxSettings extends Model
     {
         return Craft::$app->getFormatter()->asPercent($this->taxRate);
     }
+
+    /**
+     * @return array[]
+     */
+    protected function defineRules(): array
+    {
+        return [[['taxRate', 'taxName'], 'required']];
+    }
 }

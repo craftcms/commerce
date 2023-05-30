@@ -55,6 +55,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     }
 
     /**
+     * @return void
      */
     public function validateOrganizationTaxId(): void
     {

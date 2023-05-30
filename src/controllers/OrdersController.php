@@ -135,7 +135,7 @@ class OrdersController extends Controller
         $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
         $order->origin = Order::ORIGIN_CP;
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
+        if (!Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
 
@@ -729,6 +729,9 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Can not find order'));
         }
 
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
+
         // Set language by email's set locale
         $language = $email->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
@@ -744,6 +747,9 @@ class OrdersController extends Controller
         } catch (\Exception) {
             $success = false;
         }
+
+        // Set previous language back
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
@@ -1555,9 +1561,11 @@ class OrdersController extends Controller
      */
     private function _customerToArray(User $customer): array
     {
+        $totalAddresses = Address::find()->ownerId($customer->id)->count();
+
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
-                'totalAddresses' => count($customer->getAddresses()),
+                'totalAddresses' => $totalAddresses,
                 'photoThumbUrl' => $customer->getThumbUrl(100),
             ];
     }

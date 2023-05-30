@@ -7,6 +7,8 @@
 
 namespace craft\commerce\controllers;
 
+use Composer\Semver\Comparator;
+use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
@@ -433,7 +435,21 @@ class CartController extends BaseFrontEndController
             // $fields will be null so
             if ($submittedFields = $this->request->getBodyParam('fields')) {
                 $this->_cart->setScenario(Element::SCENARIO_LIVE);
-                $customFieldAttributes = array_keys($submittedFields);
+
+                $vp = new VersionParser();
+                $currentCraftVersion = $vp->normalize(Craft::$app->getVersion());
+                $v44 = $vp->normalize('4.4.0');
+
+                // since Craft 4.4.0, custom fields passed to Element::validate() need to be prepended with 'field:'
+                // @TODO remove at next breaking change/version bump
+                if (Comparator::greaterThanOrEqualTo($currentCraftVersion, $v44)) {
+                    $customFieldAttributes = array_map(
+                        fn($value) => 'field:' . $value,
+                        array_keys($submittedFields)
+                    );
+                } else {
+                    $customFieldAttributes = array_keys($submittedFields);
+                }
             }
         }
 
@@ -511,6 +527,30 @@ class CartController extends BaseFrontEndController
     private function _setAddresses(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $setShippingAddress = true;
+        if ($this->request->getParam('clearShippingAddress') !== null) {
+            $this->_cart->setShippingAddress(null);
+            $this->_cart->sourceShippingAddressId = null;
+            $setShippingAddress = false;
+        }
+
+        $setBillingAddress = true;
+        if ($this->request->getParam('clearBillingAddress') !== null) {
+            $this->_cart->setBillingAddress(null);
+            $this->_cart->sourceBillingAddressId = null;
+            $setBillingAddress = false;
+        }
+
+        if ($this->request->getParam('clearAddresses') !== null) {
+            $this->_cart->setShippingAddress(null);
+            $this->_cart->sourceShippingAddressId = null;
+            $this->_cart->setBillingAddress(null);
+            $this->_cart->sourceBillingAddressId = null;
+            $setBillingAddress = false;
+            $setShippingAddress = false;
+        }
+
         // Copy address options
         $shippingIsBilling = $this->request->getParam('shippingAddressSameAsBilling');
         $billingIsShipping = $this->request->getParam('billingAddressSameAsShipping');
@@ -525,67 +565,71 @@ class CartController extends BaseFrontEndController
         $shippingAddressId = $this->request->getParam('shippingAddressId');
         $billingAddressId = $this->request->getParam('billingAddressId');
 
-        // Shipping address
-        if ($shippingAddressId && !$shippingIsBilling) {
-            /** @var Address|null $userShippingAddress */
-            $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
+        if ($setShippingAddress) {
+            // Shipping address
+            if ($shippingAddressId && !$shippingIsBilling) {
+                /** @var Address|null $userShippingAddress */
+                $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
 
-            // If a user's address ID has been submitted duplicate the address to the order
-            if ($userShippingAddress) {
-                $this->_cart->sourceShippingAddressId = $shippingAddressId;
+                // If a user's address ID has been submitted duplicate the address to the order
+                if ($userShippingAddress) {
+                    $this->_cart->sourceShippingAddressId = $shippingAddressId;
 
-                /** @var Address $cartShippingAddress */
-                $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
-                $this->_cart->setShippingAddress($cartShippingAddress);
+                    /** @var Address $cartShippingAddress */
+                    $cartShippingAddress = Craft::$app->getElements()->duplicateElement($userShippingAddress, ['ownerId' => $this->_cart->id]);
+                    $this->_cart->setShippingAddress($cartShippingAddress);
+
+                    if ($billingIsShipping) {
+                        $this->_cart->sourceBillingAddressId = $userShippingAddress->id;
+                        $this->_cart->setBillingAddress($cartShippingAddress);
+                    }
+                }
+            } elseif ($shippingAddress && !$shippingIsBilling) {
+                $this->_cart->sourceShippingAddressId = null;
+                $this->_cart->setShippingAddress($shippingAddress);
+
+                if (!empty($shippingAddress['fields']) && $this->_cart->getShippingAddress()) {
+                    $this->_cart->getShippingAddress()->setFieldValues($shippingAddress['fields']);
+                }
 
                 if ($billingIsShipping) {
-                    $this->_cart->sourceBillingAddressId = $userShippingAddress->id;
-                    $this->_cart->setBillingAddress($cartShippingAddress);
+                    $this->_cart->sourceBillingAddressId = null;
+                    $this->_cart->setBillingAddress($this->_cart->getShippingAddress());
                 }
-            }
-        } elseif ($shippingAddress && !$shippingIsBilling) {
-            $this->_cart->sourceShippingAddressId = null;
-            $this->_cart->setShippingAddress($shippingAddress);
-
-            if (!empty($shippingAddress['fields']) && $this->_cart->getShippingAddress()) {
-                $this->_cart->getShippingAddress()->setFieldValues($shippingAddress['fields']);
-            }
-
-            if ($billingIsShipping) {
-                $this->_cart->sourceBillingAddressId = null;
-                $this->_cart->setBillingAddress($this->_cart->getShippingAddress());
             }
         }
 
         // Billing address
-        if ($billingAddressId && !$billingIsShipping) {
-            /** @var Address|null $userBillingAddress */
-            $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
+        if ($setBillingAddress) {
+            if ($billingAddressId && !$billingIsShipping) {
+                /** @var Address|null $userBillingAddress */
+                $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
 
-            // If a user's address ID has been submitted duplicate the address to the order
-            if ($userBillingAddress) {
-                $this->_cart->sourceBillingAddressId = $billingAddressId;
+                // If a user's address ID has been submitted duplicate the address to the order
+                if ($userBillingAddress) {
+                    $this->_cart->sourceBillingAddressId = $billingAddressId;
 
-                /** @var Address $cartBillingAddress */
-                $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
-                $this->_cart->setBillingAddress($cartBillingAddress);
+                    /** @var Address $cartBillingAddress */
+                    $cartBillingAddress = Craft::$app->getElements()->duplicateElement($userBillingAddress, ['ownerId' => $this->_cart->id]);
+                    $this->_cart->setBillingAddress($cartBillingAddress);
+
+                    if ($shippingIsBilling) {
+                        $this->_cart->sourceShippingAddressId = $userBillingAddress->id;
+                        $this->_cart->setShippingAddress($cartBillingAddress);
+                    }
+                }
+            } elseif ($billingAddress && !$billingIsShipping) {
+                $this->_cart->sourceBillingAddressId = null;
+                $this->_cart->setBillingAddress($billingAddress);
+
+                if (!empty($billingAddress['fields']) && $this->_cart->getBillingAddress()) {
+                    $this->_cart->getBillingAddress()->setFieldValues($billingAddress['fields']);
+                }
 
                 if ($shippingIsBilling) {
-                    $this->_cart->sourceShippingAddressId = $userBillingAddress->id;
-                    $this->_cart->setShippingAddress($cartBillingAddress);
+                    $this->_cart->sourceShippingAddressId = null;
+                    $this->_cart->setShippingAddress($this->_cart->getBillingAddress());
                 }
-            }
-        } elseif ($billingAddress && !$billingIsShipping) {
-            $this->_cart->sourceBillingAddressId = null;
-            $this->_cart->setBillingAddress($billingAddress);
-
-            if (!empty($billingAddress['fields']) && $this->_cart->getBillingAddress()) {
-                $this->_cart->getBillingAddress()->setFieldValues($billingAddress['fields']);
-            }
-
-            if ($shippingIsBilling) {
-                $this->_cart->sourceShippingAddressId = null;
-                $this->_cart->setShippingAddress($this->_cart->getBillingAddress());
             }
         }
 
@@ -613,17 +657,21 @@ class CartController extends BaseFrontEndController
             $this->_cart->setEstimatedBillingAddress($estimatedBillingAddress);
         }
 
+
         $this->_cart->billingSameAsShipping = (bool)$billingIsShipping;
         $this->_cart->shippingSameAsBilling = (bool)$shippingIsBilling;
         $this->_cart->estimatedBillingSameAsShipping = (bool)$estimatedBillingIsShipping;
 
         // Set primary addresses
-        if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
-            $this->_cart->makePrimaryShippingAddress = true;
+        if ($setShippingAddress) {
+            if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
+                $this->_cart->makePrimaryShippingAddress = true;
+            }
         }
-
-        if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
-            $this->_cart->makePrimaryBillingAddress = true;
+        if ($setBillingAddress) {
+            if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
+                $this->_cart->makePrimaryBillingAddress = true;
+            }
         }
     }
 }
