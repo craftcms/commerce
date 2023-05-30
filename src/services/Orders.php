@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\elements\Address;
 use craft\elements\User;
@@ -170,7 +169,8 @@ class Orders extends Component
 
         // If there are any orders, make sure that this is not allowed.
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            $event->isValid = false;
+            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
+            throw new Exception("Unable to delete a user with an existing order. User ID: “{$user->id}”");
         }
     }
 }

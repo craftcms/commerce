@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
@@ -405,7 +404,7 @@ class Subscriptions extends Component
 
         // If there are any subscriptions, make sure that this is not allowed.
         if ($this->doesUserHaveSubscriptions($user->id)) {
-            $event->isValid = false;
+            throw new Exception("Unable to delete a user with an existing subscription. User ID: “{$user->id}”");
         }
     }
 
