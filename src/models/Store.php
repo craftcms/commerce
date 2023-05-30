@@ -201,7 +201,7 @@ class Store extends Model
      */
     public function getMarketAddressCondition(): ZoneAddressCondition
     {
-        return $this->_marketAddressCondition ?? new ZoneAddressCondition();
+        return $this->_marketAddressCondition ?? new ZoneAddressCondition(Address::class);
     }
 
     /**
@@ -211,7 +211,7 @@ class Store extends Model
     public function setMarketAddressCondition(ZoneAddressCondition|string|array|null $condition): void
     {
         if ($condition === null) {
-            $condition = new ZoneAddressCondition();
+            $condition = new ZoneAddressCondition(Address::class);
         }
 
         if (is_string($condition)) {
@@ -220,6 +220,10 @@ class Store extends Model
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
+
+            // @TODO remove at next breaking change. Fix for misconfiguration during 3.x -> 4.x migration
+            $condition['elementType'] = Address::class;
+
             /** @var ZoneAddressCondition|mixed $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }

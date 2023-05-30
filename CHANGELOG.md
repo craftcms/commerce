@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
 - Fixed a bug where where user group condition values are not migration from v3 to v4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
 - Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
 - Fixed a PHP error that occurred when making a payment through the Payments service directly.
