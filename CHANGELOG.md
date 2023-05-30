@@ -2,10 +2,9 @@
 
 ## Unreleased
 
-
 - Added CKEditor link support for products and variants. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
 - Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
-- Fixed a bug where where user group condition values are not migration from v3 to v4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+- Fixed a bug where upgrading wasn’t migrating discounts’ user condition value properly. ([#3176](https://github.com/craftcms/commerce/issues/3176))
 - Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
 - Fixed a PHP error that occurred when making a payment through the Payments service directly.
 - Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
