@@ -224,7 +224,7 @@ class Variant extends Purchasable
     /**
      * @var bool $hasUnlimitedStock
      */
-    public $hasUnlimitedStock;
+    public $hasUnlimitedStock = false;
 
     /**
      * @var int $minQty
