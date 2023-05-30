@@ -3,6 +3,8 @@
 ## Unreleased
 
 - Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
+- Fixed a PHP error that occurred when making a payment through the Payments service directly.
+- Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
 
 ## 4.2.9 - 2023-05-25
 
