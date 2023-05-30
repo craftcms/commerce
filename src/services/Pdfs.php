@@ -465,6 +465,7 @@ class Pdfs extends Component
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLanguage = Craft::$app->formattingLocale;
         $pdfLanguage = $pdf->getRenderLanguage($order);
 
         // TODO add event
@@ -476,7 +477,7 @@ class Pdfs extends Component
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
-            Locale::switchAppLanguage($originalLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -485,14 +486,14 @@ class Pdfs extends Component
             // TODO Add event
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
-            Locale::switchAppLanguage($originalLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
-        Locale::switchAppLanguage($originalLanguage);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
@@ -527,7 +528,6 @@ class Pdfs extends Component
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
-
         // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([

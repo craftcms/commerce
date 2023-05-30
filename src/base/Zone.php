@@ -11,6 +11,7 @@ use craft\elements\Address;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * @property string $cpEditUrl
@@ -63,11 +64,12 @@ abstract class Zone extends BaseModel implements ZoneInterface
     /**
      * @param ZoneAddressCondition|string|array|null $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setCondition(ZoneAddressCondition|string|array|null $condition): void
     {
         if ($condition === null) {
-            $condition = new ZoneAddressCondition();
+            $condition = new ZoneAddressCondition(Address::class);
         }
 
         if (is_string($condition)) {
@@ -76,6 +78,10 @@ abstract class Zone extends BaseModel implements ZoneInterface
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
+
+            // @TODO remove at next breaking change. Fix for misconfiguration during 3.x -> 4.x migration
+            $condition['elementType'] = Address::class;
+
             /** @var ZoneAddressCondition $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }

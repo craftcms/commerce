@@ -10,6 +10,8 @@ namespace craft\commerce;
 use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
+use craft\ckeditor\events\DefineLinkOptionsEvent;
+use craft\ckeditor\Field as CKEditorField;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
@@ -263,6 +265,7 @@ class Plugin extends BasePlugin
             $this->_defineFieldLayoutElements();
             $this->_registerTemplateHooks();
             $this->_registerRedactorLinkOptions();
+            $this->_registerCKEditorLinkOptions();
         } else {
             $this->_registerSiteRoutes();
         }
@@ -392,6 +395,51 @@ class Plugin extends BasePlugin
         }
 
         Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
+            // Include a Product link option if there are any product types that have URLs
+            $productSources = [];
+
+            $sites = Craft::$app->getSites()->getAllSites();
+
+            foreach ($this->getProductTypes()->getAllProductTypes() as $productType) {
+                foreach ($sites as $site) {
+                    $productTypeSettings = $productType->getSiteSettings();
+                    if (isset($productTypeSettings[$site->id]) && $productTypeSettings[$site->id]->hasUrls) {
+                        $productSources[] = 'productType:' . $productType->uid;
+                    }
+                }
+            }
+
+            $productSources = array_unique($productSources);
+
+            if ($productSources) {
+                $event->linkOptions[] = [
+                    'optionTitle' => Craft::t('commerce', 'Link to a product'),
+                    'elementType' => Product::class,
+                    'refHandle' => Product::refHandle(),
+                    'sources' => $productSources,
+                ];
+
+                $event->linkOptions[] = [
+                    'optionTitle' => Craft::t('commerce', 'Link to a variant'),
+                    'elementType' => Variant::class,
+                    'refHandle' => Variant::refHandle(),
+                    'sources' => $productSources,
+                ];
+            }
+        });
+    }
+
+    /**
+     * Register links to product in the ckeditor rich text field
+     */
+    private function _registerCKEditorLinkOptions(): void
+    {
+        $ckEditorPlugin = Craft::$app->getPlugins()->getPlugin('ckeditor');
+        if (!$ckEditorPlugin && version_compare($ckEditorPlugin->getVerion(), '3.0', '<')) {
+            return;
+        }
+
+        Event::on(CKEditorField::class, CKEditorField::EVENT_DEFINE_LINK_OPTIONS, function(DefineLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];
 

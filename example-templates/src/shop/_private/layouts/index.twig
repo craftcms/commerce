@@ -131,7 +131,7 @@ Common, top-level layout template.
 let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
 {% set usedFields = {} %}
 {% for countryCode in craft.app.addresses.getCountryRepository().getAll()|keys %}
-	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getAddressFormatRepository().get(countryCode).getUsedFields()|merge([
+	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getUsedFields(countryCode)|merge([
       'fullName',
       'latLong',
       'organizationTaxId',
@@ -140,7 +140,7 @@ let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCoun
     ]) }) %}
 {% endfor %}
 let usedAddressFieldsByCountryCode = {{ usedFields|json_encode|raw }};
-
+console.log(usedAddressFieldsByCountryCode);
 function hideAddressFields(selectorTemplate) {
   const fields = document.querySelectorAll('.' + selectorTemplate.replace('placeHolder', 'js-address-field'));
   if (!fields.length) {

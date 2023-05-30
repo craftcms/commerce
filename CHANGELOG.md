@@ -2,14 +2,34 @@
 
 ## Unreleased
 
-- Email jobs now retry automatically 5 times if they fail due to a error. ([#3121](https://github.com/craftcms/commerce/pull/3121))
-- Added `craft\commerce\elements\conditions\orders\OrderSiteConditionRule`. ([#3131](https://github.com/craftcms/commerce/issues/3131))
-- Fixed a bug where variants did not propagate when a new site was added. ([#3124](https://github.com/craftcms/commerce/issues/3124))
+
+- Added CKEditor link support for products and variants. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
+- Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
+- Fixed a bug where where user group condition values are not migration from v3 to v4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+- Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
+- Fixed a PHP error that occurred when making a payment through the Payments service directly.
+- Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+
+## 4.2.9 - 2023-05-25
+
+- The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
+- Fixed a JavaScript error that occurred when switching control panel tabs on small screens. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+- Fixed a bug where the `commerce/upgrade` command wasn’t migrating discounts’ and coupons’ Max Uses values properly. ([#2947](https://github.com/craftcms/commerce/issues/2947))
+
+## 4.2.8 - 2023-05-03
+
+- Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
+- Fixed a bug where PDFs could be generated using the wrong formatting locale. ([#3145](https://github.com/craftcms/commerce/issues/3145))
+
+## 4.2.7 - 2023-04-13
+
+- Added the “Order Site” order condition rule. ([#3131](https://github.com/craftcms/commerce/issues/3131))
+- Email jobs are now reattempted up to five times on failure. ([#3121](https://github.com/craftcms/commerce/pull/3121))
+- Fixed a bug where variants weren’t getting propagated properly when new sites were created. ([#3124](https://github.com/craftcms/commerce/issues/3124))
 - Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
 - Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
 - Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
-- Fixed a bug where the `commerce/upgrade` console command would fail with a large number of orphaned customers.
-- Fixed a bug where updating a user’s email address with an existing cart creates a new user from a previous email address. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Fixed a bug where the `commerce/upgrade` command could fail if there was a large number of orphaned customers.
 
 ## 4.2.6 - 2023-03-22
 
