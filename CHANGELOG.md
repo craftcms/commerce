@@ -2,9 +2,15 @@
 
 ## Unreleased
 
-- Added `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params to the `commerce/cart/update-cart` action.
-- Fixed an error that occurred when switching tabs on small screens in the control panel. ([#3162](https://github.com/craftcms/commerce/issues/3162))
 - Added products and variants as link options for the CKEditor plugin ([#3150](https://github.com/craftcms/commerce/discussions/3150))
+- Fixed a PHP error that occurred when making a payment through the Payments service directly.
+- Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+
+## 4.2.9 - 2023-05-25
+
+- The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
+- Fixed a JavaScript error that occurred when switching control panel tabs on small screens. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+- Fixed a bug where the `commerce/upgrade` command wasn’t migrating discounts’ and coupons’ Max Uses values properly. ([#2947](https://github.com/craftcms/commerce/issues/2947))
 
 ## 4.2.8 - 2023-05-03
 
