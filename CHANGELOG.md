@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-### Fixed
 - Fixed a bug where querying a product variant with unlimited stock returns incorrect records. ([craftcms/feed-me#636](https://github.com/craftcms/feed-me/issues/636))
 
 ## 3.4.21 - 2023-05-03
