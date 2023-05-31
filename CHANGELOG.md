@@ -1,8 +1,8 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.22 - 2023-05-31
 
-- Fixed a bug where querying a Variant with unlimited stock returns incorrect records. ([#636](https://github.com/craftcms/feed-me/issues/636))
+- Fixed a bug where querying for variants could yield unexpected results. ([#636](https://github.com/craftcms/feed-me/issues/636))
 
 ## 3.4.21 - 2023-05-03
 
