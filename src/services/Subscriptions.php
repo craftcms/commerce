@@ -34,6 +34,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\UserException;
 
 /**
  * Subscriptions service.
@@ -405,7 +406,9 @@ class Subscriptions extends Component
         // If there are any subscriptions, make sure that this is not allowed.
         if ($this->doesUserHaveSubscriptions($user->id)) {
             // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
-            throw new Exception("Unable to delete a user with an existing subscription. User ID: “{$user->id}”");
+            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce subscription.', [
+                'user' => $user->id,
+            ]));
         }
     }
 
