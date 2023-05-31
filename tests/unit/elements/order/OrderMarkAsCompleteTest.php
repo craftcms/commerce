@@ -18,7 +18,7 @@ use UnitTester;
  * OrderMarkAsCompleteTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.3.0
+ * @since 4.2.10
  */
 class OrderMarkAsCompleteTest extends Unit
 {
@@ -26,7 +26,6 @@ class OrderMarkAsCompleteTest extends Unit
      * @var UnitTester
      */
     protected UnitTester $tester;
-
 
     /**
      * @var string
@@ -38,6 +37,9 @@ class OrderMarkAsCompleteTest extends Unit
      */
     protected ?Plugin $pluginInstance;
 
+    /**
+     * @var array
+     */
     private array $_deleteElementIds = [];
 
     /**
