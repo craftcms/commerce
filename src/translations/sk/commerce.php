@@ -1074,6 +1074,8 @@ return [
     'Type' => 'Typ',
     'URI' => 'URI',
     'Unable to cancel subscription at this time.' => 'Prihlásenie na odber sa momentálne nedá zrušiť.',
+    'Unable to delete user {user}: the user has a Craft Commerce order.' => 'Unable to delete user {user}: the user has a Craft Commerce order.',
+    'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Unable to delete user {user}: the user has a Craft Commerce subscription.',
     'Unable to generate coupon codes: {message}' => 'Nie je možné generovať kódy kupónov: {message}',
     'Unable to make payment at this time.' => 'Platba sa nedá aktuálne uskutočniť.',
     'Unable to modify subscription at this time.' => 'Prihlásenie na odber sa aktuálne nedá upraviť.',
