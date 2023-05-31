@@ -7,6 +7,8 @@
 
 namespace craft\commerce\behaviors;
 
+use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\PaymentSource;
@@ -109,6 +111,13 @@ class CustomerBehavior extends Behavior
 
         if ($user->primaryPaymentSourceId) {
             Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $user->primaryPaymentSourceId);
+        }
+
+        // Keep orders `email` column up-to-date with user's email address
+        if ($user->email && $user->id) {
+            Craft::$app->getDb()->createCommand()
+                ->update(Table::ORDERS, ['email' => $user->email], ['customerId' => $user->id], [], false)
+                ->execute();
         }
     }
 
