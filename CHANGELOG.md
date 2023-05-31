@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce
 
+## 4.2.10 - 2023-05-31
+
+- An error notification is now displayed when attempting to delete a user with existing orders or subscriptions. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+- Added support for linking to products and variants from CKEditor fields. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
+- Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
+- Fixed a bug where discounts’ user condition values weren’t getting migrated properly when upgrading to Commerce 4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+- Fixed a bug where users weren’t permitted to update their subscriptions on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
+- Fixed a PHP error that could occur when calling `craft\commerce\services\Payments::processPayment()` without passing the new `$redirectData` argument.
+
 ## 4.2.9 - 2023-05-25
 
 - The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.

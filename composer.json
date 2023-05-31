@@ -34,11 +34,12 @@
     "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-rest": "^1.0.0",
     "codeception/module-yii2": "^1.0.0",
+    "craftcms/ckeditor": "^3.0",
     "craftcms/ecs": "dev-main",
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",
-    "vlucas/phpdotenv": "^5.5.0"
+    "vlucas/phpdotenv": "^3.4"
   },
   "autoload": {
     "psr-4": {

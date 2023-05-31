@@ -158,9 +158,6 @@
 
                         $this.save = false;
                     },
-                    onShow() {
-                        console.log($this.addresses, 'on show');
-                    },
                 });
             },
 
@@ -185,8 +182,6 @@
                             ...this.addresses,
                             ...response.data.addresses,
                         ];
-
-                        console.log(this.addresses);
                     })
                     .finally(() => {
                         if (this.modal) {
@@ -234,11 +229,9 @@
         watch: {
             customerId(newId, oldId) {
                 if (newId !== oldId) {
-                    console.log('reset addresses');
                     this.addresses = [];
 
                     if (newId) {
-                        console.log('get new addresses');
                         this.getAddresses();
                     }
                 }
