@@ -4,6 +4,7 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
 use craft\db\Migration;
+use yii\db\Expression;
 
 /**
  * m230530_100604_add_complete_email_column migration.
@@ -19,7 +20,7 @@ class m230530_100604_add_complete_email_column extends Migration
         $this->addColumn(Table::ORDERS, 'orderCompletedEmail', $this->string());
 
         // Update existing data
-        $this->update(Table::ORDERS, ['orderCompletedEmail' => '[[email]]'], ['isCompleted' => true], [], false);
+        $this->update(Table::ORDERS, ['orderCompletedEmail' => new Expression('email')], ['isCompleted' => true], [], false);
 
         return true;
     }
