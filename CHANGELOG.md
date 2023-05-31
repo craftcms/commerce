@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-- Added CKEditor link support for products and variants. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
+- An error notification is now displayed when attempting to delete a user with existing orders or subscriptions. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+- Added support for linking to products and variants from CKEditor fields. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
 - Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
-- Fixed a bug where upgrading wasn’t migrating discounts’ user condition value properly. ([#3176](https://github.com/craftcms/commerce/issues/3176))
-- Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
-- Fixed a PHP error that occurred when making a payment through the Payments service directly.
-- Deleting a user with existing orders or subscriptions now displays a better flash error message. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+- Fixed a bug where discounts’ user condition values weren’t getting migrated properly when upgrading to Commerce 4.. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+- Fixed a bug where users weren’t permitted to update their subscriptions on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
+- Fixed a PHP error that could occur when calling `craft\commerce\services\Payments::processPayment()` without passing the new `$redirectData` argument.
 
 ## 4.2.9 - 2023-05-25
 
