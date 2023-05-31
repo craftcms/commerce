@@ -1074,6 +1074,8 @@ return [
     'Type' => 'タイプ',
     'URI' => 'URI',
     'Unable to cancel subscription at this time.' => '現在、定期支払いをキャンセルできません。',
+    'Unable to delete user {user}: the user has a Craft Commerce order.' => 'Unable to delete user {user}: the user has a Craft Commerce order.',
+    'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Unable to delete user {user}: the user has a Craft Commerce subscription.',
     'Unable to generate coupon codes: {message}' => 'クーポンコードを生成できません: {message}',
     'Unable to make payment at this time.' => '現在のところ、お支払いできません。',
     'Unable to modify subscription at this time.' => '現在、定期支払いを変更できません。',
