@@ -308,15 +308,6 @@ class Customers extends Component
     }
 
     /**
-     * @return void
-     * @since 4.2.10
-     */
-    public function afterSaveUserHandler(): void
-    {
-
-    }
-
-    /**
      * Makes sure the user has an email address and sets them to pending and sends the activation email
      */
     private function _activateUserFromOrder(Order $order): void
