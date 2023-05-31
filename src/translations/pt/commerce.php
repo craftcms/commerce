@@ -1074,6 +1074,8 @@ return [
     'Type' => 'Tipo',
     'URI' => 'URI',
     'Unable to cancel subscription at this time.' => 'De momento, não é possível cancelar a subscrição.',
+    'Unable to delete user {user}: the user has a Craft Commerce order.' => 'Unable to delete user {user}: the user has a Craft Commerce order.',
+    'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Unable to delete user {user}: the user has a Craft Commerce subscription.',
     'Unable to generate coupon codes: {message}' => 'Não foi possível gerar códigos de cupão: {message}',
     'Unable to make payment at this time.' => 'De momento, não é possível efetuar o pagamento.',
     'Unable to modify subscription at this time.' => 'De momento, não é possível modificar a subscrição.',
