@@ -4,6 +4,7 @@
 
 - Added CKEditor link support for products and variants. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
 - Fixed a bug where upgrading wasn’t migrating discounts’ user condition value properly. ([#3176](https://github.com/craftcms/commerce/issues/3176))
 - Fixed a bug where a user could not manage their subscription on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
