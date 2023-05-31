@@ -634,7 +634,6 @@ class Plugin extends BasePlugin
 
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler']);
 
         Event::on(
             UserElement::class,
