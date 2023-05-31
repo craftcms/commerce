@@ -11,7 +11,6 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\db\Table;
 use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;

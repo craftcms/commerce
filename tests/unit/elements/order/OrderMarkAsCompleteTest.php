@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\elements\order;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\elements\Address;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
 
