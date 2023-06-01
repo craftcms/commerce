@@ -15,7 +15,6 @@ use yii\base\NotSupportedException;
  */
 class DiscountGroupConditionRule extends GroupConditionRule
 {
-
     protected const OPERATOR_IN_ALL = 'inAll';
 
     /**
