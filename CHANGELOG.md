@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
+
 ## 4.2.10 - 2023-05-31
 
 - An error notification is now displayed when attempting to delete a user with existing orders or subscriptions. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
