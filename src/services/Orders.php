@@ -8,9 +8,14 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\events\ConfigEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
@@ -174,6 +179,71 @@ class Orders extends Component
             throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
                 'user' => $user->id,
             ]));
+        }
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
+     * @throws Exception
+     * @throws \Throwable
+     * @throws ElementNotFoundException
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
+     * @since 4.2.11
+     */
+    public function afterSaveAddressHandler(ModelEvent $event): void
+    {
+        /** @var Address $address */
+        $address = $event->sender;
+        if ($address->getIsDraft()) {
+            return;
+        }
+
+        // Find all orders using this address as a source
+        $idQuery = (new Query())
+            ->select(['id'])
+            ->from(Table::ORDERS)
+            ->where(['sourceBillingAddressId' => $address->id])
+            ->orWhere(['sourceShippingAddressId' => $address->id]);
+
+        /** @var Order[] $carts */
+        $carts = Order::find()
+            ->where(['commerce_orders.id' => $idQuery])
+            ->isCompleted(false)
+            ->all();
+
+        if (empty($carts)) {
+            return;
+        }
+
+        foreach ($carts as $cart) {
+            $originals = [];
+            // Update the billing address
+            if ($cart->sourceBillingAddressId === $address->id) {
+                $originals['billingAddressId'] = $cart->billingAddressId;
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $cart->billingAddressId = $newBillingAddress->id;
+            }
+
+            // Update the shipping address
+            if ($cart->sourceShippingAddressId === $address->id) {
+                $originals['shippingAddressId'] = $cart->shippingAddressId;
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Shipping Address')]);
+                $cart->shippingAddressId = $newShippingAddress->id;
+            }
+
+            // Check if the cart will validate before trying to save it.
+            // @TODO what are the implications of not saving the cart if it is invalid?
+            if (!$cart->validate()) {
+                // reset IDs
+                $cart->billingAddressId = $originals['billingAddressId'] ?? $cart->billingAddressId;
+                $cart->shippingAddressId = $originals['shippingAddressId'] ?? $cart->shippingAddressId;
+                continue;
+            }
+
+            // Save the cart to trigger events and recalculations.
+            Craft::$app->getElements()->saveElement($cart);
         }
     }
 }
