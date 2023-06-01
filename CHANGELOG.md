@@ -1,7 +1,7 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
-- Added the `syncAddressBookChanges` config setting, which can be enabled to automatically update addresses on carts when a user saves an address.
+- Added the `syncAddressBookChanges` config setting, which can be enabled to automatically update addresses on carts when a user saves an address. ([#3178](https://github.com/craftcms/commerce/issues/3178))
 - Added `craft\commerce\models\Settings::$syncAddressBookChanges`.
 - Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
 - Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
