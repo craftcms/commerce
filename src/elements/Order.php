@@ -688,7 +688,7 @@ class Order extends Element
      * This is only stored for historic data.
      *
      * @var string|null The email address when the order was completed
-     * @since 4.2.10
+     * @since 4.2.11
      * ---
      * ```php
      * echo $order->orderCompletedEmail;

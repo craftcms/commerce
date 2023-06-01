@@ -19,7 +19,7 @@ use UnitTester;
  * UserEmailTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.10
+ * @since 4.2.11
  */
 class UserEmailTest extends Unit
 {
