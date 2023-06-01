@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+- Added the `syncAddressBookChanges` config setting, which can be enabled to automatically update addresses on carts when a user saves an address.
+- Added `craft\commerce\models\Settings::$syncAddressBookChanges`.
+- Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
+
 ## 4.2.10 - 2023-05-31
 
 - An error notification is now displayed when attempting to delete a user with existing orders or subscriptions. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
