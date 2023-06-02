@@ -53,6 +53,7 @@ use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
+use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
@@ -3015,7 +3016,12 @@ class Order extends Element
             return lcfirst(substr($method->name, 3));
         }, $addressAttributes);
 
-        $customFieldHandles = array_map(static function(FieldInterface $field) {
+        $relationCustomFieldHandles = [];
+        $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
+            if ($field instanceof BaseRelationField) {
+                $relationCustomFieldHandles[] = $field->handle;
+            }
+
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
@@ -3029,12 +3035,27 @@ class Order extends Element
             $toArrayHandles = array_intersect($toArrayHandles, $attributes);
         }
 
-        $shippingAddress = $this->getShippingAddress();
+        // Figure out if we need to do any extra work for custom fields
+        $with = [];
+        if (!empty($relationCustomFieldHandles) && !empty($toArrayRelationFields = array_intersect($toArrayHandles, $relationCustomFieldHandles))) {
+            $with = array_values($toArrayRelationFields);
+        }
+
+        // @TODO return this to `$this->getShippingAddress()` and `$this->getBillingAddress()` if we figure a way of passing eagerloading to the method
+        $shippingAddress = AddressElement::find()
+            ->ownerId($this->id)
+            ->id($this->shippingAddressId)
+            ->with($with)
+            ->one();
         if ($shippingAddress instanceof AddressElement) {
             $shippingAddress = $shippingAddress->toArray($toArrayHandles);
         }
 
-        $billingAddress = $this->getBillingAddress();
+        $billingAddress = AddressElement::find()
+            ->ownerId($this->id)
+            ->id($this->billingAddressId)
+            ->with($with)
+            ->one();
         if ($billingAddress instanceof AddressElement) {
             $billingAddress = $billingAddress->toArray($toArrayHandles);
         }

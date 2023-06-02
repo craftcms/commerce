@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
+- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172))
+- Fixed a bug where `hasMatchingAddresses()` was incorrectly returning `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
 
 ## 4.2.10 - 2023-05-31
 
