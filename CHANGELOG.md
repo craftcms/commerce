@@ -1,6 +1,7 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
+
 - Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
 
 ## 4.2.10 - 2023-05-31
