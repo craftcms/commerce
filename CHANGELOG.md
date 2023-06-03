@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 3.4.22.1 - 2023-06-03
+
+- Fixed a bug where the incorrect version number was being shown after updating.
+
 ## 3.4.22 - 2023-05-31
 
 - Fixed a bug where querying for variants could yield unexpected results. ([#636](https://github.com/craftcms/feed-me/issues/636))
