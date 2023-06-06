@@ -382,7 +382,7 @@ class Product extends Element
      */
     public function canDeleteForSite(User $user): bool
     {
-        return $this->canDelete($user);
+        return Craft::$app->getElements()->canDelete($this, $user);
     }
 
     /**

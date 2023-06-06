@@ -370,7 +370,7 @@ class ProductsController extends BaseController
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($product)) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }
@@ -382,8 +382,7 @@ class ProductsController extends BaseController
      */
     protected function enforceDeleteProductPermissions(Product $product): void
     {
-        $user = Craft::$app->getUser()->getIdentity();
-        if (!$product->canDelete($user)) {
+        if (!Craft::$app->getElements()->canDelete($product)) {
             throw new ForbiddenHttpException('User is not permitted to delete this product');
         }
     }
