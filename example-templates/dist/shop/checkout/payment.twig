@@ -75,8 +75,9 @@
 
               {# Special params for Stripe Elements and Checkout#}
               {# see https://stripe.com/docs/elements/appearance-api #}
-              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntentsElementsCheckout' %}
+              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
                 {% set params = {
+                  paymentFormType: 'elements',
                   appearance: {
                     theme: 'stripe'
                   },
@@ -85,10 +86,13 @@
                     defaultCollapsed: false,
                     radios: false,
                     spacedAccordionItems: false
-                  }
+                  },
+                  'submitButtonClasses': 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white my-2',
+                  'submitButtonLabel': 'Pay',
+                  'errorMessageClasses': 'bg-red-200 text-red-600 my-2 p-2 rounded',
                 } %}
+                {% dump params %}
               {% endif %}
-
               <div class="gateway-payment-form max-w-3/4">
                 {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
                     {{ cart.gateway.getPaymentFormHtml(params)|raw }}
