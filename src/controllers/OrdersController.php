@@ -271,7 +271,7 @@ class OrdersController extends Controller
             throw new HttpException(404, Craft::t('commerce', 'Can not find order.'));
         }
 
-        if (!$order->canDelete(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canDelete($order)) {
             throw new ForbiddenHttpException('User not authorized to view this address.');
         }
 
@@ -1576,7 +1576,7 @@ class OrdersController extends Controller
      */
     protected function enforceManageOrderPermissions(Order $order): void
     {
-        if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($order)) {
             throw new ForbiddenHttpException('User not authorized to view this order.');
         }
     }

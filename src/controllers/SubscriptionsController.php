@@ -256,7 +256,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -304,7 +304,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
@@ -365,8 +365,7 @@ class SubscriptionsController extends BaseController
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
 
-            $currentUser = Craft::$app->getUser()->getIdentity();
-            $canModifySubscription = $subscription->canSave($currentUser);
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData === true && $canModifySubscription === true) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
@@ -413,7 +412,7 @@ class SubscriptionsController extends BaseController
      */
     protected function enforceManageSubscriptionPermissions(Subscription $subscription)
     {
-        if (!$subscription->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($subscription)) {
             throw new ForbiddenHttpException('User not authorized to view this subscription.');
         }
     }

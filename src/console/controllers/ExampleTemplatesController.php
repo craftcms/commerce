@@ -213,6 +213,9 @@ class ExampleTemplatesController extends Controller
             $errors[] = $e->getMessage();
         }
 
+        // delete the temp directory
+        FileHelper::removeDirectory($tempDestination);
+
         if (!empty($errors)) {
             return $this->_returnErrors($errors);
         }
