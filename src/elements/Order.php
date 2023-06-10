@@ -3036,31 +3036,33 @@ class Order extends Element
         }
 
         // Figure out if we need to do any extra work for custom fields
-        $with = [];
-        if (!empty($relationCustomFieldHandles) && !empty($toArrayRelationFields = array_intersect($toArrayHandles, $relationCustomFieldHandles))) {
-            $with = array_values($toArrayRelationFields);
+        $toArrayRelationFields = !empty($relationCustomFieldHandles) ? array_intersect($toArrayHandles, $relationCustomFieldHandles) : [];
+
+        $matchingShippingAddress = [];
+        if ($this->getShippingAddress() instanceof AddressElement) {
+            $matchingShippingAddress = $this->getShippingAddress()->toArray(array_diff($toArrayHandles, $toArrayRelationFields));
         }
 
-        // @TODO return this to `$this->getShippingAddress()` and `$this->getBillingAddress()` if we figure a way of passing eagerloading to the method
-        $shippingAddress = AddressElement::find()
-            ->ownerId($this->id)
-            ->id($this->shippingAddressId)
-            ->with($with)
-            ->one();
-        if ($shippingAddress instanceof AddressElement) {
-            $shippingAddress = $shippingAddress->toArray($toArrayHandles);
+        $matchingBillingAddress = [];
+        if ($this->getBillingAddress() instanceof AddressElement) {
+            $matchingBillingAddress = $this->getBillingAddress()->toArray(array_diff($toArrayHandles, $toArrayRelationFields));
+
         }
 
-        $billingAddress = AddressElement::find()
-            ->ownerId($this->id)
-            ->id($this->billingAddressId)
-            ->with($with)
-            ->one();
-        if ($billingAddress instanceof AddressElement) {
-            $billingAddress = $billingAddress->toArray($toArrayHandles);
+        // Add any relational custom fields to the matching arrays
+        if (!empty($toArrayRelationFields)) {
+            foreach ($toArrayRelationFields as $handle) {
+                if ($this->getShippingAddress() instanceof AddressElement) {
+                    $matchingShippingAddress[$handle] = $this->getShippingAddress()->getFieldValue($handle)?->ids();
+                }
+
+                if ($this->getBillingAddress() instanceof AddressElement) {
+                    $matchingBillingAddress[$handle] = $this->getBillingAddress()->getFieldValue($handle)?->ids();
+                }
+            }
         }
 
-        return $billingAddress == $shippingAddress;
+        return $matchingBillingAddress == $matchingShippingAddress;
     }
 
     /**
