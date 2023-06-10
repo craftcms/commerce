@@ -3046,7 +3046,6 @@ class Order extends Element
         $matchingBillingAddress = [];
         if ($this->getBillingAddress() instanceof AddressElement) {
             $matchingBillingAddress = $this->getBillingAddress()->toArray(array_diff($toArrayHandles, $toArrayRelationFields));
-
         }
 
         // Add any relational custom fields to the matching arrays
