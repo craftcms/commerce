@@ -254,37 +254,37 @@ class UpgradeController extends Controller
                 $this->_migrateCustomers();
                 $this->stdout("\nDone.\n\n");
 
-                $this->stdout("Migrating address data…\n");
-                $this->_migrateAddresses();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating orders…\n");
-                $this->_migrateOrderAddresses();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating users…\n");
-                $this->_migrateUserAddressBook();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating the store location…\n");
-                $this->_migrateStore();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating shipping zones…\n");
-                $this->_migrateShippingZones();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating tax zones…\n");
-                $this->_migrateTaxZones();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating order histories…\n");
-                $this->_migrateOrderHistoryUser();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating discount uses…\n");
-                $this->_migrateDiscountUses();
-                $this->stdout("\nDone.\n\n");
+//                $this->stdout("Migrating address data…\n");
+//                $this->_migrateAddresses();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating orders…\n");
+//                $this->_migrateOrderAddresses();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating users…\n");
+//                $this->_migrateUserAddressBook();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating the store location…\n");
+//                $this->_migrateStore();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating shipping zones…\n");
+//                $this->_migrateShippingZones();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating tax zones…\n");
+//                $this->_migrateTaxZones();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating order histories…\n");
+//                $this->_migrateOrderHistoryUser();
+//                $this->stdout("\nDone.\n\n");
+//
+//                $this->stdout("Updating discount uses…\n");
+//                $this->_migrateDiscountUses();
+//                $this->stdout("\nDone.\n\n");
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
@@ -856,7 +856,7 @@ SQL;
         $addresses = (new Query())
             ->select('*')
             ->from(['a' => '{{%commerce_addresses}}'])
-            ->limit(null);
+            ->limit(50);
 
         $totalAddresses = $addresses->count();
         $done = 0;
@@ -981,42 +981,54 @@ SQL;
             ->select(['lower([[orders.email]]) AS email'])
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
-            ->andWhere(['not', ['[[orders.email]]' => '']]);
+            ->andWhere(['not', ['[[orders.email]]' => '']])
+            ->limit(25);
 
         $totalEmails = $allEmails->count();
         $done = 0;
         Console::startProgress($done, $totalEmails);
-        foreach ($allEmails->each() as $email) {
-            $email = $email['email'];
-            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
 
-            // Get the original customer for this user
-            $customerId = (new Query())->from('{{%commerce_customers}} customers')
-                ->select(['[[customers.id]]'])
-                ->where(['[[customers.v3userId]]' => $user->id])
-                ->scalar();
+        foreach ($allEmails->batch(50) as $rows) {
+            $updateCustomerParams = [];
+            $updateOrdersParams = [];
 
-            // No customer for this user? They could have been a guest customer so let's create them a new customer record
-            if (!$customerId) {
-                $customer = new Customer();
-                $customer->customerId = $user->id;
-                $customer->save(false);
-                $customerId = $customer->id;
+            foreach ($rows as $row) {
+                $startTime = microtime(true);
+                $customerExists = true;
+                $email = $row['email'];
+                $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+
+                // Get the original customer for this user
+                $customerId = (new Query())->from('{{%commerce_customers}} customers')
+                    ->select(['[[customers.id]]'])
+                    ->where(['[[customers.v3userId]]' => $user->id])
+                    ->scalar();
+
+                // No customer for this user? They could have been a guest customer so let's create them a new customer record
+                if (!$customerId) {
+                    $customerExists = false;
+                    $customer = new Customer();
+                    $customer->customerId = $user->id;
+                    $customer->save(false);
+                    $customerId = $customer->id;
+                }
+
+                $customerIds[$user->id] = $customerId;
+                $customerEmails[$user->id] = $email;
+                $updateCustomerParams['customerId'][$user->id] = $customerId;
+                $updateOrdersParams['customerId'][$email] = $user->id;
+                $updateOrdersParams['v3CustomerId'][$email] = $customerId;
             }
 
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::CUSTOMERS,
-                    ['customerId' => $user->id],
-                    ['id' => $customerId]
-                )->execute();
+            $data = $this->_getBatchUpdateQueryWithParams(Table::CUSTOMERS, 'id', array_keys($customerIds), $updateCustomerParams);
+            $results = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
 
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::ORDERS,
-                    ['customerId' => $user->id, 'v3customerId' => $customerId],
-                    ['email' => $email]
-                )->execute();
+            $data = $this->_getBatchUpdateQueryWithParams(Table::ORDERS, 'id', array_values($customerEmails), $updateOrdersParams);
+            $results = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
 
             Console::updateProgress($done++, $totalEmails);
+            $totalTime = microtime(true) - $startTime;
+            Craft::error('Time: '.$totalTime.' milliseconds. Customer already existed: '.($customerExists ? 'Yes' : 'No'), __METHOD__);
         }
 
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
@@ -1070,5 +1082,39 @@ SQL;
         $storeModel->setMarketAddressCondition($condition);
 
         Plugin::getInstance()->getStore()->saveStore($storeModel);
+    }
+
+    private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
+    {
+        $str = 'UPDATE `' . Craft::$app->getDb()->getSchema()->getRawTableName($tableName) . '` SET ';
+        $row = [];
+        $bind = [];
+
+        foreach (array_keys($params) as $param) {
+            $rowStr = '`' . $param . '` = (CASE `' . $byField . '` ';
+            $cel = [];
+            foreach ($fieldValues as $fieldValue) {
+                if (array_key_exists($fieldValue, $params[$param])) {
+                    $idValue = ':' . $byField . '_' . $fieldValue;
+                    $paramValue = ':' . $param . '_' . $fieldValue;
+                    $bind[$paramValue] = $params[$param][$fieldValue];
+                    $cel[] = 'WHEN ' . $idValue . ' THEN ' . $paramValue;
+                }
+            }
+            $rowStr .= implode(' ', $cel);
+            $rowStr .= ' ELSE ' . Craft::$app->getDb()->quoteColumnName($param) . ' END)';
+            $row[] = $rowStr;
+        }
+
+        $whereIn = [];
+        foreach ($fieldValues as $fieldValue) {
+            $paramValue = ':' . $byField . '_' . $fieldValue;
+            $bind[$paramValue] = $fieldValue;
+            $whereIn[] = is_string($fieldValue) ? Craft::$app->getDb()->quoteValue($fieldValue) : $fieldValue;
+        }
+
+        $str .= implode(', ', $row);
+        $str .= ' WHERE ' . Craft::$app->getDb()->quoteColumnName($byField) . ' IN (' . implode(', ', $whereIn) . ')';
+        return ['sql' => $str, 'params' => $bind];
     }
 }
