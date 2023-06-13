@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
