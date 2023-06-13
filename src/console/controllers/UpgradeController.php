@@ -985,13 +985,13 @@ SQL;
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
             ->andWhere(['not', ['[[orders.email]]' => '']])
-            ->limit(5000);
+            ->limit(100);
 
         $totalEmails = $allEmails->count();
         $done = 0;
         Console::startProgress($done, $totalEmails);
 
-        foreach ($allEmails->batch(50) as $rows) {
+        foreach ($allEmails->batch(10) as $rows) {
             $updateCustomerParams = [];
             $updateOrdersParams = [];
             $customerIds = [];
@@ -1017,14 +1017,14 @@ SQL;
                     $customerId = $customer->id;
                 }
 
-                $customerIds[$user->id] = $customerId;
-                $customerEmails[$user->id] = $email;
-                $updateCustomerParams['customerId'][$user->id] = $customerId;
+                $customerIds[] = $customerId;
+                $customerEmails[] = $email;
+                $updateCustomerParams['customerId'][$customerId] = $user->id;
                 $updateOrdersParams['customerId'][$email] = $user->id;
                 $updateOrdersParams['v3CustomerId'][$email] = $customerId;
             }
 
-            $data = $this->_getBatchUpdateQueryWithParams(Table::CUSTOMERS, 'id', array_keys($customerIds), $updateCustomerParams);
+            $data = $this->_getBatchUpdateQueryWithParams(Table::CUSTOMERS, 'id', array_values($customerIds), $updateCustomerParams);
             $results1 = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
             $this->stdout("Results 1: ".$results1."\n", Console::FG_RED);
             $data = $this->_getBatchUpdateQueryWithParams(Table::ORDERS, 'id', array_values($customerEmails), $updateOrdersParams);
