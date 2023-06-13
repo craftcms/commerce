@@ -140,7 +140,6 @@ let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCoun
     ]) }) %}
 {% endfor %}
 let usedAddressFieldsByCountryCode = {{ usedFields|json_encode|raw }};
-console.log(usedAddressFieldsByCountryCode);
 function hideAddressFields(selectorTemplate) {
   const fields = document.querySelectorAll('.' + selectorTemplate.replace('placeHolder', 'js-address-field'));
   if (!fields.length) {
