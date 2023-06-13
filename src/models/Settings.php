@@ -311,13 +311,6 @@ class Settings extends Model
     public bool $requireBillingAddressAtCheckout = false;
 
     /**
-     * @var bool Whether to update cart addresses when a user updates an address in their address book.
-     * @since 4.2.11
-     * @todo remove or set to `true` by default at next major version.
-     */
-    public bool $syncAddressBookChanges = false;
-
-    /**
      * @var bool Whether shipping method selection is required before making payment on an order.
      * @group Orders
      */

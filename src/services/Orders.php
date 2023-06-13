@@ -195,10 +195,6 @@ class Orders extends Component
      */
     public function afterSaveAddressHandler(ModelEvent $event): void
     {
-        if (!Plugin::getInstance()->getSettings()->syncAddressBookChanges) {
-            return;
-        }
-
         /** @var Address $address */
         $address = $event->sender;
         if ($address->getIsDraft()) {
