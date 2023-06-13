@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where related sales were showing when creating a new product. 
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
 
 ## 4.2.11 - 2023-06-05
