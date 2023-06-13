@@ -60,7 +60,7 @@
 
 {% endif %}
 
-{% if currentUser.can('commerce-manageSubscriptions') %}
+{% if currentUser.can('commerce-manageSubscriptions') and craft.commerce.plans.getAllPlans() %}
   <hr>
   <h2>{{ 'Subscriptions'|t('commerce') }}</h2>
   {% set subscriptions = user.getSubscriptions() %}
