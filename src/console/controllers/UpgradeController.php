@@ -246,13 +246,14 @@ class UpgradeController extends Controller
         $db = Craft::$app->getDb();
 
         try {
-            $db->transaction(function() {
-                $this->stdout("Ensuring we have all the required custom fields…\n");
-                $this->_migrateAddressCustomFields();
+            $transaction = Craft::$app->getDb()->beginTransaction();
+            //$db->transaction(function() {
+            $this->stdout("Ensuring we have all the required custom fields…\n");
+            $this->_migrateAddressCustomFields();
 
-                $this->stdout("Creating a user for every customer…\n");
-                $this->_migrateCustomers();
-                $this->stdout("\nDone.\n\n");
+            $this->stdout("Creating a user for every customer…\n");
+            $this->_migrateCustomers();
+            $this->stdout("\nDone.\n\n");
 
 //                $this->stdout("Migrating address data…\n");
 //                $this->_migrateAddresses();
@@ -285,25 +286,27 @@ class UpgradeController extends Controller
 //                $this->stdout("Updating discount uses…\n");
 //                $this->_migrateDiscountUses();
 //                $this->stdout("\nDone.\n\n");
-            });
+            //});
+
         } catch (OperationAbortedException) {
+            $transaction->rollBack();
             return ExitCode::UNSPECIFIED_ERROR;
         }
-
-        $this->stdout("Cleaning up…\n");
-        foreach ($this->_v3tables as $table) {
-            Db::dropAllForeignKeysToTable($table);
-            MigrationHelper::dropAllForeignKeysOnTable($table);
-            Craft::$app->getDb()->createCommand()->dropTableIfExists($table)->execute();
-        }
-
-        foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
-            if ($db->columnExists($table, $column)) {
-                Db::dropForeignKeyIfExists($table, $column);
-                Db::dropIndexIfExists($table, $column);
-                Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
-            }
-        }
+        $transaction->rollBack();
+//        $this->stdout("Cleaning up…\n");
+//        foreach ($this->_v3tables as $table) {
+//            Db::dropAllForeignKeysToTable($table);
+//            MigrationHelper::dropAllForeignKeysOnTable($table);
+//            Craft::$app->getDb()->createCommand()->dropTableIfExists($table)->execute();
+//        }
+//
+//        foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
+//            if ($db->columnExists($table, $column)) {
+//                Db::dropForeignKeyIfExists($table, $column);
+//                Db::dropIndexIfExists($table, $column);
+//                Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
+//            }
+//        }
         $this->stdout("\nDone.\n\n");
 
         return 0;
@@ -982,7 +985,7 @@ SQL;
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
             ->andWhere(['not', ['[[orders.email]]' => '']])
-            ->limit(25);
+            ->limit(5000);
 
         $totalEmails = $allEmails->count();
         $done = 0;
@@ -991,10 +994,12 @@ SQL;
         foreach ($allEmails->batch(50) as $rows) {
             $updateCustomerParams = [];
             $updateOrdersParams = [];
+            $customerIds = [];
+            $customerEmails = [];
+
+            $startTime = microtime(true);
 
             foreach ($rows as $row) {
-                $startTime = microtime(true);
-                $customerExists = true;
                 $email = $row['email'];
                 $user = Craft::$app->getUsers()->ensureUserByEmail($email);
 
@@ -1006,7 +1011,6 @@ SQL;
 
                 // No customer for this user? They could have been a guest customer so let's create them a new customer record
                 if (!$customerId) {
-                    $customerExists = false;
                     $customer = new Customer();
                     $customer->customerId = $user->id;
                     $customer->save(false);
@@ -1021,14 +1025,15 @@ SQL;
             }
 
             $data = $this->_getBatchUpdateQueryWithParams(Table::CUSTOMERS, 'id', array_keys($customerIds), $updateCustomerParams);
-            $results = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
-
+            $results1 = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
+            $this->stdout("Results 1: ".$results1."\n", Console::FG_RED);
             $data = $this->_getBatchUpdateQueryWithParams(Table::ORDERS, 'id', array_values($customerEmails), $updateOrdersParams);
-            $results = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
+            $results2 = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
+            $this->stdout("Results 2: ".$results2."\n", Console::FG_RED);
 
             Console::updateProgress($done++, $totalEmails);
             $totalTime = microtime(true) - $startTime;
-            Craft::error('Time: '.$totalTime.' milliseconds. Customer already existed: '.($customerExists ? 'Yes' : 'No'), __METHOD__);
+            Craft::error('Time: '.$totalTime.' milliseconds.', __METHOD__);
         }
 
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
@@ -1095,8 +1100,8 @@ SQL;
             $cel = [];
             foreach ($fieldValues as $fieldValue) {
                 if (array_key_exists($fieldValue, $params[$param])) {
-                    $idValue = ':' . $byField . '_' . $fieldValue;
-                    $paramValue = ':' . $param . '_' . $fieldValue;
+                    $idValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+                    $paramValue = ':' . $param . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
                     $bind[$paramValue] = $params[$param][$fieldValue];
                     $cel[] = 'WHEN ' . $idValue . ' THEN ' . $paramValue;
                 }
@@ -1108,7 +1113,7 @@ SQL;
 
         $whereIn = [];
         foreach ($fieldValues as $fieldValue) {
-            $paramValue = ':' . $byField . '_' . $fieldValue;
+            $paramValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
             $bind[$paramValue] = $fieldValue;
             $whereIn[] = is_string($fieldValue) ? Craft::$app->getDb()->quoteValue($fieldValue) : $fieldValue;
         }
