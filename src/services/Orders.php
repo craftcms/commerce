@@ -218,32 +218,20 @@ class Orders extends Component
         }
 
         foreach ($carts as $cart) {
-            $originals = [];
             // Update the billing address
             if ($cart->sourceBillingAddressId === $address->id) {
-                $originals['billingAddressId'] = $cart->billingAddressId;
                 $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Billing Address')]);
                 $cart->billingAddressId = $newBillingAddress->id;
             }
 
             // Update the shipping address
             if ($cart->sourceShippingAddressId === $address->id) {
-                $originals['shippingAddressId'] = $cart->shippingAddressId;
                 $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Shipping Address')]);
                 $cart->shippingAddressId = $newShippingAddress->id;
             }
 
-            // Check if the cart will validate before trying to save it.
-            // @TODO what are the implications of not saving the cart if it is invalid?
-            if (!$cart->validate()) {
-                // reset IDs
-                $cart->billingAddressId = $originals['billingAddressId'] ?? $cart->billingAddressId;
-                $cart->shippingAddressId = $originals['shippingAddressId'] ?? $cart->shippingAddressId;
-                continue;
-            }
-
             // Save the cart to trigger events and recalculations.
-            Craft::$app->getElements()->saveElement($cart);
+            Craft::$app->getElements()->saveElement($cart, false);
         }
     }
 }
