@@ -116,7 +116,7 @@ class ProductsPreviewController extends Controller
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($product)) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }

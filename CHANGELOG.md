@@ -1,9 +1,16 @@
 # Release Notes for Craft Commerce
 
 ## Unreleased
-- Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
-- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172))
+- Fixed a bug where related sales were showing when creating a new product. 
+- Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
+- Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+
+## 4.2.11 - 2023-06-05
+
+- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
+- Fixed a bug where discounts’ user condition values weren’t getting migrated properly when upgrading to Commerce 4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
 
 ## 4.2.10 - 2023-05-31
 
