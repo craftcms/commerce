@@ -158,6 +158,7 @@ return [
     'Commerce order exports' => 'Commerce order exports',
     'Commerce' => 'Commerce',
     'Completed' => 'Completed',
+    'Completed Email' => 'Completed Email',
     'Completing order failed.' => 'Completing order failed.',
     'Condition' => 'Condition',
     'Conditions Rules' => 'Conditions Rules',

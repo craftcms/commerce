@@ -17,7 +17,7 @@ use UnitTester;
  * OrderMarkAsCompleteTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.2.11
+ * @since 4.2.12
  */
 class OrderMarkAsCompleteTest extends Unit
 {
