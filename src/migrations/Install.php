@@ -361,6 +361,7 @@ class Install extends Migration
             'totalShippingCost' => $this->decimal(14, 4)->defaultValue(0),
             'paidStatus' => $this->enum('paidStatus', ['paid', 'partial', 'unpaid', 'overPaid']),
             'email' => $this->string(),
+            'orderCompletedEmail' => $this->string(),
             'isCompleted' => $this->boolean()->notNull()->defaultValue(false),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
