@@ -684,6 +684,22 @@ class Order extends Element
     public ?string $origin = null;
 
     /**
+     * The email address that was on the cart when the order was completed.
+     * This is only stored for historic data.
+     *
+     * @var string|null The email address when the order was completed
+     * @since 4.2.12
+     * ---
+     * ```php
+     * echo $order->orderCompletedEmail;
+     * ```
+     * ```twig
+     * {{ order.orderCompletedEmail }}
+     * ```
+     */
+    public ?string $orderCompletedEmail = null;
+
+    /**
      * The current billing address ID
      *
      * @var int|null Billing address ID
@@ -1467,7 +1483,7 @@ class Order extends Element
             [['paymentSourceId'], 'validatePaymentSourceId'],
             [['email'], 'email'],
 
-            [['number', 'user'], 'safe'],
+            [['number', 'user', 'orderCompletedEmail'], 'safe'],
         ]);
     }
 
@@ -1671,6 +1687,7 @@ class Order extends Element
         // Reset estimated address relations
         $this->estimatedShippingAddressId = null;
         $this->estimatedBillingAddressId = null;
+        $this->orderCompletedEmail = $this->getEmail();
 
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
