@@ -290,6 +290,16 @@
                 <h5 class="heading">{{ 'Origin' | t('commerce') }}</h5>
                 <span class="value">{{ originLabel(draft.order.origin) }}</span>
             </div>
+            <div
+                class="data"
+                v-if="
+                    draft.order.orderCompletedEmail &&
+                    draft.order.orderCompletedEmail != draft.order.email
+                "
+            >
+                <h5 class="heading">{{ 'Completed Email' | t('commerce') }}</h5>
+                <span class="value">{{ draft.order.orderCompletedEmail }}</span>
+            </div>
         </div>
     </div>
 </template>
