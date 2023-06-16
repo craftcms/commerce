@@ -1500,6 +1500,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingMethodName',
             'commerce_orders.orderSiteId',
             'commerce_orders.orderLanguage',
+            'commerce_orders.orderCompletedEmail',
         ]);
 
         // Addresses table joined for sorting purposes
