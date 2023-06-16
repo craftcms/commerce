@@ -30,8 +30,6 @@ use craft\fields\PlainText;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
@@ -244,12 +242,12 @@ class UpgradeController extends Controller
         }, ARRAY_FILTER_USE_KEY);
 
         $db = Craft::$app->getDb();
-
+        //$transaction = Craft::$app->getDb()->beginTransaction();
         try {
-            $transaction = Craft::$app->getDb()->beginTransaction();
+
             //$db->transaction(function() {
-            $this->stdout("Ensuring we have all the required custom fields…\n");
-            $this->_migrateAddressCustomFields();
+//            $this->stdout("Ensuring we have all the required custom fields…\n");
+//            $this->_migrateAddressCustomFields();
 
             $this->stdout("Creating a user for every customer…\n");
             $this->_migrateCustomers();
@@ -289,10 +287,10 @@ class UpgradeController extends Controller
             //});
 
         } catch (OperationAbortedException) {
-            $transaction->rollBack();
+            //    $transaction->rollBack();
             return ExitCode::UNSPECIFIED_ERROR;
         }
-        $transaction->rollBack();
+        //   $transaction->rollBack();
 //        $this->stdout("Cleaning up…\n");
 //        foreach ($this->_v3tables as $table) {
 //            Db::dropAllForeignKeysToTable($table);
@@ -953,16 +951,16 @@ SQL;
     public function _migrateCustomers(): void
     {
         // Skip this if it has already run (the customerId column would not be empty)
-        $exists = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['[[orders.customerId]]'])
-            ->where(['[[orders.customerId]]' => null])
-            ->andWhere(['not', ['[[orders.email]]' => null]])
-            ->andWhere(['not', ['[[orders.email]]' => '']])
-            ->exists();
-
-        if (!$exists) {
-            return;
-        }
+//        $exists = (new Query())->from('{{%commerce_orders}} orders')
+//            ->select(['[[orders.customerId]]'])
+//            ->where(['[[orders.customerId]]' => null])
+//            ->andWhere(['not', ['[[orders.email]]' => null]])
+//            ->andWhere(['not', ['[[orders.email]]' => '']])
+//            ->exists();
+//
+//        if (!$exists) {
+//            return;
+//        }
 
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
         // Delete all customers that don't have any orders
@@ -985,13 +983,13 @@ SQL;
             ->distinct()
             ->where(['not', ['[[orders.email]]' => null]])
             ->andWhere(['not', ['[[orders.email]]' => '']])
-            ->limit(100);
+            ->limit(10);
 
         $totalEmails = $allEmails->count();
         $done = 0;
         Console::startProgress($done, $totalEmails);
 
-        foreach ($allEmails->batch(10) as $rows) {
+        foreach ($allEmails->batch(5) as $rows) {
             $updateCustomerParams = [];
             $updateOrdersParams = [];
             $customerIds = [];
@@ -1025,11 +1023,17 @@ SQL;
             }
 
             $data = $this->_getBatchUpdateQueryWithParams(Table::CUSTOMERS, 'id', array_values($customerIds), $updateCustomerParams);
-            $results1 = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
-            $this->stdout("Results 1: ".$results1."\n", Console::FG_RED);
+            $query1 = Craft::$app->db->createCommand($data['sql'], $data['params']);
+            $sql1 = $query1->getRawSql();
+            $result1 = $query1->execute();
+            $this->stdout("Result 1: ".$result1."\n", Console::FG_RED);
+
+
             $data = $this->_getBatchUpdateQueryWithParams(Table::ORDERS, 'id', array_values($customerEmails), $updateOrdersParams);
-            $results2 = Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
-            $this->stdout("Results 2: ".$results2."\n", Console::FG_RED);
+            $query2 = Craft::$app->db->createCommand($data['sql'], $data['params']);
+            $sql2 = $query2->getRawSql();
+            $result2 = $query2->execute();
+            $this->stdout("Result 2: ".$result2."\n", Console::FG_RED);
 
             Console::updateProgress($done++, $totalEmails);
             $totalTime = microtime(true) - $startTime;
