@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
+- Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
 
 ## 4.2.11 - 2023-06-05
 
