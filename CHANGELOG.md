@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 4.3.0 - Unreleased
+
+- It’s now possible to modify the purchasables shown in the add line item table on the Edit Order page.
+- Added `craft\commerce\events\ModifyPurchasablesQueryEvent`.
+- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY`.
+
 ## Unreleased
 
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
