@@ -53,6 +53,7 @@ use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
+use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
@@ -682,6 +683,22 @@ class Order extends Element
      * ```
      */
     public ?string $origin = null;
+
+    /**
+     * The email address that was on the cart when the order was completed.
+     * This is only stored for historic data.
+     *
+     * @var string|null The email address when the order was completed
+     * @since 4.2.12
+     * ---
+     * ```php
+     * echo $order->orderCompletedEmail;
+     * ```
+     * ```twig
+     * {{ order.orderCompletedEmail }}
+     * ```
+     */
+    public ?string $orderCompletedEmail = null;
 
     /**
      * The current billing address ID
@@ -1467,7 +1484,7 @@ class Order extends Element
             [['paymentSourceId'], 'validatePaymentSourceId'],
             [['email'], 'email'],
 
-            [['number', 'user'], 'safe'],
+            [['number', 'user', 'orderCompletedEmail'], 'safe'],
         ]);
     }
 
@@ -1671,6 +1688,7 @@ class Order extends Element
         // Reset estimated address relations
         $this->estimatedShippingAddressId = null;
         $this->estimatedBillingAddressId = null;
+        $this->orderCompletedEmail = $this->getEmail();
 
         $orderStatus = Plugin::getInstance()->getOrderStatuses()->getDefaultOrderStatusForOrder($this);
 
@@ -3015,7 +3033,12 @@ class Order extends Element
             return lcfirst(substr($method->name, 3));
         }, $addressAttributes);
 
-        $customFieldHandles = array_map(static function(FieldInterface $field) {
+        $relationCustomFieldHandles = [];
+        $customFieldHandles = array_map(static function(FieldInterface $field) use (&$relationCustomFieldHandles) {
+            if ($field instanceof BaseRelationField) {
+                $relationCustomFieldHandles[] = $field->handle;
+            }
+
             return $field->handle;
         }, (new AddressElement())->getFieldLayout()->getCustomFields());
 
@@ -3029,17 +3052,33 @@ class Order extends Element
             $toArrayHandles = array_intersect($toArrayHandles, $attributes);
         }
 
-        $shippingAddress = $this->getShippingAddress();
-        if ($shippingAddress instanceof AddressElement) {
-            $shippingAddress = $shippingAddress->toArray($toArrayHandles);
+        // Figure out if we need to do any extra work for custom fields
+        $toArrayRelationFields = !empty($relationCustomFieldHandles) ? array_intersect($toArrayHandles, $relationCustomFieldHandles) : [];
+
+        $matchingShippingAddress = [];
+        if ($this->getShippingAddress() instanceof AddressElement) {
+            $matchingShippingAddress = $this->getShippingAddress()->toArray(array_diff($toArrayHandles, $toArrayRelationFields));
         }
 
-        $billingAddress = $this->getBillingAddress();
-        if ($billingAddress instanceof AddressElement) {
-            $billingAddress = $billingAddress->toArray($toArrayHandles);
+        $matchingBillingAddress = [];
+        if ($this->getBillingAddress() instanceof AddressElement) {
+            $matchingBillingAddress = $this->getBillingAddress()->toArray(array_diff($toArrayHandles, $toArrayRelationFields));
         }
 
-        return $billingAddress == $shippingAddress;
+        // Add any relational custom fields to the matching arrays
+        if (!empty($toArrayRelationFields)) {
+            foreach ($toArrayRelationFields as $handle) {
+                if ($this->getShippingAddress() instanceof AddressElement) {
+                    $matchingShippingAddress[$handle] = $this->getShippingAddress()->getFieldValue($handle)?->ids();
+                }
+
+                if ($this->getBillingAddress() instanceof AddressElement) {
+                    $matchingBillingAddress[$handle] = $this->getBillingAddress()->getFieldValue($handle)?->ids();
+                }
+            }
+        }
+
+        return $matchingBillingAddress == $matchingShippingAddress;
     }
 
     /**
