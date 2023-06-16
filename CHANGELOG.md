@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 4.3.0 - Unreleased
+
+- PLACEHOLDER
+
 ## Unreleased
 
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
