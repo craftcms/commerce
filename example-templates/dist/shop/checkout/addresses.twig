@@ -123,6 +123,7 @@ Outputs a form for collecting an order’s shipping and billing address.
             if ($body) {
               // Creating new address
               $radio.addEventListener('change', function(ev) {
+                console.log('changing');
                 if (ev.target.checked) {
                   $body.classList.remove('hidden');
                 } else {
@@ -136,6 +137,7 @@ Outputs a form for collecting an order’s shipping and billing address.
             } else {
               // Selecting existing address
               $radio.addEventListener('change', function(ev) {
+                console.log(ev.target.checked);
                 if (ev.target.checked) {
                   var $newBox = document.querySelector('.js-address-select[data-model-name="' + ev.target.dataset.modelName + '"]');
                   if ($newBox) {
@@ -156,7 +158,7 @@ Outputs a form for collecting an order’s shipping and billing address.
       var $billingFieldSet = document.querySelector('.js-address-fieldset.BillingAddress');
       $billingFieldSet.classList.toggle('hidden');
 
-      for (let input of document.querySelector('.js-address-box.BillingAddress').querySelectorAll('input')) {
+      for (let input of $billingFieldSet.querySelectorAll('.js-address-select input')) {
         if ($billingSameAs.checked === true) {
           input.setAttribute('disabled', '');
         } else if (input.hasAttribute('disabled')) {
