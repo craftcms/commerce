@@ -7,7 +7,6 @@
 
 namespace craft\commerce\events;
 
-use craft\commerce\elements\Order;
 use craft\db\Query;
 use yii\base\Event;
 

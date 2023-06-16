@@ -75,6 +75,7 @@ class OrdersController extends Controller
 {
     /**
      * @event Event The event that’s triggered when retrieving the purchasables for the add line item table on the order edit page.
+     * @since 4.3.0
      *
      * ---
      * ```php
