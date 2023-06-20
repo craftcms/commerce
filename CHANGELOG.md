@@ -6,9 +6,13 @@
 
 ## Unreleased
 
+- Fixed a bug where `hasMatchingAddresses()` was incorrectly returning `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
-- Fixed a bug where related sales were showing when creating a new product. 
+- Fixed a bug where related sales were showing when creating a new product.
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
+- Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
+- Fixed a bug where address changes weren’t being synced to carts using them as a source. ([#3178](https://github.com/craftcms/commerce/issues/3178))
+- Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 
 ## 4.2.11 - 2023-06-05
