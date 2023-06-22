@@ -312,33 +312,29 @@ class Customers extends Component
      */
     private function _activateUserFromOrder(Order $order): void
     {
-        if (!$order->email) {
+        $user = $order->getCustomer();
+        if (!$user || $user->getIsCredentialed()) {
             return;
         }
 
-        $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
+        if (!$user->fullName) {
+            $user->fullName = $order->getBillingAddress()?->fullName ?? $order->getShippingAddress()?->fullName ?? '';
+        }
 
-        if (!$user->getIsCredentialed()) {
-            if (!$user->fullName) {
-                $user->fullName = $order->getBillingAddress()?->fullName ?? $order->getShippingAddress()?->fullName ?? '';
+        $user->pending = true;
+        $user->setScenario(Element::SCENARIO_ESSENTIALS);
+
+        if (Craft::$app->getElements()->saveElement($user)) {
+            Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+            $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+            if (!$emailSent) {
+                Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn’t send an activation email. Check your email settings.', __METHOD__);
             }
-
-            $user->username = $order->email;
-            $user->pending = true;
-            $user->setScenario(Element::SCENARIO_ESSENTIALS);
-
-            if (Craft::$app->getElements()->saveElement($user)) {
-                Craft::$app->getUsers()->assignUserToDefaultGroup($user);
-                $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
-
-                if (!$emailSent) {
-                    Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn’t send an activation email. Check your email settings.', __METHOD__);
-                }
-            } else {
-                $errors = $user->getErrors();
-                Craft::warning('Could not create user on order completion.', __METHOD__);
-                Craft::warning($errors, __METHOD__);
-            }
+        } else {
+            $errors = $user->getErrors();
+            Craft::warning('Could not create user on order completion.', __METHOD__);
+            Craft::warning($errors, __METHOD__);
         }
     }
 }

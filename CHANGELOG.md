@@ -2,7 +2,7 @@
 
 ## 4.3.0 - Unreleased
 
-- PLACEHOLDER
+- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
 ## Unreleased
 
