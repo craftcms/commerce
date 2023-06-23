@@ -376,7 +376,6 @@ class Customers extends Component
                         }
                     }
                 }
-
             } else {
                 $errors = $user->getErrors();
                 Craft::warning('Could not create user on order completion.', __METHOD__);
