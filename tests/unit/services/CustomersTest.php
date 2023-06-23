@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\Plugin;
 use craft\commerce\services\Customers;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craftcommercetests\fixtures\CustomerFixture;
@@ -87,22 +88,12 @@ class CustomersTest extends Unit
             },
         ]));
 
-        $order = new Order();
-        $user = \Craft::$app->getUsers()->ensureUserByEmail('test@newemailaddress.xyz');
-        $order->setCustomer($user);
-
-        /** @var Order $order */
-        $completedOrder = $this->fixtureData->getElement('completed-new');
-        $lineItem = $completedOrder->getLineItems()[0];
-        $qty = 4;
-        $note = 'My note';
-        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
-        $order->setLineItems([$lineItem]);
+        $order = $this->_createOrder('test@newemailaddress.xyz');
 
         self::assertTrue($order->markAsComplete());
 
         $this->_deleteElementIds[] = $order->id;
-        $this->_deleteElementIds[] = $user->id;
+        $this->_deleteElementIds[] = $order->getCustomer()->id;
     }
 
     /**
@@ -119,19 +110,10 @@ class CustomersTest extends Unit
      */
     public function testRegisterOnCheckout(string $email, bool $register, bool $deleteUser): void
     {
-        $order = new Order();
-        $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
-        $originallyCredentialed = $user->getIsCredentialed();
-        $order->setCustomer($user);
+        $order = $this->_createOrder($email);
+        $originallyCredentialed = $order->getCustomer()->getIsCredentialed();
 
         $order->registerUserOnOrderComplete = $register;
-
-        $completedOrder = $this->fixtureData->getElement('completed-new');
-        $lineItem = $completedOrder->getLineItems()[0];
-        $qty = 4;
-        $note = 'My note';
-        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
-        $order->setLineItems([$lineItem]);
 
         self::assertTrue($order->markAsComplete());
 
@@ -146,7 +128,7 @@ class CustomersTest extends Unit
 
         $this->_deleteElementIds[] = $order->id;
         if ($deleteUser) {
-            $this->_deleteElementIds[] = $user->id;
+            $this->_deleteElementIds[] = $order->getCustomer()->id;
         }
     }
 
@@ -156,10 +138,141 @@ class CustomersTest extends Unit
     public function registerOnCheckoutDataProvider(): array
     {
         return [
-            'dont-register-guest' => ['guest@customer.xyz', false, true],
-            'register-guest' => ['guest@customer.xyz', true, true],
+            'dont-register-guest' => ['guest@crafttest.com', false, true],
+            'register-guest' => ['guest@crafttest.com', true, true],
             'register-credentialed-user' => ['cred.user@crafttest.com', true, false],
             'dont-register-credentialed-user' => ['cred.user@crafttest.com', false, false],
+        ];
+    }
+
+    /**
+     * @param string $email
+     * @param bool $deleteUser
+     * @param Address|null $billingAddres
+     * @param Address|null $shippingAddress
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws OrderStatusException
+     * @throws \Throwable
+     * @dataProvider registerOnCheckoutCopyAddressesDataProvider
+     */
+    public function testRegisterOnCheckoutCopyAddresses(string $email, ?array $billingAddress, ?array $shippingAddress, int $addressCount): void
+    {
+        $isOnlyOneAddress = empty($billingAddress) || empty($shippingAddress);
+        $order = $this->_createOrder($email);
+        $order->registerUserOnOrderComplete = true;
+        \Craft::$app->getElements()->saveElement($order, false);
+
+        if (!empty($billingAddress)) {
+            $order->setBillingAddress($billingAddress);
+        }
+
+        if (!empty($shippingAddress)) {
+            $order->setShippingAddress($shippingAddress);
+        }
+
+        self::assertTrue($order->markAsComplete());
+
+        $userAddresses = Address::find()->ownerId($order->getCustomer()->id)->all();
+        self::assertCount($addressCount, $userAddresses);
+
+        $primaryCount = 0;
+        foreach ($userAddresses as $userAddress) {
+            if ($addressCount === 1) {
+                $addressTitle = \Craft::t('commerce', 'Address');
+                if ($isOnlyOneAddress) {
+                    $addressTitle = !empty($billingAddress) ? \Craft::t('commerce', 'Billing Address') : \Craft::t('commerce', 'Shipping Address');
+                }
+                self::assertEquals($addressTitle, $userAddress->title);
+
+                $address = $billingAddress ?? $shippingAddress;
+                self::assertEquals($address['fullName'], $userAddress->fullName);
+                self::assertEquals($address['addressLine1'], $userAddress->addressLine1);
+                self::assertEquals($address['locality'], $userAddress->locality);
+                self::assertEquals($address['administrativeArea'], $userAddress->administrativeArea);
+                self::assertEquals($address['postalCode'], $userAddress->postalCode);
+                self::assertEquals($address['countryCode'], $userAddress->countryCode);
+            }
+
+            if ($userAddress->getIsPrimaryBilling()) {
+                if ($addressCount === 2) {
+                    self::assertEquals(\Craft::t('commerce', 'Billing Address'), $userAddress->title);
+                    self::assertEquals($billingAddress['fullName'], $userAddress->fullName);
+                    self::assertEquals($billingAddress['addressLine1'], $userAddress->addressLine1);
+                    self::assertEquals($billingAddress['locality'], $userAddress->locality);
+                    self::assertEquals($billingAddress['administrativeArea'], $userAddress->administrativeArea);
+                    self::assertEquals($billingAddress['postalCode'], $userAddress->postalCode);
+                    self::assertEquals($billingAddress['countryCode'], $userAddress->countryCode);
+                }
+
+                $primaryCount++;
+            }
+            if ($userAddress->getIsPrimaryShipping()) {
+                if ($addressCount === 2) {
+                    self::assertEquals(\Craft::t('commerce', 'Shipping Address'), $userAddress->title);
+                    self::assertEquals($shippingAddress['fullName'], $userAddress->fullName);
+                    self::assertEquals($shippingAddress['addressLine1'], $userAddress->addressLine1);
+                    self::assertEquals($shippingAddress['locality'], $userAddress->locality);
+                    self::assertEquals($shippingAddress['administrativeArea'], $userAddress->administrativeArea);
+                    self::assertEquals($shippingAddress['postalCode'], $userAddress->postalCode);
+                    self::assertEquals($shippingAddress['countryCode'], $userAddress->countryCode);
+                }
+
+                $primaryCount++;
+            }
+        }
+
+        self::assertEquals($isOnlyOneAddress ? 1 : 2, $primaryCount);
+
+        $this->_deleteElementIds[] = $order->id;
+        $this->_deleteElementIds[] = $order->getCustomer()->id;
+    }
+
+    public function registerOnCheckoutCopyAddressesDataProvider(): array
+    {
+        $billingAddress = [
+            'fullName' => 'Guest Billing',
+            'addressLine1' => '1 Main Billing Street',
+            'locality' => 'Billingsville',
+            'administrativeArea' => 'OR',
+            'postalCode' => '12345',
+            'countryCode' => 'US',
+        ];
+        $shippingAddress = [
+            'fullName' => 'Guest Shipping',
+            'addressLine1' => '1 Main Shipping Street',
+            'locality' => 'Shippingsville',
+            'administrativeArea' => 'AL',
+            'postalCode' => '98765',
+            'countryCode' => 'US',
+        ];
+
+        return [
+            'guest-two-addresses' => [
+                'guest.person@crafttest.com',
+                $billingAddress,
+                $shippingAddress,
+                2,
+            ],
+            'guest-matching-addresses' => [
+                'guest.person@crafttest.com',
+                $billingAddress,
+                $billingAddress,
+                1,
+            ],
+            'guest-one-billing-address' => [
+                'guest.person@crafttest.com',
+                $billingAddress,
+                null,
+                1,
+            ],
+            'guest-one-shipping-address' => [
+                'guest.person@crafttest.com',
+                null,
+                $shippingAddress,
+                1,
+            ],
         ];
     }
 
@@ -174,5 +287,21 @@ class CustomersTest extends Unit
         foreach ($this->_deleteElementIds as $elementId) {
             \Craft::$app->getElements()->deleteElementById($elementId, null, null, true);
         }
+    }
+
+    private function _createOrder(string $email): Order
+    {
+        $order = new Order();
+        $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
+        $order->setCustomer($user);
+
+        $completedOrder = $this->fixtureData->getElement('completed-new');
+        $lineItem = $completedOrder->getLineItems()[0];
+        $qty = 4;
+        $note = 'My note';
+        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
+        $order->setLineItems([$lineItem]);
+
+        return $order;
     }
 }
