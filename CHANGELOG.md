@@ -2,7 +2,7 @@
 
 ## 4.3.0 - Unreleased
 
-- PLACEHOLDER
+- Guest customers registering during checkout now have their addresses saved to their account.
 
 ## Unreleased
 
