@@ -36,8 +36,8 @@ Outputs the site’s global main navigation based on path and included `pages` a
         <div class="absolute right-2 top-0">
           {% if currentUser %}
             <a href="{{ url('[[folderName]]/customer') }}"
-               class="mx-2 px-2 py-1 rounded text-sm font-semibold">
-              {{- currentUser.email -}}
+               class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
+                👤&nbsp;My Account
             </a>
           {% else %}
             <a href="{{ url('[[folderName]]/customer/sign-in') }}"
@@ -47,12 +47,15 @@ Outputs the site’s global main navigation based on path and included `pages` a
           {% endif %}
           <a href="{{ url('[[folderName]]/cart') }}"
              class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
-            {% if cart.totalQty %}
               <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full text-white text-xs bg-[[color]]-800">
-                {{- cart.totalQty -}}
+                {% if cart.totalQty %}
+                  {{- cart.totalQty -}}
+                {% else %}
+                  Empty
+                {% endif %}
               </span>
-            {% endif %}
-            <p role="img" aria-label="{{ 'Shopping Cart'|t }}">🛒</p>
+
+            <span aria-label="{{ 'View Cart'|t }}">🛒 Cart</span>
           </a>
         </div>
       </nav>

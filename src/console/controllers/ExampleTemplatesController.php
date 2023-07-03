@@ -236,6 +236,8 @@ class ExampleTemplatesController extends Controller
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[color]]' => $mainColor,
             '[[dangerColor]]' => $dangerColor,
+            '[[classes.text.color]]' => "text-$mainColor-500",
+            '[[classes.text.dangerColor]]' => "text-$dangerColor-500",
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
             '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
             '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
