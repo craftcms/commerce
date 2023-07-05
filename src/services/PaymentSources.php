@@ -284,7 +284,7 @@ class PaymentSources extends Component
             throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
         }
 
-        if($makePrimarySource) {
+        if ($makePrimarySource) {
             Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
         }
 
