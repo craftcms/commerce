@@ -229,6 +229,9 @@ class CustomersTest extends Unit
         $this->_deleteElementIds[] = $order->getCustomer()->id;
     }
 
+    /**
+     * @return array[]
+     */
     public function registerOnCheckoutCopyAddressesDataProvider(): array
     {
         $billingAddress = [
@@ -272,6 +275,201 @@ class CustomersTest extends Unit
                 null,
                 $shippingAddress,
                 1,
+            ],
+        ];
+    }
+
+    /**
+     * @param bool|null $saveBilling
+     * @param array|null $billingAddress
+     * @param bool|null $saveShipping
+     * @param array|null $shippingAddress
+     * @param bool $setSourceBilling
+     * @param bool $setSourceShipping
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws OrderStatusException
+     * @throws \Throwable
+     * @dataProvider saveAddressesOnOrderCompleteDataProvider
+     * @since 4.3.0
+     */
+    public function testSaveAddressesOnOrderComplete(?bool $saveBilling, ?array $billingAddress, ?bool $saveShipping, ?array $shippingAddress, int $newAddressCount, bool $setSourceBilling, bool $setSourceShipping): void
+    {
+        $order = $this->_createOrder('cred.user@crafttest.com');
+        $customer = $order->getCustomer();
+        $sourceAddress = [
+            'fullName' => 'Source Address',
+            'addressLine1' => '1 Source Road',
+            'locality' => 'Sourcington',
+            'administrativeArea' => 'OR',
+            'postalCode' => '991199',
+            'countryCode' => 'US',
+            'ownerId' => $customer->id,
+        ];
+
+        if ($setSourceBilling || $setSourceShipping) {
+            $sourceAddressModel = \Craft::createObject([
+                'class' => Address::class,
+                'attributes' => $sourceAddress,
+            ]);
+            \Craft::$app->getElements()->saveElement($sourceAddressModel, false, false ,false);
+            $this->_deleteElementIds[] = $sourceAddressModel->id;
+
+            if ($setSourceBilling) {
+                $order->sourceBillingAddressId = $sourceAddressModel->id;
+            }
+
+            if ($setSourceShipping) {
+                $order->sourceShippingAddressId = $sourceAddressModel->id;
+            }
+        }
+        $originalAddressIds = collect($customer->getAddresses())->pluck('id')->all();
+
+        $order->saveBillingAddressOnOrderComplete = $saveBilling;
+        $order->saveShippingAddressOnOrderComplete = $saveShipping;
+
+        $order->setBillingAddress($billingAddress);
+        $order->setShippingAddress($shippingAddress);
+
+        \Craft::$app->getElements()->saveElement($order, false, false, false);
+
+        self::assertTrue($order->markAsComplete());
+
+        // @TODO change this to `$customer->getAddresses()` when `getAddresses()` memoization is fixed
+        $idWhere = array_merge(['not'], $originalAddressIds);
+        $addresses = Address::find()->ownerId($customer->id)->id($idWhere)->all();
+        self::assertCount($newAddressCount, $addresses);
+        $addressNames = collect($addresses)->pluck('fullName')->all();
+        $addressLine1s = collect($addresses)->pluck('addressLine1')->all();
+
+        if ($billingAddress && $saveBilling && !$setSourceBilling) {
+            self::assertContains($billingAddress['fullName'], $addressNames);
+            self::assertContains($billingAddress['addressLine1'], $addressLine1s);
+        }
+
+        if ($shippingAddress && $saveShipping && !$setSourceShipping) {
+            self::assertContains($shippingAddress['fullName'], $addressNames);
+            self::assertContains($shippingAddress['addressLine1'], $addressLine1s);
+        }
+
+        $this->_deleteElementIds[] = $order->id;
+//        \Craft::$app->getElements()->deleteElementById($order->id, null, null, true);
+        // No need to delete the customer as it comes from the fixtures
+    }
+
+    /**
+     * @return array
+     */
+    public function saveAddressesOnOrderCompleteDataProvider(): array
+    {
+        $billingAddress = [
+            'fullName' => 'Billing Name',
+            'addressLine1' => '1 Main Billing Street',
+            'locality' => 'Billingsville',
+            'administrativeArea' => 'OR',
+            'postalCode' => '12345',
+            'countryCode' => 'US',
+        ];
+        $shippingAddress = [
+            'fullName' => 'Shipping Name',
+            'addressLine1' => '1 Main Shipping Street',
+            'locality' => 'Shippingsville',
+            'administrativeArea' => 'AL',
+            'postalCode' => '98765',
+            'countryCode' => 'US',
+        ];
+
+        return [
+            'save-both' => [
+                true, // save billing
+                $billingAddress, // billing address
+                true, // save shipping
+                $shippingAddress, // shipping address
+                2, // new address count
+                false, // set source billing
+                false, // set source shipping
+            ],
+            'save-billing-only' => [
+                true,
+                $billingAddress,
+                false,
+                null,
+                1,
+                false,
+                false,
+            ],
+            'save-shipping-only' => [
+                false,
+                null,
+                true,
+                $shippingAddress,
+                1,
+                false,
+                false,
+            ],
+            'save-both-but-same-address' => [
+                true,
+                $billingAddress,
+                true,
+                $billingAddress,
+                1,
+                false,
+                false,
+            ],
+            'try-to-save-both-but-no-addresses' => [
+                true,
+                null,
+                true,
+                null,
+                0,
+                false,
+                false,
+            ],
+            'try-to-save-but-source-billing-present' => [
+                true,
+                $billingAddress,
+                false,
+                null,
+                0,
+                true,
+                false,
+            ],
+            'try-to-save-but-source-shipping-present' => [
+                false,
+                null,
+                true,
+                $shippingAddress,
+                0,
+                false,
+                true,
+            ],
+            'try-to-save-both-but-sources-present' => [
+                true,
+                $billingAddress,
+                true,
+                $shippingAddress,
+                0,
+                true,
+                true,
+            ],
+            'try-save-both-but-billing-source-present' => [
+                true,
+                $billingAddress,
+                true,
+                $shippingAddress,
+                1,
+                true,
+                false,
+            ],
+            'try-save-both-but-shipping-source-present' => [
+                true,
+                $billingAddress,
+                true,
+                $shippingAddress,
+                1,
+                false,
+                true,
             ],
         ];
     }
