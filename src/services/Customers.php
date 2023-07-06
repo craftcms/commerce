@@ -20,6 +20,8 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Expression;
@@ -167,6 +169,10 @@ class Customers extends Component
         if ($order->registerUserOnOrderComplete) {
             $this->_activateUserFromOrder($order);
         }
+
+        if ($order->saveBillingAddressOnOrderComplete || $order->saveShippingAddressOnOrderComplete) {
+            $this->_saveAddressesFromOrder($order);
+        }
     }
 
     /**
@@ -305,6 +311,68 @@ class Customers extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @param Order $order
+     * @return void
+     * @throws \Throwable
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
+     */
+    private function _saveAddressesFromOrder(Order $order): void
+    {
+        // Only for completed orders
+        if ($order->isCompleted === false) {
+            return;
+        }
+
+        // Check for a credentialed user
+        if ($order->getCustomer() === null || !$order->getCustomer()->getIsCredentialed()) {
+            return;
+        }
+
+        $saveBillingAddress = $order->saveBillingAddressOnOrderComplete && $order->sourceBillingAddressId === null && $order->billingAddressId;
+        $saveShippingAddress = $order->saveShippingAddressOnOrderComplete && $order->sourceShippingAddressId === null && $order->shippingAddressId;
+        $newSourceBillingAddressId = null;
+        $newSourceShippingAddressId = null;
+
+        if ($saveBillingAddress && $saveShippingAddress && $order->hasMatchingAddresses()) {
+            // Only save one address if they are matching
+            $newAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(), ['ownerId' => $order->getCustomer()->id]);
+            $newSourceBillingAddressId = $newAddress->id;
+            $newSourceShippingAddressId = $newAddress->id;
+        } else {
+            if ($saveBillingAddress) {
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(), ['ownerId' => $order->getCustomer()->id]);
+                $newSourceBillingAddressId = $newBillingAddress->id;
+            }
+
+            if ($saveShippingAddress) {
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($order->getShippingAddress(), ['ownerId' => $order->getCustomer()->id]);
+                $newSourceShippingAddressId = $newShippingAddress->id;
+            }
+        }
+
+        // @TODO Update the order record manually?
+        if ($newSourceBillingAddressId) {
+            $order->sourceBillingAddressId = $newSourceBillingAddressId;
+        }
+
+        if ($newSourceShippingAddressId) {
+            $order->sourceShippingAddressId = $newSourceShippingAddressId;
+        }
+
+        if ($newSourceBillingAddressId || $newSourceShippingAddressId) {
+            \craft\commerce\records\Order::updateAll([
+                    'sourceBillingAddressId' => $order->sourceBillingAddressId,
+                    'sourceShippingAddressId' => $order->sourceShippingAddressId,
+                ],
+                [
+                    'id' => $order->id
+                ]
+            );
+        }
     }
 
     /**
