@@ -237,6 +237,22 @@ class CartController extends BaseFrontEndController
             $this->_cart->registerUserOnOrderComplete = false;
         }
 
+        $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
+        if ($saveBillingAddressOnOrderComplete !== null) {
+            $this->_cart->saveBillingAddressOnOrderComplete = (bool)$saveBillingAddressOnOrderComplete;
+        }
+
+        $saveShippingAddressOnOrderComplete = $this->request->getBodyParam('saveShippingAddressOnOrderComplete');
+        if ($saveShippingAddressOnOrderComplete !== null) {
+            $this->_cart->saveShippingAddressOnOrderComplete = (bool)$saveShippingAddressOnOrderComplete;
+        }
+
+        $saveAddressesOnOrderComplete = $this->request->getBodyParam('saveAddressesOnOrderComplete');
+        if ($saveAddressesOnOrderComplete !== null) {
+            $this->_cart->saveBillingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+            $this->_cart->saveShippingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+        }
+
         // Set payment currency on cart
         if ($currency = $this->request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
