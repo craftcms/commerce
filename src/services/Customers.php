@@ -369,7 +369,7 @@ class Customers extends Component
                     'sourceShippingAddressId' => $order->sourceShippingAddressId,
                 ],
                 [
-                    'id' => $order->id
+                    'id' => $order->id,
                 ]
             );
         }
