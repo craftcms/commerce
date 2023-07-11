@@ -412,7 +412,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param string|string[]|ProductType|null $value The property value
+     * @param ProductType|string|null|array<string> $value The property value
      * @return static self reference
      */
     public function type(mixed $value): ProductQuery

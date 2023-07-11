@@ -47,8 +47,6 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
-use craft\elements\Address;
-use craft\elements\Address as AddressElement;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -2873,7 +2871,7 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
             $this->_shippingAddress = $address;
         }
@@ -2932,7 +2930,7 @@ class Order extends Element
     public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
             $this->_estimatedShippingAddress = $address;
         }
@@ -2967,7 +2965,7 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
             $this->_billingAddress = $address;
         }
@@ -3090,7 +3088,7 @@ class Order extends Element
     public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
             $this->_estimatedBillingAddress = $address;
         }

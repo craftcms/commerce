@@ -41,7 +41,7 @@ class ProductTypeConditionRule extends BaseMultiSelectConditionRule implements E
     protected function options(): array
     {
         return collect(Plugin::getInstance()->getProductTypes()->getAllProductTypes())
-            ->map(fn(ProductType $productType) => ['value' => $productType->uid , 'label' => $productType->name])
+            ->map(fn(ProductType $productType) => ['value' => $productType->uid, 'label' => $productType->name])
             ->all();
     }
 
@@ -58,13 +58,15 @@ class ProductTypeConditionRule extends BaseMultiSelectConditionRule implements E
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
-        /** @var ProductQuery $query */
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
-        /** @var ProductQuery $query */
-        $query->type($this->paramValue(function(string $value) use ($productTypes) {
+        /** @var string[] $value */
+        $value = $this->paramValue(function(string $value) use ($productTypes) {
             return ArrayHelper::firstWhere($productTypes, 'uid', $value)?->handle;
-        }));
+        });
+
+        /** @var ProductQuery $query */
+        $query->type($value);
     }
 
     /**
