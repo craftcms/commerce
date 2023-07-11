@@ -239,6 +239,7 @@ class ExampleTemplatesController extends Controller
             '[[classes.text.color]]' => "text-$mainColor-500",
             '[[classes.text.dangerColor]]' => "text-$dangerColor-500",
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
+            '[[classes.docs]]' => "text-gray-400 hover:text-gray-600 hover:underline",
             '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
             '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
             '[[classes.box.selection]]' => "border-$mainColor-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg",
