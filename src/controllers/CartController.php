@@ -229,12 +229,9 @@ class CartController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $this->_cart->registerUserOnOrderComplete = true;
-        }
-
-        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $this->_cart->registerUserOnOrderComplete = false;
+        $registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete');
+        if ($registerUserOnOrderComplete !== null) {
+            $this->_cart->registerUserOnOrderComplete = (bool)$registerUserOnOrderComplete;
         }
 
         $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
