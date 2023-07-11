@@ -49,6 +49,7 @@ use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\Address as AddressElement;
+use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -2897,6 +2898,7 @@ class Order extends Element
             unset($address['id']);
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->ownerId = $this->id;
             $address = $addressElement;
         }
@@ -2990,6 +2992,7 @@ class Order extends Element
             unset($address['id']); // only ever allow setting of the address data
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->ownerId = $this->id;
             $address = $addressElement;
         }
@@ -3547,6 +3550,27 @@ class Order extends Element
         if ($this->isCompleted && $hasNewStatus) {
             if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
                 Craft::error('Error saving order history after order save.', __METHOD__);
+            }
+        }
+    }
+
+    /**
+     * Sets the first and last name attributes on the address model if no full name is set.
+     *
+     * @param AddressElement $addressElement
+     * @param array $address
+     * @return void
+     */
+    private function _populateAddressNameAttributes(AddressElement $addressElement, array $address): void
+    {
+        if (!isset($address['fullName']) || !$address['fullName']) {
+            $firstName = $address['firstName'] ?? null;
+            $lastName = $address['lastName'] ?? null;
+
+            if ($firstName !== null || $lastName !== null) {
+                $addressElement->fullName = null;
+                $addressElement->firstName = $firstName ?? $addressElement->firstName;
+                $addressElement->lastName = $lastName ?? $addressElement->lastName;
             }
         }
     }
