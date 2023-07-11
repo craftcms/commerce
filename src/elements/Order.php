@@ -3169,9 +3169,8 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency(
-        string $value,
-    ): void {
+    public function setPaymentCurrency(string $value): void
+    {
         $this->_paymentCurrency = $value;
     }
 
