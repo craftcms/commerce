@@ -72,7 +72,7 @@
 
         {% if saveAddressCheckboxesShown %}
           <div class="js-save-address {{ cart.getCustomer() and cart.getCustomer().getIsCredentialed() ? '' : 'hidden' }}">
-            {{ _self.docs('Saving addresses on order complete.', 'https://docs.craftcms.com/commerce/api/v4/craft-commerce-elements-order.html#registeruseronordercomplete') }}
+            {{ _self.docs('Saving addresses on order complete.', '#') }}
           </div>
         {% endif %}
 
@@ -96,19 +96,22 @@
   </div>
 
   {% js %}
-    const registerCheckbox = document.querySelector('#registerUserOnOrderComplete');
-    registerCheckbox.addEventListener('change', () => {
-        // if the register checkbox is checked make sure the save address checkboxes are visible
-        const saveAddressBoxes = document.querySelectorAll('.js-save-address');
-        if (registerCheckbox.checked) {
-            saveAddressBoxes.forEach((box) => {
-                box.classList.remove('hidden');
-            });
-        } else {
-            saveAddressBoxes.forEach((box) => {
-                box.classList.add('hidden');
-            });
-        }
-    });
+    const $registerCheckbox = document.querySelector('#registerUserOnOrderComplete');
+
+    if ($registerCheckbox) {
+      $registerCheckbox.addEventListener('change', () => {
+          // if the register checkbox is checked make sure the save address checkboxes are visible
+          const saveAddressBoxes = document.querySelectorAll('.js-save-address');
+          if ($registerCheckbox.checked) {
+              saveAddressBoxes.forEach((box) => {
+                  box.classList.remove('hidden');
+              });
+          } else {
+              saveAddressBoxes.forEach((box) => {
+                  box.classList.add('hidden');
+              });
+          }
+      });
+    }
   {% endjs %}
 {% endblock %}
