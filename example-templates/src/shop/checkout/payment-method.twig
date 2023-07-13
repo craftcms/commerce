@@ -20,16 +20,7 @@
           <form method="post" action="" class="relative border-b-1 mb-4">
             {{ csrfInput() }}
             {{ actionInput('commerce/cart/update-cart') }}
-
-            {#
-            We can skip the "options" step if the customer is a logged in user and
-            the addresses have come from the address book
-            #}
-            {% if currentUser and cart.sourceBillingAddressId and cart.sourceShippingAddressId %}
-              {{ redirectInput(siteUrl('[[folderName]]/checkout/payment')) }}
-            {% else %}
-              {{ redirectInput(siteUrl('[[folderName]]/checkout/options')) }}
-            {% endif %}
+            {{ redirectInput(siteUrl('[[folderName]]/checkout/options')) }}
             {{ successMessageInput('Payment options selected.') }}
 
             <div class="mt-3">

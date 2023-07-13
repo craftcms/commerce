@@ -2,16 +2,27 @@
 
 {# @var cart \craft\commerce\elements\Order #}
 
-{% block main %}
+{% if cart is not defined %}
+    {% set cart = craft.commerce.carts.cart %}
+{% endif %}
 
-  {% if not cart.getCustomer() %}
+{#
+    We can skip the "options" step if the customer is a logged in user and
+    the addresses have come from the address book
+#}
+{% if currentUser and cart.sourceBillingAddressId and cart.sourceShippingAddressId %}
+    {% redirect 'shop/checkout/payment' %}
+{% endif %}
+
+{% if not cart.getCustomer() %}
     {% redirect 'shop/checkout/email' %}
-  {% endif %}
+{% endif %}
 
-  {% if not cart.gateway %}
+{% if not cart.gateway %}
     {% redirect 'shop/checkout/payment-method' %}
-  {% endif %}
+{% endif %}
 
+{% block main %}
   <div class="md:flex md:-mx-8" >
     <div class="md:w-2/3 md:px-8">
 
@@ -36,15 +47,15 @@
               {{ 'Create my account after ordering'|t }}
             </label>
             <div>
-              {{ _self.docs('Registering a user on order complete.', 'https://docs.craftcms.com/commerce/api/v4/craft-commerce-elements-order.html#registeruseronordercomplete') }}
+              {{ _self.docs('Registering a user on order complete.', 'https://craftcms.com/docs/commerce/4.x/customers.html#registration-at-checkout') }}
             </div>
           </div>
         {% endif %}
 
         {% set saveAddressCheckboxesShown = false %}
-        {% if cart.billingAddressId and not cart.sourceBillingAddressId %}
+        {% if currentUser and cart.billingAddressId and not cart.sourceBillingAddressId %}
           {% set saveAddressCheckboxesShown = true %}
-          <div class="mt-3 js-save-address {{ cart.getCustomer() and cart.getCustomer().getIsCredentialed() ? '' : 'hidden' }}">
+          <div class="mt-3">
             <label for="saveBillingAddressOnOrderComplete">
               {{ hiddenInput('saveBillingAddressOnOrderComplete', false) }}
               {{ input('checkbox', 'saveBillingAddressOnOrderComplete', 1, {
@@ -56,8 +67,8 @@
           </div>
         {% endif %}
 
-        {% if cart.shippingAddressId and not cart.sourceShippingAddressId %}
-          <div class="mt-3 js-save-address {{ cart.getCustomer() and cart.getCustomer().getIsCredentialed() ? '' : 'hidden' }}">
+        {% if currentUser and cart.shippingAddressId and not cart.sourceShippingAddressId %}
+          <div class="mt-3">
             {% set saveAddressCheckboxesShown = true %}
             <label for="saveShippingAddressOnOrderComplete">
               {{ hiddenInput('saveShippingAddressOnOrderComplete', false) }}
@@ -71,7 +82,7 @@
         {% endif %}
 
         {% if saveAddressCheckboxesShown %}
-          <div class="js-save-address {{ cart.getCustomer() and cart.getCustomer().getIsCredentialed() ? '' : 'hidden' }}">
+          <div>
             {{ _self.docs('Saving addresses on order complete.', '#') }}
           </div>
         {% endif %}
@@ -94,24 +105,4 @@
       }) }}
     </div>
   </div>
-
-  {% js %}
-    const $registerCheckbox = document.querySelector('#registerUserOnOrderComplete');
-
-    if ($registerCheckbox) {
-      $registerCheckbox.addEventListener('change', () => {
-          // if the register checkbox is checked make sure the save address checkboxes are visible
-          const saveAddressBoxes = document.querySelectorAll('.js-save-address');
-          if ($registerCheckbox.checked) {
-              saveAddressBoxes.forEach((box) => {
-                  box.classList.remove('hidden');
-              });
-          } else {
-              saveAddressBoxes.forEach((box) => {
-                  box.classList.add('hidden');
-              });
-          }
-      });
-    }
-  {% endjs %}
 {% endblock %}
