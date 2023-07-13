@@ -11,12 +11,12 @@ use craft\db\Query;
 use yii\base\Event;
 
 /**
- * ModifyPurchasablesQueryEvent class.
+ * ModifyPurchasablesTableQueryEvent class.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.3.0
  */
-class ModifyPurchasablesQueryEvent extends Event
+class ModifyPurchasablesTableQueryEvent extends Event
 {
     /**
      * @var Query

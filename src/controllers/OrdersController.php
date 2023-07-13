@@ -18,7 +18,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
-use craft\commerce\events\ModifyPurchasablesQueryEvent;
+use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
@@ -85,14 +85,14 @@ class OrdersController extends Controller
      *
      * Event::on(
      *     OrdersController::class,
-     *     OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY,
+     *     OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY,
      *     function(ModifyCartInfoEvent $e) {
      *         $e->query->andWhere(['sku' => 'foo']);
      *     }
      * );
      * ```
      */
-    public const EVENT_MODIFY_PURCHASABLES_QUERY = 'modifyPurchasablesQuery';
+    public const EVENT_MODIFY_PURCHASABLES_TABLE_QUERY = 'modifyPurchasablesTableQuery';
 
     /**
      * @throws HttpException
@@ -565,12 +565,12 @@ class OrdersController extends Controller
         }
 
         // Trigger event before working out the total and limiting the results for pagination
-        if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_QUERY)) {
-            $event = new ModifyPurchasablesQueryEvent([
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY)) {
+            $event = new ModifyPurchasablesTableQueryEvent([
                 'query' => $sqlQuery,
                 'search' => $search,
             ]);
-            $this->trigger(self::EVENT_MODIFY_PURCHASABLES_QUERY, $event);
+            $this->trigger(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, $event);
             $sqlQuery = $event->query;
         }
 
