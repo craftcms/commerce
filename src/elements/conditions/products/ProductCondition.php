@@ -19,6 +19,8 @@ class ProductCondition extends ElementCondition
     {
         return array_merge(parent::conditionRuleTypes(), [
             ProductTypeConditionRule::class,
+            ProductVariantSkuConditionRule::class,
+            ProductVariantStockConditionRule::class,
         ]);
     }
 }

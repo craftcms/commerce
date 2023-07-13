@@ -1121,6 +1121,8 @@ return [
     'Value of products with applied discounts.' => 'Value of products with applied discounts.',
     'Variant Fields' => 'Variant Fields',
     'Variant Title Format' => 'Variant Title Format',
+    'Variant SKU' => 'Variant SKU',
+    'Variant Stock' => 'Variant Stock',
     'Variants' => 'Variants',
     'View address' => 'View address',
     'View customer' => 'View customer',
