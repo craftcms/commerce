@@ -47,7 +47,6 @@ use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
-use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -2872,7 +2871,7 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
             $this->_shippingAddress = $address;
         }
@@ -2897,6 +2896,7 @@ class Order extends Element
             unset($address['id']);
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->ownerId = $this->id;
             $address = $addressElement;
         }
@@ -2930,7 +2930,7 @@ class Order extends Element
     public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
             $this->_estimatedShippingAddress = $address;
         }
@@ -2965,7 +2965,7 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
             $this->_billingAddress = $address;
         }
@@ -2990,6 +2990,7 @@ class Order extends Element
             unset($address['id']); // only ever allow setting of the address data
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
+            $this->_populateAddressNameAttributes($addressElement, $address);
             $addressElement->ownerId = $this->id;
             $address = $addressElement;
         }
@@ -3087,7 +3088,7 @@ class Order extends Element
     public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            /** @var Address|null $address */
+            /** @var AddressElement|null $address */
             $address = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
             $this->_estimatedBillingAddress = $address;
         }
@@ -3166,9 +3167,8 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency(
-        string $value,
-    ): void {
+    public function setPaymentCurrency(string $value): void
+    {
         $this->_paymentCurrency = $value;
     }
 
@@ -3547,6 +3547,27 @@ class Order extends Element
         if ($this->isCompleted && $hasNewStatus) {
             if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
                 Craft::error('Error saving order history after order save.', __METHOD__);
+            }
+        }
+    }
+
+    /**
+     * Sets the first and last name attributes on the address model if no full name is set.
+     *
+     * @param AddressElement $addressElement
+     * @param array $address
+     * @return void
+     */
+    private function _populateAddressNameAttributes(AddressElement $addressElement, array $address): void
+    {
+        if (!isset($address['fullName']) || !$address['fullName']) {
+            $firstName = $address['firstName'] ?? null;
+            $lastName = $address['lastName'] ?? null;
+
+            if ($firstName !== null || $lastName !== null) {
+                $addressElement->fullName = null;
+                $addressElement->firstName = $firstName ?? $addressElement->firstName;
+                $addressElement->lastName = $lastName ?? $addressElement->lastName;
             }
         }
     }

@@ -6,6 +6,7 @@
 
 ## Unreleased
 
+- Added the “Product Type” product condition rule. ([#3209](https://github.com/craftcms/commerce/issues/3209))
 - Fixed a bug where `hasMatchingAddresses()` was incorrectly returning `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Fixed a bug where related sales were showing when creating a new product.
@@ -15,6 +16,7 @@
 - Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
+- The `commerce/cart/update` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
 
 ## 4.2.11 - 2023-06-05
 
