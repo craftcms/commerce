@@ -2,6 +2,7 @@
 
 ## 4.3.0 - Unreleased
 
+- Guest customers registering during checkout now have their addresses saved to their account.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
 ## Unreleased
@@ -14,6 +15,7 @@
 - Fixed a bug where address changes weren’t being synced to carts using them as a source. ([#3178](https://github.com/craftcms/commerce/issues/3178))
 - Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
 
 ## 4.2.11 - 2023-06-05
 
