@@ -75,6 +75,6 @@ class ProductTypeConditionRule extends BaseMultiSelectConditionRule implements E
     public function matchElement(ElementInterface $element): bool
     {
         /** @var Product $element */
-        return $this->matchValue((string)$element->getType());
+        return $this->matchValue($element->getType()->uid);
     }
 }
