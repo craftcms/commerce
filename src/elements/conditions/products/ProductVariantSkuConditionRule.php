@@ -15,7 +15,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
-use yii\base\InvalidConfigException;
 
 /**
  * Product Variant SKU Condition Rule
@@ -55,11 +54,10 @@ class ProductVariantSkuConditionRule extends BaseTextConditionRule implements El
     }
 
     /**
-     * @throws InvalidConfigException
+     * @param Product $element
      */
     public function matchElement(ElementInterface $element): bool
     {
-        /** @var Product $element */
         foreach ($element->getVariants() as $variant) {
             if ($this->matchValue($variant->sku)) {
                 // Skip out early if we have a match

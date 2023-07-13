@@ -9,14 +9,12 @@ namespace  craft\commerce\elements\conditions\products;
 
 use Craft;
 use craft\base\conditions\BaseNumberConditionRule;
-use craft\base\conditions\BaseTextConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
-use yii\base\InvalidConfigException;
 
 /**
  * Product Variant Stock Condition Rule
@@ -57,11 +55,10 @@ class ProductVariantStockConditionRule extends BaseNumberConditionRule implement
     }
 
     /**
-     * @throws InvalidConfigException
+     * @param Product $element
      */
     public function matchElement(ElementInterface $element): bool
     {
-        /** @var Product $element */
         foreach ($element->getVariants() as $variant) {
             if ($variant->hasUnlimitedStock === false && $this->matchValue($variant->stock)) {
                 // Skip out early if we have a match
