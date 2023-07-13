@@ -14,13 +14,18 @@
   </h1>
 
 {% for gateway in gateways %}
+  <div>
+    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
+      <a class="my-2 [[classes.a]]" href="{{ gateway.billingPortalUrl(currentUser) }}">Manage cards on Stripe Billing portal &rarr;</a>
+    {% endif %}
+  </div>
     <div class="mt-3 flex flex-wrap -mx-2">
       {% set gatewayPaymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id, gateway.id) %}
       {% for paymentSource in gatewayPaymentSources %}
             <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
               <div class="card [[classes.box.base]]">
                 <div class="my-3">
-                  <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}({{ 'Primary'|t }}){% endif %}</strong>
+                  <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}<span class="[[classes.text.dangerColor]]">{{ 'Primary'|t }}</span>{% endif %}</strong>
                   {% if paymentSource.gateway %}
                     <div class="text-sm text-grey-dark">{{ paymentSource.gateway.name }} ({{ paymentSource.token }})</div>
                   {% endif %}
@@ -106,30 +111,33 @@
             {{ hiddenInput('cancelUrl', '/[[folderName]]/customer/cards'|hash) }}
             {{ redirectInput('/[[folderName]]/customer/cards') }}
 
-            <div class="gateway-payment-form max-w-3/4">
-              {{ gateway.getPaymentFormHtml({})|raw }}
-            </div>
+            {% set params = {} %}
 
-
-
-            {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-            <style>
-            .gateway-payment-form input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
-            .gateway-payment-form input:hover { border: 1px solid rgba(107,114,128); }
-            {# Column containers #}
-            .gateway-payment-form .grid,
-            .gateway-payment-form .card-data div div:nth-child(2) { display: flex; margin-right: -0.75rem; margin-left: -0.75rem; }
-            {# Columns #}
-            .gateway-payment-form .grid .item,
-            .gateway-payment-form input.card-expiry,
-            .gateway-payment-form input.card-cvc { width: 50%; margin-right: 0.75rem; margin-left: 0.75rem; }
-            </style>
+            {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
+              {% set params = {
+                paymentFormType: 'elements',
+                appearance: {
+                  theme: 'stripe'
+                },
+                elementOptions: {
+                  layout: {
+                    type: 'accordion',
+                    defaultCollapsed: false,
+                    radios: false,
+                    spacedAccordionItems: false
+                  }
+                },
+                submitButtonClasses: '[[classes.btn.base]] [[classes.btn.mainColor]] my-2',
+                submitButtonText: 'Create',
+                errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
+              } %}
+            {% endif %}
 
             <div>
               {{ input('text', 'description', '', {
                 maxlength: 70,
                 autocomplete: 'off',
-                placeholder: 'Card description'|t,
+                placeholder: 'Payment source description'|t,
                 class: ['w-full', '[[classes.input]]']
               }) }}
             </div>
@@ -140,13 +148,21 @@
               </label>
             </div>
 
-            <div class="mt-4 text-right">
-              {{ tag('button', {
-                type: 'submit',
-                class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
-                text: 'Add card'|t
-              }) }}
+            <div class="gateway-payment-form max-w-3/4">
+              {% namespace gateway.handle|commercePaymentFormNamespace %}
+                {{ gateway.getPaymentFormHtml(params)|raw }}
+              {% endnamespace %}
             </div>
+
+            {% if gateway.showPaymentFormSubmitButton() %}
+              <div class="mt-4 text-right">
+                {{ tag('button', {
+                  type: 'submit',
+                  class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                  text: 'Add card'|t
+                }) }}
+              </div>
+            {% endif %}
           </form>
         </div>
         {% endif %}

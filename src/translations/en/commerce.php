@@ -39,6 +39,7 @@ return [
     'Address Line 2' => 'Address Line 2',
     'Address Updated.' => 'Address Updated.',
     'Address not found.' => 'Address not found.',
+    'Address' => 'Address',
     'Adjust price when included rate is disqualified?' => 'Adjust price when included rate is disqualified?',
     'Adjustments' => 'Adjustments',
     'All Orders' => 'All Orders',

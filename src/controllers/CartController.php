@@ -278,6 +278,20 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @since 4.3
+     */
+    public function actionForgetCart(): ?Response
+    {
+        $this->requirePostRequest();
+        Plugin::getInstance()->getCarts()->forgetCart();
+        $this->setSuccessFlash(Craft::t('commerce', 'Cart forgotten.'));
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws MissingComponentException

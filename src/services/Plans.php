@@ -128,7 +128,7 @@ class Plans extends Component
      * Return all subscription plans for a gateway.
      *
      * @return Plan[]
-     * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
+     * @deprecated in 4.0. Use [[getPlansByGatewayId]] instead.
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {

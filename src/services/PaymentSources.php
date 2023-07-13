@@ -266,7 +266,7 @@ class PaymentSources extends Component
      * @throws InvalidConfigException
      * @throws PaymentSourceException If unable to create the payment source
      */
-    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
+    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
     {
         try {
             $source = $gateway->createPaymentSource($paymentForm, $customerId);
@@ -282,6 +282,10 @@ class PaymentSources extends Component
 
         if (!$this->savePaymentSource($source)) {
             throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
+        }
+
+        if ($makePrimarySource) {
+            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
         }
 
         return $source;

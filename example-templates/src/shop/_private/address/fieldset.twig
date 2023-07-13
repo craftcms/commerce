@@ -9,6 +9,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
 @var title       string
 @var currentUser \craft\elements\User
 #}
+{% set sourceAttribute = 'source' ~ (name|slice(0, 1)|capitalize) ~ (name|slice(1) ~ 'Id') %}
 <div class="js-address-fieldset {{ classes }}">
   <h2 class="text-lg font-bold mb-4">
     {{- title -}}
@@ -19,22 +20,24 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
     selectable: true,
     primaryBillingAddressId: cart and cart.customer ? cart.customer.primaryBillingAddressId : null,
     primaryShippingAddressId: cart and cart.customer ? cart.customer.primaryShippingAddressId : null,
+    showAdd: true,
   }) }}
 
-  <div class="js-address-select">
+  <div class="js-address-select" data-model-name="{{ name }}">
     {% if attribute(cart, name ~ 'Id') %}
       {% set addressHasErrors = attribute(cart, name) and attribute(cart, name).hasErrors() %}
     {% else %}
       {% set addressHasErrors = false %}
     {% endif %}
 
-    {% if currentUser %}
+    {# Show the custom toggle if there is a custom address on the order #}
+    {% if currentUser and cart and attribute(cart, name ~ 'Id') and not attribute(cart, sourceAttribute) %}
       <div class="js-radio">
         <label>
           {{ input('radio', name ~ 'Id', '', {
-            checked: not addresses|length or addressHasErrors
+            checked: true
           }) }}
-          {{ 'New {title}'|t({ title: title }) }}
+          {{ 'Custom {title}'|t({ title: title }) }}
         </label>
       </div>
     {% endif %}

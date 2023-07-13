@@ -589,6 +589,7 @@ inner join $customersTable [[cu]] on
 set [[du.customerId]] = [[cu.customerId]]
 SQL;
         }
+        Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
     /**
