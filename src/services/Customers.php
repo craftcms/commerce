@@ -354,7 +354,6 @@ class Customers extends Component
             }
         }
 
-        // @TODO Update the order record manually?
         if ($newSourceBillingAddressId) {
             $order->sourceBillingAddressId = $newSourceBillingAddressId;
         }
@@ -363,6 +362,7 @@ class Customers extends Component
             $order->sourceShippingAddressId = $newSourceShippingAddressId;
         }
 
+        // Manually update the order DB record to avoid looped element saves
         if ($newSourceBillingAddressId || $newSourceShippingAddressId) {
             \craft\commerce\records\Order::updateAll([
                     'sourceBillingAddressId' => $order->sourceBillingAddressId,
