@@ -249,6 +249,12 @@ class Discounts extends Component
      */
     public function getAllActiveDiscounts(Order $order = null): array
     {
+        if ($order && $order->getIsEmpty()) {
+            return [];
+        }
+
+        $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
+
         // Date condition for use with key
         if ($order && $order->dateOrdered) {
             $date = $order->dateOrdered;
@@ -261,7 +267,7 @@ class Discounts extends Component
         // Coupon condition key
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
-        $cacheKey = implode(':', [$dateKey, $couponKey]);
+        $cacheKey = implode(':', [$dateKey, $couponKey, md5(serialize($purchasableIds))]);
 
         if (isset($this->_activeDiscountsByKey[$cacheKey])) {
             return $this->_activeDiscountsByKey[$cacheKey];
@@ -284,11 +290,12 @@ class Discounts extends Component
                 ['>=', 'dateTo', Db::prepareDateForDb($date)],
             ]);
 
+        $couponSubQuery = (new Query())
+            ->from(Table::COUPONS)
+            ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
         if ($order && $order->couponCode) {
-            $couponSubQuery = (new Query())
-                ->from(Table::COUPONS)
-                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
 
             if (Craft::$app->getDb()->getIsPgsql()) {
                 $codeWhere = ['ilike', 'code', $order->couponCode];
@@ -296,22 +303,51 @@ class Discounts extends Component
                 $codeWhere = ['code' => $order->couponCode];
             }
 
-            $discountQuery->andWhere([
-                'or',
-                // Find discount where the coupon code matches
+            $discountQuery->andWhere(
                 [
-                    'exists', (clone $couponSubQuery)
-                    ->andWhere($codeWhere)
-                    ->andWhere([
-                            'or',
-                            ['maxUses' => null],
-                            new Expression('[[uses]] < [[maxUses]]'),
+                    'or',
+                    // Find discount where the coupon code matches
+                    [
+                        'exists', (clone $couponSubQuery)
+                        ->andWhere($codeWhere)
+                        ->andWhere([
+                                'or',
+                                ['maxUses' => null],
+                                new Expression('[[uses]] < [[maxUses]]'),
+                            ]
+                        ),
+                    ],
+                    // OR find discounts that do not have a coupon code requirement
+                    ['not exists', $couponSubQuery],
+                ]
+            );
+        } elseif ($order && !$order->couponCode) {
+            $discountQuery->andWhere(
+            // only discounts that do not have a coupon code requirement
+                ['not exists', $couponSubQuery]
+            );
+        }
+
+        if ($order) {
+            $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
+            if ($purchasableIds) {
+                $matchPurchasableSubQuery = (new Query())
+                    ->from(['dp' => Table::DISCOUNT_PURCHASABLES])
+                    ->where(new Expression('[[dp.discountId]] = [[discounts.id]]'))
+                    ->andWhere(['dp.purchasableId' => $purchasableIds]);
+
+                $discountQuery->andWhere(
+                    [
+                        'or',
+                        ['allPurchasables' => true],
+                        [
+                            'exists', $matchPurchasableSubQuery
                         ]
-                    ),
-                ],
-                // OR find discounts that do not have a coupon code requirement
-                ['not exists', $couponSubQuery],
-            ]);
+                    ]
+                );
+            } else {
+                $discountQuery->andWhere(['allPurchasables' => true]);
+            }
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
