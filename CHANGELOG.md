@@ -2,6 +2,9 @@
 
 ## 4.3.0 - Unreleased
 
+- It’s now possible to modify the purchasables shown in the add line item table on the Edit Order page. ([#3194](https://github.com/craftcms/commerce/issues/3194))
+- Added `craft\commerce\events\ModifyPurchasablesQueryEvent`.
+- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY`.
 - Guest customers registering during checkout now have their addresses saved to their account.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
