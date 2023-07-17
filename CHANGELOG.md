@@ -5,6 +5,7 @@
 - Guest customers registering during checkout now have their addresses saved to their account.
 - Product conditions can now have a “Variant SKU” rule.
 - Product conditions can now have a “Variant Has Unlimited Stock” rule.
+- Product conditions can now have a “Variant Price” rule.
 - Product conditions can now have a “Variant Stock” rule.
 
 ## Unreleased
