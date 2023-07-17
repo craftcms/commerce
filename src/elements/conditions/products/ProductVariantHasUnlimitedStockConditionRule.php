@@ -18,7 +18,7 @@ use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 
 /**
- * Product Variant Stock Condition Rule
+ * Product Variant Has Unlimited Stock Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.3.0
