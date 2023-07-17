@@ -406,4 +406,79 @@ class CartTest extends Unit
             ],
         ];
     }
+
+    /**
+     * @param bool|null $saveBillingAddress
+     * @param bool|null $saveShippingAddress
+     * @param bool|null $saveBoth
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidPluginException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @since 4.3.0
+     * @dataProvider setSaveAddressesDataProvider
+     */
+    public function testSetSaveAddresses(?bool $saveBillingAddress, ?bool $saveShippingAddress, ?bool $saveBoth): void
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $bodyParams = [];
+        if ($saveBoth) {
+            $bodyParams['saveAddressesOnOrderComplete'] = true;
+        } else {
+            $bodyParams['saveBillingAddressOnOrderComplete'] = $saveBillingAddress;
+            $bodyParams['saveShippingAddressOnOrderComplete'] = $saveShippingAddress;
+        }
+
+        $this->request->setBodyParams($bodyParams);
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        if ($saveBoth) {
+            self::assertTrue($cart->saveBillingAddressOnOrderComplete);
+            self::assertTrue($cart->saveShippingAddressOnOrderComplete);
+        } else {
+            self::assertEquals($saveBillingAddress, $cart->saveBillingAddressOnOrderComplete);
+            self::assertEquals($saveShippingAddress, $cart->saveShippingAddressOnOrderComplete);
+        }
+
+        Plugin::getInstance()->getCarts()->forgetCart();
+
+        Craft::$app->getElements()->deleteElement($cart, true);
+    }
+
+    /**
+     * @return array[]
+     * @since 4.3.0
+     */
+    public function setSaveAddressesDataProvider(): array
+    {
+        return [
+            'save-billing' => [
+                true, // save billing
+                false, // save shipping
+                false, // save both
+            ],
+            'save-shipping' => [
+                false, // save billing
+                true, // save shipping
+                false, // save both
+            ],
+            'save-both' => [
+                false, // save billing
+                false, // save shipping
+                true, // save both
+            ],
+            'save-both-individually' => [
+                true, // save billing
+                true, // save shipping
+                false, // save both
+            ],
+        ];
+    }
 }

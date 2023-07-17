@@ -1485,6 +1485,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated',
             'commerce_orders.registerUserOnOrderComplete',
+            'commerce_orders.saveBillingAddressOnOrderComplete',
+            'commerce_orders.saveShippingAddressOnOrderComplete',
             'commerce_orders.recalculationMode',
             'commerce_orders.origin',
             'commerce_orders.dateAuthorized',

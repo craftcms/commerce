@@ -859,6 +859,36 @@ class Order extends Element
     public bool $registerUserOnOrderComplete = false;
 
     /**
+     * Whether the billing address on the order should be saved to the customer's
+     * address book when the order is complete.
+     *
+     * @var bool Save the order's billing address to the customer's address book
+     * ---
+     * ```php
+     * echo $order->saveBillingAddressOnOrderComplete;
+     * ```
+     * ```twig
+     * {{ order.saveBillingAddressOnOrderComplete }}
+     * ```
+     */
+    public bool $saveBillingAddressOnOrderComplete = false;
+
+    /**
+     * Whether the shipping address on the order should be saved to the customer's
+     * address book when the order is complete.
+     *
+     * @var bool Save the order's shipping address to the customer's address book
+     * ---
+     * ```php
+     * echo $order->saveShippingAddressOnOrderComplete;
+     * ```
+     * ```twig
+     * {{ order.saveShippingAddressOnOrderComplete }}
+     * ```
+     */
+    public bool $saveShippingAddressOnOrderComplete = false;
+
+    /**
      * The current payment source that should be used to make payments on the
      * order. If this is set, the `gatewayId` will also be set to the related
      * gateway.
@@ -1483,7 +1513,7 @@ class Order extends Element
             [['paymentSourceId'], 'validatePaymentSourceId'],
             [['email'], 'email'],
 
-            [['number', 'user', 'orderCompletedEmail'], 'safe'],
+            [['number', 'user', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
         ]);
     }
 
@@ -2080,6 +2110,8 @@ class Order extends Element
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->getCustomerId();
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
+        $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
+        $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
