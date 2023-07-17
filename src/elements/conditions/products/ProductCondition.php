@@ -22,6 +22,7 @@ class ProductCondition extends ElementCondition
             ProductVariantSkuConditionRule::class,
             ProductVariantStockConditionRule::class,
             ProductVariantHasUnlimitedStockConditionRule::class,
+            ProductVariantPriceConditionRule::class,
         ]);
     }
 }
