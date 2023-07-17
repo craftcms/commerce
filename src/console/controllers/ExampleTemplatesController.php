@@ -60,11 +60,6 @@ class ExampleTemplatesController extends Controller
     private array $_replacementData = [];
 
     /**
-     * @var string[]
-     */
-    private array $_colors = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
-
-    /**
      * @inheritdoc
      */
     public function options($actionID): array
