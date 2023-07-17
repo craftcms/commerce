@@ -380,75 +380,72 @@ class Customers extends Component
      */
     private function _activateUserFromOrder(Order $order): void
     {
-        if (!$order->email) {
+        $user = $order->getCustomer();
+        if (!$user || $user->getIsCredentialed()) {
             return;
         }
 
-        $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
+        $billingAddress = $order->getBillingAddress();
+        $shippingAddress = $order->getShippingAddress();
 
-        if (!$user->getIsCredentialed()) {
-            $billingAddress = $order->getBillingAddress();
-            $shippingAddress = $order->getShippingAddress();
+        if (!$user->fullName) {
+            $user->fullName = $billingAddress?->fullName ?? $shippingAddress?->fullName ?? '';
+        }
 
-            if (!$user->fullName) {
-                $user->fullName = $billingAddress?->fullName ?? $shippingAddress?->fullName ?? '';
+        $user->username = $order->getEmail();
+        $user->pending = true;
+        $user->setScenario(Element::SCENARIO_ESSENTIALS);
+
+        if (Craft::$app->getElements()->saveElement($user)) {
+            Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+            $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+            if (!$emailSent) {
+                Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn’t send an activation email. Check your email settings.', __METHOD__);
             }
 
-            $user->username = $order->email;
-            $user->pending = true;
-            $user->setScenario(Element::SCENARIO_ESSENTIALS);
+            if ($billingAddress || $shippingAddress) {
+                $newAttributes = ['ownerId' => $user->id];
 
-            if (Craft::$app->getElements()->saveElement($user)) {
-                Craft::$app->getUsers()->assignUserToDefaultGroup($user);
-                $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
-
-                if (!$emailSent) {
-                    Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn’t send an activation email. Check your email settings.', __METHOD__);
+                // If there is only one address make sure we don't add duplicates to the user
+                if ($order->hasMatchingAddresses()) {
+                    $newAttributes['title'] = Craft::t('commerce', 'Address');
+                    $shippingAddress = null;
                 }
 
-                if ($billingAddress || $shippingAddress) {
-                    $newAttributes = ['ownerId' => $user->id];
+                // Copy addresses to user
+                if ($billingAddress) {
+                    $newBillingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, $newAttributes);
 
-                    // If there is only one address make sure we don't add duplicates to the user
-                    if ($order->hasMatchingAddresses()) {
-                        $newAttributes['title'] = Craft::t('commerce', 'Address');
-                        $shippingAddress = null;
-                    }
+                    /**
+                     * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
+                     * therefore we are unable to simply set the `isPrimaryBilling` property when specifying the new attributes during duplication.
+                     */
+                    if (!$newBillingAddress->hasErrors()) {
+                        $this->savePrimaryBillingAddressId($user, $newBillingAddress->id);
 
-                    // Copy addresses to user
-                    if ($billingAddress) {
-                        $newBillingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, $newAttributes);
-
-                        /**
-                         * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
-                         * therefore we are unable to simply set the `isPrimaryBilling` property when specifying the new attributes during duplication.
-                         */
-                        if (!$newBillingAddress->hasErrors()) {
-                            $this->savePrimaryBillingAddressId($user, $newBillingAddress->id);
-
-                            if ($order->hasMatchingAddresses()) {
-                                $this->savePrimaryShippingAddressId($user, $newBillingAddress->id);
-                            }
-                        }
-                    }
-
-                    if ($shippingAddress) {
-                        $newShippingAddress = Craft::$app->getElements()->duplicateElement($shippingAddress, $newAttributes);
-
-                        /**
-                         * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
-                         * therefore we are unable to simply set the `isPrimaryShipping` property when specifying the new attributes during duplication.
-                         */
-                        if (!$newShippingAddress->hasErrors()) {
-                            $this->savePrimaryShippingAddressId($user, $newShippingAddress->id);
+                        if ($order->hasMatchingAddresses()) {
+                            $this->savePrimaryShippingAddressId($user, $newBillingAddress->id);
                         }
                     }
                 }
-            } else {
-                $errors = $user->getErrors();
-                Craft::warning('Could not create user on order completion.', __METHOD__);
-                Craft::warning($errors, __METHOD__);
+
+                if ($shippingAddress) {
+                    $newShippingAddress = Craft::$app->getElements()->duplicateElement($shippingAddress, $newAttributes);
+
+                    /**
+                     * Because we are cloning from an order address the `CustomerAddressBehavior` hasn't been instantiated
+                     * therefore we are unable to simply set the `isPrimaryShipping` property when specifying the new attributes during duplication.
+                     */
+                    if (!$newShippingAddress->hasErrors()) {
+                        $this->savePrimaryShippingAddressId($user, $newShippingAddress->id);
+                    }
+                }
             }
+        } else {
+            $errors = $user->getErrors();
+            Craft::warning('Could not create user on order completion.', __METHOD__);
+            Craft::warning($errors, __METHOD__);
         }
     }
 }

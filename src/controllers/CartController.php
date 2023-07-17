@@ -221,7 +221,8 @@ class CartController extends BaseFrontEndController
             $email = $this->request->getParam('email');
             if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
                 try {
-                    $this->_cart->setEmail($email);
+                    $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+                    $this->_cart->setCustomer($user);
                 } catch (\Exception $e) {
                     $this->_cart->addError('email', $e->getMessage());
                 }

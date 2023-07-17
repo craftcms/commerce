@@ -3,6 +3,7 @@
 ## 4.3.0 - Unreleased
 
 - Guest customers registering during checkout now have their addresses saved to their account.
+- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
 ## Unreleased
 

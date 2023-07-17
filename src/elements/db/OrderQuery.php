@@ -1412,6 +1412,14 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
+        // @TODO remove at next breaking change
+        // Remove `email` key from each row.
+        array_walk($rows, function(&$row) {
+            if (array_key_exists('email', $row)) {
+                unset($row['email']);
+            }
+        });
+
         /** @var Order[] $orders */
         $orders = parent::populate($rows);
 
@@ -1463,7 +1471,10 @@ class OrderQuery extends ElementQuery
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
+
+            // @TODO remove at next breaking change
             'commerce_orders.email',
+
             'commerce_orders.isCompleted',
             'commerce_orders.datePaid',
             'commerce_orders.currency',
@@ -1538,7 +1549,9 @@ class OrderQuery extends ElementQuery
         }
 
         if (isset($this->email) && $this->email) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email, '=', true));
+            // Join and search the users table for email address
+            $this->subQuery->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[commerce_orders.customerId]]');
+            $this->subQuery->andWhere(Db::parseParam('users.email', $this->email, '=', true));
         }
 
         // Allow true ot false but not null
