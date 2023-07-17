@@ -8,8 +8,6 @@
   <h1 class="text-3xl block sm:inline">
     {{- 'Donation'|t -}}
   </h1>
-  {% if currentUser and currentUser.admin %}<a href="{{cpUrl('commerce/store-settings/donation')}}" class="p-1">✍️</a>{% endif %}
-
   {% if donation and donation.isAvailable %}
     <form method="post" action="" class="pt-2 pb-8">
       {{ csrfInput() }}

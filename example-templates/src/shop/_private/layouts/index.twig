@@ -20,7 +20,7 @@ Common, top-level layout template.
   {% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-<div id="body" [[hx-boost]]>
+<div id="body">
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
