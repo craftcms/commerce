@@ -7,7 +7,8 @@
         <div>
           <a class="block" href="{{ product.url }}">
             {% include "[[folderName]]/_private/images/placeholder.svg" with {
-              class: 'w-full h-auto rounded rounded-b-none opacity-75 hover:opacity-100',
+              class: 'w-full h-auto rounded rounded-b-none opacity-75 hover:opacity-100 bg-red-100',
+              fill: cycle(['#F05252', '#C27803', '#0E9F6E', '#3F83F8', '#E74694'], loop.index0),
               width: 320,
               height: 140
             } %}
