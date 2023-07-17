@@ -1120,6 +1120,7 @@ return [
     'Value of products before any discounts are applied.' => 'Value of products before any discounts are applied.',
     'Value of products with applied discounts.' => 'Value of products with applied discounts.',
     'Variant Fields' => 'Variant Fields',
+    'Variant Has Unlimited Stock' => 'Variant Has Unlimited Stock',
     'Variant Title Format' => 'Variant Title Format',
     'Variant SKU' => 'Variant SKU',
     'Variant Stock' => 'Variant Stock',
