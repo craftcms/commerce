@@ -94,4 +94,26 @@ class ProductTypeConditionRuleTest extends Unit
 
         self::assertTrue($condition->matchElement($product));
     }
+
+    /**
+     * @group Product
+     */
+    public function testModifyQueryMatch(): void
+    {
+        $productTypeModel = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle('hoodies');
+        $condition = Product::createCondition();
+        /** @var ProductTypeConditionRule $rule */
+        $rule = \Craft::$app->getConditions()->createConditionRule(ProductTypeConditionRule::class);
+        $rule->setValues([$productTypeModel->uid]);
+        $condition->addConditionRule($rule);
+
+        $productsFixture = $this->tester->grabFixture('products');
+        /** @var Product $product */
+        $product = $productsFixture->getElement('rad-hoodie');
+
+        $query = Product::find();
+        $condition->modifyQuery($query);
+
+        self::assertContainsEquals($product->id, $query->ids());
+    }
 }
