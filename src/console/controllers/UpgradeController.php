@@ -905,14 +905,27 @@ SQL;
         $totalAddresses = $addresses->count();
         $done = 0;
         Console::startProgress($done, $totalAddresses);
-        foreach ($addresses->each() as $address) {
-            $addressElement = $this->_createAddress($address);
-            // Save the old ID for later
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
-                ['v4addressId' => $addressElement->id],
-                ['id' => $address['id']]
-            )->execute();
-            Console::updateProgress($done++, $totalAddresses);
+        foreach ($addresses->batch(500) as $addresses) {
+
+            $updateAddressParams = [];
+            $addressIds = [];
+
+            foreach ($addresses as $address) {
+                $addressElement = $this->_createAddress($address);
+                Console::updateProgress($done++, $totalAddresses);
+                $addressIds[] = $address['id'];
+                $updateAddressParams['v4addressId'][$address['id']] = $addressElement->id;
+            }
+
+            $data = $this->_getBatchUpdateQueryWithParams(
+                tableName: '{{%commerce_addresses}}',
+                byField: 'id',
+                fieldValues: $addressIds,
+                params: $updateAddressParams
+            );
+
+            Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
+
         }
 
         Console::endProgress($totalAddresses . ' addresses migrated.');
@@ -1275,5 +1288,48 @@ SQL;
         $args = func_get_args();
 
         return parent::stdout($string . PHP_EOL . PHP_EOL, ...array_slice($args, 1));
+    }
+
+
+    /**
+     * @param $tableName
+     * @param $byField
+     * @param $fieldValues
+     * @param $params
+     * @return array
+     * @throws \yii\base\NotSupportedException
+     */
+    private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
+    {
+        $str = 'UPDATE `' . Craft::$app->getDb()->getSchema()->getRawTableName($tableName) . '` SET ';
+        $row = [];
+        $bind = [];
+
+        foreach (array_keys($params) as $param) {
+            $rowStr = '`' . $param . '` = (CASE `' . $byField . '` ';
+            $cel = [];
+            foreach ($fieldValues as $fieldValue) {
+                if (array_key_exists($fieldValue, $params[$param])) {
+                    $idValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+                    $paramValue = ':' . $param . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+                    $bind[$paramValue] = $params[$param][$fieldValue];
+                    $cel[] = 'WHEN ' . $idValue . ' THEN ' . $paramValue;
+                }
+            }
+            $rowStr .= implode(' ', $cel);
+            $rowStr .= ' ELSE ' . Craft::$app->getDb()->quoteColumnName($param) . ' END)';
+            $row[] = $rowStr;
+        }
+
+        $whereIn = [];
+        foreach ($fieldValues as $fieldValue) {
+            $paramValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+            $bind[$paramValue] = $fieldValue;
+            $whereIn[] = is_string($fieldValue) ? Craft::$app->getDb()->quoteValue($fieldValue) : $fieldValue;
+        }
+
+        $str .= implode(', ', $row);
+        $str .= ' WHERE ' . Craft::$app->getDb()->quoteColumnName($byField) . ' IN (' . implode(', ', $whereIn) . ')';
+        return ['sql' => $str, 'params' => $bind];
     }
 }
