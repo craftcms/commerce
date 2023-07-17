@@ -8,8 +8,6 @@
 namespace unit\elements\product\conditions;
 
 use Codeception\Test\Unit;
-use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
-use craft\commerce\elements\conditions\products\ProductVariantSkuConditionRule;
 use craft\commerce\elements\conditions\products\ProductVariantStockConditionRule;
 use craft\commerce\elements\Product;
 use craftcommercetests\fixtures\ProductFixture;
