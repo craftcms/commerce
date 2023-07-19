@@ -289,7 +289,7 @@ class Discount extends Model
             return false;
         }
 
-        return empty($this->getOrderCondition()->getConditionRules());
+        return !empty($this->getOrderCondition()->getConditionRules());
     }
 
     /**
@@ -340,7 +340,7 @@ class Discount extends Model
             return false;
         }
 
-        return empty($this->getCustomerCondition()->getConditionRules());
+        return !empty($this->getCustomerCondition()->getConditionRules());
     }
 
     /**
@@ -392,7 +392,7 @@ class Discount extends Model
             return false;
         }
 
-        return empty($this->getShippingAddressCondition()->getConditionRules());
+        return !empty($this->getShippingAddressCondition()->getConditionRules());
     }
 
     /**
@@ -444,7 +444,7 @@ class Discount extends Model
             return false;
         }
 
-        return empty($this->getBillingAddressCondition()->getConditionRules());
+        return !empty($this->getBillingAddressCondition()->getConditionRules());
     }
 
     /**
