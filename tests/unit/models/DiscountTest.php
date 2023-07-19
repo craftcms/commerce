@@ -8,10 +8,13 @@
 namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
-use craft\commerce\elements\conditions\orders\OrderCondition;
+use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
+use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
+use craft\commerce\elements\conditions\orders\DiscountOrderCondition;
 use craft\commerce\models\Discount;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\conditions\IdConditionRule;
+use yii\base\InvalidConfigException;
 
 /**
  * DiscountTest
@@ -49,31 +52,140 @@ class DiscountTest extends Unit
     }
 
     /**
+     * @param ElementConditionInterface|array|string $condition
+     * @param bool $expected
      * @return void
+     * @throws InvalidConfigException
      * @since 4.3.0
      * @dataProvider conditionBuilderDataProvider
      */
-    public function testHasOrderCondition(ElementConditionInterface|array|string $orderCondition, bool $expected): void
+    public function testHasOrderCondition(ElementConditionInterface|array|string $condition, bool $expected): void
     {
-        if ($orderCondition === 'class' || $orderCondition === 'rules') {
-            /** @var OrderCondition $orderCondition */
-            $orderCondition = \Craft::$app->getConditions()->createCondition(OrderCondition::class);
+        if ($condition === 'class' || $condition === 'rules') {
+            /** @var DiscountOrderCondition $condition */
+            $conditionBuilder = \Craft::$app->getConditions()->createCondition(DiscountOrderCondition::class);
 
-            if ($orderCondition === 'rules') {
+            if ($condition === 'rules') {
                 $rule = \Craft::$app->getConditions()->createConditionRule([
                     'type' => IdConditionRule::class,
                     'value' => 1,
                 ]);
-                $orderCondition->addConditionRule($rule);
+                $conditionBuilder->addConditionRule($rule);
             }
+
+            $condition = $conditionBuilder;
         }
 
+        /** @var Discount $discount */
         $discount = \Craft::createObject([
             'class' => Discount::class,
-            'orderCondition' => $orderCondition,
+            'orderCondition' => $condition,
         ]);
 
         self::assertSame($expected, $discount->hasOrderCondition());
+    }
+
+    /**
+     * @param ElementConditionInterface|array|string $condition
+     * @param bool $expected
+     * @return void
+     * @throws InvalidConfigException
+     * @since 4.3.0
+     * @dataProvider conditionBuilderDataProvider
+     */
+    public function testHasCustomerCondition(ElementConditionInterface|array|string $condition, bool $expected): void
+    {
+        if ($condition === 'class' || $condition === 'rules') {
+            /** @var DiscountCustomerCondition $condition */
+            $conditionBuilder = \Craft::$app->getConditions()->createCondition(DiscountCustomerCondition::class);
+
+            if ($condition === 'rules') {
+                $rule = \Craft::$app->getConditions()->createConditionRule([
+                    'type' => IdConditionRule::class,
+                    'value' => 1,
+                ]);
+                $conditionBuilder->addConditionRule($rule);
+            }
+
+            $condition = $conditionBuilder;
+        }
+
+        /** @var Discount $discount */
+        $discount = \Craft::createObject([
+            'class' => Discount::class,
+            'customerCondition' => $condition,
+        ]);
+
+        self::assertSame($expected, $discount->hasCustomerCondition());
+    }
+
+
+    /**
+     * @param ElementConditionInterface|array|string $condition
+     * @param bool $expected
+     * @return void
+     * @throws InvalidConfigException
+     * @since 4.3.0
+     * @dataProvider conditionBuilderDataProvider
+     */
+    public function testHasBillingAddressCondition(ElementConditionInterface|array|string $condition, bool $expected): void
+    {
+        if ($condition === 'class' || $condition === 'rules') {
+            /** @var DiscountAddressCondition $condition */
+            $conditionBuilder = \Craft::$app->getConditions()->createCondition(DiscountAddressCondition::class);
+
+            if ($condition === 'rules') {
+                $rule = \Craft::$app->getConditions()->createConditionRule([
+                    'type' => IdConditionRule::class,
+                    'value' => 1,
+                ]);
+                $conditionBuilder->addConditionRule($rule);
+            }
+
+            $condition = $conditionBuilder;
+        }
+
+        /** @var Discount $discount */
+        $discount = \Craft::createObject([
+            'class' => Discount::class,
+            'billingAddressCondition' => $condition,
+        ]);
+
+        self::assertSame($expected, $discount->hasBillingAddressCondition());
+    }
+
+    /**
+     * @param ElementConditionInterface|array|string $condition
+     * @param bool $expected
+     * @return void
+     * @throws InvalidConfigException
+     * @since 4.3.0
+     * @dataProvider conditionBuilderDataProvider
+     */
+    public function testHasShippingAddressCondition(ElementConditionInterface|array|string $condition, bool $expected): void
+    {
+        if ($condition === 'class' || $condition === 'rules') {
+            /** @var DiscountAddressCondition $condition */
+            $conditionBuilder = \Craft::$app->getConditions()->createCondition(DiscountAddressCondition::class);
+
+            if ($condition === 'rules') {
+                $rule = \Craft::$app->getConditions()->createConditionRule([
+                    'type' => IdConditionRule::class,
+                    'value' => 1,
+                ]);
+                $conditionBuilder->addConditionRule($rule);
+            }
+
+            $condition = $conditionBuilder;
+        }
+
+        /** @var Discount $discount */
+        $discount = \Craft::createObject([
+            'class' => Discount::class,
+            'shippingAddressCondition' => $condition,
+        ]);
+
+        self::assertSame($expected, $discount->hasShippingAddressCondition());
     }
 
     public function conditionBuilderDataProvider(): array
