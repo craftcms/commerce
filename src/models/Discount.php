@@ -336,7 +336,7 @@ class Discount extends Model
      */
     public function hasCustomerCondition(): bool
     {
-        if ($this->_orderCondition === null) {
+        if ($this->_customerCondition === null) {
             return false;
         }
 
@@ -348,7 +348,7 @@ class Discount extends Model
      * @return void
      * @throws InvalidConfigException
      */
-    public function setCustomerCondition(ElementConditionInterface|string $condition): void
+    public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
     {
         if (empty($condition)) {
             $this->_customerCondition = null;
@@ -388,7 +388,7 @@ class Discount extends Model
      */
     public function hasShippingAddressCondition(): bool
     {
-        if ($this->_orderCondition === null) {
+        if ($this->_shippingAddressCondition === null) {
             return false;
         }
 
@@ -440,7 +440,7 @@ class Discount extends Model
      */
     public function hasBillingAddressCondition(): bool
     {
-        if ($this->_orderCondition === null) {
+        if ($this->_billingAddressCondition === null) {
             return false;
         }
 
