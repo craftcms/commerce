@@ -16,6 +16,10 @@
 - Removed the htmx option from the`commerce/example-templates` command.
 - Removed the color option from the`commerce/example-templates` command.
 - Improved performance of discount recalculation.
+- Added `craft\commerce\models\Discount::hasOrderCondition()`.
+- Added `craft\commerce\models\Discount::hasCustomerCondition()`.
+- Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
+- Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
 
 ## 4.2.11 - 2023-06-05
 
