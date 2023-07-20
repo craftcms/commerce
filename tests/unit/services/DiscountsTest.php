@@ -24,9 +24,11 @@ use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use UnitTester;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
+use yii\db\Expression;
 
 /**
  * DiscountsTest
@@ -367,20 +369,186 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @param array|false $attributes
+     * @param int $count
      * @return void
      * @throws \Exception
+     * @dataProvider gatAllActiveDiscountsDataProvider
      */
-    public function testGetAllActiveDiscounts(): void
+    public function testGetAllActiveDiscounts(array|false $attributes, int $count, array $discounts): void
     {
-        $activeDiscounts = $this->discounts->getAllActiveDiscounts();
-        $activeDiscountsCodeExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'discount_1']));
-        $activeDiscountsCodeDoesntExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'coupon_code_doesnt_exist']));
+        if (!empty($discounts)) {
+            foreach ($discounts as &$discount) {
+                $emailUses = $discount['_emailUses'] ?? [];
 
-        self::assertNotEmpty($activeDiscounts);
-        self::assertCount(1, $activeDiscounts);
-        self::assertNotEmpty($activeDiscountsCodeExists);
-        self::assertCount(1, $activeDiscountsCodeExists);
-        self::assertEmpty($activeDiscountsCodeDoesntExists);
+                $discountModel = Craft::createObject([
+                    'class' => Discount::class,
+                    'attributes' => $discount,
+                ]);
+                Plugin::getInstance()->getDiscounts()->saveDiscount($discountModel);
+                $discount = $discountModel->id;
+
+                if ($discountModel->totalDiscountUses > 0) {
+                    Craft::$app->getDb()->createCommand()
+                        ->update(Table::DISCOUNTS, [
+                            'totalDiscountUses' => $discountModel->totalDiscountUses,
+                        ], [
+                            'id' => $discountModel->id,
+                        ])
+                        ->execute();
+                }
+
+                if (!empty($emailUses)) {
+                    $emailUses = collect($emailUses)->map(fn($uses, $email) => [$email, $discountModel->id, $uses])->all();
+                    Craft::$app->getDb()->createCommand()
+                        ->batchInsert(Table::EMAIL_DISCOUNTUSES, ['email', 'discountId', 'uses'], $emailUses)
+                        ->execute();
+                }
+            }
+        }
+
+        if ($attributes === false) {
+            $activeDiscounts = $this->discounts->getAllActiveDiscounts();
+        } else {
+            $activeDiscounts = $this->discounts->getAllActiveDiscounts(new Order($attributes));
+        }
+
+        if ($count > 0) {
+            self::assertCount($count, $activeDiscounts);
+            self::assertNotEmpty($activeDiscounts);
+        } else {
+            self::assertEmpty($activeDiscounts);
+        }
+
+        // Tidy up the discounts
+        if (!empty($discounts)) {
+            foreach ($discounts as $discountId) {
+                Plugin::getInstance()->getDiscounts()->deleteDiscountById($discountId);
+            }
+        }
+    }
+
+    /**
+     * @return array[]
+     */
+    public function gatAllActiveDiscountsDataProvider(): array
+    {
+        $yesterday = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('-1 day');
+        $tomorrow = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('+1 day');
+
+        function _createDiscounts($discounts) {
+            return collect($discounts)->mapWithKeys(function(array $d, string $key) {
+                return [$key => array_merge($d, [
+                    'name' => 'Discount - ' . $key,
+                    'perItemDiscount' => '1',
+                    'enabled' => true,
+                    'allCategories' => true,
+                    'allPurchasables' => true,
+                    'percentageOffSubject' => 'original',
+                ])];
+            })->all();
+        }
+
+        return [
+            'no-order' => [false, 1, []],
+            'order-with-valid-coupon' => [['couponCode' => 'discount_1'], 1, []],
+            'order-with-invalid-coupon' => [['couponCode' => 'coupon_code_doesnt_exist'], 0, []],
+            'order-discounts-dates' => [
+                [],
+                3,
+                _createDiscounts([
+                    'date-from-valid' => [
+                        'dateFrom' => $yesterday,
+                    ],
+                    'date-from-invalid' => [
+                        'dateFrom' => $tomorrow,
+                    ],
+                    'date-to-valid' => [
+                        'dateTo' => $tomorrow,
+                    ],
+                    'date-to-invalid' => [
+                        'dateTo' => $yesterday,
+                    ],
+                    'date-to-from-valid' => [
+                        'dateFrom' => $yesterday,
+                        'dateTo' => $tomorrow,
+                    ],
+                    'date-to-from-invalid' => [
+                        'dateFrom' => $tomorrow,
+                        'dateTo' => $tomorrow->modify('+1 day'),
+                    ],
+                ]),
+            ],
+            'order-discounts-limits' => [
+                [],
+                4,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'totalDiscountUseLimit' => 0,
+                    ],
+                    'total-limit-zero-with-uses' => [
+                        'totalDiscountUses' => 10,
+                        'totalDiscountUseLimit' => 0,
+                    ],
+                    'total-limit-valid-with-no-uses' => [
+                        'totalDiscountUses' => 0,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-valid-with-uses' => [
+                        'totalDiscountUses' => 7,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-invalid-equals' => [
+                        'totalDiscountUses' => 10,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-invalid-extra' => [
+                        'totalDiscountUses' => 11,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                ]),
+            ],
+            'order-discounts-email-limits-no-email' => [
+                [],
+                1,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit' => [
+                        'perEmailLimit' => 1,
+                    ],
+                ]),
+            ],
+            'order-discounts-email-limits' => [
+                ['email' => 'per.email.limit@crafttest.com'],
+                4,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit-zero-with-uses' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 10],
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit-valid-with-no-uses' => [
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-valid-with-uses' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 7],
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-invalid-equals' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 10],
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-invalid-extra' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 11],
+                        'perEmailLimit' => 10,
+                    ],
+                ]),
+            ],
+        ];
     }
 
     /**

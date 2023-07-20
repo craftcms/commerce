@@ -300,16 +300,15 @@ class Discounts extends Component
         if ($order) {
             if ($order->getEmail()) {
                 $emailUsesSubQuery = (new Query())
-                    ->select(['edu.discountId'])
+                    ->select([new Expression('COALESCE(SUM([[edu.uses]]), 0)')])
                     ->from(['edu' => Table::EMAIL_DISCOUNTUSES])
                     ->where(new Expression('[[edu.discountId]] = [[discounts.id]]'))
-                    ->andWhere(new Expression('[[edu.uses]] < [[discounts.perEmailLimit]]'))
                     ->andWhere(['email' => $order->getEmail()]);
 
                 $discountQuery->andWhere([
                     'or',
                     ['perEmailLimit' => 0],
-                    ['and', ['>', 'perEmailLimit', 0], ['exists', $emailUsesSubQuery]],
+                    ['and', ['>', 'perEmailLimit', 0], ['>', 'perEmailLimit', $emailUsesSubQuery]],
                 ]);
             } else {
                 $discountQuery->andWhere(['perEmailLimit' => 0]);
