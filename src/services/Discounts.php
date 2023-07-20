@@ -250,11 +250,10 @@ class Discounts extends Component
      */
     public function getAllActiveDiscounts(Order $order = null): array
     {
-        if ($order && $order->getIsEmpty()) {
-            return [];
+        $purchasableIds = [];
+        if ($order) {
+            $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
         }
-
-        $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
 
         // Date condition for use with key
         if ($order && $order->dateOrdered) {
@@ -268,7 +267,8 @@ class Discounts extends Component
         // Coupon condition key
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
-        $cacheKey = implode(':', [$dateKey, $couponKey, md5(serialize($purchasableIds))]);
+        $purchasablesKey = !empty($purchasableIds) ? md5(serialize($purchasableIds)) : '';
+        $cacheKey = implode(':', array_filter([$dateKey, $couponKey, $purchasablesKey]));
 
         if (isset($this->_activeDiscountsByKey[$cacheKey])) {
             return $this->_activeDiscountsByKey[$cacheKey];
@@ -372,7 +372,6 @@ class Discounts extends Component
         }
 
         if ($order) {
-            $purchasableIds = collect($order->getLineItems())->pluck('purchasableId')->unique()->all();
             if ($purchasableIds) {
                 $matchPurchasableSubQuery = (new Query())
                     ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
