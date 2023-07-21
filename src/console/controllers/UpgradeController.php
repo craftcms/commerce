@@ -249,6 +249,7 @@ class UpgradeController extends Controller
         }, ARRAY_FILTER_USE_KEY);
 
         $db = Craft::$app->getDb();
+        $startTime = DateTimeHelper::currentUTCDateTime();
 
         try {
             $db->transaction(function() {
@@ -311,7 +312,10 @@ class UpgradeController extends Controller
                 Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
             }
         }
-        $this->stdoutlast("Done.");
+
+        $endTime = DateTimeHelper::currentUTCDateTime();
+        $totalTime = $endTime->diff($startTime);
+        $this->stdout("Done. Completed in {$totalTime->format('%H:%I:%S')}");
 
         return 0;
     }
