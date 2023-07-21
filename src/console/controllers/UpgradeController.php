@@ -13,7 +13,6 @@ use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\commerce\Plugin;
-use craft\commerce\records\Customer;
 use craft\commerce\records\Store;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -37,7 +36,6 @@ use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use Throwable;
-use yii\base\InvalidArgumentException;
 use yii\console\ExitCode;
 use yii\db\Exception;
 use yii\db\Expression;
@@ -883,12 +881,26 @@ AND NOT EXISTS (
 )
 AND NOT EXISTS (
   SELECT 1
+  FROM $ordersTable AS o2
+  WHERE o2.v3estimatedBillingAddressId = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE o2.v3shippingAddressId = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE o2.v3estimatedShippingAddressId = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
   FROM $customersAddressesTable AS ca
   WHERE ca.addressId = a.id
 );
 SQL;
 
-        $deletableAddresses = Craft::$app->getDb()->createCommand($sql);
         $deletableAddressesIds = Craft::$app->getDb()->createCommand($sql)->queryColumn();
         $deleted = Craft::$app->getDb()->createCommand()->delete($addressesTable, ['id' => $deletableAddressesIds])->execute();
 
