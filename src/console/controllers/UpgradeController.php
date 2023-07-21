@@ -297,7 +297,7 @@ class UpgradeController extends Controller
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $this->stdout("Cleaning up…");
+        $this->stdout("Cleaning up tables…");
         foreach ($this->_v3tables as $table) {
             Db::dropAllForeignKeysToTable($table);
             MigrationHelper::dropAllForeignKeysOnTable($table);
@@ -311,7 +311,7 @@ class UpgradeController extends Controller
                 Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
             }
         }
-        $this->stdout("Done.");
+        $this->stdoutlast("Done.");
 
         return 0;
     }
@@ -495,7 +495,7 @@ EOL
             }
             Console::updateProgress($done++, count($shippingZones));
         }
-        Console::endProgress(count($shippingZones) . ' shipping zones migrated.');
+        Console::endProgress(count($shippingZones) . ' shipping zones migrated.\n');
     }
 
     /**
@@ -568,7 +568,7 @@ EOL
             }
             Console::updateProgress($done++, count($taxZones));
         }
-        Console::endProgress(count($taxZones) . ' tax zones migrated.');
+        Console::endProgress(count($taxZones) . ' tax zones migrated.\n');
     }
 
     /**
@@ -917,7 +917,7 @@ SQL;
         $totalAddresses = $addresses->count();
         $done = 0;
         Console::startProgress($done, $totalAddresses);
-        foreach ($addresses->batch(500) as $addresses) {
+        foreach ($addresses->batch(500) as $a   ddresses) {
 
             $updateAddressParams = [];
             $addressIds = [];
@@ -940,7 +940,7 @@ SQL;
 
         }
 
-        Console::endProgress($totalAddresses . ' addresses migrated.');
+        Console::endProgress($totalAddresses . ' addresses migrated.\n');
     }
 
     /**
@@ -1186,7 +1186,8 @@ SQL;
             Console::updateProgress($doneTotalGuestEmails++, $totalGuestEmails);
         }
         $totalTime = microtime(true) - $startTime;
-        Console::endProgress($totalGuestEmails . ' guest customers migrated to inactive users in ' . $totalTime / 1000 . ' seconds' . PHP_EOL);
+        $this->stdout('  Updating all customers with their correct user ID.');
+        Console::endProgress('Created' . $totalGuestEmails . ' inactive users in ' . $totalTime / 1000 . ' seconds' . PHP_EOL);
 
         $this->stdout('  Updating all customers with their correct user ID.');
         if ($isPsql) {
@@ -1203,7 +1204,7 @@ where [[cu.v3userId]] is not null
 SQL;
         }
         Craft::$app->getDb()->createCommand($sql)->execute();
-        $this->stdout('  Done.', Console::FG_GREEN);
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
 
         $this->stdout('  Updating all orders with their correct user ID.');
         if ($isPsql) {
@@ -1222,12 +1223,11 @@ set [[o.customerId]] = [[u.id]]
 SQL;
         }
         Craft::$app->getDb()->createCommand($sql)->execute();
-
-        // drop all customers without a customerId
-        $this->stdout('  Dropping all customers without a user.');
-        Craft::$app->getDb()->createCommand()->delete($customersTable, ['customerId' => null])->execute();
         $this->stdoutlast('  Done.', Console::FG_GREEN);
 
+        // drop all customers without a customerId
+        $this->stdout('  Confirming all customers are now related to a user.');
+        Craft::$app->getDb()->createCommand()->delete($customersTable, ['customerId' => null])->execute();
     }
 
     /**
