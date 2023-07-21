@@ -370,25 +370,21 @@ class Discounts extends Component
             );
         }
 
-        if ($order) {
-            if ($purchasableIds) {
-                $matchPurchasableSubQuery = (new Query())
-                    ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
-                    ->where(new Expression('[[subdp.discountId]] = [[discounts.id]]'))
-                    ->andWhere(['subdp.purchasableId' => $purchasableIds]);
+        if ($order && !empty($purchasableIds)) {
+            $matchPurchasableSubQuery = (new Query())
+                ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
+                ->where(new Expression('[[subdp.discountId]] = [[discounts.id]]'))
+                ->andWhere(['subdp.purchasableId' => $purchasableIds]);
 
-                $discountQuery->andWhere(
+            $discountQuery->andWhere(
+                [
+                    'or',
+                    ['allPurchasables' => true],
                     [
-                        'or',
-                        ['allPurchasables' => true],
-                        [
-                            'exists', $matchPurchasableSubQuery,
-                        ],
-                    ]
-                );
-            } else {
-                $discountQuery->andWhere(['allPurchasables' => true]);
-            }
+                        'exists', $matchPurchasableSubQuery,
+                    ],
+                ]
+            );
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());

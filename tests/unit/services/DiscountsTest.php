@@ -12,6 +12,7 @@ use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -19,16 +20,18 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
+use craft\elements\Category;
 use craft\elements\User;
+use craftcommercetests\fixtures\CategoriesFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;
+use craftcommercetests\fixtures\ProductFixture;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
 use UnitTester;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
-use yii\db\Expression;
 
 /**
  * DiscountsTest
@@ -65,6 +68,12 @@ class DiscountsTest extends Unit
             ],
             'customers' => [
                 'class' => CustomerFixture::class,
+            ],
+            'products' => [
+                'class' => ProductFixture::class,
+            ],
+            'categories' => [
+                'class' => CategoriesFixture::class,
             ],
         ];
     }
@@ -377,9 +386,20 @@ class DiscountsTest extends Unit
      */
     public function testGetAllActiveDiscounts(array|false $attributes, int $count, array $discounts): void
     {
+        $originalEdition = Plugin::getInstance()->edition;
+        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
+
         if (!empty($discounts)) {
             foreach ($discounts as &$discount) {
                 $emailUses = $discount['_emailUses'] ?? [];
+
+                if (isset($discount['purchasableIds'])) {
+                    $discount['purchasableIds'] = Variant::find()->sku($discount['purchasableIds'])->ids();
+                }
+
+                if (isset($discount['categoryIds'])) {
+                    $discount['categoryIds'] = Category::find()->slug($discount['categoryIds'])->ids();
+                }
 
                 $discountModel = Craft::createObject([
                     'class' => Discount::class,
@@ -410,7 +430,18 @@ class DiscountsTest extends Unit
         if ($attributes === false) {
             $activeDiscounts = $this->discounts->getAllActiveDiscounts();
         } else {
-            $activeDiscounts = $this->discounts->getAllActiveDiscounts(new Order($attributes));
+            $order = new Order(array_diff_key($attributes, array_flip(['_lineItems'])));
+
+            if (isset($attributes['_lineItems'])) {
+                $lineItems = [];
+                foreach ($attributes['_lineItems'] as $sku => $qty) {
+                    $variant = Variant::find()->sku($sku)->one();
+                    $lineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order, $variant->id, [], $qty);
+                }
+                $order->setLineItems($lineItems);
+            }
+
+            $activeDiscounts = $this->discounts->getAllActiveDiscounts($order);
         }
 
         if ($count > 0) {
@@ -426,6 +457,8 @@ class DiscountsTest extends Unit
                 Plugin::getInstance()->getDiscounts()->deleteDiscountById($discountId);
             }
         }
+
+        Plugin::getInstance()->edition = $originalEdition;
     }
 
     /**
@@ -438,14 +471,14 @@ class DiscountsTest extends Unit
 
         function _createDiscounts($discounts) {
             return collect($discounts)->mapWithKeys(function(array $d, string $key) {
-                return [$key => array_merge($d, [
+                return [$key => array_merge([
                     'name' => 'Discount - ' . $key,
                     'perItemDiscount' => '1',
                     'enabled' => true,
                     'allCategories' => true,
                     'allPurchasables' => true,
                     'percentageOffSubject' => 'original',
-                ])];
+                ], $d)];
             })->all();
         }
 
@@ -545,6 +578,66 @@ class DiscountsTest extends Unit
                     'total-limit-invalid-extra' => [
                         '_emailUses' => ['per.email.limit@crafttest.com' => 11],
                         'perEmailLimit' => 10,
+                    ],
+                ]),
+            ],
+            'purchase-total-limit-no-items' => [
+                [],
+                4,
+                _createDiscounts([
+                    'purchase-total-zero' => [
+                        'purchaseTotal' => 0,
+                    ],
+                    'purchase-total-all-purchasables-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                ]),
+            ],
+            'purchase-total-limit-with-items' => [
+                [
+                    '_lineItems' => ['rad-hood' => 1],
+                ],
+                5,
+                _createDiscounts([
+                    'purchase-total-zero' => [
+                        'purchaseTotal' => 0,
+                    ],
+                    'purchase-total-all-purchasables-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-valid' => [
+                        'purchaseTotal' => 150,
+                    ],
+                    'purchase-total-invalid' => [
+                        'purchaseTotal' => 10.99,
                     ],
                 ]),
             ],
