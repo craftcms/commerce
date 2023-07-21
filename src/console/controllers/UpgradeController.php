@@ -292,7 +292,6 @@ class UpgradeController extends Controller
                 $this->stdout("Updating user address books…");
                 $this->_migrateUserAddressBook();
                 $this->stdoutlast('Done.', Console::FG_GREEN);
-
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
@@ -865,7 +864,6 @@ SQL;
      */
     private function _migrateAddresses()
     {
-
         $addressesTable = '{{%commerce_addresses}}';
         $ordersTable = '{{%commerce_orders}}';
         $customersAddressesTable = '{{%commerce_customers_addresses}}';
@@ -922,7 +920,6 @@ SQL;
         $done = 0;
         Console::startProgress($done, $totalAddresses);
         foreach ($addresses->batch(500) as $addressRows) {
-
             $updateAddressParams = [];
             $addressIds = [];
 
@@ -941,7 +938,6 @@ SQL;
             );
 
             Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
-
         }
 
         Console::endProgress($totalAddresses . ' addresses migrated.\n');
@@ -1071,7 +1067,7 @@ SQL;
                 ->select([
                     new Expression('SUM(uses) as [[uses]]'),
                     '[[du.discountId]] as [[discountId]]',
-                    new Expression($customerId . ' as [[v3customerId]]')
+                    new Expression($customerId . ' as [[v3customerId]]'),
                 ])
                 ->from(['du' => $customersDiscountUsesTable])
                 ->where(['du.v3customerId' => $customerIdsToDelete])
