@@ -917,12 +917,12 @@ SQL;
         $totalAddresses = $addresses->count();
         $done = 0;
         Console::startProgress($done, $totalAddresses);
-        foreach ($addresses->batch(500) as $a   ddresses) {
+        foreach ($addresses->batch(500) as $addressRows) {
 
             $updateAddressParams = [];
             $addressIds = [];
 
-            foreach ($addresses as $address) {
+            foreach ($addressRows as $address) {
                 $addressElement = $this->_createAddress($address);
                 Console::updateProgress($done++, $totalAddresses);
                 $addressIds[] = $address['id'];
