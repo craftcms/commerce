@@ -373,6 +373,8 @@ class Install extends Migration
             'origin' => $this->enum('origin', ['web', 'cp', 'remote'])->notNull()->defaultValue('web'),
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'saveBillingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'saveShippingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
             'returnUrl' => $this->text(),
             'cancelUrl' => $this->text(),

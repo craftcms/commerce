@@ -28,6 +28,17 @@ Common, top-level layout template.
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
 
+{% macro docs(text, link) %}
+    <small class="">
+        {{ tag('a', {
+            text: 'ℹ︎ ' ~ text,
+            href: link,
+            class: '[[classes.docs]]',
+            target: '_blank',
+        }) }}
+    </small>
+{% endmacro %}
+
 <header>
   <div class="bg-gray-900">
     <div class="container mx-auto p-6 md:flex justify-content-between align-content-center">
