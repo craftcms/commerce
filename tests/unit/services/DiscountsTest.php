@@ -469,7 +469,8 @@ class DiscountsTest extends Unit
         $yesterday = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('-1 day');
         $tomorrow = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('+1 day');
 
-        function _createDiscounts($discounts) {
+        function _createDiscounts($discounts)
+        {
             return collect($discounts)->mapWithKeys(function(array $d, string $key) {
                 return [$key => array_merge([
                     'name' => 'Discount - ' . $key,
@@ -728,7 +729,7 @@ class DiscountsTest extends Unit
                     'no-match' => [
                         'allPurchasables' => false,
                         'purchasableIds' => ['hct-blue'],
-                    ]
+                    ],
                 ]),
             ],
             'purchasables-multi-lineitems' => [
@@ -746,7 +747,7 @@ class DiscountsTest extends Unit
                     'no-match' => [
                         'allPurchasables' => false,
                         'purchasableIds' => ['hct-blue'],
-                    ]
+                    ],
                 ]),
             ],
         ];
