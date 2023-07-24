@@ -641,6 +641,114 @@ class DiscountsTest extends Unit
                     ],
                 ]),
             ],
+            'qty-limits-no-items' => [
+                [],
+                6,
+                _createDiscounts([
+                    'purchase-qty-zero' => [
+                        'purchaseQty' => 0,
+                    ],
+                    'max-qty-zero' => [
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'both-zero' => [
+                        'purchaseQty' => 0,
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'purchase-qty-all-purchasables-false' => [
+                        'purchaseQty' => 4,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                ]),
+            ],
+            'qty-limits-with-items' => [
+                ['_lineItems' => ['rad-hood' => 4]],
+                6,
+                _createDiscounts([
+                    'purchase-qty-zero' => [
+                        'purchaseQty' => 0,
+                    ],
+                    'max-qty-zero' => [
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'both-zero' => [
+                        'purchaseQty' => 0,
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'purchase-qty-valid' => [
+                        'purchaseQty' => 3,
+                    ],
+                    'purchase-qty-invalid' => [
+                        'purchaseQty' => 5,
+                    ],
+                    'max-qty-valid' => [
+                        'maxPurchaseQty' => 10,
+                    ],
+                    'max-qty-invalid' => [
+                        'maxPurchaseQty' => 3,
+                    ],
+                    'both-valid' => [
+                        'purchaseQty' => 2,
+                        'maxPurchaseQty' => 10,
+                    ],
+                    'both-invalid' => [
+                        'purchaseQty' => 10,
+                        'maxPurchaseQty' => 14,
+                    ],
+                ]),
+            ],
+            'purchasables-one-lineitem' => [
+                ['_lineItems' => ['rad-hood' => 1]],
+                3,
+                _createDiscounts([
+                    'all-purchasables' => [
+                        'allPurchasables' => true,
+                    ],
+                    'one-to-one' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'one-to-many' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood', 'hct-white'],
+                    ],
+                    'no-match' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['hct-blue'],
+                    ]
+                ]),
+            ],
+            'purchasables-multi-lineitems' => [
+                ['_lineItems' => ['rad-hood' => 1, 'hct-white' => 1]],
+                2,
+                _createDiscounts([
+                    'one' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'many' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood', 'hct-white'],
+                    ],
+                    'no-match' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['hct-blue'],
+                    ]
+                ]),
+            ],
         ];
     }
 
