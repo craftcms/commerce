@@ -21,7 +21,7 @@ class DummyPlan extends Plan
     /**
      * @inheritdoc
      */
-    public function canSwitchFrom(PlanInterface $currentPlant): bool
+    public function canSwitchFrom(PlanInterface $currentPlan): bool
     {
         return true;
     }
