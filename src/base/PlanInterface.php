@@ -21,5 +21,5 @@ interface PlanInterface
     /**
      * Returns whether it's possible to switch to this plan from a different plan.
      */
-    public function canSwitchFrom(PlanInterface $currentPlant): bool;
+    public function canSwitchFrom(PlanInterface $currentPlan): bool;
 }
