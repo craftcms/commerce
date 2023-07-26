@@ -9,7 +9,6 @@ namespace  craft\commerce\elements\conditions\products;
 
 use Craft;
 use craft\base\conditions\BaseLightswitchConditionRule;
-use craft\base\conditions\BaseNumberConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\Product;
