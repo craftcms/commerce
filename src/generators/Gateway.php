@@ -23,6 +23,7 @@ use craft\elements\User;
 use craft\generator\BaseGenerator;
 use craft\helpers\DateTimeHelper;
 use craft\web\Response as WebResponse;
+use craft\web\View;
 use yii\helpers\Inflector;
 
 /**
@@ -62,6 +63,8 @@ class Gateway extends BaseGenerator
         $this->writeGatewayClass();
         $this->writePaymentFormClass();
         $this->writeResponseClass();
+        $this->writePlanClass(); // Returns immediately if `supportsSubscriptions` is false!
+        $this->writeTemplates();
 
         if (
             $this->isForModule() &&
@@ -101,6 +104,7 @@ MD);
             ->addUse(PaymentSource::class)
             ->addUse(Transaction::class)
             ->addUse(WebResponse::class, 'WebResponse')
+            ->addUse(View::class)
             ->addUse("$this->paymentFormNamespace\\{$this->className}PaymentForm")
             ->addUse("$this->responseNamespace\\{$this->className}Response");
 
@@ -110,10 +114,12 @@ MD);
 // Return a string or render a template (and don’t forget to register any relevant asset bundles):
 \$view = Craft::\$app->getView();
 
-// If you are implementing this in a module, you will need to register a template root:
-return \$view->renderTemplate('{$this->module->id}/forms/payment', [
+\$params = array_merge([
     'gateway' => \$this,
-]);
+], \$params);
+
+// If you are implementing this in a module, you will need to register a template root:
+return \$view->renderTemplate('{$this->module->id}/forms/payment', \$params, View::TEMPLATE_MODE_CP);
 PHP,
             'authorize' => <<<PHP
     // Use the form data to determine whether the payment can be made:
@@ -213,11 +219,11 @@ PHP,
 return new {$this->className}SubscriptionResponse();
 PHP,
                 'getNextPaymentAmount' => <<<PHP
-// Return a human-readable description of the next invoice:
+// Return a human-readable description of the next expected payment or invoice:
 return 'Some formatted price or description!';
 PHP,
                 'getSubscriptionPayments' => <<<PHP
-// Get payments for the provided subscription:
+// Retrieve payment history for a subscription:
 return [];
 PHP,
                 'refreshPaymentHistory' => <<<PHP
@@ -229,6 +235,37 @@ return 'some-plan-identifier';
 PHP,
                 'getSubscriptionPlans' => <<<PHP
 return [];
+PHP,
+                'getCancelSubscriptionFormModel' => <<<PHP
+// You may need to extend this class if you are exposing additional settings to your subscribers, or need to parameterize the cancellation request in any way:
+return new CancelSubscriptionForm();
+PHP,
+                'getCancelSubscriptionFormHtml' => <<<PHP
+return Craft::\$app->getView()->renderTemplate('{$this->module->id}/forms/subscription-switch');
+PHP,
+                'getPlanSettingsHtml' => <<<PHP
+// Return HTML that exposes options available when setting up a new plan with this gateway, in the control panel. You may fetch data from the provider here, or use AJAX once the page loads in the client.
+\$params = array_merge([
+    'gateway' => \$this,
+    'plans' => [
+        // The format of this array depends on how you render the form/input(s).
+        ['label' => 'Plan A', 'value' => 'plan-a'],
+        ['label' => 'Plan B', 'value' => 'plan-b'],
+    ],
+], \$params);
+
+return Craft::\$app->getView()->renderTemplate('{$this->module->id}/settings/plan', \$params);
+PHP,
+                'getPlanModel' => <<<PHP
+return new {$this->className}Plan();
+PHP,
+                'getSubscriptionFormModel' => <<<PHP
+// You may need to extend this class if the gateway provides additional settings when configuring a subscription. The plan identifier will always be available when configuring a subscription request.
+return new SubscriptionForm();
+PHP,
+                'getSwitchPlansFormModel' => <<<PHP
+// If the provider needs extra information to perform a switch (like proration periods), you may need to create a subclass with relevant properties.
+return new SwitchPlansForm();
 PHP,
                 'subscribe' => <<<PHP
 // Create or configure the subscription record with the provider, then return a response:
@@ -267,6 +304,9 @@ return \$view->renderTemplate('{$this->module->id}/forms/resolve-billing-issue',
     'subscription' => \$subscription,
 ]);
 PHP,
+                'getSwitchPlansFormHtml' => <<<PHP
+return Craft::\$app->getView()->renderTemplate('{$this->module->id}/forms/subscription-switch');
+PHP,
             ]);
 
             // Additional `use` statements are required:
@@ -278,7 +318,8 @@ PHP,
                 ->addUse(CancelSubscriptionForm::class)
                 ->addUse(SubscriptionResponseInterface::class)
                 ->addUse(Plan::class)
-                ->addUse("{$this->responseNamespace}\\{$this->className}SubscriptionResponse");
+                ->addUse("{$this->responseNamespace}\\{$this->className}SubscriptionResponse")
+                ->addUse("{$this->baseNamespace}\\models\\Plan", "{$this->className}Plan");
         }
 
         $class = $this->createClass($this->className, $this->supportsSubscriptions ? SubscriptionGateway::class : BaseGateway::class, [
@@ -288,35 +329,9 @@ PHP,
 
         $class->setComment(<<<MD
 $this->displayName gateway
-
-You may instead extend {@see craft\commerce\base\SubscriptionGateway} if your gateway should support subscriptions! Additional methods must be implemented for 
 MD);
         $this->writePhpClass($namespace);
         $this->command->success("**Gateway created!**");
-
-        // Payment form templates:
-        $paymentFormTemplate = <<<TWIG
-{# Replace this with the HTML your form requires. Keep in mind that any `input` elements’ `name` attributes will be namespaced *after* it is returned from your gateway’s `getPaymentFormHtml()` method! #}
-<input type="hidden" name="customGatewayProperty">
-TWIG;
-
-        $this->command->writeToFile("{$this->basePath}/templates/forms/payment.twig", $paymentFormTemplate);
-
-        $this->command->success("**Created payment templates!**");
-
-        if ($this->supportsSubscriptions) {
-            $cancelSubscriptionForm = <<<TWIG
-{# Any settings you want to give the customer control of (when sending a cancellation request) should be added here. #}
-TWIG;
-            $this->command->writeToFile("{$this->basePath}/templates/forms/subscription-cancel.twig", $cancelSubscriptionForm);
-
-            $cancelSubscriptionForm = <<<TWIG
-{# Any settings you want to give the customer control of (when sending a cancellation request) should be added here. #}
-TWIG;
-            $this->command->writeToFile("{$this->basePath}/templates/forms/subscription-cancel.twig", $cancelSubscriptionForm);
-
-            $this->command->success("**Created subscription templates!**");
-        }
     }
 
     /**
@@ -431,7 +446,7 @@ PHP,
                 self::CLASS_METHODS => [
                     'getReference' => <<<PHP
 // Return an identifier for the subscription in the gateway—typically an ID or UUID generated by the processor.
-return \$this->getData()['...'] ?? '';
+return \$this->getData()['...'] ?? 'plan-identifier';
 PHP,
                     'getTrialDays' => <<<PHP
 // The time in days that the subscription will be in a "trial" state for.
@@ -453,6 +468,10 @@ PHP,
 // Based on latest information from the gateway, is the subscription in an inactive state?
 return false;
 PHP,
+                    'getData' => <<<PHP
+    // Gather data that should be stored on the subscription. This can come from properties you add to this class (and assign when instantiating it from the main gateway class), an additional API request, the database, or any other source of truth about the subscription’s state.
+    return [];
+PHP,
                 ],
             ]);
 
@@ -466,6 +485,78 @@ COMMENT);
             $this->writePhpClass($subscriptionResponseNamespace);
             $this->command->success("**Request/response class for subscriptions created!**");
         }
+    }
 
+    private function writePlanClass(): void
+    {
+        if (!$this->supportsSubscriptions) {
+            // Nothing to do!
+            return;
+        }
+
+        $modelsNamespace = (new PhpNamespace("{$this->baseNamespace}\\models"))
+            ->addUse(Plan::class, 'BasePlan');
+
+        // This uses a string for the parent class because they would end up being named the same thing. We’ve defined the alias, above!
+        $planClass = $this->createClass('Plan', Plan::class, [
+            self::CLASS_METHODS => [
+                'canSwitchFrom' => <<<PHP
+// Compare this plan to the “current” plan (the one a subscription is based on) and return whether or not they are compatible (i.e. they share a billing cycle):
+return true;
+PHP,
+            ],
+        ]);
+
+        $planClass->setComment('Subscription Plan class');
+
+        $modelsNamespace->add($planClass);
+        $this->writePhpClass($modelsNamespace);
+        $this->command->success("**Plan classes created!**");
+    }
+
+    private function writeTemplates(): void
+    {
+        // Plan settings:
+        $planSettingsTemplate = <<<TWIG
+{# You must include at least a `reference` input. It will be automatically namespaced by Commerce. #}
+{% from "_includes/forms" import selectField %}
+
+{# Plans can be pre-loaded in `getPlanSettingsHtml()` and passed to the template, or fetched via ajax and injected in the client. #}
+{{ selectField({
+    label: {$this->messageTwig('Reference')},
+    name: 'reference',
+    value: plan ? plan.reference : null,
+    options: plans,
+    errors: plan ? plan.getErrors('reference') : null,
+}) }}
+TWIG;
+
+        $this->command->writeToFile("{$this->basePath}/templates/settings/plan.twig", $planSettingsTemplate);
+
+        $this->command->success("**Created plan settings template!**");
+
+        // Payment form templates:
+        $paymentFormTemplate = <<<TWIG
+{# Replace this with the HTML your form requires. Keep in mind that any `input` elements’ `name` attributes will be namespaced *after* it is returned from your gateway’s `getPaymentFormHtml()` method! #}
+<input type="hidden" name="customGatewayProperty">
+TWIG;
+
+        $this->command->writeToFile("{$this->basePath}/templates/forms/payment.twig", $paymentFormTemplate);
+
+        $this->command->success("**Created payment template!**");
+
+        if ($this->supportsSubscriptions) {
+            $cancelSubscriptionForm = <<<TWIG
+{# Any settings you want to give the customer control of when sending a cancellation request should be added here. #}
+TWIG;
+            $this->command->writeToFile("{$this->basePath}/templates/forms/subscription-cancel.twig", $cancelSubscriptionForm);
+
+            $switchSubscriptionsForm = <<<TWIG
+{# Any settings you need to expose to the subscriber when they switch plans should be included here. #}
+TWIG;
+            $this->command->writeToFile("{$this->basePath}/templates/forms/subscription-switch.twig", $switchSubscriptionsForm);
+
+            $this->command->success("**Created subscription template!**");
+        }
     }
 }
