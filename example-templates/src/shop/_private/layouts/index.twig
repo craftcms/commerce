@@ -20,13 +20,24 @@ Common, top-level layout template.
   {% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-<div id="body" [[hx-boost]]>
+<div id="body">
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
+
+{% macro docs(text, link) %}
+    <small class="">
+        {{ tag('a', {
+            text: 'ℹ︎ ' ~ text,
+            href: link,
+            class: '[[classes.docs]]',
+            target: '_blank',
+        }) }}
+    </small>
+{% endmacro %}
 
 <header>
   <div class="bg-gray-900">

@@ -8,7 +8,7 @@
     {% redirect 'shop/checkout/payment-method' %}
   {% endif %}
 
-  <div class="md:flex md:-mx-8" >
+  <div class="md:flex md:-mx-8">
     <div class="md:w-2/3 md:px-8">
       {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
         <div class="border-b border-gray-300 pb-10 mb-10">
@@ -113,19 +113,6 @@
               {% endif %}
             {% else %}
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
-            {% endif %}
-
-            {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
-            {% if not user or not user.getIsCredentialed() %}
-              <div class="mt-3">
-                <label for="registerUserOnOrderComplete">
-                  {{ hiddenInput('registerUserOnOrderComplete', false) }}
-                  {{ input('checkbox', 'registerUserOnOrderComplete', 1, {
-                    id: 'registerUserOnOrderComplete'
-                  }) }}
-                  {{ 'Create an account'|t }}
-                </label>
-              </div>
             {% endif %}
 
             {{ include('shop/checkout/_includes/partial-payment') }}

@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Carts;
 use craftcommercetests\fixtures\CustomerAddressFixture;
+use craftcommercetests\fixtures\CustomerFixture;
 use UnitTester;
 
 /**
@@ -31,6 +32,9 @@ class CartsTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'customerAddresses' => [
                 'class' => CustomerAddressFixture::class,
             ],
@@ -60,17 +64,16 @@ class CartsTest extends Unit
             },
         ]));
 
+        $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);
         if ($loggedIn) {
-            $user = Craft::$app->getUsers()->getUserByUsernameOrEmail($email);
             Craft::$app->getUser()->setIdentity($user);
             Craft::$app->getUser()->getIdentity()->password = $user->password;
         }
 
         $newCart = new Order();
-        $newCart->setEmail($email);
+        $newCart->setCustomer($user);
         $newCart->number = $cartNumber;
         Craft::$app->getElements()->saveElement($newCart, false);
-        // Plugin::getInstance()->getCarts()->__set('cart', $newCart);
 
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
@@ -96,5 +99,40 @@ class CartsTest extends Unit
             'logged-in-user-no-auto-set-addresses' => ['cred.user@crafttest.com', false, false, false, true],
             'logged-in-user-auto-set-addresses' => ['cred.user@crafttest.com', true, true, true, true],
         ];
+    }
+
+    public function testGetCartSwitchCustomer(): void
+    {
+        $cartNumber = Plugin::getInstance()->getCarts()->generateCartNumber();
+        Plugin::getInstance()->set('carts', $this->make(Carts::class, [
+            'getSessionCartNumber' => function() use ($cartNumber) {
+                return $cartNumber;
+            },
+        ]));
+
+        $inactiveUser = $this->tester->grabFixture('customer')->getElement('inactive-user');
+        $credUser = $this->tester->grabFixture('customer')->getElement('credentialed-user');
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity($credUser);
+        Craft::$app->getUser()->getIdentity()->password = $credUser->password;
+
+
+        $order = new Order();
+        $order->number = $cartNumber;
+        $order->setCustomer($inactiveUser);
+
+        Craft::$app->getElements()->saveElement($order, false);
+        self::assertEquals($inactiveUser->id, $order->getCustomerId());
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        // assert customer has changed;
+        self::assertNotEquals($inactiveUser->id, $cart->getCustomerId());
+        self::assertEquals($credUser->id, $cart->getCustomerId());
+        self::assertEquals($credUser->email, $cart->getEmail());
+
+        // Reset data
+        Craft::$app->getUser()->setIdentity($originalIdentity);
+        Craft::$app->getElements()->deleteElement($cart, true);
     }
 }

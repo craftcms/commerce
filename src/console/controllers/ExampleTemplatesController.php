@@ -44,12 +44,6 @@ class ExampleTemplatesController extends Controller
     public bool $overwrite = false;
 
     /**
-     * @var bool|null Whether to use Htmx
-     * @since 3.3
-     */
-    public ?bool $useHtmx = null;
-
-    /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
      * @since 3.3
      */
@@ -57,19 +51,13 @@ class ExampleTemplatesController extends Controller
 
     /**
      * @var string|null The base color for the generated example templates.
-     * Possible values are: red, yellow, green, blue, indigo, purple, or pink.
      */
-    public ?string $baseColor = null;
+    public ?string $baseColor = 'blue';
 
     /**
      * @var array
      */
     private array $_replacementData = [];
-
-    /**
-     * @var string[]
-     */
-    private array $_colors = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
 
     /**
      * @inheritdoc
@@ -94,9 +82,7 @@ class ExampleTemplatesController extends Controller
     {
         if ($this->devBuild) {
             $this->overwrite = true;
-            $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->useHtmx = false;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -112,10 +98,6 @@ class ExampleTemplatesController extends Controller
         } else {
             $this->stdout('A folder will be copied to your templates directory.' . PHP_EOL);
             $folderName = $this->prompt('Choose folder name:', ['required' => true, 'default' => 'shop']);
-        }
-
-        if ($this->useHtmx === null) {
-            $this->useHtmx = $this->confirm('Use Htmx for forms and links?', true);
         }
 
         // Folder name is required
@@ -231,7 +213,7 @@ class ExampleTemplatesController extends Controller
      */
     private function _addCssClassesToReplacementData(): void
     {
-        $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
+        $mainColor = $this->baseColor;
         $dangerColor = ($mainColor === 'red') ? 'purple' : 'red';
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[color]]' => $mainColor,
@@ -239,6 +221,7 @@ class ExampleTemplatesController extends Controller
             '[[classes.text.color]]' => "text-$mainColor-500",
             '[[classes.text.dangerColor]]' => "text-$dangerColor-500",
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
+            '[[classes.docs]]' => "text-gray-400 hover:text-gray-600 hover:underline",
             '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
             '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
             '[[classes.box.selection]]' => "border-$mainColor-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg",
@@ -261,14 +244,8 @@ class ExampleTemplatesController extends Controller
             Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css'),
         ];
 
-        if ($this->useHtmx) {
-            $resourceTags[] = Html::jsFile('https://unpkg.com/htmx.org@^1');
-        }
-
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[resourceTags]]' => implode("\n", $resourceTags),
-            '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
-            '[[hx-disable]]' => $this->useHtmx ? 'hx-disable' : '',
         ]);
     }
 

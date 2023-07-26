@@ -18,6 +18,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
+use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
@@ -72,6 +73,27 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
+    /**
+     * @event Event The event that’s triggered when retrieving the purchasables for the add line item table on the order edit page.
+     * @since 4.3.0
+     *
+     * ---
+     * ```php
+     * use craft\commerce\controllers\OrdersController;
+     * use craft\commerce\events\ModifyPurchasablesQueryEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrdersController::class,
+     *     OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY,
+     *     function(ModifyCartInfoEvent $e) {
+     *         $e->query->andWhere(['sku' => 'foo']);
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_MODIFY_PURCHASABLES_TABLE_QUERY = 'modifyPurchasablesTableQuery';
+
     /**
      * @throws HttpException
      * @throws InvalidConfigException
@@ -542,10 +564,21 @@ class OrdersController extends Controller
             $sqlQuery->orderBy(['id' => 'asc']);
         }
 
+        // Trigger event before working out the total and limiting the results for pagination
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY)) {
+            $event = new ModifyPurchasablesTableQueryEvent([
+                'query' => $sqlQuery,
+                'search' => $search,
+            ]);
+            $this->trigger(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, $event);
+            $sqlQuery = $event->query;
+        }
+
         $total = $sqlQuery->count();
 
         $sqlQuery->limit($limit);
         $sqlQuery->offset($offset);
+
         $result = $sqlQuery->all();
 
         $purchasables = $this->_addLivePurchasableInfo($result);

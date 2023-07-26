@@ -141,12 +141,25 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $order->registerUserOnOrderComplete = true;
+        $registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete');
+        if ($registerUserOnOrderComplete !== null) {
+            $order->registerUserOnOrderComplete = (bool)$registerUserOnOrderComplete;
         }
 
-        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $order->registerUserOnOrderComplete = false;
+        $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
+        if ($saveBillingAddressOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveBillingAddressOnOrderComplete;
+        }
+
+        $saveShippingAddressOnOrderComplete = $this->request->getBodyParam('saveShippingAddressOnOrderComplete');
+        if ($saveShippingAddressOnOrderComplete !== null) {
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveShippingAddressOnOrderComplete;
+        }
+
+        $saveAddressesOnOrderComplete = $this->request->getBodyParam('saveAddressesOnOrderComplete');
+        if ($saveAddressesOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
         }
 
         // These are used to compare if the order changed during its final

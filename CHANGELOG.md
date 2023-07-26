@@ -2,11 +2,15 @@
 
 ## 4.3.0 - Unreleased
 
+- It’s now possible to modify the purchasables shown in the add line item table on the Edit Order page. ([#3194](https://github.com/craftcms/commerce/issues/3194))
+- Added `craft\commerce\events\ModifyPurchasablesQueryEvent`.
+- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY`.
 - Guest customers registering during checkout now have their addresses saved to their account.
 - Product conditions can now have a “Variant SKU” rule.
 - Product conditions can now have a “Variant Has Unlimited Stock” rule.
 - Product conditions can now have a “Variant Price” rule.
 - Product conditions can now have a “Variant Stock” rule.
+- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
 ## Unreleased
 
@@ -21,6 +25,8 @@
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
 - The `commerce/cart/update` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
+- Removed the htmx option from the`commerce/example-templates` command.
+- Removed the color option from the`commerce/example-templates` command.
 
 ## 4.2.11 - 2023-06-05
 
