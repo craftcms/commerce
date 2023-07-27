@@ -32,6 +32,7 @@ use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
+use craft\commerce\generators\Adjuster;
 use craft\commerce\generators\Gateway as GatewayGenerator;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
@@ -1042,6 +1043,7 @@ class Plugin extends BasePlugin
     {
         if (class_exists(Command::class)) {
             Event::on(Command::class, Command::EVENT_REGISTER_GENERATOR_TYPES, function (RegisterComponentTypesEvent $event) {
+                $event->types[] = Adjuster::class;
                 $event->types[] = GatewayGenerator::class;
             });
         }
