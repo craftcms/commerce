@@ -93,12 +93,12 @@ class ProductQueryTest extends Unit
      */
     public function testHasVariant(VariantQuery $variantQuery, int $count): void
     {
-       $query = Product::find();
+        $query = Product::find();
 
-       self::assertTrue(method_exists($query, 'hasVariant'));
-       $query->hasVariant($variantQuery);
+        self::assertTrue(method_exists($query, 'hasVariant'));
+        $query->hasVariant($variantQuery);
 
-       self::assertCount($count, $query->all());
+        self::assertCount($count, $query->all());
     }
 
     /**
