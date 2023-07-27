@@ -35,6 +35,7 @@ class ProductTypeFixture extends ActiveFixture
         ShippingCategoryFixture::class,
         ProductTypesShippingCategoriesFixture::class,
         TaxCategoryFixture::class,
+        ProductTypesTaxCategoriesFixture::class,
         ProductTypeSitesFixture::class,
     ];
 }

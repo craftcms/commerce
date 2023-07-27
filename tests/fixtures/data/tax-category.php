@@ -8,10 +8,10 @@
 return [
     [
         'id' => 101,
-        'name' => 'General 1',
-        'handle' => 'general_1',
-        'description' => 'this is the default tax category',
+        'name' => 'Another Tax Category',
+        'handle' => 'anotherTaxCategory',
+        'description' => 'this is another tax category',
         'default' => '1',
-        'uid' => 'xx-xx-xx',
+        'uid' => 'tax--category-1001---------------uid',
     ],
 ];

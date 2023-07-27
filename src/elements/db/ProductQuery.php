@@ -13,6 +13,7 @@ use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
@@ -110,6 +111,11 @@ class ProductQuery extends ElementQuery
      * @var mixed The shipping category ID(s) that the resulting products must have.
      */
     public mixed $shippingCategoryId = null;
+
+    /**
+     * @var mixed The tax category ID(s) that the resulting products must have.
+     */
+    public mixed $taxCategoryId = null;
 
     /**
      * @inheritdoc
@@ -526,6 +532,92 @@ class ProductQuery extends ElementQuery
 
         return $this;
     }
+
+    /**
+     * Narrows the query results based on the products’ tax categories, per the tax categories’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a tax category with an ID of 1.
+     * | `'not 1'` | not of a tax category with an ID of 1.
+     * | `[1, 2]` | of a tax category with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a tax category with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the tax category with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategoryId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the tax category with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->taxCategoryId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function taxCategoryId(mixed $value): ProductQuery
+    {
+        $this->taxCategoryId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ tax category.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a tax category with a handle of `foo`.
+     * | `'not foo'` | not of a tax category with a handle of `foo`.
+     * | `['foo', 'bar']` | of a tax category with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a tax category with a handle of `foo` or `bar`.
+     * | an [[ShippingCategory|ShippingCategory]] object | of a tax category represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo tax category #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategory('foo')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo tax category
+     * ${elements-var} = {php-method}
+     *     ->taxCategory('foo')
+     *     ->all();
+     * ```
+     *
+     * @param TaxCategory|string|null|array<string> $value The property value
+     * @return static self reference
+     */
+    public function taxCategory(mixed $value): ProductQuery
+    {
+        if ($value instanceof TaxCategory) {
+            $this->taxCategoryId = [$value->id];
+        } elseif ($value !== null) {
+            $this->taxCategoryId = (new Query())
+                ->from(['taxcategories' => Table::TAXCATEGORIES])
+                ->where(['taxcategories.id' => new Expression('[[commerce_products.taxCategoryId]]')])
+                ->andWhere(Db::parseParam('handle', $value));
+        } else {
+            $this->taxCategoryId = null;
+        }
+
+        return $this;
+    }
+
     /**
      * Narrows the query results to only products that were posted before a certain date.
      *
@@ -888,6 +980,16 @@ class ProductQuery extends ElementQuery
             }
 
             $this->subQuery->andWhere($shippingCategoryWhere);
+        }
+
+        if (isset($this->taxCategoryId)) {
+            if ($this->taxCategoryId instanceof Query) {
+                $taxCategoryWhere = ['exists', $this->taxCategoryId];
+            } else {
+                $taxCategoryWhere = Db::parseParam('commerce_products.taxCategoryId', $this->taxCategoryId);
+            }
+
+            $this->subQuery->andWhere($taxCategoryWhere);
         }
 
         if (isset($this->defaultPrice)) {

@@ -13,6 +13,7 @@ use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
@@ -189,6 +190,87 @@ class ProductQueryTest extends Unit
             'not-in' => [['not', 'foo', 'bar'], 2],
             'matching-shipping-category' => [$matchingShippingCategory, 1],
             'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
+        ];
+    }
+
+    /**
+     * @param mixed $taxCategoryId
+     * @param int $count
+     * @return void
+     * @dataProvider taxCategoryIdDataProvider
+     */
+    public function testTaxCategoryId(mixed $taxCategoryId, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'taxCategoryId'));
+        $query->taxCategoryId($taxCategoryId);
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @param mixed $taxCategoryId
+     * @param int $count
+     * @return void
+     * @dataProvider taxCategoryIdDataProvider
+     */
+    public function testTaxCategoryIdProperty(mixed $taxCategoryId, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'taxCategoryId'));
+        $query->taxCategoryId = $taxCategoryId;
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @return array
+     */
+    public function taxCategoryIdDataProvider(): array
+    {
+        return [
+            'no-params' => [null, 2],
+            'specific-id' => [101, 1],
+            'in' => [[101, 102], 1],
+            'not-in' => [['not', 102, 103], 2],
+            'greater-than' => ['> 100', 1],
+            'less-than' => ['< 100', 1],
+        ];
+    }
+
+    /**
+     * @param mixed $taxCategory
+     * @param int $count
+     * @return void
+     * @dataProvider taxCategoryDataProvider
+     */
+    public function testTaxCategory(mixed $taxCategory, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'taxCategoryId'));
+        $query->taxCategory($taxCategory);
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @return array
+     */
+    public function taxCategoryDataProvider(): array
+    {
+        $matchingTaxCategory = new TaxCategory(['id' => 101]);
+        $nonMatchingTaxCategory = new TaxCategory(['id' => 999]);
+
+        return [
+            'no-params' => [null, 2],
+            'specific-handle' => ['anotherTaxCategory', 1],
+            'in' => [['anotherTaxCategory', 'general'], 2],
+            'not-in' => [['not', 'foo', 'bar'], 2],
+            'matching-tax-category' => [$matchingTaxCategory, 1],
+            'non-matching-tax-category' => [$nonMatchingTaxCategory, 0],
         ];
     }
 }
