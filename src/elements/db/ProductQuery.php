@@ -508,7 +508,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param ProductType|string|null|array<string> $value The property value
+     * @param ShippingCategory|string|null|array<string> $value The property value
      * @return static self reference
      */
     public function shippingCategory(mixed $value): ProductQuery
