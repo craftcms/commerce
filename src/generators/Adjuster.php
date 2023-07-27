@@ -10,7 +10,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\services\OrderAdjustments;
 use craft\generator\BaseGenerator;
-use Illuminate\Support\Collection;
+use Nette\PhpGenerator\Constant;
 use yii\helpers\Inflector;
 
 /**
@@ -68,6 +68,12 @@ return \$adjustments;
 PHP,
             ],
         ]);
+
+        $typeConstant = new Constant('ADJUSTMENT_TYPE');
+        $typeConstant->setValue('discount');
+        $typeConstant->setComment('Must be one of `discount`, `shipping`, or `tax`.');
+
+        $class->addMember($typeConstant);
         $namespace->add($class);
 
         $class->setComment(<<<MD
