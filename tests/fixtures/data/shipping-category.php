@@ -12,6 +12,6 @@ return [
         'handle' => 'anotherShippingCategory',
         'description' => 'this is another shipping category',
         'default' => 0,
-        'uid' => 'xx-xx-xx',
+        'uid' => 'ship-category-1001---------------uid',
     ],
 ];
