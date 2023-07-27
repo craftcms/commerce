@@ -31,5 +31,10 @@ class ProductTypeFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $depends = [ProductTypeSitesFixture::class];
+    public $depends = [
+        ShippingCategoryFixture::class,
+        ProductTypesShippingCategoriesFixture::class,
+        TaxCategoryFixture::class,
+        ProductTypeSitesFixture::class,
+    ];
 }

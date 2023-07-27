@@ -12,6 +12,7 @@ use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\ShippingCategory;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
@@ -107,6 +108,87 @@ class ProductQueryTest extends Unit
         return [
             'no-params' => [Variant::find(), 2],
             'specific-variant' => [Variant::find()->sku('rad-hood'), 1],
+        ];
+    }
+
+    /**
+     * @param mixed $shippingCategoryId
+     * @param int $count
+     * @return void
+     * @dataProvider shippingCategoryIdDataProvider
+     */
+    public function testShippingCategoryId(mixed $shippingCategoryId, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'shippingCategoryId'));
+        $query->shippingCategoryId($shippingCategoryId);
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @param mixed $shippingCategoryId
+     * @param int $count
+     * @return void
+     * @dataProvider shippingCategoryIdDataProvider
+     */
+    public function testShippingCategoryIdProperty(mixed $shippingCategoryId, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'shippingCategoryId'));
+        $query->shippingCategoryId = $shippingCategoryId;
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @return array
+     */
+    public function shippingCategoryIdDataProvider(): array
+    {
+        return [
+            'no-params' => [null, 2],
+            'specific-id' => [101, 1],
+            'in' => [[101, 102], 1],
+            'not-in' => [['not', 102, 103], 2],
+            'greater-than' => ['> 100', 1],
+            'less-than' => ['< 100', 1],
+        ];
+    }
+
+    /**
+     * @param mixed $shippingCategory
+     * @param int $count
+     * @return void
+     * @dataProvider shippingCategoryDataProvider
+     */
+    public function testShippingCategory(mixed $shippingCategory, int $count): void
+    {
+        $query = Product::find();
+
+        self::assertTrue(method_exists($query, 'shippingCategoryId'));
+        $query->shippingCategory($shippingCategory);
+
+        self::assertCount($count, $query->all());
+    }
+
+    /**
+     * @return array
+     */
+    public function shippingCategoryDataProvider(): array
+    {
+        $matchingShippingCategory = new ShippingCategory(['id' => 101]);
+        $nonMatchingShippingCategory = new ShippingCategory(['id' => 999]);
+
+        return [
+            'no-params' => [null, 2],
+            'specific-handle' => ['anotherShippingCategory', 1],
+            'in' => [['anotherShippingCategory', 'general'], 2],
+            'not-in' => [['not', 'foo', 'bar'], 2],
+            'matching-shipping-category' => [$matchingShippingCategory, 1],
+            'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
         ];
     }
 }
