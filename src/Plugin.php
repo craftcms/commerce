@@ -34,6 +34,7 @@ use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
 use craft\commerce\generators\Adjuster;
 use craft\commerce\generators\Gateway as GatewayGenerator;
+use craft\commerce\generators\ShippingMethod;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -1045,6 +1046,7 @@ class Plugin extends BasePlugin
             Event::on(Command::class, Command::EVENT_REGISTER_GENERATOR_TYPES, function (RegisterComponentTypesEvent $event) {
                 $event->types[] = Adjuster::class;
                 $event->types[] = GatewayGenerator::class;
+                $event->types[] = ShippingMethod::class;
             });
         }
     }
