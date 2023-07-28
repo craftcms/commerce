@@ -3,7 +3,6 @@
 namespace craft\commerce\generators;
 
 use Craft;
-use Nette\PhpGenerator\PhpNamespace;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\helpers\Currency;
@@ -11,6 +10,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\services\OrderAdjustments;
 use craft\generator\BaseGenerator;
 use Nette\PhpGenerator\Constant;
+use Nette\PhpGenerator\PhpNamespace;
 use yii\helpers\Inflector;
 
 /**

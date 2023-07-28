@@ -3,7 +3,6 @@
 namespace craft\commerce\generators;
 
 use Craft;
-use Nette\PhpGenerator\PhpNamespace;
 use craft\commerce\base\Gateway as BaseGateway;
 use craft\commerce\base\Plan;
 use craft\commerce\base\RequestResponseInterface;
@@ -24,6 +23,7 @@ use craft\generator\BaseGenerator;
 use craft\helpers\DateTimeHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
+use Nette\PhpGenerator\PhpNamespace;
 use yii\helpers\Inflector;
 
 /**

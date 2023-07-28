@@ -1043,7 +1043,7 @@ class Plugin extends BasePlugin
     private function _registerGenerators(): void
     {
         if (class_exists(Command::class)) {
-            Event::on(Command::class, Command::EVENT_REGISTER_GENERATOR_TYPES, function (RegisterComponentTypesEvent $event) {
+            Event::on(Command::class, Command::EVENT_REGISTER_GENERATOR_TYPES, function(RegisterComponentTypesEvent $event) {
                 $event->types[] = Adjuster::class;
                 $event->types[] = GatewayGenerator::class;
                 $event->types[] = ShippingMethod::class;

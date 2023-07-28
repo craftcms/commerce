@@ -4,12 +4,12 @@ namespace craft\commerce\generators;
 
 use Craft;
 use craft\commerce\base\Model;
-use Nette\PhpGenerator\PhpNamespace;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\ShippingRule;
 use craft\generator\BaseGenerator;
+use Nette\PhpGenerator\PhpNamespace;
 use yii\helpers\Inflector;
 
 /**
