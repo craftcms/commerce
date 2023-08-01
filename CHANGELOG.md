@@ -3,11 +3,22 @@
 ## 4.3.0 - Unreleased
 
 - Sales and Discounts now support using related entries in their conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134))
+- It’s now possible to query products by shipping category and tax category. ([#3219](https://github.com/craftcms/commerce/issues/3219))
 - It’s now possible to modify the purchasables shown in the add line item table on the Edit Order page. ([#3194](https://github.com/craftcms/commerce/issues/3194))
 - Added `craft\commerce\events\ModifyPurchasablesQueryEvent`.
 - Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY`.
 - Guest customers registering during checkout now have their addresses saved to their account.
+- Product conditions can now have a “Variant SKU” rule.
+- Product conditions can now have a “Variant Has Unlimited Stock” rule.
+- Product conditions can now have a “Variant Price” rule.
+- Product conditions can now have a “Variant Stock” rule.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
+- Added `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`.
+- Added `craft\commerce\elements\db\ProductQuery::$taxCategoryId`.
+- Added `craft\commerce\elements\db\ProductQuery::shippingCategory()`.
+- Added `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`.
+- Added `craft\commerce\elements\db\ProductQuery::taxCategory()`.
+- Added `craft\commerce\elements\db\ProductQuery::taxCategoryId()`.
 
 ## Unreleased
 

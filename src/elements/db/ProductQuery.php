@@ -12,6 +12,8 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
@@ -20,6 +22,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
@@ -105,6 +108,16 @@ class ProductQuery extends ElementQuery
     public mixed $typeId = null;
 
     /**
+     * @var mixed The shipping category ID(s) that the resulting products must have.
+     */
+    public mixed $shippingCategoryId = null;
+
+    /**
+     * @var mixed The tax category ID(s) that the resulting products must have.
+     */
+    public mixed $taxCategoryId = null;
+
+    /**
      * @inheritdoc
      */
     protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
@@ -151,6 +164,9 @@ class ProductQuery extends ElementQuery
                 break;
             case 'defaultSku':
                 $this->defaultSku($value);
+                break;
+            case 'shippingCategory':
+                $this->shippingCategory($value);
                 break;
             default:
                 parent::__set($name, $value);
@@ -427,6 +443,176 @@ class ProductQuery extends ElementQuery
                 ->column();
         } else {
             $this->typeId = null;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ shipping categories, per the shipping categories’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a shipping category with an ID of 1.
+     * | `'not 1'` | not of a shipping category with an ID of 1.
+     * | `[1, 2]` | of a shipping category with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a shipping category with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the shipping category with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingCategoryId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the shipping category with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->shippingCategoryId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function shippingCategoryId(mixed $value): ProductQuery
+    {
+        $this->shippingCategoryId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ shipping category.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a shipping category with a handle of `foo`.
+     * | `'not foo'` | not of a shipping category with a handle of `foo`.
+     * | `['foo', 'bar']` | of a shipping category with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a shipping category with a handle of `foo` or `bar`.
+     * | an [[ShippingCategory|ShippingCategory]] object | of a shipping category represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo shipping category #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingCategory('foo')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo shipping category
+     * ${elements-var} = {php-method}
+     *     ->shippingCategory('foo')
+     *     ->all();
+     * ```
+     *
+     * @param ShippingCategory|string|null|array<string> $value The property value
+     * @return static self reference
+     */
+    public function shippingCategory(mixed $value): ProductQuery
+    {
+        if ($value instanceof ShippingCategory) {
+            $this->shippingCategoryId = [$value->id];
+        } elseif ($value !== null) {
+            $this->shippingCategoryId = (new Query())
+                ->from(['shippingcategories' => Table::SHIPPINGCATEGORIES])
+                ->where(['shippingcategories.id' => new Expression('[[commerce_products.shippingCategoryId]]')])
+                ->andWhere(Db::parseParam('handle', $value));
+        } else {
+            $this->shippingCategoryId = null;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ tax categories, per the tax categories’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a tax category with an ID of 1.
+     * | `'not 1'` | not of a tax category with an ID of 1.
+     * | `[1, 2]` | of a tax category with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a tax category with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the tax category with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategoryId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the tax category with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->taxCategoryId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function taxCategoryId(mixed $value): ProductQuery
+    {
+        $this->taxCategoryId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ tax category.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a tax category with a handle of `foo`.
+     * | `'not foo'` | not of a tax category with a handle of `foo`.
+     * | `['foo', 'bar']` | of a tax category with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a tax category with a handle of `foo` or `bar`.
+     * | an [[ShippingCategory|ShippingCategory]] object | of a tax category represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo tax category #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategory('foo')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo tax category
+     * ${elements-var} = {php-method}
+     *     ->taxCategory('foo')
+     *     ->all();
+     * ```
+     *
+     * @param TaxCategory|string|null|array<string> $value The property value
+     * @return static self reference
+     */
+    public function taxCategory(mixed $value): ProductQuery
+    {
+        if ($value instanceof TaxCategory) {
+            $this->taxCategoryId = [$value->id];
+        } elseif ($value !== null) {
+            $this->taxCategoryId = (new Query())
+                ->from(['taxcategories' => Table::TAXCATEGORIES])
+                ->where(['taxcategories.id' => new Expression('[[commerce_products.taxCategoryId]]')])
+                ->andWhere(Db::parseParam('handle', $value));
+        } else {
+            $this->taxCategoryId = null;
         }
 
         return $this;
@@ -784,6 +970,26 @@ class ProductQuery extends ElementQuery
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
+        }
+
+        if (isset($this->shippingCategoryId)) {
+            if ($this->shippingCategoryId instanceof Query) {
+                $shippingCategoryWhere = ['exists', $this->shippingCategoryId];
+            } else {
+                $shippingCategoryWhere = Db::parseParam('commerce_products.shippingCategoryId', $this->shippingCategoryId);
+            }
+
+            $this->subQuery->andWhere($shippingCategoryWhere);
+        }
+
+        if (isset($this->taxCategoryId)) {
+            if ($this->taxCategoryId instanceof Query) {
+                $taxCategoryWhere = ['exists', $this->taxCategoryId];
+            } else {
+                $taxCategoryWhere = Db::parseParam('commerce_products.taxCategoryId', $this->taxCategoryId);
+            }
+
+            $this->subQuery->andWhere($taxCategoryWhere);
         }
 
         if (isset($this->defaultPrice)) {
