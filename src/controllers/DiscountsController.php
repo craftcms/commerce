@@ -21,6 +21,7 @@ use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -183,7 +184,8 @@ class DiscountsController extends BaseCpController
         $discount->percentDiscount = -Localization::normalizePercentage($percentDiscount);
 
         // Set purchasable conditions
-        if ($discount->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
+        $allPurchasables = !$this->request->getBodyParam('allPurchasables', false);
+        if ($discount->allPurchasables = $allPurchasables) {
             $discount->setPurchasableIds([]);
         } else {
             $purchasables = [];
@@ -197,15 +199,21 @@ class DiscountsController extends BaseCpController
             $discount->setPurchasableIds($purchasables);
         }
 
+        // False in the allCategories param is true in the DB
+        $allCategories = !$this->request->getBodyParam('allCategories', false);
         // Set category conditions
-        if ($discount->allCategories = (bool)$this->request->getBodyParam('allCategories')) {
+        if ($discount->allCategories = $allCategories) {
             $discount->setCategoryIds([]);
         } else {
-            $categories = $this->request->getBodyParam('categories', []);
-            if (!$categories) {
-                $categories = [];
+            $relatedElements = [];
+            $relatedElementByType = $this->request->getBodyParam('relatedElements') ?: [];
+            foreach ($relatedElementByType as $type) {
+                if (is_array($type)) {
+                    array_push($relatedElements, ...$type);
+                }
             }
-            $discount->setCategoryIds($categories);
+            $relatedElements = array_unique($relatedElements);
+            $discount->setCategoryIds($relatedElements);
         }
 
         $coupons = $this->request->getBodyParam('coupons') ?: [];
@@ -489,8 +497,12 @@ class DiscountsController extends BaseCpController
         }
 
         $variables['categoryElementType'] = Category::class;
+        $variables['entryElementType'] = Entry::class;
         $variables['categories'] = null;
+        $variables['entries'] = null;
+
         $categories = [];
+        $entries = [];
 
         if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
             $categoryIds = explode('|', $this->request->getParam('categoryIds'));
@@ -500,15 +512,22 @@ class DiscountsController extends BaseCpController
 
         foreach ($categoryIds as $categoryId) {
             $id = (int)$categoryId;
-            $categories[] = Craft::$app->getElements()->getElementById($id);
+            $element = Craft::$app->getElements()->getElementById($id);
+
+            if ($element instanceof Category) {
+                $categories[] = $element;
+            } elseif ($element instanceof Entry) {
+                $entries[] = $element;
+            }
         }
 
         $variables['categories'] = $categories;
+        $variables['entries'] = $entries;
 
-        $variables['categoryRelationshipTypeOptions'] = [
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source - The category relationship field is on the purchasable'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target - The purchasable relationship field is on the category'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either (Default) - The relationship field is on the purchasable or the category'),
+        $variables['elementRelationshipTypeOptions'] = [
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'The purchasable defines the relationship'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'The purchasable is related by another element'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either way'),
         ];
 
         $variables['appliedTo'] = [
