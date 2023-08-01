@@ -21,9 +21,9 @@ Outputs form for collecting a cart number to be loaded.
           {{- 'Cart Number'|t -}}
         </label>
         <div>
-          {{ input('text', 'number', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded', {
+          {{ input('text', 'number', {
             id: 'number',
-            class: ['w-full', ''],
+            class: ['w-full', 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'],
             placeholder: '7e89fh0ew8034…'
           }) }}
         </div>
