@@ -2,12 +2,10 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\db\Table;
 use craft\db\Migration;
 use craft\db\Table as CraftTable;
 use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
 
 /**
  * m230724_080855_entrify_promotions migration.
