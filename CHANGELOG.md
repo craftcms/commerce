@@ -20,7 +20,7 @@
 - Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
-- The `commerce/cart/update` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
+- The `commerce/cart/update-cart` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
 - Removed the htmx option from the`commerce/example-templates` command.
 - Removed the color option from the`commerce/example-templates` command.
 
