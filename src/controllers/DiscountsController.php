@@ -114,7 +114,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionSave(): void
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -222,7 +222,7 @@ class DiscountsController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
-            $this->redirectToPostedUrl($discount);
+            return $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
 
@@ -238,6 +238,8 @@ class DiscountsController extends BaseCpController
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);
+
+        return null;
     }
 
     /**

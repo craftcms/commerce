@@ -7,11 +7,25 @@
     { label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
 ] %}
 
-{% set fullPageForm = false %}
+{% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
+{% set mainFormAttributes = {
+    id: 'discountform',
+    method: 'post',
+    'accept-charset': 'UTF-8'
+} %}
+
+{% set formActions = [
+  {
+    label: 'Save and continue editing'|t('app'),
+    redirect: (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash,
+    retainScroll: true,
+    shortcut: true,
+  }]
+%}
 
 {% set discountClasses = "" %}
 {% if (discount.getErrors('name')) %}
@@ -22,8 +36,6 @@
 {% if false %}
     {% set matchingItemsClasses = "error" %}
 {% endif %}
-
-{% set conditionRulesClasses = "" %}
 
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
@@ -100,38 +112,10 @@
     {% hook "cp.commerce.discounts.edit.details" %}
 {% endblock %}
 
-{% block actionButton %}
-    <div class="btngroup">
-        <button type="button" class="btn submit formsubmit" data-form="discountform">{{ 'Save'|t('app') }}</button>
-        <button type="button" class="btn submit menubtn" data-form="discountform"></button>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a class="formsubmit"
-                       data-redirect="{{ (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash }}">
-                        {{ forms.optionShortcutLabel('S') }}
-                        {{ "Save and continue editing"|t('app') }}
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-{% endblock %}
-
 {% block content %}
-        {% set formAttributes = {
-            id: 'discountform',
-            method: 'post',
-            'accept-charset': 'UTF-8',
-            data: {
-                saveshortcut: true,
-                'saveshortcut-redirect':  'commerce/promotions/discounts'|hash,
-                'confirm-unload': true
-            },
-        } %}
-    <form {{ attr(formAttributes) }}>
-    <input type="hidden" name="action" value="commerce/discounts/save">
+    {{ actionInput('commerce/discounts/save') }}
     {{ redirectInput('commerce/promotions/discounts') }}
+
     {% if discount.id %}
         <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">
         <input type="hidden" name="id" value="{{ discount.id }}">

@@ -12,6 +12,21 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
+{% set mainFormAttributes = {
+    id: 'saleform',
+    method: 'post',
+    'accept-charset': 'UTF-8'
+} %}
+
+{% set formActions = [
+    {
+        label: 'Save and continue editing'|t('app'),
+        redirect: (isNewSale ? 'commerce/promotions/sales/{id}' : sale.getCpEditUrl())|hash,
+        retainScroll: true,
+        shortcut: true,
+    }]
+%}
+
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
     {% set actionClasses = "error" %}
@@ -65,24 +80,6 @@
     {% endif %}
 
     {% hook "cp.commerce.sales.edit.details" %}
-{% endblock %}
-
-{% block actionButton %}
-    <div class="btngroup">
-        <button type="button" class="btn submit formsubmit">{{ 'Save'|t('app') }}</button>
-        <button type="button" class="btn submit menubtn"></button>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a class="formsubmit"
-                       data-redirect="{{ (isNewSale ? 'commerce/promotions/sales/{id}' : sale.getCpEditUrl())|hash }}">
-                        {{ forms.optionShortcutLabel('S') }}
-                        {{ "Save and continue editing"|t('app') }}
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
 {% endblock %}
 
 {% block content %}
