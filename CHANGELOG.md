@@ -22,6 +22,7 @@
 
 ## Unreleased
 
+- Variant min and max quantity fields now validate together logically. ([#3234](https://github.com/craftcms/commerce/issues/3234))
 - Added the “Product Type” product condition rule. ([#3209](https://github.com/craftcms/commerce/issues/3209))
 - Fixed a bug where `hasMatchingAddresses()` was incorrectly returning `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
 - Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))

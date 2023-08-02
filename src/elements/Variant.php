@@ -360,6 +360,9 @@ class Variant extends Purchasable
             [['sku'], 'string', 'max' => 255],
             [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            // maxQty must be greater than minQty and minQty must be less than maxQty
+            [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
+            [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
             [
                 ['stock'],
                 'required',
@@ -371,6 +374,28 @@ class Variant extends Purchasable
             ],
             [['stock'], 'number'],
         ]);
+    }
+
+    /**
+     * @return void
+     * @noinspection PhpUnused
+     */
+    public function validateMinQtyRange()
+    {
+        if ($this->minQty && $this->maxQty && $this->minQty > $this->maxQty) {
+            $this->addError('minQty', Craft::t('commerce', 'Min quantity must be less than max.'));
+        }
+    }
+
+    /**
+     * @return void
+     * @noinspection PhpUnused
+     */
+    public function validateMaxQtyRange()
+    {
+        if ($this->minQty && $this->maxQty && $this->maxQty < $this->minQty) {
+            $this->addError('maxQty', Craft::t('commerce', 'Max quantity must greater than min.'));
+        }
     }
 
     /**
