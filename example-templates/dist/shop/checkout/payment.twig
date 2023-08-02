@@ -98,9 +98,6 @@
                 {% endnamespace %}
               </div>
 
-              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-              {% include 'shop/checkout/_includes/base-payment-form-styles' %}
-
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
                   <label>
