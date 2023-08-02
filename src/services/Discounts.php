@@ -423,7 +423,6 @@ class Discounts extends Component
                 // Get discount by related category
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $categoryIds = $discount->getCategoryIds();
-                // TODO: Rename to relatedEntries in Commerce 5
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
                 $relatedEntries = Entry::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
                 $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
