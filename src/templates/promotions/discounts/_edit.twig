@@ -212,7 +212,7 @@
             {% if showEntries %}
             {{ forms.elementSelectField({
                 id: 'entries',
-                label: 'Entries'|t('commerce'),
+                label: 'Entries'|t('app'),
                 name: 'relatedElements[entries]',
                 elements: entries ? entries : null,
                 elementType: entryElementType,
@@ -222,7 +222,7 @@
             {% endif %}
 
             <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
-               data-target="categoryRelationshipType-advanced">{{ 'Advanced'|t('commerce') }}</a>
+               data-target="categoryRelationshipType-advanced">{{ 'Advanced'|t('app') }}</a>
 
             <div id="categoryRelationshipType-advanced"
                  class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">

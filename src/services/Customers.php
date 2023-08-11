@@ -409,7 +409,7 @@ class Customers extends Component
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {
-                    $newAttributes['title'] = Craft::t('commerce', 'Address');
+                    $newAttributes['title'] = Craft::t('app', 'Address');
                     $shippingAddress = null;
                 }
 
