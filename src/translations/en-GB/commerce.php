@@ -563,7 +563,7 @@ return [
     'Match Shipping Address' => 'Match Shipping Address',
     'Matching Items' => 'Matching Items',
     'Max Uses' => 'Max Uses',
-    'Max quantity must greater than min.' => 'Max quantity must greater than min.',
+    'Max quantity must greater than min.' => 'Max quantity must be greater than min.',
     'Maximum Order Quantity' => 'Maximum Order Quantity',
     'Maximum Order Total Value' => 'Maximum Order Total Value',
     'Maximum Order Total Weight' => 'Maximum Order Total Weight',
