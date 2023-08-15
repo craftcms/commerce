@@ -370,7 +370,7 @@ return [
     'Edit “{type}” products' => 'Editar produtos "{type}"',
     'Edit' => 'Editar',
     'Effect' => 'Efeito',
-    'Either way' => 'Mesmo assim',
+    'Either way' => 'Ambas',
     'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}' => 'Erro de geração de email com PDF para o email “{email}”. Pedido: “{order}”. Erro de modelo de PDF: “{message}” {file}:{line}',
     'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.' => 'O modelo do PDF de email não existe em “{templatePath}” para o email “{email}”. Encomenda: “{order}”.',
     'Email Subject' => 'Assunto do E-mail',
