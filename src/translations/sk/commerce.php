@@ -150,7 +150,7 @@ return [
     'Commerce email “{email}” could not be sent for order “{order}”.' => 'E-mail systému Commerce „{email}“ pre objednávku „{order}“ sa nedá odoslať.',
     'Commerce order exports' => 'Exporty objednávok systému Commerce',
     'Commerce' => 'Commerce',
-    'Completed Email' => 'Vyplnený e-mail',
+    'Completed Email' => 'Zadaný e-mail',
     'Completed' => 'Dokončené',
     'Completing order failed.' => 'Nepodarilo sa dokončiť objednávku.',
     'Condition' => 'Stav',
