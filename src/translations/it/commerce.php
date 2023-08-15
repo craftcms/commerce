@@ -150,7 +150,7 @@ return [
     'Commerce email “{email}” could not be sent for order “{order}”.' => 'Impossibile inviare l’email di Commerce “{email}” per l’ordine “{order}”.',
     'Commerce order exports' => 'Esportazioni ordini da Commerce',
     'Commerce' => 'Commerce',
-    'Completed Email' => 'E-mail completata',
+    'Completed Email' => 'E-mail completa',
     'Completed' => 'Completato',
     'Completing order failed.' => 'Completamento dell\'ordine fallito.',
     'Condition' => 'Condizione',
