@@ -150,7 +150,7 @@ return [
     'Commerce email “{email}” could not be sent for order “{order}”.' => 'Salgs-e-post «{email}» kunne ikke sendes for bestilling «{order}».',
     'Commerce order exports' => 'Eksport av handelsordre',
     'Commerce' => 'Handel',
-    'Completed Email' => 'Fullført e-post',
+    'Completed Email' => 'E-postadresse',
     'Completed' => 'Fullført',
     'Completing order failed.' => 'Fullføring av ordre mislyktes.',
     'Condition' => 'Tilstand',
