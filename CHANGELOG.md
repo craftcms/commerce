@@ -33,6 +33,11 @@
 - Fixed a bug where address changes weren’t being synced to carts using them as a source. ([#3178](https://github.com/craftcms/commerce/issues/3178))
 - Removed the htmx option from the`commerce/example-templates` command.
 - Removed the color option from the`commerce/example-templates` command.
+- Improved performance of discount recalculation.
+- Added `craft\commerce\models\Discount::hasOrderCondition()`.
+- Added `craft\commerce\models\Discount::hasCustomerCondition()`.
+- Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
+- Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 
 ## 4.2.11 - 2023-06-05
