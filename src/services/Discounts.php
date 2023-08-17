@@ -29,6 +29,7 @@ use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
@@ -496,8 +497,10 @@ class Discounts extends Component
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
+                $relatedEntries = Entry::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
+                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
 
-                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -532,13 +535,18 @@ class Discounts extends Component
             return false;
         }
 
+        // TODO: Rename to allEntries in Commerce 5
         if (!$discount->allCategories) {
             $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+
+                $relatedEntries = Entry::find()->relatedTo($relatedTo)->ids();
                 $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-                $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
+
+                $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
+                $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());
                 if (!$purchasableIsRelateToOneOrMoreCategories) {
                     return $this->_matchingLineItemCategoryCondition[$key] = false;
                 }
@@ -1152,6 +1160,7 @@ class Discounts extends Component
         foreach ($discounts as &$discount) {
             // @TODO remove this when we can widen the accepted params on the setters
             $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? StringHelper::split($discount['purchasableIds']) : [];
+            // IDs can be either category ID or entry ID due to the entryfication
             $discount['categoryIds'] = !empty($discount['categoryIds']) ? StringHelper::split($discount['categoryIds']) : [];
             $discount['orderCondition'] = $discount['orderCondition'] ?? '';
             $discount['customerCondition'] = $discount['customerCondition'] ?? '';

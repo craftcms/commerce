@@ -190,11 +190,15 @@ class Discount extends Model
 
     /**
      * @var bool Match all product types
+     *
+     * TODO: Rename to $allEntries in Commerce 5
      */
     public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
+     *
+     * TODO: Rename to $entryRelationshipType in Commerce 5
      */
     public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 

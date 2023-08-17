@@ -2063,6 +2063,7 @@ class Order extends Element
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->itemSubtotal = $this->getItemSubtotal();
         $orderRecord->email = $this->getEmail() ?: '';
+        $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
         $orderRecord->isCompleted = $this->isCompleted;
 
         $dateOrdered = $this->dateOrdered;
