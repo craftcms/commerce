@@ -148,7 +148,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
- * @property ShippingMethodOption[] $availableShippingMethodOptions
+ * @property-read ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read float|int $totalAuthorized
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
