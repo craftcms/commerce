@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
@@ -259,8 +260,17 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
+
+                $sourceCreated = false;
                 try {
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+
+                    // Last line of try block we have a successful payment source creation
+                    $sourceCreated = true;
+                } catch (PaymentSourceCreatedLaterException $exception) {
+                    if (property_exists($paymentForm, 'paymentSource')) {
+                        $paymentForm->savePaymentSource = true;
+                    }
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
 
@@ -280,8 +290,10 @@ class PaymentsController extends BaseFrontEndController
                     );
                 }
 
-                $order->setPaymentSource($paymentSource);
-                $paymentForm->populateFromPaymentSource($paymentSource);
+                if ($sourceCreated) {
+                    $order->setPaymentSource($paymentSource);
+                    $paymentForm->populateFromPaymentSource($paymentSource);
+                }
             }
         }
 
