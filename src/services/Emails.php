@@ -910,7 +910,7 @@ class Emails extends Component
                 'emails.plainTextTemplatePath',
                 'emails.uid',
             ])
-            ->orderBy('name')
+            ->orderBy('emails.name')
             ->from([Table::EMAILS . ' emails']);
 
         // todo: remove schema version condition after next beakpoint
