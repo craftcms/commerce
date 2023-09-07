@@ -455,6 +455,7 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
+        $redirect = ($redirect ?: null) ?? $order->returnUrl ?? $this->getPostedRedirectUrl($order);
 
         if ($this->request->getAcceptsJson()) {
             return $this->asModelSuccess(
@@ -472,15 +473,7 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
-        if ($redirect) {
-            return $this->redirect($redirect);
-        }
-
-        if ($order->returnUrl) {
-            return $this->redirect($order->returnUrl);
-        }
-
-        return $this->redirectToPostedUrl($order);
+        return $this->redirect($redirect);
     }
 
     /**
