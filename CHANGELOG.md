@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where emails were not being ordered by name correctly. ([#3263](https://github.com/craftcms/commerce/issues/3263))
+
 ## 3.4.22.1 - 2023-06-03
 
 - Fixed a bug where the incorrect version number was being shown after updating.
