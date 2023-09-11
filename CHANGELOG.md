@@ -16,6 +16,7 @@
 - The `commerce/cart/update` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
 - Removed the htmx option from the`commerce/example-templates` command.
 - Removed the color option from the`commerce/example-templates` command.
+- Fixed an XSS vulnerability.
 
 ## 4.2.11 - 2023-06-05
 
