@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where emails were not being ordered by name correctly. ([#3263](https://github.com/craftcms/commerce/issues/3263))
+- Fixed an XSS vulnerability.
 
 ## 3.4.22.1 - 2023-06-03
 

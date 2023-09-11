@@ -1303,7 +1303,7 @@ class Product extends Element
         switch ($attribute) {
             case 'type':
             {
-                return ($productType ? Craft::t('site', $productType->name) : '');
+                return ($productType ? Craft::t('site', Html::encode($productType->name)) : '');
             }
             case 'defaultSku':
             {
@@ -1313,13 +1313,13 @@ class Product extends Element
             {
                 $taxCategory = $this->getTaxCategory();
 
-                return ($taxCategory ? Craft::t('site', $taxCategory->name) : '');
+                return ($taxCategory ? Craft::t('site', Html::encode($taxCategory->name)) : '');
             }
             case 'shippingCategory':
             {
                 $shippingCategory = $this->getShippingCategory();
 
-                return ($shippingCategory ? Craft::t('site', $shippingCategory->name) : '');
+                return ($shippingCategory ? Craft::t('site', Html::encode($shippingCategory->name)) : '');
             }
             case 'defaultPrice':
             {
