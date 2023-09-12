@@ -62,7 +62,7 @@ class GatewaysController extends Controller
 
     /**
      * Gets a Webhook URL for the provided gateway
-     * 
+     *
      * @param string $handle
      */
     public function actionWebhookUrl(string $handle)
