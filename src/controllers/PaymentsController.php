@@ -260,7 +260,6 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
-
                 $sourceCreated = false;
                 try {
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
@@ -291,7 +290,9 @@ class PaymentsController extends BaseFrontEndController
                 }
 
                 if ($sourceCreated) {
+                    /** @phpstan-ignore-next-line */
                     $order->setPaymentSource($paymentSource);
+                    /** @phpstan-ignore-next-line */
                     $paymentForm->populateFromPaymentSource($paymentSource);
                 }
             }

@@ -19,7 +19,6 @@ use yii\base\NotSupportedException;
  */
 abstract class BasePaymentForm extends Model
 {
-
     public bool $savePaymentSource = false;
 
     /**
