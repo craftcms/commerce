@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -38,6 +39,20 @@ class ShippingMethodOption extends ShippingMethod
      * @var boolean
      */
     public bool $matchesOrder;
+
+    /**
+     * @var BaseShippingMethod|null The shipping method this option was derived from.
+     */
+    public ?BaseShippingMethod $shippingMethod = null;
+
+    public function getShippingRules(): array
+    {
+        if ($this->shippingMethod !== null) {
+            return $this->shippingMethod->getShippingRules();
+        }
+
+        return parent::getShippingRules();
+    }
 
     /**
      * @throws InvalidConfigException
