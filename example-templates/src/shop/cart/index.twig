@@ -89,7 +89,7 @@ Outputs cart.
                       </label>
                       {{ input('text', 'lineItems[' ~ item.id ~ '][note]', item.note, {
                         id: 'lineitem-note-' ~ item.id,
-                        class: '[[classes.input]]',
+                        class: '[[classes.input]] w-full',
                         size: 20,
                         placeholder: 'My Note'|t
                       }) }}
