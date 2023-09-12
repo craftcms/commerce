@@ -12,15 +12,10 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
 
-  <div class="flex justify-between items-center">
+  <div class="lg:flex lg:justify-between">
     <h1 class="text-3xl block sm:inline">
-      {{- 'Addresses'|t -}}
+      {{- 'My Addresses'|t -}}
     </h1>
-    <a href="{{ url('/[[folderName]]/customer/addresses/edit') }}"
-       class="[[classes.btn.small]] [[classes.btn.mainColor]]"
-    >
-      {{- 'Add new address'|t -}}
-    </a>
   </div>
 
   {% if currentUser.addresses|length %}

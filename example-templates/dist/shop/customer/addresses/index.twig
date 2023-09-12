@@ -12,15 +12,10 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
 
-  <div class="flex justify-between items-center">
+  <div class="lg:flex lg:justify-between">
     <h1 class="text-3xl block sm:inline">
-      {{- 'Addresses'|t -}}
+      {{- 'My Addresses'|t -}}
     </h1>
-    <a href="{{ url('/shop/customer/addresses/edit') }}"
-       class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
-    >
-      {{- 'Add new address'|t -}}
-    </a>
   </div>
 
   {% if currentUser.addresses|length %}
