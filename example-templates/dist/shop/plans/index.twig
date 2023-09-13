@@ -104,7 +104,6 @@
                 <h4 class="font-semibold">
                   {{- plan.name -}}
                 </h4>
-                  {{ plan.gateway.paymentFormHtml({})|raw }}
                 <div class="mt-3">
                   {% tag 'select' with {
                     name: 'trialDays',
