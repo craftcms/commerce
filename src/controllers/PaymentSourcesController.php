@@ -64,7 +64,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $description = (string)$this->request->getBodyParam('description');
 
         try {
-            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customer->id, $gateway, $paymentForm, $description);
+            $paymentSource = $plugin->getPaymentSources()->createPaymentSource($customer->id, $gateway, $paymentForm, $description, $isPrimaryPaymentSource);
         } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
             return $this->asModelFailure(

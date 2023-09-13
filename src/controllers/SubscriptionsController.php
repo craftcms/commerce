@@ -193,11 +193,17 @@ class SubscriptionsController extends BaseController
             }
 
             try {
-                $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
+                // We provide backward compatibility for stripe plugin 3.0
+                $paymentFormData = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [];
+                if (isset($paymentFormData['paymentMethodId'])) {
+                    // throw deprecation error
+                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription subscription create action now requires that a default payment source is set up before subscribing.');
+                    $paymentForm = $gateway->getPaymentFormModel();
+                    $paymentForm->setAttributes($paymentFormData, false);
 
-                if ($paymentForm->validate()) {
-                    $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                    if ($paymentForm->validate()) {
+                        $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                    }
                 }
 
                 $fieldsLocation = $this->request->getParam('fieldsLocation', 'fields');
@@ -207,7 +213,7 @@ class SubscriptionsController extends BaseController
             } catch (\Exception $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. ' . $exception->getMessage()));
             }
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
@@ -256,7 +262,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -304,7 +310,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = $subscription->canSave(Craft::$app->getUser()->getIdentity());
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData && $validAction && $canModifySubscription) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
@@ -365,8 +371,7 @@ class SubscriptionsController extends BaseController
             $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
             $validData = $subscriptionUid && $subscription;
 
-            $currentUser = Craft::$app->getUser()->getIdentity();
-            $canModifySubscription = $subscription->canSave($currentUser);
+            $canModifySubscription = Craft::$app->getElements()->canSave($subscription);
 
             if (($validData === true && $canModifySubscription === true) || $this->_canUpdateSubscription($subscription)) {
                 /** @var SubscriptionGateway $gateway */
@@ -413,7 +418,7 @@ class SubscriptionsController extends BaseController
      */
     protected function enforceManageSubscriptionPermissions(Subscription $subscription)
     {
-        if (!$subscription->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($subscription)) {
             throw new ForbiddenHttpException('User not authorized to view this subscription.');
         }
     }

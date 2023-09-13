@@ -20,7 +20,7 @@
           <form method="post" action="" class="relative border-b-1 mb-4">
             {{ csrfInput() }}
             {{ actionInput('commerce/cart/update-cart') }}
-            {{ redirectInput(siteUrl('shop/checkout/payment')) }}
+            {{ redirectInput(siteUrl('shop/checkout/options')) }}
             {{ successMessageInput('Payment options selected.') }}
 
             <div class="mt-3">

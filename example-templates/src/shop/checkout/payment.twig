@@ -8,7 +8,7 @@
     {% redirect '[[folderName]]/checkout/payment-method' %}
   {% endif %}
 
-  <div class="md:flex md:-mx-8" [[hx-disable]]>
+  <div class="md:flex md:-mx-8">
     <div class="md:w-2/3 md:px-8">
       {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
         <div class="border-b border-gray-300 pb-10 mb-10">
@@ -73,30 +73,29 @@
                 {% set params = { currency: cart.paymentCurrency } %}
               {% endif %}
 
-              {# Special params for Stripe Elements and Checkout#}
-              {# see https://stripe.com/docs/elements/appearance-api #}
-              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntentsElementsCheckout' %}
+              {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
                 {% set params = {
                   appearance: {
                     theme: 'stripe'
                   },
-                  layout: {
-                    type: 'tabs',
-                    defaultCollapsed: false,
-                    radios: false,
-                    spacedAccordionItems: false
-                  }
+                  elementOptions: {
+                    layout: {
+                      type: 'accordion',
+                      defaultCollapsed: false,
+                      radios: false,
+                      spacedAccordionItems: false
+                    }
+                  },
+                  submitButtonClasses: '[[classes.btn.base]] [[classes.btn.mainColor]] my-2',
+                  submitButtonLabel: 'Pay',
+                  errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
                 } %}
               {% endif %}
-
               <div class="gateway-payment-form max-w-3/4">
                 {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
                     {{ cart.gateway.getPaymentFormHtml(params)|raw }}
                 {% endnamespace %}
               </div>
-
-              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-              {% include '[[folderName]]/checkout/_includes/base-payment-form-styles' %}
 
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
@@ -112,22 +111,9 @@
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
             {% endif %}
 
-            {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
-            {% if not user or not user.getIsCredentialed() %}
-              <div class="mt-3">
-                <label for="registerUserOnOrderComplete">
-                  {{ hiddenInput('registerUserOnOrderComplete', false) }}
-                  {{ input('checkbox', 'registerUserOnOrderComplete', 1, {
-                    id: 'registerUserOnOrderComplete'
-                  }) }}
-                  {{ 'Create an account'|t }}
-                </label>
-              </div>
-            {% endif %}
-
             {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
 
-            {% if cart.gateway.showPaymentFormSubmitButton() %}
+            {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
               <div class="mt-3 text-right">
                 {{ tag('button', {
                   type: 'submit',

@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
@@ -141,12 +142,25 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $order->registerUserOnOrderComplete = true;
+        $registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete');
+        if ($registerUserOnOrderComplete !== null) {
+            $order->registerUserOnOrderComplete = (bool)$registerUserOnOrderComplete;
         }
 
-        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $order->registerUserOnOrderComplete = false;
+        $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
+        if ($saveBillingAddressOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveBillingAddressOnOrderComplete;
+        }
+
+        $saveShippingAddressOnOrderComplete = $this->request->getBodyParam('saveShippingAddressOnOrderComplete');
+        if ($saveShippingAddressOnOrderComplete !== null) {
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveShippingAddressOnOrderComplete;
+        }
+
+        $saveAddressesOnOrderComplete = $this->request->getBodyParam('saveAddressesOnOrderComplete');
+        if ($saveAddressesOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
         }
 
         // These are used to compare if the order changed during its final
@@ -246,8 +260,16 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
+                $sourceCreated = false;
                 try {
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+
+                    // Last line of try block we have a successful payment source creation
+                    $sourceCreated = true;
+                } catch (PaymentSourceCreatedLaterException $exception) {
+                    if (property_exists($paymentForm, 'paymentSource')) {
+                        $paymentForm->savePaymentSource = true;
+                    }
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
 
@@ -267,8 +289,12 @@ class PaymentsController extends BaseFrontEndController
                     );
                 }
 
-                $order->setPaymentSource($paymentSource);
-                $paymentForm->populateFromPaymentSource($paymentSource);
+                if ($sourceCreated) {
+                    /** @phpstan-ignore-next-line */
+                    $order->setPaymentSource($paymentSource);
+                    /** @phpstan-ignore-next-line */
+                    $paymentForm->populateFromPaymentSource($paymentSource);
+                }
             }
         }
 

@@ -209,7 +209,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.2.3';
+    public string $schemaVersion = '4.2.6';
 
     /**
      * @inheritdoc
@@ -634,6 +634,8 @@ class Plugin extends BasePlugin
 
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getOrders(), 'beforeDeleteUserHandler']);
+
+        Event::on(Address::class, Address::EVENT_AFTER_SAVE, [$this->getOrders(), 'afterSaveAddressHandler']);
 
         Event::on(
             UserElement::class,

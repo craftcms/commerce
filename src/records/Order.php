@@ -49,6 +49,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $paymentCurrency
  * @property int $paymentSourceId
  * @property bool $registerUserOnOrderComplete
+ * @property bool $saveBillingAddressOnOrderComplete
+ * @property bool $saveShippingAddressOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
@@ -69,6 +71,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $sourceBillingAddressId
  * @property int $sourceShippingAddressId
  * @property Transaction[] $transactions
+ * @property string $orderCompletedEmail
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

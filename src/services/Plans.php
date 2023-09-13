@@ -128,7 +128,7 @@ class Plans extends Component
      * Return all subscription plans for a gateway.
      *
      * @return Plan[]
-     * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
+     * @deprecated in 4.0. Use [[getPlansByGatewayId]] instead.
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {
@@ -309,23 +309,25 @@ class Plans extends Component
     {
         return (new Query())
             ->select([
-                'dateArchived',
-                'dateCreated',
-                'dateUpdated',
-                'enabled',
-                'gatewayId',
-                'handle',
-                'id',
-                'isArchived',
-                'name',
-                'planData',
-                'planInformationId',
-                'reference',
-                'sortOrder',
-                'uid',
+                'p.dateArchived',
+                'p.dateCreated',
+                'p.dateUpdated',
+                'p.enabled',
+                'p.gatewayId',
+                'p.handle',
+                'p.id',
+                'p.isArchived',
+                'p.name',
+                'p.planData',
+                'p.planInformationId',
+                'p.reference',
+                'p.sortOrder',
+                'p.uid',
             ])
+            ->leftJoin(['g' => Table::GATEWAYS], '[[g.id]] = [[p.gatewayId]]')
+            ->where(['g.isArchived' => false])
             ->orderBy(['sortOrder' => SORT_ASC])
-            ->from([Table::PLANS]);
+            ->from(['p' => Table::PLANS]);
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 return [
-    [
+    'hoodies' => [
         'id' => '2000',
         'name' => 'Hoodies',
         'handle' => 'hoodies',
@@ -13,7 +13,7 @@ return [
         'hasProductTitleField' => true,
         'hasVariantTitleField' => false,
     ],
-    [
+    'tees' => [
         'id' => '2001',
         'name' => 'T-Shirts',
         'handle' => 'tShirts',

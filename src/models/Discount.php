@@ -190,11 +190,15 @@ class Discount extends Model
 
     /**
      * @var bool Match all product types
+     *
+     * TODO: Rename to $allEntries in Commerce 5
      */
     public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
+     *
+     * TODO: Rename to $entryRelationshipType in Commerce 5
      */
     public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
@@ -280,11 +284,30 @@ class Discount extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasOrderCondition(): bool
+    {
+        if ($this->_orderCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getOrderCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setOrderCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -312,11 +335,30 @@ class Discount extends Model
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasCustomerCondition(): bool
+    {
+        if ($this->_customerCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getCustomerCondition()->getConditionRules());
+    }
+
+    /**
+     * @param ElementConditionInterface|string $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_customerCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -345,11 +387,30 @@ class Discount extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasShippingAddressCondition(): bool
+    {
+        if ($this->_shippingAddressCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getShippingAddressCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_shippingAddressCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -378,11 +439,30 @@ class Discount extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasBillingAddressCondition(): bool
+    {
+        if ($this->_billingAddressCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getBillingAddressCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_billingAddressCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -552,6 +632,45 @@ class Discount extends Model
                     }
                 },
             ],
+            [[
+                'id',
+                'allPurchasables',
+                'allCategories',
+                'purchasableIds',
+                'categoryIds',
+                'name',
+                'description',
+                'couponFormat',
+                'orderCondition',
+                'customerCondition',
+                'billingAddressCondition',
+                'shippingAddressCondition',
+                'perUserLimit',
+                'perEmailLimit',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
+                'dateFrom',
+                'dateTo',
+                'purchaseTotal',
+                'orderConditionFormula',
+                'purchaseQty',
+                'maxPurchaseQty',
+                'baseDiscount',
+                'baseDiscountType',
+                'perItemDiscount',
+                'percentDiscount',
+                'percentageOffSubject',
+                'excludeOnSale',
+                'hasFreeShippingForMatchingItems',
+                'hasFreeShippingForOrder',
+                'categoryRelationshipType',
+                'enabled',
+                'stopProcessing',
+                'dateCreated',
+                'dateUpdated',
+                'ignoreSales',
+                'appliedTo',
+            ], 'safe'],
         ];
     }
 
