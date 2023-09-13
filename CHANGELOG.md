@@ -2,7 +2,7 @@
 
 ## 4.3.0 - Unreleased
 
-- Sales and Discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
+- Sales and discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
 - It’s now possible to query products by shipping category and tax category. ([#3219](https://github.com/craftcms/commerce/issues/3219))
 - Guest customers registering during checkout now have their addresses saved to their account. ([#3203](https://github.com/craftcms/commerce/pull/3203))
 - Product conditions can now have “Product Type”, “Variant SKU”, “Variant Has Unlimited Stock”, “Variant Price”, and “Variant Stock” rules. ([#3209](https://github.com/craftcms/commerce/issues/3209))
