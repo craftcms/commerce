@@ -39,6 +39,7 @@
 - Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
 - Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
+- Fixed an XSS vulnerability.
 
 ## 4.2.11 - 2023-06-05
 
