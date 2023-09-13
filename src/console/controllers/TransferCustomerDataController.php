@@ -100,7 +100,7 @@ class TransferCustomerDataController extends Controller
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $this->stdout('done!', Console::FG_GREEN);
+        $this->stdout('done!' . PHP_EOL, Console::FG_GREEN);
 
         return ExitCode::OK;
     }
