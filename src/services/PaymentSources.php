@@ -268,11 +268,7 @@ class PaymentSources extends Component
      */
     public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
     {
-        try {
-            $source = $gateway->createPaymentSource($paymentForm, $customerId);
-        } catch (Throwable $exception) {
-            throw new PaymentSourceException($exception->getMessage());
-        }
+        $source = $gateway->createPaymentSource($paymentForm, $customerId);
 
         $source->customerId = $customerId;
 

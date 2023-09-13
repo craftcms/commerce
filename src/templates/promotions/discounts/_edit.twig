@@ -7,11 +7,25 @@
     { label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
 ] %}
 
-{% set fullPageForm = false %}
+{% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
+{% set mainFormAttributes = {
+    id: 'discountform',
+    method: 'post',
+    'accept-charset': 'UTF-8'
+} %}
+
+{% set formActions = [
+  {
+    label: 'Save and continue editing'|t('app'),
+    redirect: (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash,
+    retainScroll: true,
+    shortcut: true,
+  }]
+%}
 
 {% set discountClasses = "" %}
 {% if (discount.getErrors('name')) %}
@@ -22,8 +36,6 @@
 {% if false %}
     {% set matchingItemsClasses = "error" %}
 {% endif %}
-
-{% set conditionRulesClasses = "" %}
 
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
@@ -39,7 +51,6 @@
     discount: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
     coupons: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
     matchingItems: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    conditionRules: {'label':'Conditions Rules'|t('commerce'),'url':'#condition-rules','class':conditionRulesClasses},
     conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
     actions: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
@@ -101,44 +112,16 @@
     {% hook "cp.commerce.discounts.edit.details" %}
 {% endblock %}
 
-{% block actionButton %}
-    <div class="btngroup">
-        <button type="button" class="btn submit formsubmit" data-form="discountform">{{ 'Save'|t('app') }}</button>
-        <button type="button" class="btn submit menubtn" data-form="discountform"></button>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a class="formsubmit"
-                       data-redirect="{{ (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash }}">
-                        {{ forms.optionShortcutLabel('S') }}
-                        {{ "Save and continue editing"|t('app') }}
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-{% endblock %}
-
 {% block content %}
-        {% set formAttributes = {
-            id: 'discountform',
-            method: 'post',
-            'accept-charset': 'UTF-8',
-            data: {
-                saveshortcut: true,
-                'saveshortcut-redirect':  'commerce/promotions/discounts'|hash,
-                'confirm-unload': true
-            },
-        } %}
-    <form {{ attr(formAttributes) }}>
-    <input type="hidden" name="action" value="commerce/discounts/save">
+    {{ actionInput('commerce/discounts/save') }}
     {{ redirectInput('commerce/promotions/discounts') }}
+
     {% if discount.id %}
         <input type="hidden" name="sortOrder" value="{{ discount.sortOrder }}">
         <input type="hidden" name="id" value="{{ discount.id }}">
     {% endif %}
 
-    <div id="discount">
+    <div id="discount" class="flex-fields">
         {{ forms.textField({
             first: true,
             label: "Name"|t('commerce'),
@@ -163,79 +146,102 @@
         {% hook "cp.commerce.discount.edit" %}
     </div>
 
-    <div id="matching-items" class="hidden">
+    <div id="matching-items" class="hidden flex-fields">
 
+        <h3>{{ "Limit which orders this discount applies to based on its line items."|t('commerce') }}</h3>
         {{ forms.lightswitchField({
-            label: "All purchasables"|t('commerce'),
+            label: "Only match certain purchasables…"|t('commerce'),
             id: 'allPurchasables',
             name: 'allPurchasables',
-            reverseToggle: '#matching-items-purchasables',
-            on: discount.allPurchasables ? true : false,
+            toggle: '#matching-items-purchasables',
+            on: not discount.allPurchasables,
             errors: discount.getErrors('allPurchasables')
-
         }) }}
 
         <div id="matching-items-purchasables" {% if discount.allPurchasables %}class="hidden"{% endif %}>
             {% for purchasableType in purchasableTypes %}
                 {{ forms.elementSelectField({
                     id: 'purchasables-'~purchasableType.elementType|id,
-                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                    label: purchasableType.name,
                     name: 'purchasables['~purchasableType.elementType~']',
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
-                    instructions: '{type} for which this discount will be applicable to.'|t('commerce', {
-                        type: purchasableType.name,
-                    }),
                     errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
                 }) }}
             {% endfor %}
         </div>
 
+        {% set showCategories = craft.categories.exists() %}
+        {% set showEntries = craft.entries.exists() %}
+
+        {% if not showCategories and not showEntries %}
+            {{ forms.hidden({
+                name: 'allCategories',
+                value: false,
+            }) }}
+        {% endif %}
+
+        {% if showCategories or showEntries %}
+
+        <hr class="hr">
+
         {{ forms.lightswitchField({
-            label: "All categories"|t('commerce'),
+            label: "Only match purchasables related to…"|t('commerce'),
             id: 'allCategories',
             name: 'allCategories',
-            reverseToggle: '#matching-items-categories',
-            on: discount.allCategories ? true : false,
+            toggle: '#matching-items-categories',
+            on: not discount.allCategories,
             errors: discount.getErrors('allCategories')
         }) }}
 
         <div id="matching-items-categories" {% if discount.allCategories %}class="hidden"{% endif %}>
+
+            {% if showCategories %}
             {{ forms.elementSelectField({
                 id: 'categories',
                 label: 'Categories'|t('commerce'),
-                name: 'categories',
+                name: 'relatedElements[categories]',
                 elements: categories ? categories : null,
                 elementType: categoryElementType,
                 limit: null,
-                instructions: "Categories that the matching purchasables must be related to."|t('commerce'),
                 errors: discount.getErrors('categories'),
             }) }}
+            {% endif %}
 
+            {% if showEntries %}
+            {{ forms.elementSelectField({
+                id: 'entries',
+                label: 'Entries'|t('app'),
+                name: 'relatedElements[entries]',
+                elements: entries ? entries : null,
+                elementType: entryElementType,
+                limit: null,
+                errors: discount.getErrors('categories'),
+            }) }}
+            {% endif %}
 
             <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
-               data-target="categoryRelationshipType-advanced">Advanced</a>
+               data-target="categoryRelationshipType-advanced">{{ 'Advanced'|t('app') }}</a>
 
             <div id="categoryRelationshipType-advanced"
                  class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
-                {{ forms.selectField({
+
+                {{ forms.radioGroupField({
                     id: 'categoryRelationshipType',
                     name: 'categoryRelationshipType',
-                    label: 'Categories Relationship Type'|t('commerce'),
-                    instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
-                        link: 'https://craftcms.com/docs/4.x/relations.html#terminology',
-                    }),
-                    options: categoryRelationshipTypeOptions,
+                    label: 'Relationship Type'|t('commerce'),
+                    options: elementRelationshipTypeOptions,
                     value: discount.categoryRelationshipType,
                     errors: discount.getErrors('categoryRelationshipType')
                 }) }}
             </div>
         </div>
+        {% endif %}
 
     </div>
 
-    <div id="coupons" class="hidden">
+    <div id="coupons" class="hidden flex-fields">
         <div id="commerce-coupons">
             {% set tableField %}
                 <div>
@@ -270,7 +276,8 @@
         </div>
     </div>
 
-    <div id="condition-rules" class="hidden">
+    <div id="conditions" class="hidden flex-fields">
+
         {% set orderConditionInput %}
             {{ discount.orderCondition.getBuilderHtml()|raw }}
         {% endset %}
@@ -310,9 +317,6 @@
             instructions: 'Create rules that allow this discount to match the order’s billing address.'|t('commerce'),
             errors: discount.getErrors('billingAddressCondition')
         }, billingAddressConditionInput) }}
-    </div>
-
-    <div id="conditions" class="hidden">
 
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),
@@ -492,17 +496,16 @@
         }) }}
     </div>
 
-    <div id="actions" class="hidden">
+    <div id="actions" class="hidden flex-fields">
 
         <h3>{{ 'Per Item Discount'|t('commerce') }}</h3>
         {{ forms.selectField({
-            label: "Applied Scope"|t('commerce'),
-            instructions: "Choose whether the all line items or just matching line items get the 'Per Item' amounts off."|t('commerce'),
+            label: "Discounted Items"|t('commerce'),
+            instructions: "When this discount is applied to an order, which line items should be discounted?"|t('commerce'),
             id: 'appliedTo',
             name: 'appliedTo',
             options: appliedTo,
-            value: discount.appliedTo,
-            'tip': "Matching items are those items that are used to match this discount’s conditions. Those on the 'Matching Items' tab."|t('commerce')
+            value: discount.appliedTo
         }) }}
 
         {{ commerceForms.numberField({

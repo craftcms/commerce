@@ -75,7 +75,6 @@
 
               {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
                 {% set params = {
-                  paymentFormType: 'elements',
                   appearance: {
                     theme: 'stripe'
                   },
@@ -98,9 +97,6 @@
                 {% endnamespace %}
               </div>
 
-              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-              {% include 'shop/checkout/_includes/base-payment-form-styles' %}
-
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
                   <label>
@@ -113,19 +109,6 @@
               {% endif %}
             {% else %}
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
-            {% endif %}
-
-            {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
-            {% if not user or not user.getIsCredentialed() %}
-              <div class="mt-3">
-                <label for="registerUserOnOrderComplete">
-                  {{ hiddenInput('registerUserOnOrderComplete', false) }}
-                  {{ input('checkbox', 'registerUserOnOrderComplete', 1, {
-                    id: 'registerUserOnOrderComplete'
-                  }) }}
-                  {{ 'Create an account'|t }}
-                </label>
-              </div>
             {% endif %}
 
             {{ include('shop/checkout/_includes/partial-payment') }}

@@ -21,6 +21,7 @@ Outputs the site’s global main navigation based on path and included `pages` a
 ] %}
 {% set currentPath = craft.app.request.pathInfo %}
 {% set activeClasses = 'bg-white' %}
+{# Show the nav if we are not in a checkout page #}
 {% if 'checkout' not in currentPath %}
   <div class="bg-gray-100">
     <div class="container mx-auto justify-between items-center p-6 relative">

@@ -60,7 +60,8 @@ class OrderMarkAsCompleteTest extends Unit
     {
         $order = new Order();
         $email = 'test@newemailaddress.xyz';
-        $order->setEmail($email);
+        $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
+        $order->setCustomer($user);
         /** @var Order $order */
         $completedOrder = $this->tester->grabFixture('orders')->getElement('completed-new');
         $lineItem = $completedOrder->getLineItems()[0];
@@ -80,7 +81,7 @@ class OrderMarkAsCompleteTest extends Unit
         self::assertEquals($email, $order->orderCompletedEmail);
 
         $this->_deleteElementIds[] = $order->id;
-        $this->_deleteElementIds[] = $order->getCustomerId();
+        $this->_deleteElementIds[] = $user->id;
     }
 
     /**

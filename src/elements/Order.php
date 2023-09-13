@@ -859,6 +859,36 @@ class Order extends Element
     public bool $registerUserOnOrderComplete = false;
 
     /**
+     * Whether the billing address on the order should be saved to the customer's
+     * address book when the order is complete.
+     *
+     * @var bool Save the order's billing address to the customer's address book
+     * ---
+     * ```php
+     * echo $order->saveBillingAddressOnOrderComplete;
+     * ```
+     * ```twig
+     * {{ order.saveBillingAddressOnOrderComplete }}
+     * ```
+     */
+    public bool $saveBillingAddressOnOrderComplete = false;
+
+    /**
+     * Whether the shipping address on the order should be saved to the customer's
+     * address book when the order is complete.
+     *
+     * @var bool Save the order's shipping address to the customer's address book
+     * ---
+     * ```php
+     * echo $order->saveShippingAddressOnOrderComplete;
+     * ```
+     * ```twig
+     * {{ order.saveShippingAddressOnOrderComplete }}
+     * ```
+     */
+    public bool $saveShippingAddressOnOrderComplete = false;
+
+    /**
      * The current payment source that should be used to make payments on the
      * order. If this is set, the `gatewayId` will also be set to the related
      * gateway.
@@ -1109,20 +1139,6 @@ class Order extends Element
     private ?string $_paymentCurrency = null;
 
     /**
-     * @var string|null
-     * @see Order::setEmail() To set the order email
-     * @see Order::getEmail() To get the email
-     * ---
-     * ```php
-     * echo $order->email;
-     * ```
-     * ```twig
-     * {{ order.email }}
-     * ```
-     */
-    private ?string $_email = null;
-
-    /**
      * @var Transaction[]|null
      * @see Order::getTransactions()
      * ---
@@ -1147,7 +1163,7 @@ class Order extends Element
      * {{ order.customer }}
      * ```
      */
-    private User|null|false $_customer;
+    private User|null|false $_customer = null;
 
     /**
      * @var float|null
@@ -1326,7 +1342,6 @@ class Order extends Element
         $names[] = 'customerId';
         $names[] = 'paymentCurrency';
         $names[] = 'paymentAmount';
-        $names[] = 'email';
         $names[] = 'isPaid';
         $names[] = 'itemSubtotal';
         $names[] = 'itemTotal';
@@ -1410,6 +1425,7 @@ class Order extends Element
             };
         }
 
+        $fields['email'] = 'email';
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
@@ -1481,9 +1497,8 @@ class Order extends Element
 
             [['paymentSourceId'], 'number', 'integerOnly' => true],
             [['paymentSourceId'], 'validatePaymentSourceId'],
-            [['email'], 'email'],
 
-            [['number', 'user', 'orderCompletedEmail'], 'safe'],
+            [['number', 'user', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
         ]);
     }
 
@@ -2048,6 +2063,7 @@ class Order extends Element
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->itemSubtotal = $this->getItemSubtotal();
         $orderRecord->email = $this->getEmail() ?: '';
+        $orderRecord->orderCompletedEmail = $this->orderCompletedEmail;
         $orderRecord->isCompleted = $this->isCompleted;
 
         $dateOrdered = $this->dateOrdered;
@@ -2080,6 +2096,8 @@ class Order extends Element
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->getCustomerId();
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
+        $orderRecord->saveBillingAddressOnOrderComplete = $this->saveBillingAddressOnOrderComplete;
+        $orderRecord->saveShippingAddressOnOrderComplete = $this->saveShippingAddressOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
@@ -2280,10 +2298,6 @@ class Order extends Element
             }
         }
 
-        if ($this->_customer) {
-            $this->_email = $this->_customer->email;
-        }
-
         return $this->_customer ?: null;
     }
 
@@ -2297,7 +2311,8 @@ class Order extends Element
         $this->_customer = $customer;
         if ($this->_customer) {
             $this->_customerId = $this->_customer->id;
-            $this->_email = $this->_customer->email;
+        } else {
+            $this->_customerId = null;
         }
     }
 
@@ -2306,7 +2321,7 @@ class Order extends Element
      */
     public function getUser(): ?User
     {
-        Craft::$app->getDeprecator()->log('Order::getUser()', 'The `Order::getUser()` is deprecated, use the `Order::getCustomer()` instead.');
+        Craft::$app->getDeprecator()->log('Order::getUser()', 'The `Order::getUser()` is deprecated, use `Order::getCustomer()` instead.');
         return $this->getCustomer();
     }
 
@@ -2315,37 +2330,37 @@ class Order extends Element
      *
      * @param string|null $email
      * @throws Exception
+     * @deprecated in 4.3.0. Use [[setCustomer()]] instead.
      */
     public function setEmail(?string $email): void
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`Order::setEmail()` has been deprecated use `Order::setCustomer()` instead.');
         if (!$email) {
             $this->_customer = null;
             $this->_customerId = null;
-            $this->_email = null;
             return;
         }
 
-        if ($this->_email === $email) {
+        if ($this->_customer && $this->_customer->email === $email) {
             return;
         }
 
         $user = Craft::$app->getUsers()->ensureUserByEmail($email);
-        $this->_email = $email;
         $this->setCustomer($user);
     }
 
     /**
-     * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
+     * Returns the email for this order. Will always be the customer's email if they exist.
+     * @return string|null
      */
     public function getEmail(): ?string
     {
-        if ($user = $this->getCustomer()) {
-            $this->_email = $user->email;
-        }
-
-        return $this->_email ?? null;
+        return $this->getCustomer()?->email ?? null;
     }
 
+    /**
+     * @return bool
+     */
     public function getIsPaid(): bool
     {
         return !$this->hasOutstandingBalance() && $this->isCompleted;
