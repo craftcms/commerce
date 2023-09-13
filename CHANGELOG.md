@@ -22,6 +22,7 @@
 - Added `craft\commerce\models\Discount::hasCustomerCondition()`.
 - Added `craft\commerce\models\Discount::hasOrderCondition()`.
 - Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
+- Deprecated payment source creation via the `commerce/subscriptions/subscribe` action.
 - Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
 - Removed the `htmx` option from the`commerce/example-templates` command.
 - Removed the `color` option from the`commerce/example-templates` command.
