@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.3.0 - Unreleased
+## 4.3.0 - 2023-09-13
 
 - Sales and discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
 - It’s now possible to query products by shipping category and tax category. ([#3219](https://github.com/craftcms/commerce/issues/3219))
