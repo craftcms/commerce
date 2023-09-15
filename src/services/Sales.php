@@ -22,6 +22,7 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
 use DateTime;
 use yii\base\Component;
@@ -288,9 +289,12 @@ class Sales extends Component
                 // Get related via category
                 $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
-                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
+                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+                $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
                     $sales[] = $sale;
                 }
             }
@@ -424,7 +428,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = ArrayHelper::getColumn($user->getGroups(),'id');
+                $userGroups = ArrayHelper::getColumn($user->getGroups(), 'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -436,7 +440,7 @@ class Sales extends Component
             // User groups of the currently logged in user
             $userGroups = null;
             if ($currentUser = Craft::$app->getUser()->getIdentity()) {
-                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(),'id');
+                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(), 'id');
             }
 
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
@@ -449,8 +453,9 @@ class Sales extends Component
             $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
-
-            if (empty($relatedCategories)) {
+            $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+            $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+            if (empty($relatedCategoriesOrEntries)) {
                 return false;
             }
         }

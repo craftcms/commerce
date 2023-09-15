@@ -16,6 +16,7 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -76,6 +77,8 @@ class SalesController extends BaseCpController
 
         $variables = compact('id', 'sale');
 
+        $variables['isNewSale'] = false;
+
         if (!$variables['sale']) {
             if ($variables['id']) {
                 $variables['sale'] = Plugin::getInstance()->getSales()->getSaleById($variables['id']);
@@ -85,6 +88,7 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
+                $variables['isNewSale'] = true;
                 $variables['sale']->allCategories = true;
                 $variables['sale']->allPurchasables = true;
                 $variables['sale']->allGroups = true;
@@ -152,7 +156,8 @@ class SalesController extends BaseCpController
         }
 
         // Set purchasable conditions
-        if ($sale->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
+        $allPurchasables = !$this->request->getBodyParam('allPurchasables', false);
+        if ($sale->allPurchasables = $allPurchasables) {
             $sale->setPurchasableIds([]);
         } else {
             $purchasables = [];
@@ -165,15 +170,21 @@ class SalesController extends BaseCpController
             $sale->setPurchasableIds($purchasables);
         }
 
+        // False in the allCategories param is true in the DB
+        $allCategories = !$this->request->getBodyParam('allCategories', false);
         // Set category conditions
-        if ($sale->allCategories = (bool)$this->request->getBodyParam('allCategories')) {
+        if ($sale->allCategories = $allCategories) {
             $sale->setCategoryIds([]);
         } else {
-            $categories = $this->request->getBodyParam('categories', []);
-            if (!$categories) {
-                $categories = [];
+            $relatedElements = [];
+            $relatedElementByType = $this->request->getBodyParam('relatedElements') ?: [];
+            foreach ($relatedElementByType as $type) {
+                if (is_array($type)) {
+                    array_push($relatedElements, ...$type);
+                }
             }
-            $sale->setCategoryIds($categories);
+            $relatedElements = array_unique($relatedElements);
+            $sale->setCategoryIds($relatedElements);
         }
 
         // Set user group conditions
@@ -458,8 +469,12 @@ class SalesController extends BaseCpController
         }
 
         $variables['categoryElementType'] = Category::class;
+        $variables['entryElementType'] = Entry::class;
         $variables['categories'] = null;
+        $variables['entries'] = null;
+
         $categories = [];
+        $entries = [];
 
         if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
             $categoryIds = explode('|', $this->request->getParam('categoryIds'));
@@ -469,15 +484,22 @@ class SalesController extends BaseCpController
 
         foreach ($categoryIds as $categoryId) {
             $id = (int)$categoryId;
-            $categories[] = Craft::$app->getElements()->getElementById($id);
+            $element = Craft::$app->getElements()->getElementById($id);
+
+            if ($element instanceof Category) {
+                $categories[] = $element;
+            } elseif ($element instanceof Entry) {
+                $entries[] = $element;
+            }
         }
 
         $variables['categories'] = $categories;
+        $variables['entries'] = $entries;
 
-        $variables['categoryRelationshipType'] = [
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source - The category relationship field is on the purchasable'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target - The purchasable relationship field is on the category'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either (Default) - The relationship field is on the purchasable or the category'),
+        $variables['elementRelationshipTypeOptions'] = [
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'The purchasable defines the relationship'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'The purchasable is related by another element'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either way'),
         ];
 
         $variables['purchasables'] = null;

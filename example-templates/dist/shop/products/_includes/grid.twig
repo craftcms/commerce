@@ -3,11 +3,11 @@
 <div class="my-6">
   <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {% for product in products %}
-      <div class="relative bg-gray-50 rounded">
+      <div class="relative bg-gray-50 rounded hover:shadow-md">
         <div>
           <a class="block" href="{{ product.url }}">
             {% include "shop/_private/images/placeholder.svg" with {
-              class: 'w-full h-auto rounded rounded-b-none opacity-75 hover:opacity-100',
+              class: 'w-full h-auto rounded rounded-b-none',
               width: 320,
               height: 140
             } %}

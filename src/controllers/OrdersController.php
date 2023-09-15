@@ -14,13 +14,12 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
-use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Variant;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
+use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
@@ -77,6 +76,27 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
+    /**
+     * @event Event The event that’s triggered when retrieving the purchasables for the add line item table on the order edit page.
+     * @since 4.3.0
+     *
+     * ---
+     * ```php
+     * use craft\commerce\controllers\OrdersController;
+     * use craft\commerce\events\ModifyPurchasablesQueryEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrdersController::class,
+     *     OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY,
+     *     function(ModifyCartInfoEvent $e) {
+     *         $e->query->andWhere(['sku' => 'foo']);
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_MODIFY_PURCHASABLES_TABLE_QUERY = 'modifyPurchasablesTableQuery';
+
     /**
      * @throws HttpException
      * @throws InvalidConfigException
@@ -158,7 +178,7 @@ class OrdersController extends Controller
             $order->autoSetShippingMethod();
         }
 
-        if (!Craft::$app->getElements()->saveElement($order)) {
+        if (!Craft::$app->getElements()->saveElement($order, false)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
         }
 
@@ -294,7 +314,7 @@ class OrdersController extends Controller
             throw new HttpException(404, Craft::t('commerce', 'Can not find order.'));
         }
 
-        if (!$order->canDelete(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canDelete($order)) {
             throw new ForbiddenHttpException('User not authorized to view this address.');
         }
 
@@ -580,10 +600,21 @@ class OrdersController extends Controller
             $sqlQuery->orderBy(['id' => 'asc']);
         }
 
+        // Trigger event before working out the total and limiting the results for pagination
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY)) {
+            $event = new ModifyPurchasablesTableQueryEvent([
+                'query' => $sqlQuery,
+                'search' => $search,
+            ]);
+            $this->trigger(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, $event);
+            $sqlQuery = $event->query;
+        }
+
         $total = $sqlQuery->count();
 
         $sqlQuery->limit($limit);
         $sqlQuery->offset($offset);
+
         $result = $sqlQuery->all();
 
         return $this->asSuccess(data: [
@@ -764,6 +795,9 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
+
         // Set language by email's set locale
         $language = $email->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
@@ -779,6 +813,9 @@ class OrdersController extends Controller
         } catch (\Exception) {
             $success = false;
         }
+
+        // Set previous language back
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
@@ -1587,9 +1624,11 @@ class OrdersController extends Controller
      */
     private function _customerToArray(User $customer): array
     {
+        $totalAddresses = Address::find()->ownerId($customer->id)->count();
+
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
-                'totalAddresses' => count($customer->getAddresses()),
+                'totalAddresses' => $totalAddresses,
                 'photoThumbUrl' => $customer->getThumbUrl(100),
             ];
     }
@@ -1600,7 +1639,7 @@ class OrdersController extends Controller
      */
     protected function enforceManageOrderPermissions(Order $order): void
     {
-        if (!$order->canView(Craft::$app->getUser()->getIdentity())) {
+        if (!Craft::$app->getElements()->canView($order)) {
             throw new ForbiddenHttpException('User not authorized to view this order.');
         }
     }

@@ -12,4 +12,7 @@
     {% namespace namespace %}
         {{ variant.getFieldLayout().createForm(variant).render()|raw }}
     {% endnamespace %}
+    {% if currentUser.can('commerce-managePromotions') and currentUser.can('commerce-editSales') and not craft.app.request.isAjax and product.id %}
+        {{ productFields.relatedSales(variant.id, false) }}
+    {% endif %}
 </div>

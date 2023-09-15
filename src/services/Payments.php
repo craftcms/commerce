@@ -238,13 +238,14 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
+     * @param array|null &$redirectData the additional data the gateway might need to redirect the user to the payment page. This is useful for ajax payment responses.
      * @return void
      * @throws InvalidConfigException
      * @throws PaymentException if the payment was unsuccessful
      * @throws TransactionException
      * @throws CurrencyException
      */
-    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = []): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));
@@ -301,7 +302,7 @@ class Payments extends Component
 
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
-                $this->_handleRedirect($response, $redirect);
+                $this->_handleRedirect($response, $redirect, $redirectData);
                 return;
             }
 
@@ -458,9 +459,10 @@ class Payments extends Component
             ]));
         }
 
+        $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $mutex->release($transactionLockName);
-            $this->_handleRedirect($response, $redirect);
+            $this->_handleRedirect($response, $redirect, $redirectData);
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }
@@ -479,17 +481,19 @@ class Payments extends Component
      *
      * @param RequestResponseInterface $response
      * @param string|null $redirect
+     * @param array|null $redirectData
      * @throws ExitException
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \yii\base\Exception
      */
-    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect): void
+    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect, ?array &$redirectData): void
     {
         // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
             $redirect = $response->getRedirectUrl();
+            $redirectData = $response->getRedirectData();
         } else {
             $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
 

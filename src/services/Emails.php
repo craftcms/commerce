@@ -928,7 +928,7 @@ class Emails extends Component
                 'emails.to',
                 'emails.uid',
             ])
-            ->orderBy('name')
+            ->orderBy('emails.name')
             ->from([Table::EMAILS . ' emails']);
     }
 

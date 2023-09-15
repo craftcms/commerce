@@ -21,6 +21,7 @@ Outputs the site’s global main navigation based on path and included `pages` a
 ] %}
 {% set currentPath = craft.app.request.pathInfo %}
 {% set activeClasses = 'bg-white' %}
+{# Show the nav if we are not in a checkout page #}
 {% if 'checkout' not in currentPath %}
   <div class="bg-gray-100">
     <div class="container mx-auto justify-between items-center p-6 relative">
@@ -36,8 +37,8 @@ Outputs the site’s global main navigation based on path and included `pages` a
         <div class="absolute right-2 top-0">
           {% if currentUser %}
             <a href="{{ url('shop/customer') }}"
-               class="mx-2 px-2 py-1 rounded text-sm font-semibold">
-              {{- currentUser.email -}}
+               class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
+                👤&nbsp;My Account
             </a>
           {% else %}
             <a href="{{ url('shop/customer/sign-in') }}"
@@ -47,12 +48,15 @@ Outputs the site’s global main navigation based on path and included `pages` a
           {% endif %}
           <a href="{{ url('shop/cart') }}"
              class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
-            {% if cart.totalQty %}
               <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full text-white text-xs bg-blue-800">
-                {{- cart.totalQty -}}
+                {% if cart.totalQty %}
+                  {{- cart.totalQty -}}
+                {% else %}
+                  Empty
+                {% endif %}
               </span>
-            {% endif %}
-            <p role="img" aria-label="{{ 'Shopping Cart'|t }}">🛒</p>
+
+            <span aria-label="{{ 'View Cart'|t }}">🛒 Cart</span>
           </a>
         </div>
       </nav>

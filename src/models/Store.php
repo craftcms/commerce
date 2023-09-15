@@ -356,7 +356,7 @@ class Store extends Model
     {
         $this->_autoSetNewCartAddresses = $autoSetNewCartAddresses;
     }
-
+    
     /**
      * Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
      *

@@ -21,9 +21,9 @@ Outputs form for collecting a cart number to be loaded.
           {{- 'Cart Number'|t -}}
         </label>
         <div>
-          {{ input('text', 'number', '[[classes.input]]', {
+          {{ input('text', 'number', null, {
             id: 'number',
-            class: ['w-full', ''],
+            class: ['w-full', '[[classes.input]]'],
             placeholder: '7e89fh0ew8034…'
           }) }}
         </div>

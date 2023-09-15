@@ -477,6 +477,7 @@ class OrderStatuses extends Component
         }
 
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
 
         foreach ($event->emails as $email) {
             if (!$email->enabled) {
@@ -497,8 +498,7 @@ class OrderStatuses extends Component
         }
 
         // Set previous language back
-        Craft::$app->language = $originalLanguage;
-        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
     }
 
     /**

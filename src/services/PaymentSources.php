@@ -105,14 +105,15 @@ class PaymentSources extends Component
     /**
      * Returns a customer's payment sources, per the customer's ID.
      *
-     * @param int|null $customerId the user's ID
+     * @param null $customerId the user's ID
      * @param int|null $storeId
+     * @param int|null $gatewayId the gateway's ID
      * @return Collection<PaymentSource>
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByCustomerId(int $customerId = null, ?int $storeId = null): Collection
+    public function getAllPaymentSourcesByCustomerId(int $customerId, ?int $gatewayId = null, ?int $storeId = null): Collection
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
@@ -120,11 +121,19 @@ class PaymentSources extends Component
             return collect([]);
         }
 
-        $results = $this->_createPaymentSourcesQuery()
-            ->innerJoin(Table::GATEWAYS . ' gateways', 'gateways.id = [[ps.gatewayId]]')
-            ->where(['customerId' => $customerId])
-            ->andWhere(['gateways.storeId' => $storeId])
-            ->all();
+        $query = $this->_createPaymentSourcesQuery()
+            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]')
+            ->where(['customerId' => $customerId]);
+
+        if ($gatewayId) {
+            $query->andWhere(['gatewayId' => $gatewayId]);
+        }
+
+        if ($storeId) {
+            $query->andWhere(['gateways.storeId' => $storeId]);
+        }
+
+        $results = $query->all();
 
         $sources = [];
 
@@ -265,13 +274,9 @@ class PaymentSources extends Component
      * @throws InvalidConfigException
      * @throws PaymentSourceException If unable to create the payment source
      */
-    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
+    public function createPaymentSource(int $customerId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null, bool $makePrimarySource = false): PaymentSource
     {
-        try {
-            $source = $gateway->createPaymentSource($paymentForm, $customerId);
-        } catch (Throwable $exception) {
-            throw new PaymentSourceException($exception->getMessage());
-        }
+        $source = $gateway->createPaymentSource($paymentForm, $customerId);
 
         $source->customerId = $customerId;
 
@@ -281,6 +286,10 @@ class PaymentSources extends Component
 
         if (!$this->savePaymentSource($source)) {
             throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
+        }
+
+        if ($makePrimarySource) {
+            Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($source->getCustomer(), $source->id);
         }
 
         return $source;
@@ -371,7 +380,6 @@ class PaymentSources extends Component
 
         return false;
     }
-
 
     /**
      * Returns a Query object prepped for retrieving gateways.

@@ -89,7 +89,7 @@ Outputs cart.
                       </label>
                       {{ input('text', 'lineItems[' ~ item.id ~ '][note]', item.note, {
                         id: 'lineitem-note-' ~ item.id,
-                        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded',
+                        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-full',
                         size: 20,
                         placeholder: 'My Note'|t
                       }) }}

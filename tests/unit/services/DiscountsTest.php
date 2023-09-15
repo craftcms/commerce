@@ -12,6 +12,7 @@ use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\elements\Variant;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -19,11 +20,15 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
+use craft\elements\Category;
 use craft\elements\User;
+use craftcommercetests\fixtures\CategoriesFixture;
 use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;
+use craftcommercetests\fixtures\ProductFixture;
 use DateInterval;
 use DateTime;
+use DateTimeZone;
 use UnitTester;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -63,6 +68,12 @@ class DiscountsTest extends Unit
             ],
             'customers' => [
                 'class' => CustomerFixture::class,
+            ],
+            'products' => [
+                'class' => ProductFixture::class,
+            ],
+            'categories' => [
+                'class' => CategoriesFixture::class,
             ],
         ];
     }
@@ -367,20 +378,379 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @param array|false $attributes
+     * @param int $count
      * @return void
      * @throws \Exception
+     * @dataProvider gatAllActiveDiscountsDataProvider
      */
-    public function testGetAllActiveDiscounts(): void
+    public function testGetAllActiveDiscounts(array|false $attributes, int $count, array $discounts): void
     {
-        $activeDiscounts = $this->discounts->getAllActiveDiscounts();
-        $activeDiscountsCodeExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'discount_1']));
-        $activeDiscountsCodeDoesntExists = $this->discounts->getAllActiveDiscounts(new Order(['couponCode' => 'coupon_code_doesnt_exist']));
+        $originalEdition = Plugin::getInstance()->edition;
+        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
 
-        self::assertNotEmpty($activeDiscounts);
-        self::assertCount(1, $activeDiscounts);
-        self::assertNotEmpty($activeDiscountsCodeExists);
-        self::assertCount(1, $activeDiscountsCodeExists);
-        self::assertEmpty($activeDiscountsCodeDoesntExists);
+        if (!empty($discounts)) {
+            foreach ($discounts as &$discount) {
+                $emailUses = $discount['_emailUses'] ?? [];
+
+                if (isset($discount['purchasableIds'])) {
+                    $discount['purchasableIds'] = Variant::find()->sku($discount['purchasableIds'])->ids();
+                }
+
+                if (isset($discount['categoryIds'])) {
+                    $discount['categoryIds'] = Category::find()->slug($discount['categoryIds'])->ids();
+                }
+
+                $discountModel = Craft::createObject([
+                    'class' => Discount::class,
+                    'attributes' => $discount,
+                ]);
+                Plugin::getInstance()->getDiscounts()->saveDiscount($discountModel);
+                $discount = $discountModel->id;
+
+                if ($discountModel->totalDiscountUses > 0) {
+                    Craft::$app->getDb()->createCommand()
+                        ->update(Table::DISCOUNTS, [
+                            'totalDiscountUses' => $discountModel->totalDiscountUses,
+                        ], [
+                            'id' => $discountModel->id,
+                        ])
+                        ->execute();
+                }
+
+                if (!empty($emailUses)) {
+                    $emailUses = collect($emailUses)->map(fn($uses, $email) => [$email, $discountModel->id, $uses])->all();
+                    Craft::$app->getDb()->createCommand()
+                        ->batchInsert(Table::EMAIL_DISCOUNTUSES, ['email', 'discountId', 'uses'], $emailUses)
+                        ->execute();
+                }
+            }
+        }
+
+        if ($attributes === false) {
+            $activeDiscounts = $this->discounts->getAllActiveDiscounts();
+        } else {
+            $order = new Order(array_diff_key($attributes, array_flip(['_lineItems'])));
+
+            if (isset($attributes['_lineItems'])) {
+                $lineItems = [];
+                foreach ($attributes['_lineItems'] as $sku => $qty) {
+                    $variant = Variant::find()->sku($sku)->one();
+                    $lineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order, $variant->id, [], $qty);
+                }
+                $order->setLineItems($lineItems);
+            }
+
+            $activeDiscounts = $this->discounts->getAllActiveDiscounts($order);
+        }
+
+        if ($count > 0) {
+            self::assertCount($count, $activeDiscounts);
+            self::assertNotEmpty($activeDiscounts);
+        } else {
+            self::assertEmpty($activeDiscounts);
+        }
+
+        // Tidy up the discounts
+        if (!empty($discounts)) {
+            foreach ($discounts as $discountId) {
+                Plugin::getInstance()->getDiscounts()->deleteDiscountById($discountId);
+            }
+        }
+
+        Plugin::getInstance()->edition = $originalEdition;
+    }
+
+    /**
+     * @return array[]
+     */
+    public function gatAllActiveDiscountsDataProvider(): array
+    {
+        $yesterday = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('-1 day');
+        $tomorrow = (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(12, 0)->modify('+1 day');
+
+        function _createDiscounts($discounts)
+        {
+            return collect($discounts)->mapWithKeys(function(array $d, string $key) {
+                return [$key => array_merge([
+                    'name' => 'Discount - ' . $key,
+                    'perItemDiscount' => '1',
+                    'enabled' => true,
+                    'allCategories' => true,
+                    'allPurchasables' => true,
+                    'percentageOffSubject' => 'original',
+                ], $d)];
+            })->all();
+        }
+
+        return [
+            'no-order' => [false, 1, []],
+            'order-with-valid-coupon' => [['couponCode' => 'discount_1'], 1, []],
+            'order-with-invalid-coupon' => [['couponCode' => 'coupon_code_doesnt_exist'], 0, []],
+            'order-discounts-dates' => [
+                [],
+                3,
+                _createDiscounts([
+                    'date-from-valid' => [
+                        'dateFrom' => $yesterday,
+                    ],
+                    'date-from-invalid' => [
+                        'dateFrom' => $tomorrow,
+                    ],
+                    'date-to-valid' => [
+                        'dateTo' => $tomorrow,
+                    ],
+                    'date-to-invalid' => [
+                        'dateTo' => $yesterday,
+                    ],
+                    'date-to-from-valid' => [
+                        'dateFrom' => $yesterday,
+                        'dateTo' => $tomorrow,
+                    ],
+                    'date-to-from-invalid' => [
+                        'dateFrom' => $tomorrow,
+                        'dateTo' => $tomorrow->modify('+1 day'),
+                    ],
+                ]),
+            ],
+            'order-discounts-limits' => [
+                [],
+                4,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'totalDiscountUseLimit' => 0,
+                    ],
+                    'total-limit-zero-with-uses' => [
+                        'totalDiscountUses' => 10,
+                        'totalDiscountUseLimit' => 0,
+                    ],
+                    'total-limit-valid-with-no-uses' => [
+                        'totalDiscountUses' => 0,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-valid-with-uses' => [
+                        'totalDiscountUses' => 7,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-invalid-equals' => [
+                        'totalDiscountUses' => 10,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                    'total-limit-invalid-extra' => [
+                        'totalDiscountUses' => 11,
+                        'totalDiscountUseLimit' => 10,
+                    ],
+                ]),
+            ],
+            'order-discounts-email-limits-no-email' => [
+                [],
+                1,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit' => [
+                        'perEmailLimit' => 1,
+                    ],
+                ]),
+            ],
+            'order-discounts-email-limits' => [
+                ['email' => 'per.email.limit@crafttest.com'],
+                4,
+                _createDiscounts([
+                    'total-limit-zero' => [
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit-zero-with-uses' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 10],
+                        'perEmailLimit' => 0,
+                    ],
+                    'total-limit-valid-with-no-uses' => [
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-valid-with-uses' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 7],
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-invalid-equals' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 10],
+                        'perEmailLimit' => 10,
+                    ],
+                    'total-limit-invalid-extra' => [
+                        '_emailUses' => ['per.email.limit@crafttest.com' => 11],
+                        'perEmailLimit' => 10,
+                    ],
+                ]),
+            ],
+            'purchase-total-limit-no-items' => [
+                [],
+                4,
+                _createDiscounts([
+                    'purchase-total-zero' => [
+                        'purchaseTotal' => 0,
+                    ],
+                    'purchase-total-all-purchasables-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                ]),
+            ],
+            'purchase-total-limit-with-items' => [
+                [
+                    '_lineItems' => ['rad-hood' => 1],
+                ],
+                5,
+                _createDiscounts([
+                    'purchase-total-zero' => [
+                        'purchaseTotal' => 0,
+                    ],
+                    'purchase-total-all-purchasables-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-valid' => [
+                        'purchaseTotal' => 150,
+                    ],
+                    'purchase-total-invalid' => [
+                        'purchaseTotal' => 10.99,
+                    ],
+                ]),
+            ],
+            'qty-limits-no-items' => [
+                [],
+                6,
+                _createDiscounts([
+                    'purchase-qty-zero' => [
+                        'purchaseQty' => 0,
+                    ],
+                    'max-qty-zero' => [
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'both-zero' => [
+                        'purchaseQty' => 0,
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'purchase-qty-all-purchasables-false' => [
+                        'purchaseQty' => 4,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'purchase-total-all-categories-false' => [
+                        'purchaseTotal' => 10,
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                    'purchase-total-both-all-false' => [
+                        'purchaseTotal' => 10,
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                        'allCategories' => false,
+                        'categoryIds' => ['commerce-category'],
+                    ],
+                ]),
+            ],
+            'qty-limits-with-items' => [
+                ['_lineItems' => ['rad-hood' => 4]],
+                6,
+                _createDiscounts([
+                    'purchase-qty-zero' => [
+                        'purchaseQty' => 0,
+                    ],
+                    'max-qty-zero' => [
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'both-zero' => [
+                        'purchaseQty' => 0,
+                        'maxPurchaseQty' => 0,
+                    ],
+                    'purchase-qty-valid' => [
+                        'purchaseQty' => 3,
+                    ],
+                    'purchase-qty-invalid' => [
+                        'purchaseQty' => 5,
+                    ],
+                    'max-qty-valid' => [
+                        'maxPurchaseQty' => 10,
+                    ],
+                    'max-qty-invalid' => [
+                        'maxPurchaseQty' => 3,
+                    ],
+                    'both-valid' => [
+                        'purchaseQty' => 2,
+                        'maxPurchaseQty' => 10,
+                    ],
+                    'both-invalid' => [
+                        'purchaseQty' => 10,
+                        'maxPurchaseQty' => 14,
+                    ],
+                ]),
+            ],
+            'purchasables-one-lineitem' => [
+                ['_lineItems' => ['rad-hood' => 1]],
+                3,
+                _createDiscounts([
+                    'all-purchasables' => [
+                        'allPurchasables' => true,
+                    ],
+                    'one-to-one' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'one-to-many' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood', 'hct-white'],
+                    ],
+                    'no-match' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['hct-blue'],
+                    ],
+                ]),
+            ],
+            'purchasables-multi-lineitems' => [
+                ['_lineItems' => ['rad-hood' => 1, 'hct-white' => 1]],
+                2,
+                _createDiscounts([
+                    'one' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood'],
+                    ],
+                    'many' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['rad-hood', 'hct-white'],
+                    ],
+                    'no-match' => [
+                        'allPurchasables' => false,
+                        'purchasableIds' => ['hct-blue'],
+                    ],
+                ]),
+            ],
+        ];
     }
 
     /**

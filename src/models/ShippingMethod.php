@@ -81,6 +81,10 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getShippingRules(): Collection
     {
+        if ($this->id === null) {
+            return [];
+        }
+
         return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
     }
 
