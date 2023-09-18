@@ -1,10 +1,90 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.3.0 - 2023-09-13
 
+- Sales and discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
+- It’s now possible to query products by shipping category and tax category. ([#3219](https://github.com/craftcms/commerce/issues/3219))
+- Guest customers registering during checkout now have their addresses saved to their account. ([#3203](https://github.com/craftcms/commerce/pull/3203))
+- Product conditions can now have “Product Type”, “Variant SKU”, “Variant Has Unlimited Stock”, “Variant Price”, and “Variant Stock” rules. ([#3209](https://github.com/craftcms/commerce/issues/3209))
+- Improved the performance of discount recalculation.
+- Improved the performance of the `commerce/upgrade` command. ([#3208](https://github.com/craftcms/commerce/pull/3208))
+- Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
+- The `commerce/cart/update-cart` action now accepts `firstName` and `lastName` address parameters. ([#3015](https://github.com/craftcms/commerce/issues/3015))
+- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY`. ([#3198](https://github.com/craftcms/commerce/pull/3198))
+- Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Added `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`.
+- Added `craft\commerce\elements\db\ProductQuery::$taxCategoryId`.
+- Added `craft\commerce\elements\db\ProductQuery::shippingCategory()`.
+- Added `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`.
+- Added `craft\commerce\elements\db\ProductQuery::taxCategory()`.
+- Added `craft\commerce\elements\db\ProductQuery::taxCategoryId()`.
+- Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
+- Added `craft\commerce\models\Discount::hasCustomerCondition()`.
+- Added `craft\commerce\models\Discount::hasOrderCondition()`.
+- Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
+- Deprecated payment source creation via the `commerce/subscriptions/subscribe` action.
+- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
+- Removed the `htmx` option from the`commerce/example-templates` command.
+- Removed the `color` option from the`commerce/example-templates` command.
+- Added `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. ([#3198](https://github.com/craftcms/commerce/pull/3198))
+- Fixed a bug where products/variants could be saved with a minimum quantity that was set higher than the maximum quantity. ([#3234](https://github.com/craftcms/commerce/issues/3234))
+- Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` could incorrectly return `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
+- Fixed a bug where changing a user’s email could cause additional user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Fixed a bug where related sales were displaying when creating a new product.
+- Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
+- Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
+- Fixed a bug where address changes weren’t being synced to carts that were using them. ([#3178](https://github.com/craftcms/commerce/issues/3178))
+- Fixed an XSS vulnerability.
+
+## 4.2.11 - 2023-06-05
+
+- Fixed a bug where “Send Email” option text wasn’t getting translated. ([#3172](https://github.com/craftcms/commerce/issues/3172)) 
+- Fixed a bug where discounts’ user condition values weren’t getting migrated properly when upgrading to Commerce 4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+
+## 4.2.10 - 2023-05-31
+
+- An error notification is now displayed when attempting to delete a user with existing orders or subscriptions. ([#3071](https://github.com/craftcms/commerce/pull/3071), [#3070](https://github.com/craftcms/commerce/pull/3070))
+- Added support for linking to products and variants from CKEditor fields. ([#3150](https://github.com/craftcms/commerce/discussions/3150))
+- Fixed a bug where custom field conditions weren’t showing when editing a shipping zone.
+- Fixed a bug where discounts’ user condition values weren’t getting migrated properly when upgrading to Commerce 4. ([#3176](https://github.com/craftcms/commerce/issues/3176))
+- Fixed a bug where users weren’t permitted to update their subscriptions on the front-end. ([#3155](https://github.com/craftcms/commerce/issues/3155))
+- Fixed a PHP error that could occur when calling `craft\commerce\services\Payments::processPayment()` without passing the new `$redirectData` argument.
+
+## 4.2.9 - 2023-05-25
+
+- The `commerce/cart/update-cart` action now accepts `clearAddresses`, `clearBillingAddress`, and `clearShippingAddress` params.
+- Fixed a JavaScript error that occurred when switching control panel tabs on small screens. ([#3162](https://github.com/craftcms/commerce/issues/3162))
+- Fixed a bug where the `commerce/upgrade` command wasn’t migrating discounts’ and coupons’ Max Uses values properly. ([#2947](https://github.com/craftcms/commerce/issues/2947))
+
+## 4.2.8 - 2023-05-03
+
+- Added `craft\commerce\services\Customers::EVENT_UPDATE_PRIMARY_PAYMENT_SOURCE`.
+- Fixed a bug where PDFs could be generated using the wrong formatting locale. ([#3145](https://github.com/craftcms/commerce/issues/3145))
+
+## 4.2.7 - 2023-04-13
+
+- Added the “Order Site” order condition rule. ([#3131](https://github.com/craftcms/commerce/issues/3131))
+- Email jobs are now reattempted up to five times on failure. ([#3121](https://github.com/craftcms/commerce/pull/3121))
+- Fixed a bug where variants weren’t getting propagated properly when new sites were created. ([#3124](https://github.com/craftcms/commerce/issues/3124))
+- Fixed a bug where the flash message that was shown for order status changes could be malformed, if there were any errors. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a bug where Commerce widgets’ “Order Statuses” settings’ instruction text wasn’t getting translated.
+- Fixed a bug where the flash message displayed when tax settings failed to save on Commerce Lite wasn’t getting translated.
+- Fixed a bug where the `commerce/upgrade` command could fail if there was a large number of orphaned customers.
+
+## 4.2.6 - 2023-03-22
+
+- Discounts’ “Match Customer” conditions can now have a “Signed In” rule.
+- Added `craft\commerce\base\Gateway::showPaymentFormSubmitButton()`
+- Added `craft\commmerce\elements\conditions\customer\SignedInConditionRule`.
+- The `commerce/payments/pay` action now includes a `redirectData` key in JSON responses.
 - Fixed a PHP error that could occur when processing a payment. ([#3092](https://github.com/craftcms/commerce/issues/3092))
-- Fixed a bug that could occur when forgetting a cart. ([#3091](https://github.com/craftcms/commerce/pull/3091))
-- Fixed a bug that occurred when creating a tax category inline on the Edit Tax Rate page.
+- Fixed a bug where cart cookies weren’t getting removed on logout, if the `defaultCookieDomain` Craft config setting was set. ([#3091](https://github.com/craftcms/commerce/pull/3091))
+- Fixed a bug where the `validateCartCustomFieldsOnSubmission` setting wasn’t being respected in Craft 4.4. ([#3109](https://github.com/craftcms/commerce/issues/3109))
+- Fixed a bug where the “Tax Zone” and “Tax Category” selects could be incorrectly populated when editing a tax category.
+- Fixed a PHP error that occurred when saving a tax zone with an empty name on Commerce Lite. ([#3089](https://github.com/craftcms/commerce/issues/3089))
+- Fixed a PHP error that occurred when saving shipping settings with empty “Shipping Base Rate” or “Shipping Per Item Rate” settings on Commerce Lite.
+- Fixed a bug where the flash message that was shown for order status changes was malformed. ([#3116](https://github.com/craftcms/commerce/issues/3116))
+- Fixed a PHP error that could occur when creating an order in the control panel. ([#3115](https://github.com/craftcms/commerce/issues/3115))
 
 ## 4.2.5.1 - 2023-02-02
 

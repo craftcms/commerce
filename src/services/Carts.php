@@ -137,10 +137,9 @@ class Carts extends Component
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
-        if ($currentUser) {
-            if ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->email)) {
-                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
-            }
+        // Switch the cart customer if needed
+        if ($currentUser && ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->getEmail()))) {
+            $this->_cart->setCustomer($currentUser);
         }
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;

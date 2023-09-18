@@ -8,7 +8,6 @@
 namespace craft\commerce\elements;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
@@ -343,6 +342,28 @@ class Variant extends Purchasable
     }
 
     /**
+     * @return void
+     * @noinspection PhpUnused
+     */
+    public function validateMinQtyRange()
+    {
+        if ($this->minQty && $this->maxQty && $this->minQty > $this->maxQty) {
+            $this->addError('minQty', Craft::t('commerce', 'Min quantity must be less than max.'));
+        }
+    }
+
+    /**
+     * @return void
+     * @noinspection PhpUnused
+     */
+    public function validateMaxQtyRange()
+    {
+        if ($this->minQty && $this->maxQty && $this->maxQty < $this->minQty) {
+            $this->addError('maxQty', Craft::t('commerce', 'Max quantity must greater than min.'));
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -481,7 +502,7 @@ class Variant extends Purchasable
         if ($this->_productTypeHandle === null) {
             $product = $this->getProduct();
 
-            $this->_productTypeHandle = $product ? ($product?->getType()?->handle ?? null) : null ;
+            $this->_productTypeHandle = $product ? ($product?->getType()?->handle ?? null) : null;
         }
 
         return $this->_productTypeHandle;
@@ -1025,6 +1046,27 @@ class Variant extends Purchasable
         return parent::getSearchKeywords($attribute);
     }
 
+    public function defineRules(): array
+    {
+        return array_merge(parent::defineRules(), [
+            [['sku'], 'string', 'max' => 255],
+            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            // maxQty must be greater than minQty and minQty must be less than maxQty
+            [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
+            [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
+            [
+                ['stock'],
+                'required',
+                'when' => static function($model) {
+                    /** @var Variant $model */
+                    return !$model->hasUnlimitedStock;
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [['stock'], 'number'],
+        ]);
+    }
 
     /**
      * @inheritdoc

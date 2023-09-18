@@ -39,8 +39,7 @@
                                 <a
                                     :href="emailTemplate.id"
                                     @click.prevent="sendEmail(emailTemplate.id)"
-                                    >Send the “{{ emailTemplate.name }}”
-                                    email</a
+                                    >{{ emailTemplate.name }}</a
                                 >
                             </li>
                         </ul>

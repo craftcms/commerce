@@ -160,7 +160,7 @@
         errors: taxRate.getErrors('taxZoneId'),
         required: false,
         options: taxZones,
-        class: 'selectize fullwidth',
+        class: 'selectize',
     } %}
 
     {{ lazyCreateSelect(
@@ -197,7 +197,7 @@
         errors: taxRate.getErrors('taxCategoryId'),
         required: true,
         options: taxCategories,
-        class: 'selectize fullwidth',
+        class: 'selectize',
         disabled: hideTaxCategory,
         fieldClass: 'field' ~ (hideTaxCategory ? ' hidden')
     } %}

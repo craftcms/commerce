@@ -5,7 +5,6 @@
   <h1 class="text-3xl block sm:inline">
     {{- 'Products'|t -}}
   </h1>
-  {% if currentUser and currentUser.admin %}<a href="{{cpUrl('commerce/products')}}" class="p-1">✍️</a>{% endif %}
   {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
 
   {{ include('[[folderName]]/products/_includes/grid', {
