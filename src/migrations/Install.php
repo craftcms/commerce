@@ -251,7 +251,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::EMAILS);
         $this->createTable(Table::EMAILS, [
             'id' => $this->primaryKey(),
-            'store' => $this->integer(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'senderAddress' => $this->string(),
             'senderName' => $this->string(),
@@ -779,6 +779,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'primary' => $this->boolean()->notNull(),
             'autoSetCartShippingMethodOption' => $this->boolean()->notNull()->defaultValue(false),
+            'autoSetNewCartAddresses' => $this->boolean()->notNull()->defaultValue(false),
             'autoSetPaymentSource' => $this->boolean()->notNull()->defaultValue(false),
             'allowEmptyCartOnCheckout' => $this->boolean()->notNull()->defaultValue(false),
             'allowCheckoutWithoutPayment' => $this->boolean()->notNull()->defaultValue(false),
