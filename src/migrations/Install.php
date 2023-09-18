@@ -251,7 +251,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::EMAILS);
         $this->createTable(Table::EMAILS, [
             'id' => $this->primaryKey(),
-            'store' => $this->integer(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'senderAddress' => $this->string(),
             'senderName' => $this->string(),
