@@ -779,6 +779,7 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'primary' => $this->boolean()->notNull(),
             'autoSetCartShippingMethodOption' => $this->boolean()->notNull()->defaultValue(false),
+            'autoSetNewCartAddresses' => $this->boolean()->notNull()->defaultValue(false),
             'autoSetPaymentSource' => $this->boolean()->notNull()->defaultValue(false),
             'allowEmptyCartOnCheckout' => $this->boolean()->notNull()->defaultValue(false),
             'allowCheckoutWithoutPayment' => $this->boolean()->notNull()->defaultValue(false),
