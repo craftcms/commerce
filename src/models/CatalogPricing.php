@@ -61,6 +61,11 @@ class CatalogPricing extends Model
     public bool $isPromotionalPrice = false;
 
     /**
+     * @var bool
+     */
+    public bool $hasUpdatePending = false;
+
+    /**
      * @var string|null
      */
     public ?string $uid = null;
@@ -85,6 +90,7 @@ class CatalogPricing extends Model
             'catalogPricingRuleId',
             'dateFrom',
             'dateTo',
+            'hasUpdatePending',
             'id',
             'isPromotionalPrice',
             'price',

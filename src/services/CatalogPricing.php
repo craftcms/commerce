@@ -71,6 +71,8 @@ class CatalogPricing extends Component
             return;
         }
 
+        // @TODO maybe mark prices as pending update here?
+
         $cprStartTime = microtime(true);
         if ($showConsoleOutput) {
             Console::stdout(PHP_EOL . 'Generating price data from catalog pricing rules... ');
@@ -125,6 +127,7 @@ class CatalogPricing extends Component
                         $catalogPricingRule->id, // catalogPricingRuleId
                         $catalogPricingRule->dateFrom ? Db::prepareDateForDb($catalogPricingRule->dateFrom) : null, // dateFrom
                         $catalogPricingRule->dateTo ? Db::prepareDateForDb($catalogPricingRule->dateTo) : null, // dateTo
+                        false, // hasUpdatePending
                     ];
                 }
             }
@@ -214,6 +217,7 @@ class CatalogPricing extends Component
                     'catalogPricingRuleId',
                     'dateFrom',
                     'dateTo',
+                    'hasUpdatePending',
                 ], $catalogPricingChunk)->execute();
                 $count += $chunkSize;
                 if ($showConsoleOutput) {
@@ -335,6 +339,32 @@ class CatalogPricing extends Component
     }
 
     /**
+     * @param int|array|null $catalogPricingRuleId
+     * @param int|array|null $purchasableId
+     * @param int|array|null $storeId
+     * @return void
+     */
+    public function markPricesAsUpdatePending(int|array|null $catalogPricingRuleId = null, int|array|null $purchasableId = null, int|array|null $storeId = null): void
+    {
+        $conditions = [];
+
+        if ($catalogPricingRuleId !== null) {
+            $conditions['catalogPricingRuleId'] = $catalogPricingRuleId;
+        }
+
+        if ($purchasableId !== null) {
+            $conditions['purchasableId'] = $purchasableId;
+        }
+
+        if ($storeId !== null) {
+            $conditions['storeId'] = $storeId;
+        }
+
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::CATALOG_PRICING, ['hasUpdatePending' => true], $conditions);
+    }
+
+    /**
      * @param int $storeId
      * @param CatalogPricingCondition|null $conditionBuilder
      * @param string|null $searchText
@@ -400,6 +430,13 @@ class CatalogPricing extends Component
      */
     public function createCatalogPricingJob(array $config = [], int $priority = 100): void
     {
+        // Mark prices as pending when creating a job
+        // pick out `purchasableIds`, `catalogPricingRuleIds` and `storeId` from config into new array
+        $catalogPricingRuleIds = $config['catalogPricingRuleIds'] ?? null;
+        $purchasableIds = $config['purchasableIds'] ?? null;
+        $storeId = $config['storeId'] ?? null;
+        $this->markPricesAsUpdatePending($catalogPricingRuleIds, $purchasableIds, $storeId);
+
         $config = array_merge([
             'class' => CatalogPricingJob::class,
         ], $config);

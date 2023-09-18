@@ -122,6 +122,7 @@ class Install extends Migration
             'dateFrom' => $this->dateTime(),
             'dateTo' => $this->dateTime(),
             'isPromotionalPrice' => $this->boolean()->defaultValue(false),
+            'hasUpdatePending' => $this->boolean()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

@@ -18,8 +18,12 @@ use craft\db\ActiveRecord;
  * @property float $price
  * @property int $purchasableId
  * @property int $storeId
- * @property int $userGroupId
+ * @property int $catalogPricingRuleId
  * @property int $uid
+ * @property \DateTime $dateFrom
+ * @property \DateTime $dateTo
+ * @property bool $isPromotionalPrice
+ * @property bool $hasUpdatePending
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
