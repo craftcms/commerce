@@ -48,6 +48,10 @@ class Product
         // Need to set the product now so that the variant custom fields
         $variantModel->setProduct($product);
 
+        // When saving from a post each variant should have its `siteId` set so the store can be correctly determined
+        $variantModel->siteId = $product->siteId;
+
+
         $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
@@ -55,32 +59,16 @@ class Product
         $variantModel->height = isset($variant['height']) ? (float)LocalizationHelper::normalizeNumber($variant['height']) : null;
         $variantModel->length = isset($variant['length']) ? (float)LocalizationHelper::normalizeNumber($variant['length']) : null;
         $variantModel->weight = isset($variant['weight']) ? (float)LocalizationHelper::normalizeNumber($variant['weight']) : null;
-
-        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
-            if (!isset($variant[$store->handle])) {
-                continue;
-            }
-
-            // Normalize the per store data
-            $purchasableStore = $variant[$store->handle];
-            $basePrice = isset($purchasableStore['basePrice']) && $purchasableStore['basePrice'] !== '' ? (float)LocalizationHelper::normalizeNumber($purchasableStore['basePrice']) : null;
-            $basePromotionalPrice = isset($purchasableStore['basePromotionalPrice']) && $purchasableStore['basePromotionalPrice'] !== '' ? (float)LocalizationHelper::normalizeNumber($purchasableStore['basePromotionalPrice']) : null;
-            $stock = isset($purchasableStore['stock']) && $purchasableStore['stock'] !== '' ? (int)LocalizationHelper::normalizeNumber($purchasableStore['stock']) : null;
-            $hasUnlimitedStock = isset($purchasableStore['hasUnlimitedStock']) ? (bool)$purchasableStore['hasUnlimitedStock'] : null;
-            $minQty = isset($purchasableStore['minQty']) && $purchasableStore['minQty'] !== '' ? (int)LocalizationHelper::normalizeNumber($purchasableStore['minQty']) : null;
-            $maxQty = isset($purchasableStore['maxQty']) && $purchasableStore['maxQty'] !== '' ? (int)LocalizationHelper::normalizeNumber($purchasableStore['maxQty']) : null;
-            $availableForPurchase = isset($purchasableStore['availableForPurchase']) ? (bool)$purchasableStore['availableForPurchase'] : null;
-            $promotable = isset($purchasableStore['promotable']) ? (bool)$purchasableStore['promotable'] : null;
-
-            $variantModel->setBasePrice($basePrice, $store);
-            $variantModel->setBasePromotionalPrice($basePromotionalPrice, $store);
-            $variantModel->setStock($stock, $store);
-            $variantModel->setHasUnlimitedStock($hasUnlimitedStock, $store);
-            $variantModel->setMinQty($minQty, $store);
-            $variantModel->setMaxQty($maxQty, $store);
-            $variantModel->setAvailableForPurchase($availableForPurchase, $store);
-            $variantModel->setPromotable($promotable, $store);
-        }
+        $variantModel->basePrice = isset($variant['basePrice']) && $variant['basePrice'] !== '' ? (float)LocalizationHelper::normalizeNumber($variant['basePrice']) : null;
+        $variantModel->basePromotionalPrice = isset($variant['basePromotionalPrice']) && $variant['basePromotionalPrice'] !== '' ? (float)LocalizationHelper::normalizeNumber($variant['basePromotionalPrice']) : null;
+        $variantModel->stock = isset($variant['stock']) && $variant['stock'] !== '' ? (int)LocalizationHelper::normalizeNumber($variant['stock']) : null;
+        $variantModel->hasUnlimitedStock = isset($variant['hasUnlimitedStock']) ? (bool)$variant['hasUnlimitedStock'] : null;
+        $variantModel->minQty = isset($variant['minQty']) && $variant['minQty'] !== '' ? (int)LocalizationHelper::normalizeNumber($variant['minQty']) : null;
+        $variantModel->maxQty = isset($variant['maxQty']) && $variant['maxQty'] !== '' ? (int)LocalizationHelper::normalizeNumber($variant['maxQty']) : null;
+        $variantModel->availableForPurchase = isset($variant['availableForPurchase']) ? (bool)$variant['availableForPurchase'] : null;
+        $variantModel->promotable = isset($variant['promotable']) ? (bool)$variant['promotable'] : null;
+        $variantModel->taxCategoryId = isset($variant['taxCategoryId']) ? (int)$variant['taxCategoryId'] : null;
+        $variantModel->shippingCategoryId = isset($variant['shippingCategoryId']) ? (int)$variant['shippingCategoryId'] : null;
 
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);
@@ -149,11 +137,6 @@ class Product
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
 
-        $product->promotable = (bool)$request->getBodyParam('promotable');
-        $product->availableForPurchase = (bool)$request->getBodyParam('availableForPurchase');
-        $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
-        $product->taxCategoryId = $request->getBodyParam('taxCategoryId');
-        $product->shippingCategoryId = $request->getBodyParam('shippingCategoryId');
         $product->slug = $request->getBodyParam('slug');
 
         $product->enabledForSite = (bool)$request->getBodyParam('enabledForSite', $product->enabledForSite);
