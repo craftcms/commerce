@@ -8,7 +8,7 @@
 {% set title = "Stores"|t('app') %}
 {% set stores = craft.commerce.stores.getAllStores() %}
 {% block actionButton %}
-    {% if stores|length < craft.app.sites.getAllSites()|length %}
+    {% if stores|length < craft.app.sites.getAllSites()|length and craft.commerce.catalogPricingRules.canUseCatalogPricingRules %}
         {% set newStoreUrl = url('commerce/settings/stores/new') %}
         <a href="{{ newStoreUrl }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
     {% endif %}
