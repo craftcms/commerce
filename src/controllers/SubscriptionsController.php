@@ -193,11 +193,17 @@ class SubscriptionsController extends BaseController
             }
 
             try {
-                $paymentForm = $gateway->getPaymentFormModel();
-                $paymentForm->setAttributes($this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [], false);
+                // We provide backward compatibility for stripe plugin 3.0
+                $paymentFormData = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [];
+                if (isset($paymentFormData['paymentMethodId'])) {
+                    // throw deprecation error
+                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription subscription create action now requires that a default payment source is set up before subscribing.');
+                    $paymentForm = $gateway->getPaymentFormModel();
+                    $paymentForm->setAttributes($paymentFormData, false);
 
-                if ($paymentForm->validate()) {
-                    $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                    if ($paymentForm->validate()) {
+                        $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                    }
                 }
 
                 $fieldsLocation = $this->request->getParam('fieldsLocation', 'fields');
@@ -207,7 +213,7 @@ class SubscriptionsController extends BaseController
             } catch (\Exception $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
-                throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.'));
+                throw new SubscriptionException(Craft::t('commerce', 'Unable to start the subscription. ' . $exception->getMessage()));
             }
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
