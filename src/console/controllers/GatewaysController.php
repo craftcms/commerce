@@ -7,9 +7,9 @@
 
 namespace craft\commerce\console\controllers;
 
+use craft\commerce\Plugin as Commerce;
 use craft\console\Controller;
 use craft\helpers\Console;
-use craft\commerce\Plugin as Commerce;
 use yii\console\ExitCode;
 
 /**
