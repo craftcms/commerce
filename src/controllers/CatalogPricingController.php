@@ -20,11 +20,11 @@ use craft\helpers\Html;
 use craft\models\Site;
 use craft\web\assets\htmx\HtmxAsset;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yii\base\InvalidConfigException;
 
 /**
  * Class Catalog Pricing Controller

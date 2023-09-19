@@ -21,7 +21,6 @@ use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\Settings;
 use craft\commerce\models\Store;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;

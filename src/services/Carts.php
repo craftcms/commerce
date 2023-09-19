@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -20,7 +19,6 @@ use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
-use craft\models\Site;
 use DateTime;
 use Throwable;
 use yii\base\Component;

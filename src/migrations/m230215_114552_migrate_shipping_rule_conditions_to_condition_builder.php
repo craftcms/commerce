@@ -2,11 +2,9 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
-use craft\base\conditions\BaseNumberConditionRule;
 use craft\commerce\db\Table;
-use craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule;
 use craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule;
+use craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule;
 use craft\commerce\elements\conditions\orders\OrderValuesAttributeConditionRule;
 use craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule;
 use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
@@ -100,7 +98,7 @@ class m230215_114552_migrate_shipping_rule_conditions_to_condition_builder exten
     private function _setConditionRule(OrderValuesAttributeConditionRule $rule, ShippingRuleOrderCondition $orderCondition, mixed $min, mixed $max, bool $adjustValues = false): ShippingRuleOrderCondition
     {
         // Write this manually because at the moment the operator constants are all protected and not public
-        $rule->operator  = 'between';
+        $rule->operator = 'between';
 
         if ($max > 0) {
             $rule->maxValue = $adjustValues ? $max - 1 : $max;

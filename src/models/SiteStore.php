@@ -10,7 +10,6 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
-use craft\commerce\Plugin;
 use craft\helpers\Db;
 use craft\models\Site;
 

@@ -9,7 +9,6 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\base\Purchasable as PurchasableElement;
-use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;

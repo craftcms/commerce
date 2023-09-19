@@ -185,7 +185,7 @@ class Email extends Model
                     'to',
                     'uid',
                 ],
-                'safe'
+                'safe',
             ],
         ];
     }
@@ -297,6 +297,6 @@ class Email extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/emails/' . $this->getStore()->handle. '/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/emails/' . $this->getStore()->handle . '/' . $this->id);
     }
 }

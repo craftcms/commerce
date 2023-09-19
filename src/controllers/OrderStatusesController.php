@@ -15,7 +15,6 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use Throwable;
 use yii\base\ErrorException;
@@ -74,7 +73,7 @@ class OrderStatusesController extends BaseAdminController
             }
         }
 
-        $variables['statusColors'] = ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $variables['statusColors'] = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
 
         if ($variables['orderStatus']->id) {
             $variables['title'] = $variables['orderStatus']->name;

@@ -111,7 +111,7 @@ class Pdf extends Model
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/pdfs/' . $this->getStore()->handle. '/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/pdfs/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     /**
@@ -125,7 +125,7 @@ class Pdf extends Model
                 UniqueValidator::class,
                 'targetClass' => PdfRecord::class,
                 'targetAttribute' => ['handle', 'storeId'],
-                'message' => '{attribute} "{value}" has already been taken.'
+                'message' => '{attribute} "{value}" has already been taken.',
             ],
             [['paperOrientation'], 'in', 'range' => [PdfRecord::PAPER_ORIENTATION_PORTRAIT, PdfRecord::PAPER_ORIENTATION_LANDSCAPE]],
             [['paperSize'], 'in', 'range' => array_keys(CPDF::$PAPER_SIZES)],

@@ -12,7 +12,6 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
-use http\Exception\InvalidArgumentException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;

@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
-use craft\commerce\queue\jobs\CatalogPricing;
 use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\commerce\records\CatalogPricingRuleUser;
 use craft\db\Query;
@@ -19,8 +18,6 @@ use craft\elements\User;
 use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
-use craft\helpers\ArrayHelper;
-use craft\helpers\Queue;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
@@ -118,10 +115,14 @@ class CatalogPricingRules extends Component
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
         // @TODO figure out if memoization is needed here
         $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
-            ->andWhere(['id' => (new Query())
-                ->select(['catalogPricingRuleId'])
-                ->from([Table::CATALOG_PRICING])
-                ->where(['purchasableId' => $purchasableId])
+            ->andWhere([
+                'or',
+                ['purchasableId' => $purchasableId],
+                ['id' => (new Query())
+                    ->select(['catalogPricingRuleId'])
+                    ->from([Table::CATALOG_PRICING])
+                    ->where(['purchasableId' => $purchasableId]),
+                ],
             ])
             ->andWhere(['storeId' => $storeId])
             ->all();
@@ -223,7 +224,6 @@ class CatalogPricingRules extends Component
                     CatalogPricingRuleUser::deleteAll(['userId' => $user->id, 'catalogPricingRuleId' => $rule->id]);
                 }
             });
-
         }
     }
 

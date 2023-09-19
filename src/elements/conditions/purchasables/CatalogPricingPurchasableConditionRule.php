@@ -9,7 +9,6 @@ namespace  craft\commerce\elements\conditions\purchasables;
 
 use Craft;
 use craft\base\conditions\BaseConditionRule;
-use craft\base\ElementInterface;
 use craft\commerce\base\CatalogPricingConditionRuleInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\Plugin;

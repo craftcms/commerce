@@ -9,7 +9,6 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\OrderStatus;
@@ -36,7 +35,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception as YiiBaseException;
-use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Exception as YiiDbException;
@@ -85,6 +83,9 @@ class Stores extends Component
      */
     public const CONFIG_STORES_KEY = 'commerce.stores';
 
+    /**
+     * The project config path to site stores data
+     */
     public const CONFIG_SITESTORES_KEY = 'commerce.sitestores';
 
     /**

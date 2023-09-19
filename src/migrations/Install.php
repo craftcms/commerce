@@ -274,11 +274,14 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PDFS);
         $this->createTable(Table::PDFS, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'templatePath' => $this->string()->notNull(),
             'fileNameFormat' => $this->string(),
+            'paperOrientation' => $this->string()->defaultValue('portrait'),
+            'paperSize' => $this->string()->defaultValue('letter'),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
@@ -995,6 +998,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
         $this->createIndex(null, Table::PDFS, 'handle', false);
+        $this->createIndex(null, Table::PDFS, 'storeId', false);
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
         $this->createIndex(null, Table::PLANS, 'handle', true);
         $this->createIndex(null, Table::PLANS, 'reference', false);
@@ -1102,6 +1106,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PAYMENTCURRENCIES, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PDFS, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::PLANS, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');

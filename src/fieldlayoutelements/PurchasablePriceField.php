@@ -197,7 +197,7 @@ JS;
                             'width' => '100%',
                             'height' => '100%',
                             'background-color' => 'rgba(255, 255, 255, 0.5)',
-                        ]
+                        ],
                     ]) .
                     Html::tag('div', Html::tag('span', '', ['class' => 'spinner']), [
                         'class' => 'js-purchasable-toggle-loading flex hidden',
@@ -209,7 +209,7 @@ JS;
                             'height' => '100%',
                             'align-items' => 'center',
                             'justify-content' => 'center',
-                        ]
+                        ],
                     ]) .
                     Html::endTag('div')
                 ).

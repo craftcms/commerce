@@ -275,7 +275,7 @@ class CatalogPricing extends Component
 
         $allPriceRows = $this->createCatalogPricingQuery(storeId: $storeId, allPrices: true)
             ->select([
-                'id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid'
+                'id', 'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'uid',
             ])
             ->andWhere(['purchasableId' => $purchasableId])
             ->andWhere(['not', ['catalogPricingRuleId' => null]])
@@ -303,7 +303,7 @@ class CatalogPricing extends Component
     {
         $query = $this->_createCatalogPricesQuery($storeId, $conditionBuilder, $includeBasePrices, $searchText, $limit, $offset)
             ->select([
-                'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid'
+                'price', 'purchasableId', 'storeId', 'isPromotionalPrice', 'catalogPricingRuleId', 'dateFrom', 'dateTo', 'cp.uid',
             ]);
 
         $query->orderBy('purchasableId ASC, catalogPricingRuleId ASC');

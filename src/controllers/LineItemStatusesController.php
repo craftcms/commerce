@@ -74,7 +74,7 @@ class LineItemStatusesController extends BaseAdminController
             }
         }
 
-        $variables['statusColors'] = ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
+        $variables['statusColors'] = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
 
         DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
