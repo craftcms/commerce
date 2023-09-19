@@ -45,6 +45,19 @@ class CatalogPricingRules extends Component
     private ?array $_allCatalogPricingRules = null;
 
     /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function canUseCatalogPricingRules(): bool
+    {
+        if (!empty(Plugin::getInstance()->getSales()->getAllSales())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Get a catalog pricing rule by its ID.
      *
      * @param int $id
