@@ -2,7 +2,10 @@
 
 namespace craft\commerce\migrations;
 
+use craft\commerce\db\Table;
+use craft\commerce\services\Stores;
 use craft\db\Migration;
+use craft\db\Query;
 
 /**
  * m230110_052712_sites_settings migration.
@@ -23,6 +26,49 @@ class m230110_052712_site_stores extends Migration
             'uid' => $this->uid(),
             'PRIMARY KEY(siteId)',
         ]);
+
+        // Get the primary store
+        $primaryStore = (new Query())
+            ->select(['id', 'uid'])
+            ->from([Table::STORES])
+            ->where(['primary' => true])
+            ->one();
+
+        // Get all sites
+        $sites = (new Query())
+            ->select(['id', 'handle', 'uid'])
+            ->from(\craft\db\Table::SITES)
+            ->where(['dateDeleted' => null])
+            ->all();
+
+        // Create site stores records
+        foreach ($sites as $site) {
+            $this->insert('{{%commerce_site_stores}}', [
+                'siteId' => $site['id'],
+                'storeId' => $primaryStore['id'],
+                'uid' => $site['uid'],
+            ]);
+        }
+
+        $projectConfig = \Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        if (version_compare($schemaVersion, '5.0.40', '<')) {
+            $muteEvents = $projectConfig->muteEvents;
+            $projectConfig->muteEvents = true;
+
+            foreach ($sites as $site) {
+                $configPath = Stores::CONFIG_SITESTORES_KEY . "." . $site['uid'];
+                $projectConfig->set(
+                    $configPath,
+                    // Mirror what the site store model `getConfig()` method returns
+                    ['store' => $primaryStore['uid']],
+                    "Save the “{$site['handle']}” commerce site store mapping"
+                );
+            }
+
+            $projectConfig->muteEvents = $muteEvents;
+        }
 
         return true;
     }

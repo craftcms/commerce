@@ -18,7 +18,6 @@ use craft\elements\User;
 use craft\errors\SiteNotFoundException;
 use craft\events\ModelEvent;
 use craft\events\UserGroupsAssignEvent;
-use craft\helpers\Queue;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
@@ -219,11 +218,10 @@ class CatalogPricingRules extends Component
      * Save a Catalog Pricing Rule.
      *
      * @param bool $runValidation should we validate this before saving.
-     * @param bool $generatePricesImmediately should prices be generated immediately or via the queue.
      * @throws Exception
      * @throws \Exception
      */
-    public function saveCatalogPricingRule(CatalogPricingRule $catalogPricingRule, bool $runValidation = true, bool $generatePricesImmediately = false): bool
+    public function saveCatalogPricingRule(CatalogPricingRule $catalogPricingRule, bool $runValidation = true): bool
     {
         $isNew = !$catalogPricingRule->id;
 
@@ -287,14 +285,10 @@ class CatalogPricingRules extends Component
 
             $transaction->commit();
 
-            if ($generatePricesImmediately) {
-                Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices(null, [$catalogPricingRule]);
-            } else {
-                Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-                    'catalogPricingRuleIds' => [$catalogPricingRule->id],
-                    'storeId' => $catalogPricingRule->storeId,
-                ]);
-            }
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                'catalogPricingRuleIds' => [$catalogPricingRule->id],
+                'storeId' => $catalogPricingRule->storeId,
+            ]);
 
             $this->_clearCaches();
 

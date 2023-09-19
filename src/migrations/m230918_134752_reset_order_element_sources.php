@@ -9,9 +9,9 @@ use craft\services\ElementSources;
 use craft\services\ProjectConfig;
 
 /**
- * m230309_134752_reset_order_element_sources migration.
+ * m230918_134752_reset_order_element_sources migration.
  */
-class m230309_134752_reset_order_element_sources extends Migration
+class m230918_134752_reset_order_element_sources extends Migration
 {
     /**
      * @inheritdoc
@@ -65,7 +65,7 @@ class m230309_134752_reset_order_element_sources extends Migration
      */
     public function safeDown(): bool
     {
-        echo "m230309_134752_reset_order_element_sources cannot be reverted.\n";
+        echo "m230918_134752_reset_order_element_sources cannot be reverted.\n";
         return false;
     }
 }
