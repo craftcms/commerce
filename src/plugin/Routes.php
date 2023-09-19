@@ -139,10 +139,9 @@ trait Routes
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-            // @TODO Sales going away
-            $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
-            $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
-            $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/sales'] = 'commerce/sales/index';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/sales/new'] = 'commerce/sales/edit';
+            $event->rules['commerce/store-settings/<storeHandle:{handle}>/sales/<id:\d+>'] = 'commerce/sales/edit';
 
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/store-settings/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
