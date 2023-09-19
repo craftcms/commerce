@@ -38,7 +38,7 @@ class GatewaysController extends Controller
         $gateways = Commerce::getInstance()->getGateways()->getAllGateways();
         $rows = collect($gateways)
             ->map(function($gateway) {
-                /** @var craft\commerce\base\Gateway $gateway */
+                /** @var \craft\commerce\base\Gateway $gateway */
                 return [
                     $gateway->id,
                     $gateway->name,
@@ -50,7 +50,7 @@ class GatewaysController extends Controller
             })
             ->all();
 
-        return Console::table([
+        Console::table([
             'ID',
             'Name',
             'Handle',
