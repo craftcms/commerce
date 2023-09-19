@@ -7,7 +7,6 @@
 
 namespace craft\commerce\queue\jobs;
 
-use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 

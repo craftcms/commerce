@@ -8,14 +8,9 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\GatewayInterface;
-use craft\commerce\events\WebhookEvent;
 use DvK\Vat\Validator;
 use Exception;
-use Throwable;
 use yii\base\Component;
-use yii\web\BadRequestHttpException;
-use yii\web\Response;
 
 /**
  * VAT service.

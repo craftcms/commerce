@@ -9,13 +9,11 @@
 namespace craft\commerce\elements\conditions\purchasables;
 
 use craft\base\conditions\BaseCondition;
-use craft\base\conditions\BaseConditionRule;
 use craft\base\conditions\ConditionRuleInterface;
 use craft\commerce\base\CatalogPricingConditionRuleInterface;
 use craft\commerce\db\Table;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
-
 
 /**
  * Catalog Pricing Purchasable condition builder.
@@ -125,7 +123,7 @@ class CatalogPricingCondition extends BaseCondition
                 ->leftJoin([Table::CATALOG_PRICING_RULES_USERS . ' cpru'], '[[cpr.id]] = [[cpru.catalogPricingRuleId]]')
                 ->where(['[[cpru.userId]]' => $customerRule->customerId])
                 ->andWhere(['not', ['[[cpru.id]]' => null]])
-                ->groupBy(['[[cpr.id]]'])
+                ->groupBy(['[[cpr.id]]']),
             ];
 
             foreach ($rules as $key => $rule) {

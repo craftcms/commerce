@@ -344,7 +344,6 @@ trait OrderElementTrait
                         'date-attr' => 'dateOrdered',
                     ],
                 ];
-
             }
 
             $sources[] = [

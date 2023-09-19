@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\models\Settings;
 use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;
-use craft\helpers\App;
 use craft\helpers\StringHelper;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;

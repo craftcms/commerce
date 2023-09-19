@@ -23,7 +23,6 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Queue;
 use craft\helpers\StringHelper;

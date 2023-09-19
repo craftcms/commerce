@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Zone;
 use craft\commerce\records\TaxZone;
-use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use yii\base\InvalidConfigException;
 
@@ -47,6 +46,5 @@ class TaxAddressZone extends Zone
         $rules[] = [['storeId', 'id', 'default'], 'safe'];
 
         return $rules;
-
     }
 }

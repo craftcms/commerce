@@ -21,7 +21,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use Exception;
 use Throwable;
-use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
@@ -148,7 +147,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                     'label' => Craft::t('commerce', 'Actions'),
                     'url' => '#actions',
                     'class' => array_filter([($variables['catalogPricingRule']->getErrors('applyAmount') or $variables['catalogPricingRule']->getErrors('apply')) ? 'error' : null]),
-                ]
+                ],
             ])
             ->contentTemplate('commerce/store-settings/pricing-rules/_edit', $variables);
     }

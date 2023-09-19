@@ -19,7 +19,6 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
 use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
-use craft\helpers\App;
 use craft\helpers\Assets;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;

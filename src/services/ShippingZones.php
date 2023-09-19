@@ -13,12 +13,12 @@ use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\db\Query;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
-use Illuminate\Support\Collection;
 
 /**
  * Shipping zone service.

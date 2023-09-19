@@ -15,7 +15,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;

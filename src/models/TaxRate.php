@@ -12,7 +12,6 @@ use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
 

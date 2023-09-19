@@ -19,7 +19,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
