@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\Plugin;
 use yii\web\Response as YiiResponse;
 
 /**
@@ -67,10 +68,17 @@ class BaseStoreSettingsController extends BaseCpController
                 'path' => 'discounts',
             ];
 
-            $this->storeSettingsNav['pricing-rules'] = [
-                'label' => Craft::t('commerce', 'Pricing Rules'),
-                'path' => 'pricing-rules',
-            ];
+            if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+                $this->storeSettingsNav['pricing-rules'] = [
+                    'label' => Craft::t('commerce', 'Pricing Rules'),
+                    'path' => 'pricing-rules',
+                ];
+            } else {
+                $this->storeSettingsNav['sales'] = [
+                    'label' => Craft::t('commerce', 'Sales'),
+                    'path' => 'sales',
+                ];
+            }
         }
 
         $this->storeSettingsNav['shipping-header'] = [
