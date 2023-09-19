@@ -29,16 +29,21 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
     this.setSettings(settings, this.defaults);
     this.id = id;
     this.$container = $('#' + this.id);
-    this.$tableContainer = this.$container.find('.js-price-list-container');
+    this.$tableContainer = this.$container.find(
+      '.js-purchasable-toggle-container'
+    );
     this.$loadingElements = this.$tableContainer.find(
-      '.js-prices-table-loading'
+      '.js-purchasable-toggle-loading'
     );
     this.$refreshBtn = this.$container.find('.commerce-refresh-prices');
-    this.initPurchasablePriceList();
 
-    this.$refreshBtn.on('click', (e) => {
-      e.preventDefault();
-    });
+    if (this.$tableContainer.data('init-prices')) {
+      this.initPurchasablePriceList();
+
+      this.$refreshBtn.on('click', (e) => {
+        e.preventDefault();
+      });
+    }
   },
 
   updatePriceList: function () {
