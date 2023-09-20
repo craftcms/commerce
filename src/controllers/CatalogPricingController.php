@@ -132,7 +132,8 @@ class CatalogPricingController extends BaseStoreSettingsController
         }
 
         /** @var Site|null|StoreBehavior $site */
-        if (!$site = Craft::$app->getSites()->getSiteById($siteId)) {
+        $site = Craft::$app->getSites()->getSiteById($siteId);
+        if (!$site) {
             throw new InvalidArgumentException('Invalid site ID: ' . $siteId);
         }
 
