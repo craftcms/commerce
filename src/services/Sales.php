@@ -16,6 +16,7 @@ use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\Sale;
+use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\records\SaleCategory as SaleCategoryRecord;
 use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
@@ -23,6 +24,7 @@ use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\Entry;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use DateTime;
 use yii\base\Component;
@@ -161,6 +163,17 @@ class Sales extends Component
      * @var array
      */
     private array $_purchasableSaleMatch = [];
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.0.0
+     */
+    public function canUseSales(): bool
+    {
+        return Plugin::getInstance()->getStores()->getAllStores() > 1 || Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules() > 0;
+    }
 
     /**
      * Get a sale by its ID.

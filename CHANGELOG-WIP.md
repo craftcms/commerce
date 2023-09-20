@@ -105,6 +105,7 @@
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
+- Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\Vat`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.

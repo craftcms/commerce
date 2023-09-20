@@ -49,8 +49,8 @@ class SalesController extends BaseStoreSettingsController
 
         $this->requirePermission('commerce-managePromotions');
 
-        if (Plugin::getInstance()->getStores()->getAllStores()->count() > 1) {
-            throw new ForbiddenHttpException('Unable to use sales while multiple stores exist.');
+        if (!Plugin::getInstance()->getSales()->canUseSales()) {
+            throw new ForbiddenHttpException('Unable to use sales while using multi store or pricing rules.');
         }
 
         return true;
