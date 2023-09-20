@@ -554,7 +554,7 @@ class Stores extends Component
     }
 
     /**
-     * @return SiteStore[]
+     * @return Collection<SiteStore>
      */
     public function getAllSiteStores(): Collection
     {
