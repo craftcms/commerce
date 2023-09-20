@@ -254,10 +254,14 @@ class Discounts extends Component
                 $this->_allDiscounts = [];
             }
 
-            $this->_allDiscounts[$storeId] = collect($this->_populateDiscounts($discounts));
+            if (!empty($discounts)) {
+                $this->_allDiscounts[$storeId] = collect($this->_populateDiscounts($discounts));
+            } else {
+                $this->_allDiscounts[$storeId] = collect();
+            }
         }
 
-        return $this->_allDiscounts[$storeId] ?? collect();
+        return $this->_allDiscounts[$storeId];
     }
 
     /**
@@ -270,7 +274,7 @@ class Discounts extends Component
      * @throws \Exception
      * @since 2.2.14
      */
-    public function getAllActiveDiscounts(Order $order = null): array
+    public function getAllActiveDiscounts(?Order $order = null): array
     {
         $purchasableIds = [];
         if ($order) {
@@ -291,7 +295,7 @@ class Discounts extends Component
         // Coupon condition key
         $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
         $dateKey = DateTimeHelper::toIso8601($date);
-        $storeKey = ($order && $order->getStore()) ? $order->getStore()->id : '*';
+        $storeKey = $order ? $order->getStore()->id : '*';
         $purchasablesKey = !empty($purchasableIds) ? md5(serialize($purchasableIds)) : '';
         $cacheKey = implode(':', array_filter([$dateKey, $couponKey, $storeKey, $purchasablesKey]));
 
