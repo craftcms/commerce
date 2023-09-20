@@ -171,7 +171,7 @@ JS;
                     'value' => $basePromotionalPrice,
                     'placeholder' => Craft::t('commerce', 'Enter price'),
                     'errors' => $element->getErrors('basePromotionalPrice'),
-                ]) : '' ).
+                ]) : '') .
 
             Html::endTag('div') .
             ($toggleContent ? Html::beginTag('div') .
@@ -212,7 +212,7 @@ JS;
                         ],
                     ]) .
                     Html::endTag('div')
-                ).
+                ) .
             Html::endTag('div') : '') .
         Html::endTag('div');
     }

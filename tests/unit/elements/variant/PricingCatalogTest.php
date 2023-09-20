@@ -13,7 +13,6 @@ use craft\commerce\Plugin;
 use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Sales;
 use craftcommercetests\fixtures\ProductFixture;
-use craftcommercetests\fixtures\SalesFixture;
 
 /**
  * PricingCatalogTest
@@ -47,10 +46,10 @@ class PricingCatalogTest extends Unit
         ]));
 
         Plugin::getInstance()->set('sales', $this->make(Sales::class, [
-            'getAllSales' => function () {
+            'getAllSales' => function() {
                 self::never();
                 return [];
-            }
+            },
         ]));
 
         self::assertEquals(123.99, $variant->getPrice());

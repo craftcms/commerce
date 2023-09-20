@@ -13,7 +13,6 @@ use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
-use craft\helpers\UrlHelper;
 use DateTime;
 
 /**
