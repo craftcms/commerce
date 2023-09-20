@@ -837,7 +837,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         if (!isset($this->_sales)) {
             // Default the sales and salePrice to the original price without any sales
             $this->_sales = [];
-            $this->_salesPrice = Currency::round($this->getPrice());
 
             if ($this->getId()) {
                 $this->_sales = Plugin::getInstance()->getSales()->getSalesForPurchasable($this);
