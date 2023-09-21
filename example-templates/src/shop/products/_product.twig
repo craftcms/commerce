@@ -55,7 +55,7 @@
                 <div class="pl-4 w-1/4">
                   {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
                     step: 1,
-                    min: 1,
+                    min: 0,
                     class: ['w-full', '[[classes.input]]']
                   }) }}
                 </div>

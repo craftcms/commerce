@@ -134,6 +134,7 @@ Outputs cart.
                         <div class="text-sm tabular-nums">{{ item.promotionalAmountAsCurrency }}</div>
                       </div>
 
+                      {# Only in use for the deprecated sales system #}
                       {% set itemSales = item.snapshot.sales ?? [] %}
                       {% if itemSales|length %}
                         <div class="flex w-full justify-end">
