@@ -461,8 +461,8 @@ class LineItem extends Model
         ];
 
         if ($this->purchasableId) {
-            /** @var PurchasableInterface|null $purchasable */
             $order = $this->getOrder();
+            /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
@@ -643,8 +643,8 @@ class LineItem extends Model
     {
         $this->setPrice($purchasable->getPrice());
         $this->setPromotionalPrice($purchasable->getPromotionalPrice());
-        $this->taxCategoryId = $purchasable->taxCategoryId;
-        $this->shippingCategoryId = $purchasable->shippingCategoryId;
+        $this->taxCategoryId = $purchasable->getTaxCategory()->id;
+        $this->shippingCategoryId = $purchasable->getShippingCategory()->id;
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 

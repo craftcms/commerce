@@ -7,7 +7,10 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\EmailException;
+use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 use yii\base\InvalidConfigException;
@@ -57,6 +60,9 @@ class SendEmail extends BaseJob implements RetryableJobInterface
             throw new InvalidConfigException('Invalid email ID: ' . $this->commerceEmailId);
         }
 
+        $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
+
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
         $language = $email->getRenderLanguage($this->_getOrder());
@@ -88,7 +94,7 @@ class SendEmail extends BaseJob implements RetryableJobInterface
     }
 
     /**
-     * @return string|null
+     * @return int
      * @inheritDoc
      */
     public function getTtr(): int

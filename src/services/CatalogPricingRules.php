@@ -100,7 +100,7 @@ class CatalogPricingRules extends Component
             $this->_allCatalogPricingRules[$key] = collect($models);
         }
 
-        return $this->_allCatalogPricingRules[$key] ?? collect();
+        return $this->_allCatalogPricingRules[$key];
     }
 
     /**

@@ -108,6 +108,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                         'elementIds' => [$purchasableType => [$purchasableId]],
                     ]);
 
+                    /** @var CatalogPricingRulePurchasableCondition $purchasableCondition */
                     $purchasableCondition = Craft::$app->getConditions()->createCondition(CatalogPricingRulePurchasableCondition::class);
                     $purchasableCondition->addConditionRule($rule);
                     $catalogPricingRule->setPurchasableCondition($purchasableCondition);

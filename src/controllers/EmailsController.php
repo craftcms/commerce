@@ -88,7 +88,7 @@ class EmailsController extends BaseAdminController
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['email']->storeId);
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
-        $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name]));
+        $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
         $variables['pdfList'] = $pdfList;
         $variables['senderAddressPlaceholder'] = App::mailSettings()->fromEmail;
         $variables['senderNamePlaceholder'] = App::mailSettings()->fromName;

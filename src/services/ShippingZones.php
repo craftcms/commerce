@@ -35,11 +35,6 @@ class ShippingZones extends Component
     private ?array $_allZones = null;
 
     /**
-     * @var bool
-     */
-    private bool $_fetchedAll = false;
-
-    /**
      * Get all shipping zones.
      *
      * @param int|null $storeId

@@ -105,7 +105,7 @@ class PaymentSources extends Component
     /**
      * Returns a customer's payment sources, per the customer's ID.
      *
-     * @param null $customerId the user's ID
+     * @param int|null $customerId the user's ID
      * @param int|null $storeId
      * @param int|null $gatewayId the gateway's ID
      * @return Collection<PaymentSource>
@@ -113,12 +113,12 @@ class PaymentSources extends Component
      * @throws SiteNotFoundException
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByCustomerId(int $customerId, ?int $gatewayId = null, ?int $storeId = null): Collection
+    public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null, ?int $storeId = null): Collection
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         if ($customerId === null) {
-            return collect([]);
+            return collect();
         }
 
         $query = $this->_createPaymentSourcesQuery()
