@@ -501,15 +501,13 @@ class Gateways extends Component
                 $this->_allGateways = [];
             }
 
+            $storeGateways = [];
             foreach ($results as $result) {
                 $gateway = $this->createGateway($result);
-
-                if (!isset($this->_allGateways[$gateway->storeId])) {
-                    $this->_allGateways[$gateway->storeId] = collect();
-                }
-
-                $this->_allGateways[$gateway->storeId]->push($gateway);
+                $storeGateways[$gateway->id] = $gateway;
             }
+
+            $this->_allGateways[$storeId] = collect($storeGateways);
         }
 
         return $this->_allGateways[$storeId] ?? collect();
