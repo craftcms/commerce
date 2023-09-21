@@ -60,12 +60,6 @@ interface PurchasableInterface extends ElementInterface
     public function getSalePrice(): ?float;
 
     /**
-     * @return bool
-     * @since 5.0.0
-     */
-    public function getOnPromotion(): bool;
-
-    /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
      */
     public function getSku(): string;

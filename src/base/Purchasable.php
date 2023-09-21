@@ -20,6 +20,7 @@ use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
+use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -713,6 +714,16 @@ abstract class Purchasable extends Element implements PurchasableInterface
     public function getOnPromotion(): bool
     {
         return $this->getPromotionalPrice() !== null;
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     */
+    public function getOnSale(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Purchasable `' . __METHOD__ . '()` method has been deprecated. Use `getOnPromotion()` instead.');
+        return $this->getOnPromotion();
     }
 
     /**
