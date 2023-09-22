@@ -386,7 +386,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    protected static function defineActions(string $source = null): array
+    protected static function defineActions(string $source): array
     {
         $actions = parent::defineActions($source);
 
@@ -395,7 +395,7 @@ trait OrderElementTrait
 
             $sourceParts = explode(':', $source);
             $store = null;
-            if (!empty($sourceParts) && in_array($sourceParts[0], ['carts', 'orderStatus']) && isset($sourceParts[2])) {
+            if (in_array($sourceParts[0], ['carts', 'orderStatus']) && isset($sourceParts[2])) {
                 $store = Plugin::getInstance()->getStores()->getStoreByHandle($sourceParts[2]);
             }
 

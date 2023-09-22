@@ -41,7 +41,9 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
      */
     protected function options(): array
     {
-        return ArrayHelper::map(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle', 'name');
+        return Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->mapWithKeys(function($method) {
+            return [$method->handle => $method->name];
+        })->all();
     }
 
     /**

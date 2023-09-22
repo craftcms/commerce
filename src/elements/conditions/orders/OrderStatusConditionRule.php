@@ -73,6 +73,8 @@ class OrderStatusConditionRule extends BaseMultiSelectConditionRule implements E
 
     protected function options(): array
     {
-        return ArrayHelper::map(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(), 'uid', 'name');
+        return Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->mapWithKeys(function($status) {
+            return [$status->uid => $status->name];
+        })->all();
     }
 }

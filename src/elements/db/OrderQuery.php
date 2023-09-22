@@ -1302,7 +1302,7 @@ class OrderQuery extends ElementQuery
      * | a [[PurchasableInterface|PurchasableInterface]] object | with a purchasable represented by the object.
      * | an array of [[PurchasableInterface|PurchasableInterface]] objects | with all the purchasables represented by the objects.
      *
-     * @param PurchasableInterface|int[]|PurchasableInterface[]|null $value The property value
+     * @param PurchasableInterface|array<int, (int|PurchasableInterface)>|null $value The property value
      * @return static self reference
      */
     public function hasPurchasables(mixed $value): OrderQuery

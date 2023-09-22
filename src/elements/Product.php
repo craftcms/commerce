@@ -998,7 +998,7 @@ class Product extends Element
         }
 
         $fieldLayout = $this->getType()->getFieldLayout();
-        if ($fieldLayout) {
+        if ($fieldLayout->id) {
             $this->fieldLayoutId = $fieldLayout->id;
             return $fieldLayout;
         }
@@ -1178,11 +1178,6 @@ class Product extends Element
             'uri' => ['label' => Craft::t('commerce', 'URI')],
             'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
             'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
-            'taxCategory' => ['label' => Craft::t('commerce', 'Tax Category')],
-            'shippingCategory' => ['label' => Craft::t('commerce', 'Shipping Category')],
-            'freeShipping' => ['label' => Craft::t('commerce', 'Free Shipping?')],
-            'promotable' => ['label' => Craft::t('commerce', 'Promotable?')],
-            'availableForPurchase' => ['label' => Craft::t('commerce', 'Available for purchase?')],
             'stock' => ['label' => Craft::t('commerce', 'Stock')],
             'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
@@ -1316,18 +1311,6 @@ class Product extends Element
 
                 return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
-            case 'taxCategory':
-            {
-                $taxCategory = $this->getTaxCategory();
-
-                return Craft::t('site', Html::encode($taxCategory->name));
-            }
-            case 'shippingCategory':
-            {
-                $shippingCategory = $this->getShippingCategory();
-
-                return Craft::t('site', Html::encode($shippingCategory->name));
-            }
             case 'defaultPrice':
             {
                 return $this->defaultPriceAsCurrency;
@@ -1362,12 +1345,6 @@ class Product extends Element
                 }
 
                 return '';
-            }
-            case 'availableForPurchase':
-            case 'promotable':
-            case 'freeShipping':
-            {
-                return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
             }
             case 'variants':
             {
