@@ -56,11 +56,6 @@ class PaymentCurrency extends Model
     public float $rate = 1;
 
     /**
-     * @var Currency
-     */
-    private Currency $_currency;
-
-    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -150,24 +145,7 @@ class PaymentCurrency extends Model
      */
     public function getName(): ?string
     {
-        return $this->getCurrency();
-    }
-
-    public function getCurrency(): ?string
-    {
-        if (isset($this->_currency)) {
-            return $this->_currency->currency;
-        }
-
-        return null;
-    }
-
-    /**
-     * Sets the Currency Model data on the Payment Currency
-     */
-    public function setCurrency(Currency $currency): void
-    {
-        $this->_currency = $currency;
+        return $this->iso;
     }
 
     /**

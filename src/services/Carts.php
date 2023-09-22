@@ -18,7 +18,6 @@ use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
@@ -132,7 +131,7 @@ class Carts extends Component
         $this->_cart->lastIp = Craft::$app->getRequest()->getUserIP();
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
-        $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
+        $this->_cart->paymentCurrency = $this->_cart->paymentCurrency ?: $this->_cart->getStore()->getSettings()->getCurrency();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
         // Switch the cart customer if needed
@@ -368,26 +367,5 @@ class Carts extends Component
                 $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
             }
         }
-    }
-
-    /**
-     * Gets the current payment currency ISO code
-     */
-    private function _getCartPaymentCurrencyIso(): string
-    {
-        if ($this->_cart) {
-            // Is the payment currency locked to the constant
-            if (defined('COMMERCE_PAYMENT_CURRENCY')) {
-                $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
-                if (in_array($currency, $allCurrencies, false)) {
-                    return $currency;
-                }
-            }
-
-            return $this->_cart->paymentCurrency;
-        }
-
-        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
     }
 }

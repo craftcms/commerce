@@ -1,0 +1,69 @@
+<?php
+
+namespace craft\commerce\migrations;
+
+use craft\commerce\services\Stores;
+use craft\db\Migration;
+use craft\db\Query;
+
+/**
+ * m230920_051125_move_primary_currency_to_store_settings migration.
+ */
+class m230920_051125_move_primary_currency_to_store_settings extends Migration
+{
+    /**
+     * @inheritdoc
+     */
+    public function safeUp(): bool
+    {
+        $this->addColumn('{{%commerce_stores}}', 'currency', $this->string());
+
+        $primaryCurrencyIso = (new Query())
+            ->select('iso')
+            ->from('{{%commerce_paymentcurrencies}}')
+            ->where(['primary' => true])
+            ->scalar();
+
+        $storeId = (new Query())
+            ->select(['id'])
+            ->from(['{{%commerce_stores}}'])
+            ->scalar();
+
+        // update all stores record with currency
+        $this->update('{{%commerce_stores}}', ['currency' => $primaryCurrencyIso], ['id' => $storeId]);
+
+        // Make project config updates
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        $storeUid = (new Query())
+            ->select(['uid'])
+            ->from(['{{%commerce_stores}}'])
+            ->scalar();
+
+        // delete the primary payment currency and drop primary column from payment currencies
+        $this->delete('{{%commerce_paymentcurrencies}}', ['primary' => true]);
+        $this->dropColumn('{{%commerce_paymentcurrencies}}', 'primary');
+        
+        // get store config
+        $config = $projectConfig->get(Stores::CONFIG_STORES_KEY . $storeUid);
+
+        if (version_compare($schemaVersion, '5.0.40', '<')) {
+            $config['currency'] = $primaryCurrencyIso;
+            $projectConfig->set(Stores::CONFIG_STORES_KEY . $storeUid,
+                $config,
+                'Moving the primary currency to the store settings in the project config');
+        }
+
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeDown(): bool
+    {
+        echo "m230920_051125_move_primary_currency_to_store_settings cannot be reverted.\n";
+        return false;
+    }
+}

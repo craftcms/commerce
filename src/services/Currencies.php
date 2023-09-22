@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use craft\commerce\models\Currency;
+use Money\Currencies\ISOCurrencies;
 use yii\base\Component;
 
 /**
@@ -19,11 +20,6 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
-    /**
-     * @var array
-     */
-    private array $_allCurrencies;
-
 
     /**
      * Get a currency by it's ISO code.
@@ -49,14 +45,13 @@ class Currencies extends Component
      */
     public function getAllCurrencies(): array
     {
-        if (!isset($this->_allCurrencies)) {
-            $this->_allCurrencies = [];
-            $data = require __DIR__ . '/../etc/currencies.php';
-            foreach ($data as $key => $currency) {
-                $this->_allCurrencies[$key] = new Currency($currency);
-            }
-        }
 
-        return $this->_allCurrencies;
+        $currencies = new ISOCurrencies();
+        foreach ($currencies as $currency) {
+
+            $currencies->contains(new Currency('USD')); // returns boolean whether USD is available in this repository
+            $currencies->subunitFor(new Currency('USD')); // returns the subunit for the dollar (2)
+
+        }
     }
 }

@@ -14,6 +14,7 @@ use craft\elements\Address;
 use craft\elements\Address as AddressElement;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use Money\Currency as MoneyCurrency;
 use yii\base\InvalidConfigException;
 
 /**
@@ -50,6 +51,11 @@ class StoreSettings extends Model
      * @var array
      */
     private array $_countries = [];
+
+    /**
+     * @var ?string
+     */
+    private ?string $_currency;
 
     /**
      * @var ?ZoneAddressCondition
@@ -239,5 +245,26 @@ class StoreSettings extends Model
         $condition->forProjectConfig = false;
 
         $this->_marketAddressCondition = $condition;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCurrency(): ?string
+    {
+        return $this->_currency;
+    }
+
+    /**
+     * @param string|MoneyCurrency $currency
+     * @return void
+     */
+    public function setCurrency(string|MoneyCurrency $currency): void
+    {
+        if ($currency instanceof MoneyCurrency) {
+            $currency = $currency->getCode();
+        }
+
+        $this->_currency = $currency;
     }
 }
