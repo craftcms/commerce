@@ -7,7 +7,6 @@
 {% set addUrl = '/shop/customer/addresses/edit?redirect=' ~ craft.app.request.fullPath %}
 
 {% if currentUser %}
-    {% if addresses|length %}
         <div class="my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {% for address in addresses %}
                 {% set editUrl = '/shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
@@ -61,7 +60,6 @@
             {% endif %}
         </div>
     {% endif %}
-{% endif %}
 
 {% js %}
     const addressDeletes = document.querySelectorAll('.js-address-delete');
