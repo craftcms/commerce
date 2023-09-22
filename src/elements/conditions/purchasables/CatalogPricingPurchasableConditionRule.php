@@ -95,7 +95,7 @@ class CatalogPricingPurchasableConditionRule extends BaseConditionRule implement
 
         $html = '';
         foreach (Plugin::getInstance()->getPurchasables()->getAllPurchasableElementTypes() as $purchasableType) {
-            /** @var PurchasableInterface $purchasableType */
+            /** @var PurchasableInterface|string $purchasableType */
             $elements = null;
             if (!empty($this->_elementIds) && isset($this->_elementIds[$purchasableType]) && !empty($this->_elementIds[$purchasableType])) {
                 $elements = $purchasableType::find()
