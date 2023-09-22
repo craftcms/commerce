@@ -71,7 +71,7 @@ class HasPurchasableConditionRule extends BaseElementSelectConditionRule impleme
         }
 
         /** @var OrderQuery $query */
-        $query->hasPurchasables([(int)$this->getElementId()]);
+        $query->hasPurchasables([$this->getElementId()]);
     }
 
     /**
