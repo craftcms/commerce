@@ -73,9 +73,11 @@ class CatalogPricingCondition extends BaseCondition
 
         $queryParams = array_flip($queryParams);
 
-        foreach ($rule->getExclusiveQueryParams() as $param) {
-            if (isset($queryParams[$param])) {
-                return false;
+        if (method_exists($rule, 'getExclusiveQueryParams')) {
+            foreach ($rule->getExclusiveQueryParams() as $param) {
+                if (isset($queryParams[$param])) {
+                    return false;
+                }
             }
         }
 
