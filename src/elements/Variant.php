@@ -502,7 +502,7 @@ class Variant extends Purchasable
         if ($this->_productTypeHandle === null) {
             $product = $this->getProduct();
 
-            $this->_productTypeHandle = $product ? ($product?->getType()?->handle ?? null) : null;
+            $this->_productTypeHandle = $product ? ($product->getType()?->handle ?? null) : null;
         }
 
         return $this->_productTypeHandle;

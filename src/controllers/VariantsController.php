@@ -50,6 +50,7 @@ class VariantsController extends BaseController
             $variantQuery->site($siteHandle);
         }
 
+        /** @var Variant|null $variant */
         $variant = $variantQuery->one();
 
         if (!$variant) {

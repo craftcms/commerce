@@ -18,6 +18,7 @@ use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
@@ -30,6 +31,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
@@ -205,7 +207,10 @@ class Pdfs extends Component
     public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
-     * @return Collection<Pdf>|null
+     * @param int|null $storeId
+     * @return Collection<Pdf>
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      * @since 3.2
      */
     public function getAllPdfs(?int $storeId = null): Collection

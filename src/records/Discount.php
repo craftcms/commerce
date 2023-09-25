@@ -50,7 +50,7 @@ use yii\db\ActiveQueryInterface;
  * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing
- * @property bool $storeId
+ * @property int $storeId
  * @property bool $ignorePromotions
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses

@@ -336,7 +336,6 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        /** @var PurchasableInterface|null $purchasable */
         $forCustomer = $order->customerId ?? false;
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 

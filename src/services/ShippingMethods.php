@@ -132,7 +132,7 @@ class ShippingMethods extends Component
         }
 
         /** @var ShippingMethod $method */
-        foreach ($event->shippingMethods as $method) {
+        foreach ($event->getShippingMethods() as $method) {
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
