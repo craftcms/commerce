@@ -59,7 +59,7 @@
     {{ forms.textField({
         label: "Conversion Rate"|t('commerce'),
         instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t('commerce', {
-            amount1: 10|currency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso),
+            amount1: 10,
             rate: 1.5,
             amount2: 15
         }),
