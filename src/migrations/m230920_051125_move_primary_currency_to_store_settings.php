@@ -16,7 +16,10 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
      */
     public function safeUp(): bool
     {
-        $this->addColumn('{{%commerce_stores}}', 'currency', $this->string());
+        // add if column doesnt exist
+        if (!$this->db->columnExists('{{%commerce_stores}}', 'currency')) {
+            $this->addColumn('{{%commerce_stores}}', 'currency', $this->string());
+        }
 
         $primaryCurrencyIso = (new Query())
             ->select('iso')
@@ -33,7 +36,7 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
         $this->update('{{%commerce_stores}}', ['currency' => $primaryCurrencyIso], ['id' => $storeId]);
 
         // Make project config updates
-        $projectConfig = Craft::$app->getProjectConfig();
+        $projectConfig = \Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
         $storeUid = (new Query())
@@ -44,7 +47,7 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
         // delete the primary payment currency and drop primary column from payment currencies
         $this->delete('{{%commerce_paymentcurrencies}}', ['primary' => true]);
         $this->dropColumn('{{%commerce_paymentcurrencies}}', 'primary');
-        
+
         // get store config
         $config = $projectConfig->get(Stores::CONFIG_STORES_KEY . $storeUid);
 
