@@ -790,7 +790,7 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Can not find order'));
         }
 
-        $email = Plugin::getInstance()->getEmails()->getEmailById($id, $order->id);
+        $email = Plugin::getInstance()->getEmails()->getEmailById($id, $order->storeId);
         if ($email === null || !$email->enabled) {
             return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
