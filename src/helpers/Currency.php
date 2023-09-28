@@ -12,6 +12,9 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use Money\Currencies\ISOCurrencies;
+use Money\Currency as MoneyCurrency;
+use Money\Formatter\DecimalMoneyFormatter;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 
@@ -27,19 +30,26 @@ class Currency
      * Rounds the amount as per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
-     * @param float $amount
+     * @param float $amount The amount as a decimal/float
      * @param PaymentCurrency|CurrencyModel|null $currency
      * @return float
      */
-    public static function round(float $amount, PaymentCurrency|CurrencyModel|null $currency = null): float
+    public static function round(float $amount, PaymentCurrency|string|MoneyCurrency|null $currency = null): float
     {
         if (!$currency) {
-            $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
-            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($defaultPaymentCurrency->iso);
+            $currency = Plugin::getInstance()->getStores()->getCurrentStore()->getSettings()->getCurrency();
         }
 
-        $decimals = $currency->minorUnit;
-        return round($amount, $decimals);
+        if ($currency instanceof PaymentCurrency) {
+            $currency = new MoneyCurrency($currency->getAlphabeticCode());
+        }
+
+        if (is_string($currency)) {
+            $currency = new MoneyCurrency($currency);
+        }
+
+        $moneyFormatter = new DecimalMoneyFormatter(new ISOCurrencies());
+        return (float)$moneyFormatter->format(Plugin::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($amount));
     }
 
     public static function defaultDecimals(): int

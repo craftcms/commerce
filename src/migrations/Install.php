@@ -484,7 +484,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PAYMENTCURRENCIES);
         $this->createTable(Table::PAYMENTCURRENCIES, [
             'id' => $this->primaryKey(),
-            'storeid' => $this->integer()->notNull(),
+            'storeId' => $this->integer()->notNull(),
             'iso' => $this->string(3)->notNull(),
             'primary' => $this->boolean()->notNull()->defaultValue(false),
             'rate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -781,6 +781,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'primary' => $this->boolean()->notNull(),
+            'currency' => $this->string()->notNull()->defaultValue('USD'),
             'autoSetCartShippingMethodOption' => $this->boolean()->notNull()->defaultValue(false),
             'autoSetNewCartAddresses' => $this->boolean()->notNull()->defaultValue(false),
             'autoSetPaymentSource' => $this->boolean()->notNull()->defaultValue(false),
@@ -852,6 +853,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::TAXRATES);
         $this->createTable(Table::TAXRATES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer()->notNull(),
             'taxZoneId' => $this->integer(),
             'isEverywhere' => $this->boolean()->notNull()->defaultValue(true),
             'taxCategoryId' => $this->integer()->null(),
@@ -871,6 +873,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::TAXZONES);
         $this->createTable(Table::TAXZONES, [
             'id' => $this->primaryKey(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'condition' => $this->text(),
@@ -1041,7 +1044,9 @@ class Install extends Migration
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateExpired', false);
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
+        $this->createIndex(null, Table::TAXRATES, 'storeId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
+        $this->createIndex(null, Table::TAXZONES, 'storeId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
@@ -1141,6 +1146,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::TAXRATES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
+        $this->addForeignKey(null, Table::TAXRATES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
+        $this->addForeignKey(null, Table::TAXZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
