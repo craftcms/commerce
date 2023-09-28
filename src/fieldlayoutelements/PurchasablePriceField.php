@@ -154,7 +154,7 @@ JS;
             Html::beginTag('div', ['class' => 'flex']) .
                 Cp::textFieldHtml([
                     'id' => 'base-price',
-                    'label' => Craft::t('commerce', 'Price') . sprintf('(%s)', Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso()),
+                    'label' => Craft::t('commerce', 'Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
                     'name' => 'basePrice',
                     'value' => $basePrice,
                     'placeholder' => Craft::t('commerce', 'Enter price'),
@@ -166,7 +166,7 @@ JS;
                 ($canUseCatalogPricingRules ?
                 Cp::textFieldHtml([
                     'id' => 'promotional-price',
-                    'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso()),
+                    'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
                     'name' => 'basePromotionalPrice',
                     'value' => $basePromotionalPrice,
                     'placeholder' => Craft::t('commerce', 'Enter price'),
