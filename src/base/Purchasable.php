@@ -682,6 +682,11 @@ abstract class Purchasable extends Element implements PurchasableInterface
             $purchasableStoreRecord->purchasableId = $this->id;
 
             $purchasableStoreRecord->save(false);
+
+            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                'purchasableIds' => [$this->id],
+                'storeId' => $this->getStoredId(),
+            ]);
         }
 
         parent::afterSave($isNew);
