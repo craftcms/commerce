@@ -1250,7 +1250,6 @@ class Order extends Element
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
