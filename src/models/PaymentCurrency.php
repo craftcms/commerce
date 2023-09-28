@@ -13,6 +13,7 @@ use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use Money\Currency;
 use yii\base\InvalidConfigException;
 
 /**
@@ -65,6 +66,14 @@ class PaymentCurrency extends Model
     public function __toString(): string
     {
         return (string)$this->iso;
+    }
+
+    /**
+     * @return Currency
+     */
+    public function getCurrency(): Currency
+    {
+        return new Currency($this->iso);
     }
 
     /**

@@ -2405,13 +2405,16 @@ class Order extends Element implements HasStoreInterface
      */
     public function getPaymentAmount(): float
     {
-        $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getOutstandingBalance(), $this->currency, $this->paymentCurrency);
+        $teller = Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
+        $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($this->paymentCurrency);
+        $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());
+        $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($outstandingBalanceAmount, $this->paymentCurrency, $this->getStore()->id);
 
         if (isset($this->_paymentAmount) && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $outstandingBalanceInPaymentCurrency) {
             return $this->_paymentAmount;
         }
 
-        return $outstandingBalanceInPaymentCurrency;
+        return (float)$tellerTo->convertToString($outstandingBalanceInPaymentCurrency);
     }
 
     /**
