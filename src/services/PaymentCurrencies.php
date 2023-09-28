@@ -16,6 +16,11 @@ use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use Illuminate\Support\Collection;
+use Money\Converter;
+use Money\Currencies\ISOCurrencies;
+use Money\Currency;
+use Money\Exchange\FixedExchange;
+use Money\Money;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -150,6 +155,7 @@ class PaymentCurrencies extends Component
      * @return float
      * @throws CurrencyException if currency not found by its ISO code
      * @throws InvalidConfigException
+     * @deprecated 5.0.0
      */
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, bool $round = false): float
     {
@@ -234,6 +240,36 @@ class PaymentCurrencies extends Component
         }
 
         return $paymentCurrency->delete();
+    }
+
+    private function _getExchange(?int $storeId = null)
+    {
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => $currency->rate]);
+        return new FixedExchange([
+            $storeCurrency => $nonPrimaryCurrencies
+        ]);
+    }
+
+    public function convertAmount(Money $amount, Currency|string $currency, ?int $storeId = null)
+    {
+        if (is_string($currency)) {
+            $currency = new Currency($currency);
+        }
+
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $fromPaymentCurrency = $this->getPaymentCurrencyByIso($amount->getCurrency(), $storeId);
+        $toPaymentCurrency = $this->getPaymentCurrencyByIso($currency, $storeId);
+
+        if (!$fromPaymentCurrency || !$toPaymentCurrency) {
+            throw new CurrencyException('Currency not found in store: ' . $currency);
+        }
+
+        $converter = new Converter(new ISOCurrencies(), $this->_getExchange($storeId));
+        return $converter->convert($amount, $toPaymentCurrency->getCurrency());
     }
 
     /**
