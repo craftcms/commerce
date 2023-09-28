@@ -53,7 +53,7 @@ use yii\validators\Validator;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-abstract class Purchasable extends Element implements PurchasableInterface
+abstract class Purchasable extends Element implements PurchasableInterface, HasStoreInterface
 {
     /**
      * @var float|null
