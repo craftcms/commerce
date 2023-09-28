@@ -8,6 +8,7 @@
 
 namespace craft\commerce\behaviors;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\events\DefineFieldsEvent;
@@ -62,8 +63,10 @@ class CurrencyAttributeBehavior extends Behavior
 
     /**
      * @var string default currency
+     * @uses setDefaultCurrency()
+     * @uses getDefaultCurrency()
      */
-    public string $defaultCurrency;
+    private string $_defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -186,6 +189,29 @@ class CurrencyAttributeBehavior extends Behavior
         }
 
         return $fields;
+    }
+
+    /**
+     * @param string $value
+     * @return void
+     * @since 5.0.0
+     */
+    public function setDefaultCurrency(string $value): void
+    {
+        $this->_defaultCurrency = $value;
+    }
+
+    /**
+     * @return string
+     * @since 5.0.0
+     */
+    public function getDefaultCurrency(): string
+    {
+        if ($this->owner instanceof HasStoreInterface) {
+            return $this->owner->getStore()->getCurrency();
+        }
+
+        return $this->_defaultCurrency;
     }
 
     /**
