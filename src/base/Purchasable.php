@@ -685,7 +685,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
             Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
                 'purchasableIds' => [$this->id],
-                'storeId' => $this->getStoredId(),
+                'storeId' => $this->getStoreId(),
             ]);
         }
 
