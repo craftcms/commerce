@@ -19,7 +19,6 @@ use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
-use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
@@ -1184,25 +1183,10 @@ class Install extends Migration
         }
 
         // The following defaults are not stored in the project config.
-        $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
         $this->_defaultShippingCategories();
-        $this->_defaultDonationPurchasable();
-    }
-
-    /**
-     * Make USD the default currency.
-     */
-    private function _defaultCurrency(): void
-    {
-        $data = [
-            'iso' => 'USD',
-            'storeId' => 1,
-            'rate' => 1,
-            'primary' => true,
-        ];
-        $this->insert(PaymentCurrency::tableName(), $data);
+//        $this->_defaultDonationPurchasable();
     }
 
     /**
@@ -1274,6 +1258,7 @@ class Install extends Migration
             'name' => 'Primary',
             'handle' => 'primary',
             'primary' => true,
+            'currency' => 'USD',
         ]);
 
         Plugin::getInstance()->getStores()->saveStore($store);
@@ -1369,7 +1354,7 @@ class Install extends Migration
     private function _getPrimaryStoreId(): ?int
     {
         if ($this->_primaryStoreId === null) {
-            $this->_primaryStoreId = (new Query())->from(Table::STORES)->select(['id'])->where(['primary' => true])->scalar();
+            $this->_primaryStoreId = (new Query())->from(Table::STORES)->select(['id'])->scalar();
         }
 
         return $this->_primaryStoreId;

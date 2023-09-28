@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\commerce\base\Purchasable;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
@@ -31,6 +32,8 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
+    use StoreTrait;
+
     /**
      * @var bool Is the product available for purchase.
      */
