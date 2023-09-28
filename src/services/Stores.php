@@ -12,10 +12,13 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\models\PaymentCurrency;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\records\PaymentCurrency;
+use craft\commerce\records\ShippingCategory;
+use craft\commerce\records\ShippingMethod;
+use craft\commerce\records\ShippingRule;
 use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
@@ -375,15 +378,41 @@ class Stores extends Component
             Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
-        // get payment currency by iso for this store
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'], $storeRecord->id);
         if (!$paymentCurrency) {
-            // create it
-            $paymentCurrency = new PaymentCurrency();
-            $paymentCurrency->iso = $data['currency'];
-            $paymentCurrency->storeId = $storeRecord->id;
-            $paymentCurrency->rate = 1;
-            Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($paymentCurrency);
+            $data = [
+                'iso' => $data['currency'],
+                'storeId' => $storeRecord->id,
+                'rate' => 1,
+            ];
+            Craft::$app->getDb()->createCommand()->insert(PaymentCurrency::tableName(), $data)->execute();
+        }
+
+        if (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->isEmpty()) {
+            $data = [
+                'name' => 'General',
+                'handle' => 'general',
+                'default' => true,
+                'storeId' => $storeRecord->id,
+            ];
+            Craft::$app->getDb()->createCommand()->insert(ShippingCategory::tableName(), $data)->execute();
+        }
+
+        if (Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->isEmpty()) {
+            $data = [
+                'name' => 'Free Shipping',
+                'handle' => 'freeShipping',
+                'enabled' => true,
+            ];
+            Craft::$app->getDb()->createCommand()->insert(ShippingMethod::tableName(), $data)->execute();
+
+            $data = [
+                'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
+                'description' => 'All countries, free shipping',
+                'name' => 'Free Everywhere',
+                'enabled' => true,
+            ];
+            Craft::$app->getDb()->createCommand()->insert(ShippingRule::tableName(), $data)->execute();
         }
 
         $this->refreshStores();

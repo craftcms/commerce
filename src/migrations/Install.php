@@ -19,7 +19,6 @@ use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
-use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
 use craft\commerce\records\TaxCategory;
@@ -1025,9 +1024,9 @@ class Install extends Migration
         $this->createIndex(null, Table::SALE_CATEGORIES, 'categoryId', false);
         $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
-        $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', true);
-        $this->createIndex(null, Table::SHIPPINGMETHODS, 'storeId', true);
-        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', true);
+        $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', false);
+        $this->createIndex(null, Table::SHIPPINGMETHODS, 'storeId', false);
+        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
@@ -1044,7 +1043,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
         $this->createIndex(null, Table::TAXRATES, 'storeId', false);
-        $this->createIndex(null, Table::TAXZONES, 'name', true);
+        $this->createIndex(null, Table::TAXZONES, 'name', false);
         $this->createIndex(null, Table::TAXZONES, 'storeId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
@@ -1183,9 +1182,7 @@ class Install extends Migration
         }
 
         // The following defaults are not stored in the project config.
-        $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
-        $this->_defaultShippingCategories();
 //        $this->_defaultDonationPurchasable();
     }
 
@@ -1221,20 +1218,6 @@ class Install extends Migration
             'default' => true,
         ];
         $this->insert(TaxCategory::tableName(), $data);
-    }
-
-    /**
-     * Add a default shipping category.
-     */
-    private function _defaultShippingCategories(): void
-    {
-        $data = [
-            'name' => 'General',
-            'handle' => 'general',
-            'default' => true,
-            'storeId' => $this->_getPrimaryStoreId(),
-        ];
-        $this->insert(ShippingCategory::tableName(), $data);
     }
 
     /**

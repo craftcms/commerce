@@ -51,7 +51,7 @@ class Currency
         $moneyFormatter = new DecimalMoneyFormatter(new ISOCurrencies());
         return (float)$moneyFormatter->format(Plugin::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($amount));
     }
-
+    
     public static function defaultDecimals(): int
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
