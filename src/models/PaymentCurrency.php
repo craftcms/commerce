@@ -46,11 +46,6 @@ class PaymentCurrency extends Model
     public ?string $iso = null;
 
     /**
-     * @var bool Is primary currency
-     */
-    public bool $primary = false;
-
-    /**
      * @var float Exchange rate vs primary currency
      */
     public float $rate = 1;
@@ -106,44 +101,68 @@ class PaymentCurrency extends Model
 
     public function getAlphabeticCode(): ?string
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->alphabeticCode;
-        }
-
-        return null;
+        return $this->iso;
     }
 
     public function getNumericCode(): ?int
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->numericCode;
-        }
-
-        return null;
+        return Plugin::getInstance()->getCurrencies()->numericCodeFor($this->iso);
     }
 
     public function getEntity(): ?string
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->entity;
-        }
-
-        return null;
+        // TODO: Implement getEntity() method on \craft\commerce\services\Currencies::$_isoCurrencies
     }
 
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @deprecated Use getSubUnit() instead.
+     */
     public function getMinorUnit(): ?int
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->minorUnit;
-        }
+        return $this->getSubUnit();
+    }
 
-        return null;
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     */
+    public function getSubUnit(): ?int
+    {
+        return Plugin::getInstance()->getCurrencies()->getSubunitFor($this->iso);
     }
 
     /**
      * Returns alias of getCurrency()
      */
     public function getName(): ?string
+    {
+        return $this->iso;
+    }
+
+    /**
+     * @return Store
+     * @throws InvalidConfigException
+     */
+    public function getStore()
+    {
+        return Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function getPrimary(): bool
+    {
+        return $this->getCode() === $this->getStore()->getCurrency()->getCode();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCode()
     {
         return $this->iso;
     }
@@ -156,7 +175,7 @@ class PaymentCurrency extends Model
         return [
             [['iso'], 'required'],
             [['rate'], 'required'],
-            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso', 'storeId'], 'message' => '{attribute} "{value}" has already been taken.'],
             [['storeId'], 'safe'],
         ];
     }

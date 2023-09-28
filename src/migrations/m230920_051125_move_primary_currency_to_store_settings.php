@@ -18,7 +18,7 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
     {
         // add if column doesnt exist
         if (!$this->db->columnExists('{{%commerce_stores}}', 'currency')) {
-            $this->addColumn('{{%commerce_stores}}', 'currency', $this->string());
+            $this->addColumn('{{%commerce_stores}}', 'currency', $this->string()->notNull()->defaultValue('USD'));
         }
 
         $primaryCurrencyIso = (new Query())
@@ -45,7 +45,6 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
             ->scalar();
 
         // delete the primary payment currency and drop primary column from payment currencies
-        $this->delete('{{%commerce_paymentcurrencies}}', ['primary' => true]);
         $this->dropColumn('{{%commerce_paymentcurrencies}}', 'primary');
 
         // get store config
@@ -55,7 +54,7 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
             $config['currency'] = $primaryCurrencyIso;
             $projectConfig->set(Stores::CONFIG_STORES_KEY . $storeUid,
                 $config,
-                'Moving the primary currency to the store settings in the project config');
+                'Moving the primary currency to the store in the project config');
         }
 
         return true;

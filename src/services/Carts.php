@@ -124,7 +124,7 @@ class Carts extends Component
         $originalIp = $this->_cart->lastIp;
         $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalSiteId = $this->_cart->orderSiteId;
-        $originalPaymentCurrency = $this->_cart->paymentCurrency;
+        $originalPaymentCurrency = $this->_getCartPaymentCurrencyIso();
         $originalUserId = $this->_cart->getCustomerId();
 
         // These values should always be kept up to date when a cart is retrieved from session.
@@ -366,6 +366,25 @@ class Carts extends Component
             if ($requestCookies->has($this->cartCookie['name'])) {
                 $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
             }
+        }
+    }
+
+    /**
+     * Gets the current payment currency ISO code
+     */
+    private function _getCartPaymentCurrencyIso(): string
+    {
+        if ($this->_cart) {
+            // Is the payment currency locked to the constant
+            if (defined('COMMERCE_PAYMENT_CURRENCY')) {
+                $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($this->_cart->storeId);
+                // if not in array
+                if ($paymentCurrencies->contains()) {
+                    throw new InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
+                }
+            }
+
+            return $this->_cart->paymentCurrency;
         }
     }
 }

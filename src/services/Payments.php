@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -578,13 +577,12 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
-            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($child->currency);
 
             // If amount is not supplied refund the full amount
-            $child->paymentAmount = Currency::round($amount, $currency) ?: $parent->getRefundableAmount();
+            $child->paymentAmount = Currency::round($amount, $child->currency) ?: $parent->getRefundableAmount();
 
             // Calculate amount in the primary currency
-            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $currency);
+            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $child->currency);
             $child->note = $note;
 
             $gateway = $parent->getGateway();

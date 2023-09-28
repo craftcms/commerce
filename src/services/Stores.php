@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
 use craft\commerce\models\OrderStatus;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -357,6 +358,7 @@ class Stores extends Component
             $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
             $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
             $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
+            $storeRecord->currency = $data['currency'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
@@ -371,6 +373,17 @@ class Stores extends Component
         if ($data['primary']) {
             Db::update(Table::STORES, ['primary' => false], ['not', ['id' => $storeRecord->id]]);
             Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
+        }
+
+        // get payment currency by iso for this store
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'], $storeRecord->id);
+        if (!$paymentCurrency) {
+            // create it
+            $paymentCurrency = new PaymentCurrency();
+            $paymentCurrency->iso = $data['currency'];
+            $paymentCurrency->storeId = $storeRecord->id;
+            $paymentCurrency->rate = 1;
+            Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($paymentCurrency);
         }
 
         $this->refreshStores();
@@ -526,6 +539,7 @@ class Stores extends Component
                 'handle',
                 'id',
                 'minimumTotalPriceStrategy',
+                'currency',
                 'name',
                 'primary',
                 'requireBillingAddressAtCheckout',

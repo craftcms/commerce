@@ -86,11 +86,14 @@ class StoresController extends BaseStoreSettingsController
             ];
         })->all();
 
+        $currencyOptions = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();
+
         return $this->renderTemplate('commerce/settings/stores/_edit', [
             'brandNewStore' => $brandNewStore,
             'title' => $title,
             'crumbs' => $crumbs,
             'store' => $storeModel,
+            'currencyOptions' => $currencyOptions,
             'availableSiteOptions' => $availableSiteOptions,
             'freeOrderPaymentStrategyOptions' => $storeModel->getFreeOrderPaymentStrategyOptions(),
             'minimumTotalPriceStrategyOptions' => $storeModel->getMinimumTotalPriceStrategyOptions(),
@@ -142,9 +145,9 @@ class StoresController extends BaseStoreSettingsController
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
-
-        if ($this->request->getBodyParam('primary') !== null) {
-            $store->primary = (bool)$this->request->getBodyParam('primary');
+        
+        if ($currency = $this->request->getBodyParam('currency')) {
+            $store->setCurrency($currency);
         }
 
         if ($storeId && $savedStore = $storesService->getStoreById($storeId)) {
@@ -172,6 +175,7 @@ class StoresController extends BaseStoreSettingsController
             $siteStore->storeId = $store->id;
             $storesService->saveSiteStore($siteStore);
         }
+
 
         $this->setSuccessFlash(Craft::t('app', 'Store saved.'));
         return $this->redirectToPostedUrl($store);

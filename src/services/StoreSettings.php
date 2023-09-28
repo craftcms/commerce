@@ -100,6 +100,7 @@ class StoreSettings extends Component
         $storeRecord->countries = $store->countries;
         $storeRecord->marketAddressCondition = $store->marketAddressCondition->getConfig();
         $storeRecord->locationAddressId = $store->getLocationAddressId();
+        $storeRecord->currency = $store->getCurrency()->getCode();
 
         if (!$storeRecord->save()) {
             return false;

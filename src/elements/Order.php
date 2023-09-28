@@ -1219,7 +1219,7 @@ class Order extends Element
         }
 
         if ($this->currency === null) {
-            $this->currency = $this->getStore()->getSettings()->getCurrency();
+            $this->currency = $this->getStore()->getCurrency();
         }
 
         // Better default for carts if the base currency changes (usually only happens in development)
@@ -3189,7 +3189,7 @@ class Order extends Element
     public function getPaymentCurrency(): string
     {
         if ($this->_paymentCurrency === null) {
-            $this->_paymentCurrency = $this->getStore()->getSettings()->getCurrency();
+            $this->_paymentCurrency = $this->getStore()->getCurrency();
         }
 
         return $this->_paymentCurrency;

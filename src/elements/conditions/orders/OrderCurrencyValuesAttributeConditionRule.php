@@ -44,6 +44,6 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttr
             return '1';
         }
 
-        return '0.' . str_pad('1', $minorUnit,  '0', STR_PAD_LEFT);
+        return '0.' . str_pad('1', 2, '0', STR_PAD_LEFT);
     }
 }
