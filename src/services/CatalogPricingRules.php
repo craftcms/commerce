@@ -77,18 +77,13 @@ class CatalogPricingRules extends Component
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      */
-    public function getAllCatalogPricingRules(?int $storeId = null, bool $storeOnly = true): Collection
+    public function getAllCatalogPricingRules(?int $storeId = null): Collection
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-        $key = $storeId . '-' . (int)$storeOnly;
 
-        if ($this->_allCatalogPricingRules === null || !isset($this->_allCatalogPricingRules[$key])) {
+        if ($this->_allCatalogPricingRules === null || !isset($this->_allCatalogPricingRules[$storeId])) {
             $query = $this->_createCatalogPricingRuleQuery()
                 ->where(['storeId' => $storeId]);
-
-            if ($storeOnly) {
-                $query->andWhere(['purchasableId' => null]);
-            }
 
             $results = $query->all();
 
@@ -97,10 +92,10 @@ class CatalogPricingRules extends Component
             }
 
             $models = $this->_createCatalogPricingRuleModels($results);
-            $this->_allCatalogPricingRules[$key] = collect($models);
+            $this->_allCatalogPricingRules[$storeId] = collect($models);
         }
 
-        return $this->_allCatalogPricingRules[$key];
+        return $this->_allCatalogPricingRules[$storeId];
     }
 
     /**
@@ -115,14 +110,10 @@ class CatalogPricingRules extends Component
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
         // @TODO figure out if memoization is needed here
         $catalogPricingRules = $this->_createCatalogPricingRuleQuery()
-            ->andWhere([
-                'or',
-                ['purchasableId' => $purchasableId],
-                ['id' => (new Query())
-                    ->select(['catalogPricingRuleId'])
-                    ->from([Table::CATALOG_PRICING])
-                    ->where(['purchasableId' => $purchasableId]),
-                ],
+            ->andWhere(['id' => (new Query())
+                ->select(['catalogPricingRuleId'])
+                ->from([Table::CATALOG_PRICING])
+                ->where(['purchasableId' => $purchasableId]),
             ])
             ->andWhere(['storeId' => $storeId])
             ->all();
