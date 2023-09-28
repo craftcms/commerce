@@ -2,6 +2,7 @@
 
 namespace craft\commerce\migrations;
 
+use craft\commerce\db\Table;
 use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
@@ -46,6 +47,9 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
 
         // delete the primary payment currency and drop primary column from payment currencies
         $this->dropColumn('{{%commerce_paymentcurrencies}}', 'primary');
+
+        $this->dropIndexIfExists(Table::PAYMENTCURRENCIES, 'iso', true);
+        $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', false);
 
         // get store config
         $config = $projectConfig->get(Stores::CONFIG_STORES_KEY . $storeUid);

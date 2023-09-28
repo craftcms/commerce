@@ -998,7 +998,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERSTATUSES, 'storeId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
-        $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
+        $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', false);
         $this->createIndex(null, Table::PDFS, 'handle', false);
         $this->createIndex(null, Table::PDFS, 'storeId', false);
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
