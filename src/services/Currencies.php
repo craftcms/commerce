@@ -61,7 +61,6 @@ class Currencies extends Component
      */
     public function getCurrencyByIso(string $iso): ?\Money\Currency
     {
-
         return $this->getAllCurrencies()->first(function(\Money\Currency $currency) use ($iso) {
             return $currency->getCode() == $iso;
         });

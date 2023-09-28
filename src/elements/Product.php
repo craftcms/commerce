@@ -10,7 +10,6 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
-use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
@@ -163,23 +162,16 @@ class Product extends Element
             ],
         ];
 
-        $behaviors['currencyAttributes'] = [
-            'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes(),
-        ];
-
         return $behaviors;
     }
 
     /**
-     * @return array
+     * @return string
+     * @throws InvalidConfigException
      */
-    public function currencyAttributes(): array
+    public function getDefaultPriceAsCurrency(): string
     {
-        return [
-            'defaultPrice',
-        ];
+        return $this->getDefaultVariant()->priceAsCurrency;
     }
 
     /**
@@ -529,7 +521,9 @@ class Product extends Element
         }
 
         if (empty($this->_variants)) {
-            $variant = new Variant();
+            $variant = new Variant([
+                'siteId' => $this->siteId,
+            ]);
             $variant->isDefault = true;
             $this->setVariants([$variant]);
         }

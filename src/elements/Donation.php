@@ -47,7 +47,6 @@ class Donation extends Purchasable
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
