@@ -82,6 +82,7 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
+use craft\commerce\services\Store;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
@@ -198,6 +199,7 @@ class Plugin extends BasePlugin
                 'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
                 'shippingCategories' => ['class' => ShippingCategories::class],
                 'shippingZones' => ['class' => ShippingZones::class],
+                'store' => ['class' => Store::class],
                 'storeSettings' => ['class' => StoreSettings::class],
                 'stores' => ['class' => Stores::class],
                 'subscriptions' => ['class' => Subscriptions::class],

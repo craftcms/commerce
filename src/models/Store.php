@@ -12,6 +12,7 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -356,7 +357,7 @@ class Store extends Model
     {
         $this->_autoSetNewCartAddresses = $autoSetNewCartAddresses;
     }
-    
+
     /**
      * Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
      *
@@ -645,5 +646,27 @@ class Store extends Model
     public function getMinimumTotalPriceStrategy(bool $parse = true): string
     {
         return $parse ? App::parseEnv($this->_minimumTotalPriceStrategy) : $this->_minimumTotalPriceStrategy;
+    }
+
+    /**
+     * @return array
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use [[StoreSettings::getCountriesList()]] instead..
+     */
+    public function getCountriesList(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getCountriesList() has been deprecated. Use Store::getSettings()->getCountriesList() instead.');
+        return $this->getSettings()->getCountriesList();
+    }
+
+    /**
+     * @return array
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use [[StoreSettings::getAdministrativeAreasListByCountryCode()]] instead.
+     */
+    public function getAdministrativeAreasListByCountryCode(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
+        return $this->getSettings()->getAdministrativeAreasListByCountryCode();
     }
 }
