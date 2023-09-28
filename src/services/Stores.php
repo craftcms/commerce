@@ -386,7 +386,7 @@ class Stores extends Component
             Craft::$app->getDb()->createCommand()->insert(PaymentCurrency::tableName(), $data)->execute();
         }
 
-        if (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->isEmpty()) {
+        if (Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($storeRecord->id)->isEmpty()) {
             $data = [
                 'name' => 'General',
                 'handle' => 'general',
