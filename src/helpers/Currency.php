@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use Money\Currencies\ISOCurrencies;
 use Money\Currency as MoneyCurrency;
 use Money\Formatter\DecimalMoneyFormatter;
+use Money\Formatter\IntlMoneyFormatter;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 
@@ -77,7 +78,7 @@ class Currency
             return $amount;
         }
 
-        $currencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $currencyIso = Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency();
 
         if (is_string($currency)) {
             $currencyIso = $currency;
@@ -87,10 +88,6 @@ class Currency
             $currencyIso = $currency->iso;
         }
 
-        if ($currency instanceof CurrencyModel) {
-            $currencyIso = $currency->alphabeticCode;
-        }
-
         if ($convert) {
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currencyIso);
             if (!$currency) {
@@ -98,17 +95,16 @@ class Currency
             }
         }
 
-        if ($convert) {
+        if ($convert  && $currencyIso !== Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency()) {
             $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currencyIso);
         }
 
         if ($format) {
-            // Round it before formatting
-            if ($currencyData = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currencyIso)) {
-                $amount = self::round($amount, $currencyData); // Will round to the right minorUnits
-            }
+            $numberFormatter = new \NumberFormatter(Craft::$app->language, \NumberFormatter::CURRENCY);
+            $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
+            $money = Plugin::getInstance()->getCurrencies()->getTeller($currencyIso)->convertToMoney($amount);
 
-            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currencyIso, [], [], $stripZeros);
+            return $moneyFormatter->format($money);
         }
 
         return (string)$amount;
