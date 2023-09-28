@@ -218,16 +218,6 @@ class PaymentCurrencies extends Component
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
 
-        if ($record->primary) {
-            // The store wll not usually change primary currency in production, this fix is mainly for developers
-            // who had a cart created before they started setting up their currencies.
-            if ($originalIso != $record->iso) {
-                Order::updateAll(['currency' => $record->iso, 'paymentCurrency' => $record->iso], ['isCompleted' => false]);
-            }
-
-            PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
-        }
-
         return true;
     }
 
