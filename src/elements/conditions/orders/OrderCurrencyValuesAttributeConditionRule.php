@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
@@ -39,11 +40,17 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttr
      */
     protected function inputStep(): string
     {
-        $minorUnit = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency()->getMinorUnit();
-        if ($minorUnit === 0) {
+        $subUnit = 2;
+
+        if ($this->getCondition() instanceof HasStoreInterface) {
+            $currency = $this->getCondition()->getStore()->getCurency();
+            $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
+        }
+
+        if ($subUnit === 0) {
             return '1';
         }
 
-        return '0.' . str_pad('1', 2, '0', STR_PAD_LEFT);
+        return '0.' . str_pad('1', $subUnit, '0', STR_PAD_LEFT);
     }
 }
