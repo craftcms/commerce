@@ -229,7 +229,6 @@ class Variant extends Purchasable
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getStore()->getCurrency(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
