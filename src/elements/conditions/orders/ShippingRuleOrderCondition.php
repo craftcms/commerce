@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\elements\db\ElementQueryInterface;
@@ -18,7 +19,7 @@ use Imagine\Exception\NotSupportedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class ShippingRuleOrderCondition extends OrderCondition
+class ShippingRuleOrderCondition extends OrderCondition implements HasStoreInterface
 {
     use StoreTrait;
 

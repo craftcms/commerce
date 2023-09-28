@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\base\StoreTrait;
@@ -20,7 +21,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricing extends Model
+class CatalogPricing extends Model implements HasStoreInterface
 {
     use StoreTrait;
 

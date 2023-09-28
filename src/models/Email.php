@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
@@ -28,7 +29,7 @@ use yii\base\InvalidConfigException;
  * @property-read array $config
  * @property string|null $senderAddress
  */
-class Email extends Model
+class Email extends Model implements HasStoreInterface
 {
     use StoreTrait;
 

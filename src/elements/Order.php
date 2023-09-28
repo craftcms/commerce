@@ -15,6 +15,7 @@ use craft\base\NameTrait;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -158,7 +159,7 @@ use yii\log\Logger;
  * @customer Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Order extends Element
+class Order extends Element implements HasStoreInterface
 {
     use OrderValidatorsTrait;
     use OrderElementTrait;

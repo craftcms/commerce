@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
@@ -26,7 +27,7 @@ use DateTime;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItemStatus extends Model
+class LineItemStatus extends Model implements HasStoreInterface
 {
     use StoreTrait;
 

@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\db\OrderQuery;
@@ -33,7 +34,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class OrderStatus extends Model
+class OrderStatus extends Model implements HasStoreInterface
 {
     use SoftDeleteTrait {
         SoftDeleteTrait::behaviors as softDeleteBehaviors;

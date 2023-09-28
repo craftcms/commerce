@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\helpers\Db;
@@ -19,7 +20,7 @@ use craft\models\Site;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0
  */
-class SiteStore extends Model
+class SiteStore extends Model implements HasStoreInterface
 {
     use StoreTrait;
 
