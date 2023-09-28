@@ -78,8 +78,7 @@ class PaymentCurrencies extends Component
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $this->getAllPaymentCurrencies($storeId);
-        return null;
+        return $this->getAllPaymentCurrencies($storeId)->firstWhere('iso', $iso);
     }
 
     /**
