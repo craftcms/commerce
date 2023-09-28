@@ -19,7 +19,7 @@
 {% set formActions = [
   {
     label: 'Save and continue editing'|t('app'),
-    redirect: (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash,
+    redirect: (isNewDiscount ? 'commerce/store-settings/#{storeHandle}/discounts/{id}' : discount.getCpEditUrl())|hash,
     retainScroll: true,
     shortcut: true,
   }]

@@ -22,6 +22,7 @@ use craft\web\assets\htmx\HtmxAsset;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -40,6 +41,10 @@ class CatalogPricingController extends BaseStoreSettingsController
         }
 
         $this->requirePermission('commerce-managePromotions');
+
+        if (!Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+            throw new ForbiddenHttpException('Unable to use catalog pricing rules while sales exist.');
+        }
 
         return true;
     }

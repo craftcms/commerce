@@ -13,6 +13,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
+use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\purchasablepricefield\PurchasablePriceFieldAsset;
 use craft\fieldlayoutelements\BaseNativeField;
@@ -23,7 +24,7 @@ use craft\web\assets\htmx\HtmxAsset;
 use yii\base\InvalidArgumentException;
 
 /**
- * PurchasablePriceField represents a Prie field that is included within a variant field layout designer.
+ * PurchasablePriceField represents a Price field that is included within a variant field layout designer.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
@@ -111,6 +112,41 @@ class PurchasablePriceField extends BaseNativeField
 JS;
         $view->registerJs($js);
 
+        $canUseCatalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules();
+        $toggleTitle = Craft::t('commerce', 'Show related sales');
+        $toggleAttributes = ['class' => 'js-purchasable-toggle-container', 'style' => ['position' => 'relative']];
+        $toggleContent = null;
+
+        if ($canUseCatalogPricingRules) {
+            $toggleTitle = Craft::t('commerce', 'Show all prices');
+            $toggleAttributes['data-init-prices'] = true;
+            $toggleContent = PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
+                Html::beginTag('div', ['class' => 'flex']) .
+                // New catalog price button
+                Html::button(Craft::t('commerce', 'Add catalog price'), [
+                    'class' => 'btn icon add js-cpr-slideout',
+                    'data-icon' => 'plus',
+                    'data-store-id' => $element->storeId,
+                    'data-store-handle' => $element->getStore()->handle,
+                    'data-purchasable-id' => $element->id,
+                ]) .
+                Cp::renderTemplate('commerce/prices/_status', [
+                    'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
+                ]);
+        } else {
+            /** @var Sale[] $relatedSales */
+            $relatedSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($element);
+
+            if (!empty($relatedSales)) {
+                $salesTags = [];
+                foreach ($relatedSales as $sale) {
+                    $salesTags[] = Html::a($sale->name, $sale->getCpEditUrl());
+                }
+
+                $toggleContent = Html::tag('div', implode(', ', $salesTags));
+            }
+        }
+
         return Html::beginTag('div', [
                 'id' => 'commerce-purchasable-price-field',
                 'class' => 'js-purchasable-price-field',
@@ -125,6 +161,9 @@ JS;
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
                 ]) .
+
+                // Don't show base promotional price field if the system is still using sales
+                ($canUseCatalogPricingRules ?
                 Cp::textFieldHtml([
                     'id' => 'promotional-price',
                     'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso()),
@@ -132,36 +171,25 @@ JS;
                     'value' => $basePromotionalPrice,
                     'placeholder' => Craft::t('commerce', 'Enter price'),
                     'errors' => $element->getErrors('basePromotionalPrice'),
-                ]) .
+                ]) : '') .
+
             Html::endTag('div') .
-            Html::beginTag('div') .
+            ($toggleContent ? Html::beginTag('div') .
                 Html::tag('div',
-                    Html::tag('a', 'See all prices', ['class' => 'fieldtoggle', 'data-target' => 'purchasable-prices']) .
-                    Html::beginTag('div', ['class' => 'js-price-list-container', 'style' => ['position' => 'relative']]) .
+                    Html::tag('a', $toggleTitle, ['class' => 'fieldtoggle', 'data-target' => 'purchasable-toggle']) .
+                    Html::beginTag('div', $toggleAttributes) .
                     Html::tag(
                         'div',
                         // Prices table
-                        PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
-                        Html::beginTag('div', ['class' => 'flex']) .
-                            // New catalog price button
-                            Html::button(Craft::t('commerce', 'Add catalog price'), [
-                                'class' => 'btn icon add js-cpr-slideout',
-                                'data-icon' => 'plus',
-                                'data-store-id' => $element->storeId,
-                                'data-store-handle' => $element->getStore()->handle,
-                                'data-purchasable-id' => $element->id,
-                            ]) .
-                            Cp::renderTemplate('commerce/prices/_status', [
-                                'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
-                            ]) .
+                        $toggleContent .
                         Html::endTag('div'),
                         [
-                            'id' => 'purchasable-prices',
+                            'id' => 'purchasable-toggle',
                             'class' => 'hidden',
                         ]
                     ) .
                     Html::tag('div', '', [
-                        'class' => 'js-prices-table-loading hidden',
+                        'class' => 'js-purchasable-toggle-loading hidden',
                         'style' => [
                             'position' => 'absolute',
                             'top' => 0,
@@ -172,7 +200,7 @@ JS;
                         ],
                     ]) .
                     Html::tag('div', Html::tag('span', '', ['class' => 'spinner']), [
-                        'class' => 'js-prices-table-loading flex hidden',
+                        'class' => 'js-purchasable-toggle-loading flex hidden',
                         'style' => [
                             'position' => 'absolute',
                             'top' => 0,
@@ -185,7 +213,7 @@ JS;
                     ]) .
                     Html::endTag('div')
                 ) .
-            Html::endTag('div') .
+            Html::endTag('div') : '') .
         Html::endTag('div');
     }
 }

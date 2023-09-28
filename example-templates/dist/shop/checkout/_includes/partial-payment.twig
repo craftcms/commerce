@@ -1,7 +1,7 @@
 {# Offer payment options at 20%, 50%, 75%, and 100%. #}
 {% set percentageOptions = [ 0.2, 0.5, 0.75, 1 ] %}
 
-{% if craft.commerce.settings.allowPartialPaymentOnCheckout %}
+{% if cart.store.allowPartialPaymentOnCheckout %}
   <div class="mt-3">
     <p>{{ 'Make partial payment'|t }}...</p>
     <div>

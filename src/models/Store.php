@@ -12,6 +12,7 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -652,7 +653,29 @@ class Store extends Model
     }
 
     /**
-     * @return string|null
+     * @return array
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use [[StoreSettings::getCountriesList()]] instead..
+     */
+    public function getCountriesList(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getCountriesList() has been deprecated. Use Store::getSettings()->getCountriesList() instead.');
+        return $this->getSettings()->getCountriesList();
+    }
+
+    /**
+     * @return array
+     * @throws DeprecationException
+     * @deprecated in 5.0.0. Use [[StoreSettings::getAdministrativeAreasListByCountryCode()]] instead.
+     */
+    public function getAdministrativeAreasListByCountryCode(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
+        return $this->getSettings()->getAdministrativeAreasListByCountryCode();
+    }
+
+    /**
+     * @return MoneyCurrency|null
      */
     public function getCurrency(): ?MoneyCurrency
     {

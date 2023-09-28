@@ -20,6 +20,7 @@ use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
@@ -671,7 +672,8 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignorePromotions ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
+            // Only add sales information to the snapshot if we are not ignoring promotions and they are still using the sales system.
+            'sales' => $ignorePromotions || Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules() ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -697,6 +699,16 @@ class LineItem extends Model
     public function getOnPromotion(): bool
     {
         return $this->getPromotionalAmount() > 0;
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     */
+    public function getOnSale(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `' . __METHOD__ . '()` method has been deprecated. Use `getOnPromotion()` instead.');
+        return $this->getOnPromotion();
     }
 
     /**

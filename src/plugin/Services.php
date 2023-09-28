@@ -38,6 +38,7 @@ use craft\commerce\services\ShippingMethods;
 use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
+use craft\commerce\services\Store;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
@@ -449,12 +450,23 @@ trait Services
     /**
      * Returns the stores service
      *
-     * @return Stores The store service
+     * @return Stores The stores service
      * @throws InvalidConfigException
      */
     public function getStores(): Stores
     {
         return $this->get('stores');
+    }
+
+    /**
+     * Returns the stores service
+     *
+     * @return Store The store service
+     * @throws InvalidConfigException
+     */
+    public function getStore(): Store
+    {
+        return $this->get('store');
     }
 
     /**
