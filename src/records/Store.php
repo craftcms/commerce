@@ -31,6 +31,7 @@ use craft\db\ActiveRecord;
  * @property string $orderReferenceFormat
  * @property string $freeOrderPaymentStrategy
  * @property string $minimumTotalPriceStrategy
+ * @property string $currency
  * @property int $sortOrder
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0

@@ -20,15 +20,46 @@
 
 {% set tableData = [] %}
 {% for store in stores %}
+
+    {% set menuItems = [
+        {
+            label: 'Payment Currencies'|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle ~ '/payment-currencies'),
+        },
+        {
+            label: 'Discounts'|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle ~ '/discounts'),
+        },
+        {
+            label: 'Pricing Rules'|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle ~ '/pricing-rules'),
+        },
+        {
+            label: 'Shipping Methods'|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle ~ '/shippingmethods'),
+        },
+        {
+            label: 'Tax Rates'|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle ~ '/taxrates'),
+        }
+    ] %}
+
     {% set tableData = tableData|merge([{
         id: store.id,
         name: store.name|t('site'),
         title: store.name|t('site'),
         url: url('commerce/settings/stores/'~store.id),
         handle: store.handle,
+        currency: store.currency,
         primary: store.primary ? true : false,
         sites: store.getSiteNames()|join(', '),
-        storeManagement: url('commerce/store-settings/' ~ store.handle),
+        menu: {
+            showItems: true,
+            menuBtnTitle: ''|t('app'),
+            label: 'Store Management    '|t('commerce'),
+            url: url('commerce/store-settings/' ~ store.handle),
+            items: menuItems,
+        },
         _showDelete : store.primary ? false : true
     }]) %}
 {% endfor %}
@@ -39,6 +70,15 @@
         { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
         { name: 'sites', title: Craft.t('commerce', 'Sites') },
         {
+            name: 'currency',
+            title: Craft.t('commerce', 'Currency'),
+            callback: function(value) {
+                if (value) {
+                    return '<code>'+Craft.escapeHtml(value)+'</code>';
+                }
+            }
+        },
+        {
             name: 'primary',
             title: Craft.t('commerce', 'Primary'),
             callback: function(value) {
@@ -47,13 +87,7 @@
                 }
             }
         },
-        {
-            name: 'storeManagement',
-            title: '',
-            callback: function(value) {
-              return '<a href="'+value+'">' + Craft.escapeHtml(Craft.t('commerce', 'Store Management')) + '</a>';
-            }
-        }
+        { name: '__slot:menu', title: Craft.t('app', 'Store Management') }
     ];
 
     new Craft.VueAdminTable({

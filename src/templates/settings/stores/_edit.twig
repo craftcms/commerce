@@ -48,6 +48,14 @@
                 value: null,
                 options: availableSiteOptions,
             }) }}
+
+            {{ forms.selectField({
+                label: "Currency"|t('commerce'),
+                id: 'currency',
+                name: 'currency',
+                value: store.currency,
+                options: currencyOptions
+            }) }}
         {% endif %}
 
         {% if not store.primary %}
@@ -63,6 +71,7 @@
     </div>
 
     <div id="settings" class="hidden">
+
         {{ forms.booleanMenuField({
             label: 'Auto Set New Cart Addresses'|t('commerce'),
             instructions: 'Whether the user’s primary shipping and billing addresses should be set automatically on new carts.'|t('commerce'),

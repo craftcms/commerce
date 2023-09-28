@@ -22,7 +22,7 @@
 	{% set tableData = tableData|merge([{
         id: currency.id,
         title: currency.primary ? "{name} (Primary)"|t('commerce', { name: currency.name })|e : currency.name|t('site'),
-        url: currency.cpEditUrl,
+        url: currency.primary ? null : currency.cpEditUrl,
         handle: currency.iso,
         rate: currency.primary ? 'base' : currency.rate|number,
         _showDelete: (not currency.primary),

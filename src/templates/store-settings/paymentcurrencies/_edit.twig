@@ -2,7 +2,7 @@
 {% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Payment Currencies"|t('commerce'), url: url('commerce/store-settings/payment-currencies') },
+    { label: "Payment Currencies"|t('commerce'), url: url('commerce/store-settings/'~store.handle~'/payment-currencies') },
 ] %}
 
 {% set fullPageForm = true %}
@@ -27,18 +27,18 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/payment-currencies/save">
     <input type="hidden" name="storeId" value="{{ currency.storeId }}">
-    {{ redirectInput('commerce/store-settings/paymentcurrencies') }}
-    {% if currency.id %}<input type="hidden" name="currencyId"
-                               value="{{ currency.id }}">{% endif %}
+    {{ redirectInput("commerce/store-settings/#{store.handle}/payment-currencies") }}
+    {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
     {% if currency.id and currency.primary and hasCompletedOrders %}
       {{ hiddenInput('iso', currency.iso) }}
-      {{ forms.textField({
+      {{ forms.selectField({
         label: 'Currency Code'|t('commerce'),
         instructions: 'Choose the currency’s ISO code.'|t('commerce'),
         id: 'iso-readonly',
         name: 'iso-readonly',
         readonly: true,
-        value: currency.currency ~ ' (' ~ currency.iso ~ ')',
+        value: currency.iso,
+        options: currencyOptions,
         class: 'disabled',
         warning: 'The primary currency cannot be changed after orders are placed.'|t('commerce')
       }) }}
@@ -51,15 +51,14 @@
           name: 'iso',
           value: currency.iso,
           errors: currency.getErrors('iso'),
-          class: 'selectize fullwidth',
-          warning: currency.id and currency.primary ? 'The primary currency should only be changed in development; changing now will delete all existing carts.'|t('commerce') : ''
+          options: currencyOptions
       }) }}
     {% endif %}
 
     {{ forms.textField({
         label: "Conversion Rate"|t('commerce'),
         instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t('commerce', {
-            amount1: 10|currency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso),
+            amount1: 10,
             rate: 1.5,
             amount2: 15
         }),
@@ -69,41 +68,4 @@
         value: currency.rate ? currency.rate + 0 : 1,
         errors: currency.getErrors('rate')
     }) }}
-
-    {% if currency.primary %}
-        <input type="hidden" name="primary" value="1"/>
-    {% endif %}
 {% endblock %}
-
-{% js %}
-    window.currencies = {{ craft.commerce.currencies.allCurrencies|values|json_encode|raw }};
-    window.currency = {{ [currency.iso]|json_encode|raw }};
-    $(function () {
-        $('#iso').selectize({
-            options: window.currencies,
-            items : window.currency,
-            render: {
-                item: function(item, escape) {
-                    return '<div>' +
-                    (item.currency ? '<span class="currency">' + escape(item.currency) + '</span>' : '') +
-                    (item.alphabeticCode ? ' (<span class="alphabeticCode">' + escape(item.alphabeticCode) + '</span>)' : '') +
-                    '</div>';
-                },
-            option: function(item, escape) {
-                var label = item.currency || item.alphabeticCode;
-                var caption = item.currency ? item.alphabeticCode : null;
-                return '<div>' +
-                    '<span class="label">' + escape(label) + '</span>' +
-                    (caption ? ' (<span class="caption">' + escape(caption) + '</span>)' : '') +
-                    '</div>';
-                }
-            },
-            valueField: 'alphabeticCode',
-            labelField: 'currency',
-            sortField: 'currency',
-            searchField: ['currency', 'iso'],
-            dropdownParent: 'body',
-            maxItems: 1
-        });
-    });
-{% endjs %}

@@ -16,7 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -34,32 +34,19 @@ use yii\db\StaleObjectException;
  */
 class PaymentCurrencies extends Component
 {
-    /**
-     * @var array
-     */
-    private ?array $_allCurrenciesByIso = null;
-
-    /**
-     * @var array
-     */
-    private ?array $_allCurrenciesById = null;
 
     /**
      * Get payment currency by its ID.
      *
      * @throws InvalidConfigException if currency has invalid iso code defined
      */
-    public function getPaymentCurrencyById(int $id): ?PaymentCurrency
+    public function getPaymentCurrencyById(int $id, ?int $storeId = null): ?PaymentCurrency
     {
-        if ($this->_allCurrenciesById === null) {
-            try {
-                $this->getAllPaymentCurrencies();
-            } catch (CurrencyException $exception) {
-                throw new InvalidConfigException($exception->getMessage());
-            }
-        }
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        return $this->_allCurrenciesById[$id] ?? null;
+        $all = $this->getAllPaymentCurrencies($storeId);
+
+        return $all->where('id', $id)->first();
     }
 
     /**
@@ -69,30 +56,18 @@ class PaymentCurrencies extends Component
      * @throws CurrencyException if currency does not exist with the given ISO code
      * @throws InvalidConfigException
      */
-    public function getAllPaymentCurrencies(): array
+    public function getAllPaymentCurrencies(?int $storeId = null): Collection
     {
-        if (!isset($this->_allCurrenciesByIso)) {
-            $rows = $this->_createPaymentCurrencyQuery()
-                ->orderBy(['primary' => SORT_DESC, 'iso' => SORT_ASC])
-                ->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            $this->_allCurrenciesByIso = [];
+        $rows = $this->_createPaymentCurrencyQuery()
+            ->orderBy(['iso' => SORT_ASC])
+            ->where(['storeId' => $storeId])
+            ->all();
 
-            foreach ($rows as $row) {
-                $paymentCurrency = new PaymentCurrency($row);
-
-                // TODO: Fix this with money/money package in 4.0 #COM-52
-                if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
-                    throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
-                }
-
-                $paymentCurrency->setCurrency($currency);
-
-                $this->_memoizePaymentCurrency($paymentCurrency);
-            }
-        }
-
-        return $this->_allCurrenciesByIso;
+        return Collection::make($rows)->map(function($row) {
+            return new PaymentCurrency($row);
+        });
     }
 
     /**
@@ -101,25 +76,20 @@ class PaymentCurrencies extends Component
      * @throws CurrencyException if currency does not exist with tat iso code
      * @throws InvalidConfigException
      */
-    public function getPaymentCurrencyByIso(string $iso): ?PaymentCurrency
+    public function getPaymentCurrencyByIso(string $iso, ?string $storeId = null): ?PaymentCurrency
     {
-        if ($this->_allCurrenciesByIso === null) {
-            $this->getAllPaymentCurrencies();
-        }
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        if (isset($this->_allCurrenciesByIso[$iso])) {
-            return $this->_allCurrenciesByIso[$iso];
-        }
-
+        $this->getAllPaymentCurrencies($storeId);
         return null;
     }
 
     /**
      * Return the primary currencies ISO code as a string.
      */
-    public function getPrimaryPaymentCurrencyIso(): string
+    public function getPrimaryPaymentCurrencyIso(?int $storeId = null): string
     {
-        return $this->getPrimaryPaymentCurrency()->iso;
+        return $this->getPrimaryPaymentCurrency($storeId)?->iso ?? 'USD';
     }
 
     /**
@@ -128,29 +98,31 @@ class PaymentCurrencies extends Component
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public function getPrimaryPaymentCurrency(): ?PaymentCurrency
+    public function getPrimaryPaymentCurrency(?int $storeId = null): ?PaymentCurrency
     {
-        foreach ($this->getAllPaymentCurrencies() as $currency) {
-            if ($currency->primary) {
-                return $currency;
-            }
-        }
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        return null;
+        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+
+        return $this->getAllPaymentCurrencies($storeId)->firstWhere(function(PaymentCurrency $currency) use ($storeCurrency) {
+            return $currency->getCode() == $storeCurrency->getCode();
+        });
     }
 
     /**
      * Returns the non primary payment currencies
      *
-     * @return PaymentCurrency[]
+     * @return Collection<PaymentCurrency>
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
-    public function getNonPrimaryPaymentCurrencies(): array
+    public function getNonPrimaryPaymentCurrencies(?int $storeId = null): Collection
     {
-        return ArrayHelper::where($this->getAllPaymentCurrencies(), function(PaymentCurrency $paymentCurrency) {
-            return !$paymentCurrency->primary;
-        }, true, true, true);
+        $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
+
+        return $this->getAllPaymentCurrencies($storeId)->where(function(PaymentCurrency $currency) use ($storeCurrency) {
+            return $currency->getCode() != $storeCurrency->getCode();
+        });
     }
 
     /**
@@ -237,7 +209,7 @@ class PaymentCurrencies extends Component
 
         $originalIso = $record->iso;
         $record->iso = strtoupper($model->iso);
-        $record->primary = $model->primary;
+        $record->storeId = $model->storeId;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
         $record->rate = $model->primary ? 1 : $model->rate;
 
@@ -255,10 +227,6 @@ class PaymentCurrencies extends Component
 
             PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
         }
-
-        // Clear cache
-        $this->_allCurrenciesByIso = null;
-        $this->_allCurrenciesById = null;
 
         return true;
     }
@@ -278,24 +246,7 @@ class PaymentCurrencies extends Component
             return false;
         }
 
-        $success = $paymentCurrency->delete();
-
-        if ($success) {
-            // Clear cache
-            $this->_allCurrenciesByIso = null;
-            $this->_allCurrenciesById = null;
-        }
-        return $success;
-    }
-
-
-    /**
-     * Memoize a payment currency
-     */
-    private function _memoizePaymentCurrency(PaymentCurrency $paymentCurrency): void
-    {
-        $this->_allCurrenciesByIso[$paymentCurrency->iso] = $paymentCurrency;
-        $this->_allCurrenciesById[$paymentCurrency->id] = $paymentCurrency;
+        return $paymentCurrency->delete();
     }
 
     /**
@@ -309,7 +260,7 @@ class PaymentCurrencies extends Component
                 'dateUpdated',
                 'id',
                 'iso',
-                'primary',
+                'storeId',
                 'rate',
             ])
             ->from([Table::PAYMENTCURRENCIES]);

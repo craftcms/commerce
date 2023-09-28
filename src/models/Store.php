@@ -18,6 +18,7 @@ use craft\helpers\UrlHelper;
 use craft\models\Site;
 use craft\validators\UniqueValidator;
 use Illuminate\Support\Collection;
+use Money\Currency as MoneyCurrency;
 use yii\base\InvalidConfigException;
 
 /**
@@ -63,6 +64,8 @@ class Store extends Model
      * @var int Sort order
      */
     public int $sortOrder = 99;
+
+    private ?string $_currency = 'USD';
 
     /**
      * @var bool
@@ -323,6 +326,7 @@ class Store extends Model
             'sortOrder' => $this->sortOrder,
             'useBillingAddressForTax' => $this->getUseBillingAddressForTax(false),
             'validateOrganizationTaxIdAsVatId' => $this->getValidateOrganizationTaxIdAsVatId(false),
+            'currency' => $this->getCurrency()->getCode(),
         ];
     }
 
@@ -668,5 +672,26 @@ class Store extends Model
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
         return $this->getSettings()->getAdministrativeAreasListByCountryCode();
+    }
+
+    /**
+     * @return MoneyCurrency|null
+     */
+    public function getCurrency(): ?MoneyCurrency
+    {
+        return $this->_currency ? (new MoneyCurrency($this->_currency)) : null;
+    }
+
+    /**
+     * @param string|MoneyCurrency $currency
+     * @return void
+     */
+    public function setCurrency(string|MoneyCurrency $currency): void
+    {
+        if ($currency instanceof MoneyCurrency) {
+            $currency = $currency->getCode();
+        }
+
+        $this->_currency = $currency;
     }
 }
