@@ -13,7 +13,6 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
-use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use Illuminate\Support\Collection;
@@ -34,7 +33,6 @@ use yii\db\StaleObjectException;
  */
 class PaymentCurrencies extends Component
 {
-
     /**
      * Get payment currency by its ID.
      *
