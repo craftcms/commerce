@@ -37,7 +37,7 @@ class Currency
     public static function round(float $amount, PaymentCurrency|string|MoneyCurrency|null $currency = null): float
     {
         if (!$currency) {
-            $currency = Plugin::getInstance()->getStores()->getCurrentStore()->getSettings()->getCurrency();
+            $currency = Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency();
         }
 
         if ($currency instanceof PaymentCurrency) {
