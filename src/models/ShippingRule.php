@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\base\StoreTrait;
@@ -28,7 +29,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingRule extends Model implements ShippingRuleInterface
+class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInterface
 {
     use StoreTrait;
 

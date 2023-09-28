@@ -29,7 +29,7 @@ use JsonSchema\Exception\InvalidConfigException;
  * @property-read bool $isEnabled
  * @property-read string $type
  */
-abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
+abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface, HasStoreInterface
 {
     use StoreTrait;
 

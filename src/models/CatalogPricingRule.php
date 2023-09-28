@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\StoreTrait;
@@ -31,7 +32,7 @@ use DateTime;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingRule extends Model
+class CatalogPricingRule extends Model implements HasStoreInterface
 {
     use StoreTrait;
 

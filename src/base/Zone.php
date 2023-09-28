@@ -15,7 +15,7 @@ use yii\base\InvalidConfigException;
  * @property string $cpEditUrl
  * @property ConditionInterface|string $condition
  */
-abstract class Zone extends BaseModel implements ZoneInterface
+abstract class Zone extends BaseModel implements ZoneInterface, HasStoreInterface
 {
     use StoreTrait;
 

@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
@@ -26,7 +27,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read array $config
  */
-class Pdf extends Model
+class Pdf extends Model implements HasStoreInterface
 {
     use StoreTrait;
 
