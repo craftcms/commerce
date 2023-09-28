@@ -75,9 +75,6 @@ JS, [
         ]);
 
         return
-            // @TODO remove debug heading
-            (!empty($purchasables) ? Html::tag('h3', 'Store: ' . ArrayHelper::firstValue($purchasables)->getStore()->name) : '') .
-
             Html::beginTag('ul', [
                 'id' => $config['id'],
                 'class' => 'purchasable-cards',
