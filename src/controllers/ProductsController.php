@@ -79,6 +79,19 @@ class ProductsController extends BaseController
         return $this->renderTemplate('commerce/variants/_index');
     }
 
+    public function actionCreate(string $productTypeHandle, string $site = null)
+    {
+        $site = Craft::$app->getSites()->getSiteByHandle($site);
+        $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($productTypeHandle);
+        $product = new Product();
+        $product->typeId = $productType->id;
+        $product->enabled = false;
+        $product->siteId = $site->id ?? Craft::$app->getSites()->getPrimarySite()->id;
+        $product->title = '';
+        Craft::$app->getElements()->saveElement($product, false);
+        $this->redirect('commerce/products/' . $productTypeHandle . '/' . $product->id);
+    }
+
     /**
      * @param string $productTypeHandle
      * @param int|null $productId

@@ -42,7 +42,7 @@ trait Routes
             $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
             $event->rules['commerce/variants/<productTypeHandle:{handle}>'] = 'commerce/variants/index';
             $event->rules['commerce/variants/<elementId:\d+><slug:(?:-[^\/]*)?>'] = 'elements/edit';
-            $event->rules['commerce/products/<productTypeHandle:{handle}>/new'] = 'commerce/products/edit-product';
+            $event->rules['commerce/products/<productTypeHandle:{handle}>/new'] = 'commerce/products/create';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/new/<siteHandle:{handle}>'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>'] = 'commerce/products/edit-product';
             $event->rules['commerce/products/<productTypeHandle:{handle}>/<productId:\d+><slug:(?:-[^\/]*)?>/<siteHandle:{handle}>'] = 'commerce/products/edit-product';

@@ -171,7 +171,7 @@ class Product extends Element
      */
     public function getDefaultPriceAsCurrency(): string
     {
-        return $this->getDefaultVariant()->priceAsCurrency;
+        return $this->getDefaultVariant()?->priceAsCurrency ?? '';
     }
 
     /**
@@ -521,11 +521,7 @@ class Product extends Element
         }
 
         if (empty($this->_variants)) {
-            $variant = new Variant([
-                'siteId' => $this->siteId,
-            ]);
-            $variant->isDefault = true;
-            $this->setVariants([$variant]);
+            return [];
         }
 
         return $includeDisabled ? $this->_variants : $this->_enabledVariants;
