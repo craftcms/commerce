@@ -17,8 +17,6 @@ use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency;
 use craft\commerce\records\ShippingCategory;
-use craft\commerce\records\ShippingMethod;
-use craft\commerce\records\ShippingRule;
 use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
@@ -396,23 +394,6 @@ class Stores extends Component
                 'storeId' => $storeRecord->id,
             ];
             Craft::$app->getDb()->createCommand()->insert(ShippingCategory::tableName(), $data)->execute();
-        }
-
-        if (Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->isEmpty()) {
-            $data = [
-                'name' => 'Free Shipping',
-                'handle' => 'freeShipping',
-                'enabled' => true,
-            ];
-            Craft::$app->getDb()->createCommand()->insert(ShippingMethod::tableName(), $data)->execute();
-
-            $data = [
-                'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
-                'description' => 'All countries, free shipping',
-                'name' => 'Free Everywhere',
-                'enabled' => true,
-            ];
-            Craft::$app->getDb()->createCommand()->insert(ShippingRule::tableName(), $data)->execute();
         }
 
         $this->refreshStores();
