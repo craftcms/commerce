@@ -609,7 +609,6 @@ class Install extends Migration
             'length' => $this->decimal(14, 4),
             'weight' => $this->decimal(14, 4),
             'taxCategoryId' => $this->integer()->notNull(),
-            'shippingCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -629,6 +628,7 @@ class Install extends Migration
             'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
+            'shippingCategoryId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -1123,8 +1123,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::PURCHASABLES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::PURCHASABLES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
+        $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
