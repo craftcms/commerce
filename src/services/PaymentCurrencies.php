@@ -253,7 +253,17 @@ class PaymentCurrencies extends Component
         ]);
     }
 
-    public function convertAmount(Money $amount, Currency|string $currency, ?int $storeId = null)
+    /**
+     * @param Money $amount
+     * @param Currency|string $currency
+     * @param int|null $storeId
+     * @return Money
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @throws \craft\errors\SiteNotFoundException
+     * @since 5.0.0
+     */
+    public function convertAmount(Money $amount, Currency|string $currency, ?int $storeId = null): Money
     {
         if (is_string($currency)) {
             $currency = new Currency($currency);
