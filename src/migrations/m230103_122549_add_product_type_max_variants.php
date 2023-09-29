@@ -47,7 +47,6 @@ class m230103_122549_add_product_type_max_variants extends Migration
         $maxVariantProductTypes = (new Query())
             ->select(['id', 'maxVariants', 'uid'])
             ->from(['{{%commerce_producttypes}}'])
-            ->where(['maxVariants' => 1])
             ->all();
 
         foreach ($maxVariantProductTypes as $productType) {
