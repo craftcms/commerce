@@ -2038,6 +2038,7 @@ class Order extends Element implements HasStoreInterface
             $option->handle = $method->getHandle();
             $option->matchesOrder = ArrayHelper::isIn($method->getHandle(), $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
+            $option->storeId = $method->storeId;
 
             // Add all methods if completed, and only the matching methods when it is not completed.
             if ($this->isCompleted || $option->matchesOrder) {
