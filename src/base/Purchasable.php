@@ -649,7 +649,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $purchasable->length = $this->length;
         $purchasable->weight = $this->weight;
         $purchasable->taxCategoryId = $this->taxCategoryId;
-        $purchasable->shippingCategoryId = $this->shippingCategoryId;
 
         // Only update the description for the primary site until we have a concept
         // of an order having a site ID
@@ -680,6 +679,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
             $purchasableStoreRecord->freeShipping = $this->freeShipping;
             $purchasableStoreRecord->purchasableId = $this->id;
+            $purchasableStoreRecord->shippingCategoryId = $this->shippingCategoryId;
 
             $purchasableStoreRecord->save(false);
 
