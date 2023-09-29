@@ -59,9 +59,13 @@ class SalesController extends BaseStoreSettingsController
     /**
      * @throws InvalidConfigException
      */
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
         $sales = Plugin::getInstance()->getSales()->getAllSales();
+        if (empty($sales)) {
+            return $this->redirect('commerce/store-settings/' . $storeHandle . '/pricing-rules');
+        }
+
         return $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
     }
 

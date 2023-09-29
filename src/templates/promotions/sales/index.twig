@@ -115,6 +115,8 @@ var columns = [
     }
 ];
 
+let salesCount = {{ sales|length|raw }};
+
 new Craft.VueAdminTable({
   actions: actions,
   checkboxes: true,
@@ -127,6 +129,13 @@ new Craft.VueAdminTable({
   reorderAction: 'commerce/sales/reorder',
   reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
   reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.'),
-  tableData: {{ tableData|json_encode|raw }}
+  tableData: {{ tableData|json_encode|raw }},
+  deleteCallback: function(id) {
+    salesCount--;
+    if (salesCount === 0) {
+      // if last sale was deleted, redirect to CPR URL
+      window.location.reload();
+    }
+  },
 });
 {% endjs %}
