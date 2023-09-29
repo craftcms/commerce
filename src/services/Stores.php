@@ -717,7 +717,7 @@ class Stores extends Component
 
         try {
             Craft::$app->getDb()->createCommand()
-                ->delete(Table::SITESTORES, ['storeId' => $siteStoreRecord->storeId])
+                ->delete(Table::SITESTORES, ['siteId' => $siteStoreRecord->siteId])
                 ->execute();
 
             $transaction->commit();
