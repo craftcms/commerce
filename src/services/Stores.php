@@ -770,15 +770,22 @@ class Stores extends Component
      */
     public function afterDeleteCraftSiteHandler(SiteEvent $event): void
     {
-        $siteStore = collect($this->getAllSiteStores())->firstWhere('siteId', $event->site->id);
-        $orphanedStoreId = $siteStore->storeId;
+        $siteStores = $this->getAllSiteStores();
+        $siteStore = $this->getAllSiteStores()->firstWhere('siteId', $event->site->id);
+        $store = $this->getStoreById($siteStore->storeId);
 
-        $store = $this->getStoreById($orphanedStoreId);
+        $isStoreOrphaned = true;
+        foreach ($siteStores as $ss) {
+            if ($ss->siteId !== $siteStore->siteId && $ss->storeId === $siteStore->storeId) {
+                $isStoreOrphaned = false;
+                break;
+            }
+        }
 
         // If this was the primary store, make another the primary
-        if ($store->primary) {
+        if ($store->primary && $isStoreOrphaned) {
             // make another store primary
-            $store = collect($this->getAllStores())->firstWhere('primary', false);
+            $store = $this->getAllStores()->firstWhere('primary', false);
             $store->primary = true;
             $this->saveStore($store);
         }
