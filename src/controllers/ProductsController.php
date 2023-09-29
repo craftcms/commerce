@@ -240,7 +240,6 @@ class ProductsController extends BaseController
 
         // Get the requested product
         $oldProduct = ProductHelper::productFromPost($this->request);
-        $variants = $this->request->getBodyParam('variants') ?: [];
 
         $user = Craft::$app->getUser()->getIdentity();
 
@@ -259,22 +258,7 @@ class ProductsController extends BaseController
             // If we're duplicating the product, swap $product with the duplicate
             if ($duplicate) {
                 try {
-                    $originalVariantIds = ArrayHelper::getColumn($oldProduct->getVariants(true), 'id');
                     $product = $elementsService->duplicateElement($oldProduct);
-                    $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(true), 'id');
-
-                    $newVariants = [];
-                    foreach ($variants as $key => $postedVariant) {
-                        if (str_starts_with($key, 'new')) {
-                            $newVariants[$key] = $postedVariant;
-                        } else {
-                            $index = array_search($key, $originalVariantIds);
-                            if ($index !== false) {
-                                $newVariants[$duplicatedVariantIds[$index]] = $postedVariant;
-                            }
-                        }
-                    }
-                    $variants = $newVariants;
                 } catch (InvalidElementException $e) {
                     $transaction->rollBack();
 
@@ -306,8 +290,6 @@ class ProductsController extends BaseController
 
             // Now populate the rest of it from the post data
             ProductHelper::populateProductFromPost($product, $this->request);
-
-            $product->setVariants($variants);
 
             // Save the product (finally!)
             if ($product->enabled && $product->enabledForSite) {

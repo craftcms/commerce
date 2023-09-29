@@ -145,12 +145,6 @@ class Product
         $product->setFieldValuesFromRequest('fields');
         $product->updateTitle();
 
-        if ($variants = $request->getBodyParam('variants')) {
-            $product->setVariants($variants);
-        } else {
-            $product->setVariants([]);
-        }
-
         return $product;
     }
 }
