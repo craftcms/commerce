@@ -48,7 +48,6 @@ class ShippingMethodOption extends ShippingMethod
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 
