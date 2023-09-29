@@ -26,7 +26,6 @@ use yii\db\ActiveQueryInterface;
  * @property float $length
  * @property float $weight
  * @property int $taxCategoryId
- * @property int $shippingCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
