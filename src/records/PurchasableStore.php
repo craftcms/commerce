@@ -27,6 +27,7 @@ use yii\db\ActiveQueryInterface;
  * @property bool $promotable
  * @property bool $availableForPurchase
  * @property bool $freeShipping
+ * @property int $shippingCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
