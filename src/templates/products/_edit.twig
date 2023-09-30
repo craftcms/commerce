@@ -28,6 +28,7 @@
     redirect: '{cpEditUrl}'|hash,
     action: 'commerce/products/duplicate-product'
   }) %}
+  {% if product.canDelete(currentUser) %}
   {% set formActions = formActions|push({
     action: 'commerce/products/delete-product',
     confirm: 'Are you sure you want to delete this product?'|t('commerce'),
@@ -35,6 +36,7 @@
     label: 'Delete'|t('commerce'),
     destructive: true,
   }) %}
+  {% endif %}
 {% endif %}
 
 {% import "_includes/forms" as forms %}
