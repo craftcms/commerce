@@ -965,9 +965,13 @@ SQL;
         $address->locality = $data['city'];
         $address->dependentLocality = '';
 
-        if ($data['firstName'] || $data['lastName']) {
+        if ($data['fullName'] || $data['firstName'] || $data['lastName']) {
             $this->_ensureAddressField(new FullNameField());
-            $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            if ($data['fullName']) {
+                $address->fullName = $data['fullName'];
+            } else {
+                $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            }
         }
 
         if ($data['businessName']) {
