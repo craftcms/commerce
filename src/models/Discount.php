@@ -636,7 +636,7 @@ class Discount extends Model implements HasStoreInterface
                     }
                 },
             ],
-            [['allPurchasables', 'allCategories', 'storeId'], 'safe'],
+            [['allPurchasables', 'allCategories', 'storeId', 'id', 'enabled'], 'safe'],
         ];
     }
 
