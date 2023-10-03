@@ -78,6 +78,11 @@ class PurchasableStore extends Model
     public bool $freeShipping = false;
 
     /**
+     * @var int|null
+     */
+    public ?int $shippingCategoryId = null;
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -87,6 +92,7 @@ class PurchasableStore extends Model
         $rules[] = [['purchasableId', 'storeId', 'stock', 'minQty', 'maxQty'], 'integer'];
         $rules[] = [['basePrice', 'basePromotionalPrice'], 'number'];
         $rules[] = [['hasUnlimitedStock', 'promotable', 'availableForPurchase', 'freeShipping'], 'boolean'];
+        $rules[] = [['shippingCategoryId'], 'safe'];
 
         return $rules;
     }
