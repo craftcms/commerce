@@ -31,6 +31,7 @@ use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
@@ -912,10 +913,18 @@ class OrdersController extends Controller
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
-            $paymentFormHtml = $gateway->getPaymentFormHtml([
-                'paymentForm' => $paymentFormModel,
-                'order' => $order,
-            ]);
+            // For backend stripe payments we cant use the 3dsecure form.
+            if ($gateway instanceof PaymentIntents) {
+                $paymentFormHtml = $gateway->getOldPaymentFormHtml([
+                    'paymentForm' => $paymentFormModel,
+                    'order' => $order,
+                ]);
+            } else {
+                $paymentFormHtml = $gateway->getPaymentFormHtml([
+                    'paymentForm' => $paymentFormModel,
+                    'order' => $order,
+                ]);
+            }
 
             $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
