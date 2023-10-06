@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
@@ -194,6 +195,10 @@ class Orders extends Component
      */
     public function afterSaveAddressHandler(ModelEvent $event): void
     {
+        if (Plugin::getInstance()->isUpgradingToCommerce4) {
+            return;
+        }
+
         /** @var Address $address */
         $address = $event->sender;
         if ($address->getIsDraft()) {

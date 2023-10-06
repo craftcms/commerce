@@ -151,6 +151,8 @@ class Plugin extends BasePlugin
     public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
 
+    public bool $isUpgradingToCommerce4 = false;
+
     public static function config(): array
     {
         return [
@@ -209,7 +211,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.2.6';
+    public string $schemaVersion = '4.2.7';
 
     /**
      * @inheritdoc
