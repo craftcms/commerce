@@ -4,6 +4,7 @@
 
 - Added the `commerce/gateways/list` command.
 - Added the `commerce/gateways/webhook-url` command.
+- Fixed a bug where deleted shipping categories were still available for selection. ([#3272](https://github.com/craftcms/commerce/issues/3272))
 
 ## 4.3.0 - 2023-09-13
 
