@@ -15,6 +15,8 @@ use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use yii\base\InvalidConfigException;
 
 /**
@@ -22,6 +24,7 @@ use yii\base\InvalidConfigException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
+ * @TODO change the class that the `CustomerConditionRule` extends
  */
 class CustomerConditionRule extends BaseMultiSelectConditionRule implements ElementConditionRuleInterface
 {
@@ -35,6 +38,7 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
 
     /**
      * @return array
+     * @deprecated in 4.3.1.
      */
     protected function options(): array
     {
@@ -45,6 +49,24 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
             ->collect()
             ->map(fn(User $customer) => $customer->fullName ? sprintf('%s (%s)', $customer->fullName, $customer->email) : $customer->email)
             ->all();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function inputHtml(): string
+    {
+        $users = User::find()->status(null)->limit(null)->id($this->values)->all();
+
+        return Cp::elementSelectHtml([
+            'name' => 'values',
+            'elements' => $users,
+            'elementType' => User::class,
+            'sources' => null,
+            'criteria' => null,
+            'condition' => null,
+            'single' => false,
+        ]);
     }
 
     /**
@@ -63,7 +85,7 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
         /** @var OrderQuery $query */
         $paramValue = $this->paramValue();
         if ($this->operator === self::OPERATOR_NOT_IN) {
-            $paramValue = ['or', $paramValue, null];
+            ArrayHelper::prependOrAppend($paramValue, 'not', true);
         }
 
         $query->customerId($paramValue);
