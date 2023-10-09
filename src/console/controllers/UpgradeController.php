@@ -171,6 +171,7 @@ class UpgradeController extends Controller
      */
     public function init(): void
     {
+        Plugin::getInstance()->isUpgradingToCommerce4 = true;
         $this->_allowAdminChanges = Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
         $this->_addressFieldLayout = Craft::$app->getAddresses()->getLayout();
         parent::init();

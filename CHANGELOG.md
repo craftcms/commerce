@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Fixed a bug where the delete button would be shown for users that do not have permission to delete on the Product edit page. ([#3285](https://github.com/craftcms/commerce/issues/3285))
 - Added the `commerce/gateways/list` command.
 - Added the `commerce/gateways/webhook-url` command.
 - Fixed a bug where deleted shipping categories were still available for selection. ([#3272](https://github.com/craftcms/commerce/issues/3272))
