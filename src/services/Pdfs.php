@@ -466,7 +466,7 @@ class Pdfs extends Component
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
         $originalFormattingLanguage = Craft::$app->formattingLocale;
-        $pdfLanguage = $pdf->getRenderLanguage($order);
+        $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
 
         // TODO add event
         Locale::switchAppLanguage($pdfLanguage);
