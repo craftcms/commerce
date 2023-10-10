@@ -10,12 +10,9 @@ namespace craftcommercetests\unit\elements\order\conditions;
 use Codeception\Test\Unit;
 use craft\commerce\elements\conditions\orders\CustomerConditionRule;
 use craft\commerce\elements\conditions\orders\OrderCondition;
-use craft\commerce\elements\conditions\products\ProductVariantSkuConditionRule;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Product;
 use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
-use craftcommercetests\fixtures\ProductFixture;
 
 /**
  * CustomerConditionRuleTest
