@@ -15,9 +15,10 @@ use craft\commerce\elements\Order;
 use craft\elements\conditions\ElementConditionRuleInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
+use craft\helpers\Db;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 
 /**
  * Customer Condition Rule
@@ -85,10 +86,11 @@ class CustomerConditionRule extends BaseMultiSelectConditionRule implements Elem
         /** @var OrderQuery $query */
         $paramValue = $this->paramValue();
         if ($this->operator === self::OPERATOR_NOT_IN) {
-            ArrayHelper::prependOrAppend($paramValue, 'not', true);
+            // Account for the fact the querying using a combination of `not` and `in` doesn't match `null` in the column
+            $query->andWhere(Db::parseParam(new Expression('coalesce([[commerce_orders.customerId]], -1)'), $paramValue));
+        } else {
+            $query->customerId($paramValue);
         }
-
-        $query->customerId($paramValue);
     }
 
     /**
