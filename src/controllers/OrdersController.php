@@ -913,8 +913,11 @@ class OrdersController extends Controller
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
-            // For backend stripe payments we cant use the 3dsecure form.
+            // For backend stripe payments we cant use the 3D secure form.
+            /** @TODO remove at next breaking change */
+            /** @phpstan-ignore-next-line */
             if ($gateway instanceof PaymentIntents) {
+                /** @phpstan-ignore-next-line */
                 $paymentFormHtml = $gateway->getOldPaymentFormHtml([
                     'paymentForm' => $paymentFormModel,
                     'order' => $order,
