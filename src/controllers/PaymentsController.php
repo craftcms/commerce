@@ -337,11 +337,12 @@ class PaymentsController extends BaseFrontEndController
 
         // Save the return and cancel URLs to the order
         $returnUrl = $this->request->getValidatedBodyParam('redirect');
-        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($returnUrl !== null) {
+            $order->returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $order);
+        }
 
-        if ($returnUrl !== null && $cancelUrl !== null) {
-            $view = $this->getView();
-            $order->returnUrl = $view->renderObjectTemplate($returnUrl, $order);
+        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($cancelUrl !== null) {
             $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
         }
 
