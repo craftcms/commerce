@@ -151,8 +151,6 @@ class Plugin extends BasePlugin
     public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
 
-    public bool $isUpgradingToCommerce4 = false;
-
     public static function config(): array
     {
         return [
