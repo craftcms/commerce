@@ -1127,11 +1127,6 @@ class Variant extends Purchasable
      */
     public function beforeValidate(): bool
     {
-        $product = $this->getProduct();
-
-        $this->updateTitle($product);
-        $this->updateSku($product);
-
         if ($this->getScenario() === self::SCENARIO_DEFAULT) {
             if (!$this->sku) {
                 $this->setSku(PurchasableHelper::tempSku());
@@ -1159,8 +1154,14 @@ class Variant extends Purchasable
      */
     public function beforeSave(bool $isNew): bool
     {
+        /** @var Product $product */
+        $product = $this->getProduct();
+
+        $this->updateTitle($product);
+        $this->updateSku($product);
+
         // Set the field layout
-        $productType = $this->getProduct()->getType();
+        $productType = $product->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
         return parent::beforeSave($isNew);
