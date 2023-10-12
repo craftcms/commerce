@@ -54,6 +54,8 @@ class UpgradeController extends Controller
      */
     public $defaultAction = 'run';
 
+    private static bool $isRunning = false;
+
     /**
      * The list of fields that can be converted to PlainText fields
      *
@@ -177,6 +179,11 @@ class UpgradeController extends Controller
         parent::init();
     }
 
+    public static function isRunning(): bool
+    {
+        return self::$isRunning;
+    }
+
     /**
      * Runs the data migration
      *
@@ -188,6 +195,8 @@ class UpgradeController extends Controller
             $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
+
+        self::$isRunning = true;
 
         // Make sure Commerce 4 migrations have been run
         $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
