@@ -54,6 +54,8 @@ class UpgradeController extends Controller
      */
     public $defaultAction = 'run';
 
+    private static bool $isRunning = false;
+
     /**
      * The list of fields that can be converted to PlainText fields
      *
@@ -177,6 +179,11 @@ class UpgradeController extends Controller
         parent::init();
     }
 
+    public static function isRunning(): bool
+    {
+        return self::$isRunning;
+    }
+
     /**
      * Runs the data migration
      *
@@ -188,6 +195,8 @@ class UpgradeController extends Controller
             $this->stderr("This command must be run from an interactive shell.\n", Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
+
+        self::$isRunning = true;
 
         // Make sure Commerce 4 migrations have been run
         $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
@@ -966,9 +975,13 @@ SQL;
         $address->locality = $data['city'];
         $address->dependentLocality = '';
 
-        if ($data['firstName'] || $data['lastName']) {
+        if ($data['fullName'] || $data['firstName'] || $data['lastName']) {
             $this->_ensureAddressField(new FullNameField());
-            $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            if ($data['fullName']) {
+                $address->fullName = $data['fullName'];
+            } else {
+                $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            }
         }
 
         if ($data['businessName']) {
