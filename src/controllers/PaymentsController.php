@@ -343,7 +343,7 @@ class PaymentsController extends BaseFrontEndController
 
         $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
         if ($cancelUrl !== null) {
-            $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
+            $order->cancelUrl = $this->getView()->renderObjectTemplate($cancelUrl, $order);
         }
 
         // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
