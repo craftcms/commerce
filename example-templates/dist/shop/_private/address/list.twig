@@ -10,7 +10,7 @@
         <div class="my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {% for address in addresses %}
                 {% set editUrl = '/shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
-                <div class="block border border-gray-200 bg-white rounded-lg shadow-sm hover:shadow-md p-4 w-full">
+                <div class="block border border-gray-200 bg-white rounded-lg shadow-sm hover:shadow-md p-4 w-full relative">
                     {% tag selectable ? 'label' : 'div' with {
                         class: 'block relative address-select js-address-select',
                         data: {
@@ -49,6 +49,16 @@
               {% endif %}
             </span>
                     {% endtag %}
+                  {% if primaryBillingAddressId == address.id or primaryShippingAddressId == address.id %}
+                      <div class="absolute top-0 right-0 pr-4 pt-4">
+                          {% if primaryBillingAddressId == address.id %}
+                            <span title="{{ 'Primary billing address'|t }}">💳</span>
+                          {% endif %}
+                          {% if primaryShippingAddressId == address.id %}
+                            <span title="{{ 'Primary shipping address'|t }}">📦</span>
+                          {% endif %}
+                      </div>
+                  {% endif %}
                 </div>
             {% endfor %}
             {% if showAdd %}
