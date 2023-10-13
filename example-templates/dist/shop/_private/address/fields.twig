@@ -209,7 +209,6 @@ Outputs address form fields for editing an address.
 </div>
 
 {% js %}
-
 document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').addEventListener('change', ev => {
   const countryCode = ev.target.value;
   const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(addressName) }}');
