@@ -1,20 +1,30 @@
 # Release Notes for Craft Commerce
 
-## 4.3.0 - Unreleased
+## Unreleased
 
-- Sales and Discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
+- Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Added the `commerce/gateways/list` command.
+- Added the `commerce/gateways/webhook-url` command.
+- Fixed a bug where the delete button would be shown for users that do not have permission to delete on the Product edit page. ([#3285](https://github.com/craftcms/commerce/issues/3285))
+- Fixed a bug where deleted shipping categories were still available for selection. ([#3272](https://github.com/craftcms/commerce/issues/3272))
+- Fixed a bug where the customer condition rule wasn’t loading correctly. ([#3291](https://github.com/craftcms/commerce/issues/3291))
+- Fixed an error that could occur when rendering a PDF. ([#2633](https://github.com/craftcms/commerce/issues/2633))
+- Fixed a bug where Sale’s and Discount’s date audit columns weren’t populated after saving. ([#3298](https://github.com/craftcms/commerce/issues/3298))
+- Fixed a bug where duplicate inactive users could be created when using the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- The order param is now included when triggering the `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event. ([#3279](https://github.com/craftcms/commerce/pull/3279))
+- The auto-generated variant titles and SKUs are now generated when before saving a product in addition to before validation. ((#3297)[https://github.com/craftcms/commerce/pull/3297]) 
+
+## 4.3.0 - 2023-09-13
+
+- Sales and discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
 - It’s now possible to query products by shipping category and tax category. ([#3219](https://github.com/craftcms/commerce/issues/3219))
-- It’s now possible to modify the purchasables shown in the add line item table on the Edit Order page. ([#3194](https://github.com/craftcms/commerce/issues/3194))
 - Guest customers registering during checkout now have their addresses saved to their account. ([#3203](https://github.com/craftcms/commerce/pull/3203))
+- Product conditions can now have “Product Type”, “Variant SKU”, “Variant Has Unlimited Stock”, “Variant Price”, and “Variant Stock” rules. ([#3209](https://github.com/craftcms/commerce/issues/3209))
+- Improved the performance of discount recalculation.
 - Improved the performance of the `commerce/upgrade` command. ([#3208](https://github.com/craftcms/commerce/pull/3208))
-- The `commerce/cart/update-cart` action now accepts `firstName` and `lastName` in address params. ([#3015](https://github.com/craftcms/commerce/issues/3015))
 - Added the `commerce/cart/forget-cart` action. ([#3206](https://github.com/craftcms/commerce/issues/3206))
-- Product conditions can now have a “Product Type” rule. ([#3209](https://github.com/craftcms/commerce/issues/3209))
-- Product conditions can now have a “Variant SKU” rule.
-- Product conditions can now have a “Variant Has Unlimited Stock” rule.
-- Product conditions can now have a “Variant Price” rule.
-- Product conditions can now have a “Variant Stock” rule.
-- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_QUERY`.
+- The `commerce/cart/update-cart` action now accepts `firstName` and `lastName` address parameters. ([#3015](https://github.com/craftcms/commerce/issues/3015))
+- Added `craft\commerce\controllers\OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY`. ([#3198](https://github.com/craftcms/commerce/pull/3198))
 - Added `craft\commerce\elements\Order::$orderCompletedEmail`. ([#3138](https://github.com/craftcms/commerce/issues/3138))
 - Added `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`.
 - Added `craft\commerce\elements\db\ProductQuery::$taxCategoryId`.
@@ -22,23 +32,23 @@
 - Added `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`.
 - Added `craft\commerce\elements\db\ProductQuery::taxCategory()`.
 - Added `craft\commerce\elements\db\ProductQuery::taxCategoryId()`.
-- Added `craft\commerce\events\ModifyPurchasablesQueryEvent`.
-- Added `craft\commerce\services\Orders::afterSaveAddressHandler()`.
-- Fixed a bug where min and max quantity did not validate together. ([#3234](https://github.com/craftcms/commerce/issues/3234))
-- Fixed a bug where `hasMatchingAddresses()` was incorrectly returning `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
-- Fixed a bug where changing a user’s email would cause extra user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
-- Fixed a bug where related sales were showing when creating a new product.
+- Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
+- Added `craft\commerce\models\Discount::hasCustomerCondition()`.
+- Added `craft\commerce\models\Discount::hasOrderCondition()`.
+- Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
+- Deprecated payment source creation via the `commerce/subscriptions/subscribe` action.
+- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
+- Removed the `htmx` option from the`commerce/example-templates` command.
+- Removed the `color` option from the`commerce/example-templates` command.
+- Added `craft\commerce\events\ModifyPurchasablesTableQueryEvent`. ([#3198](https://github.com/craftcms/commerce/pull/3198))
+- Fixed a bug where products/variants could be saved with a minimum quantity that was set higher than the maximum quantity. ([#3234](https://github.com/craftcms/commerce/issues/3234))
+- Fixed a bug where `craft\commerce\elements\Order::hasMatchingAddresses()` could incorrectly return `false`. ([#3183](https://github.com/craftcms/commerce/issues/3183))
+- Fixed a bug where changing a user’s email could cause additional user elements to be created. ([#3138](https://github.com/craftcms/commerce/issues/3138))
+- Fixed a bug where related sales were displaying when creating a new product.
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
 - Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
-- Fixed a bug where address changes weren’t being synced to carts using them as a source. ([#3178](https://github.com/craftcms/commerce/issues/3178))
-- Removed the htmx option from the`commerce/example-templates` command.
-- Removed the color option from the`commerce/example-templates` command.
-- Improved performance of discount recalculation.
-- Added `craft\commerce\models\Discount::hasOrderCondition()`.
-- Added `craft\commerce\models\Discount::hasCustomerCondition()`.
-- Added `craft\commerce\models\Discount::hasBillingAddressCondition()`.
-- Added `craft\commerce\models\Discount::hasShippingAddressCondition()`.
-- Deprecated `craft\commerce\elements\Order::setEmail()`. `Order::setCustomer()` should be used instead.
+- Fixed a bug where address changes weren’t being synced to carts that were using them. ([#3178](https://github.com/craftcms/commerce/issues/3178))
+- Fixed an XSS vulnerability.
 
 ## 4.2.11 - 2023-06-05
 

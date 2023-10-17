@@ -75,7 +75,6 @@
 
               {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
                 {% set params = {
-                  paymentFormType: 'elements',
                   appearance: {
                     theme: 'stripe'
                   },
