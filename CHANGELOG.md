@@ -11,6 +11,7 @@
 - Fixed an error that could occur when rendering a PDF. ([#2633](https://github.com/craftcms/commerce/issues/2633))
 - Fixed a bug where Sale’s and Discount’s date audit columns weren’t populated after saving. ([#3298](https://github.com/craftcms/commerce/issues/3298))
 - Fixed a bug where duplicate inactive users could be created when using the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Fixed a bug where the `commerce/payments/pay` action was missing the `redirect` in JSON responses. ([#3265](https://github.com/craftcms/commerce/issues/3265))
 - The order param is now included when triggering the `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event. ([#3279](https://github.com/craftcms/commerce/pull/3279))
 - The auto-generated variant titles and SKUs are now generated when before saving a product in addition to before validation. ((#3297)[https://github.com/craftcms/commerce/pull/3297]) 
 
