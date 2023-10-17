@@ -1179,6 +1179,8 @@ SQL;
             ->leftJoin(['u' => $usersTable], 'o.email = u.email')
             ->where(['u.email' => null])
             ->andWhere(['not', ['o.email' => null]])
+            ->andWhere(['not', ['o.email' => '']])
+            ->groupBy(['[[o.email]]'])
             ->column();
         $this->stdoutlast('  Done. Found ' . count($guestEmails) . ' guest emails.', Console::FG_GREEN);
 
