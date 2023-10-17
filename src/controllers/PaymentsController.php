@@ -457,7 +457,11 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
-        $redirect = ($redirect ?: null) ?? $order->returnUrl ?? $this->getPostedRedirectUrl($order);
+        // If the gateway did not give us a redirect URL, use the order's return URL.
+        if (!$redirect) {
+            // Can be set from the redirect body param
+            $redirect = $order->returnUrl;
+        }
 
         if ($this->request->getAcceptsJson()) {
             return $this->asModelSuccess(
