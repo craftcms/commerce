@@ -5,6 +5,7 @@
 - Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
 - Added the `commerce/gateways/list` command.
 - Added the `commerce/gateways/webhook-url` command.
+- Added `craft\commerce\models\ShippingMethodOption::$shippingMethod`. ([#3274](https://github.com/craftcms/commerce/pull/3274), [#3271](https://github.com/craftcms/commerce/issues/3271))
 - Fixed a bug where the delete button would be shown for users that do not have permission to delete on the Product edit page. ([#3285](https://github.com/craftcms/commerce/issues/3285))
 - Fixed a bug where deleted shipping categories were still available for selection. ([#3272](https://github.com/craftcms/commerce/issues/3272))
 - Fixed a bug where the customer condition rule wasn’t loading correctly. ([#3291](https://github.com/craftcms/commerce/issues/3291))
@@ -13,7 +14,8 @@
 - Fixed a bug where duplicate inactive users could be created when using the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
 - Fixed a bug where the `commerce/payments/pay` action was missing the `redirect` in JSON responses. ([#3265](https://github.com/craftcms/commerce/issues/3265))
 - The order param is now included when triggering the `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event. ([#3279](https://github.com/craftcms/commerce/pull/3279))
-- The auto-generated variant titles and SKUs are now generated when before saving a product in addition to before validation. ((#3297)[https://github.com/craftcms/commerce/pull/3297]) 
+- The auto-generated variant titles and SKUs are now generated when before saving a product in addition to before validation. ([#3297](https://github.com/craftcms/commerce/pull/3297)) 
+
 
 ## 4.3.0 - 2023-09-13
 
