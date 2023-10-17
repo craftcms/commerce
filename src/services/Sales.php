@@ -24,6 +24,7 @@ use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
@@ -531,6 +532,12 @@ class Sales extends Component
             $model->setPurchasableIds([]);
         }
 
+        // Make sure `dateCreated` and `dateUpdated` are set on the model
+        if (!$isNewSale) {
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
+        }
+
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
@@ -545,6 +552,10 @@ class Sales extends Component
         try {
             $record->save(false);
             $model->id = $record->id;
+
+            // Update datetime attributes
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
             SalePurchasableRecord::deleteAll(['saleId' => $model->id]);
