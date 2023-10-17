@@ -42,6 +42,7 @@ class ShippingMethodOption extends ShippingMethod
 
     /**
      * @var ?ShippingMethodInterface
+     * @since 4.3.1
      */
     public ?ShippingMethodInterface $shippingMethod = null;
 
