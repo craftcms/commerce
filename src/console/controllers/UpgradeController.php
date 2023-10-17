@@ -1179,9 +1179,9 @@ SQL;
             ->leftJoin(['u' => $usersTable], 'o.email = u.email')
             ->where(['u.email' => null])
             ->andWhere(['not', ['o.email' => null]])
+            ->andWhere(['not', ['o.email' => '']])
             ->groupBy(['[[o.email]]'])
             ->column();
-        $guestEmails = array_filter($guestEmails);
         $this->stdoutlast('  Done. Found ' . count($guestEmails) . ' guest emails.', Console::FG_GREEN);
 
         // We know we have to make a user for every guest email address
