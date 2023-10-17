@@ -8,6 +8,7 @@
 - Fixed a bug where the delete button would be shown for users that do not have permission to delete on the Product edit page. ([#3285](https://github.com/craftcms/commerce/issues/3285))
 - Fixed a bug where deleted shipping categories were still available for selection. ([#3272](https://github.com/craftcms/commerce/issues/3272))
 - Fixed an error that could occur when rendering a PDF. ([#2633](https://github.com/craftcms/commerce/issues/2633))
+- Fixed a bug where duplicate inactive users could be created when using the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
 
 ## 4.3.0 - 2023-09-13
 
