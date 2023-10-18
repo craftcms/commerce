@@ -43,19 +43,19 @@ class BaseStoreSettingsController extends BaseCpController
             'label' => Craft::t('commerce', 'Payment Currencies'),
             'path' => 'payment-currencies',
         ];
-        $this->storeSettingsNav['donation'] = [
-            'label' => Craft::t('commerce', 'Donations'),
-            'path' => 'donation',
-        ];
-        $this->storeSettingsNav['subscriptions'] = [
-            'heading' => Craft::t('commerce', 'Subscriptions'),
-        ];
-
-        $this->storeSettingsNav['subscription-plans'] = [
-            'label' => Craft::t('commerce', 'Plans'),
-            'path' => 'subscription-plans',
-        ];
-
+        // $this->storeSettingsNav['donation'] = [
+        //     'label' => Craft::t('commerce', 'Donations'),
+        //     'path' => 'donation',
+        // ];
+        // $this->storeSettingsNav['subscriptions'] = [
+        //     'heading' => Craft::t('commerce', 'Subscriptions'),
+        // ];
+        //
+        // $this->storeSettingsNav['subscription-plans'] = [
+        //     'label' => Craft::t('commerce', 'Plans'),
+        //     'path' => 'subscription-plans',
+        // ];
+        //
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
