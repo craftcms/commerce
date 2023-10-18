@@ -5,6 +5,7 @@
 - Fixed an XSS vulnerability.
 - Fixed a bug where emails were not being ordered by name correctly. ([#3263](https://github.com/craftcms/commerce/issues/3263))
 - Fixed a bug where a gateway’s webhook URL was malformed. ([#3299](https://github.com/craftcms/commerce/issues/3299))
+- The order param is now included when triggering the `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event. ([#3279](https://github.com/craftcms/commerce/pull/3279))
 
 ## 3.4.22.1 - 2023-06-03
 

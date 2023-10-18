@@ -162,7 +162,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -175,7 +175,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         $amount = $shippingRule->getBaseRate();
 
         foreach ($order->lineItems as $item) {
-            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable())) {
+            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable(), $order)) {
                 $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
                 $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
                 $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);
