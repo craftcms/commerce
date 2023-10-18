@@ -8,6 +8,8 @@
 namespace craft\commerce\elements;
 
 use Craft;
+use craft\base\NestedElementInterface;
+use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
@@ -53,8 +55,10 @@ use yii\db\Expression;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Variant extends Purchasable
+class Variant extends Purchasable implements NestedElementInterface
 {
+    use NestedElementTrait;
+
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered before a variant’s field data is captured, which makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
      *
@@ -176,7 +180,6 @@ class Variant extends Purchasable
      * ```
      */
     public const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
-
 
     /**
      * @var int|null $productId
@@ -337,6 +340,30 @@ class Variant extends Purchasable
     public static function createCondition(): ElementConditionInterface
     {
         return Craft::createObject(VariantCondition::class, [static::class]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function inlineAttributeInputHtml(string $attribute): string
+    {
+        if ($attribute === 'sku') {
+            return PurchasableHelper::skuInputHtml($this->getSkuAsText());
+        }
+
+        return parent::inlineAttributeInputHtml($attribute);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function attributeHtml(string $attribute): string
+    {
+        if ($attribute === 'sku') {
+            return Html::tag('code', $this->getSkuAsText());
+        }
+
+        return parent::attributeHtml($attribute);
     }
 
     /**
