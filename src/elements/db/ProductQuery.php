@@ -202,7 +202,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultPrice(mixed $value): ProductQuery
+    public function defaultPrice(mixed $value): static
     {
         $this->defaultPrice = $value;
 
@@ -240,7 +240,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultHeight(mixed $value): ProductQuery
+    public function defaultHeight(mixed $value): static
     {
         $this->defaultHeight = $value;
 
@@ -278,7 +278,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultLength(mixed $value): ProductQuery
+    public function defaultLength(mixed $value): static
     {
         $this->defaultLength = $value;
 
@@ -316,7 +316,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWidth(mixed $value): ProductQuery
+    public function defaultWidth(mixed $value): static
     {
         $this->defaultWidth = $value;
 
@@ -354,7 +354,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWeight(mixed $value): ProductQuery
+    public function defaultWeight(mixed $value): static
     {
         $this->defaultWeight = $value;
 
@@ -392,7 +392,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultSku(mixed $value): ProductQuery
+    public function defaultSku(mixed $value): static
     {
         $this->defaultSku = $value;
 
@@ -431,7 +431,7 @@ class ProductQuery extends ElementQuery
      * @param ProductType|string|null|array<string> $value The property value
      * @return static self reference
      */
-    public function type(mixed $value): ProductQuery
+    public function type(mixed $value): static
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
@@ -479,7 +479,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function shippingCategoryId(mixed $value): ProductQuery
+    public function shippingCategoryId(mixed $value): static
     {
         $this->shippingCategoryId = $value;
         return $this;
@@ -517,7 +517,7 @@ class ProductQuery extends ElementQuery
      * @param ShippingCategory|string|null|array<string> $value The property value
      * @return static self reference
      */
-    public function shippingCategory(mixed $value): ProductQuery
+    public function shippingCategory(mixed $value): static
     {
         if ($value instanceof ShippingCategory) {
             $this->shippingCategoryId = [$value->id];
@@ -564,7 +564,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function taxCategoryId(mixed $value): ProductQuery
+    public function taxCategoryId(mixed $value): static
     {
         $this->taxCategoryId = $value;
         return $this;
@@ -602,7 +602,7 @@ class ProductQuery extends ElementQuery
      * @param TaxCategory|string|null|array<string> $value The property value
      * @return static self reference
      */
-    public function taxCategory(mixed $value): ProductQuery
+    public function taxCategory(mixed $value): static
     {
         if ($value instanceof TaxCategory) {
             $this->taxCategoryId = [$value->id];
@@ -651,7 +651,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before(DateTime|string $value): ProductQuery
+    public function before(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -696,7 +696,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after(DateTime|string $value): ProductQuery
+    public function after(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -714,7 +714,7 @@ class ProductQuery extends ElementQuery
      * @param bool $value The property value (defaults to true)
      * @return static self reference
      */
-    public function editable(bool $value = true): ProductQuery
+    public function editable(bool $value = true): static
     {
         $this->editable = $value;
         return $this;
@@ -751,7 +751,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function typeId(mixed $value): ProductQuery
+    public function typeId(mixed $value): static
     {
         $this->typeId = $value;
         return $this;
@@ -770,7 +770,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant(mixed $value): ProductQuery
+    public function hasVariant(mixed $value): static
     {
         $this->hasVariant = $value;
         return $this;
@@ -812,7 +812,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function postDate(mixed $value): ProductQuery
+    public function postDate(mixed $value): static
     {
         $this->postDate = $value;
         return $this;
@@ -852,7 +852,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate(mixed $value): ProductQuery
+    public function expiryDate(mixed $value): static
     {
         $this->expiryDate = $value;
         return $this;
@@ -880,7 +880,7 @@ class ProductQuery extends ElementQuery
      * @param bool|null $value The property value
      * @return static self reference
      */
-    public function availableForPurchase(?bool $value = true): ProductQuery
+    public function availableForPurchase(?bool $value = true): static
     {
         $this->availableForPurchase = $value;
         return $this;
