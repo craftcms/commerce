@@ -5,6 +5,7 @@ import './scss/order.scss';
 import './scss/purchasables.scss';
 import './scss/prices.scss';
 import './scss/registration.scss';
+import './scss/stores.scss';
 import './scss/subscriptions.scss';
 
 // JS
