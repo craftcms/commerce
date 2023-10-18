@@ -15,6 +15,7 @@
 - Fixed a bug where sales’ and discounts’ timestamps weren’t getting populated. ([#3298](https://github.com/craftcms/commerce/issues/3298))
 - Fixed a bug where the `commerce/upgrade` command could create duplicate inactive users. ([#3286](https://github.com/craftcms/commerce/issues/3286))
 - Fixed a bug where `commerce/payments/pay` JSON responses were missing the `redirect` key. ([#3265](https://github.com/craftcms/commerce/issues/3265))
+- Fixed a bug where gateway URLs could be malformed. ([#3299](https://github.com/craftcms/commerce/issues/3299))
 
 ## 4.3.0 - 2023-09-13
 
