@@ -54,13 +54,10 @@ class StoreSettingsController extends BaseStoreSettingsController
         $addressesService = Craft::$app->getAddresses();
         $allCountries = $addressesService->getCountryRepository()->getList(Craft::$app->language);
 
-        $locationFieldHtml = Cp::addressCardsHtml(
-            addresses: [$variables['storeSettings']->getLocationAddress()],
-            config: [
-                'name' => 'locationAddressId',
-                'maxAddresses' => 1,
-            ]
-        );
+        $locationFieldHtml = Cp::elementCardHtml($variables['storeSettings']->getLocationAddress(), [
+            'context' => 'field',
+            'inputName' => 'locationAddressId',
+        ]);
 
         // Countries market condition field HTML
         $condition = $variables['storeSettings']->getMarketAddressCondition();
