@@ -108,6 +108,7 @@
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\Vat`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
+- Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
