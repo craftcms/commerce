@@ -159,9 +159,10 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
     {
         $this->requirePostRequest();
         $id = $this->request->getBodyParam('id');
+        $storeId = $this->request->getBodyParam('storeId');
 
         if ($id) {
-            $catalogPricingRule = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($id);
+            $catalogPricingRule = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($id, $storeId);
             if (!$catalogPricingRule) {
                 throw new NotFoundHttpException('Catalog Pricing Rule not found');
             }
@@ -175,7 +176,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
             $this->requirePermission('commerce-editCatalogPricingRules');
         }
 
-        $catalogPricingRule->storeId = $this->request->getBodyParam('storeId');
+        $catalogPricingRule->storeId = $storeId;
         $catalogPricingRule->name = $this->request->getBodyParam('name');
         $catalogPricingRule->description = $this->request->getBodyParam('description');
         $catalogPricingRule->apply = $this->request->getBodyParam('apply');
