@@ -288,15 +288,17 @@ class PurchasableQuery extends ElementQuery
         $this->subQuery->andWhere(['comelsites.siteId' => $this->siteId]);
         $this->subQuery->leftJoin(Table::SITESTORES . ' sitestores', '[[comelsites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+
         //     $this->subQuery->leftJoin([
         //         'catalogprices' => $catalogPricesQuery,
         //     ], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         //     $this->subQuery->leftJoin([
         //         'catalogpromotionalprices' => $catalogPromotionalPricesQuery,
         //     ], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
-            $this->subQuery->leftJoin([
-                'catalogsaleprices' => $catalogSalePriceQuery,
-            ], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+
+        $this->subQuery->leftJoin([
+            'catalogsaleprices' => $catalogSalePriceQuery,
+        ], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
 
         if (isset($this->price) || isset($this->promotionalPrice)) {
 
