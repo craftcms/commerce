@@ -310,15 +310,14 @@ class ProductType extends Model
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $contentTab = new FieldLayoutTab([
-                'name' => $variantTabName,
-                'elements' => [
-                    [
-                        'type' => VariantsField::class,
-                    ],
-                ],
-            ]);
+
+            $contentTab = new FieldLayoutTab();
             $contentTab->setLayout($fieldLayout);
+            $contentTab->name = $variantTabName;
+            $contentTab->setElements([
+                ['type' => VariantsField::class],
+            ]);
+
             $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
