@@ -104,13 +104,25 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @var int|null Tax category ID
      * @since 5.0.0
      */
-    public ?int $taxCategoryId = null;
+    private ?int $_taxCategoryId = null;
+
+    /**
+     * @var TaxCategory|null Tax Category
+     * @since 5.0.0
+     */
+    private ?TaxCategory $_taxCategory = null;
 
     /**
      * @var int|null Shipping category ID
      * @since 5.0.0
      */
-    public ?int $shippingCategoryId = null;
+    private ?int $_shippingCategoryId = null;
+
+    /**
+     * @var ShippingCategory|null Shipping Category
+     * @since 5.0.0
+     */
+    private ?ShippingCategory $_shippingCategory = null;
 
     /**
      * @var float|null $width
@@ -417,11 +429,39 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @param int|null $taxCategoryId
+     * @return void
+     * @since 5.0.0
+     */
+    public function setTaxCategoryId(?int $taxCategoryId = null): void
+    {
+        $this->_taxCategoryId = $taxCategoryId;
+    }
+
+    /**
+     * @return int
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getTaxCategoryId(): int
+    {
+        if ($this->_taxCategoryId === null) {
+            $this->_taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+        }
+
+        return $this->_taxCategoryId;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getTaxCategory(): TaxCategory
     {
-        return $this->taxCategoryId ? Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId) : Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
+        if ($this->_taxCategory === null || $this->_taxCategory->id != $this->getTaxCategoryId()) {
+            $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->getTaxCategoryId());
+        }
+
+        return $this->_taxCategory;
     }
 
     /**
@@ -433,13 +473,39 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @param int|null $shippingCategoryId
+     * @return void
+     * @since 5.0.0
+     */
+    public function setShippingCategoryId(?int $shippingCategoryId = null): void
+    {
+        $this->_shippingCategoryId = $shippingCategoryId;
+    }
+
+    /**
+     * @return int
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getShippingCategoryId(): int
+    {
+        if ($this->_shippingCategoryId === null) {
+            $this->_shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId())->id;
+        }
+
+        return $this->_shippingCategoryId;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getShippingCategory(): ShippingCategory
     {
-        return $this->shippingCategoryId ?
-            Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId, $this->getStore()->id)
-            : Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStore()->id);
+        if ($this->_shippingCategory === null || $this->_shippingCategory->id !== $this->getShippingCategoryId()) {
+            $this->_shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->getShippingCategoryId(), $this->getStoreId());
+        }
+
+        return $this->_shippingCategory;
     }
 
     /**
@@ -679,7 +745,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
             $purchasableStoreRecord->freeShipping = $this->freeShipping;
             $purchasableStoreRecord->purchasableId = $this->id;
-            $purchasableStoreRecord->shippingCategoryId = $this->shippingCategoryId;
+            $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
 
             $purchasableStoreRecord->save(false);
 
