@@ -79,9 +79,18 @@ class ProductsController extends BaseController
         return $this->renderTemplate('commerce/variants/_index');
     }
 
-    public function actionCreate(string $productTypeHandle, string $site = null)
+    public function actionCreate(string $productTypeHandle, ?string $site = null)
     {
-        $site = Craft::$app->getSites()->getSiteByHandle($site);
+        if ($site === null) {
+            $site = Craft::$app->getSites()->getPrimarySite();
+        } else {
+            $site = Craft::$app->getSites()->getSiteByHandle($site);
+        }
+
+        if ($site === null) {
+            throw new NotFoundHttpException('Invalid site handle: ' . $site);
+        }
+
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($productTypeHandle);
         $product = new Product();
         $product->typeId = $productType->id;
