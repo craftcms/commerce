@@ -65,7 +65,7 @@ class CatalogPricingRules extends Component
      */
     public function getCatalogPricingRuleById(int $id, ?int $storeId = null): ?CatalogPricingRule
     {
-        return $this->getAllCatalogPricingRules($storeId, false)->firstWhere('id', $id);
+        return $this->getAllCatalogPricingRules($storeId)->firstWhere('id', $id);
     }
 
     /**
