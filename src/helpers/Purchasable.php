@@ -227,4 +227,20 @@ JS, [
             'removeMargin' => true,
         ]);
     }
+
+    /**
+     * @param string|null $value
+     * @return string
+     * @since 5.0.0
+     */
+    public static function skuInputHtml(?string $value = null): string
+    {
+        return Cp::textHtml([
+            'id' => 'sku',
+            'name' => 'sku',
+            'value' => $value,
+            'placeholder' => Craft::t('commerce', 'Enter SKU'),
+            'class' => 'code',
+        ]);
+    }
 }

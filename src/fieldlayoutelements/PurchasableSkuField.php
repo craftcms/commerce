@@ -11,6 +11,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Variant;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -59,13 +60,7 @@ class PurchasableSkuField extends BaseNativeField
             // @TODO work out where SKU format will be defined
             $html .= Html::hiddenInput('sku', '');
         } else {
-            $html .= Cp::textHtml([
-                'id' => 'sku',
-                'name' => 'sku',
-                'value' => $element->getSkuAsText(),
-                'placeholder' => Craft::t('commerce', 'Enter SKU'),
-                'class' => 'code',
-            ]);
+            $html .= PurchasableHelper::skuInputHtml($element->getSkuAsText());
         }
 
         return $html;
