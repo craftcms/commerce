@@ -693,6 +693,12 @@ class Discounts extends Component
             $record = new DiscountRecord();
         }
 
+        // Make sure the datetime attributes are populated before firing the event
+        if (!$isNew) {
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
+        }
+
         // Raise the beforeSaveDiscount event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_DISCOUNT)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_DISCOUNT, new DiscountEvent([
@@ -752,6 +758,10 @@ class Discounts extends Component
         try {
             $record->save(false);
             $model->id = $record->id;
+
+            // Update datetime attributes after save
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             DiscountPurchasableRecord::deleteAll(['discountId' => $model->id]);
             DiscountCategoryRecord::deleteAll(['discountId' => $model->id]);

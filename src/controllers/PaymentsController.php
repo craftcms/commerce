@@ -337,12 +337,13 @@ class PaymentsController extends BaseFrontEndController
 
         // Save the return and cancel URLs to the order
         $returnUrl = $this->request->getValidatedBodyParam('redirect');
-        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($returnUrl !== null) {
+            $order->returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $order);
+        }
 
-        if ($returnUrl !== null && $cancelUrl !== null) {
-            $view = $this->getView();
-            $order->returnUrl = $view->renderObjectTemplate($returnUrl, $order);
-            $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
+        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($cancelUrl !== null) {
+            $order->cancelUrl = $this->getView()->renderObjectTemplate($cancelUrl, $order);
         }
 
         // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
@@ -456,6 +457,11 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
+        // If the gateway did not give us a redirect URL, use the order's return URL.
+        if (!$redirect) {
+            // Can be set from the redirect body param
+            $redirect = $order->returnUrl;
+        }
 
         if ($this->request->getAcceptsJson()) {
             return $this->asModelSuccess(
@@ -473,15 +479,7 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
-        if ($redirect) {
-            return $this->redirect($redirect);
-        }
-
-        if ($order->returnUrl) {
-            return $this->redirect($order->returnUrl);
-        }
-
-        return $this->redirectToPostedUrl($order);
+        return $this->redirect($redirect);
     }
 
     /**

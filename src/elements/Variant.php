@@ -1127,6 +1127,7 @@ class Variant extends Purchasable
      */
     public function beforeValidate(): bool
     {
+        /** @var Product $product */
         $product = $this->getProduct();
 
         $this->updateTitle($product);
@@ -1159,8 +1160,14 @@ class Variant extends Purchasable
      */
     public function beforeSave(bool $isNew): bool
     {
+        /** @var Product $product */
+        $product = $this->getProduct();
+
+        $this->updateTitle($product);
+        $this->updateSku($product);
+
         // Set the field layout
-        $productType = $this->getProduct()->getType();
+        $productType = $product->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
         return parent::beforeSave($isNew);

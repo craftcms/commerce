@@ -222,6 +222,10 @@ class CartTest extends Unit
         self::assertCount(1, $cart->getLineItems());
         self::assertSame(2, $cart->getTotalQty());
         self::assertSame($variant->getSalePrice() * 2, $cart->getTotal());
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
@@ -255,6 +259,10 @@ class CartTest extends Unit
         self::assertSame($lastItem['qty'], $cart->getTotalQty());
         $lineItem = $cart->getLineItems()[0];
         self::assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
@@ -285,6 +293,10 @@ class CartTest extends Unit
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
         self::assertCount(2, $cart->getLineItems(), 'Has all items in the car');
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
@@ -326,6 +338,10 @@ class CartTest extends Unit
         self::assertEquals($shippingAddress['fields']['testPhone'], $cartShippingAddress->testPhone);
         self::assertEquals($billingAddress['addressLine1'], $cartBillingAddress->addressLine1);
         self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
