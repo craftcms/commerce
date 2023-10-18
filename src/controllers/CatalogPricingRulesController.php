@@ -88,7 +88,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         if (!$variables['catalogPricingRule']) {
             if ($variables['id']) {
-                $variables['catalogPricingRule'] = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($variables['id']);
+                $variables['catalogPricingRule'] = Plugin::getInstance()->getcatalogPricingRules()->getcatalogPricingRuleById($variables['id'], $store->id);
 
                 if (!$variables['catalogPricingRule'] || $variables['catalogPricingRule']->storeId !== $store->id) {
                     throw new HttpException(404);
