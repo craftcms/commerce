@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.23 - 2023-10-18
 
 - `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event handlers can now access the order. ([#3279](https://github.com/craftcms/commerce/pull/3279))
 - Fixed a SQL error that could occur when fetching emails. ([#3267](https://github.com/craftcms/commerce/pull/3267))
