@@ -22,8 +22,8 @@
     {% if isIndex and hasStoreSelector %}
         {# store selector dropdown input #}
         {% if craft.commerce.stores.getAllStores().count() > 1 %}
-            <div class="select">
-                <select id="store-selector" class="text">
+            <div class="btn menubtn sitemenbtn store-selector">
+                <select id="store-selector">
                     {% for storeOption in craft.commerce.stores.getAllStores() %}
                         {# Include `store-settings` in the replace to avoid accidentally overrding another part of the URL #}
                         <option value="{{ craft.app.request.url|replace('store-settings/' ~ storeHandle, 'store-settings/' ~ storeOption.handle) }}" {% if store.id == storeOption.id %}selected{% endif %}>{{ storeOption.name }}</option>
