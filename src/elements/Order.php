@@ -2927,7 +2927,7 @@ class Order extends Element
         }
 
         $this->shippingAddressId = $address->id;
-        $address->title = Craft::t('commerce', 'Shipping Address');
+        $address->title = $address->title ?: Craft::t('commerce', 'Shipping Address');
         $this->_shippingAddress = $address;
     }
 
@@ -3022,7 +3022,7 @@ class Order extends Element
 
         $address->ownerId = $this->id;
         $this->billingAddressId = $address->id;
-        $address->title = Craft::t('commerce', 'Billing Address');
+        $address->title = $address->title ?: Craft::t('commerce', 'Billing Address');
         $this->_billingAddress = $address;
     }
 
