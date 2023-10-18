@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.3.1 - 2023-10-18
 
 - Added the `commerce/gateways/list` command.
 - Added the `commerce/gateways/webhook-url` command.
