@@ -50,6 +50,7 @@
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
 - Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
 - Fixed a bug where address changes weren’t being synced to carts that were using them. ([#3178](https://github.com/craftcms/commerce/issues/3178))
+- Fixed a SQL error that could occur when fetching emails. ([#3267](https://github.com/craftcms/commerce/pull/3267))
 - Fixed an XSS vulnerability.
 
 ## 4.2.11 - 2023-06-05
