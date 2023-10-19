@@ -30,6 +30,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -52,6 +53,7 @@ use yii\db\Expression;
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
+ * @property int $productId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -180,11 +182,6 @@ class Variant extends Purchasable implements NestedElementInterface
      * ```
      */
     public const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
-
-    /**
-     * @var int|null $productId
-     */
-    public ?int $productId = null;
 
     /**
      * @var bool $isDefault
@@ -393,6 +390,28 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
+     * @param int|null $productId
+     * @return void
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use [[$primaryOwnerId]] instead.
+     */
+    public function setProductId(?int $productId)
+    {
+        $this->primaryOwnerId = $productId;
+    }
+
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use [[$primaryOwnerId]] instead.
+     * @since 5.0.0
+     */
+    public function getProductId(): ?int
+    {
+        return $this->getPrimaryOwnerId();
+    }
+
+    /**
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
@@ -404,13 +423,13 @@ class Variant extends Purchasable implements NestedElementInterface
             return $this->_product;
         }
 
-        if ($this->productId === null) {
+        if ($this->getPrimaryOwnerId() === null) {
             throw new InvalidConfigException('Variant is missing its product');
         }
 
         /** @var Product|null $product */
         $product = Product::find()
-            ->id($this->productId)
+            ->id($this->getPrimaryOwnerId())
             ->siteId($this->siteId)
             ->status(null)
             ->trashed(null)
@@ -422,7 +441,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($product === null) {
             /** @var Product|null $product */
             $product = Product::find()
-                ->id($this->productId)
+                ->id($this->getPrimaryOwnerId())
                 ->status(null)
                 ->trashed(null)
                 ->one();
@@ -430,7 +449,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         // If we still don't have a product, there is something configured wrong.
         if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: ' . $this->productId . ', Try re-saving all products.');
+            throw new InvalidConfigException('Invalid product ID: ' . $this->getPrimaryOwnerId() . ', Try re-saving all products.');
         }
 
         return $this->_product = $product;
@@ -834,15 +853,44 @@ class Variant extends Purchasable implements NestedElementInterface
                 $record->id = $this->id;
             }
 
-            $record->productId = $this->productId;
+            $record->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
             $record->isDefault = $this->isDefault;
-            $record->sortOrder = $this->sortOrder;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
             $record->dateCreated = $this->dateCreated;
 
             $record->save(false);
+
+            if (isset($this->ownerId) && $this->saveOwnership) {
+                // Update `sortOrder` if required
+                if (($isNew && $this->getIsCanonical()) || !$this->sortOrder) {
+                    $max = (new Query())
+                        ->from(['eo' => CraftTable::ELEMENTS_OWNERS])
+                        ->innerJoin(['e' => Table::VARIANTS], '[[e.id]] = [[eo.elementId]]')
+                        ->where([
+                            'eo.ownerId' => $this->ownerId,
+                        ])
+                        ->max('[[eo.sortOrder]]');
+                    $this->sortOrder = $max ? $max + 1 : 1;
+                }
+
+                // Update element owners
+                if ($isNew) {
+                    Db::insert(CraftTable::ELEMENTS_OWNERS, [
+                        'elementId' => $this->id,
+                        'ownerId' => $this->ownerId,
+                        'sortOrder' => $this->sortOrder,
+                    ]);
+                } else {
+                    Db::update(CraftTable::ELEMENTS_OWNERS, [
+                        'sortOrder' => $this->sortOrder,
+                    ], [
+                        'elementId' => $this->id,
+                        'ownerId' => $this->ownerId,
+                    ]);
+                }
+            }
         }
 
         parent::afterSave($isNew);

@@ -11,6 +11,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Purchasable;
+use craft\enums\ElementIndexViewMode;
 use craft\fieldlayoutelements\BaseNativeField;
 use yii\base\InvalidArgumentException;
 
@@ -57,9 +58,10 @@ class VariantsField extends BaseNativeField
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        return Purchasable::purchasableCardsHtml($element->getVariants(true), [
-            'productId' => $element->id,
-            'maxVariants' => $element->getType()->maxVariants,
+        return $element->getVariantManger()->getIndexHtml($element, [
+            'canCreate' => true,
+            'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
+            'sortable' => true,
         ]);
     }
 }

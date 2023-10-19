@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -18,6 +19,8 @@ use craft\db\Table as CraftTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
+use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
 /**
@@ -47,7 +50,7 @@ class VariantQuery extends PurchasableQuery
     /**
      * @inheritdoc
      */
-    protected array $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['elements_owners.sortOrder' => SORT_ASC];
 
     /**
      * @var bool Whether to only return variants that the user has permission to edit.
@@ -74,10 +77,22 @@ class VariantQuery extends PurchasableQuery
      */
     public ?bool $isDefault = null;
 
+
     /**
-     * @var mixed
+     * @var mixed The primary owner element ID(s) that the resulting entries must belong to.
+     * @used-by primaryOwner()
+     * @used-by primaryOwnerId()
+     * @since 5.0.0
      */
-    public mixed $productId = null;
+    public mixed $primaryOwnerId = null;
+
+    /**
+     * @var mixed|null
+     * @used-by owner()
+     * @used-by ownerId()
+     * @since 5.0.0
+     */
+    public mixed $ownerId = null;
 
     /**
      * @var mixed the SKU of the variant
@@ -122,10 +137,22 @@ class VariantQuery extends PurchasableQuery
      */
     public function __set($name, $value)
     {
-        if ($name == 'product') {
-            $this->product($value);
-        } else {
-            parent::__set($name, $value);
+        switch ($name) {
+            case 'product':
+                $this->product($value);
+                break;
+            case 'productId':
+                // Added due to the removal of the `$productId` property
+                $this->ownerId($value);
+                break;
+            case 'owner':
+                $this->owner($value);
+                break;
+            case 'primaryOwner':
+                $this->primaryOwner($value);
+                break;
+            default:
+                parent::__set($name, $value);
         }
     }
 
@@ -190,9 +217,53 @@ class VariantQuery extends PurchasableQuery
     public function product(mixed $value): VariantQuery
     {
         if ($value instanceof Product) {
-            $this->productId = [$value->id];
+            $this->ownerId = [$value->id];
         } else {
-            $this->productId = $value;
+            $this->ownerId = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ owner.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[Product|Product]] object | for a product represented by the object.
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function owner(mixed $value): VariantQuery
+    {
+        if ($value instanceof ElementInterface) {
+            $this->ownerId = [$value->id];
+        } else {
+            $this->ownerId = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ primary owner.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | a [[ElementInterface|ElementInterface]] object | for a product represented by the object.
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function primaryOwner(mixed $value): VariantQuery
+    {
+        if ($value instanceof ElementInterface) {
+            $this->primaryOwnerId = [$value->id];
+        } else {
+            $this->primaryOwnerId = $value;
         }
         return $this;
     }
@@ -213,7 +284,47 @@ class VariantQuery extends PurchasableQuery
      */
     public function productId(mixed $value): VariantQuery
     {
-        $this->productId = $value;
+        $this->ownerId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ owners’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for an owner with an ID of 1.
+     * | `[1, 2]` | for owner with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for owner not with an ID of 1 or 2.
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function ownerId(mixed $value): VariantQuery
+    {
+        $this->ownerId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ primary owners’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for a primary owner with an ID of 1.
+     * | `[1, 2]` | for primary owner with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for primary owner not with an ID of 1 or 2.
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function primaryOwnerId(mixed $value): VariantQuery
+    {
+        $this->primaryOwnerId = $value;
         return $this;
     }
 
@@ -386,29 +497,55 @@ class VariantQuery extends PurchasableQuery
      */
     protected function beforePrepare(): bool
     {
-        $this->_normalizeProductId();
+        try {
+            $this->primaryOwnerId = $this->_normalizeOwnerId($this->primaryOwnerId);
+        } catch (InvalidArgumentException) {
+            throw new InvalidConfigException('Invalid primaryOwnerId param value');
+        }
 
-        // See if 'productId' was invalid
-        if ($this->productId === []) {
-            return false;
+        try {
+            $this->ownerId = $this->_normalizeOwnerId($this->ownerId);
+        } catch (InvalidArgumentException) {
+            throw new InvalidConfigException('Invalid ownerId param value');
         }
 
         $this->joinElementTable('commerce_variants');
 
         $this->query->select([
             'commerce_variants.id',
-            'commerce_variants.productId',
+            'commerce_variants.primaryOwnerId',
             'commerce_variants.isDefault',
-            'commerce_variants.sortOrder',
             'commerce_products_elements_sites.slug as productSlug',
             'commerce_producttypes.handle as productTypeHandle',
         ]);
 
-        $this->query->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
-        $this->query->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
-        $this->query->leftJoin(\craft\db\Table::ELEMENTS_SITES . ' commerce_products_elements_sites', '[[commerce_variants.productId]] = [[commerce_products_elements_sites.elementId]] and [[commerce_products_elements_sites.siteId]] =  [[elements_sites.siteId]]');
+        $ownersCondition = [
+            'and',
+            '[[elements_owners.elementId]] = [[elements.id]]',
 
-        $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+            // Figure out linking to `ownerId` or `primaryOwnerId`
+            isset($this->ownerId) && $this->ownerId
+                ? ['elements_owners.ownerId' => $this->ownerId]
+                : '[[elements_owners.ownerId]] = [[commerce_variants.primaryOwnerId]]',
+        ];
+
+        $this->query
+            ->addSelect([
+                'elements_owners.ownerId',
+                'elements_owners.sortOrder',
+            ])
+            ->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+        $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
+
+        if (isset($this->primaryOwnerId) && $this->primaryOwnerId) {
+            $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->primaryOwnerId]);
+        }
+
+        $this->query->leftJoin(Table::PRODUCTS . ' commerce_products', '[[elements_owners.ownerId]] = [[commerce_products.id]]');
+        $this->query->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
+        $this->query->leftJoin(CraftTable::ELEMENTS_SITES . ' commerce_products_elements_sites', '[[elements_owners.ownerId]] = [[commerce_products_elements_sites.elementId]] and [[commerce_products_elements_sites.siteId]] =  [[elements_sites.siteId]]');
+
+        $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[elements_owners.ownerId]] = [[commerce_products.id]]');
         $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
 
         if (isset($this->typeId)) {
@@ -691,22 +828,26 @@ class VariantQuery extends PurchasableQuery
     }
 
     /**
-     * Normalizes the productId param to an array of IDs or null
+     * Normalizes the primaryOwnerId param to an array of IDs or null
+     *
+     * @param mixed $value
+     * @return int[]|null
+     * @throws InvalidArgumentException
      */
-    private function _normalizeProductId(): void
+    private function _normalizeOwnerId(mixed $value): ?array
     {
-        if (empty($this->productId)) {
-            $this->productId = null;
-        } elseif (is_numeric($this->productId)) {
-            $this->productId = [$this->productId];
-        } elseif (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
-            $this->productId = (new Query())
-                ->select(['id'])
-                ->from([Table::PRODUCTS])
-                ->where(Db::parseParam('id', $this->productId))
-                ->column();
+        if (empty($value)) {
+            return null;
         }
+        if (is_numeric($value)) {
+            return [$value];
+        }
+        if (!is_array($value) || !ArrayHelper::isNumeric($value)) {
+            throw new InvalidArgumentException();
+        }
+        return $value;
     }
+
 
     /**
      * Applies the hasProduct query condition
@@ -743,9 +884,9 @@ class VariantQuery extends PurchasableQuery
     {
         $tags = [];
 
-        if ($this->productId) {
-            foreach ($this->productId as $productId) {
-                $tags[] = "product:$productId";
+        if ($this->ownerId) {
+            foreach ($this->ownerId as $ownerId) {
+                $tags[] = "product:$ownerId";
             }
         }
 

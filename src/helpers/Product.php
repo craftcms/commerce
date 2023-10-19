@@ -33,6 +33,7 @@ class Product
      * @param               $key
      * @return Variant
      * @throws InvalidConfigException
+     * @TODO remove
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {

@@ -31,7 +31,9 @@ use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\NestedElementManager;
 use craft\elements\User;
+use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -41,6 +43,7 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
+use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -129,14 +132,14 @@ class Product extends Element
     public ?string $name = null;
 
     /**
-     * @var Variant[]|null This product’s variants
+     * @var Collection<Variant>|null This product’s variants
      */
-    private ?array $_variants = null;
+    private ?Collection $_variants = null;
 
     /**
-     * @var Variant[]|null This product’s enabled variants
+     * @var Collection<Variant>|null This product’s enabled variants
      */
-    private ?array $_enabledVariants = null;
+    private ?Collection $_enabledVariants = null;
 
     /**
      * @var Variant|null This product's cheapest variant
@@ -147,6 +150,12 @@ class Product extends Element
      * @var Variant|null This product's cheapest enabled variant
      */
     private ?Variant $_cheapestEnabledVariant = null;
+
+    /**
+     * @var NestedElementManager|null
+     * @since 5.0.0
+     */
+    private ?NestedElementManager $_variantManager = null;
 
     /**
      * @throws InvalidConfigException
@@ -448,11 +457,9 @@ class Product extends Element
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $variants = $this->getVariants($includeDisabled);
+        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('isDefault', true);
 
-        $defaultVariant = ArrayHelper::firstWhere($variants, 'isDefault', true, false);
-
-        return $defaultVariant ?: ArrayHelper::firstValue($variants);
+        return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
     }
 
     /**
@@ -497,16 +504,16 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @return Variant[]
+     * @return Collection<Variant>
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): array
+    public function getVariants(bool $includeDisabled = false): Collection
     {
         // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
-            $this->_variants = [];
-            $this->_enabledVariants = [];
+            $this->_variants = collect();
+            $this->_enabledVariants = collect();
             return $this->_variants;
         }
 
@@ -517,11 +524,11 @@ class Product extends Element
                 $variants = array_slice($variants, 0, $this->getType()->maxVariants);
             }
 
-            $this->setVariants($variants);
+            $this->setVariants(collect($variants));
         }
 
         if (empty($this->_variants)) {
-            return [];
+            return collect();
         }
 
         return $includeDisabled ? $this->_variants : $this->_enabledVariants;
@@ -530,27 +537,45 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param array|Variant[] $variants
+     * @param Collection<Variant>|array $variants
      * @throws InvalidConfigException
      */
-    public function setVariants(array $variants): void
+    public function setVariants(Collection|array $variants): void
     {
-        $this->_variants = [];
-        $this->_enabledVariants = [];
+        $this->_variants = $variants instanceof Collection ? $variants : collect($variants);
+        $this->_enabledVariants = $this->_variants->where('enabled', true);
+    }
 
-        $count = 1;
-        foreach ($variants as $key => $variant) {
-            if (!$variant instanceof Variant) {
-                $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
-            }
-            $variant->sortOrder = $count++;
-            $variant->setProduct($this);
-
-            $this->_variants[] = $variant;
-            if ($variant->enabled) {
-                $this->_enabledVariants[] = $variant;
-            }
+    /**
+     * Returns a nested element manager for the product’s variants.
+     *
+     * @return NestedElementManager
+     * @since 5.0.0
+     */
+    public function getVariantManger(): NestedElementManager
+    {
+        if (!isset($this->_variantManager)) {
+            $this->_variantManager = new NestedElementManager(
+                Variant::class,
+                fn() => $this->_createVariantQuery(),
+                [
+                    'attribute' => 'variants',
+                    'propagationMethod' => PropagationMethod::None,
+                ],
+            );
         }
+
+        return $this->_variantManager;
+    }
+
+    /**
+     * @return VariantQuery
+     */
+    private function _createVariantQuery(): VariantQuery
+    {
+        return Variant::find()
+            ->productId($this->id)
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
     /**

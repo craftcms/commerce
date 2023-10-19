@@ -21,8 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $maxQty
  * @property int $minQty
  * @property Product $product
- * @property int $productId
- * @property int $sortOrder
+ * @property int $primaryOwnerId
  * @property int $stock
  * @property bool $hasUnlimitedStock
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
