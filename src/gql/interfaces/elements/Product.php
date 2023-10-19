@@ -73,6 +73,11 @@ class Product extends Element
                 'type' => Type::boolean(),
                 'description' => 'If the product is available for purchase.',
             ],
+            'defaultSku' => [
+                'name' => 'defaultSku',
+                'type' => Type::string(),
+                'description' => 'The SKU of the default variant for the product.',
+            ],
             'defaultPrice' => [
                 'name' => 'defaultPrice',
                 'type' => Type::float(),
@@ -82,6 +87,31 @@ class Product extends Element
                 'name' => 'defaultPriceAsCurrency',
                 'type' => Type::string(),
                 'description' => 'The formatted price of the default variant for the product.',
+            ],
+            'defaultHeight' => [
+                'name' => 'defaultHeight',
+                'type' => Type::float(),
+                'description' => 'The height of the default variant for the product.',
+            ],
+            'defaultLength' => [
+                'name' => 'defaultLength',
+                'type' => Type::float(),
+                'description' => 'The length of the default variant for the product.',
+            ],
+            'defaultWidth' => [
+                'name' => 'defaultWidth',
+                'type' => Type::float(),
+                'description' => 'The width of the default variant for the product.',
+            ],
+            'defaultWeight' => [
+                'name' => 'defaultWeight',
+                'type' => Type::float(),
+                'description' => 'The weight of the default variant for the product.',
+            ],
+            'defaultVariant' => [
+                'name' => 'defaultVariant',
+                'type' => Variant::getType(),
+                'description' => 'The default variant for the product.',
             ],
             'productTypeId' => [
                 'name' => 'productTypeId',
