@@ -230,17 +230,38 @@ JS, [
 
     /**
      * @param string|null $value
+     * @param array $config
      * @return string
      * @since 5.0.0
      */
-    public static function skuInputHtml(?string $value = null): string
+    public static function skuInputHtml(?string $value = null, array $config = []): string
     {
-        return Cp::textHtml([
+        $config += [
             'id' => 'sku',
             'name' => 'sku',
             'value' => $value,
             'placeholder' => Craft::t('commerce', 'Enter SKU'),
             'class' => 'code',
-        ]);
+        ];
+
+        return Cp::textHtml($config);
+    }
+
+    /**
+     * @param bool $value
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function availableForPurchaseInputHtml(bool $value, array $config = []): string
+    {
+        $config += [
+            'id' => 'available-for-purchase',
+            'name' => 'availableForPurchase',
+            'small' => true,
+            'on' => $value,
+        ];
+
+        return Cp::lightswitchHtml($config);
     }
 }

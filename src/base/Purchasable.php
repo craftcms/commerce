@@ -261,6 +261,29 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @inheritdoc
      */
+    protected function inlineAttributeInputHtml(string $attribute): string
+    {
+        return match ($attribute) {
+            'sku' => PurchasableHelper::skuInputHtml($this->getSkuAsText()),
+            'availableForPurchase' => PurchasableHelper::availableForPurchaseInputHtml($this->availableForPurchase),
+            default => parent::inlineAttributeInputHtml($attribute),
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function attributeHtml(string $attribute): string
+    {
+        return match ($attribute) {
+            'sku' => Html::tag('code', $this->getSkuAsText()),
+            default => parent::attributeHtml($attribute),
+        };
+    }
+
+    /**
+     * @inheritdoc
+     */
     public static function displayName(): string
     {
         $classNameParts = explode('\\', static::class);
@@ -865,6 +888,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
             'stock' => Craft::t('commerce', 'Stock'),
             'minQty' => Craft::t('commerce', 'Quantities'),
+            'availableForPurchase' => Craft::t('commerce', 'Available for purchase'),
         ]);
     }
 

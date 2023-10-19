@@ -343,30 +343,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    protected function inlineAttributeInputHtml(string $attribute): string
-    {
-        if ($attribute === 'sku') {
-            return PurchasableHelper::skuInputHtml($this->getSkuAsText());
-        }
-
-        return parent::inlineAttributeInputHtml($attribute);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function attributeHtml(string $attribute): string
-    {
-        if ($attribute === 'sku') {
-            return Html::tag('code', $this->getSkuAsText());
-        }
-
-        return parent::attributeHtml($attribute);
-    }
-
-    /**
      * @return void
      * @noinspection PhpUnused
      */

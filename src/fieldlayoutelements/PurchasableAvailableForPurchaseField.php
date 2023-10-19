@@ -10,6 +10,7 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use yii\base\InvalidArgumentException;
@@ -51,12 +52,7 @@ class PurchasableAvailableForPurchaseField extends BaseNativeField
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        return Cp::lightswitchHtml([
-            'id' => 'available-for-purchase',
-            'name' => 'availableForPurchase',
-            'small' => true,
-            'on' => $element->availableForPurchase,
-        ]);
+        return PurchasableHelper::availableForPurchaseInputHtml($element->availableForPurchase);
     }
 
     /**
