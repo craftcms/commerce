@@ -29,10 +29,20 @@ class Product extends ElementArguments
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), self::getContentArguments(), [
+            'promotable' => [
+                'name' => 'promotable',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that are promotable.',
+            ],
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),
                 'description' => 'Whether to only return products that are available to purchase.',
+            ],
+            'freeShipping' => [
+                'name' => 'freeShipping',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that have free shipping.',
             ],
             'defaultSku' => [
                 'name' => 'defaultSku',
