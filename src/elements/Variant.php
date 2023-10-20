@@ -245,23 +245,6 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
-     * @throws InvalidConfigException
-     * @throws InvalidConfigException
-     */
-    public function __toString(): string
-    {
-        $product = $this->getProduct();
-
-        // Use a combined Product and Variant title.
-        if ($product) {
-            return "$this->product: $this->title";
-        }
-
-        return parent::__toString();
-    }
-
-    /**
-     * @inheritdoc
      */
     public static function displayName(): string
     {
