@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\console\controllers\UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\db\Query;
@@ -195,9 +194,6 @@ class Orders extends Component
      */
     public function afterSaveAddressHandler(ModelEvent $event): void
     {
-        if (UpgradeController::isRunning()) {
-            return;
-        }
 
         /** @var Address $address */
         $address = $event->sender;
