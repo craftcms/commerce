@@ -882,6 +882,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'title' => Craft::t('commerce', 'Title'),
             'sku' => Craft::t('commerce', 'SKU'),
             'price' => Craft::t('commerce', 'Price'),
+            'promotionalPrice' => Craft::t('commerce', 'Promotional Price'),
             'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
             'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
             'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
