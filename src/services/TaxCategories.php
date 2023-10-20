@@ -249,7 +249,7 @@ class TaxCategories extends Component
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
-            ->where(['productTypeTaxCategories.productTypeId' => $productTypeId])
+            ->andWhere(['productTypeTaxCategories.productTypeId' => $productTypeId])
             ->all();
 
         if (empty($rows)) {

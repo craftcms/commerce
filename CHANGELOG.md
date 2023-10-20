@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where it was possible to select soft-deleted tax categories.
+
 ## 4.3.1 - 2023-10-18
 
 - Added the `commerce/gateways/list` command.
