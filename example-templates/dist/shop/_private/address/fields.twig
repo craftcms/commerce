@@ -3,7 +3,7 @@
 Outputs address form fields for editing an address.
 #}
 {% set showPrimaryCheckboxes = showPrimaryCheckboxes is defined ? showPrimaryCheckboxes : false %}
-{% set addressFieldLayout = craft.app.getAddresses().getLayout() %}
+{% set addressFieldLayout = craft.app.getAddresses().getFieldLayout() %}
 {% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'craft\\fields\\PlainText') %}
 {# @var address \craft\elements\Address #}
 {% set addressName = addressName is defined ? addressName : '' %}
