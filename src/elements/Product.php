@@ -697,7 +697,7 @@ class Product extends Element
             $map = (new Query())
                 ->select('productId as source, id as target')
                 ->from([Table::VARIANTS])
-                ->where(['productId' => $sourceElementIds])
+                ->where(['primaryOwnerId' => $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -816,7 +816,7 @@ class Product extends Element
             $oldVariantIds = (new Query())
                 ->select('id')
                 ->from(Table::VARIANTS)
-                ->where(['productId' => $this->id])
+                ->where(['primaryOwnerId' => $this->id])
                 ->column();
 
             foreach ($this->getVariants(true) as $variant) {
