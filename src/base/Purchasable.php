@@ -264,8 +264,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     protected function inlineAttributeInputHtml(string $attribute): string
     {
         return match ($attribute) {
-            'sku' => PurchasableHelper::skuInputHtml($this->getSkuAsText()),
             'availableForPurchase' => PurchasableHelper::availableForPurchaseInputHtml($this->availableForPurchase),
+            'price' => PurchasableHelper::priceInputHtml($this->basePrice),
+            'promotionalPrice' => PurchasableHelper::promotionalPriceInputHtml($this->basePromotionalPrice),
+            'sku' => PurchasableHelper::skuInputHtml($this->getSkuAsText()),
             default => parent::inlineAttributeInputHtml($attribute),
         };
     }

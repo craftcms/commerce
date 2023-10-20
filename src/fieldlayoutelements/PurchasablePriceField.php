@@ -152,26 +152,23 @@ JS;
                 'class' => 'js-purchasable-price-field',
             ]) .
             Html::beginTag('div', ['class' => 'flex']) .
-                Cp::textFieldHtml([
-                    'id' => 'base-price',
-                    'label' => Craft::t('commerce', 'Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
-                    'name' => 'basePrice',
-                    'value' => $basePrice,
-                    'placeholder' => Craft::t('commerce', 'Enter price'),
+                Cp::fieldHtml(PurchasableHelper::priceInputHtml($basePrice, [
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
+                ]), [
+                    'id' => 'base-price',
+                    'label' => Craft::t('commerce', 'Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
                 ]) .
 
                 // Don't show base promotional price field if the system is still using sales
                 ($canUseCatalogPricingRules ?
-                Cp::textFieldHtml([
-                    'id' => 'promotional-price',
-                    'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
-                    'name' => 'basePromotionalPrice',
-                    'value' => $basePromotionalPrice,
-                    'placeholder' => Craft::t('commerce', 'Enter price'),
-                    'errors' => $element->getErrors('basePromotionalPrice'),
-                ]) : '') .
+                    Cp::fieldHtml(PurchasableHelper::promotionalPriceInputHtml($basePromotionalPrice, [
+                        'required' => true,
+                        'errors' => $element->getErrors('basePromotionalPrice'),
+                    ]), [
+                        'id' => 'promotional-price',
+                        'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
+                    ]) : '') .
 
             Html::endTag('div') .
             ($toggleContent ? Html::beginTag('div') .

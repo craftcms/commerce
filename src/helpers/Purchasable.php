@@ -264,4 +264,40 @@ JS, [
 
         return Cp::lightswitchHtml($config);
     }
+
+    /**
+     * @param mixed $value
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function priceInputHtml(mixed $value, array $config = []): string
+    {
+        $config += [
+            'id' => 'base-price',
+            'name' => 'basePrice',
+            'placeholder' => Craft::t('commerce', 'Enter price'),
+            'value' => $value,
+        ];
+
+        return Cp::textHtml($config);
+    }
+
+    /**
+     * @param mixed $value
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function promotionalPriceInputHtml(mixed $value, array $config = []): string
+    {
+        $config += [
+            'id' => 'base-promotional-price',
+            'name' => 'basePromotionalPrice',
+            'placeholder' => Craft::t('commerce', 'Enter price'),
+            'value' => $value,
+        ];
+
+        return Cp::textHtml($config);
+    }
 }
