@@ -121,7 +121,6 @@ class CartController extends BaseFrontEndController
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
-
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);

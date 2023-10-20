@@ -198,30 +198,17 @@ Outputs address form fields for editing an address.
   {% if showPrimaryCheckboxes %}
     <hr class="my-2">
     <div class="my-2">
-      {{ input('text', 'isPrimaryBilling', address.isPrimarybilling ? 1 : 0) }}
-      <label>{{ input('checkbox', 'isPrimaryBillingBox', 1, { checked: address.isPrimaryBilling, 'data-primary-input': 'isPrimaryBilling' }) }} {{ 'Use as the primary billing address'|t('commerce') }}</label>
+      {{ hiddenInput('isPrimaryBilling', 0) }}
+      <label>{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling }) }} {{ 'Use as the primary billing address'|t('commerce') }}</label>
     </div>
     <div class="my-2">
-      {{ input('text', 'isPrimaryShipping', address.isPrimaryShipping ? 1 : 0) }}
-      <label>{{ input('checkbox', 'isPrimaryShippingBox', 1, { checked: address.isPrimaryShipping, 'data-primary-input': 'isPrimaryShipping' }) }} {{ 'Use as the primary shipping address'|t('commerce') }}</label>
+      {{ hiddenInput('isPrimaryShipping', 0) }}
+      <label>{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping }) }} {{ 'Use as the primary shipping address'|t('commerce') }}</label>
     </div>
   {% endif %}
 </div>
 
 {% js %}
-{% if showPrimaryCheckboxes %}
-document.querySelectorAll('input[type=checkbox][data-primary-input]').forEach(el => {
-    el.addEventListener('change', ev => {
-        let primaryInput = document.querySelector(`input[name="${ev.target.dataset.primaryInput}"]`);
-        if (ev.target.checked) {
-        primaryInput.value = 1;
-        } else {
-        primaryInput.value = 0;
-        }
-    });
-});
-{% endif %}
-
 document.querySelector('select#{{ 'countryCode'|namespaceInputId(addressName) }}').addEventListener('change', ev => {
   const countryCode = ev.target.value;
   const stateSelect = document.querySelector('select#{{ 'administrativeArea'|namespaceInputId(addressName) }}');

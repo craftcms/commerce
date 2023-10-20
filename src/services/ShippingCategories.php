@@ -280,7 +280,7 @@ class ShippingCategories extends Component
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
-            ->where(['productTypeShippingCategories.productTypeId' => $productTypeId])
+            ->andWhere(['productTypeShippingCategories.productTypeId' => $productTypeId])
             ->all();
 
         // Always need at least the default category
