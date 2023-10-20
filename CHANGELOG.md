@@ -1,5 +1,21 @@
 # Release Notes for Craft Commerce
 
+## 4.3.1 - 2023-10-18
+
+- Added the `commerce/gateways/list` command.
+- Added the `commerce/gateways/webhook-url` command.
+- Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Auto-generated variant titles and SKUs are now generated before products are saved. ([#3297](https://github.com/craftcms/commerce/pull/3297))
+- Added `craft\commerce\models\ShippingMethodOption::$shippingMethod`. ([#3274](https://github.com/craftcms/commerce/pull/3274), [#3271](https://github.com/craftcms/commerce/issues/3271))
+- `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE` event handlers can now access the order. ([#3279](https://github.com/craftcms/commerce/pull/3279))
+- Fixed a bug where Edit Product pages showed a Delete button for users that didn’t have permission to delete the product. ([#3285](https://github.com/craftcms/commerce/issues/3285))
+- Fixed a bug where it was possible to select soft-deleted shipping categories. ([#3272](https://github.com/craftcms/commerce/issues/3272))
+- Fixed a bug where the Customer condition rule wasn’t loading correctly. ([#3291](https://github.com/craftcms/commerce/issues/3291))
+- Fixed an error that could occur when rendering a PDF. ([#2633](https://github.com/craftcms/commerce/issues/2633))
+- Fixed a bug where sales’ and discounts’ timestamps weren’t getting populated. ([#3298](https://github.com/craftcms/commerce/issues/3298))
+- Fixed a bug where the `commerce/upgrade` command could create duplicate inactive users. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Fixed a bug where `commerce/payments/pay` JSON responses were missing the `redirect` key. ([#3265](https://github.com/craftcms/commerce/issues/3265))
+
 ## 4.3.0 - 2023-09-13
 
 - Sales and discounts now support using related entries in their matching item conditions. ([#3134](https://github.com/craftcms/commerce/issues/3134), [#2717](https://github.com/craftcms/commerce/issues/2717))
