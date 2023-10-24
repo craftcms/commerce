@@ -33,7 +33,7 @@
               {% if paymentSource.id != currentUser.primaryPaymentSourceId %}
                 <form method="post" action="">
                   {{ csrfInput() }}
-                  {{ redirectInput('/shop/customer/cards') }}
+                  {{ redirectInput('shop/customer/cards') }}
                   {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
                   {{ hiddenInput('id', paymentSource.id) }}
                   {{ tag('button', {
@@ -45,7 +45,7 @@
               {% endif %}
               <form method="post" action="">
                 {{ csrfInput() }}
-                {{ redirectInput('/shop/customer/cards') }}
+                {{ redirectInput('shop/customer/cards') }}
                 {{ actionInput('commerce/payment-sources/delete') }}
                 {{ hiddenInput('id', paymentSource.id) }}
                 {{ tag('button', {
@@ -118,8 +118,8 @@
             {{ actionInput('commerce/payment-sources/add') }}
             {{ hiddenInput('gatewayId', gateway.id) }}
             {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
-            {{ hiddenInput('cancelUrl', '/shop/customer/cards'|hash) }}
-            {{ redirectInput('/shop/customer/cards') }}
+            {{ hiddenInput('cancelUrl', 'shop/customer/cards'|hash) }}
+            {{ redirectInput('shop/customer/cards') }}
 
             {% set params = {} %}
 

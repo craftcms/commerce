@@ -4,12 +4,12 @@
 {% set primaryShippingAddressId = primaryShippingAddressId ?? null %}
 {% set showDelete = showDelete ?? false %}
 {% set showAdd = showAdd ?? false %}
-{% set addUrl = '/shop/customer/addresses/edit?redirect=' ~ craft.app.request.fullPath %}
+{% set addUrl = siteUrl('shop/customer/addresses/edit?redirect=' ~ craft.app.request.pathInfo) %}
 
 {% if currentUser %}
         <div class="my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {% for address in addresses %}
-                {% set editUrl = '/shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
+                {% set editUrl = 'shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.pathInfo %}
                 <div class="block border border-gray-200 bg-white rounded-lg shadow-sm hover:shadow-md p-4 w-full relative">
                     {% tag selectable ? 'label' : 'div' with {
                         class: 'block relative address-select js-address-select',
