@@ -48,6 +48,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\validators\StoreCountryValidator;
 use craft\db\Query;
 use craft\elements\Address as AddressElement;
+use craft\elements\db\AddressQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -2887,8 +2888,22 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
+            // Query addresses as array to avoid instantiating elements immediately
+            /** @var AddressQuery $query */
+            $query = AddressElement::find()
+                ->ownerId($this->id)
+                ->id($this->shippingAddressId)
+                ->asArray();
+            $data = $query->one();
+
+            if (!$data) {
+                throw new InvalidConfigException("Invalid shipping address ID: $this->shippingAddressId");
+            }
+
+            $data['owner'] = $this;
+
+            /** @var AddressElement $address */
+            $address = $query->createElement($data);
             $this->_shippingAddress = $address;
         }
 
@@ -2981,8 +2996,22 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
+            // Query addresses as array to avoid instantiating elements immediately
+            /** @var AddressQuery $query */
+            $query = AddressElement::find()
+                ->ownerId($this->id)
+                ->id($this->billingAddressId)
+                ->asArray();
+            $data = $query->one();
+
+            if (!$data) {
+                throw new InvalidConfigException("Invalid billing address ID: $this->billingAddressId");
+            }
+
+            $data['owner'] = $this;
+
+            /** @var AddressElement $address */
+            $address = $query->createElement($data);
             $this->_billingAddress = $address;
         }
 

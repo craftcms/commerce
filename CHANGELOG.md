@@ -4,6 +4,7 @@
 
 - Fixed a bug where it was possible to select soft-deleted tax categories.
 - Fixed a PHP error that occurred when sending an email with a missing PDF filename format. ([#3309](https://github.com/craftcms/commerce/issues/3309))
+- Fixed a PHP error that occurred when viewing trashed orders. ([#3308](https://github.com/craftcms/commerce/issues/3308))
 
 ## 4.3.1 - 2023-10-18
 

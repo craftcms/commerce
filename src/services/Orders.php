@@ -146,16 +146,31 @@ class Orders extends Component
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
 
-        /** @var Address[] $addresses */
-        $addresses = Address::find()->id($ids)->indexBy('id')->all();
+        // Query addresses as array to avoid instantiating elements immediately
+        $query = Address::find()
+            ->id($ids)
+            ->indexBy('id')
+            ->asArray();
+        $addresses = $query->all();
 
         foreach ($orders as $key => $order) {
             if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
-                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
+                $data = $addresses[$order['shippingAddressId']];
+                $data['owner'] = $order;
+                /** @var Address $address */
+                $address = $query->createElement($data);
+
+                $order->setShippingAddress($address);
             }
 
             if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
-                $order->setBillingAddress($addresses[$order['billingAddressId']]);
+                $data = $addresses[$order['billingAddressId']];
+                $data['owner'] = $order;
+
+                /** @var Address $address */
+                $address = $query->createElement($data);
+
+                $order->setBillingAddress($address);
             }
 
             $orders[$key] = $order;
