@@ -271,17 +271,6 @@ class Plugin extends BasePlugin
         }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
-
-        Event::on(
-            BaseFrontEndController::class,
-            BaseFrontEndController::EVENT_MODIFY_CART_INFO,
-            function(ModifyCartInfoEvent $e) {
-                $cartArray = $e->cartInfo;
-                $cartArray['anotherOne'] = 'Howdy';
-                $e->cartInfo = $cartArray;
-            }
-        );
-
     }
 
     /**
