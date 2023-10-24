@@ -692,11 +692,11 @@ class Emails extends Component
                 file_put_contents($tempPath, $renderedPdf);
 
                 $fileName = '';
-                $defaultFileName =  $pdf->handle . '-' . $order->number;
-                if($pdf->fileNameFormat) {
+                $defaultFileName = $pdf->handle . '-' . $order->number;
+                if ($pdf->fileNameFormat) {
                     try {
                         $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
-                    }catch (\Throwable $e){
+                    } catch (\Throwable $e) {
                         $fileName = $defaultFileName;
                     }
                 }
