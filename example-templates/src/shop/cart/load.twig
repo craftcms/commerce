@@ -7,7 +7,7 @@ Outputs form for collecting a cart number to be loaded.
   <form method="post" action="">
     {{ csrfInput() }}
     {{ actionInput('commerce/cart/load-cart') }}
-    {{ redirectInput('/[[folderName]]/cart') }}
+    {{ redirectInput('[[folderName]]/cart') }}
 
     <h1 class="text-xl font-bold">
       {{- 'Load Cart'|t -}}
