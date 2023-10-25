@@ -6,10 +6,8 @@ use Craft;
 use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
-use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\elements\Address;
 use craft\helpers\Json;
-use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
 
