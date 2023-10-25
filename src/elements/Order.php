@@ -88,7 +88,6 @@ use yii\log\Logger;
  * @property string $recalculationMode the mode of recalculation.
  * @property string $origin
  * @property int|null $customerId The order customer ID
- * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read User|null $customer
  * @property-read Gateway $gateway
@@ -149,7 +148,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
- * @property ShippingMethodOption[] $availableShippingMethodOptions
+ * @property-read ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read float|int $totalAuthorized
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
