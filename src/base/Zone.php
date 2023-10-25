@@ -89,16 +89,4 @@ abstract class Zone extends BaseModel implements ZoneInterface
 
         $this->_condition = $condition;
     }
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        return [
-            [['name'], 'required'],
-            [['condition'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
-        ];
-    }
 }
