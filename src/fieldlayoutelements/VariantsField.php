@@ -10,7 +10,6 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\Purchasable;
 use craft\enums\ElementIndexViewMode;
 use craft\fieldlayoutelements\BaseNativeField;
 use yii\base\InvalidArgumentException;

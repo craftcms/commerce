@@ -95,7 +95,7 @@ class Currency
             }
         }
 
-        if ($convert  && $currencyIso !== Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency()) {
+        if ($convert && $currencyIso !== Plugin::getInstance()->getStores()->getCurrentStore()->getCurrency()) {
             $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currencyIso);
         }
 

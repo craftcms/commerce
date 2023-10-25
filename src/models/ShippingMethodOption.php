@@ -10,7 +10,6 @@ namespace craft\commerce\models;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**

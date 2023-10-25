@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;

@@ -12,7 +12,6 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\helpers\DebugPanel;
-use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\errors\DeprecationException;
 use craft\helpers\Json;
@@ -32,16 +31,8 @@ class GatewaysController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
-        $gateways = [];
-        $stores = Plugin::getInstance()->getStores()->getAllStores();
-
-        $stores->each(function(Store $store) use (&$gateways) {
-            $gateways[$store->handle] = Plugin::getInstance()->getGateways()->getAllGateways($store->id);
-        });
-
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => $gateways,
-            'stores' => $stores->all(),
+            'gateways' => Plugin::getInstance()->getGateways()->getAllGateways(),
         ]);
     }
 

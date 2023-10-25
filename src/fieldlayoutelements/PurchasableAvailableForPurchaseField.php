@@ -12,7 +12,6 @@ use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\fieldlayoutelements\BaseNativeField;
-use craft\helpers\Cp;
 use yii\base\InvalidArgumentException;
 
 /**

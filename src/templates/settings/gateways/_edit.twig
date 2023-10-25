@@ -13,9 +13,8 @@
 
 {% block content %}
     {{ hiddenInput('id', gateway.id) }}
-    {{ hiddenInput('storeId', gateway.storeId) }}
     {{ actionInput('commerce/gateways/save') }}
-    {{ redirectInput("commerce/settings/gateways##{gateway.store.handle}") }}
+    {{ redirectInput("commerce/settings/gateways") }}
 
     {{ forms.textField({
         label: 'Name'|t('commerce'),

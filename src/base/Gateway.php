@@ -80,7 +80,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->getStore()->handle . '/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->id);
     }
 
     /**
@@ -100,9 +100,9 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function defineRules(): array
     {
         $rules = parent::defineRules();
-        $rules[] = [['paymentType', 'handle', 'storeId'], 'required'];
+        $rules[] = [['paymentType', 'handle'], 'required'];
 
-        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder', 'storeId'], 'safe'];
+        $rules[] = [['name', 'handle', 'paymentType', 'isFrontendEnabled', 'sortOrder'], 'safe'];
 
         return $rules;
     }

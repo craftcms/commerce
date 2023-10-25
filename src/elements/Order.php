@@ -2410,7 +2410,7 @@ class Order extends Element implements HasStoreInterface
         $paymentAmount = $this->getOutstandingBalance();
 
         // Only convert if we have differing currencies
-        if ($this->currency !== $this->getPaymentCurrency()){
+        if ($this->currency !== $this->getPaymentCurrency()) {
             $teller = Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
             $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($this->getPaymentCurrency());
             $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());

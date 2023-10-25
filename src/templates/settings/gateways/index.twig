@@ -16,44 +16,31 @@
 
 {% block actionButton %}
     <div class="btngroup">
-        <button type="button" class="btn submit add icon menubtn">{{ 'New gateway'|t('commerce') }}</button>
-        <div class="menu">
-            <ul>
-                {% for store in stores %}
-                    <li>
-                        <a href="{{ url("commerce/settings/gateways/#{store.handle}/new") }}">{{ store.name }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <a href="{{ url("commerce/settings/gateways/new") }}" class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
     </div>
 {% endblock %}
 
 {% block main %}
     <div id="content">
-        {% for store in stores %}
-                <h2 id="{{ store.handle }}" class="gateways-margin-top">{{ store.name }}</h2>
-                <div class="content-pane">
-                    <div id="gateways-vue-admin-table-{{ store.handle }}"></div>
-                </div>
-        {% endfor %}
+        <div class="content-pane">
+            <div id="gateways-vue-admin-table"></div>
+        </div>
     </div>
 {% endblock %}
 
-{% for handle, storeGateways in gateways %}
 
     {% set tableData = [] %}
-    {% for gateway in storeGateways %}
+
+    {% for gateway in gateways %}
         {% set tableData = tableData|merge([{
             id: gateway.id,
             title: gateway.name|t('site'),
-            url: gateway.cpEditUrl,
+            url: gateway.getCpEditUrl(),
             handle: gateway.handle|e,
             type: {
                 missing: gateway is missing ? true : false,
                 name: gateway is missing? gateway.expectedType : gateway.displayName()
             },
-            store: gateway.store.name,
             customerEnabled: parseBooleanEnv(gateway.isFrontendEnabled),
         }]) %}
     {% endfor %}
@@ -74,7 +61,6 @@
                     return value.name;
                 }
             },
-            { name: 'store', title: Craft.t('commerce', 'Store') },
             {
                 name: 'customerEnabled',
                 title: Craft.t('commerce', 'Customer Enabled?'),
@@ -88,7 +74,7 @@
 
         new Craft.VueAdminTable({
             columns: columns,
-            container: '#gateways-vue-admin-table-{{ handle }}',
+            container: '#gateways-vue-admin-table',
             deleteAction: 'commerce/gateways/archive',
             reorderAction: 'commerce/gateways/reorder',
             reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
@@ -96,7 +82,6 @@
             tableData: {{ tableData|json_encode|raw }}
         });
     {% endjs %}
-{% endfor %}
 
 {% css %}
     table.data thead th.vuetable-th-slot-title,

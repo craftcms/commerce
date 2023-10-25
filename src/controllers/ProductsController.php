@@ -20,7 +20,6 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\MissingComponentException;
 use craft\errors\SiteNotFoundException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;

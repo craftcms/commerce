@@ -12,11 +12,9 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\db\Table;
-use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\DeprecationException;
@@ -55,9 +53,9 @@ class Gateways extends Component
     private ?array $_overrides = null;
 
     /**
-     * @var Collection<Gateway>[]|null All gateways
+     * @var Collection<Gateway>|null All gateways
      */
-    private ?array $_allGateways = null;
+    private ?Collection $_allGateways = null;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.
@@ -106,43 +104,37 @@ class Gateways extends Component
     /**
      * Returns all customer enabled gateways.
      *
-     * @param int|null $storeId
      * @return Collection All gateways that are enabled for frontend
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    public function getAllCustomerEnabledGateways(?int $storeId = null): Collection
+    public function getAllCustomerEnabledGateways(): Collection
     {
-        return $this->getAllGateways($storeId)->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
+        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
     }
 
     /**
      * Returns all subscription gateways.
      *
-     * @param int|null $storeId
      * @return Collection<GatewayInterface> All Subscription gateways
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    public function getAllSubscriptionGateways(?int $storeId = null): Collection
+    public function getAllSubscriptionGateways(): Collection
     {
-        return $this->getAllGateways($storeId)->where(fn(GatewayInterface $gateway) => $gateway instanceof SubscriptionGateway);
+        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway instanceof SubscriptionGateway);
     }
 
     /**
      * Returns all gateways
      *
-     * @param int|null $storeId
      * @return Collection All gateways
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    public function getAllGateways(?int $storeId = null): Collection
+    public function getAllGateways(): Collection
     {
-        return $this->_getAllGateways($storeId)->where('isArchived', false);
+        return $this->_getAllGateways()->where('isArchived', false);
     }
 
     /**
@@ -167,9 +159,13 @@ class Gateways extends Component
             return false;
         }
 
-        $paymentSourceIds = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id)->map(fn(Gateway $g) => $g->id)->all();
+        // remove all payment sources for this gateway
+        // this will also remove them as the payment source for a cart
+        Craft::$app->getDb()->createCommand()
+            ->delete(Table::PAYMENTSOURCES, ['gatewayId' => $id])
+            ->execute();
 
-        // Clear this gateway from all active carts since it has been now been archived
+        // Clear this as the selected gateway from all active carts and orders
         Craft::$app->getDb()->createCommand()
             ->update(Table::ORDERS,
                 [
@@ -177,9 +173,7 @@ class Gateways extends Component
                     'paymentSourceId' => null,
                 ],
                 [
-                    'and',
-                    ['isCompleted' => false],
-                    ['or', ['gatewayId' => $id], ['paymentSourceId' => $paymentSourceIds]],
+                    'gatewayId' => $id,
                 ], [], false)
             ->execute();
 
@@ -191,30 +185,26 @@ class Gateways extends Component
      * Returns a gateway by its ID.
      *
      * @param int $id
-     * @param int|null $storeId
      * @return Gateway|null The gateway or null if not found.
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    public function getGatewayById(int $id, ?int $storeId = null): ?Gateway
+    public function getGatewayById(int $id): ?Gateway
     {
-        return $this->_getAllGateways($storeId)->firstWhere('id', $id);
+        return $this->_getAllGateways()->firstWhere('id', $id);
     }
 
     /**
      * Returns a gateway by its handle.
      *
      * @param string $handle
-     * @param int|null $storeId
      * @return Gateway|null The gateway or null if not found.
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    public function getGatewayByHandle(string $handle, ?int $storeId = null): ?Gateway
+    public function getGatewayByHandle(string $handle): ?Gateway
     {
-        return $this->getAllGateways($storeId)->firstWhere('handle', $handle);
+        return $this->getAllGateways()->firstWhere('handle', $handle);
     }
 
     /**
@@ -264,7 +254,6 @@ class Gateways extends Component
                 'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
                 'isFrontendEnabled' => $gateway->getIsFrontendEnabled(false),
-                'store' => $gateway->getStore()->uid,
             ];
         }
 
@@ -294,11 +283,7 @@ class Gateways extends Component
         try {
             $gatewayRecord = $this->_getGatewayRecord($gatewayUid);
 
-            // Get store by uid and convert `$data['store']` to `storeId`
-            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
-
             $gatewayRecord->name = $data['name'];
-            $gatewayRecord->storeId = $store->id;
             $gatewayRecord->handle = $data['handle'];
             $gatewayRecord->type = $data['type'];
             $gatewayRecord->settings = $data['settings'] ?? null;
@@ -461,7 +446,6 @@ class Gateways extends Component
                 'paymentType',
                 'settings',
                 'sortOrder',
-                'storeId',
                 'type',
                 'uid',
             ])
@@ -482,34 +466,28 @@ class Gateways extends Component
     }
 
     /**
-     * @param int|null $storeId
      * @return Collection<Gateway>
      * @throws DeprecationException
      * @throws InvalidConfigException
-     * @throws StoreNotFoundException
      */
-    private function _getAllGateways(?int $storeId = null): Collection
+    private function _getAllGateways(): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-
-        if ($this->_allGateways === null || !isset($this->_allGateways[$storeId])) {
+        if ($this->_allGateways === null) {
             $results = $this->_createGatewayQuery()
-                ->where(['storeId' => $storeId])
                 ->all();
 
             if ($this->_allGateways === null) {
-                $this->_allGateways = [];
+                $this->_allGateways = collect();
             }
 
-            $storeGateways = [];
+            $gateways = [];
             foreach ($results as $result) {
-                $gateway = $this->createGateway($result);
-                $storeGateways[$gateway->id] = $gateway;
+                $gateways[] = $this->createGateway($result);
             }
 
-            $this->_allGateways[$storeId] = collect($storeGateways);
+            $this->_allGateways = collect($gateways);
         }
 
-        return $this->_allGateways[$storeId] ?? collect();
+        return $this->_allGateways;
     }
 }

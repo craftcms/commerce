@@ -13,7 +13,6 @@ use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 
@@ -301,7 +300,6 @@ class PurchasableQuery extends ElementQuery
         ], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
 
         if (isset($this->price) || isset($this->promotionalPrice)) {
-
             if (isset($this->price)) {
                 $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
             }
