@@ -151,6 +151,7 @@ class Orders extends Component
             ->id($ids)
             ->indexBy('id')
             ->asArray();
+        /** @var array $addresses */
         $addresses = $query->all();
 
         foreach ($orders as $key => $order) {
