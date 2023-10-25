@@ -5,7 +5,7 @@
 - Fixed a bug where it was possible to select soft-deleted tax categories.
 - Fixed a PHP error that occurred when sending an email with a missing PDF filename format. ([#3309](https://github.com/craftcms/commerce/issues/3309))
 - Product GQL queries now support `promotable`, `availableForPurchase`, `freeShipping`, `defaultSku`, `defaultPrice`, `defaultVariant`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` params. ([#3307](https://github.com/craftcms/commerce/pull/3307))
-- Fixed an incorrect validation error that occurred when saving a Shipping Zone. (#3317](https://github.com/craftcms/commerce/issues/3317))
+- Fixed an incorrect validation error that occurred when saving a Shipping Zone. ([#3317](https://github.com/craftcms/commerce/issues/3317))
 
 ## 4.3.1 - 2023-10-18
 
