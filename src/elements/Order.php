@@ -2887,22 +2887,12 @@ class Order extends Element
     public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            // Query addresses as array to avoid instantiating elements immediately
-            /** @var AddressQuery $query */
-            $query = AddressElement::find()
-                ->ownerId($this->id)
+            /** @var AddressElement|null $address */
+            $address = AddressElement::find()
+                ->owner($this)
                 ->id($this->shippingAddressId)
-                ->asArray();
-            $data = $query->one();
+                ->one();
 
-            if (!$data) {
-                throw new InvalidConfigException("Invalid shipping address ID: $this->shippingAddressId");
-            }
-
-            $data['owner'] = $this;
-
-            /** @var AddressElement $address */
-            $address = $query->createElement($data);
             $this->_shippingAddress = $address;
         }
 
@@ -2995,22 +2985,12 @@ class Order extends Element
     public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            // Query addresses as array to avoid instantiating elements immediately
-            /** @var AddressQuery $query */
-            $query = AddressElement::find()
-                ->ownerId($this->id)
+            /** @var AddressElement|null $address */
+            $address = AddressElement::find()
+                ->owner($this)
                 ->id($this->billingAddressId)
-                ->asArray();
-            $data = $query->one();
+                ->one();
 
-            if (!$data) {
-                throw new InvalidConfigException("Invalid billing address ID: $this->billingAddressId");
-            }
-
-            $data['owner'] = $this;
-
-            /** @var AddressElement $address */
-            $address = $query->createElement($data);
             $this->_billingAddress = $address;
         }
 
