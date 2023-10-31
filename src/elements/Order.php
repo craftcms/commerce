@@ -2887,7 +2887,11 @@ class Order extends Element
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
             /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
+            $address = AddressElement::find()
+                ->owner($this)
+                ->id($this->shippingAddressId)
+                ->one();
+
             $this->_shippingAddress = $address;
         }
 
@@ -2981,7 +2985,11 @@ class Order extends Element
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
             /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
+            $address = AddressElement::find()
+                ->owner($this)
+                ->id($this->billingAddressId)
+                ->one();
+
             $this->_billingAddress = $address;
         }
 
