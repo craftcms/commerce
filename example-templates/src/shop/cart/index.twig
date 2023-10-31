@@ -321,7 +321,7 @@ Outputs cart.
     </form>
   {% else %}
     <p>{{ 'Empty cart. Add items on the {link} page.'|t({
-      link: tag('a', { href: url('/[[folderName]]/products'), text: 'products', class: 'underline' })
+      link: tag('a', { href: url('[[folderName]]/products'), text: 'products', class: 'underline' })
     })|raw }}</p>
   {% endif %}
 {% endblock %}

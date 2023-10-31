@@ -231,7 +231,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }

@@ -89,7 +89,6 @@ use yii\log\Logger;
  * @property string $recalculationMode the mode of recalculation.
  * @property string $origin
  * @property int|null $customerId The order customer ID
- * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read User|null $customer
  * @property-read Gateway $gateway
@@ -150,7 +149,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
- * @property ShippingMethodOption[] $availableShippingMethodOptions
+ * @property-read ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read float|int $totalAuthorized
  * @property float $paymentAmount
  * @property-read null|string $loadCartUrl
@@ -2915,7 +2914,11 @@ class Order extends Element implements HasStoreInterface
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
             /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->shippingAddressId)->one();
+            $address = AddressElement::find()
+                ->owner($this)
+                ->id($this->shippingAddressId)
+                ->one();
+
             $this->_shippingAddress = $address;
         }
 
@@ -3009,7 +3012,11 @@ class Order extends Element implements HasStoreInterface
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
             /** @var AddressElement|null $address */
-            $address = AddressElement::find()->ownerId($this->id)->id($this->billingAddressId)->one();
+            $address = AddressElement::find()
+                ->owner($this)
+                ->id($this->billingAddressId)
+                ->one();
+
             $this->_billingAddress = $address;
         }
 

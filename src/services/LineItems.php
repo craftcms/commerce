@@ -313,6 +313,11 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
+        if ($result) {
+            // Unpack the snapshot
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+        }
+
         return $result ? new LineItem($result) : null;
     }
 
