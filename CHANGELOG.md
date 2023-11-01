@@ -1,13 +1,14 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.3.2 - 2023-10-31
 
+- Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))
+- Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, `defaultWeight`, and `defaultVariant` fields. ([#3307](https://github.com/craftcms/commerce/pull/3307))
 - Fixed a bug where it was possible to select soft-deleted tax categories.
 - Fixed a PHP error that occurred when sending an email with a missing PDF filename format. ([#3309](https://github.com/craftcms/commerce/issues/3309))
-- Product GQL queries now support `promotable`, `availableForPurchase`, `freeShipping`, `defaultSku`, `defaultPrice`, `defaultVariant`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` params. ([#3307](https://github.com/craftcms/commerce/pull/3307))
-- Fixed a PHP error that occurred when viewing trashed orders. ([#3308](https://github.com/craftcms/commerce/issues/3308))
-- Fixed an incorrect validation error that occurred when saving a Shipping Zone. ([#3317](https://github.com/craftcms/commerce/issues/3317))
-- Fixed a bug where a line item’s snapshot wasn’t being decoded. ([#3253](https://github.com/craftcms/commerce/issues/3253))
+- Fixed a PHP error that occurred when viewing soft-deleted orders. ([#3308](https://github.com/craftcms/commerce/issues/3308))
+- Fixed a bug where saving a shipping zone could fail if a tax zone existed with the same name. ([#3317](https://github.com/craftcms/commerce/issues/3317))
+- Fixed a bug where `craft\commerce\services\LineItems::getLineItemById()` wasn’t decoding the snapshot data. ([#3253](https://github.com/craftcms/commerce/issues/3253))
 
 ## 4.3.1 - 2023-10-18
 
