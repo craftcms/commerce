@@ -93,6 +93,8 @@
 - Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\models\Discount::$storeId`.
+- Added `craft\commerce\models\LineItem::getSnapshot()`.
+- Added `craft\commerce\models\LineItem::setSnapshot()`.
 - Added `craft\commerce\models\PaymentSources::getStore()`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.

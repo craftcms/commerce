@@ -34,6 +34,7 @@ use yii\base\InvalidConfigException;
  * @property float $discount
  * @property bool $onPromotion
  * @property array $options
+ * @property array $snapshot
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -121,9 +122,8 @@ class LineItem extends Model
 
     /**
      * @var mixed Snapshot
-     * @TODO add get and set methods in 5.0.0. Strict typing will be enforced.
      */
-    public mixed $snapshot = null;
+    private ?array $_snapshot = null;
 
     /**
      * @var string SKU
@@ -317,12 +317,41 @@ class LineItem extends Model
     }
 
     /**
+     * Returns the snapshot for the line item.
+     *
+     * @return array
+     * @since 5.0.0
+     */
+    public function getSnapshot(): array
+    {
+        return $this->_snapshot ?? [];
+    }
+
+    /**
+     * Set the snapshot array on the line item.
+     *
+     * @param array|string $snapshot
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSnapshot(array|string $snapshot): void
+    {
+        $snapshot = Json::decodeIfJson($snapshot);
+
+        if (!is_array($snapshot)) {
+            $snapshot = [];
+        }
+
+        $this->_snapshot = $snapshot;
+    }
+
+    /**
      * @return string
      */
     public function getDescription(): string
     {
         if (!$this->_description) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $snapshot = $this->getSnapshot();
             $this->_description = $snapshot['description'] ?? '';
         }
 
@@ -344,7 +373,7 @@ class LineItem extends Model
     public function getSku(): string
     {
         if (!$this->_sku) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $snapshot = $this->getSnapshot();
             $this->_sku = $snapshot['sku'] ?? '';
         }
 
@@ -679,7 +708,7 @@ class LineItem extends Model
 
         // Add our purchasable data to the snapshot, save our sales.
         $purchasableSnapshot = $purchasable->getSnapshot();
-        $this->snapshot = array_merge($purchasableSnapshot, $snapshot);
+        $this->setSnapshot(array_merge($purchasableSnapshot, $snapshot));
 
         $purchasable->populateLineItem($this);
 

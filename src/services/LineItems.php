@@ -249,7 +249,7 @@ class LineItems extends Component
         $lineItemRecord->length = $lineItem->length;
         $lineItemRecord->height = $lineItem->height;
 
-        $lineItemRecord->snapshot = $lineItem->snapshot;
+        $lineItemRecord->snapshot = $lineItem->getSnapshot();
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
         $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;

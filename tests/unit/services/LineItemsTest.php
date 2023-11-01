@@ -127,11 +127,12 @@ class LineItemsTest extends Unit
         /** @var Order $order */
         $order = $this->fixtureData->getElement('completed-new');
         $lineItemById = $this->service->getLineItemById($order->getLineItems()[0]->id);
+        /** @var LineItem $lineItemFromAll */
         $lineItemFromAll = collect($this->service->getAllLineItemsByOrderId($order->id))->firstWhere('id', $lineItemById->id);
 
-        self::assertIsArray($lineItemById->snapshot);
-        self::assertIsArray($lineItemFromAll->snapshot);
-        self::assertEquals($lineItemById->snapshot, $lineItemFromAll->snapshot);
+        self::assertIsArray($lineItemById->getSnapshot());
+        self::assertIsArray($lineItemFromAll->getSnapshot());
+        self::assertEquals($lineItemById->getSnapshot(), $lineItemFromAll->getSnapshot());
     }
 
     public function testCreateLineItem(): void
