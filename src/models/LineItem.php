@@ -108,6 +108,7 @@ class LineItem extends Model
 
     /**
      * @var mixed Snapshot
+     * @TODO add get and set methods in 5.0.0. Strict typing will be enforced.
      */
     public mixed $snapshot = null;
 

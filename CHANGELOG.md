@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce
 
+## 4.3.2 - 2023-10-31
+
+- Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))
+- Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, `defaultWeight`, and `defaultVariant` fields. ([#3307](https://github.com/craftcms/commerce/pull/3307))
+- Fixed a bug where it was possible to select soft-deleted tax categories.
+- Fixed a PHP error that occurred when sending an email with a missing PDF filename format. ([#3309](https://github.com/craftcms/commerce/issues/3309))
+- Fixed a PHP error that occurred when viewing soft-deleted orders. ([#3308](https://github.com/craftcms/commerce/issues/3308))
+- Fixed a bug where saving a shipping zone could fail if a tax zone existed with the same name. ([#3317](https://github.com/craftcms/commerce/issues/3317))
+- Fixed a bug where `craft\commerce\services\LineItems::getLineItemById()` wasn’t decoding the snapshot data. ([#3253](https://github.com/craftcms/commerce/issues/3253))
+
 ## 4.3.1 - 2023-10-18
 
 - Added the `commerce/gateways/list` command.
@@ -15,6 +25,7 @@
 - Fixed a bug where sales’ and discounts’ timestamps weren’t getting populated. ([#3298](https://github.com/craftcms/commerce/issues/3298))
 - Fixed a bug where the `commerce/upgrade` command could create duplicate inactive users. ([#3286](https://github.com/craftcms/commerce/issues/3286))
 - Fixed a bug where `commerce/payments/pay` JSON responses were missing the `redirect` key. ([#3265](https://github.com/craftcms/commerce/issues/3265))
+- Fixed a bug where gateway URLs could be malformed. ([#3299](https://github.com/craftcms/commerce/issues/3299))
 
 ## 4.3.0 - 2023-09-13
 
@@ -50,6 +61,7 @@
 - Fixed a bug where Commerce wasn’t invoking `craft\services\Elements::EVENT_AUTHORIZE_*` event handlers.
 - Fixed a bug where discounts’ per user usage counters weren’t getting migrated properly when upgrading to Commerce 4.
 - Fixed a bug where address changes weren’t being synced to carts that were using them. ([#3178](https://github.com/craftcms/commerce/issues/3178))
+- Fixed a SQL error that could occur when fetching emails. ([#3267](https://github.com/craftcms/commerce/pull/3267))
 - Fixed an XSS vulnerability.
 
 ## 4.2.11 - 2023-06-05
