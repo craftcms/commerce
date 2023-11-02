@@ -31,6 +31,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
+use craft\helpers\ElementHelper;
 use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
@@ -933,10 +934,10 @@ SQL;
             $addressIds = [];
 
             foreach ($addressRows as $address) {
-                $addressElement = $this->_createAddress($address);
+                $addressElementId = $this->_createAddress($address);
                 Console::updateProgress($done++, $totalAddresses);
                 $addressIds[] = $address['id'];
-                $updateAddressParams['v4addressId'][$address['id']] = $addressElement->id;
+                $updateAddressParams['v4addressId'][$address['id']] = $addressElementId;
             }
 
             $data = $this->_getBatchUpdateQueryWithParams(
@@ -955,56 +956,106 @@ SQL;
     /**
      * Creates an Address element from previous address data and returns the ID
      */
-    private function _createAddress($data): Address
+    private function _createAddress($data): int
     {
-        $address = new Address();
-        $address->title = $data['label'] ?: 'Address';
-        $address->addressLine1 = $data['address1'];
-        $address->addressLine2 = $data['address2'];
-        $address->countryCode = $this->_allCountriesByV3CountryId[$data['countryId']]['iso'] ?? 'US';
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
+        $db = Craft::$app->getDb();
+        $dateCreated = Db::prepareDateForDb($data['dateCreated']);
+        $dateUpdated = Db::prepareDateForDb($data['dateUpdated']);
+
+        // Insert into elements table
+        $db->createCommand()
+            ->insert(CraftTable::ELEMENTS, [
+                'fieldLayoutId' => $this->_addressFieldLayout->id,
+                'type' => Address::class,
+                'enabled' => true,
+                'archived' => false,
+                'dateCreated' => $dateCreated,
+                'dateUpdated' => $dateUpdated,
+                'uid' => StringHelper::UUID(),
+            ])
+            ->execute();
+        $addressElementId = Craft::$app->getDb()->getLastInsertID();
+
+        // Insert into element sites table
+        $db->createCommand()
+            ->insert(CraftTable::ELEMENTS_SITES, [
+                'elementId' => $addressElementId,
+                'siteId' => $primarySite->id,
+                'slug' => ElementHelper::tempSlug(),
+                'enabled' => true,
+                'dateCreated' => $dateCreated,
+                'dateUpdated' => $dateUpdated,
+                'uid' => StringHelper::UUID(),
+            ])
+            ->execute();
+
+        $addressContent = [
+            'elementId' => $addressElementId,
+            'title' => $data['label'] ?: 'Address',
+            'siteId' => $primarySite->id,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ];
+        $address = [
+            'id' => $addressElementId,
+            'addressLine1' => $data['address1'],
+            'addressLine2' => $data['address2'],
+            'countryCode' => $this->_allCountriesByV3CountryId[$data['countryId']]['iso'] ?? 'US',
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+        ];
 
         // Was a stateId supplied, if so look it up in the mapping and
         if ($data['stateId']) {
-            $address->administrativeArea = $this->_allStatesByV3StateId[$data['stateId']]['abbreviation'] ?? null;
+            $address['administrativeArea'] = $this->_allStatesByV3StateId[$data['stateId']]['abbreviation'] ?? null;
         } else {
-            $address->administrativeArea = $data['stateName'] ?? null;
+            $address['administrativeArea'] = $data['stateName'] ?? null;
         }
 
-        $address->postalCode = $data['zipCode'];
-        $address->locality = $data['city'];
-        $address->dependentLocality = '';
+        $address['postalCode'] = $data['zipCode'];
+        $address['locality'] = $data['city'];
+        $address['dependentLocality'] = '';
 
         if ($data['fullName'] || $data['firstName'] || $data['lastName']) {
             $this->_ensureAddressField(new FullNameField());
             if ($data['fullName']) {
-                $address->fullName = $data['fullName'];
+                $address['fullName'] = $data['fullName'];
             } else {
-                $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+                $address['fullName'] = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
             }
         }
 
         if ($data['businessName']) {
             $this->_ensureAddressField(new OrganizationField());
-            $address->organization = $data['businessName'];
+            $address['organization'] = $data['businessName'];
         }
 
         if ($data['businessTaxId']) {
             $this->_ensureAddressField(new OrganizationTaxIdField());
-            $address->organizationTaxId = $data['businessTaxId'];
+            $address['organizationTaxId'] = $data['businessTaxId'];
         }
 
         // Set fields that were created and mapped from old data
+
         foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
             if ($data[$oldAttribute]) {
-                $address->setFieldValue($customFieldHandle, $data[$oldAttribute]);
+                $addressContent[$customFieldHandle] = $data[$oldAttribute];
             }
         }
 
-        $address->dateCreated = DateTimeHelper::toDateTime($data['dateCreated']);
-        $address->dateUpdated = DateTimeHelper::toDateTime($data['dateUpdated']);
-        Craft::$app->getElements()->saveElement($address, false, false, false);
+        // insert into content table
+        $db->createCommand()
+            ->insert(CraftTable::CONTENT, $addressContent)
+            ->execute();
 
-        return $address;
+        // insert into address table
+        $db->createCommand()
+            ->insert(CraftTable::ADDRESSES, $address)
+            ->execute();
+
+        return $addressElementId;
     }
 
     private function _ensureAddressField(BaseField $layoutElement): void
@@ -1265,7 +1316,7 @@ SQL;
         $storeModel = Plugin::getInstance()->getStore()->getStore();
 
         if ($storeLocation) {
-            $storeModel->locationAddressId = $this->_createAddress($storeLocation)->id;
+            $storeModel->locationAddressId = $this->_createAddress($storeLocation);
         }
 
         $storeModel->countries = (new Query())
