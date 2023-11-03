@@ -351,7 +351,7 @@ EOL
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label, 'address');
-                $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = $field->handle;
+                $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = ElementHelper::fieldColumnFromField($field);
                 if ($this->_allowAdminChanges && !$this->_addressFieldLayout->getFieldByHandle($field->handle)) {
                     $layoutElements[] = new CustomField($field);
                 }
@@ -1038,10 +1038,9 @@ SQL;
         }
 
         // Set fields that were created and mapped from old data
-
-        foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
+        foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $dbCustomFieldHandle) {
             if ($data[$oldAttribute]) {
-                $addressContent[$customFieldHandle] = $data[$oldAttribute];
+                $addressContent[$dbCustomFieldHandle] = $data[$oldAttribute];
             }
         }
 
