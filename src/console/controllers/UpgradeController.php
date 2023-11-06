@@ -975,6 +975,7 @@ SQL;
                 'uid' => StringHelper::UUID(),
             ])
             ->execute();
+        /** @var int $addressElementId */
         $addressElementId = Craft::$app->getDb()->getLastInsertID();
 
         // Insert into element sites table
