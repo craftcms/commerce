@@ -425,11 +425,11 @@ class Discounts extends Component
         }
 
         // We only want to get the user if its the front end current customer, as it could be a guest cart with a real user based on the email entered.
-        if(Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()){
+        if (Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()) {
             $user = $order->getCustomer();
-        }elseif(Craft::$app->getRequest()->getIsCpRequest()){
+        } elseif (Craft::$app->getRequest()->getIsCpRequest()) {
             $user = $order->getCustomer(); // we dont have a way of knowing in the backend if the order was made as a guest or not
-        }else{
+        } else {
             $user = null;
         }
         
@@ -612,11 +612,11 @@ class Discounts extends Component
         }
 
         // We only want to get the user if its the front end current customer, as it could be a guest cart with a real user based on the email entered.
-        if(Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()){
+        if (Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()) {
             $user = $order->getCustomer();
-        }elseif(Craft::$app->getRequest()->getIsCpRequest()){
+        } elseif (Craft::$app->getRequest()->getIsCpRequest()) {
             $user = $order->getCustomer(); // we dont have a way of knowing in the backend if the order was made as a guest or not
-        }else{
+        } else {
             $user = null;
         }
         
