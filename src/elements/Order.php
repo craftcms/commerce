@@ -3381,6 +3381,18 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @throws Throwable
+     */
+    public function isCustomerCurrentUser(): bool
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $customer = $this->getCustomer();
+
+        return $currentUser && $customer && $currentUser->id == $customer->id;
+    }
+
+    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @throws Exception
