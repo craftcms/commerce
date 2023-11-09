@@ -330,6 +330,34 @@ export default new Vuex.Store({
 
       // Update `editing` state
       commit('updateEditing', true);
+
+      // handle duplicate content (fields) tabs
+      dispatch('handleTabs');
+    },
+
+    handleTabs({state}) {
+      let tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
+      if (tabManagerMenuBtn !== undefined) {
+        let tabsDropdownMenu = tabManagerMenuBtn.menu;
+        if (tabsDropdownMenu !== undefined && tabsDropdownMenu !== null) {
+          for (let i = 0; i < tabsDropdownMenu.$options.length; i++) {
+            let $option = $(tabsDropdownMenu.$options[i]);
+            if (state.editing) {
+              if ($option.data('id').startsWith('static-fields-')) {
+                $option.parent().addClass('hidden');
+              } else {
+                $option.parent().removeClass('hidden');
+              }
+            } else {
+              if ($option.data('id').startsWith('fields-')) {
+                $option.parent().addClass('hidden');
+              } else {
+                $option.parent().removeClass('hidden');
+              }
+            }
+          }
+        }
+      }
     },
 
     getOrder({state, commit}) {
