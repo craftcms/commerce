@@ -336,26 +336,29 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      let tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
-      if (tabManagerMenuBtn !== undefined) {
-        let tabsDropdownMenu = tabManagerMenuBtn.menu;
-        if (tabsDropdownMenu !== undefined && tabsDropdownMenu !== null) {
-          for (let i = 0; i < tabsDropdownMenu.$options.length; i++) {
-            let $option = $(tabsDropdownMenu.$options[i]);
-            if (state.editing) {
-              if ($option.data('id').startsWith('static-fields-')) {
-                $option.parent().addClass('hidden');
-              } else {
-                $option.parent().removeClass('hidden');
-              }
-            } else {
-              if ($option.data('id').startsWith('fields-')) {
-                $option.parent().addClass('hidden');
-              } else {
-                $option.parent().removeClass('hidden');
-              }
-            }
-          }
+      const tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
+      const tabsDropdownMenu = tabManagerMenuBtn.menu;
+      if (tabsDropdownMenu !== undefined) {
+        const optionSelector =
+          '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
+
+        const staticOptions = tabsDropdownMenu.$container
+          .find(optionSelector + '[data-id^="static-fields-"]');
+        const fieldsOptions = tabsDropdownMenu.$container
+          .find(optionSelector + '[data-id^="fields-"]');
+
+        if (state.editing) {
+          staticOptions.disable();
+          staticOptions.parent().addClass('hidden');
+
+          fieldsOptions.enable();
+          fieldsOptions.parent().removeClass('hidden');
+        } else {
+          staticOptions.enable();
+          staticOptions.parent().removeClass('hidden');
+
+          fieldsOptions.disable();
+          fieldsOptions.parent().addClass('hidden');
         }
       }
     },
