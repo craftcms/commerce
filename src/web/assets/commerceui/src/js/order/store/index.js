@@ -262,6 +262,39 @@ export default new Vuex.Store({
       let $transactionsTabContent =
         window.document.querySelector('#transactionsTab');
       $transactionsTabContent.classList.add('hidden');
+
+      // for the dropdown tab menu
+      const tabManager = Craft.cp.tabManager;
+      const tabsDropdownMenu = tabManager.$menuBtn.data('menubtn').menu;
+      const transactionsOption = tabsDropdownMenu.$container
+        .find('[data-id="order-transactions"]');
+
+      // this will disable clicking on the transactions option in the dropdown tab menu
+      if (transactionsOption.length > 0) {
+        $(transactionsOption)
+          .disable()
+          .attr('disabled', 'disabled')
+          .css('pointer-events', 'none');
+      }
+
+      // and this is a fallback for selecting the transactions tab differently
+      let $prevSelectedTab = null;
+      let $selectedTab = tabManager.$selectedTab[0];
+
+      tabManager.on('selectTab', function(ev) {
+        $prevSelectedTab = $selectedTab;
+        $selectedTab = $(ev.$tab[0]);
+      });
+
+      tabsDropdownMenu.on(
+        'optionselect',
+        function (ev) {
+          let $selectedOption = $(ev.selectedOption);
+          if ($selectedOption.data('id') === 'order-transactions') {
+            $prevSelectedTab.trigger('click');
+          }
+        }
+      );
     },
 
     edit({commit, state, dispatch}) {
