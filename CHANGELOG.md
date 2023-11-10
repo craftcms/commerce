@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Improved the performance of the `craft\commerce\elements\db\VariantQuery::hasProduct()` and `craft\commerce\elements\db\ProductQuery::hasVariant()` query params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
+
 ## 4.3.2 - 2023-10-31
 
 - Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))
