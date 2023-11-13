@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Improved the performance of the `craft\commerce\elements\db\VariantQuery::hasProduct()` and `craft\commerce\elements\db\ProductQuery::hasVariant()` query params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
+- Order statuses with long names no longer line wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
 
 ## 4.3.2 - 2023-10-31
 
