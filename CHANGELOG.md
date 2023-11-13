@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+- Fixed a bug where tab selection was inconsistent on the Edit Order page. 
+
 ## 4.3.2 - 2023-10-31
 
 - Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))
