@@ -92,7 +92,10 @@ class Carts extends Component
             // If we have a cart cookie, assign it to the cart number.
             // Also check pre Commerce 4.0 for a cart number in the session just in case.
             if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+                $this->_cartNumber = $requestCookies->getValue($this->cartCookie['name']);
+                if($this->_cart && $this->_cart->number != $this->_cartNumber) {
+                    $this->_cart = null;
+                }
             } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
                 $this->setSessionCartNumber($session->get('commerce_cart'));
                 $session->remove('commerce_cart');
