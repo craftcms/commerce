@@ -927,11 +927,11 @@ class VariantQuery extends ElementQuery
 
         $productQuery->limit = null;
         $productQuery->select('commerce_products.id');
-        $productIds = $productQuery->column();
 
         // Remove any blank product IDs (if any)
-        $productIds = array_filter($productIds);
-        $this->subQuery->andWhere(['commerce_variants.productId' => $productIds]);
+        $productQuery->andWhere(['not', ['commerce_products.id' => null]]);
+        
+        $this->subQuery->andWhere(['commerce_variants.productId' => $productQuery]);
     }
 
     /**
