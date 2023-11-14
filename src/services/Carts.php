@@ -262,7 +262,6 @@ class Carts extends Component
     protected function getSessionCartNumber(): string
     {
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-
             $request = Craft::$app->getRequest();
             $requestCookies = $request->getCookies();
 
@@ -276,7 +275,7 @@ class Carts extends Component
         }
 
         /// Just in case the current cart is not the one in session, clear the cached cart.
-        if($this->_cart && $this->_cart->number !== $this->_cartNumber) {
+        if ($this->_cart && $this->_cart->number !== $this->_cartNumber) {
             $this->_cart = null;
         }
 
