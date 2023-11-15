@@ -130,7 +130,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
             ])
             ->action('commerce/catalog-pricing-rules/save')
             ->redirectUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')
-            ->sidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
+            ->metaSidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
             ->tabs([
                 [
                     'label' => Craft::t('commerce', 'Rule'),
