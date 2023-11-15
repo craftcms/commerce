@@ -276,9 +276,13 @@ class Sales extends Component
         return $matchedSales;
     }
 
-
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return array
+     */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
+        /** @var Purchasable $purchasable */
         $sales = [];
         $id = $purchasable->getId();
 
@@ -291,8 +295,16 @@ class Sales extends Component
                 $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
 
-                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
-                $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+                $relatedCategories = Category::find()
+                    ->id($saleCategories)
+                    ->relatedTo($relatedTo)
+                    ->siteId($purchasable->siteId)
+                    ->ids();
+                $relatedEntries = Entry::find()
+                    ->id($saleCategories)
+                    ->relatedTo($relatedTo)
+                    ->siteId($purchasable->siteId)
+                    ->ids();
                 $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
 
                 if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
@@ -453,8 +465,16 @@ class Sales extends Component
         if (!$sale->allCategories) {
             $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
-            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
-            $relatedEntries = Entry::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+            $relatedCategories = Category::find()
+                ->id($saleCategories)
+                ->relatedTo($relatedTo)
+                ->siteId($purchasable->siteId)
+                ->ids();
+            $relatedEntries = Entry::find()
+                ->id($saleCategories)
+                ->relatedTo($relatedTo)
+                ->siteId($purchasable->siteId)
+                ->ids();
             $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
             if (empty($relatedCategoriesOrEntries)) {
                 return false;
