@@ -560,10 +560,6 @@ class VariantQuery extends PurchasableQuery
             $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
 
-        if (isset($this->price)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
-        }
-
         if (isset($this->isDefault)) {
             $this->subQuery->andWhere(Db::parseBooleanParam('commerce_variants.isDefault', $this->isDefault, false));
         }
