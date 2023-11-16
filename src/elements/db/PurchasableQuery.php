@@ -39,6 +39,11 @@ class PurchasableQuery extends ElementQuery
     public mixed $promotionalPrice = null;
 
     /**
+     * @var mixed|null
+     */
+    public mixed $salePrice = null;
+
+    /**
      * @var mixed
      */
     public mixed $width = false;
@@ -190,7 +195,7 @@ class PurchasableQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the purchasables’ price.
+     * Narrows the query results based on the purchasable’s price.
      *
      * Possible values include:
      *
@@ -210,7 +215,27 @@ class PurchasableQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results based on the purchasables’ promotional price.
+     * Narrows the query results based on the purchasable’s promotional price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a promotional price of 100.
+     * | `'>= 100'` | with a promotional price of at least 100.
+     * | `'< 100'` | with a promotional price of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function promotionalPrice(mixed $value): static
+    {
+        $this->promotionalPrice = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the purchasable’s sale price.
      *
      * Possible values include:
      *
@@ -223,9 +248,9 @@ class PurchasableQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function promotionalPrice(mixed $value): static
+    public function salePrice(mixed $value): static
     {
-        $this->promotionalPrice = $value;
+        $this->salePrice = $value;
         return $this;
     }
 
@@ -279,34 +304,31 @@ class PurchasableQuery extends ElementQuery
         $this->query->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
 
         $this->subQuery->addSelect([
-            // 'catalogprices.price',
-            // 'catalogpromotionalprices.price as promotionalPrice',
+            'catalogprices.price',
+            'catalogpromotionalprices.price as promotionalPrice',
             'catalogsaleprices.price as salePrice',
         ]);
+
         $this->subQuery->leftJoin(['comelsites' => \craft\db\Table::ELEMENTS_SITES], '[[comelsites.elementId]] = [[elements.id]]');
-        $this->subQuery->andWhere(['comelsites.siteId' => $this->siteId]);
+        $this->subQuery->andWhere(Db::parseParam('comelsites.siteId', $this->siteId));
+
         $this->subQuery->leftJoin(Table::SITESTORES . ' sitestores', '[[comelsites.siteId]] = [[sitestores.siteId]]');
         $this->subQuery->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
-        //     $this->subQuery->leftJoin([
-        //         'catalogprices' => $catalogPricesQuery,
-        //     ], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
-        //     $this->subQuery->leftJoin([
-        //         'catalogpromotionalprices' => $catalogPromotionalPricesQuery,
-        //     ], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');;
+        $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
 
-        $this->subQuery->leftJoin([
-            'catalogsaleprices' => $catalogSalePriceQuery,
-        ], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+        if (isset($this->price)) {
+            $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
+        }
 
-        if (isset($this->price) || isset($this->promotionalPrice)) {
-            if (isset($this->price)) {
-                $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));
-            }
+        if (isset($this->promotionalPrice)) {
+            $this->subQuery->andWhere(Db::parseNumericParam('catalogpromotionalprices.price', $this->promotionalPrice));
+        }
 
-            if (isset($this->promotionalPrice)) {
-                $this->subQuery->andWhere(Db::parseNumericParam('catalogpromotionalprices.price', $this->promotionalPrice));
-            }
+        if (isset($this->salePrice)) {
+            $this->subQuery->andWhere(Db::parseNumericParam('catalogsaleprices.price' , $this->salePrice));
         }
 
         if ($this->width !== false) {
