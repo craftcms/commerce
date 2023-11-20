@@ -6,6 +6,7 @@
 - Order statuses with long names no longer line wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
 - Fixed duplicate validate errors that occurred when submitting a zero quantity to the cart. ([3334](https://github.com/craftcms/commerce/issues/3334))
 - Fixed a bug where tab selection was inconsistent on the Edit Order page. 
+- Fixed a bug where soft-deleted order statuses and line item statuses would not being restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
 
 ## 4.3.2 - 2023-10-31
 

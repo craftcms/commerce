@@ -227,8 +227,12 @@ class LineItemStatuses extends Component
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
 
-            // Save the volume
-            $statusRecord->save(false);
+            // Save the status
+            if ($wasTrashed = (bool)$statusRecord->dateDeleted) {
+                $statusRecord->restore();
+            } else {
+                $statusRecord->save(false);
+            }
 
             if ($statusRecord->default) {
                 LineItemStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
