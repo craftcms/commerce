@@ -300,24 +300,32 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $cart = $this->getCart();
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        /** @var Order|null $previousCart */
-        $previousCart = Order::find()
+        /** @var Order|null $previousCartsWithLineItems */
+        $previousCartsWithLineItems = Order::find()
             ->customer($currentUser)
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
             ->one();
 
+        /** @var Order|null $anyPreviousCart */
+        $anyPreviousCart = Order::find()
+            ->customer($currentUser)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
-            $cart->getIsEmpty() &&
-            $previousCart
+            $previousCartsWithLineItems
         ) {
-            $this->_cart = $previousCart;
-            $this->setSessionCartNumber($previousCart->number);
+            $this->_cart = $previousCartsWithLineItems;
+            $this->setSessionCartNumber($previousCartsWithLineItems->number);
+        } elseif ($currentUser && $anyPreviousCart) {
+            $this->_cart = $anyPreviousCart;
+            $this->setSessionCartNumber($anyPreviousCart->number);
         }
     }
 
