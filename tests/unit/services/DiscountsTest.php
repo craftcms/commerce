@@ -825,17 +825,15 @@ class DiscountsTest extends Unit
     protected function _before()
     {
         parent::_before();
-        Craft::$app->getRequest()->setIsCpRequest(true); // This lets the order actor always be the customer of the order.
         $this->discounts = Plugin::getInstance()->getDiscounts();
         $customerFixture = $this->tester->grabFixture('customers');
         $this->_user = $customerFixture->getElement('customer1');
+        Craft::$app->getUser()->setIdentity($this->_user);
     }
 
-    /**
-     * @return void
-     */
     protected function _after()
     {
-        Craft::$app->getRequest()->setIsCpRequest(false);
+        Craft::$app->getUser()->setIdentity(null);
+        parent::_after();
     }
 }

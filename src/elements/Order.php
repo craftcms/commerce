@@ -3381,30 +3381,6 @@ class Order extends Element
     }
 
     /**
-     *
-     * @return User|null
-     * @throws Throwable
-     */
-    public function getActor(): ?User
-    {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $customer = $this->getCustomer();
-        $isCustomerCurrentUser = ($currentUser && $customer && $currentUser->id == $customer->id);
-
-        // We only want to get the user if it's the front end current customer,
-        // as it could be a guest cart with a real user based on the email entered.
-        if (Craft::$app->getRequest()->getIsSiteRequest() && $isCustomerCurrentUser) {
-            $user = $this->getCustomer();
-        } elseif (Craft::$app->getRequest()->getIsCpRequest()) {
-            $user = $this->getCustomer(); // we dont have a way of knowing in the backend if the order was made as a guest or not
-        } else {
-            $user = null;
-        }
-
-        return $user;
-    }
-
-    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @throws Exception
