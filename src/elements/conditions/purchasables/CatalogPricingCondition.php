@@ -55,6 +55,12 @@ class CatalogPricingCondition extends BaseCondition
         ];
     }
 
+    protected function selectableConditionRules(): array
+    {
+        // @TODO check implementation
+        return $this->conditionRuleTypes();
+    }
+
     /**
      * @inheritdoc
      */
