@@ -423,17 +423,8 @@ class Discounts extends Component
             $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
-
-        // We only want to get the user if its the front end current customer, as it could be a guest cart with a real user based on the email entered.
-        if (Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()) {
-            $user = $order->getCustomer();
-        } elseif (Craft::$app->getRequest()->getIsCpRequest()) {
-            $user = $order->getCustomer(); // we dont have a way of knowing in the backend if the order was made as a guest or not
-        } else {
-            $user = null;
-        }
         
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getActor())) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
@@ -610,17 +601,8 @@ class Discounts extends Component
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
-
-        // We only want to get the user if its the front end current customer, as it could be a guest cart with a real user based on the email entered.
-        if (Craft::$app->getRequest()->getIsSiteRequest() && $order->isCustomerCurrentUser()) {
-            $user = $order->getCustomer();
-        } elseif (Craft::$app->getRequest()->getIsCpRequest()) {
-            $user = $order->getCustomer(); // we dont have a way of knowing in the backend if the order was made as a guest or not
-        } else {
-            $user = null;
-        }
         
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getActor())) {
             return false;
         }
 
