@@ -1115,7 +1115,7 @@ class Discounts extends Component
                 return false;
             }
 
-            if (Craft::$app->getRequest()->getIsSiteRequest()){
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
                 $currentUser = Craft::$app->getUser()->getIdentity();
                 $isCustomerCurrentUser = ($currentUser && $currentUser->id == $user->id);
 
