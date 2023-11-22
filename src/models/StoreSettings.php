@@ -229,13 +229,16 @@ class StoreSettings extends Model
 
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
+            $condition = Craft::$app->getConditions()->createCondition($condition);
         }
 
         if (!$condition instanceof ZoneAddressCondition) {
             $condition['class'] = ZoneAddressCondition::class;
+            $condition['conditionRules'] = [];
             /** @var ZoneAddressCondition|mixed $condition */
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
+
         $condition->forProjectConfig = false;
 
         $this->_marketAddressCondition = $condition;
