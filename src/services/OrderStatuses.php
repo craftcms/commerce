@@ -328,8 +328,12 @@ class OrderStatuses extends Component
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
 
-            // Save the volume
-            $statusRecord->save(false);
+            // Save the status
+            if ($wasTrashed = (bool)$statusRecord->dateDeleted) {
+                $statusRecord->restore();
+            } else {
+                $statusRecord->save(false);
+            }
 
             $connection = Craft::$app->getDb();
             // Drop them all and we will recreate the new ones.
