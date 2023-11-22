@@ -2926,7 +2926,7 @@ class Order extends Element
 
         // Ensure that address can only belong to this order
         if ($address->ownerId != $this->id) {
-            throw new InvalidArgumentException('Can not set a shipping address on the order that is is not owned by the order.');
+            throw new InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
         }
 
         $this->shippingAddressId = $address->id;
@@ -3024,7 +3024,7 @@ class Order extends Element
 
         // Ensure that address can only belong to this order
         if ($address->ownerId !== $this->id) {
-            throw new InvalidArgumentException('Can not set a billing address on the order that is is not owned by the order.');
+            throw new InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
         }
 
         $address->ownerId = $this->id;
