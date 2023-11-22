@@ -226,13 +226,10 @@ class LineItemStatuses extends Component
             $statusRecord->sortOrder = $data['sortOrder'] ?? 99;
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
+            $statusRecord->isArchived = false;
+            $statusRecord->dateArchived = null;
 
-            // Save the status
-            if ($wasTrashed = (bool)$statusRecord->dateDeleted) {
-                $statusRecord->restore();
-            } else {
-                $statusRecord->save(false);
-            }
+            $statusRecord->save(false);
 
             if ($statusRecord->default) {
                 LineItemStatusRecord::updateAll(['default' => 0], ['not', ['id' => $statusRecord->id]]);
