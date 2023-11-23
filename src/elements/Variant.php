@@ -589,11 +589,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getCpEditUrl(): ?string
     {
-        $productTypeHandle = $this->getProductTypeHandle();
-        $productSlug = $this->getProductSlug();
-        $editUrl = 'commerce/products/' . $productTypeHandle . '/' . $this->productId . ($productSlug ? '-' . $productSlug : '');
-
-        return UrlHelper::cpUrl($editUrl, ['variantId' => $this->id]);
+        return null;
     }
 
     public function canView(User $user): bool
