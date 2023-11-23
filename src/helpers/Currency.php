@@ -12,6 +12,8 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
+use craft\web\twig\TemplateLoaderException;
 use Money\Currencies\ISOCurrencies;
 use Money\Currency as MoneyCurrency;
 use Money\Formatter\DecimalMoneyFormatter;
@@ -52,7 +54,7 @@ class Currency
         $moneyFormatter = new DecimalMoneyFormatter(new ISOCurrencies());
         return (float)$moneyFormatter->format(Plugin::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($amount));
     }
-    
+
     public static function defaultDecimals(): int
     {
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
@@ -108,5 +110,29 @@ class Currency
         }
 
         return (string)$amount;
+    }
+
+    /**
+     * @param mixed $value
+     * @param array $config
+     * @return string
+     * @throws InvalidConfigException
+     * @throws TemplateLoaderException
+     * @since 5.0.0
+     */
+    public static function moneyInputHtml(mixed $value, array $config = []): string
+    {
+        $config += [
+            'showCurrency' => true,
+            'size' => 6,
+            'decimals' => 2,
+            'value' => $value,
+        ];
+
+        if (isset($config['currency'])) {
+            $config['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($config['currency']);
+        }
+
+        return Cp::moneyInputHtml($config);
     }
 }
