@@ -22,9 +22,9 @@ class CatalogPricingRulePurchasableCondition extends ElementCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        $types = array_filter(parent::conditionRuleTypes(), static function($type) {
+        $types = array_filter(parent::selectableConditionRules(), static function($type) {
             return !in_array($type, [
                 SiteConditionRule::class,
             ], true);
