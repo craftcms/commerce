@@ -1086,7 +1086,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
             [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            [['price', 'weight', 'width', 'height', 'length',], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
@@ -1099,7 +1099,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 },
                 'on' => self::SCENARIO_LIVE,
             ],
-            [['stock'], 'number'],
+            [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId'], 'safe'],
         ]);
     }

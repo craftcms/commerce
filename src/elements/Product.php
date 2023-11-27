@@ -810,34 +810,6 @@ class Product extends Element
             $record->save(false);
 
             $this->id = $record->id;
-
-            $keepVariantIds = [];
-            $oldVariantIds = (new Query())
-                ->select('id')
-                ->from(Table::VARIANTS)
-                ->where(['primaryOwnerId' => $this->id])
-                ->column();
-
-            foreach ($this->getVariants(true) as $variant) {
-                if ($isNew) {
-                    $variant->productId = $this->id;
-                    $variant->siteId = $this->siteId;
-                }
-
-                $keepVariantIds[] = $variant->id;
-
-                Craft::$app->getElements()->saveElement($variant, false);
-
-                // We already have set the default to the correct variant in beforeSave()
-                if ($variant->isDefault) {
-                    $this->defaultVariantId = $variant->id;
-                    Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS, ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
-                }
-            }
-
-            foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
-                Craft::$app->getElements()->deleteElementById($deleteId);
-            }
         }
 
         parent::afterSave($isNew);
@@ -899,51 +871,7 @@ class Product extends Element
             return false;
         }
 
-        /** @var Variant[] $variants */
-        $variants = Variant::find()
-            ->productId([$this->id, ':empty:'])
-            ->status(null)
-            ->all();
-
-        $elementsService = Craft::$app->getElements();
-
-        foreach ($variants as $variant) {
-            $hardDelete = false;
-            $variant->deletedWithProduct = true;
-
-            // The product ID is gone, so it has been hard deleted
-            if (!$variant->productId) {
-                $hardDelete = true;
-                $variant->deletedWithProduct = false;
-            }
-
-            $elementsService->deleteElement($variant, $hardDelete);
-        }
-
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterRestore(): void
-    {
-        // Also restore any variants for this element
-        /** @var VariantQuery $variantsQuery */
-        $variantsQuery = Variant::find()
-            ->status(null)
-            ->siteId($this->siteId);
-        $variantsQuery
-            ->productId($this->id)
-            ->trashed()
-            ->andWhere(['commerce_variants.deletedWithProduct' => true]);
-
-        $variants = $variantsQuery->all();
-
-        Craft::$app->getElements()->restoreElements($variants);
-        $this->setVariants($variants);
-
-        parent::afterRestore();
     }
 
     /**
