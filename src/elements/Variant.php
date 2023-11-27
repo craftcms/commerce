@@ -1119,6 +1119,7 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
+            'isDefault' => Craft::t('commerce', 'Default'),
         ]);
     }
 
@@ -1127,7 +1128,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     protected static function defineDefaultTableAttributes(string $source): array
     {
-        return [...parent::defineDefaultTableAttributes($source), ...['product']];
+        return [...parent::defineDefaultTableAttributes($source), ...['product', 'isDefault']];
     }
 
     /**
