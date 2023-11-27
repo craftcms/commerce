@@ -963,12 +963,12 @@ class Plugin extends BasePlugin
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;
                     $e->fields[] = PurchasableSkuField::class;
-                    $e->fields[] = PurchasableFreeShippingField::class;
-                    $e->fields[] = PurchasablePromotableField::class;
+                    $e->fields[] = PurchasablePriceField::class;
+                    $e->fields[] = PurchasableStockField::class;
                     $e->fields[] = PurchasableAvailableForPurchaseField::class;
                     $e->fields[] = PurchasableAllowedQtyField::class;
-                    $e->fields[] = PurchasableStockField::class;
-                    $e->fields[] = PurchasablePriceField::class;
+                    $e->fields[] = PurchasableFreeShippingField::class;
+                    $e->fields[] = PurchasablePromotableField::class;
                     $e->fields[] = PurchasableDimensionsField::class;
                     $e->fields[] = PurchasableWeightField::class;
             }
