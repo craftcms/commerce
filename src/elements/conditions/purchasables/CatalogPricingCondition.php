@@ -47,18 +47,12 @@ class CatalogPricingCondition extends BaseCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
         return [
             CatalogPricingPurchasableConditionRule::class,
             CatalogPricingCustomerConditionRule::class,
         ];
-    }
-
-    protected function selectableConditionRules(): array
-    {
-        // @TODO check implementation
-        return $this->conditionRuleTypes();
     }
 
     /**
