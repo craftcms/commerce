@@ -120,7 +120,7 @@ JS;
 
         if ($canUseCatalogPricingRules) {
             $toggleTitle = Craft::t('commerce', 'Show all prices');
-            $toggleAttributes['data-init-prices'] = true;
+            $toggleAttributes['data-init-prices'] = 'true';
             $toggleContent = PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
                 Html::beginTag('div', ['class' => 'flex']) .
                 // New catalog price button

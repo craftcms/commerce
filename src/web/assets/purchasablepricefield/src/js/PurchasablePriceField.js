@@ -54,10 +54,12 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
         siteId: this.settings.siteId,
         condition: {condition: this.settings.conditionBuilderConfig},
         basePrice: $(
-          'input[name="' + this.settings.fieldNames.price + '"]'
+          'input[name="' + this.settings.fieldNames.price + '"][value]'
         ).val(),
         basePromotionalPrice: $(
-          'input[name="' + this.settings.fieldNames.promotionalPrice + '"]'
+          'input[name="' +
+            this.settings.fieldNames.promotionalPrice +
+            '"][value]'
         ).val(),
         forPurchasable: true,
         includeBasePrices: false,
@@ -98,7 +100,13 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
   initPurchasablePriceList: function () {
     const instance = this;
     // prettier-ignore
-    this.$priceFields = this.$container.find('input[name="' + this.settings.fieldNames.price + '"], input[name="' + this.settings.fieldNames.promotionalPrice + '"]');
+    this.$priceFields = this.$container.find(
+      'input[name="' +
+        this.settings.fieldNames.price +
+        '[value]"], input[name="' +
+        this.settings.fieldNames.promotionalPrice +
+        '[value]"]'
+    );
     this.$cprSlideouts = this.$container.find('.js-cpr-slideout');
 
     this.$priceFields.on('change', function (e) {
@@ -127,6 +135,7 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
       );
 
       slideout.on('submit', function ({response, data}) {
+        Craft.cp.runQueue();
         instance.updatePriceList();
       });
     });
