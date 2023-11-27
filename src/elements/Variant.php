@@ -13,6 +13,7 @@ use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
+use craft\commerce\elements\actions\SetDefaultVariant;
 use craft\commerce\elements\conditions\variants\VariantCondition;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
@@ -1110,6 +1111,13 @@ class Variant extends Purchasable implements NestedElementInterface
     protected static function defineSources(string $context = null): array
     {
         return Product::sources($context);
+    }
+
+    protected static function defineActions(string $source): array
+    {
+        return [...parent::defineActions($source), ...[
+            ['type' => SetDefaultVariant::class],
+        ]];
     }
 
     /**

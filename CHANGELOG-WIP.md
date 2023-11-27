@@ -63,6 +63,7 @@
 - Added `craft\commerce\db\Table::PURCHASABLES_STORES`.
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
+- Added `craft\commerce\elements\actions\SetDefaultVariant`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule`.
