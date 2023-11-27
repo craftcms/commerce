@@ -30,6 +30,7 @@ use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\ElementCollection;
 use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;
@@ -131,14 +132,14 @@ class Product extends Element
     public ?string $name = null;
 
     /**
-     * @var Collection<Variant>|null This product’s variants
+     * @var ElementCollection<Variant>|null This product’s variants
      */
-    private ?Collection $_variants = null;
+    private ?ElementCollection $_variants = null;
 
     /**
-     * @var Collection<Variant>|null This product’s enabled variants
+     * @var ElementCollection<Variant>|null This product’s enabled variants
      */
-    private ?Collection $_enabledVariants = null;
+    private ?ElementCollection $_enabledVariants = null;
 
     /**
      * @var Variant|null This product's cheapest variant
@@ -503,16 +504,17 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @return Collection<Variant>
+     * @param bool $includeDisabled
+     * @return ElementCollection
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): Collection
+    public function getVariants(bool $includeDisabled = false): ElementCollection
     {
         // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
-            $this->_variants = collect();
-            $this->_enabledVariants = collect();
+            $this->_variants = ElementCollection::make();
+            $this->_enabledVariants = ElementCollection::make();
             return $this->_variants;
         }
 
@@ -523,11 +525,11 @@ class Product extends Element
                 $variants = array_slice($variants, 0, $this->getType()->maxVariants);
             }
 
-            $this->setVariants(collect($variants));
+            $this->setVariants(ElementCollection::make($variants));
         }
 
         if (empty($this->_variants)) {
-            return collect();
+            return ElementCollection::make();
         }
 
         return $includeDisabled ? $this->_variants : $this->_enabledVariants;
@@ -536,12 +538,11 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param Collection<Variant>|array $variants
-     * @throws InvalidConfigException
+     * @param ElementCollection|array $variants
      */
-    public function setVariants(Collection|array $variants): void
+    public function setVariants(ElementCollection|array $variants): void
     {
-        $this->_variants = $variants instanceof Collection ? $variants : collect($variants);
+        $this->_variants = $variants instanceof ElementCollection ? $variants : ElementCollection::make($variants);
         $this->_enabledVariants = $this->_variants->where('enabled', true);
     }
 
@@ -810,34 +811,6 @@ class Product extends Element
             $record->save(false);
 
             $this->id = $record->id;
-
-            $keepVariantIds = [];
-            $oldVariantIds = (new Query())
-                ->select('id')
-                ->from(Table::VARIANTS)
-                ->where(['primaryOwnerId' => $this->id])
-                ->column();
-
-            foreach ($this->getVariants(true) as $variant) {
-                if ($isNew) {
-                    $variant->productId = $this->id;
-                    $variant->siteId = $this->siteId;
-                }
-
-                $keepVariantIds[] = $variant->id;
-
-                Craft::$app->getElements()->saveElement($variant, false);
-
-                // We already have set the default to the correct variant in beforeSave()
-                if ($variant->isDefault) {
-                    $this->defaultVariantId = $variant->id;
-                    Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS, ['defaultVariantId' => $variant->id], ['id' => $this->id])->execute();
-                }
-            }
-
-            foreach (array_diff($oldVariantIds, $keepVariantIds) as $deleteId) {
-                Craft::$app->getElements()->deleteElementById($deleteId);
-            }
         }
 
         parent::afterSave($isNew);
@@ -899,51 +872,7 @@ class Product extends Element
             return false;
         }
 
-        /** @var Variant[] $variants */
-        $variants = Variant::find()
-            ->productId([$this->id, ':empty:'])
-            ->status(null)
-            ->all();
-
-        $elementsService = Craft::$app->getElements();
-
-        foreach ($variants as $variant) {
-            $hardDelete = false;
-            $variant->deletedWithProduct = true;
-
-            // The product ID is gone, so it has been hard deleted
-            if (!$variant->productId) {
-                $hardDelete = true;
-                $variant->deletedWithProduct = false;
-            }
-
-            $elementsService->deleteElement($variant, $hardDelete);
-        }
-
         return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterRestore(): void
-    {
-        // Also restore any variants for this element
-        /** @var VariantQuery $variantsQuery */
-        $variantsQuery = Variant::find()
-            ->status(null)
-            ->siteId($this->siteId);
-        $variantsQuery
-            ->productId($this->id)
-            ->trashed()
-            ->andWhere(['commerce_variants.deletedWithProduct' => true]);
-
-        $variants = $variantsQuery->all();
-
-        Craft::$app->getElements()->restoreElements($variants);
-        $this->setVariants($variants);
-
-        parent::afterRestore();
     }
 
     /**

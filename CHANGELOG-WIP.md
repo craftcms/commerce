@@ -13,6 +13,7 @@
 
 ### Development
 - `craft\commerce\base\PurchasableInterface` now extends `ElementInterface`.
+- `craft\commerce\elements\Product::getVariants()` now returns an `ElementCollection`.
 - `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
 - `craft\commerce\services\Gateways::getAllCustomerEnabledGateways()` now returns a `Collection`.
 - `craft\commerce\services\Gateways::getAllGateways()` now returns a `Collection`.
@@ -62,6 +63,7 @@
 - Added `craft\commerce\db\Table::PURCHASABLES_STORES`.
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
+- Added `craft\commerce\elements\actions\SetDefaultVariant`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule`.
 - Added `craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule`.
