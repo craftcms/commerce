@@ -30,6 +30,7 @@ use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\ElementCollection;
 use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;
@@ -131,14 +132,14 @@ class Product extends Element
     public ?string $name = null;
 
     /**
-     * @var Collection<Variant>|null This product’s variants
+     * @var ElementCollection<Variant>|null This product’s variants
      */
-    private ?Collection $_variants = null;
+    private ?ElementCollection $_variants = null;
 
     /**
-     * @var Collection<Variant>|null This product’s enabled variants
+     * @var ElementCollection<Variant>|null This product’s enabled variants
      */
-    private ?Collection $_enabledVariants = null;
+    private ?ElementCollection $_enabledVariants = null;
 
     /**
      * @var Variant|null This product's cheapest variant
@@ -503,16 +504,17 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @return Collection<Variant>
+     * @param bool $includeDisabled
+     * @return ElementCollection
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): Collection
+    public function getVariants(bool $includeDisabled = false): ElementCollection
     {
         // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
-            $this->_variants = collect();
-            $this->_enabledVariants = collect();
+            $this->_variants = ElementCollection::make();
+            $this->_enabledVariants = ElementCollection::make();
             return $this->_variants;
         }
 
@@ -523,11 +525,11 @@ class Product extends Element
                 $variants = array_slice($variants, 0, $this->getType()->maxVariants);
             }
 
-            $this->setVariants(collect($variants));
+            $this->setVariants(ElementCollection::make($variants));
         }
 
         if (empty($this->_variants)) {
-            return collect();
+            return ElementCollection::make();
         }
 
         return $includeDisabled ? $this->_variants : $this->_enabledVariants;
@@ -536,12 +538,11 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param Collection<Variant>|array $variants
-     * @throws InvalidConfigException
+     * @param ElementCollection|array $variants
      */
-    public function setVariants(Collection|array $variants): void
+    public function setVariants(ElementCollection|array $variants): void
     {
-        $this->_variants = $variants instanceof Collection ? $variants : collect($variants);
+        $this->_variants = $variants instanceof ElementCollection ? $variants : ElementCollection::make($variants);
         $this->_enabledVariants = $this->_variants->where('enabled', true);
     }
 
