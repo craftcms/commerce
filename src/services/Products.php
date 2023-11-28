@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\ResaveElements;
@@ -43,6 +44,7 @@ class Products extends Component
             $oldPrimarySiteId = $event->oldPrimarySiteId;
             $elementTypes = [
                 Product::class,
+                Variant::class,
             ];
 
             foreach ($elementTypes as $elementType) {
