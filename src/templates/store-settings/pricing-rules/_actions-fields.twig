@@ -5,6 +5,7 @@
 {% set applyAmountPercentId = 'applyAmountPercent'|namespaceInputId %}
 {% set applyAmountPercentInputId = 'applyAmountPercentInput'|namespaceInputId %}
 {% set isPercent = catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply ? true : false  %}
+{% set currency = catalogPricingRule.getStore().getCurrency() %}
 
 {% import "_includes/forms" as forms %}
 {% set applyAmountInput %}
@@ -39,7 +40,8 @@
             value: applyAmount,
             size: 5,
             showCurrency: true,
-            currencyLabel: catalogPricingRule.getStore().getCurrency(),
+            currencyLabel: currency,
+            decimals: craft.commerce.currencies.getSubunitFor(currency),
             inputAttributes: {
               disabled: isPercent,
             },
