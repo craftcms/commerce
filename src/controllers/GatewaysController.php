@@ -56,7 +56,7 @@ class GatewaysController extends BaseAdminController
 
         if (!$variables['gateway']) {
             if ($variables['id']) {
-                $variables['gateway'] = $gatewayService->getGatewayById($variables['id'], $store->id);
+                $variables['gateway'] = $gatewayService->getGatewayById($variables['id']);
 
                 if (!$variables['gateway']) {
                     throw new HttpException(404);

@@ -156,7 +156,13 @@ class TaxRatesController extends BaseTaxSettingsController
         ]);
 
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/store-settings/tax/taxzones/_fields', ['conditionField' => $conditionField, 'storeId' => $store->id])
+            $view->renderTemplate(
+                'commerce/store-settings/tax/taxzones/_fields',
+                [
+                    'conditionField' => $conditionField,
+                    'store' => $store,
+                ]
+            )
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
