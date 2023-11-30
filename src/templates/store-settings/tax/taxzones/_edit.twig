@@ -31,5 +31,5 @@
         {{ hiddenInput('taxZoneId', taxZone.id) }}
     {% endif %}
 
-    {% include "commerce/store-settings/tax/taxzones/_fields" with {storeId: store.id} %}
+    {% include "commerce/store-settings/tax/taxzones/_fields" with {store: store} %}
 {% endblock %}

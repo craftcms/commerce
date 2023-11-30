@@ -4,8 +4,8 @@
     "Example"
 ]) %}
 
-    {% if storeId is defined %}
-        {{ hiddenInput('storeId', storeId) }}
+    {% if store is defined %}
+        {{ hiddenInput('storeId', store.id) }}
     {% endif %}
 
     {{ forms.textField({
@@ -29,7 +29,7 @@
         errors: taxZone is defined ? taxZone.getErrors('description'),
     }) }}
 
-    {% if craft.commerce.settings.useBillingAddressForTax %}
+    {% if store.getUseBillingAddressForTax() %}
         {% set labelDefault = "Default to this tax zone when no billing address is set"|t('commerce') %}
     {% else %}
         {% set labelDefault = "Default to this tax zone when no shipping address is set"|t('commerce') %}
