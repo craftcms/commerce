@@ -12,11 +12,13 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
-    {% set tabs = {
-        rule: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
-        conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
-        costs: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
-    } %}
+{% set tabs = {
+    rule: {'label':'Rule'|t('commerce'),'url':'#rule-tab'},
+    conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions-tab'},
+    costs: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
+} %}
+{% set currency = shippingMethod.getStore().getCurrency() %}
+{% set decimals = craft.commerce.currencies.getSubunitFor(currency) %}
 
 {% block actionButton %}
 <div class="btngroup">
@@ -82,6 +84,7 @@
 {% block content %}
     {{ actionInput('commerce/shipping-rules/save') }}
     {{ hiddenInput('methodId', methodId) }}
+    {{ hiddenInput('storeId', storeId) }}
     {{ redirectInput("commerce/store-settings/#{storeHandle}/shippingmethods/#{methodId}#rules") }}
 
     {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
@@ -188,38 +191,42 @@
     </div>
     <div id="costs-tab" class="hidden">
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
             label: "Base Rate"|t('commerce'),
+            id: 'baseRate',
             name: 'baseRate',
             instructions: "Shipping costs added to the order as a whole before percentage, item, and weight rates are applied. Set to zero to disable this rate. The whole rule, including this base rate, will not match and apply if the cart only contains non-shippable items like digital products."|t('commerce'),
             value: shippingRule.baseRate|number,
-            type: 'number',
-            min: 0,
-            step: 'any',
-            errors: shippingRule.getErrors('baseRate'),
+            size: 5,
+            showCurrency: true,
+            currencyLabel: currency,
+            decimals: decimals,
             required: true,
+            errors: shippingRule.getErrors('baseRate'),
         }) }}
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
+            size: 5,
+            showCurrency: true,
+            currencyLabel: currency,
+            decimals: decimals,
             label: "Minimum Total Shipping Cost"|t('commerce'),
             name: 'minRate',
             instructions: "The minimum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
             value: shippingRule.minRate|number,
-            type: 'number',
-            min: 0,
-            step: 'any',
             errors: shippingRule.getErrors('minRate'),
             required: true,
         }) }}
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
+            size: 5,
+            showCurrency: true,
+            currencyLabel: currency,
+            decimals: decimals,
             label: "Maximum Total Shipping Cost"|t('commerce'),
             instructions: "The maximum the customer should spend on shipping. Set to zero to disable."|t('commerce'),
             name: 'maxRate',
             value: shippingRule.maxRate|number,
-            type: 'number',
-            min: 0,
-            step: 'any',
             errors: shippingRule.getErrors('maxRate'),
             required: true,
         }) }}
@@ -243,23 +250,27 @@
 
                     </td>
                     <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
-                        {{ commerceForms.numberField({
+                        {{ forms.moneyField({
+                            id: 'perItemRate',
                             name: 'perItemRate',
                             value: shippingRule.perItemRate|number,
-                            type: 'number',
-                            min: 0,
-                            step: 'any',
+                            decimals: decimals,
+                            currencyLabel: currency,
+                            showCurrency: true,
+                            size: 5,
                             errors: shippingRule.getErrors('perItemRate'),
                             required: true,
                         }) }}
                     </td>
                     <td class="topalign" data-title="{{ 'Weight Rate'|t('commerce') }}">
-                        {{ commerceForms.numberField({
+                        {{ forms.moneyField({
+                            id: 'weightRate',
                             name: 'weightRate',
                             value: shippingRule.weightRate|number,
-                            type: 'number',
-                            min: 0,
-                            step: 'any',
+                            decimals: decimals,
+                            currencyLabel: currency,
+                            showCurrency: true,
+                            size: 5,
                             errors: shippingRule.getErrors('weightRate'),
                             required: true,
                         }) }}
@@ -296,24 +307,26 @@
                             {{ shippingCategory.name }}
                         </th>
                         <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
-                            {{ commerceForms.numberField({
+                            {{ forms.moneyField({
+                                id: 'rulesCategories-categoryPerItemRate-' ~ shippingCategory.id,
                                 name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
-                                placeholder: shippingRule.perItemRate|number,
                                 class: 'categoryPerItemRate',
                                 value: perItemRate,
-                                type: 'number',
-                                step: 'any',
+                                size: 5,
+                                currencyLabel: currency,
+                                decimals: decimals,
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('perItemRate') : null,
                             }) }}
                         </td>
                         <td class="topalign" data-title="{{ 'Weight Rate'|t('commerce') }}">
-                            {{ commerceForms.numberField({
+                            {{ forms.moneyField({
+                                id: 'rulesCategories-categoryWeightRate-' ~ shippingCategory.id,
                                 name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
                                 class: 'categoryWeightRate',
-                                placeholder: shippingRule.weightRate|number,
                                 value: weightRate,
-                                type: 'number',
-                                step: 'any',
+                                size: 5,
+                                currencyLabel: currency,
+                                decimals: decimals,
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('weightRate') : null,
                             }) }}
                         </td>
