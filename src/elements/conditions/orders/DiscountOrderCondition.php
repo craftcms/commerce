@@ -16,13 +16,13 @@ use yii\base\NotSupportedException;
 class DiscountOrderCondition extends OrderCondition implements HasStoreInterface
 {
     use StoreTrait;
-    
+
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(), []);
+        return array_merge(parent::selectableConditionRules(), []);
     }
 
     /**
