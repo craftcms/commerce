@@ -101,6 +101,8 @@ class DiscountsController extends BaseStoreSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
         $variables['storeHandle'] = $store->handle;
+        $variables['currency'] = $store->getCurrency();
+        $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
 
         if (!$variables['discount']) {
             if ($variables['id']) {
