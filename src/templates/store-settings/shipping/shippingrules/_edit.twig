@@ -199,6 +199,7 @@
             value: shippingRule.baseRate|number,
             size: 5,
             showCurrency: true,
+            showClear: false,
             currencyLabel: currency,
             decimals: decimals,
             required: true,
@@ -208,6 +209,7 @@
         {{ forms.moneyField({
             size: 5,
             showCurrency: true,
+            showClear: false,
             currencyLabel: currency,
             decimals: decimals,
             label: "Minimum Total Shipping Cost"|t('commerce'),
@@ -221,6 +223,7 @@
         {{ forms.moneyField({
             size: 5,
             showCurrency: true,
+            showClear: false,
             currencyLabel: currency,
             decimals: decimals,
             label: "Maximum Total Shipping Cost"|t('commerce'),
@@ -257,6 +260,7 @@
                             decimals: decimals,
                             currencyLabel: currency,
                             showCurrency: true,
+                            showClear: false,
                             size: 5,
                             errors: shippingRule.getErrors('perItemRate'),
                             required: true,
@@ -270,6 +274,7 @@
                             decimals: decimals,
                             currencyLabel: currency,
                             showCurrency: true,
+                            showClear: false,
                             size: 5,
                             errors: shippingRule.getErrors('weightRate'),
                             required: true,
@@ -290,7 +295,11 @@
                 <tr class="js-category-overrides-heading">
                     <th colspan="4"
                         data-title="{{ 'Category Rate Overrides'|t('commerce') }}">
-                        {{ "Category Rate Overrides"|t('commerce') }}
+                        <hr>
+                        {{ forms.field({
+                          label: "Category Rate Overrides"|t('commerce'),
+                          tip: 'Leave a category rate override blank to use the rate from above.'|t('commerce'),
+                        }) }}
                     </th>
                 </tr>
                 {% for shippingCategory in shippingCategories %}
@@ -314,6 +323,7 @@
                                 value: perItemRate,
                                 size: 5,
                                 currencyLabel: currency,
+                                showCurrency: true,
                                 decimals: decimals,
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('perItemRate') : null,
                             }) }}
@@ -326,6 +336,7 @@
                                 value: weightRate,
                                 size: 5,
                                 currencyLabel: currency,
+                                showCurrency: true,
                                 decimals: decimals,
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('weightRate') : null,
                             }) }}
@@ -334,7 +345,6 @@
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
                                 class: 'categoryPercentageRate',
-                                placeholder: shippingRule.percentageRate|number,
                                 value: percentageRate,
                                 type: 'number',
                                 step: 'any',
@@ -349,9 +359,7 @@
     </div>
 {% endblock %}
 
-{% js "window.perItemPricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"perItemRate\"]', '.categoryPerItemRate');" %}
-{% js "window.weightRatePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"weightRate\"]', '.categoryWeightRate');" %}
-{% js "window.percentagePricePlaceholder = new Craft.Commerce.CommerceShippingItemRatesValuesInput('input[name=\"percentageRate\"]', '.categoryPercentageRate');" %}
+{% css %}.commerce-shipping-rules-text-right { text-align: right; }{% endcss %}
 
 {% js %}
     window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories(shippingMethod.storeId).all()|json_encode|raw }};
