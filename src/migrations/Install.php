@@ -908,7 +908,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::VARIANTS);
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
-            'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
+            'primaryOwnerId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),

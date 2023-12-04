@@ -225,6 +225,14 @@ class Product extends Element
 
     /**
      * @inheritdoc
+     */
+    public function getPostEditUrl(): ?string
+    {
+        return UrlHelper::cpUrl('commerce/products');
+    }
+
+    /**
+     * @inheritdoc
      * @return ProductCondition
      */
     public static function createCondition(): ElementConditionInterface
@@ -693,11 +701,10 @@ class Product extends Element
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-
             $map = (new Query())
-                ->select('productId as source, id as target')
-                ->from([Table::VARIANTS])
-                ->where(['primaryOwnerId' => $sourceElementIds])
+                ->select('ownerId as source, elementId as target')
+                ->from(\craft\db\Table::ELEMENTS_OWNERS)
+                ->where(['ownerId' => $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -1237,7 +1244,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         $productType = $this->getType();
 
@@ -1292,16 +1299,18 @@ class Product extends Element
             case 'variants':
             {
                 $value = $this->getVariants(true);
-                $first = array_shift($value);
-                $html = Cp::elementHtml($first);
+                /** @var Variant|null $first */
+                $first = $value->first();
+                $html = $first ? Cp::elementChipHtml($first) : '';
 
-                if (!empty($value)) {
-                    $otherHtml = '';
-                    foreach ($value as $other) {
-                        $otherHtml .= Cp::elementHtml($other);
-                    }
-                    $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger(count($value)), [
-                        'title' => implode(', ', ArrayHelper::getColumn($value, 'title')),
+                if ($value->isNotEmpty() && $value->count() > 1) {
+                    $otherItems = $value->filter(fn($v, $k) => $k > 0);
+                    $otherHtml = $otherItems->map(function($v) {
+                        return Cp::elementChipHtml($v);
+                    })->join('');
+
+                    $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger($otherItems->count()), [
+                        'title' => $otherItems->map(fn($v) => $v->title)->join(', '),
                         'class' => 'btn small',
                         'role' => 'button',
                         'onclick' => 'jQuery(this).replaceWith(' . Json::encode($otherHtml) . ')',
@@ -1312,7 +1321,7 @@ class Product extends Element
             }
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
     }
