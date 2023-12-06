@@ -305,7 +305,7 @@ class Payments extends Component
                 return;
             }
 
-            if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
+            if (!in_array($transaction->status, [TransactionRecord::STATUS_SUCCESS, TransactionRecord::STATUS_PROCESSING])) {
                 throw new PaymentException($transaction->message);
             }
 

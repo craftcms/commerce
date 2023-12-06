@@ -9,6 +9,7 @@
 - Fixed a bug where sales weren’t respecting site element statuses. ([#3328](https://github.com/craftcms/commerce/issues/3328))
 - Fixed a bug where soft-deleted order statuses and line item statuses would not being restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
 - Fixed a bug where carts weren’t being restored after logging in.
+- Fixed a bug where orders with a processing transaction weren’t being completed.
 
 ## 4.3.2 - 2023-10-31
 
