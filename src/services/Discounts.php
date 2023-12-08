@@ -423,10 +423,8 @@ class Discounts extends Component
             $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
-
-        $user = $order->getCustomer();
-
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
@@ -600,13 +598,11 @@ class Discounts extends Component
             return false;
         }
 
-        $user = $order->getCustomer();
-
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
-
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             return false;
         }
 
@@ -1122,6 +1118,15 @@ class Discounts extends Component
         if ($discount->perUserLimit > 0) {
             if (!$user) {
                 return false;
+            }
+
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+                $isCustomerCurrentUser = ($currentUser && $currentUser->id == $user->id);
+
+                if (!$isCustomerCurrentUser) {
+                    return false;
+                }
             }
 
             $usage = (new Query())
