@@ -723,7 +723,12 @@ class Discounts extends Component
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
+
+        if ($model->baseDiscountType !== $record::BASE_DISCOUNT_TYPE_VALUE) {
+            Craft::$app->getDeprecator()->log(__METHOD__, 'Base discount type “' . $model->baseDiscountType . '” is deprecated.');
+        }
         $record->baseDiscountType = $model->baseDiscountType;
+
         $record->purchaseTotal = $model->purchaseTotal;
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
