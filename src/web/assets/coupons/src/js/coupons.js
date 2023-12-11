@@ -1,4 +1,7 @@
 import '../css/coupons.scss';
+/* global Craft */
+/* global Garnish */
+/* global $ */
 
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
@@ -27,21 +30,34 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
       );
 
       this.$generateBtn = $(this.settings.generateBtnSelector);
+      this.couponsTable = $('#' + this.settings.couponsTableId);
+
+      this.eventListeners();
+    },
+
+    eventListeners(remove = false) {
+      if (remove) {
+        this.$couponsContainer.find('button.btn.add').off('click');
+        this.couponsTable.find('tbody button.delete').off('click');
+      }
+
       this.addListener(this.$generateBtn, 'click', 'showGenerateHud');
 
-      this.couponsTable = new Craft.EditableTable(
-        this.settings.couponsTableId,
-        this.settings.table.name,
-        this.settings.table.cols,
-        {
-          defaultValues: this.settings.table.defaultValues,
-          staticRows: false,
-          minRows: null,
-          allowAdd: true,
-          allowDelete: true,
-          maxRows: null,
+      this.$couponsContainer.find('button.add').on('click', (e) => {
+        e.preventDefault();
+        const rowCount = this.couponsTable.find('tbody tr').length;
+        this.createRow(rowCount, '', null);
+        this.couponsTable.removeClass('hidden');
+        this.eventListeners(true);
+      });
+
+      this.couponsTable.find('tbody button.delete').on('click', (e) => {
+        e.preventDefault();
+        $(e.currentTarget).closest('tr').remove();
+        if (!this.couponsTable.find('tbody tr').length) {
+          this.couponsTable.addClass('hidden');
         }
-      );
+      });
     },
 
     showGenerateHud() {
@@ -73,6 +89,16 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
         });
 
         this.$generateHudBody.append(this.$hudFormatField);
+
+        this.$hudMaxUsesField = Craft.ui.createTextField({
+          label: Craft.t('commerce', 'Max Uses'),
+          name: 'maxUses',
+          type: 'number',
+          value: '',
+          max: 400,
+        });
+
+        this.$generateHudBody.append(this.$hudMaxUsesField);
 
         this.$hudSubmitButton = Craft.ui
           .createSubmitButton({
@@ -136,18 +162,101 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
         return;
       }
 
+      let rowCount = this.couponsTable.find('tbody tr').length;
+      const maxUses = this.hud.$main.find('input[name="maxUses"]').val();
       // Loop through `coupons` and append each to the table
       coupons.forEach((coupon) => {
-        const row = this.couponsTable.addRow(false, true);
-        const codeField = row.$tr.find('textarea[name*="[code]"]');
-        codeField.val(coupon);
+        this.createRow(rowCount, coupon, maxUses);
+        rowCount++;
       });
+
+      this.couponsTable.removeClass('hidden');
+
+      this.eventListeners(true);
+    },
+
+    createRow(rowCount, coupon, maxUses = null) {
+      const _row = $('<tr>');
+      _row.data('id', rowCount);
+
+      const _idField = $('<td>');
+      _idField.addClass('hidden singleline-cell textual');
+      const _idFieldTextarea = $('<textarea>');
+      _idFieldTextarea.attr(
+        'aria-labelledby',
+        'commerce-coupons-table-heading-1'
+      );
+      _idFieldTextarea.attr('aria-describedby', '');
+      _idFieldTextarea.attr('name', `coupons[${rowCount}][id]`);
+      _idFieldTextarea.attr('rows', '1');
+
+      _idField.append(_idFieldTextarea);
+      _row.append(_idField);
+
+      const _codeField = $('<td>');
+      _codeField.addClass('singleline-cell textual');
+      const _codeFieldTextarea = $('<textarea>');
+      _codeFieldTextarea.attr(
+        'aria-labelledby',
+        'commerce-coupons-table-heading-2'
+      );
+      _codeFieldTextarea.attr('aria-describedby', '');
+      _codeFieldTextarea.attr('name', `coupons[${rowCount}][code]`);
+      _codeFieldTextarea.attr('rows', '1');
+      _codeFieldTextarea.val(coupon);
+
+      _codeField.append(_codeFieldTextarea);
+      _row.append(_codeField);
+
+      const _usesField = $('<td>');
+      _usesField.addClass('singleline-cell textual');
+      const _usesFieldTextarea = $('<textarea>');
+      _usesFieldTextarea.attr(
+        'aria-labelledby',
+        'commerce-coupons-table-heading-3'
+      );
+      _usesFieldTextarea.attr('aria-describedby', '');
+      _usesFieldTextarea.attr('name', `coupons[${rowCount}][uses]`);
+      _usesFieldTextarea.attr('rows', '1');
+      _usesFieldTextarea.val('0');
+
+      _usesField.append(_usesFieldTextarea);
+      _row.append(_usesField);
+
+      const _maxUsesField = $('<td>');
+      _maxUsesField.addClass('singleline-cell textual has-info');
+      const _maxUsesFieldTextarea = $('<textarea>');
+      _maxUsesFieldTextarea.attr(
+        'aria-labelledby',
+        'commerce-coupons-table-heading-4'
+      );
+      _maxUsesFieldTextarea.attr('aria-describedby', '');
+      _maxUsesFieldTextarea.attr('name', `coupons[${rowCount}][maxUses]`);
+      _maxUsesFieldTextarea.attr('rows', '1');
+      maxUses = maxUses !== null ? maxUses : '';
+      _maxUsesFieldTextarea.val(maxUses);
+
+      _maxUsesField.append(_maxUsesFieldTextarea);
+      _row.append(_maxUsesField);
+
+      const _actionField = $('<td>');
+      _actionField.addClass('thin action');
+      const _actionFieldButton = $('<button>');
+      _actionFieldButton.attr('type', 'button');
+      _actionFieldButton.addClass('delete icon');
+      _actionFieldButton.attr('title', 'Delete');
+      _actionFieldButton.attr('aria-label', `Delete row ${rowCount}`);
+
+      _actionField.append(_actionFieldButton);
+      _row.append(_actionField);
+
+      this.couponsTable.find('tbody').append(_row);
     },
 
     getAllCodesFromTable() {
       const codes = [];
-      this.couponsTable.$tbody
-        .find('[name*="[code]"]')
+      this.couponsTable
+        .find('tbody [name*="[code]"]')
         .each((index, element) => {
           codes.push($(element).val());
         });
