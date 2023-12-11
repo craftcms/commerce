@@ -746,7 +746,13 @@ class Discounts extends Component
         $record->ignoreSales = $model->ignoreSales;
         $record->appliedTo = $model->appliedTo;
 
-        $record->sortOrder = $record->sortOrder ?: 999;
+        $sortOrder = $record->sortOrder ?:
+            (new Query())
+                ->from(Table::DISCOUNTS)
+                ->max('[[sortOrder]]') + 1;
+        ;
+
+        $record->sortOrder = $sortOrder;
         $record->couponFormat = $model->couponFormat;
 
         $record->categoryRelationshipType = $model->categoryRelationshipType;
