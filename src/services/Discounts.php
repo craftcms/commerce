@@ -836,11 +836,16 @@ class Discounts extends Component
         $result = (bool)$discountRecord->delete();
 
         //Raise the afterDeleteDiscount event
-        if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
-            $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
-                'discount' => $discount,
-                'isNew' => false,
-            ]));
+        if ($result) {
+            // Ensure discount table sort order
+            $this->ensureSortOrder();
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
+                $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
+                    'discount' => $discount,
+                    'isNew' => false,
+                ]));
+            }
         }
 
         // Reset internal cache
@@ -849,6 +854,42 @@ class Discounts extends Component
         $this->_matchingLineItemCategoryCondition = null;
 
         return $result;
+    }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     * @since 4.3.3
+     */
+    public function ensureSortOrder(): void
+    {
+        $table = Table::DISCOUNTS;
+        $column = 'sortOrder';
+
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
+
+        // Make all discount uses with their correct user
+        if ($isPsql) {
+            $sql = <<<SQL
+UPDATE $table a
+SET [[sortOrder]] = b.row
+FROM (
+SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as row
+FROM $table
+ORDER BY sortOrder ASC, id ASC
+) b
+where a.id = b.id
+SQL;
+        } else {
+            $sql = <<<SQL
+UPDATE $table a
+JOIN (SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as row
+FROM $table) b ON a.id = b.id
+SET [[a.sortOrder]] = b.row
+SQL;
+        }
+
+        Craft::$app->getDb()->createCommand($sql)->execute();
     }
 
     /**
