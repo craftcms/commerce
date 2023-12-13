@@ -864,7 +864,6 @@ class Discounts extends Component
     public function ensureSortOrder(): void
     {
         $table = Table::DISCOUNTS;
-        $column = 'sortOrder';
 
         $isPsql = Craft::$app->getDb()->getIsPgsql();
 
