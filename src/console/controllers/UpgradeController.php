@@ -918,7 +918,7 @@ AND NOT EXISTS (
 SQL;
 
         $deletableAddressesIds = $this->db->createCommand($sql)->queryColumn();
-        $deleted = $this->db->createCommand()->delete($addressesTable, ['id' => $deletableAddressesIds])->execute();
+        $deleted = (bool)Db::delete($addressesTable, ['id' => $deletableAddressesIds], db: $this->db);
 
         if ($deleted) {
             $this->stdout("Deleted $deleted addresses that were not used in orders or customer addresses.");
@@ -967,32 +967,28 @@ SQL;
         $dateUpdated = Db::prepareDateForDb($data['dateUpdated']);
 
         // Insert into elements table
-        $this->db->createCommand()
-            ->insert(CraftTable::ELEMENTS, [
-                'fieldLayoutId' => $this->_addressFieldLayout->id,
-                'type' => Address::class,
-                'enabled' => true,
-                'archived' => false,
-                'dateCreated' => $dateCreated,
-                'dateUpdated' => $dateUpdated,
-                'uid' => StringHelper::UUID(),
-            ])
-            ->execute();
+        Db::insert(CraftTable::ELEMENTS, [
+            'fieldLayoutId' => $this->_addressFieldLayout->id,
+            'type' => Address::class,
+            'enabled' => true,
+            'archived' => false,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ], $this->db);
         /** @var int $addressElementId */
         $addressElementId = $this->db->getLastInsertID();
 
         // Insert into element sites table
-        $this->db->createCommand()
-            ->insert(CraftTable::ELEMENTS_SITES, [
-                'elementId' => $addressElementId,
-                'siteId' => $primarySite->id,
-                'slug' => ElementHelper::tempSlug(),
-                'enabled' => true,
-                'dateCreated' => $dateCreated,
-                'dateUpdated' => $dateUpdated,
-                'uid' => StringHelper::UUID(),
-            ])
-            ->execute();
+        Db::insert(CraftTable::ELEMENTS_SITES, [
+            'elementId' => $addressElementId,
+            'siteId' => $primarySite->id,
+            'slug' => ElementHelper::tempSlug(),
+            'enabled' => true,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ], $this->db);
 
         $addressContent = [
             'elementId' => $addressElementId,
@@ -1049,14 +1045,10 @@ SQL;
         }
 
         // insert into content table
-        $this->db->createCommand()
-            ->insert(CraftTable::CONTENT, $addressContent)
-            ->execute();
+        Db::insert(CraftTable::CONTENT, $addressContent, $this->db);
 
         // insert into address table
-        $this->db->createCommand()
-            ->insert(CraftTable::ADDRESSES, $address)
-            ->execute();
+        Db::insert(CraftTable::ADDRESSES, $address, $this->db);
 
         return $addressElementId;
     }
@@ -1150,44 +1142,42 @@ SQL;
                     ->one();
 
                 if ($discountUse) {
-                    $this->db->createCommand()->update(
-                        $customersDiscountUsesTable,
-                        ['uses' => $usesByDiscountId['uses']],
-                        ['id' => $discountUse['id']]
-                    )->execute();
+                    Db::update($customersDiscountUsesTable, [
+                        'uses' => $usesByDiscountId['uses'],
+                    ], ['id' => $discountUse['id']], db: $this->db);
                 } else {
-                    $this->db->createCommand()->insert(
-                        $customersDiscountUsesTable,
-                        $usesByDiscountId
-                    )->execute();
+                    Db::insert($customersDiscountUsesTable, $usesByDiscountId, $this->db);
                 }
             }
 
-
-            $this->db->createCommand()->update(
+            Db::update(
                 $customersAddressesTable,
                 ['customerId' => $customerId],
-                ['customerId' => $customerIdsToDelete]
-            )->execute();
+                ['customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
 
-            $this->db->createCommand()->update(
+            Db::update(
                 $ordersTable,
                 ['v3customerId' => $customerId],
-                ['v3customerId' => $customerIdsToDelete]
-            )->execute();
+                ['v3customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
 
-            $this->db->createCommand()->update(
+            Db::update(
                 $orderHistoriesTable,
                 ['v3customerId' => $customerId],
-                ['v3customerId' => $customerIdsToDelete]
-            )->execute();
+                ['v3customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
 
-            $this->db->createCommand()->delete(
+            Db::delete(
                 $customersTable,
-                ['id' => $customerIdsToDelete])->execute();
+                ['id' => $customerIdsToDelete],
+                db: $this->db,
+            );
         }
         $this->stdoutlast('  Done.', Console::FG_GREEN);
-
 
         $this->stdout('  Purging orphaned customers.');
         $this->_purgeOrphanedCustomers();
@@ -1195,10 +1185,10 @@ SQL;
 
 
         $this->stdout('  Removing primary address settings for guest customers.');
-        $this->db->createCommand()->update(Table::CUSTOMERS,
-            ['v3primaryShippingAddressId' => null, 'v3primaryBillingAddressId' => null],
-            ['v3userId' => null]
-        )->execute();
+        Db::update(Table::CUSTOMERS, [
+            'v3primaryShippingAddressId' => null,
+            'v3primaryBillingAddressId' => null,
+        ], ['v3userId' => null], db: $this->db);
         $this->stdoutlast('  Done.', Console::FG_GREEN);
 
 
@@ -1296,7 +1286,7 @@ SQL;
 
         // drop all customers without a customerId
         $this->stdout('  Confirming all customers are now related to a user.');
-        $this->db->createCommand()->delete($customersTable, ['customerId' => null])->execute();
+        Db::delete($customersTable, ['customerId' => null], db: $this->db);
     }
 
     /**
@@ -1345,9 +1335,9 @@ SQL;
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
         // Delete all customers that don't have any orders
         foreach (collect($orphanedCustomerIds)->chunk(999) as $chunk) {
-            $this->db->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
-                ->execute();
+            Db::delete(Table::CUSTOMERS, [
+                'id' => $chunk->all(),
+            ], db: $this->db);
         }
     }
 
