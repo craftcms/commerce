@@ -33,7 +33,6 @@ use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
-use craft\helpers\MigrationHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
@@ -316,7 +315,6 @@ class UpgradeController extends Controller
         $this->stdout("Cleaning up tables…");
         foreach ($this->_v3tables as $table) {
             Db::dropAllForeignKeysToTable($table, $this->db);
-            MigrationHelper::dropAllForeignKeysOnTable($table);
             $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
