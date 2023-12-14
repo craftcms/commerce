@@ -65,9 +65,9 @@
     </div>
 
     {# Provide a management link for Stripe-provided payment sources: #}
-    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
+    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' and gateway['billingPortalUrl'] is defined %}
       <div class="mt-2">
-        <a class="[[classes.a]]" href="{{ gateway.billingPortalUrl(currentUser) }}">Manage on Stripe &rarr;</a>
+        <a class="[[classes.a]]" href="{{ gateway.getBillingPortalUrl(currentUser) }}">Manage on Stripe &rarr;</a>
       </div>
     {% endif %}
   {% endfor %}

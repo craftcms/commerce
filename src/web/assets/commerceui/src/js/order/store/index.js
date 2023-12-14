@@ -262,6 +262,37 @@ export default new Vuex.Store({
       let $transactionsTabContent =
         window.document.querySelector('#transactionsTab');
       $transactionsTabContent.classList.add('hidden');
+
+      // for the dropdown tab menu
+      const tabManager = Craft.cp.tabManager;
+      const tabsDropdownMenu = tabManager.$menuBtn.data('menubtn').menu;
+      const transactionsOption = tabsDropdownMenu.$container.find(
+        '[data-id="order-transactions"]'
+      );
+
+      // this will disable clicking on the transactions option in the dropdown tab menu
+      if (transactionsOption.length > 0) {
+        $(transactionsOption)
+          .disable()
+          .attr('disabled', 'disabled')
+          .css('pointer-events', 'none');
+      }
+
+      // and this is a fallback for selecting the transactions tab differently
+      let $prevSelectedTab = null;
+      let $selectedTab = tabManager.$selectedTab[0];
+
+      tabManager.on('selectTab', function (ev) {
+        $prevSelectedTab = $selectedTab;
+        $selectedTab = $(ev.$tab[0]);
+      });
+
+      tabsDropdownMenu.on('optionselect', function (ev) {
+        let $selectedOption = $(ev.selectedOption);
+        if ($selectedOption.data('id') === 'order-transactions') {
+          $prevSelectedTab.trigger('click');
+        }
+      });
     },
 
     edit({commit, state, dispatch}) {
@@ -330,6 +361,39 @@ export default new Vuex.Store({
 
       // Update `editing` state
       commit('updateEditing', true);
+
+      // handle duplicate content (fields) tabs
+      dispatch('handleTabs');
+    },
+
+    handleTabs({state}) {
+      const tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
+      const tabsDropdownMenu = tabManagerMenuBtn.menu;
+      if (tabsDropdownMenu !== undefined) {
+        const optionSelector =
+          '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
+
+        const staticOptions = tabsDropdownMenu.$container.find(
+          optionSelector + '[data-id^="static-fields-"]'
+        );
+        const fieldsOptions = tabsDropdownMenu.$container.find(
+          optionSelector + '[data-id^="fields-"]'
+        );
+
+        if (state.editing) {
+          staticOptions.disable();
+          staticOptions.parent().addClass('hidden');
+
+          fieldsOptions.enable();
+          fieldsOptions.parent().removeClass('hidden');
+        } else {
+          staticOptions.enable();
+          staticOptions.parent().removeClass('hidden');
+
+          fieldsOptions.disable();
+          fieldsOptions.parent().addClass('hidden');
+        }
+      }
     },
 
     getOrder({state, commit}) {
