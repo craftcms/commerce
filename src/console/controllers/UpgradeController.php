@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store;
+use craft\db\Connection;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
@@ -41,6 +42,7 @@ use yii\console\ExitCode;
 use yii\db\Exception;
 use yii\db\Expression;
 use yii\db\Schema;
+use yii\di\Instance;
 
 /**
  * Command to be run once upgraded to Commerce 4.
@@ -168,6 +170,8 @@ class UpgradeController extends Controller
     private bool $_allowAdminChanges;
     private FieldLayout $_addressFieldLayout;
 
+    private Connection|string $db = 'db';
+
     /**
      * @return void
      * @throws \yii\base\InvalidConfigException
@@ -176,6 +180,9 @@ class UpgradeController extends Controller
     {
         $this->_allowAdminChanges = Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
         $this->_addressFieldLayout = Craft::$app->getAddresses()->getLayout();
+
+        $this->db = Instance::ensure($this->db, Connection::class);
+
         parent::init();
     }
 
@@ -208,7 +215,7 @@ class UpgradeController extends Controller
         // Make sure all the legacy tables still exist
         foreach ($this->_v3tables as $table) {
             $cleanTableName = str_replace(['{{%', '}}'], '', $table);
-            if (!Craft::$app->getDb()->tableExists($table)) {
+            if (!$this->db->tableExists($table)) {
                 $this->stderr(sprintf("Unable to proceed with the Commerce 4 migration: the `%s` table no longer exists.\n", $cleanTableName), Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
@@ -258,11 +265,10 @@ class UpgradeController extends Controller
                 ->exists();
         }, ARRAY_FILTER_USE_KEY);
 
-        $db = Craft::$app->getDb();
         $startTime = DateTimeHelper::currentUTCDateTime();
 
         try {
-            $db->transaction(function() {
+            $this->db->transaction(function() {
                 $this->stdout("Ensuring we have all the required custom fields…");
                 $this->_migrateAddressCustomFields();
                 $this->stdoutlast('Done.', Console::FG_GREEN);
@@ -309,16 +315,16 @@ class UpgradeController extends Controller
 
         $this->stdout("Cleaning up tables…");
         foreach ($this->_v3tables as $table) {
-            Db::dropAllForeignKeysToTable($table);
+            Db::dropAllForeignKeysToTable($table, $this->db);
             MigrationHelper::dropAllForeignKeysOnTable($table);
-            Craft::$app->getDb()->createCommand()->dropTableIfExists($table)->execute();
+            $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
         foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
-            if ($db->columnExists($table, $column)) {
-                Db::dropForeignKeyIfExists($table, $column);
-                Db::dropIndexIfExists($table, $column);
-                Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
+            if ($this->db->columnExists($table, $column)) {
+                Db::dropForeignKeyIfExists($table, $column, $this->db);
+                Db::dropIndexIfExists($table, $column, db: $this->db);
+                $this->db->createCommand()->dropColumn($table, $column)->execute();
             }
         }
 
@@ -591,7 +597,7 @@ EOL
     {
         $discountUses = '{{%commerce_customer_discountuses}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all discount uses with their correct user
         if ($isPsql) {
@@ -609,7 +615,7 @@ inner join $customersTable [[cu]] on
 set [[du.customerId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -619,7 +625,7 @@ SQL;
     {
         $orderHistoriesTable = '{{%commerce_orderhistories}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all address elements with their correct customer owner ID
         if ($isPsql) {
@@ -637,7 +643,7 @@ inner join $customersTable [[cu]] on
 set [[oh.userId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -650,7 +656,7 @@ SQL;
         $previousAddressTable = '{{%commerce_addresses}}';
         $customerAddressTable = '{{%commerce_customers_addresses}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all address elements with their correct customer owner ID
         if ($isPsql) {
@@ -674,7 +680,7 @@ inner join $customersTable [[cu]] on
 set [[a.ownerId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Migrates the primary billing address ID
         if ($isPsql) {
@@ -692,7 +698,7 @@ inner join $previousAddressTable [[pa]] on
 set [[c.primaryBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Migrates the primary shipping ID
         if ($isPsql) {
@@ -710,7 +716,7 @@ inner join $previousAddressTable [[pa]] on
 set [[c.primaryShippingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -722,7 +728,7 @@ SQL;
         $addressTable = CraftTable::ADDRESSES;
         $previousAddressTable = '{{%commerce_addresses}}';
         $ordersTable = Table::ORDERS;
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Order Shipping address
         if ($isPsql) {
@@ -740,7 +746,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.shippingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Billing address
         if ($isPsql) {
@@ -758,7 +764,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.billingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Estimated shipping address
         if ($isPsql) {
@@ -776,7 +782,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Estimated billing address
         if ($isPsql) {
@@ -794,7 +800,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order shipping address elements have the owner ID of the order
         if ($isPsql) {
@@ -812,7 +818,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order billing address elements have the owner ID of the order
         if ($isPsql) {
@@ -830,7 +836,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order estimated billing address elements have the owner ID of the order
         if ($isPsql) {
@@ -848,7 +854,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order estimated shipping address elements have the owner ID of the order
         if ($isPsql) {
@@ -866,7 +872,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -913,8 +919,8 @@ AND NOT EXISTS (
 );
 SQL;
 
-        $deletableAddressesIds = Craft::$app->getDb()->createCommand($sql)->queryColumn();
-        $deleted = Craft::$app->getDb()->createCommand()->delete($addressesTable, ['id' => $deletableAddressesIds])->execute();
+        $deletableAddressesIds = $this->db->createCommand($sql)->queryColumn();
+        $deleted = $this->db->createCommand()->delete($addressesTable, ['id' => $deletableAddressesIds])->execute();
 
         if ($deleted) {
             $this->stdout("Deleted $deleted addresses that were not used in orders or customer addresses.");
@@ -959,12 +965,11 @@ SQL;
     private function _createAddress($data): int
     {
         $primarySite = Craft::$app->getSites()->getPrimarySite();
-        $db = Craft::$app->getDb();
         $dateCreated = Db::prepareDateForDb($data['dateCreated']);
         $dateUpdated = Db::prepareDateForDb($data['dateUpdated']);
 
         // Insert into elements table
-        $db->createCommand()
+        $this->db->createCommand()
             ->insert(CraftTable::ELEMENTS, [
                 'fieldLayoutId' => $this->_addressFieldLayout->id,
                 'type' => Address::class,
@@ -976,10 +981,10 @@ SQL;
             ])
             ->execute();
         /** @var int $addressElementId */
-        $addressElementId = Craft::$app->getDb()->getLastInsertID();
+        $addressElementId = $this->db->getLastInsertID();
 
         // Insert into element sites table
-        $db->createCommand()
+        $this->db->createCommand()
             ->insert(CraftTable::ELEMENTS_SITES, [
                 'elementId' => $addressElementId,
                 'siteId' => $primarySite->id,
@@ -1046,12 +1051,12 @@ SQL;
         }
 
         // insert into content table
-        $db->createCommand()
+        $this->db->createCommand()
             ->insert(CraftTable::CONTENT, $addressContent)
             ->execute();
 
         // insert into address table
-        $db->createCommand()
+        $this->db->createCommand()
             ->insert(CraftTable::ADDRESSES, $address)
             ->execute();
 
@@ -1091,7 +1096,7 @@ SQL;
         $customersAddressesTable = '{{%commerce_customers_addresses}}';
         $customersDiscountUsesTable = '{{%commerce_customer_discountuses}}';
         $usersTable = '{{%users}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Find where we have more than one user ID for a customer
         $this->stdout('  Making sure there are no duplicate user IDs in the customer table.');
@@ -1147,13 +1152,13 @@ SQL;
                     ->one();
 
                 if ($discountUse) {
-                    Craft::$app->getDb()->createCommand()->update(
+                    $this->db->createCommand()->update(
                         $customersDiscountUsesTable,
                         ['uses' => $usesByDiscountId['uses']],
                         ['id' => $discountUse['id']]
                     )->execute();
                 } else {
-                    Craft::$app->getDb()->createCommand()->insert(
+                    $this->db->createCommand()->insert(
                         $customersDiscountUsesTable,
                         $usesByDiscountId
                     )->execute();
@@ -1161,25 +1166,25 @@ SQL;
             }
 
 
-            Craft::$app->getDb()->createCommand()->update(
+            $this->db->createCommand()->update(
                 $customersAddressesTable,
                 ['customerId' => $customerId],
                 ['customerId' => $customerIdsToDelete]
             )->execute();
 
-            Craft::$app->getDb()->createCommand()->update(
+            $this->db->createCommand()->update(
                 $ordersTable,
                 ['v3customerId' => $customerId],
                 ['v3customerId' => $customerIdsToDelete]
             )->execute();
 
-            Craft::$app->getDb()->createCommand()->update(
+            $this->db->createCommand()->update(
                 $orderHistoriesTable,
                 ['v3customerId' => $customerId],
                 ['v3customerId' => $customerIdsToDelete]
             )->execute();
 
-            Craft::$app->getDb()->createCommand()->delete(
+            $this->db->createCommand()->delete(
                 $customersTable,
                 ['id' => $customerIdsToDelete])->execute();
         }
@@ -1192,7 +1197,7 @@ SQL;
 
 
         $this->stdout('  Removing primary address settings for guest customers.');
-        Craft::$app->getDb()->createCommand()->update(Table::CUSTOMERS,
+        $this->db->createCommand()->update(Table::CUSTOMERS,
             ['v3primaryShippingAddressId' => null, 'v3primaryBillingAddressId' => null],
             ['v3userId' => null]
         )->execute();
@@ -1218,7 +1223,7 @@ inner join $usersTable [[u]] on
 set [[o.email]] = [[u.email]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
         $this->stdoutlast('  Done.', Console::FG_GREEN);
 
 
@@ -1269,7 +1274,7 @@ set [[cu.customerId]] = [[cu.v3userId]]
 where [[cu.v3userId]] is not null
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
         $this->stdoutlast('  Done.', Console::FG_GREEN);
 
         $this->stdout('  Updating all orders with their correct user ID.');
@@ -1288,12 +1293,12 @@ inner join $usersTable [[u]] on
 set [[o.customerId]] = [[u.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
         $this->stdoutlast('  Done.', Console::FG_GREEN);
 
         // drop all customers without a customerId
         $this->stdout('  Confirming all customers are now related to a user.');
-        Craft::$app->getDb()->createCommand()->delete($customersTable, ['customerId' => null])->execute();
+        $this->db->createCommand()->delete($customersTable, ['customerId' => null])->execute();
     }
 
     /**
@@ -1342,7 +1347,7 @@ SQL;
         $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
         // Delete all customers that don't have any orders
         foreach (collect($orphanedCustomerIds)->chunk(999) as $chunk) {
-            Craft::$app->getDb()->createCommand()
+            $this->db->createCommand()
                 ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
                 ->execute();
         }
@@ -1379,7 +1384,7 @@ SQL;
      */
     private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
     {
-        $str = 'UPDATE `' . Craft::$app->getDb()->getSchema()->getRawTableName($tableName) . '` SET ';
+        $str = 'UPDATE `' . $this->db->getSchema()->getRawTableName($tableName) . '` SET ';
         $row = [];
         $bind = [];
 
@@ -1395,7 +1400,7 @@ SQL;
                 }
             }
             $rowStr .= implode(' ', $cel);
-            $rowStr .= ' ELSE ' . Craft::$app->getDb()->quoteColumnName($param) . ' END)';
+            $rowStr .= ' ELSE ' . $this->db->quoteColumnName($param) . ' END)';
             $row[] = $rowStr;
         }
 
@@ -1403,11 +1408,11 @@ SQL;
         foreach ($fieldValues as $fieldValue) {
             $paramValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
             $bind[$paramValue] = $fieldValue;
-            $whereIn[] = is_string($fieldValue) ? Craft::$app->getDb()->quoteValue($fieldValue) : $fieldValue;
+            $whereIn[] = is_string($fieldValue) ? $this->db->quoteValue($fieldValue) : $fieldValue;
         }
 
         $str .= implode(', ', $row);
-        $str .= ' WHERE ' . Craft::$app->getDb()->quoteColumnName($byField) . ' IN (' . implode(', ', $whereIn) . ')';
+        $str .= ' WHERE ' . $this->db->quoteColumnName($byField) . ' IN (' . implode(', ', $whereIn) . ')';
         return ['sql' => $str, 'params' => $bind];
     }
 }
