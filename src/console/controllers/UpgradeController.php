@@ -983,7 +983,6 @@ SQL;
         Db::insert(CraftTable::ELEMENTS_SITES, [
             'elementId' => $addressElementId,
             'siteId' => $primarySite->id,
-            'slug' => ElementHelper::tempSlug(),
             'enabled' => true,
             'dateCreated' => $dateCreated,
             'dateUpdated' => $dateUpdated,
