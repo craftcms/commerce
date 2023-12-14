@@ -51,7 +51,7 @@
         },
 
         methods: {
-            ...mapActions(['edit']),
+            ...mapActions(['edit', 'handleTabs']),
 
             cancel() {
                 window.location.reload();
@@ -68,6 +68,12 @@
                     $tabLink.classList.add('hidden');
                 }
             });
+
+            // re-init the tabs after hiding the non-static ones
+            // see: https://github.com/craftcms/cms/issues/13911 for more details
+            Craft.cp.initTabs();
+            // and handle tabs dropdown
+            this.handleTabs();
 
             // For custom tabs, if the selected tab is dynamic, find corresponding static tab and select it instead.
             const $selectedTabLink = window.document.querySelector(

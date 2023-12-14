@@ -2457,7 +2457,7 @@ class Order extends Element
     public function getOrderStatusHtml(): string
     {
         if ($status = $this->getOrderStatus()) {
-            return '<span class="commerceStatusLabel"><span class="status ' . $status->color . '"></span> ' . $status->name . '</span>';
+            return '<span class="commerceStatusLabel nowrap"><span class="status ' . $status->color . '"></span>' . $status->name . '</span>';
         }
 
         return '';
@@ -2469,10 +2469,10 @@ class Order extends Element
     public function getPaidStatusHtml(): string
     {
         return match ($this->getPaidStatus()) {
-            self::PAID_STATUS_OVERPAID => '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>',
-            self::PAID_STATUS_PAID => '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>',
-            self::PAID_STATUS_PARTIAL => '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>',
-            self::PAID_STATUS_UNPAID => '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>',
+            self::PAID_STATUS_OVERPAID => '<span class="commerceStatusLabel nowrap"><span class="status blue"></span>' . Craft::t('commerce', 'Overpaid') . '</span>',
+            self::PAID_STATUS_PAID => '<span class="commerceStatusLabel nowrap"><span class="status green"></span>' . Craft::t('commerce', 'Paid') . '</span>',
+            self::PAID_STATUS_PARTIAL => '<span class="commerceStatusLabel nowrap"><span class="status orange"></span>' . Craft::t('commerce', 'Partial') . '</span>',
+            self::PAID_STATUS_UNPAID => '<span class="commerceStatusLabel nowrap"><span class="status red"></span>' . Craft::t('commerce', 'Unpaid') . '</span>',
             default => '',
         };
     }
@@ -2926,7 +2926,7 @@ class Order extends Element
 
         // Ensure that address can only belong to this order
         if ($address->ownerId != $this->id) {
-            throw new InvalidArgumentException('Can not set a shipping address on the order that is is not owned by the order.');
+            throw new InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
         }
 
         $this->shippingAddressId = $address->id;
@@ -3024,7 +3024,7 @@ class Order extends Element
 
         // Ensure that address can only belong to this order
         if ($address->ownerId !== $this->id) {
-            throw new InvalidArgumentException('Can not set a billing address on the order that is is not owned by the order.');
+            throw new InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
         }
 
         $address->ownerId = $this->id;

@@ -823,7 +823,6 @@ class Variant extends Purchasable
                     }
                 },
             ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
     }
 

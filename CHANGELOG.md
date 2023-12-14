@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 4.3.3 - 2023-12-14
+
+- Improved the performance of variant queries’ `hasProduct` and `hasVariant` params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
+- Order statuses with long names no longer wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
+- Fixed a bug where carts could get duplicate validation errors. ([3334](https://github.com/craftcms/commerce/issues/3334))
+- Fixed a bug where tab selection was inconsistent on Edit Order pages. 
+- Fixed a bug where sales weren’t respecting elements’ site statuses. ([#3328](https://github.com/craftcms/commerce/issues/3328))
+- Fixed a bug where soft-deleted order statuses and line item statuses weren’t getting restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
+- Fixed a bug where carts weren’t getting restored after signing in.
+- Fixed a bug where guests could use discounts with per-user usage limits. ([#3326](https://github.com/craftcms/commerce/issues/3326))
+- Fixed a bug where orders with a processing transaction weren’t getting completed.
+
 ## 4.3.2 - 2023-10-31
 
 - Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))
