@@ -917,6 +917,11 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
+
+                    if (count($this->getVariants(true)) < 1) {
+                        $this->addError('variants', Craft::t('commerce', 'At least one variant is required.'));
+                    }
+
                     if ($this->getType()->maxVariants) {
                         $variantCount = count($this->getVariants(true));
                         if ($variantCount > $this->getType()->maxVariants) {
