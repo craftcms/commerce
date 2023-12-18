@@ -579,45 +579,17 @@
         <hr>
         <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
-        {% set baseDiscountInput %}
-            <table class="inputs">
-                <tr>
-                    <td>
-                        {{ forms.text({
-                            id: 'baseDiscount',
-                            name: 'baseDiscount',
-                            type: 'text',
-                            size: 10,
-                            value: discount.baseDiscount ? discount.baseDiscount|number : 0,
-                        }) }}
-                    </td>
-                    <td style="padding-left: 14px;">
-                        {% if baseDiscountTypes|length > 1 %}
-                            {{ forms.select({
-                                id: 'baseDiscountType',
-                                name: 'baseDiscountType',
-                                options: baseDiscountTypes,
-                                value: discount.baseDiscountType
-                            }) }}
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
-        {% endset %}
-
-        {% set showWarning = false %}
-        {% if discount.baseDiscountType in ['percentTotal','percentTotalDiscounted','percentItems','percentItemsDiscounted'] %}
-            {% set showWarning = true %}
-        {% endif %}
-
-        {{ forms.field({
+        {{ forms.textField({
             label: "Flat Order Discount Amount Off"|t('commerce'),
             instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up."|t('commerce'),
             id: 'baseDiscount',
             errors: discount.getErrors('baseDiscount'),
-            warning: showWarning ? 'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”'|t('commerce') : null,
-            tip: 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.'|t('commerce')
-        }, baseDiscountInput) }}
+            tip: 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.'|t('commerce'),
+            name: 'baseDiscount',
+            type: 'text',
+            size: 10,
+            value: discount.baseDiscount ? discount.baseDiscount|number : 0,
+        }) }}
 
         <hr>
         <h3>{{ 'Additional Actions'|t('commerce') }}</h3>
