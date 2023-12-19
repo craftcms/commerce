@@ -360,6 +360,8 @@ class DiscountsController extends BaseCpController
 
         $idsOrdered = [];
         foreach ($ids as $id) {
+            // Temporary -1 because the `reorderDiscounts()` method will increment the key before saving.
+            // @TODO update this when we can change the behaviour of the `reorderDiscounts()` method.
             $idsOrdered[$key - 1] = $id;
             $key++;
         }
@@ -385,59 +387,11 @@ class DiscountsController extends BaseCpController
         $page = $this->request->getRequiredBodyParam('page');
         $perPage = $this->request->getRequiredBodyParam('perPage');
 
-        $lastPage = ceil((new Query())
-            ->from([Table::DISCOUNTS])
-            ->count() / $perPage);
-
-        if ($page > $lastPage || $page < 1) {
-            return $this->asFailure(Craft::t('commerce', 'Invalid page number.'));
+        if (AdminTable::moveToPage(Table::DISCOUNTS, $id, $page, $perPage)) {
+            return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));
         }
 
-        $currentSortOrder = (new Query())
-            ->select(['sortOrder'])
-            ->from([Table::DISCOUNTS])
-            ->where(['id' => $id])
-            ->scalar();
-
-        $newSortOrder = ($page - 1) * $perPage + 1;
-
-        if ($currentSortOrder == $newSortOrder) {
-            return $this->asSuccess();
-        }
-
-        $isGoingUp = $newSortOrder > $currentSortOrder;
-
-        $transaction = Craft::$app->getDb()->beginTransaction();
-
-        try {
-            if ($isGoingUp) {
-                Craft::$app->getDb()->createCommand()
-                    ->update(Table::DISCOUNTS,
-                        ['sortOrder' => new Expression('[[sortOrder]] - 1')],
-                        ['and', ['>', 'sortOrder', $currentSortOrder], ['<=', 'sortOrder', $newSortOrder]]
-                    )
-                    ->execute();
-            } else {
-                Craft::$app->getDb()->createCommand()
-                    ->update(Table::DISCOUNTS,
-                        ['sortOrder' => new Expression('[[sortOrder]] + 1')],
-                        ['and', ['<', 'sortOrder', $currentSortOrder], ['>=', 'sortOrder', $newSortOrder]]
-                    )
-                    ->execute();
-            }
-
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::DISCOUNTS, ['sortOrder' => $newSortOrder], ['id' => $id])
-                ->execute();
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
-        }
-
-        return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
     }
 
     /**
