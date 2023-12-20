@@ -33,7 +33,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
-use yii\db\Expression;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
