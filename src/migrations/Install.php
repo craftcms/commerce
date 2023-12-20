@@ -215,7 +215,6 @@ class Install extends Migration
             'purchaseTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxPurchaseQty' => $this->integer()->notNull()->defaultValue(0),
             'baseDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'baseDiscountType' => $this->enum('baseDiscountType', ['value', 'percentTotal', 'percentTotalDiscounted', 'percentItems', 'percentItemsDiscounted'])->notNull()->defaultValue('value'),
             'perItemDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentageOffSubject' => $this->enum('percentageOffSubject', ['original', 'discounted'])->notNull(),
@@ -908,7 +907,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::VARIANTS);
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
-            'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
+            'primaryOwnerId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
@@ -1049,7 +1048,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
-        $this->createIndex(null, Table::VARIANTS, 'productId', false);
+        $this->createIndex(null, Table::VARIANTS, 'primaryOwnerId', false);
     }
 
     /**
@@ -1150,7 +1149,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::VARIANTS, ['productId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
+        $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }
 
     /**

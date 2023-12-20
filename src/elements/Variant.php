@@ -451,7 +451,7 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         if ($product->id) {
-            $this->productId = $product->id;
+            $this->primaryOwnerId = $product->id;
         }
 
         $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
@@ -580,7 +580,7 @@ class Variant extends Purchasable implements NestedElementInterface
     protected function cacheTags(): array
     {
         return [
-            "product:$this->productId",
+            "product:$this->primaryOwnerId",
         ];
     }
 
@@ -745,7 +745,7 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             $map = (new Query())
-                ->select('id as source, productId as target')
+                ->select('id as source, primaryOwnerId as target')
                 ->from(Table::VARIANTS)
                 ->where(['in', 'id', $sourceElementIds])
                 ->all();
@@ -1039,7 +1039,7 @@ class Variant extends Purchasable implements NestedElementInterface
             if ($this->isDefault) {
                 Craft::$app->getDb()->createCommand()->update(Table::PRODUCTS,
                     ['defaultSku' => $this->sku],
-                    ['id' => $this->productId]
+                    ['id' => $this->primaryOwnerId]
                 )->execute();
             }
 

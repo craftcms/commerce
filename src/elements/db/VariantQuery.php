@@ -557,7 +557,7 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->productId)) {
-            $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
+            $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->productId]);
         }
 
         if (isset($this->isDefault)) {
@@ -808,7 +808,7 @@ class VariantQuery extends PurchasableQuery
             $hasSalesCondition = [
                 'or',
                 ['commerce_variants.id' => $variantIds],
-                ['commerce_variants.productId' => $productIds],
+                ['commerce_variants.primaryOwnerId' => $productIds],
             ];
 
             if ($this->hasSales) {
@@ -869,7 +869,7 @@ class VariantQuery extends PurchasableQuery
 
         // Remove any blank product IDs (if any)
         $productIds = array_filter($productIds);
-        $this->subQuery->andWhere(['commerce_variants.productId' => $productIds]);
+        $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $productIds]);
     }
 
     /**

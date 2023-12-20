@@ -128,7 +128,6 @@ class DiscountTest extends Unit
             'allCategories' => true,
             'stopProcessing' => false,
             'baseDiscount' => -10,
-            'baseDiscountType' => DiscountRecord::BASE_DISCOUNT_TYPE_VALUE,
         ];
 
         $lineItemPromotable = [

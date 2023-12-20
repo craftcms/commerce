@@ -152,11 +152,6 @@ class Discount extends Model implements HasStoreInterface
     public float $baseDiscount = 0;
 
     /**
-     * @var string Type of discount for the base discount e.g. currency value or percentage
-     */
-    public string $baseDiscountType = DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
-
-    /**
      * @var float Amount of discount per item
      */
     public float $perItemDiscount = 0.0;
