@@ -1,17 +1,16 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.3.3 - 2023-12-14
 
-- Improved the performance of the `craft\commerce\elements\db\VariantQuery::hasProduct()` and `craft\commerce\elements\db\ProductQuery::hasVariant()` query params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
-- Order statuses with long names no longer line wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
-- Fixed duplicate validate errors that occurred when submitting a zero quantity to the cart. ([3334](https://github.com/craftcms/commerce/issues/3334))
-- Fixed a bug where tab selection was inconsistent on the Edit Order page. 
-- Fixed a bug where sales weren’t respecting site element statuses. ([#3328](https://github.com/craftcms/commerce/issues/3328))
-- Fixed a bug where soft-deleted order statuses and line item statuses would not being restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
-- Fixed a bug where carts weren’t being restored after logging in.
-- Fixed a bug where orders with a processing transaction weren’t being completed.
-- Added `craft\commerce\services\Discounts::ensureSortOrder()`.
-- Added `craft\commerce\controllers\DiscountsController::actionMoveToPage()`.
+- Improved the performance of variant queries’ `hasProduct` and `hasVariant` params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
+- Order statuses with long names no longer wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
+- Fixed a bug where carts could get duplicate validation errors. ([3334](https://github.com/craftcms/commerce/issues/3334))
+- Fixed a bug where tab selection was inconsistent on Edit Order pages. 
+- Fixed a bug where sales weren’t respecting elements’ site statuses. ([#3328](https://github.com/craftcms/commerce/issues/3328))
+- Fixed a bug where soft-deleted order statuses and line item statuses weren’t getting restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
+- Fixed a bug where carts weren’t getting restored after signing in.
+- Fixed a bug where guests could use discounts with per-user usage limits. ([#3326](https://github.com/craftcms/commerce/issues/3326))
+- Fixed a bug where orders with a processing transaction weren’t getting completed.
 
 ## 4.3.2 - 2023-10-31
 

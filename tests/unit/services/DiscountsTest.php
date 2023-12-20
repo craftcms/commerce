@@ -825,9 +825,15 @@ class DiscountsTest extends Unit
     protected function _before()
     {
         parent::_before();
-
         $this->discounts = Plugin::getInstance()->getDiscounts();
         $customerFixture = $this->tester->grabFixture('customers');
         $this->_user = $customerFixture->getElement('customer1');
+        Craft::$app->getUser()->setIdentity($this->_user);
+    }
+
+    protected function _after()
+    {
+        Craft::$app->getUser()->setIdentity(null);
+        parent::_after();
     }
 }
