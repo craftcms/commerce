@@ -423,7 +423,7 @@ class Discounts extends Component
             $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
-        
+
         if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
@@ -601,7 +601,7 @@ class Discounts extends Component
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
-        
+
         if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             return false;
         }
@@ -742,11 +742,9 @@ class Discounts extends Component
         $record->ignoreSales = $model->ignoreSales;
         $record->appliedTo = $model->appliedTo;
 
-        $sortOrder = $record->sortOrder ?:
-            (new Query())
-                ->from(Table::DISCOUNTS)
-                ->max('[[sortOrder]]') + 1;
-        ;
+        // If the discount is new, set the sort order to be at the top of the list.
+        // We will ensure the sort orders are sequential when we save the discount.
+        $sortOrder = $record->sortOrder ?: 0;
 
         $record->sortOrder = $sortOrder;
         $record->couponFormat = $model->couponFormat;
@@ -791,6 +789,9 @@ class Discounts extends Component
 
             Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
+
+            // After saving the discount, ensure the sort order for all discounts is sequential
+            $this->ensureSortOrder();
 
             // Raise the afterSaveDiscount event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_DISCOUNT)) {
