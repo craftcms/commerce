@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Added `craft\commerce\services\Discounts::ensureSortOrder()`.
+- Added `craft\commerce\controllers\DiscountsController::actionMoveToPage()`.
+
 ## 4.3.3 - 2023-12-14
 
 - Improved the performance of variant queries’ `hasProduct` and `hasVariant` params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
