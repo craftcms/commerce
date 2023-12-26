@@ -36,6 +36,7 @@
     "codeception/module-yii2": "^1.0.0",
     "craftcms/ckeditor": "^3.0",
     "craftcms/ecs": "dev-main",
+    "craftcms/generator": "^1.5",
     "craftcms/phpstan": "dev-main",
     "craftcms/rector": "dev-main",
     "craftcms/redactor": "*",

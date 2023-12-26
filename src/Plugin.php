@@ -32,6 +32,9 @@ use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
 use craft\commerce\fields\Variants as VariantsField;
+use craft\commerce\generators\Adjuster;
+use craft\commerce\generators\Gateway as GatewayGenerator;
+use craft\commerce\generators\ShippingMethod;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
 use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
@@ -114,6 +117,7 @@ use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
+use craft\generator\Command;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\Console;
 use craft\helpers\Db;
@@ -254,6 +258,7 @@ class Plugin extends BasePlugin
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
         $this->_registerDebugPanels();
+        $this->_registerGenerators();
 
         if ($request->getIsConsoleRequest()) {
             $this->_defineResaveCommand();
@@ -1027,6 +1032,22 @@ class Plugin extends BasePlugin
         if ($this->getSettings()->showEditUserCommerceTab) {
             Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCommerceTab']);
             Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCommerceTabContent']);
+        }
+    }
+
+    /**
+     * Registers custom generators for Commerce components.
+     *
+     * @since 4.3
+     */
+    private function _registerGenerators(): void
+    {
+        if (class_exists(Command::class)) {
+            Event::on(Command::class, Command::EVENT_REGISTER_GENERATOR_TYPES, function(RegisterComponentTypesEvent $event) {
+                $event->types[] = Adjuster::class;
+                $event->types[] = GatewayGenerator::class;
+                $event->types[] = ShippingMethod::class;
+            });
         }
     }
 }
