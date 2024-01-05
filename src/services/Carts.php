@@ -58,7 +58,7 @@ class Carts extends Component
     /**
      * @var string|null The current cart number
      */
-    private ?string $_cartNumber = null;
+    private string|false|null $_cartNumber = null;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.
@@ -200,7 +200,8 @@ class Carts extends Component
     public function forgetCart(): void
     {
         $this->_cart = null;
-        $this->_cartNumber = null;
+        // Force a new cart number to be generated when next requested.
+        $this->_cartNumber = false;
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
             $cookie = Craft::createObject(array_merge($this->cartCookie, [
                 'class' => Cookie::class,
@@ -252,7 +253,7 @@ class Carts extends Component
      */
     public function getHasSessionCartNumber(): bool
     {
-        return ($this->_cartNumber !== null);
+        return $this->_cartNumber !== null && $this->_cartNumber !== false;
     }
 
     /**
@@ -265,12 +266,14 @@ class Carts extends Component
             $request = Craft::$app->getRequest();
             $requestCookies = $request->getCookies();
 
-            if (!$this->_cartNumber && $cookieNumber = $requestCookies->getValue($this->cartCookie['name'])) {
+            // Only try to retrieve the cart number from the cookie if `_cartNumber` is `null`.
+            if ($this->_cartNumber === null && $cookieNumber = $requestCookies->getValue($this->cartCookie['name'])) {
                 $this->_cartNumber = $cookieNumber;
             }
         }
 
-        if ($this->_cartNumber === null) {
+        // A `null` or `false` value means we need to generate a new cart number.
+        if ($this->_cartNumber === null || $this->_cartNumber === false) {
             $this->_cartNumber = $this->generateCartNumber();
         }
 
