@@ -28,6 +28,7 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
@@ -906,7 +907,7 @@ class Variant extends Purchasable implements NestedElementInterface
      * @inheritdoc
      * @throws InvalidConfigException
      */
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
@@ -914,7 +915,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 $this->setProduct($product);
             }
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 

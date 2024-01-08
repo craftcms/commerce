@@ -29,6 +29,7 @@ use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\ElementCollection;
 use craft\elements\NestedElementManager;
@@ -684,13 +685,13 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'variants') {
             /** @var Variant[] $elements */
             $this->setVariants($elements);
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
