@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed a bug where calling `Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
+- Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
 - Added `craft\commerce\services\Discounts::ensureSortOrder()`.
 - Added `craft\commerce\controllers\DiscountsController::actionMoveToPage()`.
 
