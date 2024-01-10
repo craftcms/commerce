@@ -868,9 +868,9 @@ class Discounts extends Component
         if ($isPsql) {
             $sql = <<<SQL
 UPDATE $table a
-SET [[sortOrder]] = b.row
+SET [[sortOrder]] = b.rownumber
 FROM (
-SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as row
+SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
 FROM $table
 ORDER BY sortOrder ASC, id ASC
 ) b
@@ -879,9 +879,9 @@ SQL;
         } else {
             $sql = <<<SQL
 UPDATE $table a
-JOIN (SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as row
+JOIN (SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
 FROM $table) b ON a.id = b.id
-SET [[a.sortOrder]] = b.row
+SET [[a.sortOrder]] = b.rownumber
 SQL;
         }
 
