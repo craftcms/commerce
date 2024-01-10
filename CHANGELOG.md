@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
+
 ## 4.3.3 - 2023-12-14
 
 - Improved the performance of variant queries’ `hasProduct` and `hasVariant` params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
