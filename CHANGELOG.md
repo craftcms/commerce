@@ -5,6 +5,7 @@
 - Craft Commerce now requires Craft CMS 4.6.0 or later.
 - Fixed a bug where calling `Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
 - Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
+- Fixed a bug that prevented the creation of a non Stripe subscription. ([#3365](https://github.com/craftcms/commerce/pull/3365))
 
 ## 4.3.3 - 2023-12-14
 
