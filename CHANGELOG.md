@@ -4,6 +4,7 @@
 
 - Craft Commerce now requires Craft CMS 4.6.0 or later.
 - Improved the performance of the Discounts index page. ([#3347](https://github.com/craftcms/commerce/issues/3347))
+- It’s now possible to search discounts on the Discounts index page. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
 - Fixed a bug where calling `Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
 - Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
 - Added `craft\commerce\services\Discounts::ensureSortOrder()`.

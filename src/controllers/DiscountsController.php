@@ -87,6 +87,7 @@ class DiscountsController extends BaseCpController
 
         $page = $this->request->getParam('page', 1);
         $limit = $this->request->getParam('per_page', 100);
+        $search = $this->request->getParam('search');
         $offset = ($page - 1) * $limit;
 
         $sqlQuery = (new Query())
@@ -107,6 +108,24 @@ class DiscountsController extends BaseCpController
             ->leftJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]')
             ->orderBy(['sortOrder' => SORT_ASC]);
 
+
+        if ($search) {
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+            $sqlQuery
+                ->andWhere([
+                    'or',
+                    // Search discount name
+                    [$likeOperator, 'discounts.name', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search discount description
+                    [$likeOperator, 'discounts.description', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search coupon code
+                    ['discounts.id' => (new Query())
+                        ->from(Table::COUPONS)
+                        ->select('discountId')
+                        ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false])
+                    ],
+                ]);
+        }
 
         $total = $sqlQuery->count();
 
