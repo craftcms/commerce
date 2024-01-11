@@ -113,25 +113,6 @@ class Coupons extends Component
         }
 
         $existingCodes = array_unique([...$existingCodes, ...$this->getAllCodes()]);
-        $coupons = $this->_generateCouponCodes($count, $format);
-
-        if (!empty($existingCodes)) {
-            $duplicateCodes = array_intersect($existingCodes, $coupons);
-            while (!empty($duplicateCodes)) {
-                foreach ($duplicateCodes as $duplicateCode) {
-                    ArrayHelper::removeValue($coupons, $duplicateCode);
-                }
-                $coupons = array_merge($coupons, $this->_generateCouponCodes(count($duplicateCodes), $format));
-
-                $duplicateCodes = array_intersect($existingCodes, $coupons);
-            }
-        }
-
-        return $coupons;
-    }
-
-    private function _generateCouponCodes(int $count, string $format): array
-    {
         $coupons = [];
 
         for ($i = 1; $i <= $count; $i++) {
@@ -140,7 +121,12 @@ class Coupons extends Component
                 return StringHelper::randomStringWithChars(self::CHARS_UPPER, $length);
             }, $format);
 
+            if (!empty($existingCodes) && in_array($code, $existingCodes, true)) {
+                $i--;
+                continue;
+            }
             $coupons[] = $code;
+            $existingCodes[] = $code;
         }
 
         return $coupons;
