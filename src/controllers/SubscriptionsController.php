@@ -206,7 +206,9 @@ class SubscriptionsController extends BaseController
                     }
                 };
 
-                if ($plan->getGateway() instanceof PaymentIntents) {
+				$exists = class_exists(PaymentIntents::class);
+				/** @phpstan-ignore-next-line */
+                if ($exists && $plan->getGateway() instanceof PaymentIntents) {
                     Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription create action now requires that a customer’s default payment source is set up before subscribing with Stripe.');
                     // Only be backward compatible with Stripe if they supply the payment method ID.
                     if (isset($paymentFormData['paymentMethodId'])) {
