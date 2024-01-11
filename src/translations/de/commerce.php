@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Ungültige Formelsyntax',
     'Invalid gateway: {value}' => 'Ungültiges Gateway: {value}',
     'Invalid order condition syntax.' => 'Ungültige Bestellungsbedingungssyntax.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Ungültige Zahlung oder Bestellung. Bitte überprüfen.',
     'Invalid payment source ID: {value}' => 'Ungültige Zahlungsquellen-ID: {value}',
     'Invoice amount' => 'Rechnungsbetrag',
