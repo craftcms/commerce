@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Syntaxe de formule invalide',
     'Invalid gateway: {value}' => 'Portail non valide : {value}',
     'Invalid order condition syntax.' => 'Syntaxe conditionnelle de commande invalide.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Paiement ou commande non valide. Veuillez vérifier votre saisie.',
     'Invalid payment source ID: {value}' => 'ID de la source de paiement non valide : {value}',
     'Invoice amount' => 'Montant de la facture',
