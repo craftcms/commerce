@@ -122,7 +122,7 @@ class DiscountsController extends BaseCpController
                     ['discounts.id' => (new Query())
                         ->from(Table::COUPONS)
                         ->select('discountId')
-                        ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false])
+                        ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false]),
                     ],
                 ]);
         }
