@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'A sintaxe da fórmula não é válida',
     'Invalid gateway: {value}' => 'Gateway inválido: {value}',
     'Invalid order condition syntax.' => 'Sintaxe inválida da condição do pedido.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Pagamento ou encomenda inválidos. Reveja.',
     'Invalid payment source ID: {value}' => 'ID de fonte de pagamento inválida: {value}',
     'Invoice amount' => 'Quantia da fatura',
