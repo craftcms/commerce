@@ -394,7 +394,7 @@ class DiscountsController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @since 4.3.3
+     * @since 4.4.0
      */
     public function actionMoveToPage(): Response
     {

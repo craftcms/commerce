@@ -856,7 +856,7 @@ class Discounts extends Component
     /**
      * @return void
      * @throws \yii\db\Exception
-     * @since 4.3.3
+     * @since 4.4.0
      */
     public function ensureSortOrder(): void
     {
