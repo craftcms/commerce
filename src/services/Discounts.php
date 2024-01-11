@@ -886,6 +886,10 @@ SQL;
         }
 
         Craft::$app->getDb()->createCommand($sql)->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
