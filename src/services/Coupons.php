@@ -14,7 +14,6 @@ use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use Exception;
 use Throwable;
