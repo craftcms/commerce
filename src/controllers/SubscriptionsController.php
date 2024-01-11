@@ -15,6 +15,7 @@ use craft\commerce\errors\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\App;
 use craft\helpers\StringHelper;
@@ -195,15 +196,26 @@ class SubscriptionsController extends BaseController
             try {
                 // We provide backward compatibility for stripe plugin 3.0
                 $paymentFormData = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [];
-                if (isset($paymentFormData['paymentMethodId'])) {
-                    // throw deprecation error
-                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription subscription create action now requires that a default payment source is set up before subscribing.');
+
+                $createPaymentSource = function($gateway, $paymentFormData) use ($plugin) {
                     $paymentForm = $gateway->getPaymentFormModel();
                     $paymentForm->setAttributes($paymentFormData, false);
 
                     if ($paymentForm->validate()) {
                         $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
                     }
+                };
+
+                $exists = class_exists(PaymentIntents::class);
+                /** @phpstan-ignore-next-line */
+                if ($exists && $plan->getGateway() instanceof PaymentIntents) {
+                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription create action now requires that a customer’s default payment source is set up before subscribing with Stripe.');
+                    // Only be backward compatible with Stripe if they supply the payment method ID.
+                    if (isset($paymentFormData['paymentMethodId'])) {
+                        $createPaymentSource($gateway, $paymentFormData);
+                    }
+                } else {
+                    $createPaymentSource($gateway, $paymentFormData);
                 }
 
                 $fieldsLocation = $this->request->getParam('fieldsLocation', 'fields');
