@@ -423,7 +423,7 @@ class Discounts extends Component
             $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
-        
+
         if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
@@ -601,7 +601,7 @@ class Discounts extends Component
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
-        
+
         if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             return false;
         }
@@ -742,7 +742,11 @@ class Discounts extends Component
         $record->ignoreSales = $model->ignoreSales;
         $record->appliedTo = $model->appliedTo;
 
-        $record->sortOrder = $record->sortOrder ?: 999;
+        // If the discount is new, set the sort order to be at the top of the list.
+        // We will ensure the sort orders are sequential when we save the discount.
+        $sortOrder = $record->sortOrder ?: 0;
+
+        $record->sortOrder = $sortOrder;
         $record->couponFormat = $model->couponFormat;
 
         $record->categoryRelationshipType = $model->categoryRelationshipType;
@@ -786,6 +790,9 @@ class Discounts extends Component
             Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
 
+            // After saving the discount, ensure the sort order for all discounts is sequential
+            $this->ensureSortOrder();
+
             // Raise the afterSaveDiscount event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_DISCOUNT)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_DISCOUNT, new DiscountEvent([
@@ -826,11 +833,16 @@ class Discounts extends Component
         $result = (bool)$discountRecord->delete();
 
         //Raise the afterDeleteDiscount event
-        if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
-            $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
-                'discount' => $discount,
-                'isNew' => false,
-            ]));
+        if ($result) {
+            // Ensure discount table sort order
+            $this->ensureSortOrder();
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
+                $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
+                    'discount' => $discount,
+                    'isNew' => false,
+                ]));
+            }
         }
 
         // Reset internal cache
@@ -839,6 +851,45 @@ class Discounts extends Component
         $this->_matchingLineItemCategoryCondition = null;
 
         return $result;
+    }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     * @since 4.3.3
+     */
+    public function ensureSortOrder(): void
+    {
+        $table = Table::DISCOUNTS;
+
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
+
+        // Make all discount uses with their correct user
+        if ($isPsql) {
+            $sql = <<<SQL
+UPDATE $table a
+SET [[sortOrder]] = b.rownumber
+FROM (
+SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
+FROM $table
+ORDER BY [[sortOrder]] ASC, id ASC
+) b
+where a.id = b.id
+SQL;
+        } else {
+            $sql = <<<SQL
+UPDATE $table a
+JOIN (SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
+FROM $table) b ON a.id = b.id
+SET [[a.sortOrder]] = b.rownumber
+SQL;
+        }
+
+        Craft::$app->getDb()->createCommand($sql)->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**

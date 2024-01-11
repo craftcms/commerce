@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
@@ -20,12 +21,15 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
+use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\Entry;
 use craft\errors\MissingComponentException;
+use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -67,8 +71,95 @@ class DiscountsController extends BaseCpController
      */
     public function actionIndex(): Response
     {
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-        return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
+        return $this->renderTemplate('commerce/promotions/discounts/index', [
+            'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data'),
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.3.3
+     */
+    public function actionTableData(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $page = $this->request->getParam('page', 1);
+        $limit = $this->request->getParam('per_page', 100);
+        $search = $this->request->getParam('search');
+        $offset = ($page - 1) * $limit;
+
+        $sqlQuery = (new Query())
+            ->from(['discounts' => Table::DISCOUNTS])
+            ->select([
+                'discounts.id',
+                'discounts.name',
+                'discounts.enabled',
+                'discounts.dateFrom',
+                'discounts.dateTo',
+                'discounts.totalDiscountUses',
+                'discounts.ignoreSales',
+                'discounts.stopProcessing',
+                'discounts.sortOrder',
+                'coupons.discountId',
+            ])
+            ->distinct()
+            ->leftJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]')
+            ->orderBy(['sortOrder' => SORT_ASC]);
+
+
+        if ($search) {
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+            $sqlQuery
+                ->andWhere([
+                    'or',
+                    // Search discount name
+                    [$likeOperator, 'discounts.name', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search discount description
+                    [$likeOperator, 'discounts.description', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search coupon code
+                    ['discounts.id' => (new Query())
+                        ->from(Table::COUPONS)
+                        ->select('discountId')
+                        ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false]),
+                    ],
+                ]);
+        }
+
+        $total = $sqlQuery->count();
+
+        $sqlQuery->limit($limit);
+        $sqlQuery->offset($offset);
+
+        $result = $sqlQuery->all();
+
+        $tableData = [];
+        $dateFormat = Craft::$app->getFormattingLocale()->getDateTimeFormat('short');
+        foreach ($result as $item) {
+            $dateFrom = $item['dateFrom'] ? DateTimeHelper::toDateTime($item['dateFrom']) : null;
+            $dateTo = $item['dateTo'] ? DateTimeHelper::toDateTime($item['dateTo']) : null;
+            $dateRange = ($dateFrom ? $dateFrom->format($dateFormat) : '∞') . ' - ' > ($dateTo ? $dateTo->format($dateFormat) : '∞');
+            $dateRange = !$dateFrom && !$dateTo ? '∞' : $dateRange;
+
+            $tableData[] = [
+                'id' => $item['id'],
+                'title' => Craft::t('site', $item['name']),
+                'url' => UrlHelper::cpUrl('commerce/promotions/discounts/' . $item['id']),
+                'status' => (bool)$item['enabled'],
+                'duration' => $dateRange,
+                'timesUsed' => $item['totalDiscountUses'],
+                // If there is joined data then there are coupons
+                'hasCoupons' => (bool)$item['discountId'],
+                'ignore' => (bool)$item['ignoreSales'],
+                'stop' => (bool)$item['stopProcessing'],
+            ];
+        }
+
+        return $this->asSuccess(data: [
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $tableData,
+        ]);
     }
 
     /**
@@ -283,11 +374,42 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
-        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
+        $key = $this->request->getBodyParam('startPosition');
+
+        $idsOrdered = [];
+        foreach ($ids as $id) {
+            // Temporary -1 because the `reorderDiscounts()` method will increment the key before saving.
+            // @TODO update this when we can change the behaviour of the `reorderDiscounts()` method.
+            $idsOrdered[$key - 1] = $id;
+            $key++;
+        }
+
+        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($idsOrdered)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
 
         return $this->asSuccess();
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.3.3
+     */
+    public function actionMoveToPage(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $id = $this->request->getRequiredBodyParam('id');
+        $page = $this->request->getRequiredBodyParam('page');
+        $perPage = $this->request->getRequiredBodyParam('perPage');
+
+        if (AdminTable::moveToPage(Table::DISCOUNTS, $id, $page, $perPage)) {
+            return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));
+        }
+
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
     }
 
     /**
