@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Ongeldige formulesyntaxis',
     'Invalid gateway: {value}' => 'Ongeldige gateway: {value}',
     'Invalid order condition syntax.' => 'De voorwaardesyntaxis van de bestelling is ongeldig.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Ongeldige betaling of bestelling. Controleer de gegevens.',
     'Invalid payment source ID: {value}' => 'Ongeldige betaalbron-ID: {value}',
     'Invoice amount' => 'Factuurbedrag',
