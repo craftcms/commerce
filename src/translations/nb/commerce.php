@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Ugyldig formelsyntaks',
     'Invalid gateway: {value}' => 'Ugyldig portal: {value}',
     'Invalid order condition syntax.' => 'Ugyldig tilstandssyntaks for ordre.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Ugyldig betaling eller bestilling. Må endres.',
     'Invalid payment source ID: {value}' => 'Ugyldig betalingskilde-ID: {value}',
     'Invoice amount' => 'Fakturabeløp',
