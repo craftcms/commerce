@@ -7,6 +7,7 @@
 - It’s now possible to search discounts on the Discounts index page. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
 - Fixed a bug where calling `Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
 - Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
+- Fixed a bug that prevented the creation of a non Stripe subscription. ([#3365](https://github.com/craftcms/commerce/pull/3365))
 - Added `craft\commerce\services\Discounts::ensureSortOrder()`.
 - Added `craft\commerce\controllers\DiscountsController::actionMoveToPage()`.
 
