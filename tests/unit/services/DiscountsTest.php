@@ -417,6 +417,11 @@ class DiscountsTest extends Unit
         for ($i = 0; $i < count($allDiscounts); $i++) {
             self::assertEquals($i + 1, $allDiscounts[$i]->sortOrder);
         }
+
+        // delete temp records
+        foreach ($ids as $id) {
+            $this->discounts->deleteDiscountById($id);
+        }
     }
 
     /**
