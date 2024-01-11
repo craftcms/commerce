@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Invalid formula syntax',
     'Invalid gateway: {value}' => 'Invalid gateway: {value}',
     'Invalid order condition syntax.' => 'Invalid order condition syntax.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Invalid payment or order. Please review.',
     'Invalid payment source ID: {value}' => 'Invalid payment source ID: {value}',
     'Invoice amount' => 'Invoice amount',
