@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Neplatná syntax vzorca',
     'Invalid gateway: {value}' => 'Neplatná brána: {value}',
     'Invalid order condition syntax.' => 'Neplatná syntax podmienky objednávky.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Neplatná platba alebo objednávka. Skontrolujte, prosím.',
     'Invalid payment source ID: {value}' => 'Neplatné ID zdroja platby: {value}',
     'Invoice amount' => 'Suma faktúry',
