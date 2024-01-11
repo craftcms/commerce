@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.4.0 - 2024-01-11
 
 - Craft Commerce now requires Craft CMS 4.6.0 or later.
 - Added search to the Discounts index. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
