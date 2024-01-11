@@ -670,6 +670,7 @@ class Discount extends Model
                 'dateUpdated',
                 'ignoreSales',
                 'appliedTo',
+                'sortOrder',
             ], 'safe'],
         ];
     }
