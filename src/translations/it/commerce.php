@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => 'Sintassi della formula non valida',
     'Invalid gateway: {value}' => 'Gateway non valido: {value}',
     'Invalid order condition syntax.' => 'Sintassi della condizione dell\'ordine non valida.',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => 'Ordine o pagamento non valido. Controlla i dati.',
     'Invalid payment source ID: {value}' => 'ID fonte di pagamento non valido: {value}',
     'Invoice amount' => 'Importo fattura',
