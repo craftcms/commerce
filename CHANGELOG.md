@@ -3,14 +3,13 @@
 ## Unreleased
 
 - Craft Commerce now requires Craft CMS 4.6.0 or later.
-- Improved the performance of the Discounts index page. ([#3347](https://github.com/craftcms/commerce/issues/3347))
-- It’s now possible to search discounts on the Discounts index page. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
+- Added search to the Discounts index. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
+- Improved the performance of the Discounts index. ([#3347](https://github.com/craftcms/commerce/issues/3347))
 - Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
-- Fixed a bug where calling `Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
-- Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
-- Fixed a bug that prevented the creation of a non Stripe subscription. ([#3365](https://github.com/craftcms/commerce/pull/3365))
 - Added `craft\commerce\services\Discounts::ensureSortOrder()`.
-- Added `craft\commerce\controllers\DiscountsController::actionMoveToPage()`.
+- Fixed a bug where calling `craft\commerce\services\Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
+- Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
+- Fixed a bug that prevented the creation of a non-Stripe subscription. ([#3365](https://github.com/craftcms/commerce/pull/3365))
 
 ## 4.3.3 - 2023-12-14
 
