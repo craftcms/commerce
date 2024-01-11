@@ -872,7 +872,7 @@ SET [[sortOrder]] = b.rownumber
 FROM (
 SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
 FROM $table
-ORDER BY sortOrder ASC, id ASC
+ORDER BY [[sortOrder]] ASC, id ASC
 ) b
 where a.id = b.id
 SQL;
