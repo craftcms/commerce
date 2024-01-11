@@ -378,6 +378,48 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @return void
+     * @throws Exception
+     * @throws \Random\RandomException
+     */
+    public function testEnsureSortOrder(): void
+    {
+        $ids = [];
+        // Create dummy discount records
+        for ($i = 1; $i <= 5; $i++) {
+            $discount = new \craft\commerce\records\Discount();
+            $discount->name = 'Dummy Discount ' . $i;
+            // randomise the sort order
+            $discount->sortOrder = $i + random_int(1, 15);
+            $discount->enabled = true;
+            $discount->allCategories = true;
+            $discount->allPurchasables = true;
+            $discount->percentageOffSubject = 'original';
+            $discount->save();
+            $ids[] = $discount->id;
+        }
+
+        $this->discounts->ensureSortOrder();
+
+        // Check table directly
+        $discountRows = (new Query())
+            ->select(['id', 'sortOrder'])
+            ->from(Table::DISCOUNTS)
+            ->orderBy(['sortOrder' => SORT_ASC])
+            ->all();
+
+        for ($i = 0; $i < count($discountRows); $i++) {
+            self::assertEquals($i + 1, $discountRows[$i]['sortOrder']);
+        }
+
+        // Check get all method
+        $allDiscounts = $this->discounts->getAllDiscounts();
+        for ($i = 0; $i < count($allDiscounts); $i++) {
+            self::assertEquals($i + 1, $allDiscounts[$i]->sortOrder);
+        }
+    }
+
+    /**
      * @param array|false $attributes
      * @param int $count
      * @return void
