@@ -509,6 +509,7 @@ return [
     'Invalid formula syntax' => '無効な式構文',
     'Invalid gateway: {value}' => '無効なゲートウェイ: {value}',
     'Invalid order condition syntax.' => '注文条件の構文が無効です。',
+    'Invalid page number.' => 'Invalid page number.',
     'Invalid payment or order. Please review.' => '無効な支払いまたは注文です。確認してください。',
     'Invalid payment source ID: {value}' => '無効な支払い元 ID: {value}',
     'Invoice amount' => '請求金額',
