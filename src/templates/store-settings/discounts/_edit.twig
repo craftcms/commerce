@@ -581,15 +581,17 @@
         <hr>
         <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
-        {{ forms.textField({
+        {{ forms.moneyField({
             label: "Flat Order Discount Amount Off"|t('commerce'),
             instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up."|t('commerce'),
             id: 'baseDiscount',
             errors: discount.getErrors('baseDiscount'),
             tip: 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.'|t('commerce'),
             name: 'baseDiscount',
-            type: 'text',
-            size: 10,
+            currencyLabel: currency,
+            showCurrency: true,
+            showClear: false,
+            decimals: decimals,
             value: discount.baseDiscount ? discount.baseDiscount|number : 0,
         }) }}
 

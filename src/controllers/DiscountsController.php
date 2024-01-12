@@ -26,6 +26,7 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\MoneyHelper;
 use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -176,8 +177,13 @@ class DiscountsController extends BaseStoreSettingsController
         $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
 
         $baseDiscount = $this->request->getBodyParam('baseDiscount') ?: 0;
-        $baseDiscount = preg_replace('/[^0-9\.\-\,]/', '', $baseDiscount);
-        $baseDiscount = Localization::normalizeNumber($baseDiscount);
+        if (isset($baseDiscount['value'])) {
+            $baseDiscount['value'] = preg_replace('/[^0-9\.\-\,]/', '', $baseDiscount['value']);
+        }
+        $baseDiscount += [
+            'currency' => $discount->getStore()->getCurrency(),
+        ];
+        $baseDiscount = MoneyHelper::toDecimal(MoneyHelper::toMoney($baseDiscount));
         $discount->baseDiscount = $baseDiscount * -1;
 
         $perItemDiscount = $this->request->getBodyParam('perItemDiscount') ?: 0;
