@@ -879,8 +879,12 @@ SQL;
         } else {
             $sql = <<<SQL
 UPDATE $table a
-JOIN (SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
-FROM $table) b ON a.id = b.id
+JOIN (
+    SELECT id, [[sortOrder]], (@ROW_NUMBER := @ROW_NUMBER + 1) as rownumber
+    FROM $table,
+    (SELECT @ROW_NUMBER := 0) AS X
+    ORDER BY [[sortOrder]] ASC, id ASC    
+) b ON a.id = b.id
 SET [[a.sortOrder]] = b.rownumber
 SQL;
         }
