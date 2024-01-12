@@ -77,7 +77,7 @@ class DiscountsController extends BaseStoreSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        return $this->renderTemplate('commerce/promotions/discounts/index', [
+        return $this->renderTemplate('commerce/store-settings/discounts/index', [
             'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]),
         ]);
     }
@@ -106,7 +106,7 @@ class DiscountsController extends BaseStoreSettingsController
                 'discounts.dateFrom',
                 'discounts.dateTo',
                 'discounts.totalDiscountUses',
-                'discounts.ignoreSales',
+                'discounts.ignorePromotions',
                 'discounts.stopProcessing',
                 'discounts.sortOrder',
                 'coupons.discountId',
