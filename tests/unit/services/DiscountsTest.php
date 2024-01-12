@@ -385,12 +385,14 @@ class DiscountsTest extends Unit
     public function testEnsureSortOrder(): void
     {
         $ids = [];
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         // Create dummy discount records
         for ($i = 1; $i <= 5; $i++) {
             $discount = new \craft\commerce\records\Discount();
             $discount->name = 'Dummy Discount ' . $i;
             // randomise the sort order
             $discount->sortOrder = $i + random_int(1, 15);
+            $discount->storeId = $storeId;
             $discount->enabled = true;
             $discount->allCategories = true;
             $discount->allPurchasables = true;
@@ -399,7 +401,7 @@ class DiscountsTest extends Unit
             $ids[] = $discount->id;
         }
 
-        $this->discounts->ensureSortOrder();
+        $this->discounts->ensureSortOrder($storeId);
 
         // Check table directly
         $discountRows = (new Query())
