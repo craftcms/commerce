@@ -31,27 +31,6 @@
     {% hook "cp.commerce.discounts.index" %}
 {% endblock %}
 
-{% set tableData = [] %}
-{% for discount in discounts %}
-
-    {% set dateRange = (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') %}
-    {% if not discount.dateFrom and not discount.dateTo %}
-        {% set dateRange = '∞' %}
-    {% endif %}
-
-    {% set tableData = tableData|merge([{
-        id: discount.id,
-        title: discount.name|t('site'),
-        url: discount.cpEditUrl,
-        status: discount.enabled ? true : false,
-        duration: dateRange,
-        timesUsed: discount.totalDiscountUses,
-        hasCoupons: discount.coupons|length ? true : false,
-        ignore: discount.ignorePromotions ? true : false,
-        stop: discount.stopProcessing ? true : false,
-    }]) %}
-{% endfor %}
-
 {% js %}
     var actions = [
     {% if currentUser.can('commerce-editDiscounts') %}
@@ -123,12 +102,16 @@
         columns: columns,
         fullPane: false,
         container: '#discounts-vue-admin-table',
+        allowMultipleDeletions: true,
         deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
         padded: true,
-        reorderAction: 'commerce/discounts/reorder',
+        paginatedReorderAction: 'commerce/discounts/reorder',
+        moveToPageAction: 'commerce/discounts/move-to-page',
         reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
         reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
-        tableData: {{ tableData|json_encode|raw }}
-});
+        tableDataEndpoint: '{{ tableDataEndpoint|raw }}',
+        search: true,
+        perPage: 100,
+  });
 {% endjs %}

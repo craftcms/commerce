@@ -167,7 +167,7 @@ class OrderStatus extends Model implements HasStoreInterface
 
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
+        return sprintf('<span class="commerceStatusLabel nowrap"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
     }
 
     /**
