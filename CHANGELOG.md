@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when saving a discount. ([#3364](https://github.com/craftcms/commerce/issues/3364))
 ## 4.4.0 - 2024-01-11
 
 - Craft Commerce now requires Craft CMS 4.6.0 or later.

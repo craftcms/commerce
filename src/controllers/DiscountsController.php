@@ -239,7 +239,7 @@ class DiscountsController extends BaseCpController
         $discount->perEmailLimit = (int)$this->request->getBodyParam('perEmailLimit');
         $discount->totalDiscountUseLimit = (int)$this->request->getBodyParam('totalDiscountUseLimit');
         $discount->ignoreSales = (bool)$this->request->getBodyParam('ignoreSales');
-        $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
+        $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType', $discount->categoryRelationshipType);
         $discount->baseDiscountType = $this->request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $this->request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
