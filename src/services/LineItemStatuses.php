@@ -187,8 +187,9 @@ class LineItemStatuses extends Component
             $statusRecord->sortOrder = $data['sortOrder'] ?? 99;
             $statusRecord->default = $data['default'];
             $statusRecord->uid = $statusUid;
+            $statusRecord->isArchived = false;
+            $statusRecord->dateArchived = null;
 
-            // Save the volume
             $statusRecord->save(false);
 
             if ($statusRecord->default) {

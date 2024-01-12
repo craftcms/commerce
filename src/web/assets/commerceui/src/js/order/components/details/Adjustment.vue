@@ -124,10 +124,9 @@
                         type="text"
                         class="text"
                         v-model="amount"
+                        :placeholder="amount"
                         :class="{
-                            error: getErrors(
-                                errorPrefix + adjustmentKey + '.amount'
-                            ).length,
+                            error: hasAmountErrors,
                             readonly: !isAllowedAdjustmentType,
                         }"
                         :readonly="!isAllowedAdjustmentType"
@@ -227,6 +226,8 @@
                     },
                 ],
                 allowedAdjustmentTypes: ['tax', 'discount', 'shipping'],
+                localAdjustment: this.adjustment,
+                amountNaN: false,
             };
         },
 
@@ -271,14 +272,33 @@
 
             amount: {
                 get() {
-                    return this.adjustment.amount;
+                    return this.localAdjustment.amount;
                 },
 
                 set: debounce(function (value) {
-                    const adjustment = this.adjustment;
-                    adjustment.amount = value;
-                    this.$emit('update', adjustment);
+                    this.localAdjustment.amount = value;
+
+                    if (value === '' || isNaN(value)) {
+                        console.log("isn't a number", value);
+                        if (value === '') {
+                            this.amountNaN = false;
+                        } else {
+                            this.amountNaN = true;
+                        }
+                        return;
+                    }
+
+                    this.amountNaN = false;
+                    this.$emit('update', this.localAdjustment);
                 }, 1000),
+            },
+
+            hasAmountErrors() {
+                return (
+                    this.getErrors(
+                        this.errorPrefix + this.adjustmentKey + '.amount'
+                    ).length > 0 || this.amountNaN
+                );
             },
 
             included: {

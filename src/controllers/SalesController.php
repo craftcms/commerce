@@ -160,7 +160,7 @@ class SalesController extends BaseStoreSettingsController
         $sale->sortOrder = (int)$this->request->getBodyParam('sortOrder');
         $sale->ignorePrevious = (bool)$this->request->getBodyParam('ignorePrevious');
         $sale->stopProcessing = (bool)$this->request->getBodyParam('stopProcessing');
-        $sale->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
+        $sale->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType', $sale->categoryRelationshipType);
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {

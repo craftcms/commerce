@@ -636,7 +636,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     }
                 },
             ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
     }
 
