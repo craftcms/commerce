@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 4.4.1.1 - 2024-01-12
+
+- Fixed a PHP error that occurred when saving a sale. ([#3364](https://github.com/craftcms/commerce/issues/3364))
+
 ## 4.4.1 - 2024-01-12
 
 - Fixed a SQL error that could occur when updating to Commerce 4.4.0 on MySQL. ([#3367](https://github.com/craftcms/commerce/issues/3367))
