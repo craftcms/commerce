@@ -818,7 +818,7 @@ class Discounts extends Component
             $transaction->commit();
 
             // After saving the discount, ensure the sort order for all discounts is sequential
-            $this->ensureSortOrder();
+            $this->ensureSortOrder($model->storeId);
 
             // Raise the afterSaveDiscount event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_DISCOUNT)) {
@@ -856,13 +856,14 @@ class Discounts extends Component
 
         // Get the Discount model before deletion to pass to the Event.
         $discount = $this->getDiscountById($id, $discountRecord->storeId);
+        $storeId = $discount->storeId;
 
         $result = (bool)$discountRecord->delete();
 
         //Raise the afterDeleteDiscount event
         if ($result) {
             // Ensure discount table sort order
-            $this->ensureSortOrder();
+            $this->ensureSortOrder($storeId);
 
             if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
                 $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
@@ -885,8 +886,11 @@ class Discounts extends Component
      * @throws \yii\db\Exception
      * @since 4.4.0
      */
-    public function ensureSortOrder(): void
+    public function ensureSortOrder(?int $storeId = null): void
     {
+        // @TODO ensure sort order per store
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
         $table = Table::DISCOUNTS;
 
         $isPsql = Craft::$app->getDb()->getIsPgsql();
@@ -899,6 +903,7 @@ SET [[sortOrder]] = b.rownumber
 FROM (
 SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
 FROM $table
+WHERE [[storeId]] = $storeId
 ORDER BY [[sortOrder]] ASC, id ASC
 ) b
 where a.id = b.id
@@ -910,6 +915,7 @@ JOIN (
     SELECT id, [[sortOrder]], (@ROW_NUMBER := @ROW_NUMBER + 1) as rownumber
     FROM $table,
     (SELECT @ROW_NUMBER := 0) AS X
+    WHERE [[storeId]] = $storeId
     ORDER BY [[sortOrder]] ASC, id ASC    
 ) b ON a.id = b.id
 SET [[a.sortOrder]] = b.rownumber

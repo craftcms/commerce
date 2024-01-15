@@ -436,6 +436,8 @@ class DiscountsController extends BaseStoreSettingsController
         $page = $this->request->getRequiredBodyParam('page');
         $perPage = $this->request->getRequiredBodyParam('perPage');
 
+        // @TODO figure out moving based on `storeId`
+
         if (AdminTable::moveToPage(Table::DISCOUNTS, $id, $page, $perPage)) {
             return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));
         }
