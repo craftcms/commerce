@@ -93,6 +93,12 @@ class DiscountsController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
 
         $storeId = $this->request->getRequiredParam('storeId');
+
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
+            throw new InvalidConfigException('Invalid store.');
+        }
+
+
         $page = $this->request->getParam('page', 1);
         $limit = $this->request->getParam('per_page', 100);
         $search = $this->request->getParam('search');
@@ -154,7 +160,7 @@ class DiscountsController extends BaseStoreSettingsController
             $tableData[] = [
                 'id' => $item['id'],
                 'title' => Craft::t('site', $item['name']),
-                'url' => UrlHelper::cpUrl('commerce/promotions/discounts/' . $item['id']),
+                'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle . '/discounts/' . $item['id']),
                 'status' => (bool)$item['enabled'],
                 'duration' => $dateRange,
                 'timesUsed' => $item['totalDiscountUses'],
