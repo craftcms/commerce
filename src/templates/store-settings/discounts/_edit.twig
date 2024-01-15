@@ -367,14 +367,16 @@
             {% endblock %}
         {% endembed %}
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
             value: discount.purchaseTotal ? discount.purchaseTotal|number : 0,
-            type: 'number',
-            step: 'any',
+            currencyLabel: currency,
+            decimals: decimals,
+            showCurrency: true,
+            showClear: false,
             errors: discount.getErrors('purchaseTotal'),
         }) }}
 
