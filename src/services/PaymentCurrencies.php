@@ -197,10 +197,10 @@ class PaymentCurrencies extends Component
 
         if ($this->getPrimaryPaymentCurrency()->iso != $fromCurrency) {
             // now the amount is in the primary currency
-            $amount /= $fromCurrency->rate;
+            $amount /= $fromCurrency->getRate();
         }
 
-        $result = $amount * $toCurrency->rate;
+        $result = $amount * $toCurrency->getRate();
 
         if ($round) {
             return CurrencyHelper::round($result, $toCurrency);
@@ -239,7 +239,7 @@ class PaymentCurrencies extends Component
         $record->iso = strtoupper($model->iso);
         $record->primary = $model->primary;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
-        $record->rate = $model->primary ? 1 : $model->rate;
+        $record->rate = $model->primary ? 1 : $model->getRate();
 
         $record->save(false);
 
