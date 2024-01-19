@@ -108,11 +108,18 @@ class PaymentCurrency extends Model
         return $names;
     }
 
+    /**
+     * @return string|null
+     */
     public function getAlphabeticCode(): ?string
     {
         return $this->iso;
     }
 
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     */
     public function getNumericCode(): ?int
     {
         return Plugin::getInstance()->getCurrencies()->numericCodeFor($this->iso);

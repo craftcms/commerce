@@ -10,6 +10,7 @@ namespace craft\commerce\elements\conditions\orders;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
+use Money\Currency;
 use yii\base\InvalidConfigException;
 
 /**
@@ -43,6 +44,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttr
         $subUnit = 2;
 
         if ($this->getCondition() instanceof HasStoreInterface) {
+            /** @var Currency $currency */
             $currency = $this->getCondition()->getStore()->getCurrency();
             $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
         }

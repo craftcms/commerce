@@ -9,7 +9,6 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use Money\Currencies\ISOCurrencies;
@@ -32,7 +31,7 @@ class Currency
      * a currency model results in rounding in default currency.
      *
      * @param float $amount The amount as a decimal/float
-     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @param PaymentCurrency|string|MoneyCurrency|null $currency
      * @return float
      */
     public static function round(float $amount, PaymentCurrency|string|MoneyCurrency|null $currency = null): float
@@ -52,11 +51,15 @@ class Currency
         $moneyFormatter = new DecimalMoneyFormatter(new ISOCurrencies());
         return (float)$moneyFormatter->format(Plugin::getInstance()->getCurrencies()->getTeller($currency)->convertToMoney($amount));
     }
-    
+
+    /**
+     * @return int
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     */
     public static function defaultDecimals(): int
     {
-        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        return Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)->minorUnit;
+        return Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency()->getSubUnit();
     }
 
     /**
