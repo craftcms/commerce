@@ -279,6 +279,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         return match ($attribute) {
             'sku' => Html::tag('code', $this->getSkuAsText()),
+            'price' => $this->basePrice, // @TODO change this to the `asCurrency` attribute when implemented
+            'promotionalPrice' => $this->basePromotionalPrice, // @TODO change this to the `asCurrency` attribute when implemented
+            'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
+            'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
+            'height' => $this->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             default => parent::attributeHtml($attribute),
         };
     }
@@ -855,23 +861,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         ]);
 
         return $html;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function tableAttributeHtml(string $attribute): string
-    {
-        return match ($attribute) {
-            'sku' => Html::encode($this->getSkuAsText()),
-            'price' => $this->basePrice, // @TODO change this to the `asCurrency` attribute when implemented
-            'promotionalPrice' => $this->basePromotionalPrice, // @TODO change this to the `asCurrency` attribute when implemented
-            'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
-            'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            'height' => $this->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
-            default => parent::tableAttributeHtml($attribute),
-        };
     }
 
     /**

@@ -111,6 +111,10 @@
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\Vat`.
+- Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.

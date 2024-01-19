@@ -1150,7 +1150,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         if ($attribute === 'product') {
             $product = $this->getProduct();
@@ -1161,6 +1161,6 @@ class Variant extends Purchasable implements NestedElementInterface
             return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 }

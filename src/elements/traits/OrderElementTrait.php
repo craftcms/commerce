@@ -65,7 +65,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus':
@@ -220,7 +220,7 @@ trait OrderElementTrait
             }
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
     }
