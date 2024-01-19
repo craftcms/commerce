@@ -9,10 +9,13 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ConfigHelper;
+use craft\models\Site;
 use yii\base\InvalidConfigException;
 
 /**
@@ -278,16 +281,23 @@ class Settings extends Model
      * Returns the ISO payment currency for a given site, or the default site if no handle is provided.
      *
      * @param string|null $siteHandle
-     * @throws InvalidConfigException if the currency in the config file is not set up
+     * @return string|null
      * @throws CurrencyException
+     * @throws InvalidConfigException if the currency in the config file is not set up
+     * @throws SiteNotFoundException
      */
     public function getPaymentCurrency(string $siteHandle = null): ?string
     {
-        $paymentCurrency = ConfigHelper::localizedValue($this->paymentCurrency, $siteHandle);
-        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
-        $paymentCurrencies = ArrayHelper::getColumn($allPaymentCurrencies, 'iso');
+        /** @var Site|StoreBehavior|null $site */
+        $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getPrimarySite();
+        if (!$site) {
+            throw new InvalidConfigException("Invalid site: $siteHandle");
+        }
 
-        if ($paymentCurrency && !in_array($paymentCurrency, $paymentCurrencies, false)) {
+        $paymentCurrency = ConfigHelper::localizedValue($this->paymentCurrency, $siteHandle);
+        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($site->getStore()->id);
+
+        if ($paymentCurrency && !$allPaymentCurrencies->contains('iso', '==', $paymentCurrency)) {
             throw new InvalidConfigException("Invalid payment currency: $paymentCurrency");
         }
 
