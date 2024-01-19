@@ -43,7 +43,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttr
         $subUnit = 2;
 
         if ($this->getCondition() instanceof HasStoreInterface) {
-            $currency = $this->getCondition()->getStore()->getCurency();
+            $currency = $this->getCondition()->getStore()->getCurrency();
             $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
         }
 
