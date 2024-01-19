@@ -56,9 +56,10 @@ class PaymentCurrencies extends Component
     /**
      * Get all payment currencies.
      *
-     * @return PaymentCurrency[]
-     * @throws CurrencyException if currency does not exist with the given ISO code
+     * @param int|null $storeId
+     * @return Collection<PaymentCurrency>
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
     public function getAllPaymentCurrencies(?int $storeId = null): Collection
     {
@@ -219,7 +220,7 @@ class PaymentCurrencies extends Component
         $record->iso = strtoupper($model->iso);
         $record->storeId = $model->storeId;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
-        $record->rate = $model->primary ? 1 : $model->rate;
+        $record->rate = $model->getPrimary() ? 1 : $model->rate;
 
         $record->save(false);
 
