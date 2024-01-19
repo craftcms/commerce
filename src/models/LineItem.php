@@ -121,7 +121,7 @@ class LineItem extends Model
     public int $qty;
 
     /**
-     * @var mixed Snapshot
+     * @var array|null Snapshot
      */
     private ?array $_snapshot = null;
 
