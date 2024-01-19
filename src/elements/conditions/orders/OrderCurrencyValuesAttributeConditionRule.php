@@ -7,10 +7,11 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use craft\commerce\base\HasStoreInterface;
-use craft\commerce\errors\CurrencyException;
-use craft\commerce\Plugin;
-use yii\base\InvalidConfigException;
+use craft\base\ElementInterface;
+use craft\base\FieldInterface;
+use craft\fields\conditions\MoneyFieldConditionRule;
+use craft\fields\Money;
+use yii\db\QueryInterface;
 
 /**
  * Order Number Attribute Condition Rule
@@ -20,37 +21,58 @@ use yii\base\InvalidConfigException;
  *
  * @property-read float|int $orderAttributeValue
  */
-abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttributeConditionRule
+abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldConditionRule
 {
+    public function __construct($config = [])
+    {
+        $this->setFieldUid('not-applicable');
+        parent::__construct($config);
+    }
+
+    protected function field(): FieldInterface
+    {
+        $field = new Money();
+        $field->currency = 'USD';
+
+        return $field;
+    }
+
+    public function getCondition(): \craft\elements\conditions\ElementConditionInterface
+    {
+        return parent::getCondition();
+    }
+
+    public string $orderAttribute = '';
+
     /**
      * @inheritdoc
      */
-    protected function inputOptions(): array
+    public function getExclusiveQueryParams(): array
     {
-        return array_merge(parent::inputOptions(), [
-            'step' => $this->inputStep(),
-        ]);
+        return [$this->orderAttribute];
     }
 
     /**
-     * @return string
-     * @throws CurrencyException
-     * @throws InvalidConfigException
-     * @since 4.2.0
+     * @inheritdoc
      */
-    protected function inputStep(): string
+    public function getLabel(): string
     {
-        $subUnit = 2;
+        return 'Label not implemented';
+    }
 
-        if ($this->getCondition() instanceof HasStoreInterface) {
-            $currency = $this->getCondition()->getStore()->getCurency();
-            $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
-        }
+    /**
+     * @inheritdoc
+     */
+    public function matchElement(ElementInterface $element): bool
+    {
+        return $this->matchValue($element->{$this->orderAttribute});
+    }
 
-        if ($subUnit === 0) {
-            return '1';
-        }
-
-        return '0.' . str_pad('1', $subUnit, '0', STR_PAD_LEFT);
+    /**
+     * @inheritdoc
+     */
+    public function modifyQuery(QueryInterface $query): void
+    {
+        $query->{$this->orderAttribute}($this->paramValue());
     }
 }
