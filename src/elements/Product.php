@@ -44,7 +44,6 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
-use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -918,7 +917,6 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-
                     if (count($this->getVariants(true)) < 1) {
                         $this->addError('variants', Craft::t('commerce', 'At least one variant is required.'));
                     }
