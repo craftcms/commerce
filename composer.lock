@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "620b3d5a7db68c21a5a487cf6cf59647",
+    "content-hash": "62bff82f7336ba2af745bbf333e0e1b5",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -330,12 +330,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "83f877cdd2aba98786eea8945a0d03e8abdd1176"
+                "reference": "536430e31e9a8fa7a6189228d7540db20111107e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/83f877cdd2aba98786eea8945a0d03e8abdd1176",
-                "reference": "83f877cdd2aba98786eea8945a0d03e8abdd1176",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/536430e31e9a8fa7a6189228d7540db20111107e",
+                "reference": "536430e31e9a8fa7a6189228d7540db20111107e",
                 "shasum": ""
             },
             "require": {
@@ -444,7 +444,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2024-01-17T16:05:26+00:00"
+            "time": "2024-01-19T13:57:58+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -8031,6 +8031,68 @@
                 "source": "https://github.com/craftcms/rector/tree/main"
             },
             "time": "2023-12-13T12:19:33+00:00"
+        },
+        {
+            "name": "craftcms/redactor",
+            "version": "4.0.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/craftcms/redactor.git",
+                "reference": "130bb818d36ba7c5365024f3c6cf7f825312d207"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/craftcms/redactor/zipball/130bb818d36ba7c5365024f3c6cf7f825312d207",
+                "reference": "130bb818d36ba7c5365024f3c6cf7f825312d207",
+                "shasum": ""
+            },
+            "require": {
+                "craftcms/cms": "^5.0.0-alpha",
+                "craftcms/html-field": "^3.0.0-alpha",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "craftcms/ecs": "dev-main",
+                "craftcms/phpstan": "dev-main",
+                "craftcms/rector": "dev-main"
+            },
+            "type": "craft-plugin",
+            "extra": {
+                "name": "Redactor",
+                "handle": "redactor",
+                "documentationUrl": "https://github.com/craftcms/redactor/blob/v2/README.md"
+            },
+            "autoload": {
+                "psr-4": {
+                    "craft\\redactor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pixel & Tonic",
+                    "homepage": "https://pixelandtonic.com/"
+                }
+            ],
+            "description": "Edit rich text content in Craft CMS using Redactor by Imperavi.",
+            "keywords": [
+                "Redactor",
+                "cms",
+                "craftcms",
+                "html",
+                "yii2"
+            ],
+            "support": {
+                "docs": "https://github.com/craftcms/redactor/blob/v2/README.md",
+                "email": "support@craftcms.com",
+                "issues": "https://github.com/craftcms/redactor/issues?state=open",
+                "rss": "https://github.com/craftcms/redactor/commits/v2.atom",
+                "source": "https://github.com/craftcms/redactor"
+            },
+            "time": "2023-12-27T20:07:14+00:00"
         },
         {
             "name": "fakerphp/faker",
