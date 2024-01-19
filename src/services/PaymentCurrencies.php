@@ -15,6 +15,7 @@ use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use Illuminate\Support\Collection;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
@@ -76,10 +77,14 @@ class PaymentCurrencies extends Component
     /**
      * Get a payment currency by its ISO code.
      *
-     * @throws CurrencyException if currency does not exist with tat iso code
+     * @param string $iso
+     * @param int|null $storeId
+     * @return PaymentCurrency|null
+     * @throws CurrencyException if currency does not exist with that iso code
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getPaymentCurrencyByIso(string $iso, ?string $storeId = null): ?PaymentCurrency
+    public function getPaymentCurrencyByIso(string $iso, ?int $storeId = null): ?PaymentCurrency
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
