@@ -560,7 +560,7 @@ class Product extends Element
      * @return NestedElementManager
      * @since 5.0.0
      */
-    public function getVariantManger(): NestedElementManager
+    public function getVariantManager(): NestedElementManager
     {
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(

@@ -57,7 +57,7 @@ class VariantsField extends BaseNativeField
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        return $element->getVariantManger()->getIndexHtml($element, [
+        return $element->getVariantManager()->getIndexHtml($element, [
             'canCreate' => true,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
             'sortable' => true,
