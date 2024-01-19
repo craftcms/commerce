@@ -59,7 +59,7 @@ EOT;
      */
     public function performAction(ElementQueryInterface $query): bool
     {
-        /** @var Variant $variant */
+        /** @var Variant|null $variant */
         $variant = $query->one();
         if (!$variant) {
             $this->setMessage(Craft::t('commerce', 'Unable to find variant.'));
