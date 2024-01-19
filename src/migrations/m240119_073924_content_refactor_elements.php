@@ -36,7 +36,7 @@ class m240119_073924_content_refactor_elements extends BaseContentRefactorMigrat
             // Update Variants
             $this->updateElements(
                 (new Query())->from(Table::VARIANTS)->where([
-                    'primaryOwnerId' => (new Query())->select('id')->from(Table::PRODUCTS)->where(['typeId' => $productType->id])
+                    'primaryOwnerId' => (new Query())->select('id')->from(Table::PRODUCTS)->where(['typeId' => $productType->id]),
                 ]),
                 $productType->getVariantFieldLayout()
             );
