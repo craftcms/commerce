@@ -76,6 +76,7 @@
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
+- Added `craft\commerce\elements\Product::getVariantManager()`.
 - Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
 - Added `craft\commerce\elements\Variant::getProductSlug()`.
 - Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
