@@ -517,11 +517,11 @@ class OrdersController extends Controller
         }
 
         if ($billingAddress) {
-            $orderArray['billingAddressHtml'] = Cp::addressCardHtml(address: $billingAddress);
+            $orderArray['billingAddressHtml'] = Cp::elementCardHtml($billingAddress);
         }
 
         if ($shippingAddress) {
-            $orderArray['shippingAddressHtml'] = Cp::addressCardHtml(address: $shippingAddress);
+            $orderArray['shippingAddressHtml'] = Cp::elementCardHtml($shippingAddress);
         }
 
         if (!empty($orderArray['lineItems'])) {
@@ -685,7 +685,7 @@ class OrdersController extends Controller
 
         $addresses = $addressElements->map(function(Address $address) {
             return $address->toArray() + [
-                    'html' => Cp::addressCardHtml(address: $address),
+                    'html' => Cp::elementCardHtml($address),
                 ];
         });
 
@@ -722,7 +722,7 @@ class OrdersController extends Controller
 
         return $this->asSuccess(data: [
             'address' => $address->toArray() + [
-                    'html' => Cp::addressCardHtml(address: $address),
+                    'html' => Cp::elementCardHtml($address),
                 ],
         ]);
     }
@@ -1203,7 +1203,7 @@ class OrdersController extends Controller
             if ($gateway && !$gateway instanceof MissingGateway) {
                 $variables['paymentForm'] = $gateway->getPaymentFormModel();
             } else {
-                $gateway = Plugin::getInstance()->getGateways()->getAllGateways($order->storeId)->first();
+                $gateway = Plugin::getInstance()->getGateways()->getAllGateways()->first();
 
                 if ($gateway && !$gateway instanceof MissingGateway) {
                     $variables['paymentForm'] = $gateway->getPaymentFormModel();
@@ -1641,7 +1641,10 @@ class OrdersController extends Controller
         return $customer->toArray(expand: ['photo']) + [
                 'cpEditUrl' => $customer->getCpEditUrl(),
                 'totalAddresses' => $totalAddresses,
-                'photoThumbUrl' => $customer->getThumbUrl(100),
+                'photoThumbHtml' => $customer->getThumbHtml(100),
+
+                // @TODO remove when update order edit to use `photoThumbHtml`
+                'photoThumbUrl' => '',
             ];
     }
 
