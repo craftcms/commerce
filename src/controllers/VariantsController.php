@@ -7,11 +7,6 @@
 
 namespace craft\commerce\controllers;
 
-use Craft;
-use craft\commerce\elements\Variant;
-use craft\commerce\helpers\Purchasable;
-use yii\web\BadRequestHttpException;
-use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
