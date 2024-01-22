@@ -43,6 +43,10 @@ class CustomerAddressBehavior extends Behavior
      */
     public function defineRules(DefineRulesEvent $event): void
     {
+        if (!$this->owner->getOwner() instanceof User) {
+            return;
+        }
+
         $event->rules[] = [['isPrimaryBilling', 'isPrimaryShipping'], 'boolean'];
     }
 
