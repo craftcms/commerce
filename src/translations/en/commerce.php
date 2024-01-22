@@ -133,6 +133,7 @@ return [
     'Card' => 'Card',
     'Cart forgotten.' => 'Cart forgotten.',
     'Cart updated.' => 'Cart updated.',
+    'Cart {number}' => 'Cart {number}',
     'Cart' => 'Cart',
     'Carts' => 'Carts',
     'Catalog Pricing Rule' => 'Catalog Pricing Rule',

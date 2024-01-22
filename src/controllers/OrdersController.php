@@ -1147,7 +1147,7 @@ class OrdersController extends Controller
         }
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_WEB) {
-            $variables['title'] = Craft::t('commerce', 'Cart') . ' ' . $order->getShortNumber();
+            $variables['title'] = Craft::t('commerce', 'Cart {number}', ['number' => $order->getShortNumber()]);
         }
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
