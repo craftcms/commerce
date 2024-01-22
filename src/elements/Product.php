@@ -560,7 +560,7 @@ class Product extends Element
      * @return NestedElementManager
      * @since 5.0.0
      */
-    public function getVariantManger(): NestedElementManager
+    public function getVariantManager(): NestedElementManager
     {
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
@@ -917,7 +917,6 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-
                     if (count($this->getVariants(true)) < 1) {
                         $this->addError('variants', Craft::t('commerce', 'At least one variant is required.'));
                     }

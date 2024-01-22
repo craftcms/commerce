@@ -1185,27 +1185,6 @@ class Install extends Migration
     }
 
     /**
-     * Add a default shipping method and rule.
-     */
-    private function _defaultShippingMethod(): void
-    {
-        $data = [
-            'name' => 'Free Shipping',
-            'handle' => 'freeShipping',
-            'enabled' => true,
-        ];
-        $this->insert(ShippingMethod::tableName(), $data);
-
-        $data = [
-            'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
-            'description' => 'All countries, free shipping',
-            'name' => 'Free Everywhere',
-            'enabled' => true,
-        ];
-        $this->insert(ShippingRule::tableName(), $data);
-    }
-
-    /**
      * Add a default Tax category.
      */
     private function _defaultTaxCategories(): void

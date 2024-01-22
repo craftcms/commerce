@@ -8,11 +8,9 @@
 namespace craft\commerce\helpers;
 
 use Craft;
-use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Cp;
-use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;

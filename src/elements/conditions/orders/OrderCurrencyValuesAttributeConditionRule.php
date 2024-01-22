@@ -7,10 +7,13 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use Money\Currency;
 use craft\base\ElementInterface;
 use craft\base\FieldInterface;
-use craft\fields\conditions\MoneyFieldConditionRule;
+use craft\commerce\Plugin;
+use craft\commerce\base\HasStoreInterface;
 use craft\fields\Money;
+use craft\fields\conditions\MoneyFieldConditionRule;
 use yii\db\QueryInterface;
 
 /**
@@ -31,8 +34,14 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
 
     protected function field(): FieldInterface
     {
+        if ($this->getCondition() instanceof HasStoreInterface) {
+            /** @var Currency $currency */
+            $currency = $this->getCondition()->getStore()->getCurrency();
+            $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
+        }
+
         $field = new Money();
-        $field->currency = 'USD';
+        $field->currency = $currency;
 
         return $field;
     }

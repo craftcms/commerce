@@ -68,7 +68,6 @@ class DiscountsController extends BaseStoreSettingsController
      */
     public function actionIndex(string $storeHandle = null): Response
     {
-
         if ($storeHandle) {
             $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
             if ($store === null) {

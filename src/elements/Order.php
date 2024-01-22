@@ -3195,7 +3195,7 @@ class Order extends Element implements HasStoreInterface
             }
         } else {
             if ($this->gatewayId) {
-                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId, $this->storeId);
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
             }
         }
 

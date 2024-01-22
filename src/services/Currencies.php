@@ -7,9 +7,9 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\Currency;
 use Illuminate\Support\Collection;
 use Money\Currencies\ISOCurrencies;
+use Money\Currency;
 use Money\Formatter\DecimalMoneyFormatter;
 use Money\Money;
 use Money\Parser\DecimalMoneyParser;
@@ -57,7 +57,7 @@ class Currencies extends Component
      * Get a currency by it's ISO code.
      *
      * @param string $iso
-     * @return Currency|null
+     * @return \Money\Currency|null
      */
     public function getCurrencyByIso(string $iso): ?\Money\Currency
     {
@@ -90,6 +90,10 @@ class Currencies extends Component
         })->toArray();
     }
 
+    /**
+     * @param Currency|string $currency
+     * @return int
+     */
     public function getSubunitFor(Currency|string $currency)
     {
         if (is_string($currency)) {
@@ -99,6 +103,10 @@ class Currencies extends Component
         return $this->_isoCurrencies->subunitFor($currency);
     }
 
+    /**
+     * @param Currency|string $currency
+     * @return int
+     */
     public function numericCodeFor(Currency|string $currency)
     {
         if (is_string($currency)) {

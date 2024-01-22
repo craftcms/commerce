@@ -15,7 +15,6 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Discounts;
 use craft\helpers\ArrayHelper;
 

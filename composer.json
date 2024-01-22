@@ -35,10 +35,12 @@
     "codeception/module-rest": "^3.3.2",
     "codeception/module-yii2": "dev-master",
     "craftcms/ckeditor": "4.0.x-dev",
+    "craftcms/redactor": "*",
     "craftcms/ecs": "dev-main",
+    "craftcms/phpstan": "dev-main",
     "fakerphp/faker": "^1.19.0",
     "league/factory-muffin": "^3.3.0",
-    "phpstan/phpstan": "^1.8.5",
+    "phpstan/phpstan": "^1.10.56",
     "vlucas/phpdotenv": "^5.4.1",
     "craftcms/rector": "dev-main"
   },

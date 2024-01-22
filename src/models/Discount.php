@@ -274,6 +274,7 @@ class Discount extends Model implements HasStoreInterface
      */
     public function getOrderCondition(): ElementConditionInterface
     {
+        /** @var DiscountOrderCondition $condition */
         $condition = $this->_orderCondition ?? new DiscountOrderCondition();
         $condition->mainTag = 'div';
         $condition->name = 'orderCondition';
