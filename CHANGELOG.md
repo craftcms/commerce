@@ -1,5 +1,37 @@
 # Release Notes for Craft Commerce
 
+## 4.4.1.1 - 2024-01-12
+
+- Fixed a PHP error that occurred when saving a sale. ([#3364](https://github.com/craftcms/commerce/issues/3364))
+
+## 4.4.1 - 2024-01-12
+
+- Fixed a SQL error that could occur when updating to Commerce 4.4.0 on MySQL. ([#3367](https://github.com/craftcms/commerce/issues/3367))
+- Fixed a PHP error that occurred when saving a discount. ([#3364](https://github.com/craftcms/commerce/issues/3364))
+
+## 4.4.0 - 2024-01-11
+
+- Craft Commerce now requires Craft CMS 4.6.0 or later.
+- Added search to the Discounts index. ([#2322](https://github.com/craftcms/commerce/discussions/2322))
+- Improved the performance of the Discounts index. ([#3347](https://github.com/craftcms/commerce/issues/3347))
+- Improved the performance of the `commerce/upgrade` command. ([#3286](https://github.com/craftcms/commerce/issues/3286))
+- Added `craft\commerce\services\Discounts::ensureSortOrder()`.
+- Fixed a bug where calling `craft\commerce\services\Carts::forgetCart()` wouldn’t completely clear the cart. ([#3353](https://github.com/craftcms/commerce/issues/3353))
+- Fixed a bug where the Edit Order page could become locked when editing an adjustment. ([#3351](https://github.com/craftcms/commerce/issues/3351))
+- Fixed a bug that prevented the creation of a non-Stripe subscription. ([#3365](https://github.com/craftcms/commerce/pull/3365))
+
+## 4.3.3 - 2023-12-14
+
+- Improved the performance of variant queries’ `hasProduct` and `hasVariant` params. ([#3325](https://github.com/craftcms/commerce/pull/3325))
+- Order statuses with long names no longer wrap on the Orders index page. ([#3335](https://github.com/craftcms/commerce/issues/3335))
+- Fixed a bug where carts could get duplicate validation errors. ([3334](https://github.com/craftcms/commerce/issues/3334))
+- Fixed a bug where tab selection was inconsistent on Edit Order pages. 
+- Fixed a bug where sales weren’t respecting elements’ site statuses. ([#3328](https://github.com/craftcms/commerce/issues/3328))
+- Fixed a bug where soft-deleted order statuses and line item statuses weren’t getting restored when applying project config changes. ([#3164](https://github.com/craftcms/commerce/issues/3164))
+- Fixed a bug where carts weren’t getting restored after signing in.
+- Fixed a bug where guests could use discounts with per-user usage limits. ([#3326](https://github.com/craftcms/commerce/issues/3326))
+- Fixed a bug where orders with a processing transaction weren’t getting completed.
+
 ## 4.3.2 - 2023-10-31
 
 - Product GraphQL queries now support `promotable`, `freeShipping`, `defaultSku`, `defaultHeight`, `defaultLength`, `defaultWidth`, and `defaultWeight` arguments. ([#3307](https://github.com/craftcms/commerce/pull/3307))

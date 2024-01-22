@@ -378,6 +378,55 @@ class DiscountsTest extends Unit
     }
 
     /**
+     * @return void
+     * @throws Exception
+     * @throws \Random\RandomException
+     */
+    public function testEnsureSortOrder(): void
+    {
+        $ids = [];
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        // Create dummy discount records
+        for ($i = 1; $i <= 5; $i++) {
+            $discount = new \craft\commerce\records\Discount();
+            $discount->name = 'Dummy Discount ' . $i;
+            // randomise the sort order
+            $discount->sortOrder = $i + random_int(1, 15);
+            $discount->storeId = $storeId;
+            $discount->enabled = true;
+            $discount->allCategories = true;
+            $discount->allPurchasables = true;
+            $discount->percentageOffSubject = 'original';
+            $discount->save();
+            $ids[] = $discount->id;
+        }
+
+        $this->discounts->ensureSortOrder($storeId);
+
+        // Check table directly
+        $discountRows = (new Query())
+            ->select(['id', 'sortOrder'])
+            ->from(Table::DISCOUNTS)
+            ->orderBy(['sortOrder' => SORT_ASC])
+            ->all();
+
+        for ($i = 0; $i < count($discountRows); $i++) {
+            self::assertEquals($i + 1, $discountRows[$i]['sortOrder']);
+        }
+
+        // Check get all method
+        $allDiscounts = $this->discounts->getAllDiscounts();
+        for ($i = 0; $i < count($allDiscounts); $i++) {
+            self::assertEquals($i + 1, $allDiscounts[$i]->sortOrder);
+        }
+
+        // delete temp records
+        foreach ($ids as $id) {
+            $this->discounts->deleteDiscountById($id);
+        }
+    }
+
+    /**
      * @param array|false $attributes
      * @param int $count
      * @return void
@@ -825,9 +874,15 @@ class DiscountsTest extends Unit
     protected function _before()
     {
         parent::_before();
-
         $this->discounts = Plugin::getInstance()->getDiscounts();
         $customerFixture = $this->tester->grabFixture('customers');
         $this->_user = $customerFixture->getElement('customer1');
+        Craft::$app->getUser()->setIdentity($this->_user);
+    }
+
+    protected function _after()
+    {
+        Craft::$app->getUser()->setIdentity(null);
+        parent::_after();
     }
 }

@@ -10,9 +10,7 @@ namespace craft\commerce\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
 
@@ -61,7 +59,7 @@ EOT;
      */
     public function performAction(ElementQueryInterface $query): bool
     {
-        /** @var Variant $variant */
+        /** @var Variant|null $variant */
         $variant = $query->one();
         if (!$variant) {
             $this->setMessage(Craft::t('commerce', 'Unable to find variant.'));

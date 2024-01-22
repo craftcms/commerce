@@ -28,12 +28,12 @@ use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
-use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
@@ -906,7 +906,7 @@ class Variant extends Purchasable implements NestedElementInterface
      * @inheritdoc
      * @throws InvalidConfigException
      */
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
@@ -914,7 +914,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 $this->setProduct($product);
             }
         } else {
-            parent::setEagerLoadedElements($handle, $elements);
+            parent::setEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
@@ -1087,7 +1087,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
             [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length',], 'number'],
+            [['price', 'weight', 'width', 'height', 'length', ], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
@@ -1150,7 +1150,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         if ($attribute === 'product') {
             $product = $this->getProduct();
@@ -1161,6 +1161,6 @@ class Variant extends Purchasable implements NestedElementInterface
             return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
         }
 
-        return parent::tableAttributeHtml($attribute);
+        return parent::attributeHtml($attribute);
     }
 }

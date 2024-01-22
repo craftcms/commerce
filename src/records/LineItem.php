@@ -36,7 +36,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $sku
  * @property-read ActiveQueryInterface $shippingCategory
  * @property int $shippingCategoryId
- * @property string $snapshot
+ * @property string|array $snapshot
  * @property-read TaxCategory $taxCategory
  * @property int $taxCategoryId
  * @property float $total

@@ -76,6 +76,7 @@
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
+- Added `craft\commerce\elements\Product::getVariantManager()`.
 - Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
 - Added `craft\commerce\elements\Variant::getProductSlug()`.
 - Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
@@ -111,8 +112,13 @@
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\Vat`.
+- Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Removed `craft\commerce\helpers\VariantMatrix`.
+- Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
@@ -147,6 +153,11 @@
 - Removed `craft\commerce\models\ShippingRule::$minWeight`.
 - Removed `craft\commerce\models\ShippingRule::$shippingZoneId`.
 - Removed `craft\commerce\models\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_VALUE`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_ITEMS`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.

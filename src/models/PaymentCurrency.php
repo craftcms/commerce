@@ -108,11 +108,18 @@ class PaymentCurrency extends Model
         return $names;
     }
 
+    /**
+     * @return string|null
+     */
     public function getAlphabeticCode(): ?string
     {
         return $this->iso;
     }
 
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     */
     public function getNumericCode(): ?int
     {
         return Plugin::getInstance()->getCurrencies()->numericCodeFor($this->iso);
@@ -121,6 +128,7 @@ class PaymentCurrency extends Model
     public function getEntity(): ?string
     {
         // TODO: Implement getEntity() method on \craft\commerce\services\Currencies::$_isoCurrencies
+        return '';
     }
 
     /**

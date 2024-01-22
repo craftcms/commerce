@@ -454,9 +454,7 @@ class Discounts extends Component
             return false;
         }
 
-        $user = $order->getCustomer();
-
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
@@ -632,13 +630,11 @@ class Discounts extends Component
             return false;
         }
 
-        $user = $order->getCustomer();
-
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
             return false;
         }
 
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $order->getCustomer())) {
             return false;
         }
 
@@ -760,7 +756,6 @@ class Discounts extends Component
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
-        $record->baseDiscountType = $model->baseDiscountType;
         $record->purchaseTotal = $model->purchaseTotal;
         $record->perItemDiscount = $model->perItemDiscount;
         $record->percentDiscount = $model->percentDiscount;
@@ -774,7 +769,11 @@ class Discounts extends Component
         $record->ignorePromotions = $model->ignorePromotions;
         $record->appliedTo = $model->appliedTo;
 
-        $record->sortOrder = $record->sortOrder ?: 999;
+        // If the discount is new, set the sort order to be at the top of the list.
+        // We will ensure the sort orders are sequential when we save the discount.
+        $sortOrder = $record->sortOrder ?: 0;
+
+        $record->sortOrder = $sortOrder;
         $record->couponFormat = $model->couponFormat;
 
         $record->categoryRelationshipType = $model->categoryRelationshipType;
@@ -818,6 +817,9 @@ class Discounts extends Component
             Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
 
+            // After saving the discount, ensure the sort order for all discounts is sequential
+            $this->ensureSortOrder($model->storeId);
+
             // Raise the afterSaveDiscount event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_DISCOUNT)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_DISCOUNT, new DiscountEvent([
@@ -854,15 +856,21 @@ class Discounts extends Component
 
         // Get the Discount model before deletion to pass to the Event.
         $discount = $this->getDiscountById($id, $discountRecord->storeId);
+        $storeId = $discount->storeId;
 
         $result = (bool)$discountRecord->delete();
 
         //Raise the afterDeleteDiscount event
-        if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
-            $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
-                'discount' => $discount,
-                'isNew' => false,
-            ]));
+        if ($result) {
+            // Ensure discount table sort order
+            $this->ensureSortOrder($storeId);
+
+            if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
+                $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
+                    'discount' => $discount,
+                    'isNew' => false,
+                ]));
+            }
         }
 
         // Reset internal cache
@@ -871,6 +879,54 @@ class Discounts extends Component
         $this->_matchingLineItemCategoryCondition = null;
 
         return $result;
+    }
+
+    /**
+     * @return void
+     * @throws \yii\db\Exception
+     * @since 4.4.0
+     */
+    public function ensureSortOrder(?int $storeId = null): void
+    {
+        // @TODO ensure sort order per store
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        $table = Table::DISCOUNTS;
+
+        $isPsql = Craft::$app->getDb()->getIsPgsql();
+
+        // Make all discount uses with their correct user
+        if ($isPsql) {
+            $sql = <<<SQL
+UPDATE $table a
+SET [[sortOrder]] = b.rownumber
+FROM (
+SELECT id, [[sortOrder]], ROW_NUMBER() OVER (ORDER BY [[sortOrder]] ASC, id ASC) as rownumber
+FROM $table
+WHERE [[storeId]] = $storeId
+ORDER BY [[sortOrder]] ASC, id ASC
+) b
+where a.id = b.id
+SQL;
+        } else {
+            $sql = <<<SQL
+UPDATE $table a
+JOIN (
+    SELECT id, [[sortOrder]], (@ROW_NUMBER := @ROW_NUMBER + 1) as rownumber
+    FROM $table,
+    (SELECT @ROW_NUMBER := 0) AS X
+    WHERE [[storeId]] = $storeId
+    ORDER BY [[sortOrder]] ASC, id ASC    
+) b ON a.id = b.id
+SET [[a.sortOrder]] = b.rownumber
+SQL;
+        }
+
+        Craft::$app->getDb()->createCommand($sql)->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
@@ -1152,6 +1208,15 @@ class Discounts extends Component
                 return false;
             }
 
+            if (Craft::$app->getRequest()->getIsSiteRequest()) {
+                $currentUser = Craft::$app->getUser()->getIdentity();
+                $isCustomerCurrentUser = ($currentUser && $currentUser->id == $user->id);
+
+                if (!$isCustomerCurrentUser) {
+                    return false;
+                }
+            }
+
             $usage = (new Query())
                 ->select(['uses'])
                 ->from([Table::CUSTOMER_DISCOUNTUSES])
@@ -1230,7 +1295,6 @@ class Discounts extends Component
                 '[[discounts.allPurchasables]]',
                 '[[discounts.appliedTo]]',
                 '[[discounts.baseDiscount]]',
-                '[[discounts.baseDiscountType]]',
                 '[[discounts.categoryRelationshipType]]',
                 '[[discounts.couponFormat]]',
                 '[[discounts.dateCreated]]',

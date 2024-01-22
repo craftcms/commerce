@@ -88,7 +88,7 @@ class CatalogPricing extends Component
                 ->indexBy('purchasableId')
                 ->all();
 
-            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store->id, false)->all();
+            $runCatalogPricingRules = $catalogPricingRules ?? Plugin::getInstance()->getCatalogPricingRules()->getAllActiveCatalogPricingRules($store->id)->all();
 
             foreach ($runCatalogPricingRules as $catalogPricingRule) {
                 // Skip rule processing if it isn't for this store.

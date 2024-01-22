@@ -15,7 +15,6 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Discounts;
 use craft\helpers\ArrayHelper;
 
@@ -128,7 +127,6 @@ class DiscountTest extends Unit
             'allCategories' => true,
             'stopProcessing' => false,
             'baseDiscount' => -10,
-            'baseDiscountType' => DiscountRecord::BASE_DISCOUNT_TYPE_VALUE,
         ];
 
         $lineItemPromotable = [

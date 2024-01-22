@@ -18,6 +18,7 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
+use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
@@ -519,7 +520,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements): void
+    public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
         if ($handle === 'order') {
             $order = $elements[0] ?? null;
@@ -535,7 +536,7 @@ class Subscription extends Element
             return;
         }
 
-        parent::setEagerLoadedElements($handle, $elements);
+        parent::setEagerLoadedElements($handle, $elements, $plan);
     }
 
     /**
@@ -689,7 +690,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'plan':
@@ -708,7 +709,7 @@ class Subscription extends Element
 
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
     }

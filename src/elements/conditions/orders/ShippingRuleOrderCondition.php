@@ -58,9 +58,9 @@ class ShippingRuleOrderCondition extends OrderCondition implements HasStoreInter
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        $ruleTypes = parent::conditionRuleTypes();
+        $ruleTypes = parent::selectableConditionRules();
 
 
         foreach ($ruleTypes as $key => $ruleType) {

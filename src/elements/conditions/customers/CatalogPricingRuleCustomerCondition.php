@@ -22,9 +22,9 @@ class CatalogPricingRuleCustomerCondition extends UserCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_filter(parent::conditionRuleTypes(), static function($type) {
+        return array_filter(parent::selectableConditionRules(), static function($type) {
             return !in_array($type, [
                 LastLoginDateConditionRule::class,
                 SiteConditionRule::class,

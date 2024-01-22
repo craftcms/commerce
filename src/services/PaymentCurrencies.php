@@ -15,6 +15,7 @@ use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use Illuminate\Support\Collection;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
@@ -55,9 +56,10 @@ class PaymentCurrencies extends Component
     /**
      * Get all payment currencies.
      *
-     * @return PaymentCurrency[]
-     * @throws CurrencyException if currency does not exist with the given ISO code
+     * @param int|null $storeId
+     * @return Collection<PaymentCurrency>
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
     public function getAllPaymentCurrencies(?int $storeId = null): Collection
     {
@@ -76,10 +78,14 @@ class PaymentCurrencies extends Component
     /**
      * Get a payment currency by its ISO code.
      *
-     * @throws CurrencyException if currency does not exist with tat iso code
+     * @param string $iso
+     * @param int|null $storeId
+     * @return PaymentCurrency|null
+     * @throws CurrencyException if currency does not exist with that iso code
      * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getPaymentCurrencyByIso(string $iso, ?string $storeId = null): ?PaymentCurrency
+    public function getPaymentCurrencyByIso(string $iso, ?int $storeId = null): ?PaymentCurrency
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
@@ -214,7 +220,7 @@ class PaymentCurrencies extends Component
         $record->iso = strtoupper($model->iso);
         $record->storeId = $model->storeId;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
-        $record->rate = $model->primary ? 1 : $model->rate;
+        $record->rate = $model->getPrimary() ? 1 : $model->rate;
 
         $record->save(false);
 

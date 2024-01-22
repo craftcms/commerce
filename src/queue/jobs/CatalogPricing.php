@@ -31,7 +31,7 @@ class CatalogPricing extends BaseJob
     {
         $catalogPricingRules = null;
         if (!empty($this->catalogPricingRuleIds) && $this->storeId) {
-            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules($this->storeId, false)->whereIn('id', $this->catalogPricingRuleIds)->all();
+            $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules($this->storeId)->whereIn('id', $this->catalogPricingRuleIds)->all();
         }
 
         Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices($this->purchasableIds, $catalogPricingRules, queue: $queue);

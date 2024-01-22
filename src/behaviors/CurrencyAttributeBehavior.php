@@ -103,7 +103,7 @@ class CurrencyAttributeBehavior extends Behavior
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
 
-                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 $convert = $params[1] ?? false;
                 $format = $params[2] ?? true;
                 $stripZeros = $params[3] ?? false;
@@ -153,7 +153,7 @@ class CurrencyAttributeBehavior extends Behavior
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             }
         }
@@ -183,7 +183,7 @@ class CurrencyAttributeBehavior extends Behavior
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attributeName = $this->_attributeNameWithoutAsCurrency($attribute);
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             };
         }

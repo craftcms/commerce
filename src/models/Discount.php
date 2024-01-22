@@ -152,11 +152,6 @@ class Discount extends Model implements HasStoreInterface
     public float $baseDiscount = 0;
 
     /**
-     * @var string Type of discount for the base discount e.g. currency value or percentage
-     */
-    public string $baseDiscountType = DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
-
-    /**
      * @var float Amount of discount per item
      */
     public float $perItemDiscount = 0.0;
@@ -279,6 +274,7 @@ class Discount extends Model implements HasStoreInterface
      */
     public function getOrderCondition(): ElementConditionInterface
     {
+        /** @var DiscountOrderCondition $condition */
         $condition = $this->_orderCondition ?? new DiscountOrderCondition();
         $condition->mainTag = 'div';
         $condition->name = 'orderCondition';
@@ -636,7 +632,47 @@ class Discount extends Model implements HasStoreInterface
                     }
                 },
             ],
-            [['allPurchasables', 'allCategories', 'storeId', 'id', 'enabled'], 'safe'],
+            [[
+                'allCategories',
+                'allPurchasables',
+                'appliedTo',
+                'baseDiscount',
+                'baseDiscountType',
+                'billingAddressCondition',
+                'categoryIds',
+                'categoryRelationshipType',
+                'couponFormat',
+                'customerCondition',
+                'dateCreated',
+                'dateFrom',
+                'dateTo',
+                'dateUpdated',
+                'description',
+                'enabled',
+                'excludeOnSale',
+                'hasFreeShippingForMatchingItems',
+                'hasFreeShippingForOrder',
+                'id',
+                'ignoreSales',
+                'maxPurchaseQty',
+                'name',
+                'orderCondition',
+                'orderConditionFormula',
+                'perEmailLimit',
+                'perItemDiscount',
+                'perUserLimit',
+                'percentDiscount',
+                'percentageOffSubject',
+                'purchasableIds',
+                'purchaseQty',
+                'purchaseTotal',
+                'shippingAddressCondition',
+                'sortOrder',
+                'stopProcessing',
+                'storeId',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
+            ], 'safe'],
         ];
     }
 
