@@ -7,6 +7,11 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use Craft;
+use craft\base\conditions\ConditionInterface;
+use craft\commerce\behaviors\StoreBehavior;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\models\Site;
 use Money\Currency;
 use craft\base\ElementInterface;
 use craft\base\FieldInterface;
@@ -22,36 +27,63 @@ use yii\db\QueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  *
+ * @method ElementConditionInterface|HasStoreInterface getCondition()
  * @property-read float|int $orderAttributeValue
  */
 abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldConditionRule
 {
+    /**
+     * @var string
+     */
+    public string $orderAttribute = '';
+
+    /**
+     * @var Currency|null
+     */
+    public ?Currency $currency = null;
+
+    /**
+     * @var int|null
+     */
+    public ?int $subUnit = null;
+
     public function __construct($config = [])
     {
         $this->setFieldUid('not-applicable');
         parent::__construct($config);
     }
 
-    protected function field(): FieldInterface
+    /**
+     * @inheritdoc
+     */
+    public function setCondition(ConditionInterface $condition): void
     {
+        parent::setCondition($condition);
+
         if ($this->getCondition() instanceof HasStoreInterface) {
-            /** @var Currency $currency */
-            $currency = $this->getCondition()->getStore()->getCurrency();
-            $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($currency);
+            $this->currency = $this->getCondition()->getStore()->getCurrency();
+        } else {
+            /** @var Site|StoreBehavior|null $currentSite */
+            $currentSite = Craft::$app->getSites()->getCurrentSite();
+            $this->currency = $currentSite?->getStore()->getCurrency();
         }
 
+        if ($this->currency) {
+            $this->subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($this->currency);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function field(): FieldInterface
+    {
+        // Mock a Money field
         $field = new Money();
-        $field->currency = $currency;
+        $field->currency = $this->currency;
 
         return $field;
     }
-
-    public function getCondition(): \craft\elements\conditions\ElementConditionInterface
-    {
-        return parent::getCondition();
-    }
-
-    public string $orderAttribute = '';
 
     /**
      * @inheritdoc
