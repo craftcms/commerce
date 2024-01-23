@@ -29,28 +29,40 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       window.orderEdit &&
       window.orderEdit.currentUserPermissions['commerce-editOrders']
     ) {
-      let $btnContainer = $('<div class="btngroup submit"/>');
-      const $btn = $('<button/>', {
-        type: 'button',
-        class: 'btn menubtn submit icon add',
-        text: Craft.t('commerce', 'New Order'),
-      }).appendTo($btnContainer);
+      let $submitBtn;
+      if (this.settings.stores.length > 1) {
+        let $submitBtn = $('<div class="btngroup submit"/>');
+        const $btn = $('<button/>', {
+          type: 'button',
+          class: 'btn menubtn submit icon add',
+          text: Craft.t('commerce', 'New Order'),
+        }).appendTo($submitBtn);
 
-      const $menu = $('<div/>', {class: 'menu'}).appendTo($btnContainer);
-      const $ul = $('<ul/>').appendTo($menu);
+        const $menu = $('<div/>', {class: 'menu'}).appendTo($submitBtn);
+        const $ul = $('<ul/>').appendTo($menu);
 
-      this.settings.stores.forEach((store) => {
-        const $link = $('<a/>', {
-          href: Craft.getUrl('commerce/orders/' + store.handle + '/create'),
-          text: store.name,
+        this.settings.stores.forEach((store) => {
+          const $link = $('<a/>', {
+            href: Craft.getUrl('commerce/orders/' + store.handle + '/create'),
+            text: store.name,
+          });
+
+          $('<li/>').append($link).appendTo($ul);
         });
 
-        $('<li/>').append($link).appendTo($ul);
-      });
+        const $menuBtn = new Garnish.MenuBtn($btn);
+      } else {
+        const $submitBtn = $('<a/>', {
+          class: 'btn submit icon add',
+          href: Craft.getUrl(
+            'commerce/orders/' + this.settings.stores[0].handle + '/create'
+          ),
+          text: Craft.t('commerce', 'New Order'),
+        });
+      }
 
-      const $menuBtn = new Garnish.MenuBtn($btn);
       // Add the New Order button
-      this.addButton($btnContainer);
+      this.addButton($submitBtn);
     }
   },
 
