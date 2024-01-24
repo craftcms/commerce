@@ -2,7 +2,11 @@
     <div ref="container">
         <div class="order-address-display">
             <template v-if="address">
-                <ul ref="address" v-html="address" @click="handleEditAddress"></ul>
+                <ul
+                    ref="address"
+                    v-html="address"
+                    @click="handleEditAddress"
+                ></ul>
             </template>
             <template v-else>
                 <div class="zilch">{{ emptyMsg }}</div>
@@ -184,12 +188,13 @@
                                     id: ev.data.id,
                                     siteId: ev.data.siteId,
                                     draftId: null,
-                                    instances: [{'ui': 'card'}],
+                                    instances: [{ui: 'card'}],
                                 },
                             ],
                         },
                     }).then((response) => {
-                        this.address = response.data.elements[ev.data.id].join('');
+                        this.address =
+                            response.data.elements[ev.data.id].join('');
                     });
                 });
             },

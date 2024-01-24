@@ -327,7 +327,7 @@
                 get() {
                     return this.lineItem.price;
                 },
-                set: debounce(function(val) {
+                set: debounce(function (val) {
                     const lineItem = this.lineItem;
                     lineItem.price = val;
                     this.$emit('updateLineItem', lineItem);

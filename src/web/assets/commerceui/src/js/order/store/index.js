@@ -359,7 +359,8 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      const tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
+      const tabManagerMenuBtn =
+        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
       const tabsDropdownMenu = tabManagerMenuBtn;
       if (tabsDropdownMenu !== undefined) {
         const optionSelector =
