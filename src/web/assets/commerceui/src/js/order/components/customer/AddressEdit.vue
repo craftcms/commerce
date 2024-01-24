@@ -176,8 +176,6 @@
                 );
 
                 slideout.on('submit', (ev) => {
-                    console.log(ev.data);
-
                     Craft.sendActionRequest('POST', 'app/render-elements', {
                         data: {
                             elements: [
@@ -191,7 +189,6 @@
                             ],
                         },
                     }).then((response) => {
-                        console.log(response.data);
                         this.address = response.data.elements[ev.data.id].join('');
                     });
                 });
