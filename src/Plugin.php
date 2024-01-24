@@ -51,6 +51,7 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
+use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\commerce\services\Carts;
 use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\CatalogPricingRules;
@@ -113,6 +114,7 @@ use craft\console\controllers\ResaveController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
+use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -679,6 +681,10 @@ class Plugin extends BasePlugin
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
         Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricing(), 'afterSavePurchasableHandler']);
+
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_VIEW, [$this->getStoreSettings(), 'authorizeStoreLocationView']);
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_SAVE, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
+        Event::on(Elements::class, Elements::EVENT_AUTHORIZE_CREATE_DRAFTS, [$this->getStoreSettings(), 'authorizeStoreLocationEdit']);
     }
 
     /**
