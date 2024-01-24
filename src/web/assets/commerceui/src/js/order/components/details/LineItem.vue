@@ -75,12 +75,26 @@
                                             type="text"
                                             class="text"
                                             size="10"
-                                            v-model="salePrice"
+                                            v-model="promotionalPrice"
                                             :class="{
                                                 error: getErrors(
                                                     'lineItems.' +
                                                         lineItemKey +
-                                                        '.salePrice'
+                                                        '.promotionalPrice'
+                                                ).length,
+                                            }"
+                                        />
+                                        <input
+                                            :id="slotProps.id"
+                                            type="text"
+                                            class="text"
+                                            size="10"
+                                            v-model="price"
+                                            :class="{
+                                                error: getErrors(
+                                                    'lineItems.' +
+                                                        lineItemKey +
+                                                        '.price'
                                                 ).length,
                                             }"
                                         />
@@ -298,13 +312,24 @@
                 'orderId',
             ]),
 
-            salePrice: {
+            promotionalPrice: {
                 get() {
-                    return this.lineItem.salePrice;
+                    return this.lineItem.promotionalPrice;
                 },
                 set: debounce(function (val) {
                     const lineItem = this.lineItem;
-                    lineItem.salePrice = val;
+                    lineItem.promotionalPrice = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            price: {
+                get() {
+                    return this.lineItem.price;
+                },
+                set: debounce(function(val) {
+                    const lineItem = this.lineItem;
+                    lineItem.price = val;
                     this.$emit('updateLineItem', lineItem);
                 }, 1000),
             },

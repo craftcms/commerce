@@ -1449,7 +1449,8 @@ class OrdersController extends Controller
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                $lineItem->salePrice = $lineItemData['salePrice'];
+                $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
+                $lineItem->setPrice($lineItemData['price']);
             }
 
             if ($qty !== null && $qty > 0) {
