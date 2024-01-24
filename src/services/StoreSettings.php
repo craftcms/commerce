@@ -158,7 +158,7 @@ class StoreSettings extends Component
             return false;
         }
 
-        $storeSettings = StoreSettingsRecord::findOne(['locationAddressId' => $event->element->id]);
+        $storeSettings = StoreSettingsRecord::findOne(['locationAddressId' => $event->element->getCanonicalId()]);
         if (!$storeSettings) {
             return false;
         }
