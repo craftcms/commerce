@@ -60,54 +60,84 @@
                 </div>
                 <div class="w-3/4">
                     <div class="order-flex pb">
-                        <ul class="line-item-section">
+                        <ul class="line-item-section line-item-price">
                             <li class="order-flex order-flex-wrap">
-                                <template
-                                    v-if="
-                                        editing &&
-                                        editMode &&
-                                        recalculationMode === 'none'
-                                    "
-                                >
-                                    <field v-slot:default="slotProps">
-                                        <input
-                                            :id="slotProps.id"
-                                            type="text"
-                                            class="text"
-                                            size="10"
-                                            v-model="promotionalPrice"
-                                            :class="{
-                                                error: getErrors(
-                                                    'lineItems.' +
-                                                        lineItemKey +
-                                                        '.promotionalPrice'
-                                                ).length,
-                                            }"
-                                        />
-                                        <input
-                                            :id="slotProps.id"
-                                            type="text"
-                                            class="text"
-                                            size="10"
-                                            v-model="price"
-                                            :class="{
-                                                error: getErrors(
-                                                    'lineItems.' +
-                                                        lineItemKey +
-                                                        '.price'
-                                                ).length,
-                                            }"
-                                        />
-                                    </field>
-                                </template>
-                                <template v-else>
-                                    <label class="light" for="salePrice">{{
-                                        'Sale Price' | t('commerce')
-                                    }}</label>
-                                    <div>
-                                        {{ lineItem.salePriceAsCurrency }}
-                                    </div>
-                                </template>
+                                <div class="order-flex">
+                                    <template
+                                        v-if="
+                                            editing &&
+                                            editMode &&
+                                            recalculationMode === 'none'
+                                        "
+                                    >
+                                        <field
+                                            :label="
+                                                $options.filters.t(
+                                                    'Promotional Price',
+                                                    'commerce'
+                                                )
+                                            "
+                                            v-slot:default="slotProps"
+                                        >
+                                            <input
+                                                :id="slotProps.id"
+                                                type="text"
+                                                class="text"
+                                                size="10"
+                                                v-model="promotionalPrice"
+                                                :class="{
+                                                    error: getErrors(
+                                                        'lineItems.' +
+                                                            lineItemKey +
+                                                            '.promotionalPrice'
+                                                    ).length,
+                                                }"
+                                            />
+                                        </field>
+                                    </template>
+                                    <template v-else>
+                                        <label class="light" for="salePrice">{{
+                                            'Sale Price' | t('commerce')
+                                        }}</label>
+                                        <div>
+                                            {{ lineItem.salePriceAsCurrency }}
+                                        </div>
+                                    </template>
+                                    <template
+                                        v-if="
+                                            editing &&
+                                            editMode &&
+                                            recalculationMode === 'none'
+                                        "
+                                    >
+                                        <div>
+                                            <field
+                                                :label="
+                                                    $options.filters.t(
+                                                        'Price',
+                                                        'commerce'
+                                                    )
+                                                "
+                                                v-slot:default="slotProps"
+                                            >
+                                                <input
+                                                    :id="slotProps.id"
+                                                    type="text"
+                                                    class="text"
+                                                    size="10"
+                                                    v-model="price"
+                                                    :class="{
+                                                        error: getErrors(
+                                                            'lineItems.' +
+                                                                lineItemKey +
+                                                                '.price'
+                                                        ).length,
+                                                    }"
+                                                />
+                                            </field>
+                                        </div>
+                                    </template>
+                                </div>
                             </li>
                             <template v-if="lineItem.onPromotion">
                                 <li>
@@ -129,7 +159,15 @@
                         <div class="line-item-section">
                             <div class="order-flex">
                                 <template v-if="editing && editMode">
-                                    <field v-slot:default="slotProps">
+                                    <field
+                                        :label="
+                                            $options.filters.t(
+                                                'Quantity',
+                                                'commerce'
+                                            )
+                                        "
+                                        v-slot:default="slotProps"
+                                    >
                                         <input
                                             :id="slotProps.id"
                                             type="text"
@@ -488,7 +526,11 @@
         }
 
         &-section {
-            width: 33.3333%;
+            width: 25%;
+        }
+
+        &-price {
+            width: 50%;
         }
 
         &-buttons::after {
