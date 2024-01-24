@@ -832,6 +832,7 @@ return [
     'Products' => 'Products',
     'Promotable' => 'Promotable',
     'Promotable?' => 'Promotable?',
+    'Promotional Amount' => 'Promotional Amount',
     'Promotional Price' => 'Promotional Price',
     'Promotions' => 'Promotions',
     'Purchasable' => 'Purchasable',

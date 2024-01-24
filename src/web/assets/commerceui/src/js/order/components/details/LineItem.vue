@@ -95,7 +95,7 @@
                                     </div>
                                 </template>
                             </li>
-                            <template v-if="lineItem.onSale">
+                            <template v-if="lineItem.onPromotion">
                                 <li>
                                     <span class="light">{{
                                         'Original Price' | t('commerce')
@@ -106,9 +106,9 @@
                                 </li>
                                 <li>
                                     <span class="light">{{
-                                        'Sale Amount Off' | t('commerce')
+                                        'Promotional Amount' | t('commerce')
                                     }}</span>
-                                    {{ lineItem.saleAmountAsCurrency }}
+                                    {{ lineItem.promotionalAmountAsCurrency }}
                                 </li>
                             </template>
                         </ul>
