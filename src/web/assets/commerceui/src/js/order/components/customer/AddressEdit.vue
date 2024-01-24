@@ -2,7 +2,7 @@
     <div ref="container">
         <div class="order-address-display">
             <template v-if="address">
-                <ul ref="address" v-html="address"></ul>
+                <ul ref="address" v-html="address" @click="handleEditAddress"></ul>
             </template>
             <template v-else>
                 <div class="zilch">{{ emptyMsg }}</div>
@@ -148,9 +148,7 @@
         },
 
         data() {
-            return {
-                addressCard: null,
-            };
+            return {};
         },
 
         computed: {
@@ -166,29 +164,37 @@
         },
 
         methods: {
-            _initAddressCard(newAdd = false) {
-                if (this.addressCard) {
-                    this.addressCard.$container.data('addresses').destroy();
-                    this.addressCard.$container.removeData('addresses');
-                    this.addressCard = null;
-                }
-
-                if (this.address) {
-                    // Remove the included menubtn from the address card
-                    $(this.$refs.address).find('.menubtn').remove();
-                    this.addressCard = new Craft.AddressesInput(
-                        this.$refs.address,
-                        {ownerId: this.address.ownerId, maxAddresses: 1}
-                    );
-                }
-            },
-
             handleEditAddress() {
-                if (!this.address || !this.addressCard) {
+                console.log('handleEditAddress', this.address);
+                if (!this.address) {
                     return;
                 }
+                const slideout = Craft.createElementEditor(
+                    'craft\\elements\\Address',
+                    this.$refs.address.querySelector('.element.card'),
+                    {ownerId: this.address.ownerId}
+                );
 
-                this.addressCard.$cards.eq(0).trigger('click');
+                slideout.on('submit', (ev) => {
+                    console.log(ev.data);
+
+                    Craft.sendActionRequest('POST', 'app/render-elements', {
+                        data: {
+                            elements: [
+                                {
+                                    type: 'craft\\elements\\Address',
+                                    id: ev.data.id,
+                                    siteId: ev.data.siteId,
+                                    draftId: null,
+                                    instances: [{'ui': 'card'}],
+                                },
+                            ],
+                        },
+                    }).then((response) => {
+                        console.log(response.data);
+                        this.address = response.data.elements[ev.data.id].join('');
+                    });
+                });
             },
 
             handleNewAddress() {
@@ -230,14 +236,6 @@
                     this.$emit('update', address);
                 }
             },
-        },
-
-        updated() {
-            this._initAddressCard();
-        },
-
-        mounted() {
-            this._initAddressCard();
         },
     };
 </script>
