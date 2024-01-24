@@ -367,14 +367,16 @@
             {% endblock %}
         {% endembed %}
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
             value: discount.purchaseTotal ? discount.purchaseTotal|number : 0,
-            type: 'number',
-            step: 'any',
+            currencyLabel: currency,
+            decimals: decimals,
+            showCurrency: true,
+            showClear: false,
             errors: discount.getErrors('purchaseTotal'),
         }) }}
 
@@ -516,14 +518,16 @@
             value: discount.appliedTo
         }) }}
 
-        {{ commerceForms.numberField({
+        {{ forms.moneyField({
             label: "Per Item Amount Off"|t('commerce'),
             instructions: "The flat value which should discount each item. i.e “3” for $3 off each item."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
             value: discount.perItemDiscount ? discount.perItemDiscount|number : 0,
-            type: 'number',
-            step: 'any',
+            currencyLabel: currency,
+            decimals: decimals,
+            showCurrency: true,
+            showClear: false,
             errors: discount.getErrors('perItemDiscount'),
         }) }}
 
@@ -579,15 +583,17 @@
         <hr>
         <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
-        {{ forms.textField({
+        {{ forms.moneyField({
             label: "Flat Order Discount Amount Off"|t('commerce'),
             instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up."|t('commerce'),
             id: 'baseDiscount',
             errors: discount.getErrors('baseDiscount'),
             tip: 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.'|t('commerce'),
             name: 'baseDiscount',
-            type: 'text',
-            size: 10,
+            currencyLabel: currency,
+            showCurrency: true,
+            showClear: false,
+            decimals: decimals,
             value: discount.baseDiscount ? discount.baseDiscount|number : 0,
         }) }}
 

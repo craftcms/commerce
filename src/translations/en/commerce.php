@@ -557,6 +557,7 @@ return [
     'Language' => 'Language',
     'Last Name' => 'Last Name',
     'Last Updated' => 'Last Updated',
+    'Leave a category rate override blank to use the rate from above.' => 'Leave a category rate override blank to use the rate from above.',
     'Leave blank for unlimited uses.' => 'Leave blank for unlimited uses.',
     'Leave blank if products don’t have URLs' => 'Leave blank if products don’t have URLs',
     'Length ({unit})' => 'Length ({unit})',

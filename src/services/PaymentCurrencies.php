@@ -253,7 +253,7 @@ class PaymentCurrencies extends Component
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $storeCurrency = Plugin::getInstance()->getStores()->getStoreById($storeId)->getCurrency();
-        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => $currency->rate]);
+        $nonPrimaryCurrencies = $this->getNonPrimaryPaymentCurrencies($storeId)->mapWithKeys(fn(PaymentCurrency $currency) => [$currency->iso => (string)$currency->rate]);
         return new FixedExchange([
             $storeCurrency->getCode() => $nonPrimaryCurrencies->all(),
         ]);
