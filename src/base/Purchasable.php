@@ -819,57 +819,60 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterSave(bool $isNew): void
     {
-        $purchasable = PurchasableRecord::findOne($this->id);
+        if (!$this->propagating) {
 
-        if (!$purchasable) {
-            $purchasable = new PurchasableRecord();
-        }
+            $purchasable = PurchasableRecord::findOne($this->id);
 
-        $purchasable->sku = $this->getSku();
-        $purchasable->id = $this->id;
-        $purchasable->width = $this->width;
-        $purchasable->height = $this->height;
-        $purchasable->length = $this->length;
-        $purchasable->weight = $this->weight;
-        $purchasable->taxCategoryId = $this->taxCategoryId;
-
-        // Only update the description for the primary site until we have a concept
-        // of an order having a site ID
-        if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
-            $purchasable->description = $this->getDescription();
-        }
-
-        $purchasable->save(false);
-
-        // Set purchasables stores data
-        if ($purchasable->id) {
-            $purchasableStoreRecord = PurchasableStore::findOne([
-                'purchasableId' => $this->id,
-                'storeId' => $this->getStoreId(),
-            ]);
-            if (!$purchasableStoreRecord) {
-                $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
-                $purchasableStoreRecord->storeId = $this->getStore()->id;
+            if (!$purchasable) {
+                $purchasable = new PurchasableRecord();
             }
 
-            $purchasableStoreRecord->basePrice = $this->basePrice;
-            $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
-            $purchasableStoreRecord->stock = $this->stock;
-            $purchasableStoreRecord->hasUnlimitedStock = $this->hasUnlimitedStock;
-            $purchasableStoreRecord->minQty = $this->minQty;
-            $purchasableStoreRecord->maxQty = $this->maxQty;
-            $purchasableStoreRecord->promotable = $this->promotable;
-            $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
-            $purchasableStoreRecord->freeShipping = $this->freeShipping;
-            $purchasableStoreRecord->purchasableId = $this->id;
-            $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+            $purchasable->sku = $this->getSku();
+            $purchasable->id = $this->id;
+            $purchasable->width = $this->width;
+            $purchasable->height = $this->height;
+            $purchasable->length = $this->length;
+            $purchasable->weight = $this->weight;
+            $purchasable->taxCategoryId = $this->taxCategoryId;
 
-            $purchasableStoreRecord->save(false);
+            // Only update the description for the primary site until we have a concept
+            // of an order having a site ID
+            if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
+                $purchasable->description = $this->getDescription();
+            }
 
-            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-                'purchasableIds' => [$this->id],
-                'storeId' => $this->getStoreId(),
-            ]);
+            $purchasable->save(false);
+
+            // Set purchasables stores data
+            if ($purchasable->id) {
+                $purchasableStoreRecord = PurchasableStore::findOne([
+                    'purchasableId' => $this->id,
+                    'storeId' => $this->getStoreId(),
+                ]);
+                if (!$purchasableStoreRecord) {
+                    $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
+                    $purchasableStoreRecord->storeId = $this->getStore()->id;
+                }
+
+                $purchasableStoreRecord->basePrice = $this->basePrice;
+                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
+                $purchasableStoreRecord->stock = $this->stock;
+                $purchasableStoreRecord->hasUnlimitedStock = $this->hasUnlimitedStock;
+                $purchasableStoreRecord->minQty = $this->minQty;
+                $purchasableStoreRecord->maxQty = $this->maxQty;
+                $purchasableStoreRecord->promotable = $this->promotable;
+                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
+                $purchasableStoreRecord->freeShipping = $this->freeShipping;
+                $purchasableStoreRecord->purchasableId = $this->id;
+                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+
+                $purchasableStoreRecord->save(false);
+
+                Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                    'purchasableIds' => [$this->id],
+                    'storeId' => $this->getStoreId(),
+                ]);
+            }
         }
 
         parent::afterSave($isNew);
