@@ -279,7 +279,6 @@
                     this.localAdjustment.amount = value;
 
                     if (value === '' || isNaN(value)) {
-                        console.log("isn't a number", value);
                         if (value === '') {
                             this.amountNaN = false;
                         } else {
