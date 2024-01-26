@@ -518,6 +518,7 @@ class Discounts extends Component
         $discounts = [];
 
         if ($purchasable->getId()) {
+            // @TODO figure out speed issue when there are a lot of discounts
             foreach ($this->getAllDiscounts($purchasable->getStoreId()) as $discount) {
                 // Get discount by related purchasable
                 $purchasableIds = $discount->getPurchasableIds();

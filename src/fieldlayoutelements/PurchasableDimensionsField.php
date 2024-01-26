@@ -43,40 +43,45 @@ class PurchasableDimensionsField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    protected function showLabel(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        return Html::beginTag('div') .
-            Cp::textHtml([
+        return Html::beginTag('div' , ['class' => 'flex']) .
+            Cp::fieldHtml(Cp::textHtml([
                 'id' => 'length',
                 'name' => 'length',
                 'value' => $element->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->length) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
-                'placeholder' => Craft::t('commerce', 'Length'),
-            ]) .
-            Cp::textHtml([
+            ]), ['id' => 'length', 'label' => Craft::t('commerce', 'Length')]) .
+            Cp::fieldHtml(Cp::textHtml([
                 'id' => 'width',
                 'name' => 'width',
                 'value' => $element->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->width) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
-                'placeholder' => Craft::t('commerce', 'Width'),
-            ]) .
-            Cp::textHtml([
+            ]), ['id' => 'width', 'label' => Craft::t('commerce', 'Width')]) .
+            Cp::fieldHtml(Cp::textHtml([
                 'id' => 'height',
                 'name' => 'height',
                 'value' => $element->height !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($element->height) : '',
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
-                'placeholder' => Craft::t('commerce', 'Height'),
-            ]) .
+            ]), ['id' => 'height', 'label' => Craft::t('commerce', 'Height')]).
         Html::endTag('div');
     }
 

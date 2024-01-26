@@ -27,7 +27,7 @@
 {% js at endBody %}
 const $storeLocation = document.querySelector('#commerce-store-location');
 
-$storeLocation.addEventListener('click', function() {
+$storeLocation.addEventListener('dblclick', function() {
   const slideout = Craft.createElementEditor(
     'craft\\elements\\Address',
     $storeLocation.querySelector('.element.card'),
