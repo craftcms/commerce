@@ -1343,7 +1343,11 @@ class OrdersController extends Controller
                         unset($address['_copy']);
                     }
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+                    $address = Craft::$app->getElements()->duplicateElement($address, [
+                        'ownerId' => $orderId,
+                        'primaryOwnerId' => $orderId,
+                        'title' => $title
+                    ]);
                 } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
                     /** @var Address|null $address */
                     $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
