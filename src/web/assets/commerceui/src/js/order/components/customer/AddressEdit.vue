@@ -11,77 +11,76 @@
             <template v-else>
                 <div class="zilch">{{ emptyMsg }}</div>
             </template>
-
-            <div
-                class="order-address-display-buttons order-flex"
-                v-show="hasCustomer"
-            >
-                <div
-                    class="btn menubtn"
-                    data-icon="settings"
-                    :title="$options.filters.t('Actions', 'commerce')"
-                    ref="addressmenubtn"
-                ></div>
-                <div class="menu">
-                    <ul>
-                        <li>
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                @click.prevent="handleEditAddress"
-                            >
-                                {{
-                                    $options.filters.t(
-                                        'Edit address',
-                                        'commerce'
-                                    )
-                                }}
-                            </a>
-                        </li>
-                        <li>
-                            <address-select
-                                :customer-id="customerId"
-                                @update="handleSelect"
-                            ></address-select>
-                        </li>
-                        <li>
-                            <a @click.prevent="handleNewAddress">{{
-                                $options.filters.t('New address', 'commerce')
-                            }}</a>
-                        </li>
-                        <li v-if="copyToAddress">
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                @click.prevent="$emit('copy')"
-                                >{{
-                                    $options.filters.t(
-                                        'Copy to {location}',
-                                        'commerce',
-                                        {location: copyToAddress}
-                                    )
-                                }}</a
-                            >
-                        </li>
-                    </ul>
-                    <hr />
-                    <ul>
-                        <li>
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                class="error"
-                                @click.prevent="$emit('remove')"
-                                >{{
-                                    $options.filters.t(
-                                        'Remove address',
-                                        'commerce'
-                                    )
-                                }}</a
-                            >
-                        </li>
-                    </ul>
-                </div>
+            <button
+                type="button"
+                class="btn menubtn action-btn"
+                title="Actions"
+                :aria-controls="disclosureId"
+                ref="disclosureMenu"
+                data-disclosure-trigger
+            ></button>
+            <div :id="disclosureId" class="menu menu--disclosure">
+                <ul>
+                    <li>
+                        <button
+                            class="menu-item"
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            data-icon="edit"
+                            @click.prevent="handleEditAddress"
+                        >
+                            {{ $options.filters.t('Edit address', 'commerce') }}
+                        </button>
+                    </li>
+                    <li>
+                        <address-select
+                            :customer-id="customerId"
+                            @update="handleSelect"
+                        ></address-select>
+                    </li>
+                    <li>
+                        <button
+                            class="menu-item"
+                            data-icon="plus"
+                            @click.prevent="handleNewAddress"
+                        >
+                            {{ $options.filters.t('New address', 'commerce') }}
+                        </button>
+                    </li>
+                    <li v-if="copyToAddress">
+                        <button
+                            class="menu-item"
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            data-icon="clipboard"
+                            @click.prevent="handleCopy"
+                        >
+                            {{
+                                $options.filters.t(
+                                    'Copy to {location}',
+                                    'commerce',
+                                    {location: copyToAddress}
+                                )
+                            }}
+                        </button>
+                    </li>
+                </ul>
+                <hr class="padded" />
+                <ul class="padded">
+                    <li>
+                        <button
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            class="error menu-item"
+                            data-icon="trash"
+                            @click.prevent="handleRemove"
+                        >
+                            {{
+                                $options.filters.t('Remove address', 'commerce')
+                            }}
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -100,6 +99,11 @@
             display: none;
         }
 
+        // Hide initial action button
+        .card-actions {
+            padding-right: 24px;
+        }
+
         &--static .address-card:hover {
             cursor: initial;
             background-color: initial;
@@ -114,6 +118,17 @@
             *:not(:last-child) {
                 margin-right: 4px;
             }
+        }
+
+        .menubtn.action-btn {
+            position: absolute;
+            top: var(--m);
+            right: var(--m);
+            background-color: transparent;
+
+            height: var(--touch-target-size);
+            margin: 0 -4px;
+            width: var(--touch-target-size);
         }
     }
 </style>
@@ -152,7 +167,12 @@
         },
 
         data() {
-            return {};
+            return {
+                disclosureMenu: null,
+                disclosureId: `address-disclosure-${Math.floor(
+                    Math.random() * 1000000
+                )}`,
+            };
         },
 
         computed: {
@@ -169,7 +189,6 @@
 
         methods: {
             handleEditAddress() {
-                console.log('handleEditAddress', this.address);
                 if (!this.address) {
                     return;
                 }
@@ -238,6 +257,38 @@
                     this.$emit('update', address);
                 }
             },
+
+            handleCopy() {
+                this.hideDisclosureMenu();
+
+                this.$emit('copy');
+            },
+
+            handleRemove() {
+                this.hideDisclosureMenu();
+
+                this.$emit('remove');
+            },
+
+            hideDisclosureMenu() {
+                if (!this.disclosureMenu) {
+                    this.disclosureMenu = $(this.$refs.disclosureMenu);
+                }
+
+                if (!this.disclosureMenu.length) {
+                    return;
+                }
+
+                if (!this.disclosureMenu.data('disclosureMenu')) {
+                    return;
+                }
+
+                this.disclosureMenu.data('disclosureMenu').hide();
+            },
+        },
+
+        mounted() {
+            this.disclosureMenu = null;
         },
     };
 </script>

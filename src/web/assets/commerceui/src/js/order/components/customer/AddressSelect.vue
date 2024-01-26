@@ -1,12 +1,16 @@
 <template>
-    <div v-if="customerId">
-        <a
+    <div
+        class="order-edit-address-select menu-item"
+        data-icon="list"
+        v-if="customerId"
+    >
+        <button
             :class="{disabled: !canSelectAddress}"
             :disabled="!canSelectAddress"
             @click.prevent="open"
-            >{{ $options.filters.t('Select address', 'commerce') }}</a
         >
-
+            {{ $options.filters.t('Select address', 'commerce') }}
+        </button>
         <div class="hidden">
             <div
                 ref="addressselectmodal"
@@ -244,7 +248,19 @@
     };
 </script>
 
-<style land="scss">
+<style lang="scss">
+    @import 'craftcms-sass/mixins';
+
+    .order-edit-address-select {
+        &::before {
+            @include margin-right(9px);
+        }
+
+        button {
+            cursor: default;
+        }
+    }
+
     .order-edit-modal--address-select {
         label {
             border-radius: 0.375rem;
