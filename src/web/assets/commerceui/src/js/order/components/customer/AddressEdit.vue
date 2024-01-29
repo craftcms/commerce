@@ -216,6 +216,20 @@
                             response.data.elements[ev.data.id].join('');
                     });
                 });
+
+                slideout.on('load', (ev) => {
+                    const $titleField = slideout.$content.find(
+                        '[type="text"][name*="[title]"]'
+                    );
+
+                    if (!$titleField.length) {
+                        return;
+                    }
+
+                    $titleField.addClass('readonly');
+                    $titleField.attr('readonly', true);
+                    $titleField.css('cursor', 'not-allowed');
+                });
             },
 
             handleNewAddress() {
