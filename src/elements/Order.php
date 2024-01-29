@@ -3142,7 +3142,7 @@ class Order extends Element
     /**
      * @return ShippingMethod|null
      * @throws InvalidConfigException
-     * @deprected in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
+     * @deprecated in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
      */
     public function getShippingMethod(): ?ShippingMethod
     {
