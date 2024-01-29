@@ -14,7 +14,6 @@ import './js/CommerceOrderEdit';
 import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';
 import './js/CommerceProductSalesModal';
-import './js/CommerceShippingItemRatesValuesInput';
 import './js/CommerceSubscriptionIndex';
 import './js/CommerceUpdateOrderStatusModal';
 import './js/DownloadOrderPdf';
