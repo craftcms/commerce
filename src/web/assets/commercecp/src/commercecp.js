@@ -11,6 +11,7 @@ import './scss/subscriptions.scss';
 // JS
 import './js/Commerce';
 import './js/CommerceOrderEdit';
+import './js/CommerceOrderIndex';
 import './js/CommercePaymentModal';
 import './js/CommerceProductSalesModal';
 import './js/CommerceSubscriptionIndex';
