@@ -40,8 +40,8 @@ use yii\validators\Validator;
  * @property bool $onPromotion whether this purchasable is currently on sale at a promotional price
  * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the price the item will be added to the line item with
- * @property float $basePrice
- * @property float $basePromotionalPrice
+ * @property float|null $basePrice
+ * @property float|null $basePromotionalPrice
  * @property-read float $salePrice the base price the item will be added to the line item with
  * @property-read string $priceAsCurrency the price
  * @property-read string $basePriceAsCurrency the base price
@@ -474,7 +474,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             'currency' => $this->getStore()->getCurrency(),
         ]);
 
-        return MoneyHelper::toDecimal($price);
+        return (float)MoneyHelper::toDecimal($price);
     }
 
     /**
