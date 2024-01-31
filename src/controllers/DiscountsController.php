@@ -29,6 +29,7 @@ use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\MoneyHelper;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
@@ -200,6 +201,8 @@ class DiscountsController extends BaseStoreSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
         $variables['storeHandle'] = $store->handle;
+        $variables['currency'] = $store->getCurrency();
+        $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
 
         if (!$variables['discount']) {
             if ($variables['id']) {
@@ -272,19 +275,26 @@ class DiscountsController extends BaseStoreSettingsController
         $discount->appliedTo = $this->request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
 
-        $baseDiscount = $this->request->getBodyParam('baseDiscount') ?: 0;
-        $baseDiscount = preg_replace('/[^0-9\.\-\,]/', '', $baseDiscount);
-        $baseDiscount = Localization::normalizeNumber($baseDiscount);
-        $discount->baseDiscount = $baseDiscount * -1;
+        $moneyInputAttributes = [
+            'baseDiscount',
+            'perItemDiscount',
+            'purchaseTotal',
+        ];
+        foreach ($moneyInputAttributes as $attr) {
+            $attrValue = $this->request->getBodyParam($attr) ?: ['value' => '0'];
+            $attrValue['value'] = preg_replace('/[^0-9\.\-\,]/', '', $attrValue['value']);
+            $attrValue += [
+                'currency' => $discount->getStore()->getCurrency(),
+            ];
+            $attrValue = MoneyHelper::toDecimal(MoneyHelper::toMoney($attrValue));
 
-        $perItemDiscount = $this->request->getBodyParam('perItemDiscount') ?: 0;
-        $perItemDiscount = preg_replace('/[^0-9\.\-\,]/', '', $perItemDiscount);
-        $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
-        $discount->perItemDiscount = $perItemDiscount * -1;
+            // Invert non-purchaseTotal values
+            if ($attr !== 'purchaseTotal') {
+                $attrValue = $attrValue * -1;
+            }
 
-        $purchaseTotal = $this->request->getBodyParam('purchaseTotal', 0);
-        $purchaseTotal = preg_replace('/[^0-9\.\-\,]/', '', $purchaseTotal);
-        $discount->purchaseTotal = (float)Localization::normalizeNumber($purchaseTotal);
+            $discount->{$attr} = $attrValue;
+        }
 
         $date = $this->request->getBodyParam('dateFrom');
         if ($date) {

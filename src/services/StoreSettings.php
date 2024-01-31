@@ -13,6 +13,8 @@ use craft\commerce\models\StoreSettings as StoreSettingsModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\db\Query;
+use craft\elements\Address;
+use craft\events\AuthorizationCheckEvent;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -50,11 +52,20 @@ class StoreSettings extends Component
         if (!$storeSettings) {
             $storeSettingsRecord = new StoreSettingsRecord();
             $storeSettingsRecord->id = $id;
-            $storeSettingsRecord->save();
+
+            /** @var StoreSettingsModel $storeSettings */
             $storeSettings = Craft::createObject([
                 'class' => StoreSettingsModel::class,
                 'id' => $storeSettingsRecord->id,
             ]);
+
+            // Create a new blank store location
+            $locationAddress = $storeSettings->getLocationAddress();
+            $storeSettingsRecord->locationAddressId = $locationAddress->id;
+
+            $storeSettingsRecord->save();
+
+
             $this->getAllStoreSettings()->put($storeSettings->id, $storeSettings);
         }
 
@@ -107,6 +118,52 @@ class StoreSettings extends Component
 
         $this->getAllStoreSettings()->put($store->id, $store);
         return true;
+    }
+
+    /**
+     * @param AuthorizationCheckEvent $event
+     * @return void
+     */
+    public function authorizeStoreLocationView(AuthorizationCheckEvent $event): void
+    {
+        if (!$storeSettingsRecord = $this->_checkStoreLocationAuthorization($event)) {
+            return;
+        }
+
+        // @TODO check store permissions using return from `$storeSettingsRecord`
+        $event->authorized = true;
+    }
+
+    /**
+     * @param AuthorizationCheckEvent $event
+     * @return void
+     */
+    public function authorizeStoreLocationEdit(AuthorizationCheckEvent $event): void
+    {
+        if (!$storeSettingsRecord = $this->_checkStoreLocationAuthorization($event)) {
+            return;
+        }
+
+        // @TODO check store permissions using return from `$storeSettingsRecord`
+        $event->authorized = true;
+    }
+
+    /**
+     * @param AuthorizationCheckEvent $event
+     * @return bool
+     */
+    private function _checkStoreLocationAuthorization(AuthorizationCheckEvent $event): StoreSettingsRecord|false
+    {
+        if (!$event->element instanceof Address) {
+            return false;
+        }
+
+        $storeSettings = StoreSettingsRecord::findOne(['locationAddressId' => $event->element->getCanonicalId()]);
+        if (!$storeSettings) {
+            return false;
+        }
+
+        return $storeSettings;
     }
 
     /**

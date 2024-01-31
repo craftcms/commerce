@@ -19,8 +19,6 @@ use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
-use craft\commerce\records\ShippingMethod;
-use craft\commerce\records\ShippingRule;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;

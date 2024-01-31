@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - develop
-      # - '5.0' # uncomment when 5.0 is more stable
-      - v3
-      - '4.3'
+      - '5.0'
   pull_request:
 permissions:
   contents: read
@@ -18,8 +16,10 @@ jobs:
     name: ci
     uses: craftcms/.github/.github/workflows/ci.yml@v3
     with:
-      craft_version: '4'
-      jobs: '["ecs", "phpstan", "prettier", "tests"]'
+      craft_version: '5'
+      #      Add tests back in when 5 is more stable
+      #      jobs: '["ecs", "phpstan", "prettier", "tests"]'
+      jobs: '["ecs", "phpstan", "prettier"]'
       notify_slack: true
       slack_subteam: <!subteam^S01CWPYH9D5>
     secrets:

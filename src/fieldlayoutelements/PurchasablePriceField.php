@@ -12,6 +12,7 @@ use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -119,7 +120,7 @@ JS;
 
         if ($canUseCatalogPricingRules) {
             $toggleTitle = Craft::t('commerce', 'Show all prices');
-            $toggleAttributes['data-init-prices'] = true;
+            $toggleAttributes['data-init-prices'] = 'true';
             $toggleContent = PurchasableHelper::catalogPricingRulesTableByPurchasableId($element->id, $element->storeId) .
                 Html::beginTag('div', ['class' => 'flex']) .
                 // New catalog price button
@@ -147,27 +148,36 @@ JS;
             }
         }
 
+        $currency = $element->getStore()->getCurrency();
+
         return Html::beginTag('div', [
                 'id' => 'commerce-purchasable-price-field',
                 'class' => 'js-purchasable-price-field',
             ]) .
             Html::beginTag('div', ['class' => 'flex']) .
-                Cp::fieldHtml(PurchasableHelper::priceInputHtml($basePrice, [
+                Cp::fieldHtml(Currency::moneyInputHtml($basePrice, [
+                    'id' => 'base-price',
+                    'name' => 'basePrice',
+                    'currency' => $currency->getCode(),
+                    'currencyLabel' => $currency->getCode(),
                     'required' => true,
                     'errors' => $element->getErrors('basePrice'),
                 ]), [
                     'id' => 'base-price',
-                    'label' => Craft::t('commerce', 'Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
+                    'label' => Craft::t('commerce', 'Price'),
                 ]) .
 
                 // Don't show base promotional price field if the system is still using sales
                 ($canUseCatalogPricingRules ?
-                    Cp::fieldHtml(PurchasableHelper::promotionalPriceInputHtml($basePromotionalPrice, [
-                        'required' => true,
+                    Cp::fieldHtml(Currency::moneyInputHtml($basePromotionalPrice, [
+                        'id' => 'base-promotional-price',
+                        'name' => 'basePromotionalPrice',
+                        'currency' => $currency->getCode(),
+                        'currencyLabel' => $currency->getCode(),
                         'errors' => $element->getErrors('basePromotionalPrice'),
                     ]), [
                         'id' => 'promotional-price',
-                        'label' => Craft::t('commerce', 'Promotional Price') . sprintf('(%s)', $element->getStore()->getCurrency()),
+                        'label' => Craft::t('commerce', 'Promotional Price'),
                     ]) : '') .
 
             Html::endTag('div') .

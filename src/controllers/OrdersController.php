@@ -1147,7 +1147,7 @@ class OrdersController extends Controller
         }
 
         if (!$order->isCompleted && $order->origin == Order::ORIGIN_WEB) {
-            $variables['title'] = Craft::t('commerce', 'Cart') . ' ' . $order->getShortNumber();
+            $variables['title'] = Craft::t('commerce', 'Cart {number}', ['number' => $order->getShortNumber()]);
         }
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
@@ -1343,7 +1343,11 @@ class OrdersController extends Controller
                         unset($address['_copy']);
                     }
                     $address = Craft::$app->getElements()->getElementById($address['id'], Address::class);
-                    $address = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $orderId, 'title' => $title]);
+                    $address = Craft::$app->getElements()->duplicateElement($address, [
+                        'ownerId' => $orderId,
+                        'primaryOwnerId' => $orderId,
+                        'title' => $title,
+                    ]);
                 } elseif ($address && ($address['id'] && $address['ownerId'] == $orderId)) {
                     /** @var Address|null $address */
                     $address = Address::find()->ownerId($address['ownerId'])->id($address['id'])->one();
@@ -1449,7 +1453,8 @@ class OrdersController extends Controller
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                $lineItem->salePrice = $lineItemData['salePrice'];
+                $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
+                $lineItem->setPrice($lineItemData['price']);
             }
 
             if ($qty !== null && $qty > 0) {
