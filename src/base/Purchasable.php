@@ -820,7 +820,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
-
             $purchasable = PurchasableRecord::findOne($this->id);
 
             if (!$purchasable) {
