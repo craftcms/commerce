@@ -81,7 +81,7 @@ class PurchasableDimensionsField extends BaseNativeField
                 'class' => 'text',
                 'size' => 10,
                 'unit' => Plugin::getInstance()->getSettings()->dimensionUnits,
-            ]), ['id' => 'height', 'label' => Craft::t('commerce', 'Height')]).
+            ]), ['id' => 'height', 'label' => Craft::t('commerce', 'Height')]) .
         Html::endTag('div');
     }
 

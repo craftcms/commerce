@@ -51,7 +51,6 @@ use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
 use craft\commerce\plugin\Variables;
-use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\commerce\services\Carts;
 use craft\commerce\services\CatalogPricing;
 use craft\commerce\services\CatalogPricingRules;
@@ -114,7 +113,6 @@ use craft\console\controllers\ResaveController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
-use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -345,7 +343,7 @@ class Plugin extends BasePlugin
         // ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
-             $ret['subnav']['subscriptions'] = [
+            $ret['subnav']['subscriptions'] = [
                  'label' => Craft::t('commerce', 'Subscriptions'),
                  'url' => 'commerce/subscriptions',
              ];

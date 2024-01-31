@@ -9,16 +9,16 @@ namespace craft\commerce\elements\conditions\orders;
 
 use Craft;
 use craft\base\conditions\ConditionInterface;
-use craft\commerce\behaviors\StoreBehavior;
-use craft\elements\conditions\ElementConditionInterface;
-use craft\models\Site;
-use Money\Currency;
 use craft\base\ElementInterface;
 use craft\base\FieldInterface;
-use craft\commerce\Plugin;
 use craft\commerce\base\HasStoreInterface;
-use craft\fields\Money;
+use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\Plugin;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\fields\conditions\MoneyFieldConditionRule;
+use craft\fields\Money;
+use craft\models\Site;
+use Money\Currency;
 use yii\db\QueryInterface;
 
 /**
