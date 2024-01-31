@@ -356,8 +356,8 @@ class DiscountsController extends BaseStoreSettingsController
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
 
             // Set back to original input value of the text field to prevent negative value.
-            $discount->baseDiscount = $baseDiscount;
-            $discount->perItemDiscount = $perItemDiscount;
+            $discount->baseDiscount = $this->request->getBodyParam('baseDiscount');
+            $discount->perItemDiscount = $this->request->getBodyParam('perItemDiscount');
         }
 
         // Send the model back to the template
