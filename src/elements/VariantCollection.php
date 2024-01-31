@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
  * VariantCollection represents a collection of Variant elements.
  *
  * @template TKey of array-key
- * @extends Collection<TKey, Variant>
+ * @extends ElementCollection<TKey, Variant>
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
