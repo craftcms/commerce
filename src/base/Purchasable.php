@@ -10,6 +10,7 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
@@ -273,8 +274,18 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         return match ($attribute) {
             'availableForPurchase' => PurchasableHelper::availableForPurchaseInputHtml($this->availableForPurchase),
-            'price' => PurchasableHelper::priceInputHtml($this->basePrice),
-            'promotionalPrice' => PurchasableHelper::promotionalPriceInputHtml($this->basePromotionalPrice),
+            'price' => Currency::moneyInputHtml($this->basePrice, [
+                'id' => 'base-price',
+                'name' => 'basePrice',
+                'currency' => $this->getStore()->getCurrency()->getCode(),
+                'currencyLabel' => $this->getStore()->getCurrency()->getCode(),
+            ]),
+            'promotionalPrice' => Currency::moneyInputHtml($this->basePromotionalPrice, [
+                'id' => 'base-promotional-price',
+                'name' => 'basePromotionalPrice',
+                'currency' => $this->getStore()->getCurrency()->getCode(),
+                'currencyLabel' => $this->getStore()->getCurrency()->getCode(),
+            ]),
             'sku' => PurchasableHelper::skuInputHtml($this->getSkuAsText()),
             default => parent::inlineAttributeInputHtml($attribute),
         };
