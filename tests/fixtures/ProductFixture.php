@@ -35,6 +35,7 @@ class ProductFixture extends BaseProductFixture
      */
     protected function populateElement(ElementInterface $element, array $attributes): void
     {
+        /** @var Product $element */
         foreach ($attributes as $name => $value) {
             if ($name !== '_variants') {
                 $element->$name = $value;
