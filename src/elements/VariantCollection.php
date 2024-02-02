@@ -20,5 +20,24 @@ use craft\elements\ElementCollection;
  */
 class VariantCollection extends ElementCollection
 {
+    /**
+     * Returns the cheapest variant in the collection.
+     *
+     * @param bool $includeDisabled Whether to include disabled variants in the comparison
+     * @return Variant|null The cheapest variant in the collection, or null if there aren't any
+     */
+    public function cheapest(bool $includeDisabled = false): ?Variant
+    {
+        $cheapest = null;
 
+        $this->each(function(Variant $variant) use (&$cheapest, $includeDisabled) {
+            if ($includeDisabled || $variant->enabled) {
+                if (!$cheapest || $variant->getSalePrice() < $cheapest->getSalePrice()) {
+                    $cheapest = $variant;
+                }
+            }
+        });
+
+        return $cheapest;
+    }
 }

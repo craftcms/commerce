@@ -486,24 +486,10 @@ class Product extends Element
             return $this->_cheapestEnabledVariant;
         }
 
-        foreach ($this->getVariants(true) as $variant) {
-            if (
-                !$this->_cheapestVariant
-                || $variant->getSalePrice() < $this->_cheapestVariant->getSalePrice()
-            ) {
-                $this->_cheapestVariant = $variant;
-            }
-
-            if (
-                $variant->enabled
-                &&
-                (
-                    !$this->_cheapestEnabledVariant
-                    || $variant->getSalePrice() < $this->_cheapestEnabledVariant->getSalePrice()
-                )
-            ) {
-                $this->_cheapestEnabledVariant = $variant;
-            }
+        if ($includeDisabled) {
+            $this->_cheapestVariant = $this->getVariants(true)->cheapest(true);
+        } else {
+            $this->_cheapestEnabledVariant = $this->getVariants()->cheapest();
         }
 
         return $includeDisabled ? $this->_cheapestVariant : $this->_cheapestEnabledVariant;
