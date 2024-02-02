@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "62bff82f7336ba2af745bbf333e0e1b5",
+    "content-hash": "88fde49a4d8aa80c12fb1b7ff3bd7263",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -330,12 +330,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "b7030c0628581d9bc9caf20fa5a98c4812891483"
+                "reference": "1be21f7500e93fcdb6fdbb4217ac6a223de18389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/b7030c0628581d9bc9caf20fa5a98c4812891483",
-                "reference": "b7030c0628581d9bc9caf20fa5a98c4812891483",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/1be21f7500e93fcdb6fdbb4217ac6a223de18389",
+                "reference": "1be21f7500e93fcdb6fdbb4217ac6a223de18389",
                 "shasum": ""
             },
             "require": {
@@ -444,7 +444,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2024-02-01T06:32:01+00:00"
+            "time": "2024-02-02T04:44:28+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -3314,16 +3314,16 @@
         },
         {
             "name": "sabberworm/php-css-parser",
-            "version": "8.4.0",
+            "version": "8.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sabberworm/PHP-CSS-Parser.git",
-                "reference": "e41d2140031d533348b2192a83f02d8dd8a71d30"
+                "reference": "4e9a54c2a368fcd73ecc6b45f98c7714b54a7db0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/e41d2140031d533348b2192a83f02d8dd8a71d30",
-                "reference": "e41d2140031d533348b2192a83f02d8dd8a71d30",
+                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/4e9a54c2a368fcd73ecc6b45f98c7714b54a7db0",
+                "reference": "4e9a54c2a368fcd73ecc6b45f98c7714b54a7db0",
                 "shasum": ""
             },
             "require": {
@@ -3331,13 +3331,18 @@
                 "php": ">=5.6.20"
             },
             "require-dev": {
-                "codacy/coverage": "^1.4",
-                "phpunit/phpunit": "^4.8.36"
+                "codacy/coverage": "^1.4.3",
+                "phpunit/phpunit": "^5.7.27"
             },
             "suggest": {
                 "ext-mbstring": "for parsing UTF-8 CSS"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "9.0.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Sabberworm\\CSS\\": "src/"
@@ -3361,9 +3366,9 @@
             ],
             "support": {
                 "issues": "https://github.com/sabberworm/PHP-CSS-Parser/issues",
-                "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/8.4.0"
+                "source": "https://github.com/sabberworm/PHP-CSS-Parser/tree/8.5.0"
             },
-            "time": "2021-12-11T13:40:54+00:00"
+            "time": "2024-02-01T00:40:08+00:00"
         },
         {
             "name": "samdark/yii2-psr-log-target",
@@ -7730,16 +7735,16 @@
         },
         {
             "name": "codeception/module-yii2",
-            "version": "dev-master",
+            "version": "1.1.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-yii2.git",
-                "reference": "219fbd9465472077785e1a93fc01fa89489bf2cc"
+                "reference": "2971f1fb44cd3088f7ecbe78bc51161c037a6551"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-yii2/zipball/219fbd9465472077785e1a93fc01fa89489bf2cc",
-                "reference": "219fbd9465472077785e1a93fc01fa89489bf2cc",
+                "url": "https://api.github.com/repos/Codeception/module-yii2/zipball/2971f1fb44cd3088f7ecbe78bc51161c037a6551",
+                "reference": "2971f1fb44cd3088f7ecbe78bc51161c037a6551",
                 "shasum": ""
             },
             "require": {
@@ -7748,15 +7753,13 @@
                 "php": "^8.0"
             },
             "require-dev": {
-                "codeception/module-asserts": ">= 3.0",
-                "codeception/module-filesystem": "> 3.0",
+                "codeception/module-asserts": "^3.0",
+                "codeception/module-filesystem": "^3.0",
                 "codeception/verify": "^3.0",
                 "codemix/yii2-localeurls": "^1.7",
-                "phpstan/phpstan": "^1.10",
                 "yiisoft/yii2": "dev-master",
                 "yiisoft/yii2-app-advanced": "dev-master"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -7786,9 +7789,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-yii2/issues",
-                "source": "https://github.com/Codeception/module-yii2/tree/master"
+                "source": "https://github.com/Codeception/module-yii2/tree/1.1.10"
             },
-            "time": "2024-01-29T09:54:11+00:00"
+            "time": "2023-12-04T09:18:47+00:00"
         },
         {
             "name": "codeception/stub",
@@ -7837,18 +7840,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/ckeditor.git",
-                "reference": "f0d3ef22ed2a6b6dccedccf2eca9385e29c488b9"
+                "reference": "fbb207c044b1b5a1d4ffd57597048ba819dba556"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/f0d3ef22ed2a6b6dccedccf2eca9385e29c488b9",
-                "reference": "f0d3ef22ed2a6b6dccedccf2eca9385e29c488b9",
+                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/fbb207c044b1b5a1d4ffd57597048ba819dba556",
+                "reference": "fbb207c044b1b5a1d4ffd57597048ba819dba556",
                 "shasum": ""
             },
             "require": {
                 "craftcms/cms": "^5.0.0-alpha",
                 "craftcms/html-field": "^3.0.0-alpha",
-                "nystudio107/craft-code-editor": "^1.0.8",
+                "nystudio107/craft-code-editor": ">=1.0.8 <=1.0.13 || ^1.0.16",
                 "php": "^8.2"
             },
             "require-dev": {
@@ -7893,7 +7896,7 @@
                 "rss": "https://github.com/craftcms/ckeditor/commits/master.atom",
                 "source": "https://github.com/craftcms/ckeditor"
             },
-            "time": "2023-10-03T17:49:44+00:00"
+            "time": "2024-02-02T06:23:32+00:00"
         },
         {
             "name": "craftcms/ecs",
@@ -11136,7 +11139,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "craftcms/cms": 20,
-        "codeception/module-yii2": 20,
         "craftcms/ckeditor": 20,
         "craftcms/ecs": 20,
         "craftcms/phpstan": 20,
