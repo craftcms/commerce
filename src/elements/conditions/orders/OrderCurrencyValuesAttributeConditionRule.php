@@ -80,7 +80,7 @@ abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldCondi
     {
         // Mock a Money field
         $field = new Money();
-        $field->currency = $this->currency;
+        $field->currency = $this->currency?->getCode();
 
         return $field;
     }

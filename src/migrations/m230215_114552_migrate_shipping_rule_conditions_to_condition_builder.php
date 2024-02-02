@@ -5,6 +5,7 @@ namespace craft\commerce\migrations;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule;
 use craft\commerce\elements\conditions\orders\ItemSubtotalConditionRule;
+use craft\commerce\elements\conditions\orders\OrderCurrencyValuesAttributeConditionRule;
 use craft\commerce\elements\conditions\orders\OrderValuesAttributeConditionRule;
 use craft\commerce\elements\conditions\orders\ShippingAddressZoneConditionRule;
 use craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition;
@@ -88,14 +89,14 @@ class m230215_114552_migrate_shipping_rule_conditions_to_condition_builder exten
     }
 
     /**
-     * @param OrderValuesAttributeConditionRule $rule
+     * @param OrderValuesAttributeConditionRule|OrderCurrencyValuesAttributeConditionRule $rule
      * @param ShippingRuleOrderCondition $orderCondition
      * @param mixed $min
      * @param mixed $max
      * @param bool $adjustValues
      * @return ShippingRuleOrderCondition
      */
-    private function _setConditionRule(OrderValuesAttributeConditionRule $rule, ShippingRuleOrderCondition $orderCondition, mixed $min, mixed $max, bool $adjustValues = false): ShippingRuleOrderCondition
+    private function _setConditionRule(OrderValuesAttributeConditionRule|OrderCurrencyValuesAttributeConditionRule $rule, ShippingRuleOrderCondition $orderCondition, mixed $min, mixed $max, bool $adjustValues = false): ShippingRuleOrderCondition
     {
         // Write this manually because at the moment the operator constants are all protected and not public
         $rule->operator = 'between';
