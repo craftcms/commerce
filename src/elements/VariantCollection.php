@@ -14,12 +14,32 @@ use craft\elements\ElementCollection;
  *
  * @extends ElementCollection<Variant>
  *
- * @method static VariantCollection make($items = [])
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
 class VariantCollection extends ElementCollection
 {
+    /**
+     * Creates a VariantCollection from an array of Variant attributes.
+     *
+     * @param array $items
+     * @return static
+     */
+    public static function make($items = [])
+    {
+        foreach ($items as &$item) {
+            if ($item instanceof Variant) {
+                continue;
+            }
+
+            $item = \Craft::createObject(Variant::class, [
+                'config' => ['attributes' => $item],
+            ]);
+        }
+
+        return parent::make($items);
+    }
+
     /**
      * Returns the cheapest variant in the collection.
      *
