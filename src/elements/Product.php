@@ -546,11 +546,11 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param ElementCollection|array $variants
+     * @param VariantCollection|array $variants
      */
-    public function setVariants(ElementCollection|array $variants): void
+    public function setVariants(VariantCollection|array $variants): void
     {
-        $this->_variants = $variants instanceof ElementCollection ? $variants : VariantCollection::make($variants);
+        $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
         $this->_enabledVariants = $this->_variants->where('enabled', true);
     }
 
