@@ -8,14 +8,13 @@
 namespace craft\commerce\elements;
 
 use craft\elements\ElementCollection;
-use Illuminate\Support\Collection;
 
 /**
  * VariantCollection represents a collection of Variant elements.
  *
- * @template TKey of array-key
- * @extends ElementCollection<TKey, Variant>
+ * @extends ElementCollection<Variant>
  *
+ * @method static VariantCollection make($items = [])
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
