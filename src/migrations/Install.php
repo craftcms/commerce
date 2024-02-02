@@ -1173,7 +1173,6 @@ class Install extends Migration
 
         if (!$installed && !$configExists) {
             $this->_insertPrimaryStore();
-            $this->_defaultOrderSettings();
             $this->_defaultGateways();
         }
 
@@ -1229,26 +1228,6 @@ class Install extends Migration
             ]);
             Plugin::getInstance()->getStores()->saveSiteStore($siteStore, false);
         }
-    }
-
-    /**
-     * Add the default order settings.
-     *
-     * @throws Exception
-     */
-    private function _defaultOrderSettings(): void
-    {
-        $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
-
-        $data = [
-            'name' => 'New',
-            'handle' => 'new',
-            'color' => 'green',
-            'default' => true,
-            'storeId' => $this->_getPrimaryStoreId(),
-        ];
-        $orderStatus = Craft::createObject(['class' => OrderStatusModel::class, 'attributes' => $data]);
-        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
     /**
