@@ -1194,10 +1194,10 @@ SQL;
         $this->stdout('  Updating all orders with the email of its real user.');
         if ($isPsql) {
             $sql = <<<SQL
-    update $ordersTable [[o]]
-    set [[o.email]] = [[u.email]]
-    from $customersTable [[cu]], $usersTable [[u]], $ordersTable [[o]]
-    where [[o.v3customerId]] = [[cu.id]]
+    update $ordersTable [[o1]]
+    set [[email]] = [[u.email]]
+    from $customersTable [[cu]], $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.v3customerId]] = [[cu.id]]
     and [[cu.v3userId]] = [[u.id]]
 SQL;
         } else {
