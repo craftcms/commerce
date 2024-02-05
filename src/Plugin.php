@@ -890,7 +890,7 @@ class Plugin extends BasePlugin
             }
 
             // Delete orphaned variants
-            Db::delete(Table::VARIANTS, ['productId' => null]);
+            Db::delete(Table::VARIANTS, ['primaryOwnerId' => null]);
 
             // Delete partial elements
             /** @var Gc $gc */
