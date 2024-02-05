@@ -1371,12 +1371,12 @@ SQL;
      */
     private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
     {
-        $str = 'UPDATE `' . $this->db->getSchema()->getRawTableName($tableName) . '` SET ';
+        $str = 'UPDATE ' . $this->db->quoteTableName($this->db->getSchema()->getRawTableName($tableName)) . ' SET ';
         $row = [];
         $bind = [];
 
         foreach (array_keys($params) as $param) {
-            $rowStr = '`' . $param . '` = (CASE `' . $byField . '` ';
+            $rowStr = $this->db->quoteColumnName($param) . ' = (CASE ' . $this->db->quoteColumnName($byField) . ' ';
             $cel = [];
             foreach ($fieldValues as $fieldValue) {
                 if (array_key_exists($fieldValue, $params[$param])) {
