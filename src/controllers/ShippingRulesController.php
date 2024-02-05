@@ -160,7 +160,7 @@ class ShippingRulesController extends BaseShippingSettingsController
             $input += [
                 'currency' => $shippingRule->getStore()->getCurrency(),
             ];
-            $shippingRule->$moneyInput = MoneyHelper::toDecimal(MoneyHelper::toMoney($input));
+            $shippingRule->$moneyInput = (float)MoneyHelper::toDecimal(MoneyHelper::toMoney($input));
         }
 
         $shippingRule->name = $this->request->getBodyParam('name');

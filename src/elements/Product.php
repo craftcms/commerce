@@ -132,14 +132,14 @@ class Product extends Element
     public ?string $name = null;
 
     /**
-     * @var ElementCollection<Variant>|null This product’s variants
+     * @var VariantCollection|null This product’s variants
      */
-    private ?ElementCollection $_variants = null;
+    private ?VariantCollection $_variants = null;
 
     /**
-     * @var ElementCollection<Variant>|null This product’s enabled variants
+     * @var VariantCollection|null This product’s enabled variants
      */
-    private ?ElementCollection $_enabledVariants = null;
+    private ?VariantCollection $_enabledVariants = null;
 
     /**
      * @var Variant|null This product's cheapest variant
@@ -486,24 +486,10 @@ class Product extends Element
             return $this->_cheapestEnabledVariant;
         }
 
-        foreach ($this->getVariants(true) as $variant) {
-            if (
-                !$this->_cheapestVariant
-                || $variant->getSalePrice() < $this->_cheapestVariant->getSalePrice()
-            ) {
-                $this->_cheapestVariant = $variant;
-            }
-
-            if (
-                $variant->enabled
-                &&
-                (
-                    !$this->_cheapestEnabledVariant
-                    || $variant->getSalePrice() < $this->_cheapestEnabledVariant->getSalePrice()
-                )
-            ) {
-                $this->_cheapestEnabledVariant = $variant;
-            }
+        if ($includeDisabled) {
+            $this->_cheapestVariant = $this->getVariants(true)->cheapest(true);
+        } else {
+            $this->_cheapestEnabledVariant = $this->getVariants()->cheapest();
         }
 
         return $includeDisabled ? $this->_cheapestVariant : $this->_cheapestEnabledVariant;
@@ -513,16 +499,16 @@ class Product extends Element
      * Returns an array of the product's variants.
      *
      * @param bool $includeDisabled
-     * @return ElementCollection
+     * @return VariantCollection
      * @throws InvalidConfigException
      */
-    public function getVariants(bool $includeDisabled = false): ElementCollection
+    public function getVariants(bool $includeDisabled = false): VariantCollection
     {
         // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
-            $this->_variants = ElementCollection::make();
-            $this->_enabledVariants = ElementCollection::make();
+            $this->_variants = VariantCollection::make();
+            $this->_enabledVariants = VariantCollection::make();
             return $this->_variants;
         }
 
@@ -533,11 +519,11 @@ class Product extends Element
                 $variants = array_slice($variants, 0, $this->getType()->maxVariants);
             }
 
-            $this->setVariants(ElementCollection::make($variants));
+            $this->setVariants(VariantCollection::make($variants));
         }
 
         if (empty($this->_variants)) {
-            return ElementCollection::make();
+            return VariantCollection::make();
         }
 
         return $includeDisabled ? $this->_variants : $this->_enabledVariants;
@@ -546,11 +532,11 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param ElementCollection|array $variants
+     * @param VariantCollection|array $variants
      */
-    public function setVariants(ElementCollection|array $variants): void
+    public function setVariants(VariantCollection|array $variants): void
     {
-        $this->_variants = $variants instanceof ElementCollection ? $variants : ElementCollection::make($variants);
+        $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
         $this->_enabledVariants = $this->_variants->where('enabled', true);
     }
 
@@ -779,7 +765,7 @@ class Product extends Element
     protected function searchKeywords(string $attribute): string
     {
         if ($attribute === 'sku') {
-            return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
+            return $this->getVariants()->only('sku')->implode(' ');
         }
 
         return parent::searchKeywords($attribute);
@@ -893,7 +879,7 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-                    if (empty($this->getVariants(true))) {
+                    if ($this->getVariants(true)->isEmpty()) {
                         $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
                 },

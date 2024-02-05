@@ -82,6 +82,7 @@
 - Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
 - Added `craft\commerce\elements\Variant::setProductSlug()`.
 - Added `craft\commerce\elements\Variant::setProductTypeHandle()`.
+- Added `craft\commerce\elements\VariantCollection`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.

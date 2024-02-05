@@ -150,7 +150,7 @@ class StoreSettings extends Component
 
     /**
      * @param AuthorizationCheckEvent $event
-     * @return bool
+     * @return StoreSettingsRecord|false
      */
     private function _checkStoreLocationAuthorization(AuthorizationCheckEvent $event): StoreSettingsRecord|false
     {
