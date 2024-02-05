@@ -1267,10 +1267,10 @@ SQL;
         $this->stdout('  Updating all orders with their correct user ID.');
         if ($isPsql) {
             $sql = <<<SQL
-    update $ordersTable [[o]]
+    update $ordersTable [[o1]]
     set [[customerId]] = [[u.userId]]
-    from $usersTable [[u]], $ordersTable [[o]]
-    where [[o.email]] = [[u.email]]
+    from $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.email]] = [[u.email]]
 SQL;
         } else {
             $sql = <<<SQL
