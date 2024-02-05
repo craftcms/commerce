@@ -12,6 +12,7 @@
 ### Administration
 
 ### Development
+- Products no longer save their variants when saved. This is now done in a separate process.
 - `craft\commerce\base\PurchasableInterface` now extends `ElementInterface`.
 - `craft\commerce\elements\Product::getVariants()` now returns an `ElementCollection`.
 - `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.

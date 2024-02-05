@@ -903,23 +903,10 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-                    if (count($this->getVariants(true)) < 1) {
-                        $this->addError('variants', Craft::t('commerce', 'At least one variant is required.'));
-                    }
-
                     if ($this->getType()->maxVariants) {
                         $variantCount = count($this->getVariants(true));
                         if ($variantCount > $this->getType()->maxVariants) {
                             $this->addError('variants', Craft::t('commerce', 'Too many variants for this product.'));
-                        }
-                    }
-
-                    foreach ($this->getVariants(true) as $i => $variant) {
-                        if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
-                            $variant->setScenario(self::SCENARIO_LIVE);
-                        }
-                        if (!$variant->validate()) {
-                            $this->addModelErrors($variant, "variants[$i]");
                         }
                     }
                 },
