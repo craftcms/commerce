@@ -383,6 +383,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function setBasePrice(Money|array|float|int|null $basePrice): void
     {
         if (is_array($basePrice)) {
+            if (isset($basePrice['value']) && $basePrice['value'] === '') {
+                $this->_basePrice = null;
+                return;
+            }
+
             if (!isset($basePrice['currency'])) {
                 $basePrice['currency'] = $this->getStore()->getCurrency();
             }
@@ -419,6 +424,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function setBasePromotionalPrice(Money|array|float|int|null $basePromotionalPrice): void
     {
         if (is_array($basePromotionalPrice)) {
+            if (isset($basePromotionalPrice['value']) && $basePromotionalPrice['value'] === '') {
+                $this->_basePromotionalPrice = null;
+                return;
+            }
+
             if (!isset($basePromotionalPrice['currency'])) {
                 $basePromotionalPrice['currency'] = $this->getStore()->getCurrency();
             }
