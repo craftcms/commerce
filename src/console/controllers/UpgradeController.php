@@ -1251,7 +1251,7 @@ SQL;
         if ($isPsql) {
             $sql = <<<SQL
     update $customersTable [[cu]]
-    set [[cu.customerId]] = [[cu.v3userId]]
+    set [[customerId]] = [[cu.v3userId]]
     where [[cu.v3userId]] is not null
 SQL;
         } else {
@@ -1268,7 +1268,7 @@ SQL;
         if ($isPsql) {
             $sql = <<<SQL
     update $ordersTable [[o]]
-    set [[o.customerId]] = [[u.userId]]
+    set [[customerId]] = [[u.userId]]
     from $usersTable [[u]], $ordersTable [[o]]
     where [[o.email]] = [[u.email]]
 SQL;
