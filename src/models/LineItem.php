@@ -540,7 +540,6 @@ class LineItem extends Model
         $names[] = 'onPromotion';
         $names[] = 'price';
         $names[] = 'promotionalPrice';
-        $names[] = 'promotionalPrice';
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
