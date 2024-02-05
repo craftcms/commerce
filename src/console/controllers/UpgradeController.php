@@ -1268,7 +1268,7 @@ SQL;
         if ($isPsql) {
             $sql = <<<SQL
     update $ordersTable [[o1]]
-    set [[customerId]] = [[u.userId]]
+    set [[customerId]] = [[u.id]]
     from $usersTable [[u]], $ordersTable [[o2]]
     where [[o2.email]] = [[u.email]]
 SQL;
