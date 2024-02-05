@@ -86,7 +86,7 @@ class DiscountTest extends Unit
         foreach ($lineItemData as $item) {
             $lineItem = $this->make(LineItem::class, [
                 'qty' => $item['qty'],
-                'salePrice' => $item['salePrice'],
+                'price' => $item['price'],
                 'getPurchasable' => function() use ($item) {
                     return $item['purchasable'];
                 },
@@ -130,7 +130,7 @@ class DiscountTest extends Unit
         ];
 
         $lineItemPromotable = [
-            'salePrice' => 100,
+            'price' => 100,
             'qty' => 1,
             'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float
@@ -151,7 +151,7 @@ class DiscountTest extends Unit
         ];
 
         $lineItemNonPromotable = [
-            'salePrice' => 100,
+            'price' => 100,
             'qty' => 1,
             'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float
