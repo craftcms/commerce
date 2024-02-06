@@ -10,6 +10,7 @@ namespace craft\commerce\test\fixtures\elements;
 use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\test\fixtures\elements\BaseElementFixture;
@@ -60,6 +61,21 @@ class ProductFixture extends BaseElementFixture
     protected function createElement(): ElementInterface
     {
         return new Product();
+    }
+
+    protected function saveElement(ElementInterface $element): bool
+    {
+        /** @var Product $element */
+        $return = parent::saveElement($element);
+
+        // Save the variants
+        $element->getVariants()->each(function(Variant $v) use ($element) {
+            $v->setPrimaryOwnerId($element->id);
+            $v->setOwnerId($element->id);
+            \Craft::$app->getElements()->saveElement($v,false);
+        });
+
+        return $return;
     }
 
     /**
