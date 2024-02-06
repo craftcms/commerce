@@ -632,6 +632,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $this->_shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId())->id;
         }
 
+        // Use default shipping category as we must have one
+        if ($this->_shippingCategoryId === null) {
+            $this->_shippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStoreId());
+            $this->_shippingCategoryId = $this->_shippingCategory->id;
+        }
+
         return $this->_shippingCategoryId;
     }
 
