@@ -1549,14 +1549,20 @@ class Order extends Element implements HasStoreInterface
 
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
-            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, [
+                'ownerId' => $this->id,
+                'primaryOwnerId' => $this->id,
+            ]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
         }
 
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
-            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, [
+                'ownerId' => $this->id,
+                'primaryOwnerId' => $this->id,
+            ]);
             $this->setBillingAddress($billingAddress);
             $autoSetOccurred = true;
         }
