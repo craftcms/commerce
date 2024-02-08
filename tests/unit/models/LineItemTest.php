@@ -66,7 +66,7 @@ class LineItemTest extends Unit
 
         self::assertSame(25.10, $lineItem->price);
         self::assertSame(25.10, $lineItem->salePrice);
-        self::assertSame(0.0, $lineItem->saleAmount);
+        self::assertSame(0.0, $lineItem->getPromotionalAmount());
         self::assertSame('commerce_testing_unique_sku', $lineItem->sku);
         self::assertFalse($lineItem->getOnSale());
     }
