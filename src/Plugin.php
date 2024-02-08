@@ -228,7 +228,7 @@ class Plugin extends BasePlugin
         return [
             self::EDITION_LITE,
             self::EDITION_PRO,
-            self::EDITION_ENTERPRISE
+            self::EDITION_ENTERPRISE,
         ];
     }
 

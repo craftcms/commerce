@@ -31,7 +31,6 @@ use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
-use craft\elements\ElementCollection;
 use craft\elements\NestedElementManager;
 use craft\elements\User;
 use craft\enums\PropagationMethod;

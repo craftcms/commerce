@@ -10,11 +10,8 @@ namespace craftcommercetests\unit\elements\variant;
 use Codeception\Test\Unit;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
-use craft\commerce\Plugin;
-use craft\commerce\services\CatalogPricingRules;
 use craft\elements\ElementCollection;
 use craftcommercetests\fixtures\ProductFixture;
-use craftcommercetests\fixtures\SalesFixture;
 
 /**
  * VariantCollectionTest

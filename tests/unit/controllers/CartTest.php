@@ -366,7 +366,7 @@ class CartTest extends Unit
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $storesService = $this->make(Stores::class, [
-            'getStoreById' => function (int $id) use($autoSet) {
+            'getStoreById' => function(int $id) use ($autoSet) {
                 /** @var Store $store */
                 $store = Plugin::getInstance()->getStores()->getAllStores()->firstWhere('id', $id);
                 $store->setAutoSetNewCartAddresses($autoSet);
