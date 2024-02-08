@@ -13,9 +13,11 @@ use craft\commerce\controllers\ShippingRulesController;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\web\Request;
 use craftcommercetests\fixtures\ShippingFixture;
+use craftcommercetests\fixtures\ShippingMethodsFixture;
 use UnitTester;
 use yii\base\InvalidRouteException;
 
@@ -48,6 +50,9 @@ class ShippingRulesControllerTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'shippingMethods' => [
+                'class' => ShippingMethodsFixture::class,
+            ],
             'shipping' => [
                 'class' => ShippingFixture::class,
             ],
@@ -111,28 +116,25 @@ class ShippingRulesControllerTest extends Unit
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $shippingFixture = $this->tester->grabFixture('shipping');
         $rule = $shippingFixture->data['us-only'];
+        $methodsFixture = $this->tester->grabFixture('shippingMethods');
+        $method = ArrayHelper::firstWhere($methodsFixture->data, 'id', $rule['methodId']);
         $newName = $rule['name'] . ' saved';
 
         $this->request->setBodyParams([
             'id' => $rule['id'],
+            'storeId' => $method['storeId'],
             'name' => $newName,
             'methodId' => $rule['methodId'],
             'enabled' => $rule['enabled'],
             'orderConditionFormula' => '',
-            'minQty' => 0,
-            'maxQty' => 0,
-            'minTotal' => 0,
-            'maxTotal' => 0,
-            'minMaxTotalType' => 'salePrice',
-            'minWeight' => 0,
-            'maxWeight' => 0,
-            'baseRate' => 0,
-            'perItemRate' => 0,
-            'weightRate' => 0,
+            'baseRate' => ['value' => 0],
+            'perItemRate' => ['value' => 0],
+            'weightRate' => ['value' => 0],
             'percentageRate' => 0,
-            'minRate' => 0,
-            'maxRate' => 0,
+            'minRate' => ['value' => 0],
+            'maxRate' => ['value' => 0],
             'ruleCategories' => [],
+            'orderCondition' => null,
         ]);
 
         $this->controller->runAction('save');
@@ -206,27 +208,24 @@ class ShippingRulesControllerTest extends Unit
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $shippingFixture = $this->tester->grabFixture('shipping');
         $rule = $shippingFixture->data['us-only'];
+        $methodsFixture = $this->tester->grabFixture('shippingMethods');
+        $method = ArrayHelper::firstWhere($methodsFixture->data, 'id', $rule['methodId']);
 
         $this->request->setBodyParams([
             'id' => $rule['id'],
+            'storeId' => $method['storeId'],
             'name' => $rule['name'],
             'methodId' => $rule['methodId'],
             'enabled' => $rule['enabled'],
             'orderConditionFormula' => '',
-            'minQty' => 0,
-            'maxQty' => 0,
-            'minTotal' => 0,
-            'maxTotal' => 0,
-            'minMaxTotalType' => 'salePrice',
-            'minWeight' => 0,
-            'maxWeight' => 0,
-            'baseRate' => 0,
-            'perItemRate' => 0,
-            'weightRate' => 0,
+            'baseRate' => ['value' => 0],
+            'perItemRate' => ['value' => 0],
+            'weightRate' => ['value' => 0],
             'percentageRate' => 0,
-            'minRate' => 0,
-            'maxRate' => 0,
+            'minRate' => ['value' => 0],
+            'maxRate' => ['value' => 0],
             'ruleCategories' => [],
+            'orderCondition' => null,
         ]);
 
         $this->controller->runAction('duplicate');
