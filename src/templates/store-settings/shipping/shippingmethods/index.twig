@@ -10,7 +10,9 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ store.getStoreSettingsUrl('shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+    {% if plugin('commerce').is('pro', '>=') or shippingMethods|length == 0 %}
+        <a href="{{ store.getStoreSettingsUrl('shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

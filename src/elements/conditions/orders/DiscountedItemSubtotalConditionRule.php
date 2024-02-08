@@ -7,8 +7,10 @@ use craft\base\ElementInterface;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
+use yii\db\QueryInterface;
 
 /**
  * Item Subtotal With Discounts Applied Condition Rule
@@ -33,7 +35,7 @@ class DiscountedItemSubtotalConditionRule extends OrderCurrencyValuesAttributeCo
     /**
      * @inheritdoc
      */
-    public function modifyQuery(ElementQueryInterface $query): void
+    public function modifyQuery(QueryInterface $query): void
     {
         throw new NotSupportedException('Discounted Item Subtotal condition rule does not support queries');
     }

@@ -99,7 +99,7 @@ class OrderAdjustments extends Component
             'types' => $adjusters,
         ]);
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
             if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_ADJUSTERS)) {
                 $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
             }
@@ -278,11 +278,14 @@ class OrderAdjustments extends Component
             'types' => [],
         ]);
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
             if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
                 $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
             }
-            $discountEvent->types[] = Discount::class;
+
+            if(Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
+                $discountEvent->types[] = Discount::class;
+            }
         }
 
         return $discountEvent->types;

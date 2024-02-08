@@ -15,7 +15,9 @@
     {{ craft.commerce.taxes.taxRateActionHtml()|raw }}
 
     {% if craft.commerce.taxes.createTaxRates() %}
-        <a href="{{ url("commerce/store-settings/#{storeHandle}/taxrates/new") }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+        {% if plugin('commerce').is('pro', '>=') or taxRates|length == 0 %}
+            <a href="{{ url("commerce/store-settings/#{storeHandle}/taxrates/new") }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+        {% endif %}
     {% endif %}
 {% endblock %}
 

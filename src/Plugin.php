@@ -162,7 +162,9 @@ use yii\web\User;
  */
 class Plugin extends BasePlugin
 {
+    public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
+    public const EDITION_ENTERPRISE = 'enterprise';
 
     public static function config(): array
     {
@@ -216,10 +218,17 @@ class Plugin extends BasePlugin
         ];
     }
 
+    /**
+     * Returns the editions for Craft Commerce
+     *
+     * @inheritDoc
+     */
     public static function editions(): array
     {
         return [
+            self::EDITION_LITE,
             self::EDITION_PRO,
+            self::EDITION_ENTERPRISE
         ];
     }
 
