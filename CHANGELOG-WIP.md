@@ -114,6 +114,7 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Added `craft\commerce\services\Sales::canUseSales()`.
+- Added `craft\commerce\services\ShippingCategories::clearCaches()`.
 - Added `craft\commerce\services\Vat`.
 - Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
