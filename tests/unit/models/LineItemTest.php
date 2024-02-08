@@ -82,7 +82,7 @@ class LineItemTest extends Unit
 
         self::assertSame(123.99, round($lineItem->price, 2));
         self::assertSame(111.59, round($lineItem->salePrice, 2));
-        self::assertSame(12.40, round($lineItem->saleAmount, 2));
+        self::assertSame(12.40, round($lineItem->getPromotionalAmount(), 2));
         self::assertTrue($lineItem->getOnSale());
     }
 
