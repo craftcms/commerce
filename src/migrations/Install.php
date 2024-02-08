@@ -14,7 +14,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -25,8 +24,6 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
-use craft\records\FieldLayout;
-use Exception;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
