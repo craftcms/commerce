@@ -50,6 +50,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\MoneyHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
@@ -1606,15 +1607,16 @@ class OrdersController extends Controller
      */
     private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
 
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
             if ($purchasable) {
+                $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($purchasable->getSalePrice(), $baseCurrency, [], [], true);
+                $row['price'] = $purchasable->getSalePrice();
+                $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
