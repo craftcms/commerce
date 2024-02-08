@@ -393,7 +393,7 @@ class OrderStatuses extends Component
 
         // Prevent deletion of order status if there are orders with this status
         $orderCounts = $this->getOrderCountByStatus($storeId);
-        if (!isset($orderCounts[$id]) || $orderCounts[$id] > 0) {
+        if (!isset($orderCounts[$id]) || $orderCounts[$id]['orderCount'] > 0) {
             return false;
         }
 
