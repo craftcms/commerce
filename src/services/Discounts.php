@@ -250,7 +250,7 @@ class Discounts extends Component
                 ->where(['storeId' => $storeId])
                 ->all();
 
-            // Limited to one Shipping method in Lite
+            // No discounts in Lite
             if ($discounts && Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
                 $discounts = [];
             };
