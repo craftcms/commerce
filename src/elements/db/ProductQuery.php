@@ -1120,12 +1120,16 @@ class ProductQuery extends ElementQuery
         }
 
         $variantQuery->limit = null;
-        $variantQuery->select('commerce_variants.productId');
+        $variantQuery->select('commerce_variants.primaryOwnerId');
 
         // Remove any blank product IDs (if any)
-        $variantQuery->andWhere(['not', ['commerce_variants.productId' => null]]);
+        $variantQuery->andWhere(['not', ['commerce_variants.primaryOwnerId' => null]]);
 
-        $this->subQuery->andWhere(['commerce_products.id' => $variantQuery]);
+        // Uses exists subquery for speed to check for the variant
+        $existsQuery = (new Query())
+            ->from(['existssub' => $variantQuery])
+            ->where(['existssub.primaryOwnerId' => new Expression('[[commerce_products.id]]')]);
+        $this->subQuery->andWhere(['exists', $existsQuery]);
     }
 
     /**
