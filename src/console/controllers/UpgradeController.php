@@ -888,32 +888,32 @@ FROM $addressesTable AS a
 WHERE NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o1
-  WHERE o1.v3billingAddressId = a.id
+  WHERE o1."v3billingAddressId" = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2.v3shippingAddressId = a.id
+  WHERE o2."v3shippingAddressId" = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2.v3estimatedBillingAddressId = a.id
+  WHERE o2."v3estimatedBillingAddressId" = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2.v3shippingAddressId = a.id
+  WHERE o2."v3shippingAddressId" = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2.v3estimatedShippingAddressId = a.id
+  WHERE o2."v3estimatedShippingAddressId" = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $customersAddressesTable AS ca
-  WHERE ca.addressId = a.id
+  WHERE ca."addressId" = a.id
 );
 SQL;
 
@@ -1194,10 +1194,10 @@ SQL;
         $this->stdout('  Updating all orders with the email of its real user.');
         if ($isPsql) {
             $sql = <<<SQL
-    update $ordersTable [[o]]
-    set [[o.email]] = [[u.email]]
-    from $customersTable [[cu]], $usersTable [[u]], $ordersTable [[o]]
-    where [[o.v3customerId]] = [[cu.id]]
+    update $ordersTable [[o1]]
+    set [[email]] = [[u.email]]
+    from $customersTable [[cu]], $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.v3customerId]] = [[cu.id]]
     and [[cu.v3userId]] = [[u.id]]
 SQL;
         } else {
@@ -1251,7 +1251,7 @@ SQL;
         if ($isPsql) {
             $sql = <<<SQL
     update $customersTable [[cu]]
-    set [[cu.customerId]] = [[cu.v3userId]]
+    set [[customerId]] = [[cu.v3userId]]
     where [[cu.v3userId]] is not null
 SQL;
         } else {
@@ -1267,10 +1267,10 @@ SQL;
         $this->stdout('  Updating all orders with their correct user ID.');
         if ($isPsql) {
             $sql = <<<SQL
-    update $ordersTable [[o]]
-    set [[o.customerId]] = [[u.userId]]
-    from $usersTable [[u]], $ordersTable [[o]]
-    where [[o.email]] = [[u.email]]
+    update $ordersTable [[o1]]
+    set [[customerId]] = [[u.id]]
+    from $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.email]] = [[u.email]]
 SQL;
         } else {
             $sql = <<<SQL
@@ -1371,12 +1371,12 @@ SQL;
      */
     private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
     {
-        $str = 'UPDATE `' . $this->db->getSchema()->getRawTableName($tableName) . '` SET ';
+        $str = 'UPDATE ' . $this->db->quoteTableName($this->db->getSchema()->getRawTableName($tableName)) . ' SET ';
         $row = [];
         $bind = [];
 
         foreach (array_keys($params) as $param) {
-            $rowStr = '`' . $param . '` = (CASE `' . $byField . '` ';
+            $rowStr = $this->db->quoteColumnName($param) . ' = (CASE ' . $this->db->quoteColumnName($byField) . ' ';
             $cel = [];
             foreach ($fieldValues as $fieldValue) {
                 if (array_key_exists($fieldValue, $params[$param])) {
