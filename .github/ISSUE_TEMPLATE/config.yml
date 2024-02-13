@@ -12,7 +12,7 @@ contact_links:
   - name: Craft Discord
     url: https://craftcms.com/discord
     about: Meet the community
-  - name: Stack Exchange
+  - name: Craft Stack Exchange
     url: https://craftcms.stackexchange.com/
     about: Get help and help others
   - name: "Feature Request: Craft CMS"
