@@ -2149,7 +2149,10 @@ class Order extends Element implements HasStoreInterface
         $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
 
         if ($shippingAddress = $this->getShippingAddress()) {
-            $shippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+            // This is because the order record has not been saved.
+            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+            $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
             $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
@@ -2168,7 +2171,10 @@ class Order extends Element implements HasStoreInterface
             if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
                 $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id, 'title' => Craft::t('commerce', 'Billing Address')]);
             } else {
-                $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $billingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
                 $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
                 Craft::$app->getElements()->saveElement($billingAddress, false);
             }
