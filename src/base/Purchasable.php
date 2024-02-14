@@ -10,6 +10,7 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
@@ -24,7 +25,9 @@ use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\MoneyHelper;
 use craft\validators\UniqueValidator;
+use Money\Money;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -36,7 +39,9 @@ use yii\validators\Validator;
  * @property bool $isPromotable whether this purchasable can be subject to discounts or sales
  * @property bool $onPromotion whether this purchasable is currently on sale at a promotional price
  * @property float $promotionRelationSource The source for any promotion category relation
- * @property float $price the base price the item will be added to the line item with
+ * @property float $price the price the item will be added to the line item with
+ * @property float|null $basePrice
+ * @property float|null $basePromotionalPrice
  * @property-read float $salePrice the base price the item will be added to the line item with
  * @property-read string $priceAsCurrency the price
  * @property-read string $basePriceAsCurrency the base price
@@ -150,15 +155,19 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
     /**
      * @var float|null
+     * @see getBasePrice()
+     * @see setBasePrice()
      * @since 5.0.0
      */
-    public ?float $basePrice = null;
+    private ?float $_basePrice = null;
 
     /**
      * @var float|null
+     * @see getBasePromotionalPrice()
+     * @see setBasePromotionalPrice()
      * @since 5.0.0
      */
-    public ?float $basePromotionalPrice = null;
+    private ?float $_basePromotionalPrice = null;
 
     /**
      * @var bool
@@ -265,8 +274,18 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         return match ($attribute) {
             'availableForPurchase' => PurchasableHelper::availableForPurchaseInputHtml($this->availableForPurchase),
-            'price' => PurchasableHelper::priceInputHtml($this->basePrice),
-            'promotionalPrice' => PurchasableHelper::promotionalPriceInputHtml($this->basePromotionalPrice),
+            'price' => Currency::moneyInputHtml($this->basePrice, [
+                'id' => 'base-price',
+                'name' => 'basePrice',
+                'currency' => $this->getStore()->getCurrency()->getCode(),
+                'currencyLabel' => $this->getStore()->getCurrency()->getCode(),
+            ]),
+            'promotionalPrice' => Currency::moneyInputHtml($this->basePromotionalPrice, [
+                'id' => 'base-promotional-price',
+                'name' => 'basePromotionalPrice',
+                'currency' => $this->getStore()->getCurrency()->getCode(),
+                'currencyLabel' => $this->getStore()->getCurrency()->getCode(),
+            ]),
             'sku' => PurchasableHelper::skuInputHtml($this->getSkuAsText()),
             default => parent::inlineAttributeInputHtml($attribute),
         };
@@ -279,8 +298,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         return match ($attribute) {
             'sku' => Html::tag('code', $this->getSkuAsText()),
-            'price' => $this->basePrice, // @TODO change this to the `asCurrency` attribute when implemented
-            'promotionalPrice' => $this->basePromotionalPrice, // @TODO change this to the `asCurrency` attribute when implemented
+            'price' => $this->basePriceAsCurrency,
+            'promotionalPrice' => $this->basePromotionalPrice ? $this->basePromotionalPriceAsCurrency : '',
             'weight' => $this->weight !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->weightUnits : '',
             'length' => $this->length !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
             'width' => $this->width !== null ? Craft::$app->getLocale()->getFormatter()->asDecimal($this->$attribute) . ' ' . Plugin::getInstance()->getSettings()->dimensionUnits : '',
@@ -356,6 +375,88 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @param Money|array|float|int|null $basePrice
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function setBasePrice(Money|array|float|int|null $basePrice): void
+    {
+        if (is_array($basePrice)) {
+            if (isset($basePrice['value']) && $basePrice['value'] === '') {
+                $this->_basePrice = null;
+                return;
+            }
+
+            if (!isset($basePrice['currency'])) {
+                $basePrice['currency'] = $this->getStore()->getCurrency();
+            }
+
+            $basePrice = MoneyHelper::toMoney($basePrice);
+            // nullify if conversion fails
+            $basePrice = $basePrice ?: null;
+        }
+
+        if ($basePrice instanceof Money) {
+            $basePrice = MoneyHelper::toDecimal($basePrice);
+        } elseif ($basePrice !== null) {
+            $basePrice = (float)$basePrice;
+        }
+
+        $this->_basePrice = $basePrice;
+    }
+
+    /**
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getBasePrice(): ?float
+    {
+        return $this->_basePrice;
+    }
+
+    /**
+     * @param Money|array|float|int|null $basePromotionalPrice
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function setBasePromotionalPrice(Money|array|float|int|null $basePromotionalPrice): void
+    {
+        if (is_array($basePromotionalPrice)) {
+            if (isset($basePromotionalPrice['value']) && $basePromotionalPrice['value'] === '') {
+                $this->_basePromotionalPrice = null;
+                return;
+            }
+
+            if (!isset($basePromotionalPrice['currency'])) {
+                $basePromotionalPrice['currency'] = $this->getStore()->getCurrency();
+            }
+
+            $basePromotionalPrice = MoneyHelper::toMoney($basePromotionalPrice);
+            // nullify if conversion fails
+            $basePromotionalPrice = $basePromotionalPrice ?: null;
+        }
+
+        if ($basePromotionalPrice instanceof Money) {
+            $basePromotionalPrice = MoneyHelper::toDecimal($basePromotionalPrice);
+        } elseif ($basePromotionalPrice !== null) {
+            $basePromotionalPrice = (float)$basePromotionalPrice;
+        }
+
+        $this->_basePromotionalPrice = $basePromotionalPrice;
+    }
+
+    /**
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getBasePromotionalPrice(): ?float
+    {
+        return $this->_basePromotionalPrice;
+    }
+
+    /**
      * @param float|null $price
      * @return void
      * @since 5.0.0
@@ -376,7 +477,14 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return $this->basePrice;
         }
 
-        return $this->_price ?? $this->basePrice;
+        $price = $this->_price ?? $this->basePrice;
+
+        $price = MoneyHelper::toMoney([
+            'value' => $price,
+            'currency' => $this->getStore()->getCurrency(),
+        ]);
+
+        return (float)MoneyHelper::toDecimal($price);
     }
 
     /**
@@ -732,57 +840,59 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterSave(bool $isNew): void
     {
-        $purchasable = PurchasableRecord::findOne($this->id);
+        if (!$this->propagating) {
+            $purchasable = PurchasableRecord::findOne($this->id);
 
-        if (!$purchasable) {
-            $purchasable = new PurchasableRecord();
-        }
-
-        $purchasable->sku = $this->getSku();
-        $purchasable->id = $this->id;
-        $purchasable->width = $this->width;
-        $purchasable->height = $this->height;
-        $purchasable->length = $this->length;
-        $purchasable->weight = $this->weight;
-        $purchasable->taxCategoryId = $this->taxCategoryId;
-
-        // Only update the description for the primary site until we have a concept
-        // of an order having a site ID
-        if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
-            $purchasable->description = $this->getDescription();
-        }
-
-        $purchasable->save(false);
-
-        // Set purchasables stores data
-        if ($purchasable->id) {
-            $purchasableStoreRecord = PurchasableStore::findOne([
-                'purchasableId' => $this->id,
-                'storeId' => $this->getStoreId(),
-            ]);
-            if (!$purchasableStoreRecord) {
-                $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
-                $purchasableStoreRecord->storeId = $this->getStore()->id;
+            if (!$purchasable) {
+                $purchasable = new PurchasableRecord();
             }
 
-            $purchasableStoreRecord->basePrice = $this->basePrice;
-            $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
-            $purchasableStoreRecord->stock = $this->stock;
-            $purchasableStoreRecord->hasUnlimitedStock = $this->hasUnlimitedStock;
-            $purchasableStoreRecord->minQty = $this->minQty;
-            $purchasableStoreRecord->maxQty = $this->maxQty;
-            $purchasableStoreRecord->promotable = $this->promotable;
-            $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
-            $purchasableStoreRecord->freeShipping = $this->freeShipping;
-            $purchasableStoreRecord->purchasableId = $this->id;
-            $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+            $purchasable->sku = $this->getSku();
+            $purchasable->id = $this->id;
+            $purchasable->width = $this->width;
+            $purchasable->height = $this->height;
+            $purchasable->length = $this->length;
+            $purchasable->weight = $this->weight;
+            $purchasable->taxCategoryId = $this->taxCategoryId;
 
-            $purchasableStoreRecord->save(false);
+            // Only update the description for the primary site until we have a concept
+            // of an order having a site ID
+            if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
+                $purchasable->description = $this->getDescription();
+            }
 
-            Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-                'purchasableIds' => [$this->id],
-                'storeId' => $this->getStoreId(),
-            ]);
+            $purchasable->save(false);
+
+            // Set purchasables stores data
+            if ($purchasable->id) {
+                $purchasableStoreRecord = PurchasableStore::findOne([
+                    'purchasableId' => $this->id,
+                    'storeId' => $this->getStoreId(),
+                ]);
+                if (!$purchasableStoreRecord) {
+                    $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
+                    $purchasableStoreRecord->storeId = $this->getStore()->id;
+                }
+
+                $purchasableStoreRecord->basePrice = $this->basePrice;
+                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
+                $purchasableStoreRecord->stock = $this->stock;
+                $purchasableStoreRecord->hasUnlimitedStock = $this->hasUnlimitedStock;
+                $purchasableStoreRecord->minQty = $this->minQty;
+                $purchasableStoreRecord->maxQty = $this->maxQty;
+                $purchasableStoreRecord->promotable = $this->promotable;
+                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
+                $purchasableStoreRecord->freeShipping = $this->freeShipping;
+                $purchasableStoreRecord->purchasableId = $this->id;
+                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+
+                $purchasableStoreRecord->save(false);
+
+                Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+                    'purchasableIds' => [$this->id],
+                    'storeId' => $this->getStoreId(),
+                ]);
+            }
         }
 
         parent::afterSave($isNew);

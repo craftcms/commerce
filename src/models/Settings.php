@@ -13,7 +13,6 @@ use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\ConfigHelper;
 use craft\models\Site;
 use yii\base\InvalidConfigException;

@@ -63,14 +63,14 @@ class OrderStatusesFixture extends BaseModelFixture
         $_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
         Craft::$app->getProjectConfig()->muteEvents = false;
 
-        if (!empty($this->ids)) {
-            foreach ($this->ids as $id) {
-                if ($id == 1) {
+        if (!empty($this->data)) {
+            foreach ($this->data as $row) {
+                if ($row['id'] == 1) {
                     // keep the new default status
                     continue;
                 }
 
-                $this->service->{$this->deleteMethod}($id);
+                $this->service->{$this->deleteMethod}($row['id'], $row['storeId']);
             }
         }
 

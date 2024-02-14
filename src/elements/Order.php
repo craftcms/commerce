@@ -1393,7 +1393,7 @@ class Order extends Element implements HasStoreInterface
         $attributes[] = 'totalPaid';
         $attributes[] = 'total';
         $attributes[] = 'totalPrice';
-        $attributes[] = 'totalSaleAmount';
+        $attributes[] = 'totalPromotionalAmount';
         $attributes[] = 'totalTax';
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
@@ -1451,6 +1451,10 @@ class Order extends Element implements HasStoreInterface
         $fields['totalTaxIncluded'] = 'totalTaxIncluded';
         $fields['totalShippingCost'] = 'totalShippingCost';
         $fields['totalDiscount'] = 'totalDiscount';
+
+        // @TODO remove in 6.0.0
+        $fields['totalSaleAmount'] = 'totalPromotionalAmount';
+        $fields['totalSaleAmountAsCurrency'] = 'totalPromotionalAmountAsCurrency';
 
         return $fields;
     }
@@ -1519,7 +1523,7 @@ class Order extends Element implements HasStoreInterface
 
             [['paymentSourceId'], 'number', 'integerOnly' => true],
             [['paymentSourceId'], 'validatePaymentSourceId'],
-            [['number', 'user', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
+            [['number', 'user', 'customer', 'storeId', 'orderSiteId', 'orderCompletedEmail', 'saveBillingAddressOnOrderComplete', 'saveShippingAddressOnOrderComplete'], 'safe'],
         ]);
     }
 
@@ -1549,14 +1553,20 @@ class Order extends Element implements HasStoreInterface
 
         if (!$this->_shippingAddress && !$this->shippingAddressId && $primaryShippingAddress = $user->getPrimaryShippingAddress()) {
             $this->sourceShippingAddressId = $primaryShippingAddress->id;
-            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, ['ownerId' => $this->id]);
+            $shippingAddress = Craft::$app->getElements()->duplicateElement($primaryShippingAddress, [
+                'ownerId' => $this->id,
+                'primaryOwnerId' => $this->id,
+            ]);
             $this->setShippingAddress($shippingAddress);
             $autoSetOccurred = true;
         }
 
         if (!$this->_billingAddress && !$this->billingAddressId && $primaryBillingAddress = $user->getPrimaryBillingAddress()) {
             $this->sourceBillingAddressId = $primaryBillingAddress->id;
-            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, ['ownerId' => $this->id]);
+            $billingAddress = Craft::$app->getElements()->duplicateElement($primaryBillingAddress, [
+                'ownerId' => $this->id,
+                'primaryOwnerId' => $this->id,
+            ]);
             $this->setBillingAddress($billingAddress);
             $autoSetOccurred = true;
         }
@@ -2805,6 +2815,16 @@ class Order extends Element implements HasStoreInterface
         }
 
         return $value;
+    }
+
+    /**
+     * Returns the total sale amount.
+     * @deprecated in 5.0.0. Use [[getTotalPromotionalAmount()]] instead.
+     */
+    public function getTotalSaleAmount(): float
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, '`getTotalSaleAmount()` method has been deprecated. Use `getTotalPromotionalAmount()` instead.');
+        return $this->getTotalPromotionalAmount();
     }
 
     /**

@@ -257,7 +257,7 @@ export default new Vuex.Store({
 
       // for the dropdown tab menu
       const tabManager = Craft.cp.tabManager;
-      const tabsDropdownMenu = tabManager.$menuBtn.data('menubtn').menu;
+      const tabsDropdownMenu = tabManager.$menuBtn.data('disclosureMenu');
       const transactionsOption = tabsDropdownMenu.$container.find(
         '[data-id="order-transactions"]'
       );
@@ -282,7 +282,7 @@ export default new Vuex.Store({
       tabsDropdownMenu.on('optionselect', function (ev) {
         let $selectedOption = $(ev.selectedOption);
         if ($selectedOption.data('id') === 'order-transactions') {
-          $prevSelectedTab.trigger('click');
+          $prevSelectedTab.trigger('activate');
         }
       });
     },
@@ -359,8 +359,9 @@ export default new Vuex.Store({
     },
 
     handleTabs({state}) {
-      const tabManagerMenuBtn = Craft.cp.tabManager.$menuBtn.data('menubtn');
-      const tabsDropdownMenu = tabManagerMenuBtn.menu;
+      const tabManagerMenuBtn =
+        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
+      const tabsDropdownMenu = tabManagerMenuBtn;
       if (tabsDropdownMenu !== undefined) {
         const optionSelector =
           '[id^="' + tabsDropdownMenu.menuId + '-option-"]';

@@ -30,7 +30,7 @@ class PurchasablePriceFieldAsset extends AssetBundle
             CpAsset::class,
         ];
 
-        $this->js[] = 'PurchasablePriceField.js';
+        $this->js[] = 'purchasablepricefield.js';
 
         parent::init();
     }

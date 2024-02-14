@@ -14,21 +14,16 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
-use craft\commerce\models\OrderStatus as OrderStatusModel;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
-use craft\commerce\records\ShippingMethod;
-use craft\commerce\records\ShippingRule;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
-use craft\records\FieldLayout;
-use Exception;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
@@ -950,6 +945,8 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -1175,7 +1172,6 @@ class Install extends Migration
 
         if (!$installed && !$configExists) {
             $this->_insertPrimaryStore();
-            $this->_defaultOrderSettings();
             $this->_defaultGateways();
         }
 
@@ -1231,26 +1227,6 @@ class Install extends Migration
             ]);
             Plugin::getInstance()->getStores()->saveSiteStore($siteStore, false);
         }
-    }
-
-    /**
-     * Add the default order settings.
-     *
-     * @throws Exception
-     */
-    private function _defaultOrderSettings(): void
-    {
-        $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
-
-        $data = [
-            'name' => 'New',
-            'handle' => 'new',
-            'color' => 'green',
-            'default' => true,
-            'storeId' => $this->_getPrimaryStoreId(),
-        ];
-        $orderStatus = Craft::createObject(['class' => OrderStatusModel::class, 'attributes' => $data]);
-        Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
     /**

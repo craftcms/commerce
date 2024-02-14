@@ -453,6 +453,17 @@ class LineItem extends Model
     }
 
     /**
+     * @return float
+     * @deprecated in 5.0.0. Use `getPromotionalAmount()` instead.)
+     */
+    public function getSaleAmount(): float
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `getSaleAmount()` method has been deprecated. Use `getPromotionalAmount()` instead.');
+        return $this->getPromotionalAmount();
+    }
+
+    /**
+     * @return float
      * @since 5.0.0
      */
     public function getPromotionalAmount(): float
@@ -539,7 +550,6 @@ class LineItem extends Model
         $names[] = 'optionsSignature';
         $names[] = 'onPromotion';
         $names[] = 'price';
-        $names[] = 'promotionalPrice';
         $names[] = 'promotionalPrice';
         $names[] = 'salePrice';
         $names[] = 'sku';

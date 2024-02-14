@@ -55,6 +55,7 @@
         sites: store.getSiteNames()|join(', '),
         menu: {
             showItems: true,
+            showCount: false,
             menuBtnTitle: ''|t('app'),
             label: 'Store Management    '|t('commerce'),
             url: url('commerce/store-settings/' ~ store.handle),

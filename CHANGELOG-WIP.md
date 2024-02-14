@@ -12,6 +12,7 @@
 ### Administration
 
 ### Development
+- Products no longer save their variants when saved. This is now done in a separate process.
 - `craft\commerce\base\PurchasableInterface` now extends `ElementInterface`.
 - `craft\commerce\elements\Product::getVariants()` now returns an `ElementCollection`.
 - `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
@@ -82,6 +83,7 @@
 - Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
 - Added `craft\commerce\elements\Variant::setProductSlug()`.
 - Added `craft\commerce\elements\Variant::setProductTypeHandle()`.
+- Added `craft\commerce\elements\VariantCollection`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
@@ -93,6 +95,7 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleSkuField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
+- Added `craft\commerce\helpers\Currency::moneyInputHtml()`.
 - Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
 - Added `craft\commerce\models\CatalogPricingRule`.
 - Added `craft\commerce\models\Discount::$storeId`.
@@ -111,12 +114,20 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Added `craft\commerce\services\Sales::canUseSales()`.
+- Added `craft\commerce\services\ShippingCategories::clearCaches()`.
 - Added `craft\commerce\services\Vat`.
 - Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
+- Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategoryId()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::taxCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.

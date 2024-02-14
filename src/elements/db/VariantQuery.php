@@ -13,6 +13,7 @@ use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\elements\VariantCollection;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -490,6 +491,15 @@ class VariantQuery extends PurchasableQuery
     {
         $this->maxQty = $value;
         return $this;
+    }
+
+    /**
+     * @param Connection|null $db
+     * @return VariantCollection
+     */
+    public function collect(?Connection $db = null): VariantCollection
+    {
+        return VariantCollection::make(parent::collect($db));
     }
 
     /**

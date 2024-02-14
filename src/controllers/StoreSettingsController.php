@@ -57,6 +57,7 @@ class StoreSettingsController extends BaseStoreSettingsController
         $locationFieldHtml = Cp::elementCardHtml($variables['storeSettings']->getLocationAddress(), [
             'context' => 'field',
             'inputName' => 'locationAddressId',
+            'showActionMenu' => true,
         ]);
 
         // Countries market condition field HTML

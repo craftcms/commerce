@@ -17,6 +17,7 @@ use craft\commerce\records\CatalogPricingRule as CatalogPricingRuleRecord;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization;
+use craft\helpers\MoneyHelper;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use Exception;
@@ -196,10 +197,16 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
 
         $applyAmount = $this->request->getBodyParam('applyAmount');
 
-        $applyAmount = Localization::normalizeNumber($applyAmount);
         if ($catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_BY_PERCENT || $catalogPricingRule->apply == CatalogPricingRuleRecord::APPLY_TO_PERCENT) {
+            $applyAmount = Localization::normalizeNumber($applyAmount);
             $catalogPricingRule->applyAmount = (float)$applyAmount / -100;
         } else {
+            if (is_array($applyAmount)) {
+                $applyAmount += [
+                    'currency' => $catalogPricingRule->getStore()->getCurrency(),
+                ];
+                $applyAmount = MoneyHelper::toDecimal(MoneyHelper::toMoney($applyAmount));
+            }
             $catalogPricingRule->applyAmount = (float)$applyAmount * -1;
         }
 

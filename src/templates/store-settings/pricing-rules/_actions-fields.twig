@@ -1,7 +1,11 @@
 {% set applyId = 'apply'|namespaceInputId %}
 {% set applyPriceTypeId = 'applyPriceType'|namespaceInputId %}
-{% set applyAmountCurrencySymbolId = 'applyAmountCurrencySymbol'|namespaceInputId %}
-{% set applyAmountPercentSymbolId = 'applyAmountPercentSymbol'|namespaceInputId %}
+{% set applyAmountCurrencyId = 'applyAmountCurrency'|namespaceInputId %}
+{% set applyAmountCurrencyInputId = 'applyAmountCurrencyInput'|namespaceInputId %}
+{% set applyAmountPercentId = 'applyAmountPercent'|namespaceInputId %}
+{% set applyAmountPercentInputId = 'applyAmountPercentInput'|namespaceInputId %}
+{% set isPercent = catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply ? true : false  %}
+{% set currency = catalogPricingRule.getStore().getCurrency() %}
 
 {% import "_includes/forms" as forms %}
 {% set applyAmountInput %}
@@ -15,24 +19,48 @@
           value: catalogPricingRule.apply
         }) }}
       </td>
-      <td id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
-        {{ forms.select({
-          id: 'applyPriceType',
-          name: 'applyPriceType',
-          options: applyPriceTypeOptions,
-          value: catalogPricingRule.applyPriceType,
-        }) }}
+      <td>
+        <div id="applyPriceType-input" class="{{ catalogPricingRule.applyPriceType == 'toFlat' ? 'hidden' : '' }}">
+          {{ forms.select({
+            id: 'applyPriceType',
+            name: 'applyPriceType',
+            options: applyPriceTypeOptions,
+            value: catalogPricingRule.applyPriceType,
+          }) }}
+        </div>
       </td>
       <td>
-        <span id="applyAmountCurrencySymbol" class="{% if catalogPricingRule.apply == 'byPercent' or catalogPricingRule.apply == 'toPercent' or not catalogPricingRule.apply %}hidden{% endif %}">{{ currencySymbol }}</span>
-        {{ forms.text({
-          id: 'applyAmount',
-          name: 'applyAmount',
-          value: applyAmount,
-          class: 'code ltr',
-          size: 5,
-        }) }}
-        <span id="applyAmountPercentSymbol" class="{% if catalogPricingRule.apply == 'byFlat' or catalogPricingRule.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
+        <div
+            id="applyAmountCurrency"
+            class="{{ isPercent ? 'hidden' : '' }}"
+        >
+          {{ forms.money({
+            id: 'applyAmountCurrencyInput',
+            name: 'applyAmount',
+            value: applyAmount,
+            size: 5,
+            showCurrency: true,
+            currencyLabel: currency,
+            decimals: craft.commerce.currencies.getSubunitFor(currency),
+            inputAttributes: {
+              disabled: isPercent,
+            },
+          }) }}
+        </div>
+        <div
+            id="applyAmountPercent"
+            class="{{ isPercent ? '' : 'hidden' }}"
+        >
+          {{ forms.text({
+            id: 'applyAmountPercentInput',
+            name: 'applyAmount',
+            value: applyAmount,
+            class: 'code ltr',
+            size: 5,
+            disabled: not isPercent,
+          }) }}
+          <span>{{ percentSymbol }}</span>
+        </div>
       </td>
     </tr>
   </table>
@@ -57,13 +85,25 @@
 {% js %}
 $(function() {
   $('#{{ applyId }}').change(function() {
+    const $currencyWrapper = document.querySelector('#{{ applyAmountCurrencyId }}');
+    const $currencyInput = document.querySelector('#{{ applyAmountCurrencyInputId }}');
+    const $percentWrapper = document.querySelector('#{{ applyAmountPercentId }}');
+    const $percentInput = document.querySelector('#{{ applyAmountPercentInputId }}');
 
     if (this.value == 'byPercent' || this.value == 'toPercent') {
-      $('#{{ applyAmountPercentSymbolId }}').removeClass('hidden');
-      $('#{{ applyAmountCurrencySymbolId }}').addClass('hidden');
+      $currencyWrapper.classList.add('hidden');
+      $currencyInput.disabled = true
+
+      $percentWrapper.classList.remove('hidden');
+      $percentInput.classList.remove('hidden');
+      $percentInput.disabled = false;
     } else {
-      $('#{{ applyAmountPercentSymbolId }}').addClass('hidden');
-      $('#{{ applyAmountCurrencySymbolId }}').removeClass('hidden');
+      $currencyWrapper.classList.remove('hidden');
+      $currencyInput.disabled = false
+
+      $percentWrapper.classList.add('hidden');
+      $percentInput.classList.add('hidden');
+      $percentInput.disabled = true;
     }
 
     if (this.value == 'toFlat') {
