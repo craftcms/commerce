@@ -46,7 +46,7 @@ class ProductVariantPriceConditionRule extends BaseNumberConditionRule implement
     public function modifyQuery(ElementQueryInterface $query): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.productId as id']);
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->price($this->paramValue());
 
         /** @var ProductQuery $query */
