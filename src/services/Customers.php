@@ -415,7 +415,7 @@ class Customers extends Component
             }
 
             if ($billingAddress || $shippingAddress) {
-                $newAttributes = ['ownerId' => $user->id];
+                $newAttributes = ['primaryOwner' => $user];
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {
