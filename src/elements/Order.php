@@ -48,6 +48,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -2169,7 +2170,10 @@ class Order extends Element implements HasStoreInterface
         if ($billingAddress = $this->getBillingAddress()) {
             // If these were set to the same address element, we don't want the same address IDs
             if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $billingAddress = Craft::$app->getElements()->duplicateElement(
+                    $billingAddress,
+                    ['primaryOwner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]
+                );
             } else {
                 // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
                 // This is because the order record has not been saved.
