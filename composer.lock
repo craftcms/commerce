@@ -335,12 +335,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "e8faa36a580c5eb8d02a98efd81ee67638020bf7"
+                "reference": "c88a769c2abf2e9c89a4b0611987182e1bd5e9f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/e8faa36a580c5eb8d02a98efd81ee67638020bf7",
-                "reference": "e8faa36a580c5eb8d02a98efd81ee67638020bf7",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/c88a769c2abf2e9c89a4b0611987182e1bd5e9f2",
+                "reference": "c88a769c2abf2e9c89a4b0611987182e1bd5e9f2",
                 "shasum": ""
             },
             "require": {
@@ -449,7 +449,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2024-02-14T01:25:58+00:00"
+            "time": "2024-02-15T01:22:27+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
