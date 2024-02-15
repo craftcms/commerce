@@ -48,7 +48,7 @@ class ProductTest extends Unit
      */
     public function testConditionRuleTypes(): void
     {
-        $rules = Product::createCondition()->getConditionRuleTypes();
+        $rules = array_keys(Product::createCondition()->getSelectableConditionRules());
 
         self::assertContains(ProductTypeConditionRule::class, $rules);
         self::assertContains(ProductVariantSkuConditionRule::class, $rules);
