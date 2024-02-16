@@ -61,11 +61,6 @@ class VariantQuery extends PurchasableQuery
     /**
      * @var bool|null
      */
-    public ?bool $hasStock = null;
-
-    /**
-     * @var bool|null
-     */
     public ?bool $hasSales = null;
 
     /**
@@ -99,11 +94,6 @@ class VariantQuery extends PurchasableQuery
      * @var mixed the SKU of the variant
      */
     public mixed $sku = null;
-
-    /**
-     * @var mixed
-     */
-    public mixed $stock = null;
 
     /**
      * @var mixed
@@ -378,45 +368,6 @@ class VariantQuery extends PurchasableQuery
     }
 
     /**
-     * Narrows the query results based on the variants’ stock.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `0` | with no stock.
-     * | `'>= 5'` | with a stock of at least 5.
-     * | `'< 10'` | with a stock of less than 10.
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function stock(mixed $value): VariantQuery
-    {
-        $this->stock = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only variants that have stock.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `true` | with stock.
-     * | `false` | with no stock.
-     *
-     * @param bool|null $value
-     * @return static self reference
-     */
-    public function hasStock(?bool $value = true): VariantQuery
-    {
-        $this->hasStock = $value;
-        return $this;
-    }
-
-    /**
      * Narrows the query results to only variants that are on sale.
      *
      * Possible values include:
@@ -582,34 +533,10 @@ class VariantQuery extends PurchasableQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.maxQty', $this->maxQty));
         }
 
-        if (isset($this->stock)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
-        }
-
         // If width, height or length is specified in the query we should only be looking for products that
         // have a type which supports dimensions
         if ($this->width !== false || $this->height !== false || $this->length !== false || $this->weight !== false) {
             $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
-        }
-
-        if (isset($this->hasStock)) {
-            if ($this->hasStock) {
-                $this->subQuery->andWhere([
-                    'or',
-                    ['commerce_variants.hasUnlimitedStock' => true],
-                    [
-                        'and',
-                        ['not', ['commerce_variants.hasUnlimitedStock' => true]],
-                        ['>', 'commerce_variants.stock', 0],
-                    ],
-                ]);
-            } else {
-                $this->subQuery->andWhere([
-                    'and',
-                    ['not', ['commerce_variants.hasUnlimitedStock' => true]],
-                    ['<', 'commerce_variants.stock', 1],
-                ]);
-            }
         }
 
         if (isset($this->hasSales)) {
