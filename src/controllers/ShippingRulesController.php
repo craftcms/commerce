@@ -72,6 +72,8 @@ class ShippingRulesController extends BaseShippingSettingsController
                 }
             } else {
                 $variables['shippingRule'] = new ShippingRule();
+                $variables['shippingRule']->methodId = $variables['shippingMethod']->id;
+                $variables['shippingRule']->storeId = $variables['shippingMethod']->storeId;
             }
         }
 
