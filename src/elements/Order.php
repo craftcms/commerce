@@ -2979,7 +2979,7 @@ class Order extends Element implements HasStoreInterface
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $this->_populateAddressNameAttributes($addressElement, $address);
-            $addressElement->ownerId = $this->id;
+            $addressElement->setPrimaryOwner($this);
             $address = $addressElement;
         }
 
@@ -2988,7 +2988,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Ensure that address can only belong to this order
-        if ($address->ownerId != $this->id) {
+        if ($address->getPrimaryOwnerId() != $this->id) {
             throw new InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
         }
 
@@ -3077,7 +3077,7 @@ class Order extends Element implements HasStoreInterface
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $this->_populateAddressNameAttributes($addressElement, $address);
-            $addressElement->ownerId = $this->id;
+            $addressElement->setPrimaryOwner($this);
             $address = $addressElement;
         }
 
@@ -3086,7 +3086,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Ensure that address can only belong to this order
-        if ($address->ownerId !== $this->id) {
+        if ($address->getPrimaryOwnerId() !== $this->id) {
             throw new InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
         }
 
