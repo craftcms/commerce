@@ -55,7 +55,9 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
 
         if (!$hasUnlimitedStock) {
             $variants = $product->getVariants();
-            $variants[0]->hasUnlimitedStock = false;
+            $variants->each(function(&$variant) {
+                $variant->hasUnlimitedStock = false;
+            });
             $product->setVariants($variants);
         }
 
@@ -82,7 +84,9 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
 
         if ($hasUnlimitedStock) {
             $variants = $product->getVariants();
-            $variants[0]->hasUnlimitedStock = false;
+            $variants->each(function(&$variant) {
+                $variant->hasUnlimitedStock = false;
+            });
             $product->setVariants($variants);
         }
 
@@ -112,8 +116,10 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
 
         if (!$hasUnlimitedStock) {
             $variants = $product->getVariants();
-            $variants[0]->stock = 9;
-            $variants[0]->hasUnlimitedStock = false;
+            $variants->each(function(&$variant) {
+                $variant->stock = 9;
+                $variant->hasUnlimitedStock = false;
+            });
             $product->setVariants($variants);
         }
 
