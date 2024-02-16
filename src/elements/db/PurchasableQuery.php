@@ -428,7 +428,7 @@ class PurchasableQuery extends ElementQuery
         } elseif ($value !== null) {
             $this->taxCategoryId = (new Query())
                 ->from(['taxcategories' => Table::TAXCATEGORIES])
-                ->where(['taxcategories.id' => new Expression('[[purchasables.taxCategoryId]]')])
+                ->where(['taxcategories.id' => new Expression('[[commerce_purchasables.taxCategoryId]]')])
                 ->andWhere(Db::parseParam('handle', $value));
         } else {
             $this->taxCategoryId = null;
@@ -529,7 +529,7 @@ class PurchasableQuery extends ElementQuery
             if ($this->taxCategoryId instanceof Query) {
                 $taxCategoryWhere = ['exists', $this->taxCategoryId];
             } else {
-                $taxCategoryWhere = Db::parseParam('purchasables.taxCategoryId', $this->taxCategoryId);
+                $taxCategoryWhere = Db::parseParam('commerce_purchasables.taxCategoryId', $this->taxCategoryId);
             }
 
             $this->subQuery->andWhere($taxCategoryWhere);
