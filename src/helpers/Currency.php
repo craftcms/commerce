@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://craftcms.com/
  * @copyright Copyright (c) Pixel & Tonic, Inc.
@@ -40,6 +41,131 @@ class Currency
 
         $decimals = $currency->minorUnit;
         return round($amount, $decimals);
+    }
+
+    /**
+     * Subtracts amountB from amountA in a reliable way as per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amountA
+     * @param float $amountB
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    public static function subtract(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    {
+        $adjustedA = static::baseAmount($amountA, $currency);
+        $adjustedB = static::baseAmount($amountB, $currency);
+
+        return static::floatAmount($adjustedA - $adjustedB);
+    }
+
+    /**
+     * Adds the two amounts in a reliable way as per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amountA
+     * @param float $amountB
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    public static function add(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    {
+        $adjustedA = static::baseAmount($amountA, $currency);
+        $adjustedB = static::baseAmount($amountB, $currency);
+
+        return static::floatAmount($adjustedA + $adjustedB);
+    }
+
+    /**
+     * Compares the equality of two amounts in a reliable way as per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amountA
+     * @param float $amountB
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    public static function equals(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): bool
+    {
+        $adjustedA = static::baseAmount($amountA, $currency);
+        $adjustedB = static::baseAmount($amountB, $currency);
+
+        return $adjustedA == $adjustedB;
+    }
+
+    /**
+     * Compares if amountA is greater than amountB in a reliable way as per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amountA
+     * @param float $amountB
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    public static function greaterThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    {
+        $adjustedA = static::baseAmount($amountA, $currency);
+        $adjustedB = static::baseAmount($amountB, $currency);
+
+        return $adjustedA > $adjustedB;
+    }
+
+    /**
+     * Compares if amountA is less than amountB in a reliable way as per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amountA
+     * @param float $amountB
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    public static function lessThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    {
+        $adjustedA = static::baseAmount($amountA, $currency);
+        $adjustedB = static::baseAmount($amountB, $currency);
+
+        return $adjustedA < $adjustedB;
+    }
+
+    /**
+     * Converts the amount to an integer while maintaining the required amount of decimal places per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amount
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    private static function baseAmount(float $amount, PaymentCurrency|CurrencyModel|null $currency = null): int
+    {
+        if (!$currency) {
+            $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($defaultPaymentCurrency->iso);
+        }
+
+
+        $decimals = $currency->minorUnit;
+        return intval(floatval(static::round($amount, $currency) . '') * pow(10, $decimals));
+    }
+
+    /**
+     * Converts the amount from an integer while maintaining the required amount of decimal places per the currency minor unit information. Not passing
+     * a currency model results in rounding in default currency.
+     *
+     * @param float $amount
+     * @param PaymentCurrency|CurrencyModel|null $currency
+     * @return bool
+     */
+    private static function floatAmount(int $amount, PaymentCurrency|CurrencyModel|null $currency = null): float
+    {
+        if (!$currency) {
+            $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($defaultPaymentCurrency->iso);
+        }
+
+
+        $decimals = $currency->minorUnit;
+        return floatval(static::round($amount / pow(10, $decimals), $currency) . '');
     }
 
     public static function defaultDecimals(): int

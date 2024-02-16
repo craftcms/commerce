@@ -2422,7 +2422,7 @@ class Order extends Element
      */
     public function getPaidStatus(): string
     {
-        if ($this->getIsPaid() && $this->getTotalPrice() > 0 && $this->getTotalPaid() > $this->getTotalPrice()) {
+        if ($this->getIsPaid() && Currency::greaterThan($this->getTotalPrice(), 0) && Currency::greaterThan($this->getTotalPaid(), $this->getTotalPrice())) {
             return self::PAID_STATUS_OVERPAID;
         }
 
@@ -2430,7 +2430,7 @@ class Order extends Element
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->getTotalPaid() > 0) {
+        if (Currency::greaterThan($this->getTotalPaid(), 0)) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2539,10 +2539,7 @@ class Order extends Element
      */
     public function getOutstandingBalance(): float
     {
-        $totalPaid = Currency::round($this->getTotalPaid());
-        $totalPrice = $this->getTotalPrice(); // Already rounded
-
-        return $totalPrice - $totalPaid;
+        return Currency::subtract($this->getTotalPrice(), $this->getTotalPaid());
     }
 
     public function hasOutstandingBalance(): bool
