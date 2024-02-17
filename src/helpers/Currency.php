@@ -50,14 +50,14 @@ class Currency
      * @param float $amountA
      * @param float $amountB
      * @param PaymentCurrency|CurrencyModel|null $currency
-     * @return bool
+     * @return float
      */
     public static function subtract(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
     {
-        $adjustedA = static::baseAmount($amountA, $currency);
-        $adjustedB = static::baseAmount($amountB, $currency);
+        $adjustedA = Currency::baseAmount($amountA, $currency);
+        $adjustedB = Currency::baseAmount($amountB, $currency);
 
-        return static::floatAmount($adjustedA - $adjustedB);
+        return Currency::floatAmount($adjustedA - $adjustedB);
     }
 
     /**
@@ -67,14 +67,14 @@ class Currency
      * @param float $amountA
      * @param float $amountB
      * @param PaymentCurrency|CurrencyModel|null $currency
-     * @return bool
+     * @return float
      */
     public static function add(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
     {
-        $adjustedA = static::baseAmount($amountA, $currency);
-        $adjustedB = static::baseAmount($amountB, $currency);
+        $adjustedA = Currency::baseAmount($amountA, $currency);
+        $adjustedB = Currency::baseAmount($amountB, $currency);
 
-        return static::floatAmount($adjustedA + $adjustedB);
+        return Currency::floatAmount($adjustedA + $adjustedB);
     }
 
     /**
@@ -88,8 +88,8 @@ class Currency
      */
     public static function equals(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): bool
     {
-        $adjustedA = static::baseAmount($amountA, $currency);
-        $adjustedB = static::baseAmount($amountB, $currency);
+        $adjustedA = Currency::baseAmount($amountA, $currency);
+        $adjustedB = Currency::baseAmount($amountB, $currency);
 
         return $adjustedA == $adjustedB;
     }
@@ -103,10 +103,10 @@ class Currency
      * @param PaymentCurrency|CurrencyModel|null $currency
      * @return bool
      */
-    public static function greaterThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    public static function greaterThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): bool
     {
-        $adjustedA = static::baseAmount($amountA, $currency);
-        $adjustedB = static::baseAmount($amountB, $currency);
+        $adjustedA = Currency::baseAmount($amountA, $currency);
+        $adjustedB = Currency::baseAmount($amountB, $currency);
 
         return $adjustedA > $adjustedB;
     }
@@ -120,10 +120,10 @@ class Currency
      * @param PaymentCurrency|CurrencyModel|null $currency
      * @return bool
      */
-    public static function lessThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): float
+    public static function lessThan(float $amountA, float $amountB, PaymentCurrency|CurrencyModel|null $currency = null): bool
     {
-        $adjustedA = static::baseAmount($amountA, $currency);
-        $adjustedB = static::baseAmount($amountB, $currency);
+        $adjustedA = Currency::baseAmount($amountA, $currency);
+        $adjustedB = Currency::baseAmount($amountB, $currency);
 
         return $adjustedA < $adjustedB;
     }
@@ -134,7 +134,7 @@ class Currency
      *
      * @param float $amount
      * @param PaymentCurrency|CurrencyModel|null $currency
-     * @return bool
+     * @return int
      */
     private static function baseAmount(float $amount, PaymentCurrency|CurrencyModel|null $currency = null): int
     {
@@ -145,16 +145,16 @@ class Currency
 
 
         $decimals = $currency->minorUnit;
-        return intval(floatval(static::round($amount, $currency) . '') * pow(10, $decimals));
+        return intval(floatval(Currency::round($amount, $currency) . '') * pow(10, $decimals));
     }
 
     /**
      * Converts the amount from an integer while maintaining the required amount of decimal places per the currency minor unit information. Not passing
      * a currency model results in rounding in default currency.
      *
-     * @param float $amount
+     * @param int $amount
      * @param PaymentCurrency|CurrencyModel|null $currency
-     * @return bool
+     * @return float
      */
     private static function floatAmount(int $amount, PaymentCurrency|CurrencyModel|null $currency = null): float
     {
@@ -165,7 +165,7 @@ class Currency
 
 
         $decimals = $currency->minorUnit;
-        return floatval(static::round($amount / pow(10, $decimals), $currency) . '');
+        return floatval(Currency::round($amount / pow(10, $decimals), $currency) . '');
     }
 
     public static function defaultDecimals(): int
