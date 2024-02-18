@@ -13,6 +13,7 @@ use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -119,6 +120,10 @@ class OrdersController extends Controller
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
+        $site = Craft::$app->getSites()->getCurrentSite();
+        /** @var StoreBehavior $site */
+        $store = $site->getStore();
+
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
             'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
@@ -132,7 +137,8 @@ class OrdersController extends Controller
         // @TODO store permissions
         $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
 
-        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'stores'));
+
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'));
     }
 
     /**

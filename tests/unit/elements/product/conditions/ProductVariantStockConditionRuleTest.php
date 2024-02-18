@@ -49,8 +49,10 @@ class ProductVariantStockConditionRuleTest extends Unit
         $product = $productsFixture->getElement('rad-hoodie');
 
         $variants = $product->getVariants();
-        $variants[0]->stock = 9;
-        $variants[0]->hasUnlimitedStock = false;
+        $variants->each(function(&$variant) {
+            $variant->stock = 9;
+            $variant->hasUnlimitedStock = false;
+        });
         $product->setVariants($variants);
 
         self::assertTrue($condition->matchElement($product));
@@ -89,11 +91,12 @@ class ProductVariantStockConditionRuleTest extends Unit
         $product = $productsFixture->getElement('rad-hoodie');
 
         $variants = $product->getVariants();
-        $variants[0]->stock = 9;
-        $variants[0]->hasUnlimitedStock = false;
-        $product->setVariants($variants);
+        $variants->each(function($variant) {
+            $variant->stock = 9;
+            $variant->hasUnlimitedStock = false;
 
-        \Craft::$app->getElements()->saveElement($product, false, false, false, false);
+            \Craft::$app->getElements()->saveElement($variant, false, false, false, false);
+        });
 
         $query = Product::find();
         $condition->modifyQuery($query);

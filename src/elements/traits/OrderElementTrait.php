@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
@@ -296,6 +297,10 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
+        $site = Craft::$app->getSites()->getCurrentSite();
+        /** @var StoreBehavior $site */
+        $store = $site->getStore();
+
         $sources = [
             '*' => [
                 'key' => '*',
@@ -315,70 +320,63 @@ trait OrderElementTrait
         $criteriaInactive = ['dateUpdated' => ['< ' . $edge], 'isCompleted' => false];
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => false];
 
-        /** @var Store[] $stores */
-        $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
-        foreach ($stores as $store) {
-            $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->all();
-            if (empty($orderStatuses)) {
-                continue;
-            }
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->all();
 
-            $sources[] = ['heading' => $store->getName()];
+        $sources[] = ['heading' => $store->getName()];
 
-            foreach ($orderStatuses as $orderStatus) {
-                $key = 'orderStatus:' . $orderStatus->handle . ':' . $store->handle;
-                $criteriaStatus = [
-                    'storeId' => $store->id,
-                    'orderStatusId' => $orderStatus->id,
-                ];
-
-                $sources[] = [
-                    'key' => $key,
-                    'status' => $orderStatus->color,
-                    'label' => Craft::t('site', $orderStatus->name),
-                    'criteria' => $criteriaStatus,
-                    'defaultSort' => ['dateOrdered', 'desc'],
-                    'badgeCount' => 0,
-                    'data' => [
-                        'handle' => $orderStatus->handle,
-                        'date-attr' => 'dateOrdered',
-                    ],
-                ];
-            }
-
-            $sources[] = [
-                'key' => 'carts:active:' . $store->handle,
-                'label' => Craft::t('commerce', 'Active Carts'),
-                'criteria' => array_merge($criteriaActive, ['storeId' => $store->id]),
-                'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
-                'data' => [
-                    'handle' => 'cartsActive',
-                    'date-attr' => 'dateUpdated',
-                ],
+        foreach ($orderStatuses as $orderStatus) {
+            $key = 'orderStatus:' . $orderStatus->handle . ':' . $store->handle;
+            $criteriaStatus = [
+                'storeId' => $store->id,
+                'orderStatusId' => $orderStatus->id,
             ];
 
             $sources[] = [
-                'key' => 'carts:inactive:' . $store->handle,
-                'label' => Craft::t('commerce', 'Inactive Carts'),
-                'criteria' => array_merge($criteriaInactive, ['storeId' => $store->id]),
-                'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+                'key' => $key,
+                'status' => $orderStatus->color,
+                'label' => Craft::t('site', $orderStatus->name),
+                'criteria' => $criteriaStatus,
+                'defaultSort' => ['dateOrdered', 'desc'],
+                'badgeCount' => 0,
                 'data' => [
-                    'handle' => 'cartsInactive',
-                    'date-attr' => 'dateUpdated',
-                ],
-            ];
-
-            $sources[] = [
-                'key' => 'carts:attempted-payment:' . $store->handle,
-                'label' => Craft::t('commerce', 'Attempted Payments'),
-                'criteria' => array_merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
-                'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
-                'data' => [
-                    'handle' => 'cartsAttemptedPayment',
-                    'date-attr' => 'dateUpdated',
+                    'handle' => $orderStatus->handle,
+                    'date-attr' => 'dateOrdered',
                 ],
             ];
         }
+
+        $sources[] = [
+            'key' => 'carts:active:' . $store->handle,
+            'label' => Craft::t('commerce', 'Active Carts'),
+            'criteria' => array_merge($criteriaActive, ['storeId' => $store->id]),
+            'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
+            'data' => [
+                'handle' => 'cartsActive',
+                'date-attr' => 'dateUpdated',
+            ],
+        ];
+
+        $sources[] = [
+            'key' => 'carts:inactive:' . $store->handle,
+            'label' => Craft::t('commerce', 'Inactive Carts'),
+            'criteria' => array_merge($criteriaInactive, ['storeId' => $store->id]),
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsInactive',
+                'date-attr' => 'dateUpdated',
+            ],
+        ];
+
+        $sources[] = [
+            'key' => 'carts:attempted-payment:' . $store->handle,
+            'label' => Craft::t('commerce', 'Attempted Payments'),
+            'criteria' => array_merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
+            'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
+            'data' => [
+                'handle' => 'cartsAttemptedPayment',
+                'date-attr' => 'dateUpdated',
+            ],
+        ];
 
         return $sources;
     }

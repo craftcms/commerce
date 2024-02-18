@@ -46,7 +46,7 @@ class ProductVariantHasUnlimitedStockConditionRule extends BaseLightswitchCondit
     public function modifyQuery(ElementQueryInterface $query): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.productId as id']);
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->hasUnlimitedStock($this->value);
 
         /** @var ProductQuery $query */

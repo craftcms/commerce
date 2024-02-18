@@ -365,7 +365,6 @@ class StoreTest extends Unit
                     'TAS' => 'Tasmania',
                     'VIC' => 'Victoria',
                     'WA' => 'Western Australia',
-                    'JBT' => 'Jervis Bay Territory',
                 ],
                 'US' => [
                     'AL' => 'Alabama',

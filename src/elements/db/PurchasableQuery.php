@@ -67,6 +67,16 @@ class PurchasableQuery extends ElementQuery
     public mixed $weight = false;
 
     /**
+     * @var mixed
+     */
+    public mixed $stock = null;
+
+    /**
+     * @var bool|null
+     */
+    public ?bool $hasStock = null;
+
+    /**
      * @var bool|null
      */
     public ?bool $hasUnlimitedStock = null;
@@ -103,6 +113,45 @@ class PurchasableQuery extends ElementQuery
     public function hasUnlimitedStock(?bool $value = true): static
     {
         $this->hasUnlimitedStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `0` | with no stock.
+     * | `'>= 5'` | with a stock of at least 5.
+     * | `'< 10'` | with a stock of less than 10.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function stock(mixed $value): VariantQuery
+    {
+        $this->stock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with stock.
+     * | `false` | with no stock.
+     *
+     * @param bool|null $value
+     * @return static self reference
+     */
+    public function hasStock(?bool $value = true): VariantQuery
+    {
+        $this->hasStock = $value;
         return $this;
     }
 
@@ -428,7 +477,7 @@ class PurchasableQuery extends ElementQuery
         } elseif ($value !== null) {
             $this->taxCategoryId = (new Query())
                 ->from(['taxcategories' => Table::TAXCATEGORIES])
-                ->where(['taxcategories.id' => new Expression('[[purchasables.taxCategoryId]]')])
+                ->where(['taxcategories.id' => new Expression('[[commerce_purchasables.taxCategoryId]]')])
                 ->andWhere(Db::parseParam('handle', $value));
         } else {
             $this->taxCategoryId = null;
@@ -529,7 +578,7 @@ class PurchasableQuery extends ElementQuery
             if ($this->taxCategoryId instanceof Query) {
                 $taxCategoryWhere = ['exists', $this->taxCategoryId];
             } else {
-                $taxCategoryWhere = Db::parseParam('purchasables.taxCategoryId', $this->taxCategoryId);
+                $taxCategoryWhere = Db::parseParam('commerce_purchasables.taxCategoryId', $this->taxCategoryId);
             }
 
             $this->subQuery->andWhere($taxCategoryWhere);
@@ -567,10 +616,34 @@ class PurchasableQuery extends ElementQuery
             }
         }
 
+        if (isset($this->stock)) {
+            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.stock', $this->stock));
+        }
+
         if (isset($this->hasUnlimitedStock)) {
             $this->subQuery->andWhere([
                 'purchasables_stores.hasUnlimitedStock' => $this->hasUnlimitedStock,
             ]);
+        }
+
+        if (isset($this->hasStock)) {
+            if ($this->hasStock) {
+                $this->subQuery->andWhere([
+                    'or',
+                    ['purchasables_stores.hasUnlimitedStock' => true],
+                    [
+                        'and',
+                        ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
+                        ['>', 'purchasables_stores.stock', 0],
+                    ],
+                ]);
+            } else {
+                $this->subQuery->andWhere([
+                    'and',
+                    ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
+                    ['<', 'purchasables_stores.stock', 1],
+                ]);
+            }
         }
 
         return parent::beforePrepare();

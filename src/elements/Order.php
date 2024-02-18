@@ -48,6 +48,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -2149,7 +2150,10 @@ class Order extends Element implements HasStoreInterface
         $currentUserIsCustomer = ($currentUser && $this->getCustomer() && $currentUser->id == $this->getCustomer()->id);
 
         if ($shippingAddress = $this->getShippingAddress()) {
-            $shippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+            // This is because the order record has not been saved.
+            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+            $shippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
             $shippingAddress->title = Craft::t('commerce', 'Shipping Address'); // Ensure the address is labelled correctly
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
@@ -2166,9 +2170,15 @@ class Order extends Element implements HasStoreInterface
         if ($billingAddress = $this->getBillingAddress()) {
             // If these were set to the same address element, we don't want the same address IDs
             if ($shippingAddress && $billingAddress->id == $shippingAddress->id) {
-                $billingAddress = Craft::$app->getElements()->duplicateElement($billingAddress, ['ownerId' => $this->id, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $billingAddress = Craft::$app->getElements()->duplicateElement(
+                    $billingAddress,
+                    ['primaryOwner' => $this, 'title' => Craft::t('commerce', 'Billing Address')]
+                );
             } else {
-                $billingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+                // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+                // This is because the order record has not been saved.
+                // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+                $billingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
                 $billingAddress->title = Craft::t('commerce', 'Billing Address'); // Ensure the address is labelled correctly
                 Craft::$app->getElements()->saveElement($billingAddress, false);
             }
@@ -2185,7 +2195,10 @@ class Order extends Element implements HasStoreInterface
         }
 
         if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
-            $estimatedShippingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+            // This is because the order record has not been saved.
+            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+            $estimatedShippingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
             $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
             $this->setEstimatedShippingAddress($estimatedShippingAddress);
@@ -2198,7 +2211,10 @@ class Order extends Element implements HasStoreInterface
         }
 
         if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
-            $estimatedBillingAddress->ownerId = $this->id; // Always ensure the address is owned by the order
+            // If we only set the owner ID an element query will be triggered. If this is a brand-new order we will encounter an error
+            // This is because the order record has not been saved.
+            // We can avoid this by simply fully setting the owner on the address element. This is also a performance optimisation to avoid an extra query.
+            $estimatedBillingAddress->setPrimaryOwner($this); // Always ensure the address is owned by the order
             Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
             $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
             $this->setEstimatedBillingAddress($estimatedBillingAddress);
@@ -2963,7 +2979,7 @@ class Order extends Element implements HasStoreInterface
             $addressElement = $this->_shippingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $this->_populateAddressNameAttributes($addressElement, $address);
-            $addressElement->ownerId = $this->id;
+            $addressElement->setPrimaryOwner($this);
             $address = $addressElement;
         }
 
@@ -2972,7 +2988,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Ensure that address can only belong to this order
-        if ($address->ownerId != $this->id) {
+        if ($address->getPrimaryOwnerId() != $this->id) {
             throw new InvalidArgumentException('Can not set a shipping address on the order that is not owned by the order.');
         }
 
@@ -3061,7 +3077,7 @@ class Order extends Element implements HasStoreInterface
             $addressElement = $this->_billingAddress ?: new AddressElement();
             $addressElement->setAttributes($address);
             $this->_populateAddressNameAttributes($addressElement, $address);
-            $addressElement->ownerId = $this->id;
+            $addressElement->setPrimaryOwner($this);
             $address = $addressElement;
         }
 
@@ -3070,7 +3086,7 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Ensure that address can only belong to this order
-        if ($address->ownerId !== $this->id) {
+        if ($address->getPrimaryOwnerId() !== $this->id) {
             throw new InvalidArgumentException('Can not set a billing address on the order that is not owned by the order.');
         }
 
