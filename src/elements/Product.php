@@ -238,14 +238,6 @@ class Product extends Element
 
     /**
      * @inheritdoc
-     */
-    public function getPostEditUrl(): ?string
-    {
-        return UrlHelper::cpUrl('commerce/products');
-    }
-
-    /**
-     * @inheritdoc
      * @return ProductCondition
      */
     public static function createCondition(): ElementConditionInterface
