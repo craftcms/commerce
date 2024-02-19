@@ -147,7 +147,7 @@ class ProductsController extends BaseController
             $variables['title'] = $product->title;
         }
 
-        // Can't just use the entry's getCpEditUrl() because that might include the site handle when we don't want it
+        // Can't just use the product's getCpEditUrl() because that might include the site handle when we don't want it
         $variables['baseCpEditUrl'] = 'commerce/products/' . $variables['productTypeHandle'] . '/{id}-{slug}';
 
         // Set the "Continue Editing" URL
