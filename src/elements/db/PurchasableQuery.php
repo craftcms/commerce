@@ -32,6 +32,11 @@ class PurchasableQuery extends ElementQuery
     protected array $defaultOrderBy = ['commerce_purchasables.sku' => SORT_ASC];
 
     /**
+     * @var mixed the SKU of the variant
+     */
+    public mixed $sku = null;
+
+    /**
      * @var mixed|null
      */
     public mixed $price = null;
@@ -108,6 +113,52 @@ class PurchasableQuery extends ElementQuery
             default:
                 parent::__set($name, $value);
         }
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ SKUs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | with a SKU of `foo`.
+     * | `'foo*'` | with a SKU that begins with `foo`.
+     * | `'*foo'` | with a SKU that ends with `foo`.
+     * | `'*foo*'` | with a SKU that contains `foo`.
+     * | `'not *foo*'` | with a SKU that doesn’t contain `foo`.
+     * | `['*foo*', '*bar*'` | with a SKU that contains `foo` or `bar`.
+     * | `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Get the requested {element} SKU from the URL #}
+     * {% set requestedSlug = craft.app.request.getSegment(3) %}
+     *
+     * {# Fetch the {element} with that slug #}
+     * {% set {element-var} = {twig-method}
+     *   .sku(requestedSlug|literal)
+     *   .one() %}
+     * ```
+     *
+     * ```php
+     * // Get the requested {element} SKU from the URL
+     * $requestedSlug = \Craft::$app->request->getSegment(3);
+     *
+     * // Fetch the {element} with that slug
+     * ${element-var} = {php-method}
+     *     ->sku(\craft\helpers\Db::escapeParam($requestedSlug))
+     *     ->one();
+     * ```
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function sku(mixed $value): static
+    {
+        $this->sku = $value;
+        return $this;
     }
 
     /**
@@ -565,6 +616,10 @@ class PurchasableQuery extends ElementQuery
         $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
         ;
         $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+
+        if (isset($this->sku)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
+        }
 
         if (isset($this->price)) {
             $this->subQuery->andWhere(Db::parseNumericParam('catalogprices.price', $this->price));

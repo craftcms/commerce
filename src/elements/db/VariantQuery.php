@@ -91,11 +91,6 @@ class VariantQuery extends PurchasableQuery
     public mixed $ownerId = null;
 
     /**
-     * @var mixed the SKU of the variant
-     */
-    public mixed $sku = null;
-
-    /**
      * @var mixed
      */
     public mixed $typeId = null;
@@ -145,52 +140,6 @@ class VariantQuery extends PurchasableQuery
             default:
                 parent::__set($name, $value);
         }
-    }
-
-    /**
-     * Narrows the query results based on the {elements}’ SKUs.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `'foo'` | with a SKU of `foo`.
-     * | `'foo*'` | with a SKU that begins with `foo`.
-     * | `'*foo'` | with a SKU that ends with `foo`.
-     * | `'*foo*'` | with a SKU that contains `foo`.
-     * | `'not *foo*'` | with a SKU that doesn’t contain `foo`.
-     * | `['*foo*', '*bar*'` | with a SKU that contains `foo` or `bar`.
-     * | `['not', '*foo*', '*bar*']` | with a SKU that doesn’t contain `foo` or `bar`.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Get the requested {element} SKU from the URL #}
-     * {% set requestedSlug = craft.app.request.getSegment(3) %}
-     *
-     * {# Fetch the {element} with that slug #}
-     * {% set {element-var} = {twig-method}
-     *   .sku(requestedSlug|literal)
-     *   .one() %}
-     * ```
-     *
-     * ```php
-     * // Get the requested {element} SKU from the URL
-     * $requestedSlug = \Craft::$app->request->getSegment(3);
-     *
-     * // Fetch the {element} with that slug
-     * ${element-var} = {php-method}
-     *     ->sku(\craft\helpers\Db::escapeParam($requestedSlug))
-     *     ->one();
-     * ```
-     *
-     * @param mixed $value
-     * @return static self reference
-     */
-    public function sku(mixed $value): VariantQuery
-    {
-        $this->sku = $value;
-        return $this;
     }
 
     /**
@@ -512,10 +461,6 @@ class VariantQuery extends PurchasableQuery
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
-        }
-
-        if (isset($this->sku)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
         }
 
         if (isset($this->productId)) {
