@@ -13,7 +13,6 @@ use craft\commerce\helpers\Product as ProductHelper;
 use craft\web\Request;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
-use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 
 /**

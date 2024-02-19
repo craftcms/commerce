@@ -15,7 +15,6 @@ use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
-use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;

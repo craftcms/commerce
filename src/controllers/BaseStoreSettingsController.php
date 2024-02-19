@@ -110,11 +110,11 @@ class BaseStoreSettingsController extends BaseCpController
             ];
         }
 
-         $this->storeSettingsNav['subscriptions'] = [
+        $this->storeSettingsNav['subscriptions'] = [
              'heading' => Craft::t('commerce', 'Subscriptions'),
          ];
 
-         $this->storeSettingsNav['subscription-plans'] = [
+        $this->storeSettingsNav['subscription-plans'] = [
              'label' => Craft::t('commerce', 'Plans'),
              'path' => 'subscription-plans',
          ];
