@@ -13,9 +13,9 @@ return [
             ],
             'countries' => [
                 'US',
-                'CA'
+                'CA',
             ],
-        ]
+        ],
     ],
     'ukStore' => [
         'name' => 'UK Store',
@@ -31,8 +31,8 @@ return [
             ],
             'countries' => [
                 'GB',
-                'FR'
+                'FR',
             ],
-        ]
-    ]
+        ],
+    ],
 ];

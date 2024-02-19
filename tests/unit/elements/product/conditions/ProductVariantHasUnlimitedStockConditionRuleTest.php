@@ -119,6 +119,8 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
             $variants->each(function(&$variant) {
                 $variant->stock = 9;
                 $variant->hasUnlimitedStock = false;
+
+                \Craft::$app->getElements()->saveElement($variant, false, false, false, false);
             });
             $product->setVariants($variants);
         }

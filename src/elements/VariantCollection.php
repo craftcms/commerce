@@ -37,7 +37,9 @@ class VariantCollection extends ElementCollection
             ]);
         }
 
-        return parent::make($items);
+        /** @var static $collection */
+        $collection = parent::make($items);
+        return $collection;
     }
 
     /**

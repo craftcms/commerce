@@ -12,8 +12,6 @@ use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 

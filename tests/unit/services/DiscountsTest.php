@@ -252,7 +252,7 @@ class DiscountsTest extends Unit
     {
         $this->matchLineItems(
             ['couponCode' => null],
-            ['qty' => 2, 'salePrice' => 10],
+            ['qty' => 2, 'price' => 10],
             ['allPurchasables' => true, 'allCategories' => true],
             [],
             true
@@ -266,8 +266,8 @@ class DiscountsTest extends Unit
     {
         $this->matchLineItems(
             ['couponCode' => null],
-            ['qty' => 2, 'price' => 15, 'salePrice' => 10],
-            ['excludeOnSale' => true],
+            ['qty' => 2, 'price' => 15, 'promotionalPrice' => 10],
+            ['excludeOnPromotion' => true],
             [],
             false
         );
@@ -528,6 +528,7 @@ class DiscountsTest extends Unit
                     'allCategories' => true,
                     'allPurchasables' => true,
                     'percentageOffSubject' => 'original',
+                    'storeId' => 1,
                 ], $d)];
             })->all();
         }

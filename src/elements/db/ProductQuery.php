@@ -12,8 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
@@ -154,9 +152,6 @@ class ProductQuery extends ElementQuery
                 break;
             case 'defaultSku':
                 $this->defaultSku($value);
-                break;
-            case 'shippingCategory':
-                $this->shippingCategory($value);
                 break;
             default:
                 parent::__set($name, $value);

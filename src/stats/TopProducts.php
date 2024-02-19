@@ -128,8 +128,8 @@ class TopProducts extends Stat
         $primarySite = Craft::$app->getSites()->getPrimarySite();
 
         $select = [
-            '[[v.productId]] as id',
-            '[[content.title]]',
+            '[[v.primaryOwnerId]] as id',
+            '[[es.title]]',
             new Expression('SUM([[li.qty]]) as qty'),
             new Expression('SUM([[li.total]]) as revenue'),
             new Expression('SUM([[li.subtotal]]) as revenue_subtotal'),
@@ -141,17 +141,17 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
-            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.primaryOwnerId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', [
+            ->leftJoin(CraftTable::ELEMENTS_SITES . ' es', [
                 'and',
-                '[[content.elementId]] = [[v.productId]]',
-                ['content.siteId' => $primarySite->id],
+                '[[es.elementId]] = [[v.primaryOwnerId]]',
+                ['es.siteId' => $primarySite->id],
             ])
-            ->leftJoin(['adjustments' => $this->createAdjustmentsSubQuery()], '[[v.productId]] = [[adjustments.productId]]')
+            ->leftJoin(['adjustments' => $this->createAdjustmentsSubQuery()], '[[v.primaryOwnerId]] = [[adjustments.primaryOwnerId]]')
             ->groupBy($this->getGroupBy())
             ->orderBy($this->getOrderBy())
-            ->andWhere(['not', ['[[v.productId]]' => null]])
+            ->andWhere(['not', ['[[v.primaryOwnerId]]' => null]])
             ->limit($this->limit);
 
         return $topProducts->all();
@@ -234,7 +234,7 @@ class TopProducts extends Stat
 
         return (new Query())
             ->select([
-                '[[v.productId]]',
+                '[[v.primaryOwnerId]]',
                 'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0)'),
                 'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0)'),
                 'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0)'),
@@ -244,9 +244,9 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.id]] = [[lineItemId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[li.purchasableId]]')
             ->where(['not', ['lineItemId' => null]])
-            ->andWhere(['not', ['[[v.productId]]' => null]])
+            ->andWhere(['not', ['[[v.primaryOwnerId]]' => null]])
             ->andWhere(['type' => $types])
-            ->groupBy('[[v.productId]]');
+            ->groupBy('[[v.primaryOwnerId]]');
     }
 
     /**
@@ -275,7 +275,7 @@ class TopProducts extends Stat
      */
     protected function getGroupBy(): string
     {
-        $groupBy = '[[v.productId]], [[content.title]]';
+        $groupBy = '[[v.primaryOwnerId]], [[es.title]]';
 
         if (is_array($this->revenueOptions)) {
             if (in_array(self::REVENUE_OPTION_DISCOUNT, $this->revenueOptions, true)) {

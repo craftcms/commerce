@@ -8,9 +8,33 @@
 {% set title = "Stores"|t('app') %}
 {% set stores = craft.commerce.stores.getAllStores() %}
 {% block actionButton %}
-    {% if stores|length < craft.app.sites.getAllSites()|length and craft.commerce.catalogPricingRules.canUseCatalogPricingRules %}
-        {% set newStoreUrl = url('commerce/settings/stores/new') %}
-        <a href="{{ newStoreUrl }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+    {% if stores|length < craft.app.sites.getAllSites()|length %}
+
+        {% set shownButton = false %}
+        {% set addButton %}
+            <a href="{{ url('commerce/settings/stores/new') }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+        {% endset %}
+
+        {% if stores|length == 0 %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
+        {% if not shownButton and plugin('commerce').is('lite') and stores|length < constant('craft\\commerce\\Plugin::EDITION_LITE_STORE_LIMIT') %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
+        {% if not shownButton and plugin('commerce').is('pro') and stores|length <  constant('craft\\commerce\\Plugin::EDITION_PRO_STORE_LIMIT') %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
+        {% if not shownButton and plugin('commerce').is('enterprise') %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
     {% endif %}
 {% endblock %}
 
