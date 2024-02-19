@@ -528,6 +528,7 @@ class DiscountsTest extends Unit
                     'allCategories' => true,
                     'allPurchasables' => true,
                     'percentageOffSubject' => 'original',
+                    'storeId' => 1,
                 ], $d)];
             })->all();
         }
