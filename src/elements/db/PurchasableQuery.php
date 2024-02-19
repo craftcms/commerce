@@ -97,6 +97,20 @@ class PurchasableQuery extends ElementQuery
     public int|false|null $forCustomer = null;
 
     /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'shippingCategory':
+                $this->shippingCategory($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
+
+    /**
      * Narrows the query results to only variants that have been set to unlimited stock.
      *
      * Possible values include:
@@ -130,7 +144,7 @@ class PurchasableQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function stock(mixed $value): VariantQuery
+    public function stock(mixed $value): static
     {
         $this->stock = $value;
         return $this;
@@ -149,7 +163,7 @@ class PurchasableQuery extends ElementQuery
      * @param bool|null $value
      * @return static self reference
      */
-    public function hasStock(?bool $value = true): VariantQuery
+    public function hasStock(?bool $value = true): static
     {
         $this->hasStock = $value;
         return $this;

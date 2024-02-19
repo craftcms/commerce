@@ -450,6 +450,7 @@ class VariantQuery extends PurchasableQuery
      */
     public function collect(?Connection $db = null): VariantCollection
     {
+        /** @phpstan-ignore-next-line  */
         return VariantCollection::make(parent::collect($db));
     }
 

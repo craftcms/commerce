@@ -155,9 +155,6 @@ class ProductQuery extends ElementQuery
             case 'defaultSku':
                 $this->defaultSku($value);
                 break;
-            case 'shippingCategory':
-                $this->shippingCategory($value);
-                break;
             default:
                 parent::__set($name, $value);
         }
