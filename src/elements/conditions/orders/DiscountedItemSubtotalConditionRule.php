@@ -7,8 +7,8 @@ use craft\base\ElementInterface;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
+use yii\db\QueryInterface;
 
 /**
  * Item Subtotal With Discounts Applied Condition Rule
