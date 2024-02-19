@@ -453,12 +453,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): ?string
+    protected function cpEditUrl(): ?string
     {
         $productType = $this->getType();
 
-        // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        return UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
+        $path = sprintf('commerce/products/%s/%s', $productType->handle, $this->getCanonicalId());
+
+        // Ignore homepage/temp slugs
+        if ($this->slug && !str_starts_with($this->slug, '__')) {
+            $path .= sprintf('-%s', str_replace('/', '-', $this->slug));
+        }
+
+        return $path;
     }
 
     /**
