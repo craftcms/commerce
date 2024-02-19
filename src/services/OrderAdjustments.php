@@ -283,9 +283,7 @@ class OrderAdjustments extends Component
                 $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
             }
 
-            if (Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
-                $discountEvent->types[] = Discount::class;
-            }
+            $discountEvent->types[] = Discount::class;
         }
 
         return $discountEvent->types;
