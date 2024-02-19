@@ -252,7 +252,7 @@ class DiscountsTest extends Unit
     {
         $this->matchLineItems(
             ['couponCode' => null],
-            ['qty' => 2, 'salePrice' => 10],
+            ['qty' => 2, 'price' => 10],
             ['allPurchasables' => true, 'allCategories' => true],
             [],
             true
