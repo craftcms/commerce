@@ -240,7 +240,7 @@ Craft.Commerce.CatalogPricing = Garnish.Base.extend({
       .catch(() => {
         this.$tableContainer.removeClass('busy');
         this.$loading.addClass('hidden');
-        Craft.cp.displayError(Craft.t('app', 'A server error occurred.'));
+        Craft.cp.displayError();
 
         // Reset the pagination
         if (this.paginationDirection === 'next') {
@@ -457,7 +457,7 @@ Craft.Commerce.CatalogPricingHud = Garnish.HUD.extend({
         this.setFocus();
       })
       .catch(() => {
-        Craft.cp.displayError(Craft.t('app', 'A server error occurred.'));
+        Craft.cp.displayError();
       });
 
     this.$hud.css('position', 'fixed');

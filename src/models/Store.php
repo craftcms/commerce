@@ -289,7 +289,7 @@ class Store extends Model
         return [
             'name' => Craft::t('commerce', 'Name'),
             'commerce' => Craft::t('commerce', 'Handle'),
-            'primary' => Craft::t('commerce', 'primary'),
+            'primary' => Craft::t('commerce', 'Primary'),
         ];
     }
 
