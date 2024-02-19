@@ -43,19 +43,6 @@ class BaseStoreSettingsController extends BaseCpController
             'label' => Craft::t('commerce', 'Payment Currencies'),
             'path' => 'payment-currencies',
         ];
-        // $this->storeSettingsNav['donation'] = [
-        //     'label' => Craft::t('commerce', 'Donations'),
-        //     'path' => 'donation',
-        // ];
-        // $this->storeSettingsNav['subscriptions'] = [
-        //     'heading' => Craft::t('commerce', 'Subscriptions'),
-        // ];
-        //
-        // $this->storeSettingsNav['subscription-plans'] = [
-        //     'label' => Craft::t('commerce', 'Plans'),
-        //     'path' => 'subscription-plans',
-        // ];
-        //
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
@@ -63,10 +50,12 @@ class BaseStoreSettingsController extends BaseCpController
                 'heading' => Craft::t('commerce', 'Pricing'),
             ];
 
-            $this->storeSettingsNav['discounts'] = [
-                'label' => Craft::t('commerce', 'Discounts'),
-                'path' => 'discounts',
-            ];
+            if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '>=')) {
+                $this->storeSettingsNav['discounts'] = [
+                    'label' => Craft::t('commerce', 'Discounts'),
+                    'path' => 'discounts',
+                ];
+            }
 
             if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
                 $this->storeSettingsNav['pricing-rules'] = [
@@ -120,6 +109,29 @@ class BaseStoreSettingsController extends BaseCpController
                 'path' => 'taxcategories',
             ];
         }
+
+         $this->storeSettingsNav['subscriptions'] = [
+             'heading' => Craft::t('commerce', 'Subscriptions'),
+         ];
+
+         $this->storeSettingsNav['subscription-plans'] = [
+             'label' => Craft::t('commerce', 'Plans'),
+             'path' => 'subscription-plans',
+         ];
+
+        $this->storeSettingsNav['subscriptions'] = [
+            'heading' => Craft::t('commerce', 'Subscriptions'),
+        ];
+
+        $this->storeSettingsNav['donation-heading'] = [
+            'heading' => Craft::t('commerce', 'Donation'),
+        ];
+
+        $this->storeSettingsNav['donation'] = [
+             'label' => Craft::t('commerce', 'Donation'),
+             'path' => 'donation',
+         ];
+
 
         return $this->storeSettingsNav;
     }
