@@ -8,6 +8,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
 use craft\commerce\base\Purchasable;
@@ -34,9 +35,11 @@ use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
 
@@ -45,22 +48,27 @@ use yii\db\Expression;
  *
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
  * @property bool $onSale
- * @property Product $product the product associated with this variant
  * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property DateTime|null $dateUpdated
  * @property DateTime|null $dateCreated
+ * @property Product|null $owner
+ * @property Product|null $primaryOwner
  * @property-read string[] $cacheTags
  * @property-read string $gqlTypeName
  * @property-read string $skuAsText
  * @property string $salePriceAsCurrency
- * @property int $productId
+ * @method Product|null getOwner()
+ * @method Product|null getPrimaryOwner()
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Variant extends Purchasable implements NestedElementInterface
 {
-    use NestedElementTrait;
+    use NestedElementTrait {
+        setPrimaryOwner as traitSetPrimaryOwner;
+        setOwner as traitSetOwner;
+    }
 
     /**
      * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered before a variant’s field data is captured, which makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
@@ -201,13 +209,6 @@ class Variant extends Purchasable implements NestedElementInterface
     public bool $deletedWithProduct = false;
 
     /**
-     * @var Product|null The product that this variant is associated with.
-     * @see getProduct()
-     * @see setProduct()
-     */
-    private ?Product $_product = null;
-
-    /**
      * @var string|null
      * @see getProductSlug()
      * @see setProductSlug()
@@ -293,7 +294,7 @@ class Variant extends Purchasable implements NestedElementInterface
             return true;
         }
 
-        $product = $this->getProduct();
+        $product = $this->getOwner();
         if ($product === null) {
             return false;
         }
@@ -365,8 +366,8 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $fieldLayout = parent::getFieldLayout();
 
-        if (!$fieldLayout && $this->productId) {
-            $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+        if (!$fieldLayout && $this->getOwnerId()) {
+            $fieldLayout = $this->getOwner()->getType()->getVariantFieldLayout();
             $this->fieldLayoutId = $fieldLayout->id;
         }
 
@@ -387,7 +388,7 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @return int|null
      * @throws InvalidConfigException
-     * @deprecated in 5.0.0. Use [[$primaryOwnerId]] instead.
+     * @deprecated in 5.0.0. Use [[getOwnerId()]] instead.
      * @since 5.0.0
      */
     public function getProductId(): ?int
@@ -396,68 +397,62 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function setPrimaryOwner(?ElementInterface $owner): void
+    {
+        if (!$owner instanceof Product) {
+            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+        }
+
+        if ($owner->siteId) {
+            $this->siteId = $owner->siteId;
+        }
+
+        $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
+
+        $this->traitSetPrimaryOwner($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setOwner(?ElementInterface $owner): void
+    {
+        if (!$owner instanceof Product) {
+            throw new InvalidArgumentException('Product variants can only be assigned to products.');
+        }
+
+        if ($owner->siteId) {
+            $this->siteId = $owner->siteId;
+        }
+
+        $this->fieldLayoutId = $owner->getType()->variantFieldLayoutId;
+
+        $this->traitSetOwner($owner);
+    }
+
+    /**
      * Returns the product associated with this variant.
      *
      * @return Product|null The product associated with this variant, or null if it isn’t known
-     * @throws InvalidConfigException if the product ID is missing from the variant
+     * @deprecated in 5.0.0. Use [[getOwner()]] instead.
      */
     public function getProduct(): ?Product
     {
-        if ($this->_product !== null) {
-            return $this->_product;
-        }
-
-        if ($this->getPrimaryOwnerId() === null) {
-            throw new InvalidConfigException('Variant is missing its product');
-        }
-
-        /** @var Product|null $product */
-        $product = Product::find()
-            ->id($this->getPrimaryOwnerId())
-            ->siteId($this->siteId)
-            ->status(null)
-            ->trashed(null)
-            ->one();
-
-        // A variant should always have a product owner of the same site.
-        // Sometimes there may not be a product of that site if it doesn't exist yet,
-        // which usually only happens during propagation of the product, or if propagation queue jobs fail after making a new site.
-        if ($product === null) {
-            /** @var Product|null $product */
-            $product = Product::find()
-                ->id($this->getPrimaryOwnerId())
-                ->status(null)
-                ->trashed(null)
-                ->one();
-        }
-
-        // If we still don't have a product, there is something configured wrong.
-        if ($product === null) {
-            throw new InvalidConfigException('Invalid product ID: ' . $this->getPrimaryOwnerId() . ', Try re-saving all products.');
-        }
-
-        return $this->_product = $product;
+        /** @var Product|null */
+        return $this->getOwner();
     }
 
     /**
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
-     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use [[setOwner()]] instead.
      */
     public function setProduct(Product $product): void
     {
-        if ($product->siteId) {
-            $this->siteId = $product->siteId;
-        }
-
-        if ($product->id) {
-            $this->primaryOwnerId = $product->id;
-        }
-
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
-
-        $this->_product = $product;
+        $this->setOwner($product);
     }
 
     /**
@@ -478,7 +473,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getProductSlug(): ?string
     {
         if ($this->_productSlug === null) {
-            $product = $this->getProduct();
+            $product = $this->getOwner();
 
             $this->_productSlug = $product?->slug ?? null;
         }
@@ -504,7 +499,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getProductTypeHandle(): ?string
     {
         if ($this->_productTypeHandle === null) {
-            $product = $this->getProduct();
+            $product = $this->getOwner();
 
             $this->_productTypeHandle = $product ? ($product->getType()?->handle ?? null) : null;
         }
@@ -523,7 +518,7 @@ class Variant extends Purchasable implements NestedElementInterface
     {
         $description = $this->title;
 
-        if ($format = $this->getProduct()->getType()->descriptionFormat) {
+        if ($format = $this->getOwner()->getType()->descriptionFormat) {
             if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
                 $description = $rendered;
             }
@@ -604,7 +599,8 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getUrl(): ?string
     {
-        return $this->product->url . '?variant=' . $this->id;
+        $productUrl = $this->getOwner()?->getUrl();
+        return $productUrl ? UrlHelper::urlWithParams($productUrl, ['variant' => $this->id]) : null;
     }
 
     /**
@@ -619,7 +615,7 @@ class Variant extends Purchasable implements NestedElementInterface
         // Default Product custom field handles
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
-            'product' => $this->getProduct(),
+            'product' => $this->getOwner(),
             'fields' => $productFields,
         ]);
 
@@ -629,7 +625,7 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         // Product Attributes
-        if ($product = $this->getProduct()) {
+        if ($product = $this->getOwner()) {
             $productAttributes = $product->attributes();
 
             // Remove custom fields
@@ -644,15 +640,15 @@ class Variant extends Purchasable implements NestedElementInterface
                 $productAttributes[] = $field;
             }
 
-            $data['product'] = $this->getProduct()->toArray($productAttributes, [], false);
+            $data['product'] = $this->getOwner()->toArray($productAttributes, [], false);
 
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
-                'product' => $this->getProduct(),
+                'product' => $this->getOwner(),
                 'fieldData' => $data['product'],
             ]);
         } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
-                'product' => $this->getProduct(),
+                'product' => $this->getOwner(),
                 'fieldData' => [],
             ]);
         }
@@ -770,7 +766,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getPromotionRelationSource(): array
     {
-        return [$this->id, $this->getProduct()->id];
+        return [$this->id, $this->getOwner()->id];
     }
 
     /**
@@ -779,7 +775,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getGqlTypeName(): string
     {
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
         if (!$product) {
             return 'Variant';
@@ -911,7 +907,7 @@ class Variant extends Purchasable implements NestedElementInterface
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
             if ($product instanceof Product) {
-                $this->setProduct($product);
+                $this->setOwner($product);
             }
         } else {
             parent::setEagerLoadedElements($handle, $elements, $plan);
@@ -957,8 +953,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function beforeValidate(): bool
     {
-        /** @var Product $product */
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
         $this->updateTitle($product);
         $this->updateSku($product);
@@ -977,8 +972,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function beforeSave(bool $isNew): bool
     {
-        /** @var Product $product */
-        $product = $this->getProduct();
+        $product = $this->getOwner();
 
         $this->updateTitle($product);
         $this->updateSku($product);
@@ -1076,7 +1070,7 @@ class Variant extends Purchasable implements NestedElementInterface
     public function getSearchKeywords(string $attribute): string
     {
         if ($attribute == 'productTitle') {
-            return $this->getProduct()->title;
+            return $this->getOwner()->title;
         }
 
         return parent::getSearchKeywords($attribute);
@@ -1153,7 +1147,7 @@ class Variant extends Purchasable implements NestedElementInterface
     protected function attributeHtml(string $attribute): string
     {
         if ($attribute === 'product') {
-            $product = $this->getProduct();
+            $product = $this->getOwner();
             if (!$product) {
                 return '';
             }

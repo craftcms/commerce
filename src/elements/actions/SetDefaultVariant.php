@@ -10,6 +10,7 @@ namespace craft\commerce\elements\actions;
 use Craft;
 use craft\base\ElementAction;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\Json;
@@ -66,7 +67,7 @@ EOT;
             return false;
         }
 
-        $product = $variant->getProduct();
+        $product = $variant->getOwner();
         if (!$product) {
             $this->setMessage(Craft::t('commerce', 'Variant has no product.'));
             return false;

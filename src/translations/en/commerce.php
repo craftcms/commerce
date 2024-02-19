@@ -645,6 +645,7 @@ return [
     'New orders get this status by default' => 'New orders get this status by default',
     'New product type' => 'New product type',
     'New product' => 'New product',
+    'New product, choose a type' => 'New product, choose a type',
     'New products default to the first shipping category available to them. If none are available, this category will be used.' => 'New products default to the first shipping category available to them. If none are available, this category will be used.',
     'New products default to the first tax category available to them. If none are available, this category will be used.' => 'New products default to the first tax category available to them. If none are available, this category will be used.',
     'New sale' => 'New sale',
