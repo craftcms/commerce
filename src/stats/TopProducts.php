@@ -129,7 +129,7 @@ class TopProducts extends Stat
 
         $select = [
             '[[v.productId]] as id',
-            '[[content.title]]',
+            '[[es.title]]',
             new Expression('SUM([[li.qty]]) as qty'),
             new Expression('SUM([[li.total]]) as revenue'),
             new Expression('SUM([[li.subtotal]]) as revenue_subtotal'),
@@ -143,10 +143,10 @@ class TopProducts extends Stat
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
             ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', [
+            ->leftJoin(CraftTable::ELEMENTS_SITES . ' es', [
                 'and',
-                '[[content.elementId]] = [[v.productId]]',
-                ['content.siteId' => $primarySite->id],
+                '[[es.elementId]] = [[v.productId]]',
+                ['es.siteId' => $primarySite->id],
             ])
             ->leftJoin(['adjustments' => $this->createAdjustmentsSubQuery()], '[[v.productId]] = [[adjustments.productId]]')
             ->groupBy($this->getGroupBy())
@@ -275,7 +275,7 @@ class TopProducts extends Stat
      */
     protected function getGroupBy(): string
     {
-        $groupBy = '[[v.productId]], [[content.title]]';
+        $groupBy = '[[v.productId]], [[es.title]]';
 
         if (is_array($this->revenueOptions)) {
             if (in_array(self::REVENUE_OPTION_DISCOUNT, $this->revenueOptions, true)) {
