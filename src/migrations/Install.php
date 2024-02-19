@@ -945,6 +945,8 @@ class Install extends Migration
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -1117,7 +1119,9 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
+        $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
+        $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');

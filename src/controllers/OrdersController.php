@@ -13,6 +13,7 @@ use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -50,6 +51,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\MoneyHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\web\Controller;
@@ -118,6 +120,10 @@ class OrdersController extends Controller
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
+        $site = Craft::$app->getSites()->getCurrentSite();
+        /** @var StoreBehavior $site */
+        $store = $site->getStore();
+
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
         $permissions = [
             'commerce-manageOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-manageOrders'),
@@ -131,7 +137,8 @@ class OrdersController extends Controller
         // @TODO store permissions
         $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
 
-        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'stores'));
+
+        return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'));
     }
 
     /**
@@ -1606,15 +1613,16 @@ class OrdersController extends Controller
      */
     private function _addLivePurchasableInfo(array $results, int $siteId, int|false|null $customerId = null): array
     {
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
 
         foreach ($results as $row) {
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($row['id'], $siteId, $customerId);
             if ($purchasable) {
+                $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($purchasable->getSalePrice(), $baseCurrency, [], [], true);
+                $row['price'] = $purchasable->getSalePrice();
+                $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),

@@ -10,11 +10,14 @@ namespace craft\commerce\elements\db;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\db\Table;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\helpers\Db;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * PurchasableQuery represents a SELECT SQL statement for purchasables in a way that is independent of DBMS.
@@ -64,9 +67,29 @@ class PurchasableQuery extends ElementQuery
     public mixed $weight = false;
 
     /**
+     * @var mixed
+     */
+    public mixed $stock = null;
+
+    /**
+     * @var bool|null
+     */
+    public ?bool $hasStock = null;
+
+    /**
      * @var bool|null
      */
     public ?bool $hasUnlimitedStock = null;
+
+    /**
+     * @var mixed The shipping category ID(s) that the resulting products must have.
+     */
+    public mixed $shippingCategoryId = null;
+
+    /**
+     * @var mixed The tax category ID(s) that the resulting products must have.
+     */
+    public mixed $taxCategoryId = null;
 
     /**
      * @var int|false|null
@@ -90,6 +113,45 @@ class PurchasableQuery extends ElementQuery
     public function hasUnlimitedStock(?bool $value = true): static
     {
         $this->hasUnlimitedStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `0` | with no stock.
+     * | `'>= 5'` | with a stock of at least 5.
+     * | `'< 10'` | with a stock of less than 10.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function stock(mixed $value): VariantQuery
+    {
+        $this->stock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with stock.
+     * | `false` | with no stock.
+     *
+     * @param bool|null $value
+     * @return static self reference
+     */
+    public function hasStock(?bool $value = true): VariantQuery
+    {
+        $this->hasStock = $value;
         return $this;
     }
 
@@ -255,6 +317,176 @@ class PurchasableQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the products’ shipping categories, per the shipping categories’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a shipping category with an ID of 1.
+     * | `'not 1'` | not of a shipping category with an ID of 1.
+     * | `[1, 2]` | of a shipping category with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a shipping category with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the shipping category with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingCategoryId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the shipping category with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->shippingCategoryId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function shippingCategoryId(mixed $value): static
+    {
+        $this->shippingCategoryId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ shipping category.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a shipping category with a handle of `foo`.
+     * | `'not foo'` | not of a shipping category with a handle of `foo`.
+     * | `['foo', 'bar']` | of a shipping category with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a shipping category with a handle of `foo` or `bar`.
+     * | an [[ShippingCategory|ShippingCategory]] object | of a shipping category represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo shipping category #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingCategory('foo')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo shipping category
+     * ${elements-var} = {php-method}
+     *     ->shippingCategory('foo')
+     *     ->all();
+     * ```
+     *
+     * @param ShippingCategory|string|null|array<string> $value The property value
+     * @return static self reference
+     */
+    public function shippingCategory(mixed $value): static
+    {
+        if ($value instanceof ShippingCategory) {
+            $this->shippingCategoryId = [$value->id];
+        } elseif ($value !== null) {
+            $this->shippingCategoryId = (new Query())
+                ->from(['shippingcategories' => Table::SHIPPINGCATEGORIES])
+                ->where(['shippingcategories.id' => new Expression('[[purchasables_stores.shippingCategoryId]]')])
+                ->andWhere(Db::parseParam('handle', $value));
+        } else {
+            $this->shippingCategoryId = null;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ tax categories, per the tax categories’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a tax category with an ID of 1.
+     * | `'not 1'` | not of a tax category with an ID of 1.
+     * | `[1, 2]` | of a tax category with an ID of 1 or 2.
+     * | `['not', 1, 2]` | not of a tax category with an ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the tax category with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategoryId(1)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the tax category with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->taxCategoryId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function taxCategoryId(mixed $value): static
+    {
+        $this->taxCategoryId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ tax category.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | of a tax category with a handle of `foo`.
+     * | `'not foo'` | not of a tax category with a handle of `foo`.
+     * | `['foo', 'bar']` | of a tax category with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not of a tax category with a handle of `foo` or `bar`.
+     * | an [[ShippingCategory|ShippingCategory]] object | of a tax category represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with a Foo tax category #}
+     * {% set {elements-var} = {twig-method}
+     *   .taxCategory('foo')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with a Foo tax category
+     * ${elements-var} = {php-method}
+     *     ->taxCategory('foo')
+     *     ->all();
+     * ```
+     *
+     * @param TaxCategory|string|null|array<string> $value The property value
+     * @return static self reference
+     */
+    public function taxCategory(mixed $value): static
+    {
+        if ($value instanceof TaxCategory) {
+            $this->taxCategoryId = [$value->id];
+        } elseif ($value !== null) {
+            $this->taxCategoryId = (new Query())
+                ->from(['taxcategories' => Table::TAXCATEGORIES])
+                ->where(['taxcategories.id' => new Expression('[[commerce_purchasables.taxCategoryId]]')])
+                ->andWhere(Db::parseParam('handle', $value));
+        } else {
+            $this->taxCategoryId = null;
+        }
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -332,6 +564,26 @@ class PurchasableQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseNumericParam('catalogsaleprices.price' , $this->salePrice));
         }
 
+        if (isset($this->shippingCategoryId)) {
+            if ($this->shippingCategoryId instanceof Query) {
+                $shippingCategoryWhere = ['exists', $this->shippingCategoryId];
+            } else {
+                $shippingCategoryWhere = Db::parseParam('purchasables_stores.shippingCategoryId', $this->shippingCategoryId);
+            }
+
+            $this->subQuery->andWhere($shippingCategoryWhere);
+        }
+
+        if (isset($this->taxCategoryId)) {
+            if ($this->taxCategoryId instanceof Query) {
+                $taxCategoryWhere = ['exists', $this->taxCategoryId];
+            } else {
+                $taxCategoryWhere = Db::parseParam('commerce_purchasables.taxCategoryId', $this->taxCategoryId);
+            }
+
+            $this->subQuery->andWhere($taxCategoryWhere);
+        }
+
         if ($this->width !== false) {
             if ($this->width === null) {
                 $this->subQuery->andWhere(['commerce_purchasables.width' => $this->width]);
@@ -364,10 +616,34 @@ class PurchasableQuery extends ElementQuery
             }
         }
 
+        if (isset($this->stock)) {
+            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.stock', $this->stock));
+        }
+
         if (isset($this->hasUnlimitedStock)) {
             $this->subQuery->andWhere([
                 'purchasables_stores.hasUnlimitedStock' => $this->hasUnlimitedStock,
             ]);
+        }
+
+        if (isset($this->hasStock)) {
+            if ($this->hasStock) {
+                $this->subQuery->andWhere([
+                    'or',
+                    ['purchasables_stores.hasUnlimitedStock' => true],
+                    [
+                        'and',
+                        ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
+                        ['>', 'purchasables_stores.stock', 0],
+                    ],
+                ]);
+            } else {
+                $this->subQuery->andWhere([
+                    'and',
+                    ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
+                    ['<', 'purchasables_stores.stock', 1],
+                ]);
+            }
         }
 
         return parent::beforePrepare();

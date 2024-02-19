@@ -306,6 +306,15 @@ class ShippingCategories extends Component
     }
 
     /**
+     * @return void
+     * @since 5.0.0
+     */
+    public function clearCaches(): void
+    {
+        $this->_allShippingCategories = null;
+    }
+
+    /**
      * Returns a Query object prepped for retrieving shipping categories.
      *
      * @param bool $withTrashed

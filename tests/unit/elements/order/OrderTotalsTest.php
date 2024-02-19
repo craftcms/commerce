@@ -51,16 +51,23 @@ class OrderTotalsTest extends Unit
     {
         $lineItem1 = new LineItem();
         $lineItem1->qty = 2;
-        $lineItem1->salePrice = 10;
+        $lineItem1->price = 10;
         self::assertEquals(20, $lineItem1->getSubtotal());
 
         $lineItem2 = new LineItem();
         $lineItem2->qty = 3;
-        $lineItem2->salePrice = 20;
+        $lineItem2->price = 20;
         self::assertEquals(60, $lineItem2->getSubtotal());
 
         $this->order->setLineItems([$lineItem1, $lineItem2]);
         self::assertEquals(80, $this->order->getTotalPrice());
+
+        $lineItem2->promotionalPrice = 15;
+        $this->order->setLineItems([$lineItem1, $lineItem2]);
+        self::assertEquals(65, $this->order->getTotalPrice());
+
+        // Reset line item 2 promotional price
+        $lineItem2->promotionalPrice = null;
 
         $adjustment1 = new OrderAdjustment();
         $adjustment1->amount = -10;

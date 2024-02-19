@@ -167,7 +167,7 @@ class Discount extends Model implements HasStoreInterface
     public string $percentageOffSubject = DiscountRecord::TYPE_DISCOUNTED_SALEPRICE;
 
     /**
-     * @var bool Exclude the “On Sale” Purchasables
+     * @var bool Exclude the “On Promotion” Purchasables
      */
     public bool $excludeOnPromotion = false;
 
@@ -267,6 +267,29 @@ class Discount extends Model implements HasStoreInterface
     public function getCpEditUrl(): string
     {
         return $this->getStore()->getStoreSettingsUrl('discounts/' . $this->id);
+    }
+
+    /**
+     * @param bool $exclude
+     * @return void
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
+     */
+    public function setExcludeOnSale(bool $exclude): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
+        $this->excludeOnPromotion = $exclude;
+    }
+
+    /**
+     * @return bool
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
+     */
+    public function getExcludeOnSale(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
+        return $this->excludeOnPromotion;
     }
 
     /**
@@ -649,7 +672,9 @@ class Discount extends Model implements HasStoreInterface
                 'dateUpdated',
                 'description',
                 'enabled',
+                // @TODO remove `excludeOnSale` in Commerce 6
                 'excludeOnSale',
+                'excludeOnPromotion',
                 'hasFreeShippingForMatchingItems',
                 'hasFreeShippingForOrder',
                 'id',

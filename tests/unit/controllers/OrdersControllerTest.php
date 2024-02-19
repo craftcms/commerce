@@ -72,6 +72,7 @@ class OrdersControllerTest extends Unit
     public function testPurchasablesTable(): void
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
+        Craft::$app->getRequest()->setQueryParams(['siteId' => Craft::$app->getSites()->getPrimarySite()->id]);
 
         $response = $this->controller->runAction('purchasables-table');
 
@@ -80,12 +81,12 @@ class OrdersControllerTest extends Unit
         self::assertArrayHasKey('pagination', $response->data);
         self::assertArrayHasKey('data', $response->data);
 
-        self::assertSame(4, $response->data['pagination']['total']);
-        self::assertCount(4, $response->data['data']);
+        self::assertSame(3, $response->data['pagination']['total']);
+        self::assertCount(3, $response->data['data']);
 
         $purchasable = array_pop($response->data['data']);
 
-        $keys = ['id', 'price', 'description', 'sku', 'priceAsCurrency', 'isAvailable', 'detail'];
+        $keys = ['id', 'price', 'priceAsCurrency', 'description', 'sku', 'priceAsCurrency', 'isAvailable', 'detail'];
         foreach ($keys as $key) {
             self::assertArrayHasKey($key, $purchasable);
         }
@@ -97,7 +98,10 @@ class OrdersControllerTest extends Unit
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
-        Craft::$app->getRequest()->setQueryParams(['sort' => 'sku|desc']);
+        Craft::$app->getRequest()->setQueryParams([
+            'sort' => 'sku|desc',
+            'siteId' => Craft::$app->getSites()->getPrimarySite()->id,
+        ]);
 
         $response = $this->controller->runAction('purchasables-table');
 
@@ -105,7 +109,7 @@ class OrdersControllerTest extends Unit
 
         $purchasable = array_pop($response->data['data']);
 
-        self::assertEquals('DONATION-CC4', $purchasable['sku']);
+        self::assertEquals('hct-blue', $purchasable['sku']);
     }
 
     public function testCustomerSearch(): void

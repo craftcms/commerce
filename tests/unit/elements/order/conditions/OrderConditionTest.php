@@ -62,7 +62,8 @@ class OrderConditionTest extends Unit
      */
     public function testConditionRuleTypes(): void
     {
-        $rules = Order::createCondition()->getConditionRuleTypes();
+        $rules = Order::createCondition()->getSelectableConditionRules();
+        $rules = array_keys($rules);
 
         self::assertContains(DateOrderedConditionRule::class, $rules);
         self::assertContains(CustomerConditionRule::class, $rules);

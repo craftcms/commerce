@@ -33,7 +33,7 @@ class DiscountedItemSubtotalConditionRule extends OrderCurrencyValuesAttributeCo
     /**
      * @inheritdoc
      */
-    public function modifyQuery(QueryInterface $query): void
+    public function modifyQuery(ElementQueryInterface|\yii\db\QueryInterface $query): void
     {
         throw new NotSupportedException('Discounted Item Subtotal condition rule does not support queries');
     }
