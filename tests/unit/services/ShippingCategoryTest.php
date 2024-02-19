@@ -52,7 +52,8 @@ class ShippingCategoryTest extends Unit
     {
         $product = Product::find()->where(['slug' => 'rad-hoodie'])->one();
 
-        $shippingCategoryId = $product->getShippingCategory()->id;
+        $variant = $product->getVariants()->first();
+        $shippingCategoryId = $variant->getShippingCategory()->id;
 
         $result = $this->shippingCategories->deleteShippingCategoryById($shippingCategoryId);
 
