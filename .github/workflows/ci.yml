@@ -17,9 +17,7 @@ jobs:
     uses: craftcms/.github/.github/workflows/ci.yml@v3
     with:
       craft_version: '5'
-      #      Add tests back in when 5 is more stable
-      #      jobs: '["ecs", "phpstan", "prettier", "tests"]'
-      jobs: '["ecs", "phpstan", "prettier"]'
+      jobs: '["ecs", "phpstan", "prettier", "tests"]'
       notify_slack: true
       slack_subteam: <!subteam^S01CWPYH9D5>
     secrets:
