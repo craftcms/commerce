@@ -15,9 +15,10 @@ class m240220_105746_remove_store_from_donations_table extends Migration
      */
     public function safeUp(): bool
     {
-        $this->dropForeignKeyIfExists(Table::DONATIONS, 'storeId');
-
-        $this->dropColumn(Table::DONATIONS, 'storeId');
+        if ($this->db->columnExists(Table::DONATIONS, 'storeId')) {
+            $this->dropForeignKeyIfExists(Table::DONATIONS, 'storeId');
+            $this->dropColumn(Table::DONATIONS, 'storeId');
+        }
 
         return true;
     }
