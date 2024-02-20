@@ -53,12 +53,12 @@
 }) }}
 
 {% set defaultInput %}
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "New products default to the first tax category available to them. If none are available, this category will be used."|t('commerce'),
         id: 'default',
         name: 'default',
         value: 1,
-        checked: taxCategory is defined ? taxCategory.default,
+        on: taxCategory is defined ? taxCategory.default,
         errors: taxCategory is defined ? taxCategory.getErrors('default'),
         disabled: (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (taxCategory is defined and taxCategory.id and taxCategory.default)
     }) }}
