@@ -8,9 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\Donation;
+use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\models\Site;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -35,7 +38,9 @@ class DonationsController extends BaseStoreSettingsController
             $donation->enabled = true;
         }
 
-        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+
+        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation', 'store'));
     }
 
     /**
@@ -55,7 +60,13 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
+            $donation->siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
+
+        // Ensure store is set
+        /** @var Site|StoreBehavior $site */
+        $site = $donation->getSite();
+        $donation->storeId = $site->getStore()->id;
 
         $donation->sku = $this->request->getBodyParam('sku');
         $donation->availableForPurchase = (bool)$this->request->getBodyParam('availableForPurchase');

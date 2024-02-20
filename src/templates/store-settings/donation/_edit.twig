@@ -8,7 +8,7 @@
 
 <form method="post" accept-charset="UTF-8" data-saveshortcut>
     <input type="hidden" name="action" value="commerce/donations/save">
-    {{ redirectInput('commerce/store-settings/donation') }}
+    {{ redirectInput("commerce/store-settings/#{store.handle}/donation") }}
     {{ csrfInput() }}
 
     {% tag 'div' with {
