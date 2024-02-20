@@ -66,21 +66,6 @@ class ProductFixture extends BaseElementFixture
         return new Product();
     }
 
-    protected function saveElement(ElementInterface $element): bool
-    {
-        /** @var Product $element */
-        $return = parent::saveElement($element);
-
-        // Save the variants
-        $element->getVariants()->each(function(Variant $v) use ($element) {
-            $v->setPrimaryOwnerId($element->id);
-            $v->setOwnerId($element->id);
-            \Craft::$app->getElements()->saveElement($v,false);
-        });
-
-        return $return;
-    }
-
     /**
      * Get array of product type IDs indexed by handle.
      * This uses a raw query to avoid service level caching/memoization.
