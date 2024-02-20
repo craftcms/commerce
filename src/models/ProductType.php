@@ -60,6 +60,12 @@ class ProductType extends Model
     public ?string $handle = null;
 
     /**
+     * @var bool Whether versioning should be enabled for this product type.
+     * @since 5.0.0
+     */
+    public bool $enableVersioning = false;
+
+    /**
      * @var bool Has dimension
      */
     public bool $hasDimensions = false;

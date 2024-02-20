@@ -111,6 +111,13 @@
             required: true
         }) }}
 
+        {{ forms.lightswitchField({
+            label: 'Enable versioning for products of this type'|t('app'),
+            id: 'enableVersioning',
+            name: 'enableVersioning',
+            on: productType.enableVersioning
+        }) }}
+
         {{ productTitleFormatField(productType) }}
 
         {{ forms.textField({

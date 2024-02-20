@@ -113,6 +113,7 @@ class ProductTypesController extends BaseAdminController
         $productType->id = $this->request->getBodyParam('productTypeId');
         $productType->name = $this->request->getBodyParam('name');
         $productType->handle = $this->request->getBodyParam('handle');
+        $productType->enableVersioning = $this->request->getBodyParam('enableVersioning') ?? $productType->enableVersioning;
         $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
         $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');

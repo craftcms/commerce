@@ -3,7 +3,7 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
-- Products now support drafts and autosaving.
+- Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants’ field layouts now support multiple tabs.
 - Product pages’ breadcrumbs now include a menu that links to each editable product type.
 - It’s now possible to create new products from product select modals when a custom source is selected, if the source is configured to only show products of one type.

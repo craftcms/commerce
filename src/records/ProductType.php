@@ -19,6 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property FieldLayout $fieldLayout
  * @property int|null $fieldLayoutId
  * @property string $handle
+ * @property bool $enableVersioning
  * @property bool $hasDimensions
  * @property int $id
  * @property int $maxVariants
