@@ -1266,6 +1266,7 @@ class Product extends Element
      */
     public function setAttributes($values, $safeOnly = true): void
     {
+        // this is needed for Craft.NestedElementManager::markAsDirty()
         if (isset($values['variants']) && $values['variants'] === '*') {
             $this->setDirtyAttributes(['variants']);
             unset($values['variants']);
