@@ -229,26 +229,6 @@ class VariantQuery extends PurchasableQuery
     }
 
     /**
-     * Narrows the query results based on the variants’ owners’ IDs.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `1` | for an owner with an ID of 1.
-     * | `[1, 2]` | for owner with an ID of 1 or 2.
-     * | `['not', 1, 2]` | for owner not with an ID of 1 or 2.
-     *
-     * @param mixed $value
-     * @return static self reference
-     */
-    public function ownerId(mixed $value): VariantQuery
-    {
-        $this->ownerId = $value;
-        return $this;
-    }
-
-    /**
      * Narrows the query results based on the variants’ primary owners’ IDs.
      *
      * Possible values include:
@@ -265,6 +245,26 @@ class VariantQuery extends PurchasableQuery
     public function primaryOwnerId(mixed $value): VariantQuery
     {
         $this->primaryOwnerId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ owners’ IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | for an owner with an ID of 1.
+     * | `[1, 2]` | for owner with an ID of 1 or 2.
+     * | `['not', 1, 2]` | for owner not with an ID of 1 or 2.
+     *
+     * @param mixed $value
+     * @return static self reference
+     */
+    public function ownerId(mixed $value): VariantQuery
+    {
+        $this->ownerId = $value;
         return $this;
     }
 
