@@ -37,16 +37,6 @@ class Variant extends ActiveRecord
         return Table::VARIANTS;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['sku'], 'unique'],
-        ];
-    }
-
     public function getProduct(): ActiveQueryInterface
     {
         return $this->hasOne(Product::class, ['id', 'productId']);

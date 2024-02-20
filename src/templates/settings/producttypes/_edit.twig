@@ -36,17 +36,17 @@
         {% endmacro %}
 
         {% macro productTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+            {% import '_includes/forms' as forms %}
 
-                {{ checkboxField({
+                {{ forms.lightswitchField({
                     label: "Show the Title field for products"|t('commerce'),
                     name: 'hasProductTitleField',
                     reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
-                    checked: productType.hasProductTitleField
+                    on: productType.hasProductTitleField
                 }) }}
 
                 <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Product Title Format"|t('commerce'),
                         instructions: "What the auto-generated product titles should look like. You can include tags that output product properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myProductsCustomField}</code>' }),
                         id: 'productTitleFormat',
@@ -59,19 +59,19 @@
         {% endmacro %}
 
         {% macro variantTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+            {% import '_includes/forms' as forms %}
 
             <div id="variant-settings">
 
-                {{ checkboxField({
+                {{ forms.lightswitchField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
                     reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
-                    checked: productType.hasVariantTitleField
+                    on: productType.hasVariantTitleField
                 }) }}
 
                 <div id="variantTitleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Variant Title Format"|t('commerce'),
                         instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
                         id: 'variantTitleFormat',
@@ -111,6 +111,13 @@
             required: true
         }) }}
 
+        {{ forms.lightswitchField({
+            label: 'Enable versioning for products of this type'|t('app'),
+            id: 'enableVersioning',
+            name: 'enableVersioning',
+            on: productType.enableVersioning
+        }) }}
+
         {{ productTitleFormatField(productType) }}
 
         {{ forms.textField({
@@ -142,11 +149,11 @@
             size: 2,
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
             id: 'hasDimensions',
             name: 'hasDimensions',
-            checked: productType.hasDimensions,
+            on: productType.hasDimensions,
         }) }}
 
         <hr>
@@ -256,7 +263,6 @@
         {% namespace "variant-layout" %}
             {{ forms.fieldLayoutDesignerField({
                 fieldLayout: productType.getVariantFieldLayout(),
-                customizableTabs: false
             }) }}
         {% endnamespace %}
 

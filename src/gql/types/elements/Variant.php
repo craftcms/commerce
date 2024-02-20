@@ -39,7 +39,7 @@ class Variant extends ElementType
     {
         /** @var VariantElement $source */
         $fieldName = $resolveInfo->fieldName;
-        $product = $source->getProduct();
+        $product = $source->getOwner();
         return match ($fieldName) {
             'productTitle' => $product->title ?? '',
             'productTypeId' => $product->typeId ?? null,

@@ -35,12 +35,12 @@
         {% set labelDefault = "Default to this tax zone when no shipping address is set"|t('commerce') %}
     {% endif %}
 
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: labelDefault,
         id: 'default',
         name: 'default',
         value: 1,
-        checked: taxZone is defined ? taxZone.default,
+        on: taxZone is defined ? taxZone.default,
         errors: taxZone is defined ? taxZone.getErrors('default')
     }) }}
 

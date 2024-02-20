@@ -55,12 +55,12 @@
 }) }}
 
 {% set defaultInput %}
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "New products default to the first shipping category available to them. If none are available, this category will be used."|t('commerce'),
         id: 'default',
         name: 'default',
         value: 1,
-        checked: shippingCategory is defined ? shippingCategory.default,
+        on: shippingCategory is defined ? shippingCategory.default,
         errors: shippingCategory is defined ? shippingCategory.getErrors('default'),
         disabled: (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (shippingCategory.id and shippingCategory.default)
     }) }}

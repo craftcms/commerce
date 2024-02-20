@@ -3,6 +3,11 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
+- Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
+- Product variants’ field layouts now support multiple tabs.
+- Product pages’ breadcrumbs now include a menu that links to each editable product type.
+- It’s now possible to create new products from product select modals when a custom source is selected, if the source is configured to only show products of one type.
+- The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods can now have condition builders, enabling flexible matching based on the order.
 - Shipping rules can now have condition builders, enabling flexible matching based on the order.
@@ -51,8 +56,8 @@
 - Added `craft\commerce\base\Purchasable::getStore()`.
 - Added `craft\commerce\base\Purchasable::setPrice()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
-- Added `craft\commerce\base\StoreTrait`.
 - Added `craft\commerce\base\StoreRecordTrait`.
+- Added `craft\commerce\base\StoreTrait`.
 - Added `craft\commerce\behaviors\StoreBehavior`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingController`.
@@ -62,8 +67,14 @@
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING`.
 - Added `craft\commerce\db\Table::PURCHASABLES_STORES`.
-- Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::STORESETTINGS`.
+- Added `craft\commerce\db\Table::STORES`.
+- Added `craft\commerce\elements\Product::getVariantManager()`.
+- Added `craft\commerce\elements\Variant::getProductSlug()`.
+- Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
+- Added `craft\commerce\elements\Variant::setProductSlug()`.
+- Added `craft\commerce\elements\Variant::setProductTypeHandle()`.
+- Added `craft\commerce\elements\VariantCollection`.
 - Added `craft\commerce\elements\actions\SetDefaultVariant`.
 - Added `craft\commerce\elements\conditions\customer\CatalogPricingCustomerCondition`.
 - Added `craft\commerce\elements\conditions\orders\DiscountedItemSubtotalConditionRule`.
@@ -77,13 +88,7 @@
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
-- Added `craft\commerce\elements\Product::getVariantManager()`.
 - Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
-- Added `craft\commerce\elements\Variant::getProductSlug()`.
-- Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
-- Added `craft\commerce\elements\Variant::setProductSlug()`.
-- Added `craft\commerce\elements\Variant::setProductTypeHandle()`.
-- Added `craft\commerce\elements\VariantCollection`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
@@ -105,13 +110,13 @@
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
 - Added `craft\commerce\plugin\Services::getVat()`.
-- Added `craft\commerce\records\CatalogPricing`.
-- Added `craft\commerce\records\CatalogPricingRule`.
 - Added `craft\commerce\records\CatalogPricingRulePurchasable`.
 - Added `craft\commerce\records\CatalogPricingRuleUser`.
+- Added `craft\commerce\records\CatalogPricingRule`.
+- Added `craft\commerce\records\CatalogPricing`.
 - Added `craft\commerce\records\PurchasableStore`.
-- Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\CatalogPricingRules`.
+- Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\ShippingCategories::clearCaches()`.
@@ -120,14 +125,19 @@
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
+- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
+- Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::getProductId()`. `getOwnerId()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategoryId()` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategoryId()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::taxCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
+- Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
@@ -153,8 +163,8 @@
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` instead.
 - Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` instead.
 - Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` instead.
-- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO` instead.
 - Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING` instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO` instead.
 - Removed `craft\commerce\models\ShippingRule::$maxQty`.
 - Removed `craft\commerce\models\ShippingRule::$maxTotal`.
 - Removed `craft\commerce\models\ShippingRule::$maxWeight`.
@@ -164,16 +174,16 @@
 - Removed `craft\commerce\models\ShippingRule::$minWeight`.
 - Removed `craft\commerce\models\ShippingRule::$shippingZoneId`.
 - Removed `craft\commerce\models\ShippingRule::getShippingZone()`.
-- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_VALUE`.
-- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL`.
-- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED`.
-- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_ITEMS`.
 - Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED`.
-- Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_ITEMS`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_PERCENT_TOTAL`.
+- Removed `craft\commerce\records\Discount::BASE_DISCOUNT_TYPE_VALUE`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
+- Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
-- Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()`.
+- Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 
 ### System

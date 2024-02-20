@@ -74,11 +74,11 @@
         instructions: 'Choose a color to represent the order’s status'|t
     },colorField) }}
 
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "New line items get this status by default when the order is completed"|t('commerce'),
         name: 'default',
         value: 1,
-        checked: lineItemStatus.default,
+        on: lineItemStatus.default,
         errors: lineItemStatus.getErrors('default')
     }) }}
 {% endblock %}

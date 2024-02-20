@@ -174,10 +174,10 @@
     ) }}
 
      {% set isVatInput %}
-         {{ forms.checkboxField({
+         {{ forms.lightswitchField({
              label: "EU VAT ID"|t('commerce'),
              name: 'isVat',
-             checked: taxRate.isVat,
+             on: taxRate.isVat,
              errors: taxRate.getErrors('isVat'),
              toggle: '#isVatContainer'
          }) }}
@@ -227,10 +227,10 @@
         </div>
         {# TODO: stop using shameful `style` tag here #}
         <div style="margin-top: 7px;">
-            {{ forms.checkboxField({
+            {{ forms.lightswitchField({
                 label: "Included in price?"|t('commerce'),
                 name: 'include',
-                checked: taxRate.include,
+                on: taxRate.include,
                 toggle: '#removeIncludedContainer,#removeVatIncludedContainer',
                 errors: taxRate.getErrors('include'),
                 info: "Enable if this rate should be built into the taxable subject price instead of adding a cost to the order."|t('commerce'),

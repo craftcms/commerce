@@ -113,11 +113,11 @@
     {% if orderStatus.default %}
         <input type="hidden" name="default" value="1">
     {% else %}
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "New orders get this status by default"|t('commerce'),
             name: 'default',
             value: 1,
-            checked: isDefault,
+            on: isDefault,
             errors: orderStatus.getErrors('default')
         }) }}
     {% endif %}

@@ -10,10 +10,10 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
+use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
@@ -43,9 +43,11 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
+use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
+use yii\web\Response;
 
 /**
  * Product model.
@@ -69,6 +71,462 @@ class Product extends Element
     public const STATUS_LIVE = 'live';
     public const STATUS_PENDING = 'pending';
     public const STATUS_EXPIRED = 'expired';
+
+    /**
+     * @inheritdoc
+     */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Product');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'product');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('commerce', 'Products');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'products');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function refHandle(): ?string
+    {
+        return 'product';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasDrafts(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function trackChanges(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasTitles(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasUris(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function isLocalized(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function statuses(): array
+    {
+        return [
+            self::STATUS_LIVE => Craft::t('commerce', 'Live'),
+            self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
+            self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     * @return ProductQuery The newly created [[ProductQuery]] instance.
+     */
+    public static function find(): ElementQueryInterface
+    {
+        return new ProductQuery(static::class);
+    }
+
+    /**
+     * @inheritdoc
+     * @return ProductCondition
+     */
+    public static function createCondition(): ElementConditionInterface
+    {
+        return Craft::createObject(ProductCondition::class, [static::class]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSources(string $context = null): array
+    {
+        if ($context == 'index') {
+            $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+            $editable = true;
+        } else {
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+            $editable = false;
+        }
+
+        $productTypeIds = [];
+
+        foreach ($productTypes as $productType) {
+            $productTypeIds[] = $productType->id;
+        }
+
+        $sources = [
+            [
+                'key' => '*',
+                'label' => Craft::t('commerce', 'All products'),
+                'criteria' => [
+                    'typeId' => $productTypeIds,
+                    'editable' => $editable,
+                ],
+                'defaultSort' => ['postDate', 'desc'],
+            ],
+        ];
+
+        $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
+
+        foreach ($productTypes as $productType) {
+            $key = 'productType:' . $productType->uid;
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
+
+            $sources[$key] = [
+                'key' => $key,
+                'label' => Craft::t('site', $productType->name),
+                'data' => [
+                    'handle' => $productType->handle,
+                    'editable' => $canEditProducts,
+                ],
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
+            ];
+        }
+
+        return $sources;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function modifyCustomSource(array $config): array
+    {
+        try {
+            /** @var ProductCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($config['condition']);
+        } catch (InvalidConfigException) {
+            return $config;
+        }
+
+        $rules = $condition->getConditionRules();
+
+        // see if it's limited to one product type
+        /** @var ProductTypeConditionRule|null $productTypeRule */
+        $productTypeRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof ProductTypeConditionRule);
+        $productTypeOptions = $productTypeRule?->getValues();
+
+        if ($productTypeOptions && count($productTypeOptions) === 1) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid(reset($productTypeOptions));
+            if ($productType) {
+                $config['data']['handle'] = $productType->handle;
+            }
+        }
+
+        return $config;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineFieldLayouts(?string $source): array
+    {
+        if ($source === null || $source === '*') {
+            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        } else {
+            $productTypes = [];
+            if (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
+                if ($productType) {
+                    $productTypes[] = $productType;
+                }
+            }
+        }
+
+        return array_map(fn(ProductType $productType) => $productType->getFieldLayout(), $productTypes);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineActions(string $source = null): array
+    {
+        // Get the section(s) we need to check permissions on
+        switch ($source) {
+            case '*':
+            {
+                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
+                break;
+            }
+            default:
+            {
+                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$matches[1]);
+
+                    if ($productType) {
+                        $productTypes = [$productType];
+                    }
+                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
+                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
+
+                    if ($productType) {
+                        $productTypes = [$productType];
+                    }
+                }
+            }
+        }
+
+        $actions = [];
+
+        // Copy Reference Tag
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => CopyReferenceTag::class,
+        ]);
+
+        // Restore
+        $actions[] = Craft::$app->getElements()->createAction([
+            'type' => Restore::class,
+            'successMessage' => Craft::t('commerce', 'Products restored.'),
+            'partialSuccessMessage' => Craft::t('commerce', 'Some products restored.'),
+            'failMessage' => Craft::t('commerce', 'Products not restored.'),
+        ]);
+
+        if ($source === '*') {
+            // Delete
+            $actions[] = Delete::class;
+        } elseif (!empty($productTypes)) {
+            $userSession = Craft::$app->getUser();
+
+            $currentUser = $userSession->getIdentity();
+
+            foreach ($productTypes as $productType) {
+                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
+
+                if ($canCreate) {
+                    // Duplicate
+                    $actions[] = Duplicate::class;
+                }
+
+                if ($canDelete) {
+                    // Allow deletion
+                    $deleteAction = Craft::$app->getElements()->createAction([
+                        'type' => Delete::class,
+                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
+                        'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
+                    ]);
+                    $actions[] = $deleteAction;
+                }
+
+                if ($canEdit) {
+                    $actions[] = SetStatus::class;
+                }
+            }
+
+            if ($userSession->checkPermission('commerce-managePromotions')) {
+                $actions[] = CreateSale::class;
+                $actions[] = CreateDiscount::class;
+            }
+        }
+
+        return $actions;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function includeSetStatusAction(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineSortOptions(): array
+    {
+        return [
+            'title' => Craft::t('commerce', 'Title'),
+            [
+                'label' => Craft::t('commerce', 'Post Date'),
+                'orderBy' => 'postDate',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Expiry Date'),
+                'orderBy' => 'expiryDate',
+                'defaultDir' => 'desc',
+            ],
+            'promotable' => Craft::t('commerce', 'Promotable?'),
+            'defaultPrice' => Craft::t('commerce', 'Price'),
+            'defaultSku' => Craft::t('commerce', 'SKU'),
+            [
+                'label' => Craft::t('app', 'Date Created'),
+                'orderBy' => 'elements.dateCreated',
+                'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'Date Updated'),
+                'orderBy' => 'elements.dateUpdated',
+                'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('app', 'ID'),
+                'orderBy' => 'elements.id',
+                'attribute' => 'id',
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineTableAttributes(): array
+    {
+        return [
+            'title' => ['label' => Craft::t('commerce', 'Product')],
+            'id' => ['label' => Craft::t('commerce', 'ID')],
+            'type' => ['label' => Craft::t('commerce', 'Type')],
+            'slug' => ['label' => Craft::t('commerce', 'Slug')],
+            'uri' => ['label' => Craft::t('commerce', 'URI')],
+            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
+            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
+            'stock' => ['label' => Craft::t('commerce', 'Stock')],
+            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
+            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
+            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
+            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
+            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
+            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
+            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
+            'variants' => ['label' => Craft::t('commerce', 'Variants')],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected static function defineDefaultTableAttributes(string $source): array
+    {
+        $attributes = [];
+
+        if ($source == '*') {
+            $attributes[] = 'type';
+        }
+
+        $attributes[] = 'postDate';
+        $attributes[] = 'expiryDate';
+        $attributes[] = 'defaultPrice';
+        $attributes[] = 'defaultSku';
+        $attributes[] = 'link';
+
+        return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
+    {
+        if ($handle == 'variants') {
+            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
+            $map = (new Query())
+                ->select('ownerId as source, elementId as target')
+                ->from(\craft\db\Table::ELEMENTS_OWNERS)
+                ->where(['ownerId' => $sourceElementIds])
+                ->orderBy('sortOrder asc')
+                ->all();
+
+            return [
+                'elementType' => Variant::class,
+                'map' => $map,
+            ];
+        }
+
+        return parent::eagerLoadingMap($sourceElements, $handle);
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public static function gqlTypeNameByContext(mixed $context): string
+    {
+        /** @var ProductType $context */
+        return $context->handle . '_Product';
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.0
+     */
+    public static function gqlScopesByContext(mixed $context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
+    {
+        if ($attribute === 'variants') {
+            $elementQuery->andWith('variants');
+        } else {
+            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
+    }
 
     /**
      * @var DateTime|null Post date
@@ -182,44 +640,18 @@ class Product extends Element
         return $this->getDefaultVariant()?->priceAsCurrency ?? '';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public static function displayName(): string
+    public function canCreateDrafts(User $user): bool
     {
-        return Craft::t('commerce', 'Product');
+        // Everyone with view permissions can create drafts
+        return true;
     }
 
     /**
      * @inheritdoc
      */
-    public static function lowerDisplayName(): string
+    public function hasRevisions(): bool
     {
-        return Craft::t('commerce', 'product');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function pluralDisplayName(): string
-    {
-        return Craft::t('commerce', 'Products');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function pluralLowerDisplayName(): string
-    {
-        return Craft::t('commerce', 'products');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function refHandle(): ?string
-    {
-        return 'product';
+        return $this->getType()->enableVersioning;
     }
 
     /**
@@ -232,52 +664,10 @@ class Product extends Element
 
     /**
      * @inheritdoc
-     * @return ProductCondition
      */
-    public static function createCondition(): ElementConditionInterface
+    protected function cpRevisionsUrl(): ?string
     {
-        return Craft::createObject(ProductCondition::class, [static::class]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasTitles(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasUris(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function isLocalized(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
-     * @return ProductQuery The newly created [[ProductQuery]] instance.
-     */
-    public static function find(): ElementQueryInterface
-    {
-        return new ProductQuery(static::class);
+        return sprintf('%s/revisions', $this->cpEditUrl());
     }
 
     /**
@@ -379,9 +769,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCrumbs(): array
+    protected function crumbs(): array
     {
-        $type = $this->getType();
+        $productType = $this->getType();
+
+        $productTypes = Collection::make(Plugin::getInstance()->getProductTypes()->getEditableProductTypes());
+        /** @var Collection $productTypeOptions */
+        $productTypeOptions = $productTypes
+            ->map(fn(ProductType $t) => [
+                'label' => Craft::t('site', $t->name),
+                'url' => "commerce/products/$t->handle",
+                'selected' => $t->id === $productType->id,
+            ]);
 
         return [
             [
@@ -389,10 +788,26 @@ class Product extends Element
                 'url' => 'commerce/products',
             ],
             [
-                'label' => Craft::t('site', $type->name),
-                'url' => "commerce/products/$type->name",
+                'menu' => [
+                    'label' => Craft::t('commerce', 'Select product type'),
+                    'items' => $productTypeOptions->all(),
+                ],
             ],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function uiLabel(): ?string
+    {
+        if (!isset($this->title) || trim($this->title) === '') {
+            return Craft::t('app', 'Untitled {type}', [
+                'type' => self::lowerDisplayName(),
+            ]);
+        }
+
+        return null;
     }
 
     /**
@@ -447,12 +862,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): ?string
+    protected function cpEditUrl(): ?string
     {
         $productType = $this->getType();
 
-        // The slug *might* not be set if this is a Draft and they've deleted it for whatever reason
-        return UrlHelper::cpUrl('commerce/products/' . $productType->handle . '/' . $this->id . ($this->slug ? '-' . $this->slug : ''));
+        $path = sprintf('commerce/products/%s/%s', $productType->handle, $this->getCanonicalId());
+
+        // Ignore homepage/temp slugs
+        if ($this->slug && !str_starts_with($this->slug, '__')) {
+            $path .= sprintf('-%s', str_replace('/', '-', $this->slug));
+        }
+
+        return $path;
     }
 
     /**
@@ -531,10 +952,17 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param VariantCollection|array $variants
+     * @param VariantCollection|VariantQuery|array $variants
      */
-    public function setVariants(VariantCollection|array $variants): void
+    public function setVariants(VariantCollection|VariantQuery|array $variants): void
     {
+        if ($variants instanceof VariantQuery) {
+            // just unset our existing records
+            $this->_variants = null;
+            $this->_enabledVariants = null;
+            return;
+        }
+
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
         $this->_enabledVariants = $this->_variants->where('enabled', true);
     }
@@ -569,14 +997,6 @@ class Product extends Element
         return Variant::find()
             ->productId($this->id)
             ->orderBy(['sortOrder' => SORT_ASC]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasStatuses(): bool
-    {
-        return true;
     }
 
     /**
@@ -648,26 +1068,6 @@ class Product extends Element
 
     /**
      * @inheritdoc
-     * @since 3.0
-     */
-    public static function gqlTypeNameByContext(mixed $context): string
-    {
-        /** @var ProductType $context */
-        return $context->handle . '_Product';
-    }
-
-    /**
-     * @inheritdoc
-     * @since 3.0
-     */
-    public static function gqlScopesByContext(mixed $context): array
-    {
-        /** @var ProductType $context */
-        return ['productTypes.' . $context->uid];
-    }
-
-    /**
-     * @inheritdoc
      */
     public function setEagerLoadedElements(string $handle, array $elements, EagerLoadPlan $plan): void
     {
@@ -682,66 +1082,60 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
+    protected function metaFieldsHtml(bool $static): string
     {
-        if ($handle == 'variants') {
-            $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
-            $map = (new Query())
-                ->select('ownerId as source, elementId as target')
-                ->from(\craft\db\Table::ELEMENTS_OWNERS)
-                ->where(['ownerId' => $sourceElementIds])
-                ->orderBy('sortOrder asc')
-                ->all();
+        $fields = [];
+        $view = Craft::$app->getView();
 
-            return [
-                'elementType' => Variant::class,
-                'map' => $map,
-            ];
+        // Slug
+        $fields[] = $this->slugFieldHtml($static);
+
+        $isDeltaRegistrationActive = $view->getIsDeltaRegistrationActive();
+        $view->setIsDeltaRegistrationActive(true);
+        $view->registerDeltaName('postDate');
+        $view->registerDeltaName('expiryDate');
+        $view->setIsDeltaRegistrationActive($isDeltaRegistrationActive);
+
+        // Post Date
+        $fields[] = Cp::dateTimeFieldHtml([
+            'status' => $this->getAttributeStatus('postDate'),
+            'label' => Craft::t('app', 'Post Date'),
+            'id' => 'postDate',
+            'name' => 'postDate',
+            'value' => $this->_userPostDate(),
+            'errors' => $this->getErrors('postDate'),
+            'disabled' => $static,
+        ]);
+
+        // Expiry Date
+        $fields[] = Cp::dateTimeFieldHtml([
+            'status' => $this->getAttributeStatus('expiryDate'),
+            'label' => Craft::t('app', 'Expiry Date'),
+            'id' => 'expiryDate',
+            'name' => 'expiryDate',
+            'value' => $this->expiryDate,
+            'errors' => $this->getErrors('expiryDate'),
+            'disabled' => $static,
+        ]);
+
+        $fields[] = parent::metaFieldsHtml($static);
+
+        return implode("\n", $fields);
+    }
+
+    /**
+     * Returns the Post Date value that should be shown on the edit form.
+     *
+     * @return DateTime|null
+     */
+    private function _userPostDate(): ?DateTime
+    {
+        if (!$this->postDate || ($this->getIsUnpublishedDraft() && $this->postDate == $this->dateCreated)) {
+            // Pretend the post date hasn't been set yet, even if it has
+            return null;
         }
 
-        return parent::eagerLoadingMap($sourceElements, $handle);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
-    {
-        if ($attribute === 'variants') {
-            $elementQuery->andWith('variants');
-        } else {
-            parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function statuses(): array
-    {
-        return [
-            self::STATUS_LIVE => Craft::t('commerce', 'Live'),
-            self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
-            self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getSidebarHtml(bool $static): string
-    {
-        $html = [];
-
-        // General Meta fields
-        $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
-
-        $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
-
-        $html[] = parent::getSidebarHtml(false);
-
-        return implode('', $html);
+        return $this->postDate;
     }
 
     /**
@@ -756,6 +1150,16 @@ class Product extends Element
         }
 
         return $metadata;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function prepareEditScreen(Response $response, string $containerId): void
+    {
+        $view = Craft::$app->getView();
+        $view->setIsDeltaRegistrationActive(true);
+        $view->registerDeltaName('variants');
     }
 
     /**
@@ -864,6 +1268,8 @@ class Product extends Element
             return false;
         }
 
+        $this->getVariantManager()->deleteNestedElements($this, $this->hardDelete);
+
         return true;
     }
 
@@ -916,6 +1322,20 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function setAttributes($values, $safeOnly = true): void
+    {
+        // this is needed for Craft.NestedElementManager::markAsDirty()
+        if (isset($values['variants']) && $values['variants'] === '*') {
+            $this->setDirtyAttributes(['variants']);
+            unset($values['variants']);
+        }
+
+        parent::setAttributes($values, $safeOnly);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getFieldLayout(): ?FieldLayout
     {
         $fieldLayout = parent::getFieldLayout();
@@ -937,6 +1357,29 @@ class Product extends Element
      */
     public function beforeSave(bool $isNew): bool
     {
+        // Make sure the entry has at least one revision if the section has versioning enabled
+        if ($this->_shouldSaveRevision()) {
+            $hasRevisions = self::find()
+                ->revisionOf($this)
+                ->site('*')
+                ->status(null)
+                ->exists();
+            if (!$hasRevisions) {
+                /** @var self|null $currentProduct */
+                $currentProduct = self::find()
+                    ->id($this->id)
+                    ->site('*')
+                    ->status(null)
+                    ->one();
+
+                // May be null if the product is currently stored as an unpublished draft
+                if ($currentProduct) {
+                    $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
+                    Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
+                }
+            }
+        }
+
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
 
@@ -952,192 +1395,6 @@ class Product extends Element
         return parent::beforeSave($isNew);
     }
 
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSources(string $context = null): array
-    {
-        if ($context == 'index') {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
-            $editable = true;
-        } else {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
-            $editable = false;
-        }
-
-        $productTypeIds = [];
-
-        foreach ($productTypes as $productType) {
-            $productTypeIds[] = $productType->id;
-        }
-
-        $sources = [
-            [
-                'key' => '*',
-                'label' => Craft::t('commerce', 'All products'),
-                'criteria' => [
-                    'typeId' => $productTypeIds,
-                    'editable' => $editable,
-                ],
-                'defaultSort' => ['postDate', 'desc'],
-            ],
-        ];
-
-        $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
-
-        foreach ($productTypes as $productType) {
-            $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
-
-            $sources[$key] = [
-                'key' => $key,
-                'label' => Craft::t('site', $productType->name),
-                'data' => [
-                    'handle' => $productType->handle,
-                    'editable' => $canEditProducts,
-                ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
-            ];
-        }
-
-        return $sources;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineActions(string $source = null): array
-    {
-        // Get the section(s) we need to check permissions on
-        switch ($source) {
-            case '*':
-            {
-                $productTypes = Plugin::getInstance()->getProductTypes()->getEditableProductTypes();
-                break;
-            }
-            default:
-            {
-                if (preg_match('/^productType:(\d+)$/', $source, $matches)) {
-                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById((int)$matches[1]);
-
-                    if ($productType) {
-                        $productTypes = [$productType];
-                    }
-                } elseif (preg_match('/^productType:(.+)$/', $source, $matches)) {
-                    $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid($matches[1]);
-
-                    if ($productType) {
-                        $productTypes = [$productType];
-                    }
-                }
-            }
-        }
-
-        $actions = [];
-
-        // Copy Reference Tag
-        $actions[] = Craft::$app->getElements()->createAction([
-            'type' => CopyReferenceTag::class,
-        ]);
-
-        // Restore
-        $actions[] = Craft::$app->getElements()->createAction([
-            'type' => Restore::class,
-            'successMessage' => Craft::t('commerce', 'Products restored.'),
-            'partialSuccessMessage' => Craft::t('commerce', 'Some products restored.'),
-            'failMessage' => Craft::t('commerce', 'Products not restored.'),
-        ]);
-
-        if ($source === '*') {
-            // Delete
-            $actions[] = Delete::class;
-        } elseif (!empty($productTypes)) {
-            $userSession = Craft::$app->getUser();
-
-            $currentUser = $userSession->getIdentity();
-
-            foreach ($productTypes as $productType) {
-                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
-                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
-                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
-
-                if ($canCreate) {
-                    // Duplicate
-                    $actions[] = Duplicate::class;
-                }
-
-                if ($canDelete) {
-                    // Allow deletion
-                    $deleteAction = Craft::$app->getElements()->createAction([
-                        'type' => Delete::class,
-                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
-                        'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
-                    ]);
-                    $actions[] = $deleteAction;
-                }
-
-                if ($canEdit) {
-                    $actions[] = SetStatus::class;
-                }
-            }
-
-            if ($userSession->checkPermission('commerce-managePromotions')) {
-                $actions[] = CreateSale::class;
-                $actions[] = CreateDiscount::class;
-            }
-        }
-
-        return $actions;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineTableAttributes(): array
-    {
-        return [
-            'title' => ['label' => Craft::t('commerce', 'Product')],
-            'id' => ['label' => Craft::t('commerce', 'ID')],
-            'type' => ['label' => Craft::t('commerce', 'Type')],
-            'slug' => ['label' => Craft::t('commerce', 'Slug')],
-            'uri' => ['label' => Craft::t('commerce', 'URI')],
-            'postDate' => ['label' => Craft::t('commerce', 'Post Date')],
-            'expiryDate' => ['label' => Craft::t('commerce', 'Expiry Date')],
-            'stock' => ['label' => Craft::t('commerce', 'Stock')],
-            'link' => ['label' => Craft::t('commerce', 'Link'), 'icon' => 'world'],
-            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
-            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
-            'defaultPrice' => ['label' => Craft::t('commerce', 'Price')],
-            'defaultSku' => ['label' => Craft::t('commerce', 'SKU')],
-            'defaultWeight' => ['label' => Craft::t('commerce', 'Weight')],
-            'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
-            'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
-            'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce', 'Variants')],
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineDefaultTableAttributes(string $source): array
-    {
-        $attributes = [];
-
-        if ($source == '*') {
-            $attributes[] = 'type';
-        }
-
-        $attributes[] = 'postDate';
-        $attributes[] = 'expiryDate';
-        $attributes[] = 'defaultPrice';
-        $attributes[] = 'defaultSku';
-        $attributes[] = 'link';
-
-        return $attributes;
-    }
-
     /**
      * @inheritdoc
      */
@@ -1146,46 +1403,6 @@ class Product extends Element
         return [
             'defaultSku',
             'sku',
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected static function defineSortOptions(): array
-    {
-        return [
-            'title' => Craft::t('commerce', 'Title'),
-            [
-                'label' => Craft::t('commerce', 'Post Date'),
-                'orderBy' => 'postDate',
-                'defaultDir' => 'desc',
-            ],
-            [
-                'label' => Craft::t('commerce', 'Expiry Date'),
-                'orderBy' => 'expiryDate',
-                'defaultDir' => 'desc',
-            ],
-            'promotable' => Craft::t('commerce', 'Promotable?'),
-            'defaultPrice' => Craft::t('commerce', 'Price'),
-            'defaultSku' => Craft::t('commerce', 'SKU'),
-            [
-                'label' => Craft::t('app', 'Date Created'),
-                'orderBy' => 'elements.dateCreated',
-                'attribute' => 'dateCreated',
-                'defaultDir' => 'desc',
-            ],
-            [
-                'label' => Craft::t('app', 'Date Updated'),
-                'orderBy' => 'elements.dateUpdated',
-                'attribute' => 'dateUpdated',
-                'defaultDir' => 'desc',
-            ],
-            [
-                'label' => Craft::t('app', 'ID'),
-                'orderBy' => 'elements.id',
-                'attribute' => 'id',
-            ],
         ];
     }
 
@@ -1319,19 +1536,29 @@ class Product extends Element
      */
     public function afterPropagate(bool $isNew): void
     {
-        /** @var Product|null $original */
-        $original = $this->duplicateOf;
-        if ($original) {
-            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($original->id, $original->siteId);
-            $newVariants = [];
-            foreach ($variants as $variant) {
-                $variant->sku .= '-1';
-                $variant = Craft::$app->getElements()->duplicateElement($variant, ['product' => $this]);
-                $newVariants[] = $variant;
-            }
-            $this->setVariants($newVariants);
-        }
-
+        $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
+
+        // Save a new revision?
+        if ($this->_shouldSaveRevision()) {
+            Craft::$app->getRevisions()->createRevision($this, notes: $this->revisionNotes);
+        }
+    }
+
+    /**
+     * Returns whether the product should be saving revisions on save.
+     *
+     * @return bool
+     */
+    private function _shouldSaveRevision(): bool
+    {
+        return (
+            $this->id &&
+            !$this->propagating &&
+            !$this->resaving &&
+            !$this->getIsDraft() &&
+            !$this->getIsRevision() &&
+            $this->getType()->enableVersioning
+        );
     }
 }

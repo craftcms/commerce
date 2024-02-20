@@ -541,6 +541,7 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
+            'enableVersioning' => $this->boolean()->defaultValue(false)->notNull(),
             'maxVariants' => $this->integer(),
             'hasDimensions' => $this->boolean()->notNull()->defaultValue(false),
 
