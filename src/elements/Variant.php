@@ -829,7 +829,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 $record->id = $this->id;
             }
 
-            $record->primaryOwnerId = $this->primaryOwnerId ?? $this->ownerId;
+            $record->primaryOwnerId = $this->getPrimaryOwnerId();
             $record->isDefault = $this->isDefault;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
