@@ -378,11 +378,11 @@ class Variant extends Purchasable implements NestedElementInterface
      * @param int|null $productId
      * @return void
      * @since 5.0.0
-     * @deprecated in 5.0.0. Use [[$primaryOwnerId]] instead.
+     * @deprecated in 5.0.0. Use [[setOwnerId()]] instead.
      */
     public function setProductId(?int $productId)
     {
-        $this->primaryOwnerId = $productId;
+        $this->setOwnerId($productId);
     }
 
     /**
@@ -393,7 +393,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getProductId(): ?int
     {
-        return $this->getPrimaryOwnerId();
+        return $this->getOwnerId();
     }
 
     /**
