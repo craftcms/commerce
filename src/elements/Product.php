@@ -13,6 +13,7 @@ use craft\base\ElementInterface;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
+use craft\commerce\elements\conditions\products\ProductTypeConditionRule;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
@@ -28,6 +29,9 @@ use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\conditions\ElementConditionInterface;
+use craft\elements\conditions\entries\EntryCondition;
+use craft\elements\conditions\entries\SectionConditionRule;
+use craft\elements\conditions\entries\TypeConditionRule;
 use craft\elements\db\EagerLoadPlan;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\NestedElementManager;
@@ -239,6 +243,35 @@ class Product extends Element
         }
 
         return $sources;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function modifyCustomSource(array $config): array
+    {
+        try {
+            /** @var ProductCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($config['condition']);
+        } catch (InvalidConfigException) {
+            return $config;
+        }
+
+        $rules = $condition->getConditionRules();
+
+        // see if it's limited to one product type
+        /** @var ProductTypeConditionRule|null $productTypeRule */
+        $productTypeRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof ProductTypeConditionRule);
+        $productTypeOptions = $productTypeRule?->getValues();
+
+        if ($productTypeOptions && count($productTypeOptions) === 1) {
+            $productType = Plugin::getInstance()->getProductTypes()->getProductTypeByUid(reset($productTypeOptions));
+            if ($productType) {
+                $config['data']['handle'] = $productType->handle;
+            }
+        }
+
+        return $config;
     }
 
     /**

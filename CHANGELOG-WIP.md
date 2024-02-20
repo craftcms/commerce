@@ -6,6 +6,8 @@
 - Products now support drafts and autosaving.
 - Product variants’ field layouts now support multiple tabs.
 - Product pages’ breadcrumbs now include a menu that links to each editable product type.
+- It’s now possible to create new products from product select modals when a custom source is selected, if the source is configured to only show products of one type.
+- The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods can now have condition builders, enabling flexible matching based on the order.
 - Shipping rules can now have condition builders, enabling flexible matching based on the order.
