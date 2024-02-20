@@ -30,7 +30,7 @@ class m240219_194855_donation_multi_store extends Migration
 
         foreach ($donations as $donation) {
             foreach ($storeIds as $storeId) {
-                $this->insert(Table::PURCHASABLES_STORES, [
+                $this->upsert(Table::PURCHASABLES_STORES, [
                     'purchasableId' => $donation['id'],
                     'storeId' => $storeId,
                     'basePrice' => 0,
@@ -43,7 +43,7 @@ class m240219_194855_donation_multi_store extends Migration
                     'availableForPurchase' => $donation['availableForPurchase'],
                     'freeShipping' => true,
                     'shippingCategoryId' => null,
-                ]);
+                ], ['purchasableId', 'storeId']);
             }
         }
 
