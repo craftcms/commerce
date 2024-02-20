@@ -57,6 +57,8 @@ class VariantsField extends BaseNativeField
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
+        Craft::$app->getView()->registerDeltaName($this->attribute());
+
         return $element->getVariantManager()->getIndexHtml($element, [
             'canCreate' => true,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
