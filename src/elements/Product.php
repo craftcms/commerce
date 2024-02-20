@@ -42,6 +42,7 @@ use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
+use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
@@ -724,7 +725,16 @@ class Product extends Element
      */
     protected function crumbs(): array
     {
-        $type = $this->getType();
+        $productType = $this->getType();
+
+        $productTypes = Collection::make(Plugin::getInstance()->getProductTypes()->getEditableProductTypes());
+        /** @var Collection $productTypeOptions */
+        $productTypeOptions = $productTypes
+            ->map(fn(ProductType $t) => [
+                'label' => Craft::t('site', $t->name),
+                'url' => "commerce/products/$t->handle",
+                'selected' => $t->id === $productType->id,
+            ]);
 
         return [
             [
@@ -732,8 +742,10 @@ class Product extends Element
                 'url' => 'commerce/products',
             ],
             [
-                'label' => Craft::t('site', $type->name),
-                'url' => "commerce/products/$type->name",
+                'menu' => [
+                    'label' => Craft::t('commerce', 'Select product type'),
+                    'items' => $productTypeOptions->all(),
+                ],
             ],
         ];
     }

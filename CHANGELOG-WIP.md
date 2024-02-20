@@ -5,6 +5,7 @@
 ### Store Management
 - Products now support drafts and autosaving.
 - Product variants’ field layouts now support multiple tabs.
+- Product pages’ breadcrumbs now include a menu that links to each editable product type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods can now have condition builders, enabling flexible matching based on the order.
 - Shipping rules can now have condition builders, enabling flexible matching based on the order.

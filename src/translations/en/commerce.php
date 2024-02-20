@@ -884,6 +884,7 @@ return [
     'Select address' => 'Select address',
     'Select how the catalog pricing rule will be applied to the purchasable(s).' => 'Select how the catalog pricing rule will be applied to the purchasable(s).',
     'Select how the sale will be applied to the purchasable(s).' => 'Select how the sale will be applied to the purchasable(s).',
+    'Select product type' => 'Select product type',
     'Select the emails that will be sent when transitioning to this status.' => 'Select the emails that will be sent when transitioning to this status.',
     'Select what this rate should be applied to.' => 'Select what this rate should be applied to.',
     'Send Email' => 'Send Email',
