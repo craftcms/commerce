@@ -47,7 +47,7 @@ class Product
         }
 
         // Need to set the product now so that the variant custom fields
-        $variantModel->setProduct($product);
+        $variantModel->setOwner($product);
 
         // When saving from a post each variant should have its `siteId` set so the store can be correctly determined
         $variantModel->siteId = $product->siteId;

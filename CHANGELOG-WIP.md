@@ -3,6 +3,11 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
+- Products now support drafts and autosaving.
+- Product variants’ field layouts now support multiple tabs.
+- Product pages’ breadcrumbs now include a menu that links to each editable product type.
+- It’s now possible to create new products from product select modals when a custom source is selected, if the source is configured to only show products of one type.
+- The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods can now have condition builders, enabling flexible matching based on the order.
 - Shipping rules can now have condition builders, enabling flexible matching based on the order.
@@ -120,8 +125,13 @@
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
+- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
+- Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::getProductId()`. `getOwnerId()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
+- Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
