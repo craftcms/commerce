@@ -924,29 +924,29 @@ class Product extends Element
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        // If we are currently duplicating a product, we don't want to have any variants.
-        // We will be duplicating variants and adding them back.
-        if ($this->duplicateOf) {
-            $this->_variants = VariantCollection::make();
-            $this->_enabledVariants = VariantCollection::make();
+        if ($includeDisabled) {
+            if (!isset($this->_variants)) {
+                if (!$this->id) {
+                    return VariantCollection::make();
+                }
+
+                $this->_variants = $this->_createVariantQuery()->status(null)->collect();
+            }
+
             return $this->_variants;
         }
 
-        if (!isset($this->_variants) && $this->id) {
-            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
-
-            if (!empty($variants) && $this->getType()->maxVariants) {
-                $variants = array_slice($variants, 0, $this->getType()->maxVariants);
+        if (!isset($this->_enabledVariants)) {
+            if (!$this->id) {
+                // go through getVariants() again with $includeDisabled,
+                // in case all variants have been memoized via setVariants()
+                return $this->getVariants(true)->filter(fn(Variant $variant) => $variant->enabled);
             }
 
-            $this->setVariants(VariantCollection::make($variants));
+            $this->_enabledVariants = $this->_createVariantQuery()->collect();
         }
 
-        if (empty($this->_variants)) {
-            return VariantCollection::make();
-        }
-
-        return $includeDisabled ? $this->_variants : $this->_enabledVariants;
+        return $this->_enabledVariants;
     }
 
     /**
@@ -964,7 +964,7 @@ class Product extends Element
         }
 
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
-        $this->_enabledVariants = $this->_variants->where('enabled', true);
+        $this->_enabledVariants = null;
     }
 
     /**
@@ -981,7 +981,8 @@ class Product extends Element
                 fn() => $this->_createVariantQuery(),
                 [
                     'attribute' => 'variants',
-                    'propagationMethod' => PropagationMethod::None,
+                    'propagationMethod' => PropagationMethod::All,
+                    'valueGetter' => fn() => $this->getVariants(true),
                 ],
             );
         }
@@ -996,6 +997,7 @@ class Product extends Element
     {
         return Variant::find()
             ->productId($this->id)
+            ->siteId($this->siteId)
             ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
