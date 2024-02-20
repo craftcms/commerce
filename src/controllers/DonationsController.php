@@ -30,7 +30,7 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
-            $donation->sku = 'DONATION-CC3';
+            $donation->sku = 'DONATION-CC5';
             $donation->availableForPurchase = true;
             $donation->enabled = true;
         }

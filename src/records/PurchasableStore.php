@@ -18,16 +18,16 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property int $purchasableId
  * @property int $storeId
- * @property float $basePrice
- * @property float $basePromotionalPrice
- * @property int $stock
+ * @property float|null $basePrice
+ * @property float|null $basePromotionalPrice
+ * @property int|null $stock
  * @property bool $hasUnlimitedStock
- * @property int $minQty
- * @property int $maxQty
+ * @property int|null $minQty
+ * @property int|null $maxQty
  * @property bool $promotable
  * @property bool $availableForPurchase
  * @property bool $freeShipping
- * @property int $shippingCategoryId
+ * @property int|null $shippingCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */

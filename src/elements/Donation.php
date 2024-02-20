@@ -16,6 +16,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Donation as DonationRecord;
+use craft\commerce\records\PurchasableStore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
@@ -50,17 +51,6 @@ class Donation extends Purchasable
         ];
 
         return $behaviors;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function currencyAttributes(): array
-    {
-        return [
-            'price',
-            'salePrice',
-        ];
     }
 
     protected function defineRules(): array
@@ -207,7 +197,6 @@ class Donation extends Purchasable
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
             $lineItem->price = $options['donationAmount'];
-            $lineItem->salePrice = $options['donationAmount'];
         }
     }
 
@@ -260,7 +249,6 @@ class Donation extends Purchasable
         }
 
         $record->sku = $this->sku;
-        $record->availableForPurchase = $this->availableForPurchase;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $record->dateUpdated = $this->dateUpdated;
@@ -269,5 +257,31 @@ class Donation extends Purchasable
         $record->save(false);
 
         parent::afterSave($isNew);
+
+        // Loop through other stores to save the donation to all stores
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+        $stores
+            ->filter(fn(Store $s) => $s->id !== $this->getStore()->id)
+            ->each(function(Store $store) use ($isNew) {
+                $purchasableStoreRecord = PurchasableStore::findOne(['purchasableId' => $this->id, 'storeId' => $store->id]);
+                if ($isNew || !$purchasableStoreRecord) {
+                    $purchasableStoreRecord = new PurchasableStore();
+                    $purchasableStoreRecord->purchasableId = $this->id;
+                    $purchasableStoreRecord->storeId = $store->id;
+                }
+
+                $purchasableStoreRecord->basePrice = 0;
+                $purchasableStoreRecord->basePromotionalPrice = null;
+                $purchasableStoreRecord->stock = null;
+                $purchasableStoreRecord->hasUnlimitedStock = true;
+                $purchasableStoreRecord->minQty = null;
+                $purchasableStoreRecord->maxQty = null;
+                $purchasableStoreRecord->promotable = false;
+                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
+                $purchasableStoreRecord->freeShipping = true;
+                $purchasableStoreRecord->shippingCategoryId = null;
+
+                $purchasableStoreRecord->save(false);
+            });
     }
 }

@@ -15,7 +15,6 @@ use yii\db\ActiveQueryInterface;
 /**
  * Variant record.
  *
- * @property bool $availableForPurchase
  * @property int $id
  * @property int $storeId
  * @property ActiveQueryInterface $element
@@ -31,16 +30,6 @@ class Donation extends ActiveRecord
     public static function tableName(): string
     {
         return Table::DONATIONS;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function rules(): array
-    {
-        return [
-            [['sku'], 'unique'],
-        ];
     }
 
     public function getElement(): ActiveQueryInterface
