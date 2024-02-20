@@ -383,6 +383,7 @@ class ProductTypes extends Component
         $configData = [
             'name' => $productType->name,
             'handle' => $productType->handle,
+            'enableVersioning' => $productType->enableVersioning,
             'hasDimensions' => $productType->hasDimensions,
             'maxVariants' => $productType->maxVariants,
 
@@ -477,6 +478,7 @@ class ProductTypes extends Component
             $productTypeRecord->uid = $productTypeUid;
             $productTypeRecord->name = $data['name'];
             $productTypeRecord->handle = $data['handle'];
+            $productTypeRecord->enableVersioning = $data['enableVersioning'] ?? false;
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
 
             // Variant title fields
@@ -962,12 +964,16 @@ class ProductTypes extends Component
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
 
-        // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if (version_compare($commerce['schemaVersion'], '4.0.0', '>=')) {
+        // todo: remove after the next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleFormat')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
             $query->addSelect('productTypes.titleFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
+            $query->addSelect('productTypes.enableVersioning');
         }
 
         return $query;

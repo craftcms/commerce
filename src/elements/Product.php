@@ -649,6 +649,14 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function hasRevisions(): bool
+    {
+        return $this->getType()->enableVersioning;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getPostEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/products');
@@ -1341,6 +1349,29 @@ class Product extends Element
      */
     public function beforeSave(bool $isNew): bool
     {
+        // Make sure the entry has at least one revision if the section has versioning enabled
+        if ($this->_shouldSaveRevision()) {
+            $hasRevisions = self::find()
+                ->revisionOf($this)
+                ->site('*')
+                ->status(null)
+                ->exists();
+            if (!$hasRevisions) {
+                /** @var self|null $currentProduct */
+                $currentProduct = self::find()
+                    ->id($this->id)
+                    ->site('*')
+                    ->status(null)
+                    ->one();
+
+                // May be null if the product is currently stored as an unpublished draft
+                if ($currentProduct) {
+                    $revisionNotes = 'Revision from ' . Craft::$app->getFormatter()->asDatetime($currentProduct->dateUpdated);
+                    Craft::$app->getRevisions()->createRevision($currentProduct, notes: $revisionNotes);
+                }
+            }
+        }
+
         // Make sure the field layout is set correctly
         $this->fieldLayoutId = $this->getType()->fieldLayoutId;
 
@@ -1499,5 +1530,27 @@ class Product extends Element
     {
         $this->getVariantManager()->maintainNestedElements($this, $isNew);
         parent::afterPropagate($isNew);
+
+        // Save a new revision?
+        if ($this->_shouldSaveRevision()) {
+            Craft::$app->getRevisions()->createRevision($this, notes: $this->revisionNotes);
+        }
+    }
+
+    /**
+     * Returns whether the product should be saving revisions on save.
+     *
+     * @return bool
+     */
+    private function _shouldSaveRevision(): bool
+    {
+        return (
+            $this->id &&
+            !$this->propagating &&
+            !$this->resaving &&
+            !$this->getIsDraft() &&
+            !$this->getIsRevision() &&
+            $this->getType()->enableVersioning
+        );
     }
 }
