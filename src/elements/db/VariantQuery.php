@@ -430,14 +430,11 @@ class VariantQuery extends PurchasableQuery
             'commerce_producttypes.handle as productTypeHandle',
         ]);
 
+        // Join in the elements_owners table
         $ownersCondition = [
             'and',
             '[[elements_owners.elementId]] = [[elements.id]]',
-
-            // Figure out linking to `ownerId` or `primaryOwnerId`
-            isset($this->ownerId) && $this->ownerId
-                ? ['elements_owners.ownerId' => $this->ownerId]
-                : '[[elements_owners.ownerId]] = [[commerce_variants.primaryOwnerId]]',
+            $this->ownerId ? ['elements_owners.ownerId' => $this->ownerId] : '[[elements_owners.ownerId]] = [[commerce_variants.primaryOwnerId]]',
         ];
 
         $this->query
@@ -448,7 +445,7 @@ class VariantQuery extends PurchasableQuery
             ->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
         $this->subQuery->innerJoin(['elements_owners' => CraftTable::ELEMENTS_OWNERS], $ownersCondition);
 
-        if (isset($this->primaryOwnerId) && $this->primaryOwnerId) {
+        if ($this->primaryOwnerId) {
             $this->subQuery->andWhere(['commerce_variants.primaryOwnerId' => $this->primaryOwnerId]);
         }
 
