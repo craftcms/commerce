@@ -118,12 +118,12 @@
     {% if pdf.isDefault %}
         <input type="hidden" name="isDefault" value="1">
     {% else %}
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "Default Order PDF"|t('commerce'),
         instructions: "This is the default PDF that will be rendered when requesting the order PDF."|t('commerce'),
         name: 'isDefault',
         value: 1,
-        checked: isDefault,
+        on: isDefault,
         errors: pdf.getErrors('isDefault')
     }) }}
     {% endif %}
