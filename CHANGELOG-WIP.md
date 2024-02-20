@@ -121,17 +121,15 @@
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\ShippingCategories::clearCaches()`.
 - Added `craft\commerce\services\Vat`.
-- Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
-- Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
-- Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
-- Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
-- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
 - Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::getProductId()`. `getOwnerId()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
+- Removed `craft\commerce\console\controllers\UpgradeController`.
+- Removed `craft\commerce\controllers\LiteShippingController`.
+- Removed `craft\commerce\controllers\LiteTaxController`.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
@@ -139,7 +137,11 @@
 - Removed `craft\commerce\elements\db\ProductQuery::taxCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
 - Removed `craft\commerce\helpers\VariantMatrix`.
+- Removed `craft\commerce\helpers\VariantMatrix`.
+- Removed `craft\commerce\models\Currency`.
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
+- Removed `craft\commerce\models\LiteShippingSettings`.
+- Removed `craft\commerce\models\LiteTaxSettings`.
 - Removed `craft\commerce\models\ProductType::$hasVariants`.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
@@ -185,5 +187,11 @@
 - Removed `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
+- Removed `craft\commerce\validators\StoreCountryValidator`.
+- Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
+- Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
+- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
 
 ### System
