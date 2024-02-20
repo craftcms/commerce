@@ -665,6 +665,14 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    protected function cpRevisionsUrl(): ?string
+    {
+        return sprintf('%s/revisions', $this->cpEditUrl());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function __toString(): string
     {
         return (string)$this->title;
