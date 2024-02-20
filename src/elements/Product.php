@@ -1153,16 +1153,6 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public function prepareEditScreen(Response $response, string $containerId): void
-    {
-        $view = Craft::$app->getView();
-        $view->setIsDeltaRegistrationActive(true);
-        $view->registerDeltaName('variants');
-    }
-
-    /**
      * @inheritDoc
      */
     protected function searchKeywords(string $attribute): string
