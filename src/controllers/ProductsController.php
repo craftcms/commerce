@@ -70,10 +70,12 @@ class ProductsController extends BaseController
     /**
      * @throws InvalidConfigException
      */
-    public function actionProductIndex(): Response
+    public function actionProductIndex(?string $productTypeHandle = null): Response
     {
         $this->getView()->registerAssetBundle(ProductIndexAsset::class);
-        return $this->renderTemplate('commerce/products/_index');
+        return $this->renderTemplate('commerce/products/_index', [
+            'productTypeHandle' => $productTypeHandle,
+        ]);
     }
 
     public function actionVariantIndex(): Response
