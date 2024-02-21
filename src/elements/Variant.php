@@ -1103,7 +1103,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 'on' => self::SCENARIO_LIVE,
             ],
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
-            [['ownerId', 'primaryOwnerId'], 'safe'],
+            [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
         ]);
     }
 
