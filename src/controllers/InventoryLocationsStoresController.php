@@ -35,7 +35,7 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
             'id' => 'inventoryLocations',
             'name' => 'inventoryLocations[]',
             'values' => $inventoryLocations,
-            'create' =>  Plugin::getInstance()->is(Plugin::EDITION_PRO, '>=')
+            'create' => Plugin::getInstance()->is(Plugin::EDITION_PRO, '>='),
         ]);
 
         $variables = [

@@ -10,11 +10,9 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
-use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
 
 /**

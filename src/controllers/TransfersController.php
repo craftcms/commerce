@@ -10,13 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Transfer;
-use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
-use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayoutTab;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 

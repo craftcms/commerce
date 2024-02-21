@@ -7,6 +7,7 @@
 
 namespace craft\commerce\fieldlayoutelements;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\TransferStatusType;
@@ -15,7 +16,6 @@ use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
-use Craft;
 
 /**
  * TransferManagementField represents a field that can be included within a transfer’s field layout designer to manage the transfer.
@@ -77,8 +77,8 @@ class TransferManagementField extends BaseNativeField
             'options' => $inventoryLocationOptions,
             'value' => $element->originLocationId,
             'containerAttributes' => [
-                'class' => ['flex-grow']
-            ]
+                'class' => ['flex-grow'],
+            ],
         ];
 
         $destinationLocationSelectFieldConfig = [
@@ -87,8 +87,8 @@ class TransferManagementField extends BaseNativeField
             'options' => $inventoryLocationOptions,
             'value' => $element->destinationLocationId,
             'containerAttributes' => [
-                'class' => ['flex-grow']
-            ]
+                'class' => ['flex-grow'],
+            ],
         ];
 
         if ($element->transferStatus != TransferStatusType::DRAFT) {

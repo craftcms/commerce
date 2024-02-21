@@ -900,7 +900,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return 0;
         }
 
-        return $this->getInventoryLevels()->sum($inventoryMovementType->value.'Total');
+        return $this->getInventoryLevels()->sum($inventoryMovementType->value . 'Total');
     }
 
     /**

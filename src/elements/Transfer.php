@@ -76,7 +76,6 @@ class Transfer extends Element
         ];
 
         if ($this->getIsDraft() && !$this->isProvisionalDraft) {
-
             $additionalMeta[] = [
                 Craft::t('app', 'Status') => function() {
                     $icon = Html::tag('span', '', [
@@ -85,7 +84,7 @@ class Transfer extends Element
                     ]);
                     $label = Craft::t('app', 'Draft');
                     return $icon . Html::tag('span', $label);
-                }
+                },
             ];
         }
 
@@ -552,10 +551,9 @@ JS, [
             ],
         ]);
 
-        if($this->getIsDraft() && !$this->isProvisionalDraft) {
+        if ($this->getIsDraft() && !$this->isProvisionalDraft) {
             $response->title(Craft::t('commerce', 'Create a new transfer'));
         } else {
-
             if ($this->transferStatus == TransferStatusType::DRAFT) {
                 $response->submitButtonLabel(Craft::t('commerce', 'Save as Draft'));
 

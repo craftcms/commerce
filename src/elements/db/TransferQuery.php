@@ -92,11 +92,11 @@ class TransferQuery extends ElementQuery
             $this->subQuery->andWhere(['transferStatus' => $this->transferStatus]);
         }
 
-        if($this->originLocation) {
+        if ($this->originLocation) {
             $this->subQuery->andWhere(['originLocationId' => $this->originLocation]);
         }
 
-        if($this->destinationLocation) {
+        if ($this->destinationLocation) {
             $this->subQuery->andWhere(['destinationLocationId' => $this->destinationLocation]);
         }
 

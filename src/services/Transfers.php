@@ -62,7 +62,7 @@ class Transfers extends Component
      */
     public function getFieldLayout(): FieldLayout
     {
-        $fieldLayout =  Craft::$app->getFields()->getLayoutByType(Transfer::class);
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Transfer::class);
 
         if (!$fieldLayout->isFieldIncluded('locations')) {
             $layoutTabs = $fieldLayout->getTabs();

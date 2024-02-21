@@ -42,7 +42,7 @@ class InventoryLocationsController extends Controller
         $userCanCreate = ($currentUser && $currentUser->can('commerce-createLocations'));
 
         // If they have no locations they can have at least 1 when on lite
-        if($locationCount < Plugin::EDITION_LITE_STORE_LIMIT) {
+        if ($locationCount < Plugin::EDITION_LITE_STORE_LIMIT) {
             $showNewButton = true;
         }
 
