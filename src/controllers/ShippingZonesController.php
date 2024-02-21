@@ -25,7 +25,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingZonesController extends BaseShippingManagementController
+class ShippingZonesController extends BaseShippingSettingsController
 {
     public function actionIndex(?string $storeHandle = null): Response
     {

@@ -36,7 +36,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingRulesController extends BaseShippingManagementController
+class ShippingRulesController extends BaseShippingSettingsController
 {
     /**
      * @param int|null $methodId

@@ -24,7 +24,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategoriesController extends BaseShippingManagementController
+class ShippingCategoriesController extends BaseShippingSettingsController
 {
     /**
      * @param string|null $storeHandle
