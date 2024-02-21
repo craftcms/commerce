@@ -3,6 +3,7 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
+- It’s now possible to create and manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants’ field layouts now support multiple tabs.
 - Product pages’ breadcrumbs now include a menu that links to each editable product type.
@@ -200,6 +201,7 @@
 
 ### Inventory
 
+- Added multi-location inventory management. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
 - Added `craft\commerce\base\EnumHelpersTrait`
 - Added `craft\commerce\collections\InventoryMovementCollection`
 - Added `craft\commerce\collections\UpdateInventoryLevelCollection`

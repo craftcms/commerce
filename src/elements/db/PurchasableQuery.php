@@ -695,6 +695,7 @@ abstract class PurchasableQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
         }
 
+        // We don't join the inventory levels table, and rely on the caches store available total.
         if (isset($this->stock)) {
             $this->subQuery->andWhere(Db::parseParam('purchasables_stores.stock', $this->stock));
         }
