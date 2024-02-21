@@ -26,7 +26,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategoriesController extends BaseTaxManagementController
+class TaxCategoriesController extends BaseTaxSettingsController
 {
     /**
      * @param string|null $storeHandle
