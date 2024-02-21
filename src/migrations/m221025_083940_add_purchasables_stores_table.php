@@ -89,7 +89,7 @@ class m221025_083940_add_purchasables_stores_table extends Migration
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
             'stock' => $this->integer(),
-            'inventoryTracked' => $this->boolean()->notNull()->defaultValue(false),
+            'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -109,7 +109,6 @@ class m221025_083940_add_purchasables_stores_table extends Migration
         if ($variantsToPurchasablesStores->isNotEmpty()) {
             $variantsToPurchasablesStores->each(function($variantToPurchasableStore) use ($storeId) {
                 $variantToPurchasableStore['storeId'] = $storeId;
-                $variantToPurchasableStore['inventoryTracked'] = !$variantToPurchasableStore['hasUnlimitedStock'];
                 $this->insert(Table::PURCHASABLES_STORES, $variantToPurchasableStore);
             });
         }
