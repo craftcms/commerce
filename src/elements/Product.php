@@ -594,21 +594,6 @@ class Product extends Element
     private ?VariantCollection $_variants = null;
 
     /**
-     * @var VariantCollection|null This product’s enabled variants
-     */
-    private ?VariantCollection $_enabledVariants = null;
-
-    /**
-     * @var Variant|null This product's cheapest variant
-     */
-    private ?Variant $_cheapestVariant = null;
-
-    /**
-     * @var Variant|null This product's cheapest enabled variant
-     */
-    private ?Variant $_cheapestEnabledVariant = null;
-
-    /**
      * @var NestedElementManager|null
      * @since 5.0.0
      */
@@ -898,21 +883,7 @@ class Product extends Element
      */
     public function getCheapestVariant(bool $includeDisabled = false): ?Variant
     {
-        if ($includeDisabled && $this->_cheapestVariant) {
-            return $this->_cheapestVariant;
-        }
-
-        if (!$includeDisabled && $this->_cheapestEnabledVariant) {
-            return $this->_cheapestEnabledVariant;
-        }
-
-        if ($includeDisabled) {
-            $this->_cheapestVariant = $this->getVariants(true)->cheapest(true);
-        } else {
-            $this->_cheapestEnabledVariant = $this->getVariants()->cheapest();
-        }
-
-        return $includeDisabled ? $this->_cheapestVariant : $this->_cheapestEnabledVariant;
+        return $this->getVariants($includeDisabled)->cheapest();
     }
 
     /**
@@ -924,29 +895,15 @@ class Product extends Element
      */
     public function getVariants(bool $includeDisabled = false): VariantCollection
     {
-        if ($includeDisabled) {
-            if (!isset($this->_variants)) {
-                if (!$this->id) {
-                    return VariantCollection::make();
-                }
-
-                $this->_variants = self::createVariantQuery($this)->status(null)->collect();
-            }
-
-            return $this->_variants;
-        }
-
-        if (!isset($this->_enabledVariants)) {
+        if (!isset($this->_variants)) {
             if (!$this->id) {
-                // go through getVariants() again with $includeDisabled,
-                // in case all variants have been memoized via setVariants()
-                return $this->getVariants(true)->filter(fn(Variant $variant) => $variant->enabled);
+                return VariantCollection::make();
             }
 
-            $this->_enabledVariants = self::createVariantQuery($this)->collect();
+            $this->_variants = self::createVariantQuery($this)->status(null)->collect();
         }
 
-        return $this->_enabledVariants;
+        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || $variant->enabled);
     }
 
     /**
@@ -959,12 +916,10 @@ class Product extends Element
         if ($variants instanceof VariantQuery) {
             // just unset our existing records
             $this->_variants = null;
-            $this->_enabledVariants = null;
             return;
         }
 
         $this->_variants = $variants instanceof VariantCollection ? $variants : VariantCollection::make($variants);
-        $this->_enabledVariants = null;
     }
 
     /**
