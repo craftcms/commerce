@@ -3,6 +3,8 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
+- The lite edition no longer limits the number of line items in a cart.
+- The lite edition no longer limits the number of Shipping Categories or Tax Categories. ([2591](https://github.com/craftcms/commerce/discussions/2591))
 - It’s now possible to create and manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants’ field layouts now support multiple tabs.
@@ -195,23 +197,57 @@
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
 - `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
-
+- `craft\commerce\elements\db\PurchasableQuery` is now abstract.
 ### System
 
 
 ### Inventory
-
 - Added multi-location inventory management. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
 - Added `craft\commerce\base\EnumHelpersTrait`
+- Added `craft\commerce\base\Purchasable::$inventoryTracked`
+- Added `craft\commerce\base\Purchasable::$stock`
+- Added `craft\commerce\base\Purchasable::getAvailableTotalStock()`.
+- Added `craft\commerce\base\Purchasable::getInventoryItem()`.
+- Added `craft\commerce\base\Purchasable::getInventoryLevels()`.
 - Added `craft\commerce\collections\InventoryMovementCollection`
 - Added `craft\commerce\collections\UpdateInventoryLevelCollection`
 - Added `craft\commerce\controllers\InventoryLocationsController`
 - Added `craft\commerce\controllers\InventoryLocationsStoresController`
-- Added `craft\commerce\base\Purchasable::$inventoryTracked`
-- Added `craft\commerce\base\Purchasable::$stock`
-- Removed `craft\commerce\base\Variant::$unlimitedStock`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
+- Added `craft\commerce\controllers\TransfersController`
+- Added `craft\commerce\element\Transfer`
+- Added `craft\commerce\services\InventoryLocations`
+- Added `craft\commerce\services\Inventory`
+- Added `craft\commerce\services\Transfers`
+- Added `craft\commerce\collections\InventoryMovementCollection`
+- Added `craft\commerce\collections\UpdateInventoryLevelCollection`
 - Deprecated `craft\commerce\base\Variant::hasUnlimitedStock()`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
+- Removed `craft\commerce\base\Variant::$unlimitedStock`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
 - Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getAvailableTotalStock()` instead.
-- Added `craft\commerce\base\Purchasable::getInventoryItem()`.
-- Added `craft\commerce\base\Purchasable::getAvailableTotalStock()`.
-- Added `craft\commerce\base\Purchasable::getInventoryLevels()`.
+- Deprecated `craft\commerce\elements\VariantQuery::hasUnlimitedStock()`. Use `craft\commerce\elements\db\VariantQuery::inventoryTracked()` instead.
+- Added `craft\commerce\db\Table::TRANSFERS`.
+- Added `craft\commerce\elements\db\TransferQuery`
+- Added `craft\commerce\db\Table::TRANSFERS_INVENTORYITEMS`.
+- Added `craft\commerce\db\Table::INVENTORYITEMS`.
+- Added `craft\commerce\db\Table::INVENTORYLOCATIONS`.
+- Added `craft\commerce\db\Table::INVENTORYLOCATIONS_STORES`.
+- Added `craft\commerce\db\Table::INVENTORYMOVEMENTS`.
+- Added `craft\commerce\elements\conditions\transfers\TransferCondition`.
+- Added `craft\commerce\enums\InventoryMovementType`.
+- Added `craft\commerce\enums\InventoryUpdateQuantityType`.
+- Added `craft\commerce\enums\TransferStatusType`.
+- Added `craft\commerce\web\assets\inventory\InventoryAsset`.
+- Added `craft\commerce\fieldlayoutelements\TransferManagementField`.
+- Added `craft\commerce\helpers\Cp`.
+- Added `craft\commerce\models\InventoryItem`.
+- Added `craft\commerce\models\Level`.
+- Added `craft\commerce\models\InventoryLocation`.
+- Added `craft\commerce\models\inventory\InventoryMovement`.
+- Added `craft\commerce\models\inventory\UpdateInventoryLevel`.
+- Added `craft\commerce\models\Store::getInventoryLocations()`.
+- Added `craft\commerce\models\Store::getInventoryLocationsOptions()`.
+- Added `craft\commerce\records\InventoryItem`.
+- Added `craft\commerce\records\InventoryLocation`.
+- Added `craft\commerce\records\Transfer`.
+- Added `craft\commerce\services\Purchasables::updateStoreStockCache()`
+- Added `craft\commerce\web\assets\transfers\TransfersAsset`. 
+- Added `craft\commerce\web\assets\inventory\InventoryAsset`. 
