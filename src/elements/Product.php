@@ -930,7 +930,7 @@ class Product extends Element
                     return VariantCollection::make();
                 }
 
-                $this->_variants = $this->_createVariantQuery()->status(null)->collect();
+                $this->_variants = self::createVariantQuery($this)->status(null)->collect();
             }
 
             return $this->_variants;
@@ -943,7 +943,7 @@ class Product extends Element
                 return $this->getVariants(true)->filter(fn(Variant $variant) => $variant->enabled);
             }
 
-            $this->_enabledVariants = $this->_createVariantQuery()->collect();
+            $this->_enabledVariants = self::createVariantQuery($this)->collect();
         }
 
         return $this->_enabledVariants;
@@ -978,7 +978,7 @@ class Product extends Element
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
-                fn() => $this->_createVariantQuery(),
+                fn(Product $product) => self::createVariantQuery($product),
                 [
                     'attribute' => 'variants',
                     'propagationMethod' => PropagationMethod::All,
@@ -988,17 +988,6 @@ class Product extends Element
         }
 
         return $this->_variantManager;
-    }
-
-    /**
-     * @return VariantQuery
-     */
-    private function _createVariantQuery(): VariantQuery
-    {
-        return Variant::find()
-            ->productId($this->id)
-            ->siteId($this->siteId)
-            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
     /**
@@ -1396,6 +1385,18 @@ class Product extends Element
             'defaultSku',
             'sku',
         ];
+    }
+
+    /**
+     * @param Product $product
+     * @return VariantQuery
+     */
+    private static function createVariantQuery(Product $product): VariantQuery
+    {
+        return Variant::find()
+            ->productId($product->id)
+            ->siteId($product->siteId)
+            ->orderBy(['sortOrder' => SORT_ASC]);
     }
 
     /**
