@@ -650,7 +650,6 @@ class PurchasableQuery extends ElementQuery
         ;
         $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
 
-
         if (isset($this->availableForPurchase)) {
             $this->subQuery->andWhere(['purchasables_stores.availableForPurchase' => $this->availableForPurchase]);
         }
