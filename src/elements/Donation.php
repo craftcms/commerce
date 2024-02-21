@@ -151,7 +151,7 @@ class Donation extends Purchasable
      */
     public function getCpEditUrl(): ?string
     {
-        return UrlHelper::cpUrl(sprintf('commerce/store-management/%s/donation', $this->getStore()?->handle));
+        return UrlHelper::cpUrl(sprintf('commerce/store-management/%s/donation', $this->getStore()->handle));
     }
 
     /**

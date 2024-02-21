@@ -63,11 +63,6 @@ class DonationsController extends BaseStoreManagementController
             $donation->siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
 
-        // Ensure store is set
-        /** @var Site|StoreBehavior $site */
-        $site = $donation->getSite();
-        $donation->storeId = $site->getStore()->id;
-
         $donation->sku = $this->request->getBodyParam('sku');
         $donation->availableForPurchase = (bool)$this->request->getBodyParam('availableForPurchase');
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
