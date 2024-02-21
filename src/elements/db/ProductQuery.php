@@ -46,11 +46,6 @@ use yii\db\Expression;
 class ProductQuery extends ElementQuery
 {
     /**
-     * @var bool|null Whether the product is available for purchase
-     */
-    public ?bool $availableForPurchase = null;
-
-    /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
     public bool $editable = false;
@@ -674,34 +669,6 @@ class ProductQuery extends ElementQuery
     }
 
     /**
-     * Narrows the query results to only products that are available for purchase.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch products that are available for purchase #}
-     * {% set {elements-var} = {twig-method}
-     *   .availableForPurchase()
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch products that are available for purchase
-     * ${elements-var} = {element-class}::find()
-     *     ->availableForPurchase()
-     *     ->all();
-     * ```
-     *
-     * @param bool|null $value The property value
-     * @return static self reference
-     */
-    public function availableForPurchase(?bool $value = true): static
-    {
-        $this->availableForPurchase = $value;
-        return $this;
-    }
-
-    /**
      * Narrows the query results based on the {elements}’ statuses.
      *
      * Possible values include:
@@ -765,10 +732,6 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
         ]);
-
-        if (isset($this->availableForPurchase)) {
-            $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
-        }
 
         if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));

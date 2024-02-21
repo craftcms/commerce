@@ -1,4 +1,4 @@
-{% extends "commerce/_layouts/store-settings" %}
+{% extends "commerce/_layouts/store-management" %}
 {% set isIndex = true %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
@@ -20,7 +20,7 @@
 
 {% block actionButton %}
     {% if currentUser.can('commerce-createSales') %}
-        <a href="{{ url("commerce/store-settings/#{storeHandle}/sales/new") }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+        <a href="{{ url("commerce/store-management/#{storeHandle}/sales/new") }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 

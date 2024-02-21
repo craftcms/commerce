@@ -13,7 +13,7 @@ namespace craft\commerce\controllers;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BaseTaxSettingsController extends BaseStoreSettingsController
+class BaseTaxSettingsController extends BaseStoreManagementController
 {
     /**
      * @inheritdoc

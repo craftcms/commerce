@@ -1,8 +1,8 @@
-{% extends "commerce/_layouts/store-settings" %}
+{% extends "commerce/_layouts/store-management" %}
 {% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Sales"|t('commerce'), url: url("commerce/store-settings/#{storeHandle}/sales") },
+    { label: "Sales"|t('commerce'), url: url("commerce/store-management/#{storeHandle}/sales") },
 ] %}
 
 {% set fullPageForm = true %}
@@ -18,7 +18,7 @@
 
 {% set formActions = [{
         label: 'Save and continue editing'|t('app'),
-        redirect: (isNewSale ? "commerce/store-settings/#{storeHandle}/sales/{id}" : sale.getCpEditUrl())|hash,
+        redirect: (isNewSale ? "commerce/store-management/#{storeHandle}/sales/{id}" : sale.getCpEditUrl())|hash,
         retainScroll: true,
         shortcut: true,
 }] %}
@@ -80,7 +80,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
-    {{ redirectInput("commerce/store-settings/#{storeHandle}/sales") }}
+    {{ redirectInput("commerce/store-management/#{storeHandle}/sales") }}
     {% if sale.id %}
         <input type="hidden" name="id" value="{{ sale.id }}">
         <input type="hidden" name="sortOrder" value="{{ sale.sortOrder }}">

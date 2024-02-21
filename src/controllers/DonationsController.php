@@ -25,7 +25,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseStoreSettingsController
+class DonationsController extends BaseStoreManagementController
 {
     public function actionEdit(): Response
     {
@@ -40,7 +40,7 @@ class DonationsController extends BaseStoreSettingsController
 
         $store = Plugin::getInstance()->getStores()->getPrimaryStore();
 
-        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation', 'store'));
+        return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation', 'store'));
     }
 
     /**
@@ -73,7 +73,7 @@ class DonationsController extends BaseStoreSettingsController
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
-            return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+            return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation'));
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));

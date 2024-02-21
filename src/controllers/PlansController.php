@@ -27,12 +27,12 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseStoreSettingsController
+class PlansController extends BaseStoreManagementController
 {
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/store-settings/subscription-plans', ['plans' => $plans]);
+        return $this->renderTemplate('commerce/store-management/subscription-plans', ['plans' => $plans]);
     }
 
     /**
@@ -83,7 +83,7 @@ class PlansController extends BaseStoreSettingsController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        return $this->renderTemplate('commerce/store-settings/subscription-plans/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/subscription-plans/_edit', $variables);
     }
 
     /**

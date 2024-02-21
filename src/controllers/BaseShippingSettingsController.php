@@ -13,7 +13,7 @@ namespace craft\commerce\controllers;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BaseShippingSettingsController extends BaseStoreSettingsController
+class BaseShippingSettingsController extends BaseStoreManagementController
 {
     /**
      * @inheritdoc

@@ -91,7 +91,7 @@ class PaymentCurrency extends Model
             throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
         }
 
-        return UrlHelper::cpUrl(sprintf('commerce/store-settings/%s/payment-currencies/%s', $store->handle, $this->id));
+        return UrlHelper::cpUrl(sprintf('commerce/store-management/%s/payment-currencies/%s', $store->handle, $this->id));
     }
 
     /**

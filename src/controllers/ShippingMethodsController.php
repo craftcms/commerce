@@ -36,7 +36,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         }
 
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods($store->id);
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/index', compact('shippingMethods', 'store'));
+        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/index', compact('shippingMethods', 'store'));
     }
 
     /**
@@ -84,7 +84,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
             : [];
 
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/_edit', $variables);
     }
 
     /**

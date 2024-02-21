@@ -32,7 +32,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingController extends BaseStoreSettingsController
+class CatalogPricingController extends BaseStoreManagementController
 {
     public function beforeAction($action): bool
     {
