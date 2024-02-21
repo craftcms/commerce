@@ -357,7 +357,6 @@ class Plugin extends BasePlugin
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
-                'icon' => 'tshirt',
             ];
         }
 
@@ -530,8 +529,8 @@ class Plugin extends BasePlugin
                         ],
                         'commerce-managePromotions' => $this->_registerPromotionPermission(),
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition only)')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition only)')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
                         'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],
