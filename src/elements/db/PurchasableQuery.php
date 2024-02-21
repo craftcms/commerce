@@ -32,6 +32,11 @@ class PurchasableQuery extends ElementQuery
     protected array $defaultOrderBy = ['commerce_purchasables.sku' => SORT_ASC];
 
     /**
+     * @var bool|null Whether the product is available for purchase
+     */
+    public ?bool $availableForPurchase = null;
+
+    /**
      * @var mixed the SKU of the variant
      */
     public mixed $sku = null;
@@ -113,6 +118,34 @@ class PurchasableQuery extends ElementQuery
             default:
                 parent::__set($name, $value);
         }
+    }
+
+    /**
+     * Narrows the query results to only products that are available for purchase.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch products that are available for purchase #}
+     * {% set {elements-var} = {twig-method}
+     *   .availableForPurchase()
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch products that are available for purchase
+     * ${elements-var} = {element-class}::find()
+     *     ->availableForPurchase()
+     *     ->all();
+     * ```
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     */
+    public function availableForPurchase(?bool $value = true): static
+    {
+        $this->availableForPurchase = $value;
+        return $this;
     }
 
     /**
@@ -616,6 +649,10 @@ class PurchasableQuery extends ElementQuery
         $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
         ;
         $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+
+        if (isset($this->availableForPurchase)) {
+            $this->subQuery->andWhere(['purchasables_stores.availableForPurchase' => $this->availableForPurchase]);
+        }
 
         if (isset($this->sku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
