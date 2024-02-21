@@ -838,24 +838,32 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $record->save(false);
 
-            if (isset($this->ownerId) && $this->saveOwnership) {
-                // Update `sortOrder` if required
-                if (($isNew && $this->getIsCanonical()) || !$this->sortOrder) {
+            $ownerId = $this->getOwnerId();
+            if ($ownerId && $this->saveOwnership) {
+                if (!isset($this->sortOrder) && !$isNew) {
+                    $this->sortOrder = (new Query())
+                        ->select('sortOrder')
+                        ->from(CraftTable::ELEMENTS_OWNERS)
+                        ->where([
+                            'elementId' => $this->id,
+                            'ownerId' => $ownerId,
+                        ])
+                        ->scalar() ?: null;
+                }
+                if (!isset($this->sortOrder)) {
                     $max = (new Query())
                         ->from(['eo' => CraftTable::ELEMENTS_OWNERS])
-                        ->innerJoin(['e' => Table::VARIANTS], '[[e.id]] = [[eo.elementId]]')
+                        ->innerJoin(['v' => Table::VARIANTS], '[[v.id]] = [[eo.elementId]]')
                         ->where([
-                            'eo.ownerId' => $this->ownerId,
+                            'eo.ownerId' => $ownerId,
                         ])
                         ->max('[[eo.sortOrder]]');
                     $this->sortOrder = $max ? $max + 1 : 1;
                 }
-
-                // Update element owners
                 if ($isNew) {
                     Db::insert(CraftTable::ELEMENTS_OWNERS, [
                         'elementId' => $this->id,
-                        'ownerId' => $this->ownerId,
+                        'ownerId' => $ownerId,
                         'sortOrder' => $this->sortOrder,
                     ]);
                 } else {
@@ -863,7 +871,7 @@ class Variant extends Purchasable implements NestedElementInterface
                         'sortOrder' => $this->sortOrder,
                     ], [
                         'elementId' => $this->id,
-                        'ownerId' => $this->ownerId,
+                        'ownerId' => $ownerId,
                     ]);
                 }
             }
