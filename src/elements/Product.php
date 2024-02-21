@@ -978,6 +978,7 @@ class Product extends Element
         if (!isset($this->_variantManager)) {
             $this->_variantManager = new NestedElementManager(
                 Variant::class,
+                /** @phpstan-ignore-next-line */
                 fn(Product $product) => self::createVariantQuery($product),
                 [
                     'attribute' => 'variants',
