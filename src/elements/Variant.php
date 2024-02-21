@@ -8,6 +8,7 @@
 namespace craft\commerce\elements;
 
 use Craft;
+use craft\base\Element;
 use craft\base\ElementInterface;
 use craft\base\NestedElementInterface;
 use craft\base\NestedElementTrait;
@@ -22,7 +23,6 @@ use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
-use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\records\Variant as VariantRecord;
@@ -41,7 +41,6 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
-use yii\db\Expression;
 
 /**
  * Variant model.
@@ -316,6 +315,23 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
+     */
+    public function getIsAvailable(): bool
+    {
+        if ($this->getPrimaryOwner()->getIsDraft()) {
+            return false;
+        }
+
+        if ($this->getPrimaryOwner()->status != Product::STATUS_LIVE) {
+            return false;
+        }
+
+        return parent::getIsAvailable();
+    }
+
+    /**
+     * @inheritdoc
      * @return VariantCondition
      * @throws InvalidConfigException
      */
@@ -585,7 +601,7 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function getCpEditUrl(): ?string
     {
-        return null;
+        return $this->getProduct()->getCpEditUrl();
     }
 
     public function canView(User $user): bool
@@ -881,32 +897,6 @@ class Variant extends Purchasable implements NestedElementInterface
     }
 
     /**
-     * Updates Stock count from completed order.
-     *
-     * @inheritdoc
-     * @throws \yii\db\Exception
-     */
-    public function afterOrderComplete(Order $order, LineItem $lineItem): void
-    {
-        // Don't reduce stock of unlimited items.
-        if (!$this->hasUnlimitedStock) {
-            // Update the qty in the db directly
-            Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
-                ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
-                ['id' => $this->id])->execute();
-
-            // Update the stock
-            $this->stock = (new Query())
-                ->select(['stock'])
-                ->from(Table::VARIANTS)
-                ->where('id = :variantId', [':variantId' => $this->id])
-                ->scalar();
-
-            Craft::$app->getElements()->invalidateCachesForElement($this);
-        }
-    }
-
-    /**
      * @inheritdoc
      * @throws InvalidConfigException
      */
@@ -920,14 +910,6 @@ class Variant extends Purchasable implements NestedElementInterface
         } else {
             parent::setEagerLoadedElements($handle, $elements, $plan);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
     }
 
     /**
@@ -1089,19 +1071,11 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
             [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'weight', 'width', 'height', 'length', ], 'number'],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
-            [
-                ['stock'],
-                'required',
-                'when' => static function($model) {
-                    /** @var Variant $model */
-                    return !$model->hasUnlimitedStock;
-                },
-                'on' => self::SCENARIO_LIVE,
-            ],
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
         ]);

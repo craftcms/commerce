@@ -27,7 +27,7 @@ use yii\db\Expression;
  * @method Purchasable|array|null nth(int $n, Connection $db = null)
  * @since 5.0.0
  */
-class PurchasableQuery extends ElementQuery
+abstract class PurchasableQuery extends ElementQuery
 {
     protected array $defaultOrderBy = ['commerce_purchasables.sku' => SORT_ASC];
 
@@ -107,6 +107,7 @@ class PurchasableQuery extends ElementQuery
     public int|false|null $forCustomer = null;
 
     /**
+     * @var mixed
      * @inheritdoc
      */
     public function __set($name, $value)
@@ -208,11 +209,7 @@ class PurchasableQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasUnlimitedStock(?bool $value = true): static
-    {
-        $this->hasUnlimitedStock = $value;
-        return $this;
-    }
+    public mixed $inventoryTracked = null;
 
     /**
      * Narrows the query results based on the variants’ stock.
@@ -233,7 +230,7 @@ class PurchasableQuery extends ElementQuery
         $this->stock = $value;
         return $this;
     }
-
+    
     /**
      * Narrows the query results to only variants that have stock.
      *
@@ -371,6 +368,49 @@ class PurchasableQuery extends ElementQuery
     public function price(mixed $value): static
     {
         $this->price = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have been set to not track stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with inventory tracked not checked.
+     * | `false` | with inventory tracked checked.
+     *
+     * @param bool|null $value
+     * @return static self reference
+     * @since 3.3.4
+     * @noinspection PhpUnused
+     * @deprecated in 5.0.0. Use `inventoryTracked` instead.
+     */
+    public function hasUnlimitedStock(?bool $value = true): static
+    {
+        $this->inventoryTracked = !$value; // reverse for backward compatibility
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have been set to track stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with inventory tracked checked.
+     * | `false` | with inventory tracked  not checked.
+     *
+     * @param bool|null $value
+     * @return static self reference
+     * @since 3.3.4
+     * @noinspection PhpUnused
+     */
+    public function inventoryTracked(?bool $value = true): static
+    {
+        $this->inventoryTracked = $value;
         return $this;
     }
 
@@ -601,15 +641,15 @@ class PurchasableQuery extends ElementQuery
             'purchasables_stores.basePrice',
             'purchasables_stores.basePromotionalPrice',
             'purchasables_stores.freeShipping',
-            'purchasables_stores.hasUnlimitedStock',
             'purchasables_stores.maxQty',
             'purchasables_stores.minQty',
+            'purchasables_stores.inventoryTracked',
             'purchasables_stores.promotable',
             'purchasables_stores.shippingCategoryId',
-            'purchasables_stores.stock',
             'catalogprices.price',
             'catalogpromotionalprices.price as promotionalPrice',
             'catalogsaleprices.price as salePrice',
+            'inventoryitems.id as inventoryItemId',
         ]);
 
         $customerId = $this->forCustomer;
@@ -632,6 +672,7 @@ class PurchasableQuery extends ElementQuery
         $this->query->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         $this->query->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
         $this->query->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+        $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
         $this->subQuery->addSelect([
             'catalogprices.price',
@@ -642,13 +683,26 @@ class PurchasableQuery extends ElementQuery
         $this->subQuery->leftJoin(['comelsites' => \craft\db\Table::ELEMENTS_SITES], '[[comelsites.elementId]] = [[elements.id]]');
         $this->subQuery->andWhere(Db::parseParam('comelsites.siteId', $this->siteId));
 
-        $this->subQuery->leftJoin(Table::SITESTORES . ' sitestores', '[[comelsites.siteId]] = [[sitestores.siteId]]');
-        $this->subQuery->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+        $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[comelsites.siteId]] = [[sitestores.siteId]]');
+        $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
 
         $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
         $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
-        ;
         $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+
+        if (isset($this->sku)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
+        }
+
+        // We don't join the inventory levels table, and rely on the caches store available total.
+        if (isset($this->stock)) {
+            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.stock', $this->stock));
+        }
+
+        if (isset($this->inventoryTracked)) {
+            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.inventoryTracked', $this->stock));
+        }
 
         if (isset($this->availableForPurchase)) {
             $this->subQuery->andWhere(['purchasables_stores.availableForPurchase' => $this->availableForPurchase]);
@@ -722,14 +776,24 @@ class PurchasableQuery extends ElementQuery
             }
         }
 
-        if (isset($this->stock)) {
-            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.stock', $this->stock));
-        }
-
-        if (isset($this->hasUnlimitedStock)) {
-            $this->subQuery->andWhere([
-                'purchasables_stores.hasUnlimitedStock' => $this->hasUnlimitedStock,
-            ]);
+        if (isset($this->hasStock)) {
+            if ($this->hasStock) {
+                $this->subQuery->andWhere([
+                    'or',
+                    ['purchasables_stores.inventoryTracked' => false],
+                    [
+                        'and',
+                        ['not', ['purchasables_stores.inventoryTracked' => false]],
+                        ['>', 'purchasables_stores.stock', 0],
+                    ],
+                ]);
+            } else {
+                $this->subQuery->andWhere([
+                    'and',
+                    ['not', ['purchasables_stores.inventoryTracked' => false]],
+                    ['<', 'purchasables_stores.stock', 1],
+                ]);
+            }
         }
 
         if (isset($this->hasStock)) {

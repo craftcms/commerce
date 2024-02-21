@@ -39,10 +39,21 @@ class BaseStoreManagementController extends BaseCpController
             'label' => Craft::t('commerce', "General"),
             'path' => '',
         ];
+
         $this->storeSettingsNav['payment-currencies'] = [
             'label' => Craft::t('commerce', 'Payment Currencies'),
             'path' => 'payment-currencies',
         ];
+
+        $this->storeSettingsNav['inventory-heading'] = [
+            'heading' => Craft::t('commerce', 'Inventory'),
+        ];
+
+        $this->storeSettingsNav['inventory-locations'] = [
+            'label' => Craft::t('commerce', "Locations"),
+            'path' => 'inventory-locations',
+        ];
+
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {

@@ -8,12 +8,15 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
+use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\SiteNotFoundException;
 use craft\events\RegisterComponentTypesEvent;
@@ -146,6 +149,26 @@ class Purchasables extends Component
         }
 
         return $event->isShippable;
+    }
+
+    /**
+     * Updated the cached stock value for the purchasable in a store.
+     *
+     * @param Purchasable $purchasable
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function updateStoreStockCache(Purchasable $purchasable): void
+    {
+        $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
+
+        Craft::$app->getDb()->createCommand()
+            ->update(
+                table:Table::PURCHASABLES_STORES,
+                columns: ['stock' => $stock],
+                condition: ['id' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
+            ->execute();
     }
 
     /**

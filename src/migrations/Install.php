@@ -18,11 +18,13 @@ use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\CatalogPricingRule;
+use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
 use ReflectionClass;
 use yii\base\NotSupportedException;
@@ -297,6 +299,67 @@ class Install extends Migration
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::INVENTORYITEMS);
+        $this->createTable(Table::INVENTORYITEMS, [
+            'id' => $this->primaryKey(),
+            'purchasableId' => $this->integer()->notNull(),
+            'countryCodeOfOrigin' => $this->string(),
+            'administrativeAreaCodeOfOrigin' => $this->string(),
+            'harmonizedSystemCode' => $this->string(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::INVENTORYLOCATIONS);
+        $this->createTable(Table::INVENTORYLOCATIONS, [
+            'id' => $this->primaryKey(),
+            'handle' => $this->string()->notNull(),
+            'name' => $this->string()->notNull(),
+            'addressId' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'dateDeleted' => $this->dateTime(),
+            'uid' => $this->uid(),
+        ]);
+
+        //INVENTORYLOCATIONS_STORES
+        $this->archiveTableIfExists(Table::INVENTORYLOCATIONS_STORES);
+        $this->createTable(Table::INVENTORYLOCATIONS_STORES, [
+            'id' => $this->primaryKey(),
+            'inventoryLocationId' => $this->integer()->notNull(),
+            'storeId' => $this->integer()->notNull(),
+            'sortOrder' => $this->integer(), // per store
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::INVENTORYMOVEMENTS);
+        $this->createTable(Table::INVENTORYMOVEMENTS, [
+            'id' => $this->primaryKey(),
+            'inventoryLocationId' => $this->integer()->notNull(),
+            'inventoryItemId' => $this->integer()->notNull(),
+            'movementHash' => $this->string()->notNull(),
+            'quantity' => $this->integer()->notNull(),
+            'type' => $this->enum('type', [
+                'incoming',
+                'available',
+                'committed',
+                'reserved',
+                'damaged',
+                'safety',
+                'qualityControl',
+            ])->notNull(),
+            'note' => $this->string(),
+            'transferId' => $this->integer(), // Can be null
+            'orderId' => $this->integer(), // Can be null
+            'lineItemId' => $this->integer(), // Can be null
+            'userId' => $this->integer(), // Can be null
+            'dateCreated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
@@ -618,8 +681,9 @@ class Install extends Migration
             'promotable' => $this->boolean()->notNull()->defaultValue(false),
             'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
             'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
-            'stock' => $this->integer(),
-            'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
+            'inventoryTracked' => $this->boolean()->notNull()->defaultValue(true),
+            'stock' => $this->integer(), // This is a summary value used for searching and sorting
+            'tracked' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
             'shippingCategoryId' => $this->integer()->notNull(),
@@ -900,6 +964,31 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->archiveTableIfExists(Table::TRANSFERS);
+        $this->createTable(Table::TRANSFERS, [
+            'id' => $this->primaryKey(),
+            'transferStatus' => $this->enum('status', [
+                'draft',
+                'pending',
+                'partial',
+                'received',
+            ])->notNull(),
+            'originLocationId' => $this->integer(),
+            'destinationLocationId' => $this->integer(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->archiveTableIfExists(Table::TRANSFERS_INVENTORYITEMS);
+        $this->createTable(Table::TRANSFERS_INVENTORYITEMS, [
+            'id' => $this->primaryKey(),
+            'transferId' => $this->integer()->notNull(),
+            'inventoryItemId' => $this->integer()->notNull(),
+            'quantity' => $this->integer()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->archiveTableIfExists(Table::VARIANTS);
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
@@ -938,58 +1027,64 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'purchasableId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'purchasableId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'storeId', false);
-        $this->createIndex(null, Table::CATALOG_PRICING, 'catalogPricingRuleId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'userId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'purchasableId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES, 'storeId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'catalogPricingRuleId', false);
+        $this->createIndex(null, Table::CATALOG_PRICING_RULES_USERS, 'userId', false);
+        $this->createIndex(null, Table::COUPONS, 'code', false);
+        $this->createIndex(null, Table::COUPONS, 'discountId', false);
         $this->createIndex(null, Table::CATALOG_PRICING, 'isPromotionalPrice', false);
         $this->createIndex(null, Table::CATALOG_PRICING, ['purchasableId', 'storeId'], false);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
-        $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryPaymentSourceId', false);
-        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
-        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
-        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
-        $this->createIndex(null, Table::COUPONS, 'discountId', false);
-        $this->createIndex(null, Table::COUPONS, 'code', false);
-        $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
-        $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
-        $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
-        $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::DISCOUNTS, 'dateFrom', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
+        $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
+        $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
+        $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
+        $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
         $this->createIndex(null, Table::EMAILS, 'storeId', false);
+        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
+        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
         $this->createIndex(null, Table::GATEWAYS, 'isArchived', false);
-        $this->createIndex(null, Table::LINEITEMS, ['orderId', 'purchasableId', 'optionsSignature'], true);
+        $this->createIndex(null, Table::INVENTORYITEMS, 'purchasableId', true);
+        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'inventoryItemId', false);
+        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'orderId', false);
+        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'lineItemId', false);
+        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'transferId', false);
+        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'userId', false);
         $this->createIndex(null, Table::LINEITEMS, 'purchasableId', false);
-        $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
         $this->createIndex(null, Table::LINEITEMS, 'shippingCategoryId', false);
+        $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
+        $this->createIndex(null, Table::LINEITEMS, ['orderId', 'purchasableId', 'optionsSignature'], true);
         $this->createIndex(null, Table::LINEITEMSTATUSES, 'storeId', false);
         $this->createIndex(null, Table::ORDERADJUSTMENTS, 'orderId', false);
-        $this->createIndex(null, Table::ORDERNOTICES, 'orderId', false);
+        $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'prevStatusId', false);
-        $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'userId', false);
-        $this->createIndex(null, Table::ORDERS, 'number', true);
-        $this->createIndex(null, Table::ORDERS, 'reference', false);
+        $this->createIndex(null, Table::ORDERNOTICES, 'orderId', false);
         $this->createIndex(null, Table::ORDERS, 'billingAddressId', false);
-        $this->createIndex(null, Table::ORDERS, 'shippingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'customerId', false);
+        $this->createIndex(null, Table::ORDERS, 'email', false);
         $this->createIndex(null, Table::ORDERS, 'estimatedBillingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'estimatedShippingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
+        $this->createIndex(null, Table::ORDERS, 'number', true);
+        $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
+        $this->createIndex(null, Table::ORDERS, 'reference', false);
+        $this->createIndex(null, Table::ORDERS, 'shippingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'sourceBillingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'sourceShippingAddressId', false);
-        $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
-        $this->createIndex(null, Table::ORDERS, 'customerId', false);
-        $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
-        $this->createIndex(null, Table::ORDERS, 'email', false);
         $this->createIndex(null, Table::ORDERS, 'storeId', false);
         $this->createIndex(null, Table::ORDERSTATUSES, 'storeId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
@@ -1000,52 +1095,56 @@ class Install extends Migration
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
         $this->createIndex(null, Table::PLANS, 'handle', true);
         $this->createIndex(null, Table::PLANS, 'reference', false);
-        $this->createIndex(null, Table::PRODUCTS, 'typeId', false);
-        $this->createIndex(null, Table::PRODUCTS, 'postDate', false);
         $this->createIndex(null, Table::PRODUCTS, 'expiryDate', false);
-        $this->createIndex(null, Table::PRODUCTTYPES, 'handle', true);
+        $this->createIndex(null, Table::PRODUCTS, 'postDate', false);
+        $this->createIndex(null, Table::PRODUCTS, 'typeId', false);
         $this->createIndex(null, Table::PRODUCTTYPES, 'fieldLayoutId', false);
+        $this->createIndex(null, Table::PRODUCTTYPES, 'handle', true);
         $this->createIndex(null, Table::PRODUCTTYPES, 'variantFieldLayoutId', false);
-        $this->createIndex(null, Table::PRODUCTTYPES_SITES, ['productTypeId', 'siteId'], true);
-        $this->createIndex(null, Table::PRODUCTTYPES_SITES, 'siteId', false);
-        $this->createIndex(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['productTypeId', 'shippingCategoryId'], true);
         $this->createIndex(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, 'shippingCategoryId', false);
-        $this->createIndex(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId', 'taxCategoryId'], true);
+        $this->createIndex(null, Table::PRODUCTTYPES_SHIPPINGCATEGORIES, ['productTypeId', 'shippingCategoryId'], true);
+        $this->createIndex(null, Table::PRODUCTTYPES_SITES, 'siteId', false);
+        $this->createIndex(null, Table::PRODUCTTYPES_SITES, ['productTypeId', 'siteId'], true);
         $this->createIndex(null, Table::PRODUCTTYPES_TAXCATEGORIES, 'taxCategoryId', false);
+        $this->createIndex(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId', 'taxCategoryId'], true);
         $this->createIndex(null, Table::PURCHASABLES, 'sku', false); // Application layer enforces unique
         $this->createIndex(null, Table::PURCHASABLES_STORES, 'purchasableId', false); // Application layer enforces unique
         $this->createIndex(null, Table::PURCHASABLES_STORES, 'storeId', false); // Application layer enforces unique
-        $this->createIndex(null, Table::SALE_PURCHASABLES, ['saleId', 'purchasableId'], true);
-        $this->createIndex(null, Table::SALE_PURCHASABLES, 'purchasableId', false);
-        $this->createIndex(null, Table::SALE_CATEGORIES, ['saleId', 'categoryId'], true);
         $this->createIndex(null, Table::SALE_CATEGORIES, 'categoryId', false);
-        $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
+        $this->createIndex(null, Table::SALE_CATEGORIES, ['saleId', 'categoryId'], true);
+        $this->createIndex(null, Table::SALE_PURCHASABLES, 'purchasableId', false);
+        $this->createIndex(null, Table::SALE_PURCHASABLES, ['saleId', 'purchasableId'], true);
         $this->createIndex(null, Table::SALE_USERGROUPS, 'userGroupId', false);
+        $this->createIndex(null, Table::SALE_USERGROUPS, ['saleId', 'userGroupId'], true);
+        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', false);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'name', false);
         $this->createIndex(null, Table::SHIPPINGMETHODS, 'storeId', false);
-        $this->createIndex(null, Table::SHIPPINGCATEGORIES, 'storeId', false);
-        $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
-        $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
-        $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
+        $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
+        $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingCategoryId', false);
+        $this->createIndex(null, Table::SHIPPINGRULE_CATEGORIES, 'shippingRuleId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'storeId', false);
-        $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
-        $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
-        $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);
-        $this->createIndex(null, Table::SUBSCRIPTIONS, 'reference', true);
-        $this->createIndex(null, Table::SUBSCRIPTIONS, 'nextPaymentDate', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateCreated', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'dateExpired', false);
-        $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
+        $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);
+        $this->createIndex(null, Table::SUBSCRIPTIONS, 'nextPaymentDate', false);
+        $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
+        $this->createIndex(null, Table::SUBSCRIPTIONS, 'reference', true);
+        $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::TAXRATES, 'storeId', false);
+        $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
+        $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', false);
         $this->createIndex(null, Table::TAXZONES, 'storeId', false);
-        $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
+        $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
+        $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
+        $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
+        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
+        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'transferId', false);
         $this->createIndex(null, Table::VARIANTS, 'primaryOwnerId', false);
     }
 
@@ -1054,19 +1153,19 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['storeId'], Table::STORES, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::CATALOG_PRICING, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::CATALOG_PRICING, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['catalogPricingRuleId'], Table::CATALOG_PRICING_RULES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CATALOG_PRICING_RULES_USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::COUPONS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryPaymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNTS, 'storeId', Table::STORES, ['id'], 'CASCADE', 'CASCADE');
@@ -1078,6 +1177,17 @@ class Install extends Migration
         $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', '{{%addresses}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'orderId', Table::ORDERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'lineItemId', Table::LINEITEMS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'userId', CraftTable::USERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
@@ -1122,6 +1232,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PURCHASABLES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
+        $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['purchasableId'], Table::PURCHASABLES, ['id'],'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES_STORES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
@@ -1140,14 +1251,16 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['planId'], Table::PLANS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'RESTRICT');
+        $this->addForeignKey(null, Table::TAXRATES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::TAXRATES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TAXRATES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::TAXZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE', null);
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['inventoryItemId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['transferId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }
@@ -1180,6 +1293,7 @@ class Install extends Migration
 
         // The following defaults are not stored in the project config.
         $this->_defaultTaxCategories();
+        $this->_defaultInventoryLocation();
         $this->_defaultDonationPurchasable();
     }
 
@@ -1194,6 +1308,34 @@ class Install extends Migration
             'default' => true,
         ];
         $this->insert(TaxCategory::tableName(), $data);
+    }
+
+    /**
+     * Add a default Inventory Location.
+     */
+    private function _defaultInventoryLocation(): void
+    {
+        $inventoryLocation = new InventoryLocation();
+        $inventoryLocation->name = 'Default';
+        $inventoryLocation->handle = 'default';
+        $inventoryLocation->save(false);
+
+        // get primary store from db query
+        $storeId = (new Query())
+            ->select(['id'])
+            ->from(Table::STORES)
+            ->where(['primary' => true])
+            ->scalar();
+
+        if ($storeId) {
+            $this->insert(Table::INVENTORYLOCATIONS_STORES, [
+                'inventoryLocationId' => $inventoryLocation->id,
+                'storeId' => $storeId,
+                'sortOrder' => 1,
+                'dateCreated' => Db::prepareDateForDb(new \DateTime()),
+                'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
+            ]);
+        }
     }
 
     /**

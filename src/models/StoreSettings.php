@@ -11,13 +11,12 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\elements\Address;
-use craft\elements\Address as AddressElement;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\InvalidConfigException;
 
 /**
- * Store record.
+ * Store Settings model.
  *
  * @property int $id
  * @property int $locationAddressId
@@ -50,11 +49,44 @@ class StoreSettings extends Model
      * @var array
      */
     private array $_countries = [];
-
     /**
      * @var ?ZoneAddressCondition
      */
     private ?ZoneAddressCondition $_marketAddressCondition;
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes(): array
+    {
+        $names = parent::attributes();
+        $names[] = 'locationAddressId';
+        $names[] = 'countries';
+        $names[] = 'marketAddressCondition';
+        return $names;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeAttributes(): array
+    {
+        return [
+            'id',
+            'locationAddressId',
+            'countries',
+            'marketAddressCondition',
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        return $rules;
+    }
 
     /**
      * Sets the store location address ID.
@@ -93,7 +125,7 @@ class StoreSettings extends Model
             if ($this->_locationAddressId && $location = Address::findOne($this->_locationAddressId)) {
                 $this->_locationAddress = $location;
             } else {
-                $storeLocationAddress = new AddressElement();
+                $storeLocationAddress = new Address();
                 $storeLocationAddress->title = 'Store';
                 $storeLocationAddress->countryCode = 'US';
                 if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
@@ -119,41 +151,6 @@ class StoreSettings extends Model
     {
         $this->_locationAddress = $locationAddress;
         $this->setLocationAddressId($locationAddress?->id);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function attributes(): array
-    {
-        $names = parent::attributes();
-        $names[] = 'locationAddressId';
-        $names[] = 'countries';
-        $names[] = 'marketAddressCondition';
-        return $names;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function safeAttributes(): array
-    {
-        return [
-            'id',
-            'locationAddressId',
-            'countries',
-            'marketAddressCondition',
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function defineRules(): array
-    {
-        $rules = parent::defineRules();
-        $rules[] = [['countries'], 'required'];
-        return $rules;
     }
 
     /**
@@ -214,7 +211,7 @@ class StoreSettings extends Model
      */
     public function getMarketAddressCondition(): ZoneAddressCondition
     {
-        return $this->_marketAddressCondition ?? new ZoneAddressCondition();
+        return $this->_marketAddressCondition ?? Craft::$app->getConditions()->createCondition(ZoneAddressCondition::class);
     }
 
     /**
@@ -223,20 +220,17 @@ class StoreSettings extends Model
      */
     public function setMarketAddressCondition(ZoneAddressCondition|string|array|null $condition): void
     {
-        if ($condition === null) {
-            $condition = new ZoneAddressCondition();
-        }
-
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
             $condition = Craft::$app->getConditions()->createCondition($condition);
         }
 
-        if (!$condition instanceof ZoneAddressCondition) {
-            $condition['class'] = ZoneAddressCondition::class;
-            $condition['conditionRules'] = [];
-            /** @var ZoneAddressCondition|mixed $condition */
+        if (is_array($condition)) {
             $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+
+        if ($condition === null) {
+            $condition = Craft::$app->getConditions()->createCondition(ZoneAddressCondition::class);
         }
 
         $condition->forProjectConfig = false;

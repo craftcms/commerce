@@ -1316,7 +1316,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function canDuplicate(User $user): bool
     {
-        return parent::canDuplicate($user) || $user->can('commerce-editOrders');
+        return false;
     }
 
     /**
@@ -2238,9 +2238,16 @@ class Order extends Element implements HasStoreInterface
     /**
      * @inheritdoc
      */
-    public function getLink(): ?Markup
+    public function getLink(?string $title = null, array $options = []): ?Markup
     {
-        return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . ($this->reference ?: $this->getShortNumber()) . '</a>');
+        if ($title) {
+            $options['title'] = $title;
+        }
+
+        $title = $title ?: ($this->reference ?: $this->getShortNumber());
+        $link = Html::a($title, $this->getCpEditUrl(), $options);
+
+        return Template::raw($link);
     }
 
     /**

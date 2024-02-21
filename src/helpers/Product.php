@@ -33,7 +33,7 @@ class Product
      * @param               $key
      * @return Variant
      * @throws InvalidConfigException
-     * @TODO remove
+     * @TODO remove after confirming that the variant numbers are localised on save correctly.
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {

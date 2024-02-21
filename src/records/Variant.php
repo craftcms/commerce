@@ -22,8 +22,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $minQty
  * @property Product $product
  * @property int $primaryOwnerId
- * @property int $stock
- * @property bool $hasUnlimitedStock
+ * @property int $sku
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

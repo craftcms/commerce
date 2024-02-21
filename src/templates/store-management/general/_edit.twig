@@ -17,11 +17,17 @@
     </div>
 
     <hr>
+
     <h2>{{ "Store Markets"|t('commerce') }}</h2>
 
     {{ countriesField|raw }}
 
     {{ marketAddressConditionField|raw }}
+
+    {{ actionInput('commerce/store-management/save') }}
+    {{ redirectInput(store.getStoreSettingsUrl()) }}
+    {{ hiddenInput('id', store.id) }}
+
 {% endblock %}
 
 {% js at endBody %}

@@ -22,6 +22,7 @@ use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
@@ -36,6 +37,7 @@ use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
 use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
+use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -61,6 +63,8 @@ use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\Inventory;
+use craft\commerce\services\InventoryLocations;
 use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
@@ -91,6 +95,8 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Transfers;
+use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\services\Variants as VariantsService;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
@@ -174,46 +180,49 @@ class Plugin extends BasePlugin
         return [
             'components' => [
                 'carts' => ['class' => Carts::class],
+                'catalogPricing' => ['class' => CatalogPricing::class],
+                'catalogPricingRules' => ['class' => CatalogPricingRules::class],
                 'coupons' => ['class' => Coupons::class],
                 'currencies' => ['class' => Currencies::class],
+                'customers' => ['class' => Customers::class],
                 'discounts' => ['class' => Discounts::class],
                 'emails' => ['class' => Emails::class],
                 'formulas' => ['class' => Formulas::class],
                 'gateways' => ['class' => Gateways::class],
-                'lineItems' => ['class' => LineItems::class],
+                'inventory' => ['class' => Inventory::class],
+                'inventoryLocations' => ['class' => InventoryLocations::class],
                 'lineItemStatuses' => ['class' => LineItemStatuses::class],
+                'lineItems' => ['class' => LineItems::class],
                 'orderAdjustments' => ['class' => OrderAdjustments::class],
                 'orderHistories' => ['class' => OrderHistories::class],
-                'orders' => ['class' => OrdersService::class],
                 'orderNotices' => ['class' => OrderNotices::class],
                 'orderStatuses' => ['class' => OrderStatuses::class],
-                'paymentMethods' => ['class' => Gateways::class],
+                'orders' => ['class' => OrdersService::class],
                 'paymentCurrencies' => ['class' => PaymentCurrencies::class],
-                'payments' => ['class' => Payments::class],
+                'paymentMethods' => ['class' => Gateways::class],
                 'paymentSources' => ['class' => PaymentSources::class],
+                'payments' => ['class' => Payments::class],
                 'pdfs' => ['class' => Pdfs::class],
                 'plans' => ['class' => Plans::class],
-                'catalogPricing' => ['class' => CatalogPricing::class],
-                'catalogPricingRules' => ['class' => CatalogPricingRules::class],
-                'products' => ['class' => Products::class],
                 'productTypes' => ['class' => ProductTypes::class],
+                'products' => ['class' => Products::class],
                 'purchasables' => ['class' => Purchasables::class],
                 'sales' => ['class' => Sales::class],
-                'shippingMethods' => ['class' => ShippingMethods::class],
-                'shippingRules' => ['class' => ShippingRules::class],
-                'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
                 'shippingCategories' => ['class' => ShippingCategories::class],
+                'shippingMethods' => ['class' => ShippingMethods::class],
+                'shippingRuleCategories' => ['class' => ShippingRuleCategories::class],
+                'shippingRules' => ['class' => ShippingRules::class],
                 'shippingZones' => ['class' => ShippingZones::class],
                 'store' => ['class' => Store::class],
                 'storeSettings' => ['class' => StoreSettings::class],
                 'stores' => ['class' => Stores::class],
                 'subscriptions' => ['class' => Subscriptions::class],
                 'taxCategories' => ['class' => TaxCategories::class],
-                'taxes' => ['class' => Taxes::class],
                 'taxRates' => ['class' => TaxRates::class],
                 'taxZones' => ['class' => TaxZones::class],
+                'taxes' => ['class' => Taxes::class],
                 'transactions' => ['class' => Transactions::class],
-                'customers' => ['class' => Customers::class],
+                'transfers' => ['class' => Transfers::class],
                 'variants' => ['class' => VariantsService::class],
                 'vat' => ['class' => Vat::class],
                 'webhooks' => ['class' => Webhooks::class],
@@ -238,7 +247,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.59';
+    public string $schemaVersion = '5.0.64';
 
     /**
      * @inheritdoc
@@ -299,6 +308,9 @@ class Plugin extends BasePlugin
         }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Transfer::class;
+        });
     }
 
     /**
@@ -348,6 +360,12 @@ class Plugin extends BasePlugin
             ];
         }
 
+
+        $ret['subnav']['inventory'] = [
+            'label' => Craft::t('commerce', 'Inventory'),
+            'url' => 'commerce/inventory',
+        ];
+
         // @TODO add permissions check for pricing
         // $ret['subnav']['prices'] = [
         //     'label' => Craft::t('commerce', 'Prices'),
@@ -356,9 +374,9 @@ class Plugin extends BasePlugin
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
-                 'label' => Craft::t('commerce', 'Subscriptions'),
-                 'url' => 'commerce/subscriptions',
-             ];
+                'label' => Craft::t('commerce', 'Subscriptions'),
+                'url' => 'commerce/subscriptions',
+            ];
         }
 
         $ret['subnav']['store-management'] = [
@@ -511,8 +529,9 @@ class Plugin extends BasePlugin
                         ],
                         'commerce-managePromotions' => $this->_registerPromotionPermission(),
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition only)')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition only)')],
+                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],
             ];
@@ -594,6 +613,11 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
+
+        $transfersService = $this->getTransfers();
+        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
 
         $subscriptionsService = $this->getSubscriptions();
         $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
@@ -912,6 +936,7 @@ class Plugin extends BasePlugin
             $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
             $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
             $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
+            $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
         });
     }
 
@@ -975,6 +1000,9 @@ class Plugin extends BasePlugin
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsLayoutElement::class;
+                    break;
+                case Transfer::class:
+                    $e->fields[] = TransferManagementField::class;
                     break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;

@@ -100,7 +100,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       url: Craft.getActionUrl('commerce/orders/get-index-sources-badge-counts'),
       type: 'GET',
       dataType: 'json',
-      success: $.proxy(function (data) {
+      success: function (data) {
         if (data.counts) {
           var $sidebar = this.$sidebar;
           $.each(data.counts, function (key, row) {
@@ -119,7 +119,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
             $total.find('.badge').text(data.total);
           }
         }
-      }, this),
+      }.bind(this), // Use .bind(this) to maintain the context of `this` within the success function
     });
   },
 

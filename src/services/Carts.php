@@ -426,6 +426,7 @@ class Carts extends Component
 
     /**
      * Gets the current payment currency ISO code
+     * @TODO: Fix this for 5.0
      */
     private function _getCartPaymentCurrencyIso(): string
     {

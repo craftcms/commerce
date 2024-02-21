@@ -21,12 +21,13 @@ use yii\db\ActiveQueryInterface;
  * @property float|null $basePrice
  * @property float|null $basePromotionalPrice
  * @property int|null $stock
- * @property bool $hasUnlimitedStock
  * @property int|null $minQty
  * @property int|null $maxQty
  * @property bool $promotable
  * @property bool $availableForPurchase
  * @property bool $freeShipping
+ * @property bool $inventoryTracked
+ * @property int $shippingCategoryId
  * @property int|null $shippingCategoryId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0

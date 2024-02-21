@@ -979,9 +979,7 @@ class Product extends Element
     {
         $stock = 0;
         foreach ($this->getVariants($includeDisabled) as $variant) {
-            if (!$variant->hasUnlimitedStock) {
-                $stock += $variant->stock;
-            }
+            $stock += $variant->getAvailableTotalStock;
         }
 
         return $stock;
@@ -991,11 +989,12 @@ class Product extends Element
      * Returns whether at least one variant has unlimited stock.
      *
      * @throws InvalidConfigException
+     * @deprecated in 5.0.0 and will be removed in 6.0.0. Check each variant instead.
      */
     public function getHasUnlimitedStock(bool $includeDisabled = false): bool
     {
         foreach ($this->getVariants($includeDisabled) as $variant) {
-            if ($variant->hasUnlimitedStock) {
+            if (!$variant->inventoryTracked) {
                 return true;
             }
         }
@@ -1413,7 +1412,7 @@ class Product extends Element
 
                 foreach ($this->getVariants(true) as $variant) {
                     $stock += $variant->stock;
-                    if ($variant->hasUnlimitedStock) {
+                    if (!$variant->inventoryTracked) {
                         $hasUnlimited = true;
                     }
                 }

@@ -19,6 +19,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read StoreModel $store
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @deprecated in 5.0.0. Use [[Stores]] service instead.
  * @since 4.0
  */
 class Store extends Component
