@@ -1180,7 +1180,7 @@ class Install extends Migration
 
         // The following defaults are not stored in the project config.
         $this->_defaultTaxCategories();
-//        $this->_defaultDonationPurchasable();
+        $this->_defaultDonationPurchasable();
     }
 
     /**
@@ -1202,8 +1202,11 @@ class Install extends Migration
     public function _defaultDonationPurchasable(): void
     {
         $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $donation = new Donation();
-        $donation->sku = 'DONATION-CC4';
+        $donation->siteId = $primarySite->id;
+        $donation->storeId = $primaryStore->id;
+        $donation->sku = 'DONATION-CC5';
         $donation->availableForPurchase = false;
         $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
         $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
