@@ -24,7 +24,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingMethodsController extends BaseShippingSettingsController
+class ShippingMethodsController extends BaseShippingManagementController
 {
     /**
      * @throws InvalidConfigException
@@ -36,7 +36,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         }
 
         $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods($store->id);
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/index', compact('shippingMethods', 'store'));
+        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/index', compact('shippingMethods', 'store'));
     }
 
     /**
@@ -84,7 +84,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
             : [];
 
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingmethods/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/shipping/shippingmethods/_edit', $variables);
     }
 
     /**

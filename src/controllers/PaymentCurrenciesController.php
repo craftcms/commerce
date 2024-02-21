@@ -26,7 +26,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PaymentCurrenciesController extends BaseStoreSettingsController
+class PaymentCurrenciesController extends BaseStoreManagementController
 {
     /**
      * @throws CurrencyException
@@ -38,7 +38,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         }
 
         $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($store->id);
-        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/index', compact('currencies', 'store'));
+        return $this->renderTemplate('commerce/store-management/paymentcurrencies/index', compact('currencies', 'store'));
     }
 
     /**
@@ -88,7 +88,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $variables['store'] = $store;
         $variables['hasCompletedOrders'] = Order::find()->isCompleted(true)->exists();
 
-        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/paymentcurrencies/_edit', $variables);
     }
 
     /**

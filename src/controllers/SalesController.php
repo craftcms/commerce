@@ -39,7 +39,7 @@ use function get_class;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class SalesController extends BaseStoreSettingsController
+class SalesController extends BaseStoreManagementController
 {
     public function beforeAction($action): bool
     {
@@ -63,7 +63,7 @@ class SalesController extends BaseStoreSettingsController
     {
         $sales = Plugin::getInstance()->getSales()->getAllSales();
         if (empty($sales)) {
-            return $this->redirect('commerce/store-settings/' . $storeHandle . '/pricing-rules');
+            return $this->redirect('commerce/store-management/' . $storeHandle . '/pricing-rules');
         }
 
         return $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));

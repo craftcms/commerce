@@ -246,7 +246,7 @@ class Store extends Model
     public function getStoreSettingsUrl(?string $path = null): string
     {
         $path = $path ? '/' . $path : '';
-        return UrlHelper::cpUrl('commerce/store-settings/' . $this->handle . $path);
+        return UrlHelper::cpUrl('commerce/store-management/' . $this->handle . $path);
     }
 
     /**

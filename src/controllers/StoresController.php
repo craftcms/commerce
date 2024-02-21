@@ -31,7 +31,7 @@ use yii\web\ServerErrorHttpException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0
  */
-class StoresController extends BaseStoreSettingsController
+class StoresController extends BaseStoreManagementController
 {
     /**
      * Edit a store.
@@ -145,7 +145,7 @@ class StoresController extends BaseStoreSettingsController
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
-        
+
         if ($currency = $this->request->getBodyParam('currency')) {
             $store->setCurrency($currency);
         }

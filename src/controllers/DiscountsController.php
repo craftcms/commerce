@@ -47,7 +47,7 @@ use function get_class;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DiscountsController extends BaseStoreSettingsController
+class DiscountsController extends BaseStoreManagementController
 {
     public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
@@ -77,7 +77,7 @@ class DiscountsController extends BaseStoreSettingsController
             $store = Plugin::getInstance()->getStores()->getPrimaryStore();
         }
 
-        return $this->renderTemplate('commerce/store-settings/discounts/index', [
+        return $this->renderTemplate('commerce/store-management/discounts/index', [
             'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]),
         ]);
     }
@@ -159,7 +159,7 @@ class DiscountsController extends BaseStoreSettingsController
             $tableData[] = [
                 'id' => $item['id'],
                 'title' => Craft::t('site', $item['name']),
-                'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle . '/discounts/' . $item['id']),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/discounts/' . $item['id']),
                 'status' => (bool)$item['enabled'],
                 'duration' => $dateRange,
                 'timesUsed' => $item['totalDiscountUses'],
@@ -230,7 +230,7 @@ class DiscountsController extends BaseStoreSettingsController
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
 
-        return $this->renderTemplate('commerce/store-settings/discounts/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
     }
 
     /**

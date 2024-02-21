@@ -35,7 +35,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxRatesController extends BaseTaxSettingsController
+class TaxRatesController extends BaseTaxManagementController
 {
     /**
      * @param string|null $storeHandle
@@ -56,7 +56,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxZones()->getAllTaxZones($store->id);
         $plugin->getTaxCategories()->getAllTaxCategories();
 
-        return $this->renderTemplate('commerce/store-settings/tax/taxrates/index', [
+        return $this->renderTemplate('commerce/store-management/tax/taxrates/index', [
             'taxRates' => $taxRates,
         ]);
     }
@@ -157,7 +157,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
             $view->renderTemplate(
-                'commerce/store-settings/tax/taxzones/_fields',
+                'commerce/store-management/tax/taxzones/_fields',
                 [
                     'conditionField' => $conditionField,
                     'store' => $store,
@@ -176,14 +176,14 @@ class TaxRatesController extends BaseTaxSettingsController
             });
         }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/store-settings/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
+            $view->renderTemplate('commerce/store-management/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
 
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
         $view->setNamespace(null);
 
-        return $this->renderTemplate('commerce/store-settings/tax/taxrates/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/tax/taxrates/_edit', $variables);
     }
 
     /**

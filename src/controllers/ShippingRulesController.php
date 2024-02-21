@@ -36,7 +36,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingRulesController extends BaseShippingSettingsController
+class ShippingRulesController extends BaseShippingManagementController
 {
     /**
      * @param int|null $methodId
@@ -91,7 +91,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         ]);
 
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/store-settings/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
+            $this->getView()->renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
         $this->getView()->setNamespace(null);
@@ -120,7 +120,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['storeId'] = $store->id;
         $variables['storeHandle'] = $store->handle;
 
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingrules/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/shipping/shippingrules/_edit', $variables);
     }
 
     /**

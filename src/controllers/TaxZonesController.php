@@ -27,7 +27,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxZonesController extends BaseTaxSettingsController
+class TaxZonesController extends BaseTaxManagementController
 {
     /**
      * @param string|null $storeHandle
@@ -42,7 +42,7 @@ class TaxZonesController extends BaseTaxSettingsController
         }
 
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones($store->id);
-        return $this->renderTemplate('commerce/store-settings/tax/taxzones/index', compact('taxZones', 'store'));
+        return $this->renderTemplate('commerce/store-management/tax/taxzones/index', compact('taxZones', 'store'));
     }
 
     /**
@@ -90,7 +90,7 @@ class TaxZonesController extends BaseTaxSettingsController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['taxZone'], prepend: true);
 
-        return $this->renderTemplate('commerce/store-settings/tax/taxzones/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/tax/taxzones/_edit', $variables);
     }
 
     /**

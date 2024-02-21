@@ -24,7 +24,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategoriesController extends BaseShippingSettingsController
+class ShippingCategoriesController extends BaseShippingManagementController
 {
     /**
      * @param string|null $storeHandle
@@ -43,7 +43,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
             'storeHandle' => $store->handle,
             'store' => $store,
         ];
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/index', $variables);
+        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/index', $variables);
     }
 
     /**
@@ -102,7 +102,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $allShippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($store->id);
         $variables['isDefaultAndOnlyCategory'] = $variables['id'] && $allShippingCategories->count() === 1 && $allShippingCategories->firstWhere('id', $variables['id']);
 
-        return $this->renderTemplate('commerce/store-settings/shipping/shippingcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/shipping/shippingcategories/_edit', $variables);
     }
 
     /**

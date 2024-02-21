@@ -36,7 +36,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
-class CatalogPricingRulesController extends BaseStoreSettingsController
+class CatalogPricingRulesController extends BaseStoreManagementController
 {
     public function beforeAction($action): bool
     {
@@ -61,7 +61,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         }
 
         $catalogPricingRules = Plugin::getInstance()->getcatalogPricingRules()->getAllcatalogPricingRules($store->id);
-        return $this->renderTemplate('commerce/store-settings/pricing-rules/index', compact('catalogPricingRules'));
+        return $this->renderTemplate('commerce/store-management/pricing-rules/index', compact('catalogPricingRules'));
     }
 
     /**
@@ -126,12 +126,12 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
         return $this->asCpScreen()
             ->title(Craft::t('commerce', 'Catalog Pricing Rule'))
             ->crumbs([
-                ['label' => $store->getName(), 'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle)],
-                ['label' => Craft::t('commerce', 'Pricing Rules'), 'url' => UrlHelper::cpUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')],
+                ['label' => $store->getName(), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle)],
+                ['label' => Craft::t('commerce', 'Pricing Rules'), 'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/pricing-rules')],
             ])
             ->action('commerce/catalog-pricing-rules/save')
-            ->redirectUrl('commerce/store-settings/' . $store->handle . '/pricing-rules')
-            ->metaSidebarTemplate('commerce/store-settings/pricing-rules/_sidebar', $variables)
+            ->redirectUrl('commerce/store-management/' . $store->handle . '/pricing-rules')
+            ->metaSidebarTemplate('commerce/store-management/pricing-rules/_sidebar', $variables)
             ->tabs([
                 [
                     'label' => Craft::t('commerce', 'Rule'),
@@ -148,7 +148,7 @@ class CatalogPricingRulesController extends BaseStoreSettingsController
                     'class' => array_filter([($variables['catalogPricingRule']->getErrors('applyAmount') or $variables['catalogPricingRule']->getErrors('apply')) ? 'error' : null]),
                 ],
             ])
-            ->contentTemplate('commerce/store-settings/pricing-rules/_edit', $variables);
+            ->contentTemplate('commerce/store-management/pricing-rules/_edit', $variables);
     }
 
     /**

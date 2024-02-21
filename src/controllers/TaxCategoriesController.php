@@ -26,7 +26,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class TaxCategoriesController extends BaseTaxSettingsController
+class TaxCategoriesController extends BaseTaxManagementController
 {
     /**
      * @param string|null $storeHandle
@@ -40,7 +40,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
-        return $this->renderTemplate('commerce/store-settings/tax/taxcategories/index', compact('taxCategories', 'store'));
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', compact('taxCategories', 'store'));
     }
 
     /**
@@ -96,7 +96,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
         $variables['taxRates'] = $taxRates;
 
-        return $this->renderTemplate('commerce/store-settings/tax/taxcategories/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/_edit', $variables);
     }
 
     /**

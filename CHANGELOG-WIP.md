@@ -121,6 +121,8 @@
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\ShippingCategories::clearCaches()`.
 - Added `craft\commerce\services\Vat`.
+- Renamed `craft\commerce\controllers\StoreSettingsController` to `StoreManagementController`.
+- Renamed `craft\commerce\controllers\BaseStoreSettingsController` to `BaseStoreManagementController`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
 - Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.

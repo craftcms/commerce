@@ -361,9 +361,9 @@ class Plugin extends BasePlugin
              ];
         }
 
-        $ret['subnav']['store-settings'] = [
+        $ret['subnav']['store-management'] = [
             'label' => Craft::t('commerce', 'Store Management'),
-            'url' => 'commerce/store-settings',
+            'url' => 'commerce/store-management',
         ];
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
