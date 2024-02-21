@@ -1205,7 +1205,6 @@ class Install extends Migration
         $primarySite = Craft::$app->getSites()->getPrimarySite();
         $donation = new Donation();
         $donation->siteId = $primarySite->id;
-        $donation->storeId = $primaryStore->id;
         $donation->sku = 'DONATION-CC5';
         $donation->availableForPurchase = false;
         $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
