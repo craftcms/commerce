@@ -33,8 +33,6 @@ use yii\validators\Validator;
  */
 class Donation extends Purchasable
 {
-    use StoreTrait;
-
     /**
      * @var bool Is the product available for purchase.
      */
