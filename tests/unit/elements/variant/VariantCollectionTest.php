@@ -33,11 +33,26 @@ class VariantCollectionTest extends Unit
         ];
     }
 
-    public function testVariantQueryCollect()
+    /**
+     * @return void
+     */
+    public function testVariantQueryCollect(): void
     {
         $collection = Variant::find()->limit(4)->collect();
 
         self::assertInstanceOf(VariantCollection::class, $collection);
         self::assertInstanceOf(ElementCollection::class, $collection);
+    }
+
+    /**
+     * @return void
+     */
+    public function testCheapest(): void
+    {
+        $collection = Variant::find()->collect();
+
+        self::assertInstanceOf(VariantCollection::class, $collection);
+        self::assertNotNull($collection->cheapest());
+        self::assertEquals('hct-white', $collection->cheapest()->sku);
     }
 }
