@@ -694,4 +694,27 @@ class Store extends Model
 
         $this->_currency = $currency;
     }
+
+    /**
+     * Returns the inventory locations related to this store.
+     *
+     * @return Collection
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     */
+    public function getInventoryLocations(): Collection
+    {
+        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id);
+    }
+
+    /**
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getInventoryLocationsOptions(): array
+    {
+        return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id)->map(function($location) {
+            return ['value' => $location->id, 'label' => $location->name];
+        })->toArray();
+    }
 }
