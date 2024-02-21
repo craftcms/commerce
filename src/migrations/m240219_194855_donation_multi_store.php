@@ -35,7 +35,7 @@ class m240219_194855_donation_multi_store extends Migration
                     'basePrice' => 0,
                     'basePromotionalPrice' => null,
                     'stock' => null,
-                    'hasUnlimitedStock' => true,
+                    'inventoryTracked' => false,
                     'minQty' => null,
                     'maxQty' => null,
                     'promotable' => false,

@@ -270,7 +270,7 @@ class Donation extends Purchasable
                 $purchasableStoreRecord->basePrice = 0;
                 $purchasableStoreRecord->basePromotionalPrice = null;
                 $purchasableStoreRecord->stock = null;
-                $purchasableStoreRecord->hasUnlimitedStock = true;
+                $purchasableStoreRecord->inventoryTracked = false;
                 $purchasableStoreRecord->minQty = null;
                 $purchasableStoreRecord->maxQty = null;
                 $purchasableStoreRecord->promotable = false;
