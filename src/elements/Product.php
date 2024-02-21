@@ -47,7 +47,6 @@ use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
-use yii\web\Response;
 
 /**
  * Product model.

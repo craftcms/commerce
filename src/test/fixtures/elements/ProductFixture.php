@@ -10,7 +10,6 @@ namespace craft\commerce\test\fixtures\elements;
 use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\test\fixtures\elements\BaseElementFixture;

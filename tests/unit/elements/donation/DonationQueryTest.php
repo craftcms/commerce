@@ -10,12 +10,7 @@ namespace unit\elements\variant;
 use Codeception\Test\Unit;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\elements\db\PurchasableQuery;
-use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Donation;
-use craft\commerce\elements\Variant;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
-use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
 /**

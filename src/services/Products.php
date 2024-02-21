@@ -9,11 +9,9 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Variant;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
-use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 
 /**
