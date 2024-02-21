@@ -71,28 +71,22 @@ class StoreManagementController extends BaseStoreManagementController
         ]);
 
         // Countries allowed field HTML
-        $countriesField = Cp::multiSelectFieldHtml([
-            'class' => 'selectize',
+        $countriesField = Cp::selectizeFieldHtml([
             'label' => Craft::t('commerce', 'Country List'),
             'instructions' => Craft::t('commerce', 'The countries that orders are allowed to be placed from.'),
             'id' => 'countries',
             'name' => 'countries',
+            'multi' => true,
             'values' => $variables['storeSettings']->getCountries(),
             'options' => $allCountries,
             'errors' => $variables['storeSettings']->getErrors('countries'),
             'allowEmptyOption' => true,
         ]);
-        $js = <<<JS
-$('#countries').selectize({
-    plugins: ['remove_button'],
-});
-JS;
-        Craft::$app->getView()->registerJs($js);
 
         // Variables
-        $variables['locationField'] = $locationFieldHtml;
         $variables['marketAddressConditionField'] = $marketAddressConditionFieldHtml;
         $variables['countriesField'] = $countriesField;
+        $variables['locationField'] = $locationFieldHtml;
         $variables['storeSettingsNav'] = $this->getStoreSettingsNav();
 
         return $this->renderTemplate('commerce/store-management/general/_edit', $variables);
@@ -118,7 +112,7 @@ JS;
         $countries = $this->request->getBodyParam('countries') ?: [];
         $storeSettings->setCountries($countries);
 
-        if (!$storeSettings->validate() || !Plugin::getInstance()->getStoreSettings()->saveStore($storeSettings)) {
+        if (!$storeSettings->validate() || !Plugin::getInstance()->getStoreSettings()->saveStoreSettings($storeSettings)) {
             return $this->asModelFailure(
                 model: $storeSettings,
                 message: Craft::t('commerce', 'Couldn’t save store.'),

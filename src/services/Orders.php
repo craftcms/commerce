@@ -61,14 +61,6 @@ class Orders extends Component
         $fieldsService->saveLayout($layout, false);
     }
 
-
-    /**
-     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
-     */
-    public function pruneDeletedField(): void
-    {
-    }
-
     /**
      * Handle field layout being deleted
      */

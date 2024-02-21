@@ -10,10 +10,12 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
+use craft\commerce\models\InventoryLevel;
+use craft\commerce\Plugin;
+use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\web\View;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -32,7 +34,7 @@ class PurchasableStockField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Stock';
+    public ?string $label = 'Inventory';
 
     /**
      * @inheritdoc
@@ -49,36 +51,128 @@ class PurchasableStockField extends BaseNativeField
      */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
+        $view = Craft::$app->getView();
+        $view->registerAssetBundle(InventoryAsset::class);
+
+        /** @var Purchasable|null $element */
         if (!$element instanceof Purchasable) {
             throw new InvalidArgumentException(static::class . ' can only be used in purchasable field layouts.');
         }
 
-        Craft::$app->getView()->registerJs('$(".unlimited-stock").on("change", (ev) => {
-            if ($(ev.target).is(":checked")) {
-                $(ev.target).closest(".stock-wrapper").find("#stock").prop("disabled", true).addClass("disabled");
-            } else {
-                $(ev.target).closest(".stock-wrapper").find("#stock").prop("disabled", false).removeClass("disabled");
-            }
-        });', View::POS_READY);
+        $view = Craft::$app->getView();
 
-        return Html::beginTag('div', ['class' => 'flex stock-wrapper']) .
-            Html::beginTag('div', ['class' => 'textwrapper']) .
-            Cp::textHtml([
-                'id' => 'stock',
-                'name' => 'stock',
-                'value' => ($element->hasUnlimitedStock || $element->stock === null ? '' : $element->stock),
-                'placeholder' => Craft::t('commerce', 'Enter stock'),
-                'disabled' => $element->hasUnlimitedStock,
-            ]) .
+        $totalStock = $element->getAvailableTotalStock();
+        $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($element);
+
+
+        $availableStockLabel = Craft::t('commerce', '{total} available across {locationCount} locations', [
+            'total' => $totalStock,
+            'locationCount' => $inventoryLevels->count(),
+        ]);
+
+        $inventoryLevelTableRows = '';
+        /** @var InventoryLevel $inventoryLevel */
+        foreach ($inventoryLevels as $inventoryLevel) {
+
+            // Update the quantity button
+            $editUpdateQuantityInventoryItemId = sprintf('action-update-qty-%s', mt_rand());
+            $settings = [
+                'params' => [
+                    'inventoryLocationId' => $inventoryLevel->getInventoryLocation()->id,
+                    'ids[]' => [$element->inventoryItemId],
+                ],
+            ];
+
+            $view->registerJsWithVars(fn($id, $settings) => <<<JS
+$('#' + $id).on('click', (e) => {
+    e.preventDefault();
+  const slideout = new Craft.Commerce.UpdateInventoryLevelModal($settings);
+  slideout.on('submit', (e) => {
+    console.log(e);
+  });
+});
+JS, [
+                $view->namespaceInputId($editUpdateQuantityInventoryItemId),
+                $settings,
+            ]);
+
+            $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
+            // Register the slideout for editing the inventory item global settings.
+            $view->registerJsWithVars(fn($id, $settings) => <<<JS
+$('#' + $id).on('click', (e) => {
+    e.preventDefault();
+  const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
+});
+JS, [
+                $view->namespaceInputId($editInventoryItemId),
+                ['params' => ['inventoryItemId' => $element->getInventoryItem()->id]],
+            ]);
+
+            $inventoryLevelTableRows .= Html::beginTag('tr') .
+                Html::beginTag('td') .
+                Html::a($inventoryLevel->getInventoryLocation()->name, '#', ['id' => $editInventoryItemId]) . //
+                Html::endTag('td') .
+                Html::beginTag('td') .
+                Html::beginTag('div', ['class' => 'flex']) .
+                Html::tag('div', $inventoryLevel->availableTotal) .
+                Html::tag('div',Html::button(Craft::t('commerce', ''),
+                    [
+                        'class' => 'btn menubtn action-btn',
+                        'id' => $editUpdateQuantityInventoryItemId,
+                    ])) .
+                Html::endTag('div') .
+                Html::endTag('td') .
+                Html::beginTag('td') .
+                Html::a(
+                    Craft::t('commerce', 'Manage'),
+                    'commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle,
+                    [
+                        'target' => '_blank',
+                        'class' => 'btn small',
+                        'id' => $editUpdateQuantityInventoryItemId,
+                        'aria-label' => Craft::t('app', 'Open in a new tab'),
+                        'data-icon' => 'edit',
+                    ]
+                ) .
+                Html::endTag('td') .
+                Html::endTag('tr');
+        }
+
+        $inventoryLevelsTable = Html::beginTag('table', ['class' => 'data fullwidth', 'style' => 'margin-top:5px;']) .
+            Html::beginTag('thead') .
+            Html::beginTag('tr') .
+                Html::beginTag('th') .
+                    Craft::t('commerce', 'Location') .
+                Html::endTag('th') .
+                    Html::beginTag('th') .
+                Craft::t('commerce', 'Available') .
+                    Html::endTag('th') .
+                Html::beginTag('th') .
+                    Craft::t('commerce', 'Manage') .
+                Html::endTag('th') .
+            Html::endTag('tr') .
+            Html::endTag('thead') .
+            Html::beginTag('tbody') .
+            $inventoryLevelTableRows .
+            Html::endTag('tbody') .
+            Html::endTag('table');
+
+        $inventoryItemTrackedId = sprintf('store-inventory-item-tracked-%s', mt_rand());
+        $storeInventoryTrackedLightswitchConfig = [
+            'id' => 'store-inventory-item-tracked',
+            'name' => 'inventoryTracked',
+            'small' => true,
+            'on' => $element->inventoryTracked,
+            'toggle' => $inventoryItemTrackedId,
+        ];
+
+        return Html::beginTag('div') .
+            Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
+            Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
+            $availableStockLabel . $inventoryLevelsTable .
             Html::endTag('div') .
-            Html::beginTag('div', ['class' => 'nowrap']) .
-                Html::checkbox('hasUnlimitedStock', $element->hasUnlimitedStock, [
-                    'id' => 'unlimited-stock',
-                    'class' => 'unlimited-stock',
-                    'label' => Craft::t('commerce', 'Unlimited'),
-                ]) .
             Html::endTag('div') .
-        Html::endTag('div');
+            Html::endTag('div');
     }
 
     /**
@@ -86,6 +180,6 @@ class PurchasableStockField extends BaseNativeField
      */
     protected function defaultLabel(?ElementInterface $element = null, bool $static = false): ?string
     {
-        return Craft::t('commerce', 'Stock');
+        return Craft::t('commerce', 'Track Inventory');
     }
 }

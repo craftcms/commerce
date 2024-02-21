@@ -103,7 +103,7 @@ trait OrderValidatorsTrait
         $address = $this->$attribute;
         if ($address && $address->countryCode) {
             $countriesList = array_keys($this->getStore()->getSettings()->getCountriesList());
-            if (!in_array($address->countryCode, $countriesList, false)) {
+            if (count($countriesList) && !in_array($address->countryCode, $countriesList, false)) {
                 $this->addError($attribute, Craft::t('commerce', 'Country not allowed.'));
             }
         }

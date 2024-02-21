@@ -113,7 +113,7 @@ class PaymentSources extends Component
      * @throws SiteNotFoundException
      * @noinspection PhpUnused
      */
-    public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null, ?int $storeId = null): Collection
+    public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null): Collection
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
@@ -127,10 +127,6 @@ class PaymentSources extends Component
 
         if ($gatewayId) {
             $query->andWhere(['gatewayId' => $gatewayId]);
-        }
-
-        if ($storeId) {
-            $query->andWhere(['gateways.storeId' => $storeId]);
         }
 
         $results = $query->all();
@@ -234,14 +230,13 @@ class PaymentSources extends Component
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      */
-    public function getPaymentSourceById(int $sourceId, ?int $storeId = null): ?PaymentSource
+    public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
             ->innerJoin(Table::GATEWAYS . ' gateways', 'gateways.id = [[ps.gatewayId]]')
-            ->andWhere(['gateways.storeId' => $storeId])
             ->one();
 
         return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;

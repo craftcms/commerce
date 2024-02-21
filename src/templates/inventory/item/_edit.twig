@@ -1,0 +1,64 @@
+{% import "_includes/forms" as forms %}
+
+<div id="details">
+{{ forms.textField({
+    label: "Country Code of Origin"|t('commerce'),
+    id: 'countryCodeOfOrigin',
+    name: 'countryCodeOfOrigin',
+    value: inventoryItem.countryCodeOfOrigin,
+    errors: inventoryItem.getErrors('countryCodeOfOrigin'),
+}) }}
+
+{{ forms.textField({
+    label: "Administrative Area Code of Origin"|t('commerce'),
+    id: 'administrativeAreaCodeOfOrigin',
+    name: 'administrativeAreaCodeOfOrigin',
+    value: inventoryItem.administrativeAreaCodeOfOrigin,
+    errors: inventoryItem.getErrors('administrativeAreaCodeOfOrigin'),
+}) }}
+
+{{ forms.textField({
+    label: "Harmonized System Code"|t('commerce'),
+    id: 'harmonizedSystemCode',
+    name: 'harmonizedSystemCode',
+    value: inventoryItem.harmonizedSystemCode,
+    errors: inventoryItem.getErrors('harmonizedSystemCode'),
+}) }}
+
+{{ hiddenInput('inventoryItemId', inventoryItem.id) }}
+{{ hiddenInput('id', inventoryItem.id) }}
+
+</div>
+<div id="history" class="hidden">
+    {% set inventoryLocations = craft.commerce.inventoryLocations.getAllInventoryLocations() %}
+
+    {% for location in inventoryLocations %}
+        <h3>{{ location.name }}</h3>
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th>{{ "Movement"|t('commerce') }}</th>
+                    <th>{{ "Type"|t('commerce') }}</th>
+                    <th>{{ "Qty"|t('commerce') }}</th>
+                    <th>{{ "Note"|t('commerce') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set movements = craft.commerce.inventory.getMovements(inventoryItem, location).groupBy('movementHash') %}
+                {% for key, movement in movements %}
+                    <tr aria-colspan="">
+                        <td colspan="4">{{ movement[0].dateCreated|date('Y-m-d H:i') }}</td>
+                    </tr>
+                    {% for transaction in movement %}
+                    <tr>
+                        <td></td>
+                        <td class="code">{{ transaction.type }}</td>
+                        <td>{{ transaction.quantity }}</td>
+                        <td>{{ transaction.note }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>

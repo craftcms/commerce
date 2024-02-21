@@ -39,14 +39,12 @@
 - Added `craft\commerce\base\HasStoreInterface`.
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
 - Added `craft\commerce\base\Purchasable::$freeShipping`.
-- Added `craft\commerce\base\Purchasable::$hasUnlimitedStock`.
 - Added `craft\commerce\base\Purchasable::$height`.
 - Added `craft\commerce\base\Purchasable::$length`.
 - Added `craft\commerce\base\Purchasable::$maxQty`.
 - Added `craft\commerce\base\Purchasable::$minQty`.
 - Added `craft\commerce\base\Purchasable::$promotable`.
 - Added `craft\commerce\base\Purchasable::$shippingCategoryId`.
-- Added `craft\commerce\base\Purchasable::$stock`.
 - Added `craft\commerce\base\Purchasable::$taxCategoryId`.
 - Added `craft\commerce\base\Purchasable::$weight`.
 - Added `craft\commerce\base\Purchasable::$width`.
@@ -124,6 +122,7 @@
 - Renamed `craft\commerce\controllers\StoreSettingsController` to `StoreManagementController`.
 - Renamed `craft\commerce\controllers\BaseStoreSettingsController` to `BaseStoreManagementController`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
+- Removed `craft\commerce\base\PurchasableInterface::getId()`
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
 - Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::getProductId()`. `getOwnerId()` should be used instead.
@@ -197,3 +196,20 @@
 - `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
 
 ### System
+
+
+### Inventory
+
+- Added `craft\commerce\base\EnumHelpersTrait`
+- Added `craft\commerce\collections\InventoryMovementCollection`
+- Added `craft\commerce\collections\UpdateInventoryLevelCollection`
+- Added `craft\commerce\controllers\InventoryLocationsController`
+- Added `craft\commerce\controllers\InventoryLocationsStoresController`
+- Added `craft\commerce\base\Purchasable::$inventoryTracked`
+- Added `craft\commerce\base\Purchasable::$stock`
+- Removed `craft\commerce\base\Variant::$unlimitedStock`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
+- Deprecated `craft\commerce\base\Variant::hasUnlimitedStock()`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
+- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getAvailableTotalStock()` instead.
+- Added `craft\commerce\base\Purchasable::getInventoryItem()`.
+- Added `craft\commerce\base\Purchasable::getAvailableTotalStock()`.
+- Added `craft\commerce\base\Purchasable::getInventoryLevels()`.

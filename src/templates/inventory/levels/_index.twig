@@ -1,0 +1,19 @@
+{% do view.registerTranslations('commerce', [
+    'Search inventory',
+]) %}
+
+{% set selectedSubnavItem = "inventory" %}
+{% set title = 'Manage Inventory'|t('commerce') %}
+
+{% block content %}
+    <div id="inventory-levels"></div>
+
+    {% hook "cp.commerce.inventory.index" %}
+{% endblock %}
+
+{% js %}
+
+new Craft.Commerce.InventoryLevelsManager('#inventory-levels',{
+  inventoryLocationId: '{{ currentLocation.id }}'
+});
+{% endjs %}

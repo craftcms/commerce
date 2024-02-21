@@ -484,7 +484,7 @@ class OrdersController extends Controller
             ArrayHelper::removeValue($orderFields, $removeProp);
         }
 
-        if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
+        if (($fieldLayout = $order->getFieldLayout()) !== null) {
             foreach ($fieldLayout->getCustomFields() as $field) {
                 /** @var Field $field */
                 ArrayHelper::removeValue($orderFields, $field->handle);

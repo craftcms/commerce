@@ -1,0 +1,51 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+]) %}
+
+{% block content %}
+    <div id="locations-table">
+    </div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for location in inventoryLocations %}
+
+    {% set tableData = tableData|merge([{
+        id: location.id,
+        title: location.name|t('site'),
+        handle: location.handle,
+        addressLine: location.getAddressLine(),
+        url: location.cpEditUrl
+    }]) %}
+{% endfor %}
+
+
+{% js %}
+    var actions = [
+    {% if currentUser.can('commerce-editInventoryLocations') %}
+
+    {% endif %}
+    {% if currentUser.can('commerce-deleteInventoryLocations') %}
+
+    {% endif %}
+    ];
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'addressLine', title: Craft.t('commerce', 'Address') },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: false,
+        columns: columns,
+        fullPane: false,
+        container: '#locations-table',
+        deleteAction: {{ tableData|length > 1 and currentUser.can('commerce-deleteInventoryLocations')? '"commerce/inventory-locations/delete"' : 'null' }},
+        emptyMessage: Craft.t('commerce', 'No inventory locations exist yet.'),
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete the selected locations? This will delete all inventory.'),
+        padded: true,
+        tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

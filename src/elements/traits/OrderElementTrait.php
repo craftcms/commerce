@@ -29,14 +29,6 @@ trait OrderElementTrait
 {
     /**
      * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
-    /**
-     * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
      */
     public static function find(): OrderQuery
@@ -296,7 +288,8 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $site = Craft::$app->getSites()->getCurrentSite();
+        $siteHandle = Craft::$app->getRequest()->getParam('site');
+        $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
         /** @var StoreBehavior $site */
         $store = $site->getStore();
 
@@ -324,7 +317,7 @@ trait OrderElementTrait
         $sources[] = ['heading' => $store->getName()];
 
         foreach ($orderStatuses as $orderStatus) {
-            $key = 'orderStatus:' . $orderStatus->handle . ':' . $store->handle;
+            $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = [
                 'storeId' => $store->id,
                 'orderStatusId' => $orderStatus->id,
@@ -347,7 +340,7 @@ trait OrderElementTrait
         $sources[] = [
             'key' => 'carts:active:' . $store->handle,
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => array_merge($criteriaActive, ['storeId' => $store->id]),
+            'criteria' => ArrayHelper::merge($criteriaActive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
                 'handle' => 'cartsActive',
@@ -358,7 +351,7 @@ trait OrderElementTrait
         $sources[] = [
             'key' => 'carts:inactive:' . $store->handle,
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => array_merge($criteriaInactive, ['storeId' => $store->id]),
+            'criteria' => ArrayHelper::merge($criteriaInactive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsInactive',
@@ -369,7 +362,7 @@ trait OrderElementTrait
         $sources[] = [
             'key' => 'carts:attempted-payment:' . $store->handle,
             'label' => Craft::t('commerce', 'Attempted Payments'),
-            'criteria' => array_merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
+            'criteria' => ArrayHelper::merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsAttemptedPayment',

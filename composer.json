@@ -21,7 +21,7 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "php": "^8.0.2",
+    "php": "^8.2",
     "craftcms/cms": "5.0.x-dev",
     "dompdf/dompdf": "^2.0.2",
     "ibericode/vat": "^1.1.2",

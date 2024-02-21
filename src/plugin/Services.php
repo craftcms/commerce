@@ -17,6 +17,8 @@ use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\Inventory;
+use craft\commerce\services\InventoryLocations;
 use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
@@ -47,6 +49,7 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Transfers;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
@@ -181,6 +184,28 @@ trait Services
     public function getGateways(): Gateways
     {
         return $this->get('gateways');
+    }
+
+    /**
+     * Returns the inventory service
+     *
+     * @return Inventory The inventory service
+     * @throws InvalidConfigException
+     */
+    public function getInventory(): Inventory
+    {
+        return $this->get('inventory');
+    }
+
+    /**
+     * Returns the inventory locations service
+     *
+     * @return InventoryLocations The inventory locations service
+     * @throws InvalidConfigException
+     */
+    public function getInventoryLocations(): InventoryLocations
+    {
+        return $this->get('inventoryLocations');
     }
 
     /**
@@ -533,6 +558,17 @@ trait Services
     public function getTransactions(): Transactions
     {
         return $this->get('transactions');
+    }
+
+    /**
+     * Returns the transfers service
+     *
+     * @return Transfers The transfers service
+     * @throws InvalidConfigException
+     */
+    public function getTransfers(): Transfers
+    {
+        return $this->get('transfers');
     }
 
     /**

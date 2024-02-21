@@ -45,7 +45,7 @@
                   <span class="inline-block font-mono text-xs text-gray-500">{{ variant.sku }}</span>
                 </div>
                 <div class="pl-4 text-right w-1/4">
-                  {% if variant.onSale %}
+                  {% if variant.onPromotion %}
                     <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
                     <br>{{ variant.salePriceAsCurrency }}
                   {% else %}

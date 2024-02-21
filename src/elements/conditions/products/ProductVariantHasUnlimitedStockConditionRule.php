@@ -21,6 +21,7 @@ use craft\elements\db\ElementQueryInterface;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.3.0
+ * @deprecated 5.0.0
  */
 class ProductVariantHasUnlimitedStockConditionRule extends BaseLightswitchConditionRule implements ElementConditionRuleInterface
 {
@@ -29,7 +30,7 @@ class ProductVariantHasUnlimitedStockConditionRule extends BaseLightswitchCondit
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Variant Has Unlimited Stock');
+        return Craft::t('commerce', 'Variant Has Untracked Stock');
     }
 
     /**
@@ -47,7 +48,7 @@ class ProductVariantHasUnlimitedStockConditionRule extends BaseLightswitchCondit
     {
         $variantQuery = Variant::find();
         $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
-        $variantQuery->hasUnlimitedStock($this->value);
+        $variantQuery->inventoryTracked(!$this->value);
 
         /** @var ProductQuery $query */
         $query->andWhere(['elements.id' => $variantQuery]);
@@ -59,7 +60,7 @@ class ProductVariantHasUnlimitedStockConditionRule extends BaseLightswitchCondit
     public function matchElement(ElementInterface $element): bool
     {
         foreach ($element->getVariants() as $variant) {
-            if ($this->matchValue($variant->hasUnlimitedStock)) {
+            if ($this->matchValue(!$variant->inventoryTracked)) {
                 // Skip out early if we have a match
                 return true;
             }

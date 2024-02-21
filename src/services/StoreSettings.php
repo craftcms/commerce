@@ -24,7 +24,7 @@ use yii\base\InvalidConfigException;
  *
  * @property-read StoreSettingsModel $store
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0
+ * @since 5.0
  */
 class StoreSettings extends Component
 {
@@ -96,27 +96,26 @@ class StoreSettings extends Component
     /**
      * Saves the store
      *
-     * @param StoreSettingsModel $store
+     * @param StoreSettingsModel $storeSettings
      * @return bool
      * @throws InvalidConfigException
      */
-    public function saveStore(StoreSettingsModel $store): bool
+    public function saveStoreSettings(StoreSettingsModel $storeSettings): bool
     {
-        $storeRecord = StoreSettingsRecord::findOne($store->id);
+        $storeSettingsRecord = StoreSettingsRecord::findOne($storeSettings->id);
 
-        if (!$storeRecord) {
+        if (!$storeSettingsRecord) {
             throw new InvalidConfigException('Invalid store ID');
         }
 
-        $storeRecord->countries = $store->countries;
-        $storeRecord->marketAddressCondition = $store->marketAddressCondition->getConfig();
-        $storeRecord->locationAddressId = $store->getLocationAddressId();
+        $storeSettingsRecord->countries = $storeSettings->countries;
+        $storeSettingsRecord->marketAddressCondition = $storeSettings->marketAddressCondition->getConfig();
 
-        if (!$storeRecord->save()) {
+        if (!$storeSettingsRecord->save()) {
             return false;
         }
 
-        $this->getAllStoreSettings()->put($store->id, $store);
+        $this->getAllStoreSettings()->put($storeSettings->id, $storeSettings);
         return true;
     }
 
@@ -174,8 +173,8 @@ class StoreSettings extends Component
         return (new Query())
             ->select([
                 'id',
-                'locationAddressId',
                 'marketAddressCondition',
+                'locationAddressId',
                 'countries',
             ])
             ->from([Table::STORESETTINGS]);

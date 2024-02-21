@@ -1,0 +1,54 @@
+{% import '_includes/forms' as forms %}
+
+<div>
+{{ forms.textField({
+    label: 'Quantity'|t('commerce'),
+    id: 'inventoryMovement-quantity',
+    name: 'inventoryMovement[quantity]',
+    value: inventoryMovement.quantity,
+    inputAttributes: {'type': 'number', 'max': maxFromQuantity, 'min': 1},
+}) }}
+
+{{  forms.selectField({
+    id: 'inventoryMovement-toInventoryMovementType',
+    name: 'inventoryMovement[toInventoryMovementType]',
+    label: 'Move To'|t('commerce'),
+    options: toInventoryMovementTypes,
+    value: inventoryMovement.toInventoryMovementType.value,
+}) }}
+
+{{ forms.textField({
+    label: "Notes"|t('commerce'),
+    id: 'inventoryMovement-note',
+    name: 'inventoryMovement[note]',
+    value: inventoryMovement.note
+}) }}
+
+<p>{{ 'Move {qty} from {fromType} to {toType}'|t('commerce',
+    {
+        qty: inventoryMovement.quantity,
+        fromType: inventoryMovement.fromInventoryMovementType.typeAsLabel(),
+        toType: inventoryMovement.toInventoryMovementType.typeAsLabel()
+    }) }}
+
+{{ forms.hidden({
+    name: 'inventoryMovement[fromInventoryLocationId]',
+    value: inventoryMovement.fromInventoryLocation.id,
+}) }}
+
+{{ forms.hidden({
+    name: 'inventoryMovement[toInventoryLocationId]',
+    value: inventoryMovement.toInventoryLocation.id,
+}) }}
+
+{{ forms.hidden({
+    name: 'inventoryMovement[fromInventoryMovementType]',
+    value: inventoryMovement.fromInventoryMovementType.value,
+}) }}
+
+{{ forms.hidden({
+    name: 'inventoryMovement[inventoryItemId]',
+    value: inventoryMovement.inventoryItem.id,
+}) }}
+
+</div>

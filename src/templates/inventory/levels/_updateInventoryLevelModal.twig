@@ -1,0 +1,76 @@
+{% import '_includes/forms' as forms %}
+
+<div hx-ext="craft-cp">
+
+{% set updateQuantities %}
+    <div class="flex">
+        <div>
+        {{ forms.select({
+            id: 'updateAction',
+            name: 'updateAction',
+            value: updateAction,
+            options: [
+                { label: "Set"|t('commerce'), value: "set" },
+                { label: "Adjust"|t('commerce'), value: "adjust" }
+            ]
+        }) }}
+        </div>
+        <div>
+            {{ forms.text({
+                id: 'quantity',
+                name: 'quantity',
+                value: quantity,
+                type: 'number'
+            }) }}
+        </div>
+    </div>
+{% endset %}
+
+{{ forms.field({
+    label: "Set or Adjust"|t('commerce'),
+    id: 'updateQuantities'
+}, updateQuantities) }}
+
+{{ forms.textField({
+    label: "Notes"|t('commerce'),
+    id: 'note',
+    name: 'note',
+    value: note
+}) }}
+
+<div id="inventory-levels">
+{% for inventoryLevel in inventoryLevels %}
+    <div class="flex">
+        <div class="flex-grow">
+            <a href="{{ inventoryLevel.getPurchasable().cpEditUrl }}" target="_blank">{{ inventoryLevel.purchasable.title }}</a> <span class="code">{{ inventoryLevel.purchasable.sku }}</span>
+        </div>
+
+        {% if updateAction == 'set' %}
+            <div>{{ attribute(inventoryLevel, type~'Total') }} &rarr; {{ quantity }}</div>
+        {% endif %}
+        {% if updateAction == 'adjust' %}
+            <div>{{ attribute(inventoryLevel, type~'Total') }} &rarr; {{ attribute(inventoryLevel, type~'Total') + quantity }}</div>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+
+{{ forms.hidden({
+    name: 'inventoryLocationId',
+    value: inventoryLocationId
+}) }}
+
+{{ forms.hidden({
+    name: 'type',
+    value: type
+}) }}
+
+{# We use ids to be compatible with the admin table #}
+{% for id in inventoryItemIds %}
+    {{ forms.hidden({
+        name: 'ids[]',
+        value: id
+    }) }}
+{% endfor %}
+
+</div>
