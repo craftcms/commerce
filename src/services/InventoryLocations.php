@@ -247,6 +247,7 @@ class InventoryLocations extends Component
                 'id',
                 'name',
                 'handle',
+                'addressId',
                 'dateCreated',
                 'dateUpdated',
             ])

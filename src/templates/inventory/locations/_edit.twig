@@ -24,9 +24,9 @@
     value: inventoryLocation.id ?? ''
 }) }}
 
-<div id="address-card">
-    {{ inventoryLocation.addressCardHtml()|raw }}
-</div>
+{% if inventoryLocation.id %}
+    {{ locationFieldHtml|raw }}
+{% endif %}
 
 {% hook "cp.commerce.inventoryLocation.edit" %}
 

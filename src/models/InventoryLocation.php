@@ -74,12 +74,21 @@ class InventoryLocation extends Model implements Chippable
      */
     public function getAddress(): Address
     {
-        if (!$this->_address) {
+        if (!isset($this->_address)) {
             if ($id = $this->addressId) {
                 $this->_address = Craft::$app->getElements()->getElementById($id);
             } else {
-                $this->_address = new Address();
-                $this->_address->countryCode = 'US';
+                $address = new Address();
+                $address->countryCode = 'US';
+                // We don't show the location when it is a new location.
+                if($this->id) {
+                    if (Craft::$app->getElements()->saveElement($address, false)) {
+                        $this->_address = $address;
+                        $this->addressId = $address->id;
+                    } else {
+                        throw new \Exception('Could not save store location address');
+                    }
+                }
             }
         }
 
