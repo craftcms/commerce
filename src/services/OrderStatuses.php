@@ -166,6 +166,14 @@ class OrderStatuses extends Component
     }
 
     /**
+     * Get an order status by ID
+     */
+    public function getOrderStatusByUid(string $uid, ?int $storeId = null): ?OrderStatus
+    {
+        return $this->getAllOrderStatuses($storeId)->firstWhere('uid', $uid);
+    }
+
+    /**
      * Get order status by its handle.
      */
     public function getOrderStatusByHandle(string $handle, ?int $storeId = null): ?OrderStatus
