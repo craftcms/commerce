@@ -13,8 +13,10 @@ use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\conditions\orders\OrderCondition;
+use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
@@ -22,8 +24,11 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\models\FieldLayout;
 use Exception;
+use Illuminate\Support\Collection;
+use yii\base\InvalidConfigException;
 
 trait OrderElementTrait
 {
@@ -323,7 +328,7 @@ trait OrderElementTrait
                 'orderStatusId' => $orderStatus->id,
             ];
 
-            $sources[] = [
+            $sources['*']['nested'][] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => Craft::t('site', $orderStatus->name),
@@ -657,5 +662,44 @@ trait OrderElementTrait
         $output .= '</table>';
 
         return $output;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function modifyCustomSource(array $config): array
+    {
+        try {
+            /** @var OrderCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($config['condition']);
+        } catch (InvalidConfigException) {
+            return $config;
+        }
+
+        $rules = $condition->getConditionRules();
+
+        // see if it's limited to one product type
+        /** @var OrderStatusConditionRule|null $orderStatusConditionRule */
+        $orderStatusConditionRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
+        $orderStatusOptions = $orderStatusConditionRule?->getValues();
+
+        /** @var StoreBehavior $currentSite */
+        $currentSite = Cp::requestedSite();
+        $store = $currentSite->getStore();
+
+
+        if ($orderStatusOptions && count($orderStatusOptions) === 1) {
+            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(reset($orderStatusOptions));
+
+            if ($store->id != $orderStatus->storeId) {
+                $config['disabled'] = true;
+            }
+
+            if ($orderStatus) {
+                $config['status'] = $orderStatus->color;
+            }
+        }
+
+        return $config;
     }
 }
