@@ -39,7 +39,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     self = this;
 
     this.columns = [
-      {name: 'title', sortField: 'sku', title: Craft.t('commerce', 'SKU')},
+      {name: 'item', sortField: 'item', title: Craft.t('commerce', 'Item')},
       {
         name: 'reserved',
         sortField: 'reservedTotal',

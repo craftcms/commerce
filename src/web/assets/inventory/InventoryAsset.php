@@ -50,7 +50,18 @@ class InventoryAsset extends AssetBundle
 
         if ($view instanceof View) {
             $view->registerTranslations('commerce', [
-
+                'Item',
+                'No inventory found.',
+                'Search inventory',
+                'No inventory found.',
+                'Reserved',
+                'Damaged',
+                'Safety',
+                'Quality Control',
+                'Committed',
+                'Available',
+                'On Hand',
+                'Incoming',
             ]);
         }
     }
