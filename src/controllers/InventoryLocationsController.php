@@ -5,6 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
+use craft\elements\Address;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\fieldsettings\FieldSettingsAsset;
@@ -86,18 +87,28 @@ class InventoryLocationsController extends Controller
         } else {
             if ($inventoryLocation === null) {
                 $inventoryLocation = new InventoryLocation();
+
                 $title = Craft::t('app', 'Create a new inventory location');
             }
         }
 
-            $addressCardId = sprintf("commerce-store-location-%s", mt_rand());
             $address = $inventoryLocation->getAddress();
-            $locationFieldHtml = Cp::elementCardHtml($address, [
+
+            if ($inventoryLocation->id && !$address->id) {
+                if (Craft::$app->getElements()->saveElement($address, false)) {
+                    $inventoryLocation->setAddress($address);
+                    Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation, false);
+                } else {
+                    throw new \Exception('Could not save store location address');
+                }
+            }
+
+            $addressCardId = 'inventory-location-address';
+            $locationFieldHtml = Html::tag('div',Cp::elementCardHtml($address, [
                 'context' => 'field',
-                'id' => $addressCardId,
                 'inputName' => 'addressId',
                 'showActionMenu' => true,
-            ]);
+            ]),['id'=> $addressCardId]);
 
             $variables = [
                 'inventoryLocationId' => $inventoryLocationId,
@@ -118,18 +129,18 @@ class InventoryLocationsController extends Controller
                 ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables)
                 ->prepareScreen(function() use ($addressCardId){
                     $view = Craft::$app->getView();
-                    $view->registerJsWithVars(fn($id) => <<<JS
-const storeLocation = document.querySelector('#' + $id);
+                    $view->registerJsWithVars(fn($id, $elementType) => <<<JS
+let storeLocation = document.querySelector('#' + $id);
 storeLocation.addEventListener('dblclick', function() {
   const slideout = Craft.createElementEditor(
-    'craft\\\\elements\\\\Address',
-    storeLocation.querySelector('.element.card'),
-    {}
+    $elementType,
+    storeLocation.querySelector('.element.card')
   );
 });
-JS, [$addressCardId]);
+JS, [$addressCardId, 'craft\elements\Address']);
                 });
-        }
+
+    }
 
         /**
          * @return Response

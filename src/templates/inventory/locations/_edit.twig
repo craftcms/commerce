@@ -26,6 +26,8 @@
 
 {% if inventoryLocation.id %}
     {{ locationFieldHtml|raw }}
+{% else %}
+    <p>{{ 'Save this inventory location first, then add an address.'|t('commerce') }}</p>
 {% endif %}
 
 {% hook "cp.commerce.inventoryLocation.edit" %}
