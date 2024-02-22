@@ -22,6 +22,7 @@ use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\StringHelper;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
@@ -155,9 +156,8 @@ class InventoryController extends Controller
     public function actionInventoryLevelsTableData(): Response
     {
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
-        $defaultLimit = 200;
         $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', $defaultLimit);
+        $limit = $this->request->getParam('per_page', 100);
         $offset = ($page - 1) * $limit;
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $search = $this->request->getParam('search');
@@ -188,14 +188,44 @@ class InventoryController extends Controller
         $inventoryTableData = $inventoryQuery->all();
 
         $view = Craft::$app->getView();
-
+        $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $inventoryItemModel = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryLevel['inventoryItemId']);
+            $id = $inventoryLevel['inventoryItemId'];
             $purchasable = $inventoryItemModel->getPurchasable();
+            $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());;
             $inventoryLevel['title'] = $purchasable?->getDescription() ?? '';
+            $inventoryLevel['url'] = $purchasable?->getCpEditUrl() ?? '';
             $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];
-            $inventoryLevel['url'] = $inventoryItemModel->getCpEditUrl() ?? '';
 
+            if ($purchasable) {
+                $purchasableChip = Cp::elementChipHtml($purchasable, [
+                    'id' => $id,
+                    'url' => $purchasable->getCpEditUrl(),
+                ]);
+                $purchasableChip = Html::tag('div',  $purchasableChip, ['class' => 'flex-grow']);
+                $itemLink = Html::tag('div',Html::a($purchasable?->getSku() , "#", ['id' => "$inventoryItemDomId"]));
+                $inventoryLevel['item'] = Html::tag('div', $purchasableChip . $itemLink, ['class' => 'flex']);
+            } else {
+                $inventoryLevel['item'] = '';
+            }
+
+
+            $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
+$('#' + $id).on('click', (e) => {
+	e.preventDefault();
+	const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $params);
+	slideout.on('close', (e) => {
+	  $($inventoryLevelsManagerContainerId).data('inventoryLevelsManager').adminTable.reload();
+	});
+});
+JS, [
+                $inventoryItemDomId,
+                ['params' => ['inventoryItemId' => $id]],
+                $inventoryLevelsManagerContainerId,
+            ]);
+
+            // TODO: Look to reduce the number of modal click listeners.
             $columnTypes = [...InventoryMovementType::values(), 'onHand'];
             foreach ($columnTypes as $type) {
                 $items = [];
@@ -373,6 +403,7 @@ JS, [
             }
         }
 
+        $totalTime = sprintf(' (time: %.3fs)', microtime(true) - $time);
         return $this->asJson([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $inventoryTableData,
