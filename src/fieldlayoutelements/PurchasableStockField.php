@@ -65,9 +65,21 @@ class PurchasableStockField extends BaseNativeField
         $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($element);
 
 
-        $availableStockLabel = Craft::t('commerce', '{total} available across {locationCount} locations', [
+        $availableStockLabel = Craft::t('commerce', '{total} available across {locationCount} location(s)', [
             'total' => $totalStock,
             'locationCount' => $inventoryLevels->count(),
+        ]);
+
+        $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
+        // Register the slideout for editing the inventory item global settings.
+        $view->registerJsWithVars(fn($id, $settings) => <<<JS
+$('#' + $id).on('click', (e) => {
+    e.preventDefault();
+  const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
+});
+JS, [
+            $view->namespaceInputId($editInventoryItemId),
+            ['params' => ['inventoryItemId' => $element->getInventoryItem()->id]],
         ]);
 
         $inventoryLevelTableRows = '';
@@ -96,21 +108,9 @@ JS, [
                 $settings,
             ]);
 
-            $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
-            // Register the slideout for editing the inventory item global settings.
-            $view->registerJsWithVars(fn($id, $settings) => <<<JS
-$('#' + $id).on('click', (e) => {
-    e.preventDefault();
-  const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
-});
-JS, [
-                $view->namespaceInputId($editInventoryItemId),
-                ['params' => ['inventoryItemId' => $element->getInventoryItem()->id]],
-            ]);
-
             $inventoryLevelTableRows .= Html::beginTag('tr') .
                 Html::beginTag('td') .
-                Html::a($inventoryLevel->getInventoryLocation()->name, '#', ['id' => $editInventoryItemId]) . //
+                $inventoryLevel->getInventoryLocation()->name .
                 Html::endTag('td') .
                 Html::beginTag('td') .
                 Html::beginTag('div', ['class' => 'flex']) .
@@ -131,7 +131,7 @@ JS, [
                         'class' => 'btn small',
                         'id' => $editUpdateQuantityInventoryItemId,
                         'aria-label' => Craft::t('app', 'Open in a new tab'),
-                        'data-icon' => 'edit',
+                        'data-icon' => 'external',
                     ]
                 ) .
                 Html::endTag('td') .
@@ -154,6 +154,23 @@ JS, [
             Html::endTag('thead') .
             Html::beginTag('tbody') .
             $inventoryLevelTableRows .
+            Html::beginTag('tr') .
+            Html::beginTag('td', ['colspan'=>'2']) .
+            $availableStockLabel .
+            Html::beginTag('td') .
+            Html::a(
+                Craft::t('commerce', 'Edit'),
+                '#',
+                [
+                    'class' => 'btn small',
+                    'id' => $editInventoryItemId,
+                    'aria-label' => Craft::t('app', 'Edit Inventory Item'),
+                    'data-icon' => 'edit',
+                ]
+            ) .
+            Html::endTag('td') .
+            Html::endTag('td') .
+            Html::endTag('tr') .
             Html::endTag('tbody') .
             Html::endTag('table');
 
@@ -169,7 +186,7 @@ JS, [
         return Html::beginTag('div') .
             Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
             Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
-            $availableStockLabel . $inventoryLevelsTable .
+            $inventoryLevelsTable .
             Html::endTag('div') .
             Html::endTag('div') .
             Html::endTag('div');
