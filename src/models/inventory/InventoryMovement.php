@@ -83,6 +83,11 @@ class InventoryMovement extends Model
     private ?string $_inventoryMovementHash = null;
 
     /**
+     * @var bool
+     */
+    public bool $allowInterLocationMovementWithoutTransfer = false;
+
+    /**
      * @return void
      */
     public function init(): void
@@ -139,11 +144,15 @@ class InventoryMovement extends Model
             ['fromInventoryLocation', 'toInventoryLocation'],
             function($attribute, $params, $validator) {
                 if (!$this->transferId && $this->fromInventoryLocation->id !== $this->toInventoryLocation->id) {
-                    $validator->addError($this, $attribute, 'The from and to inventory locations must be the same.');
+                    if(!$this->allowInterLocationMovementWithoutTransfer) {
+                        $validator->addError($this, $attribute, 'The from and to inventory locations must be the same.');
+                    }
                 }
 
                 if ($this->transferId && $this->fromInventoryLocation->id === $this->toInventoryLocation->id) {
-                    $validator->addError($this, $attribute, 'The from and to inventory locations must be different.');
+                    if(!$this->allowInterLocationMovementWithoutTransfer) {
+                        $validator->addError($this, $attribute, 'The from and to inventory locations must be different.');
+                    }
                 }
             },
         ];
