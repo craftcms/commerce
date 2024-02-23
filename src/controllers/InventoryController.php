@@ -193,7 +193,6 @@ class InventoryController extends Controller
             $id = $inventoryLevel['inventoryItemId'];
             $purchasable = $inventoryItemModel->getPurchasable();
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            ;
             $inventoryLevel['title'] = $purchasable?->getDescription() ?? '';
             $inventoryLevel['url'] = $purchasable?->getCpEditUrl() ?? '';
             $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];
