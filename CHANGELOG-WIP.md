@@ -226,6 +226,7 @@
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 - Removed `craft\commerce\validators\StoreCountryValidator`.
+- Removed `craft\commerce\widgets\Orders::$orderStatusId`. Use `craft\commerce\widgets\Orders::$orderStatuses` instead.
 - Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\controllers\BaseStoreSettingsController` to `BaseStoreManagementController`.
 - Renamed `craft\commerce\controllers\StoreSettingsController` to `StoreManagementController`.

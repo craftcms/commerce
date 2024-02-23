@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\StringHelper;
 use craft\models\Site;
@@ -31,11 +32,6 @@ use craft\models\Site;
 class Orders extends Widget
 {
     use StatWidgetTrait;
-
-    /**
-     * @var int|string|null
-     */
-    public mixed $orderStatusId = null;
 
     /**
      * @var int
@@ -82,8 +78,8 @@ class Orders extends Widget
      */
     public function getTitle(): ?string
     {
-        if ($orderStatusId = $this->orderStatusId) {
-            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
+        if (!empty($this->orderStatuses) && count($this->orderStatuses) === 1) {
+            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(ArrayHelper::firstValue($this->orderStatuses), $this->storeId);
 
             if ($orderStatus) {
                 return Craft::t('commerce', 'Recent Orders') . ' – ' . Craft::t('commerce', $orderStatus->name);
@@ -106,7 +102,7 @@ class Orders extends Widget
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,
-            'showStatuses' => $this->orderStatusId === null,
+            'showStatuses' => !empty($this->orderStatuses) && count($this->orderStatuses) > 1,
             'id' => $id,
             'namespaceId' => $namespaceId,
         ]);
@@ -139,7 +135,6 @@ class Orders extends Widget
      */
     private function _getOrders(): array
     {
-        $orderStatusId = $this->orderStatusId;
         $limit = $this->limit;
 
         $query = Order::find();
@@ -149,8 +144,10 @@ class Orders extends Widget
         $query->storeId($this->storeId);
         $query->orderBy('dateOrdered DESC');
 
-        if ($orderStatusId) {
-            $query->orderStatusId($orderStatusId);
+        if (!empty($this->orderStatuses)) {
+            $orderStatusIds = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->storeId)
+                ->filter(fn($orderStatus) => in_array($orderStatus->uid, $this->orderStatuses))->map(fn($os) => $os->id)->all();
+            $query->orderStatusId($orderStatusIds);
         }
 
         return $query->all();
