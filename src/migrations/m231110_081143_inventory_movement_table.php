@@ -195,10 +195,13 @@ class m231110_081143_inventory_movement_table extends Migration
             'dateCreated' => Db::prepareDateForDb(new \DateTime()),
             'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
         ]);
-        
+
         if ($this->db->columnExists('{{%commerce_purchasables_stores}}', 'hasUnlimitedStock')) {
             $this->renameColumn(Table::PURCHASABLES_STORES, 'hasUnlimitedStock', 'inventoryTracked');
         }
+
+        // Flip `inventoryTracked` column in purchasables stores table
+        $this->update('{{%commerce_purchasables_stores}}', ['inventoryTracked' => new Expression('NOT [[inventoryTracked]]')]);
 
         return true;
     }
