@@ -157,7 +157,7 @@ class InventoryController extends Controller
     {
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', 100);
+        $limit = $this->request->getParam('per_page', 50);
         $offset = ($page - 1) * $limit;
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $search = $this->request->getParam('search');

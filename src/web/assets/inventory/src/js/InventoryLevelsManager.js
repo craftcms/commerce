@@ -83,13 +83,12 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     ];
 
     this.adminTable = new Craft.VueAdminTable({
-      inventoryLocationId: this.settings.inventoryLocationId,
-      inventoryItemId: this.settings.inventoryItemId,
       columns: self.columns,
       container: '#' + self.adminTableId,
       checkboxes: true,
       allowMultipleSelections: true,
       fullPane: false,
+      perPage: 50,
       tableDataEndpoint: 'commerce/inventory/inventory-levels-table-data',
       onQueryParams: function (params) {
         params.inventoryLocationId = self.settings.inventoryLocationId;

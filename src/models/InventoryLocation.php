@@ -74,7 +74,7 @@ class InventoryLocation extends Model implements Chippable
      */
     public function getAddress(): Address
     {
-        if (!$this->_address) {
+        if (!isset($this->_address)) {
             if ($id = $this->addressId) {
                 $this->_address = Craft::$app->getElements()->getElementById($id);
             } else {

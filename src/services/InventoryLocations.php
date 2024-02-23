@@ -14,7 +14,9 @@ use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\db\Query;
+use craft\elements\Address;
 use craft\errors\DeprecationException;
+use craft\events\AuthorizationCheckEvent;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
@@ -247,6 +249,7 @@ class InventoryLocations extends Component
                 'id',
                 'name',
                 'handle',
+                'addressId',
                 'dateCreated',
                 'dateUpdated',
             ])
@@ -272,4 +275,35 @@ class InventoryLocations extends Component
 
         return $this->_allLocations;
     }
+
+    /**
+     * @param AuthorizationCheckEvent $event
+     * @return void
+     */
+    public function authorizeInventoryLocationAddressView(AuthorizationCheckEvent $event): void
+    {
+        if (!$event->element instanceof Address) {
+            return;
+        }
+
+        if ($this->getAllInventoryLocations()->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+            return;
+        }
+
+        $event->authorized = true;
+    }
+
+    public function authorizeInventoryLocationAddressEdit(AuthorizationCheckEvent $event): void
+    {
+        if (!$event->element instanceof Address) {
+            return;
+        }
+
+        if ($this->getAllInventoryLocations()->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+            return;
+        }
+
+        $event->authorized = true;
+    }
+
 }

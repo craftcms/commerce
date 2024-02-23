@@ -972,6 +972,7 @@ return [
     'Save and return to all orders' => 'Save and return to all orders',
     'Save and set rules' => 'Save and set rules',
     'Save as a new rule' => 'Save as a new rule',
+    'Save this inventory location first, then add an address.' => 'Save this inventory location first, then add an address.',
     'Save' => 'Save',
     'Search customer…' => 'Search customer…',
     'Search inventory' => 'Search inventory',
