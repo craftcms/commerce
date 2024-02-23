@@ -153,6 +153,18 @@ class Inventory extends Component
     }
 
     /**
+     * @param $inventoryLocation
+     * @return Collection
+     */
+    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation): Collection{
+        $levels = $this->getInventoryLevelQuery()
+            ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
+            ->all();
+
+
+    }
+
+    /**
      * Returns the totals for inventory items grouped by location and purchasable/inventoryItem.
      *
      * @param int|null $limit
