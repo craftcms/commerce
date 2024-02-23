@@ -142,8 +142,8 @@
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
-- Added `craft\commerce\services\InventoryLocations`
-- Added `craft\commerce\services\Inventory`
+- Added `craft\commerce\services\InventoryLocations`.
+- Added `craft\commerce\services\Inventory`.
 - Added `craft\commerce\services\OrderStatuses::getOrderStatusByUid()`.
 - Added `craft\commerce\services\Purchasables::updateStoreStockCache()`
 - Added `craft\commerce\services\Sales::canUseSales()`.
