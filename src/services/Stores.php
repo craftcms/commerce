@@ -46,7 +46,7 @@ use yii\web\ServerErrorHttpException;
  * Stores service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0
+ * @since 5.0.0
  *
  * @property-read Store $primaryStore
  * @property-read Collection $allStores
@@ -203,7 +203,9 @@ class Stores extends Component
     /**
      * Returns a collections of stores that are available to a user.
      *
+     * @param int $userId
      * @return Collection<Store>
+     * @throws InvalidConfigException
      */
     public function getStoresByUserId(int $userId): Collection
     {

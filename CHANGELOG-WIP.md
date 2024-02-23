@@ -148,7 +148,8 @@
 - Added `craft\commerce\services\Purchasables::updateStoreStockCache()`
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\ShippingCategories::clearCaches()`.
-- Added `craft\commerce\services\Transfers`
+- Added `craft\commerce\services\Stores`.
+- Added `craft\commerce\services\Transfers`.
 - Added `craft\commerce\services\Vat`.
 - Added `craft\commerce\web\assets\inventory\InventoryAsset`.
 - Added `craft\commerce\web\assets\inventory\InventoryAsset`.
