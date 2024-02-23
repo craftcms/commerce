@@ -6,6 +6,6 @@ if (typeof Craft.Commerce === typeof undefined) {
 
 Craft.Commerce.InventoryMovementModal = Craft.CpModal.extend({
   init: function (settings) {
-    this.base('commerce/inventory/edit-movement', settings);
+    this.base('commerce/inventory/edit-movement-modal', settings);
   },
 });

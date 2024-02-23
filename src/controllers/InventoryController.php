@@ -459,7 +459,7 @@ JS, [
     /**
      * @return Response
      */
-    public function actionEditUpdateLevels(): Response
+    public function actionEditUpdateLevelsModal(): Response
     {
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $note = Craft::$app->getRequest()->getParam('note', '');
@@ -530,7 +530,7 @@ JS, [
     /**
      * @return Response
      */
-    public function actionEditMovement(): Response
+    public function actionEditMovementModal(): Response
     {
         $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
