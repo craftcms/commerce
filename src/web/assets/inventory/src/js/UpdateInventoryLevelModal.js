@@ -6,6 +6,6 @@ if (typeof Craft.Commerce === typeof undefined) {
 
 Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
   init: function (settings) {
-    this.base('commerce/inventory/edit-update-levels', settings);
+    this.base('commerce/inventory/edit-update-levels-modal', settings);
   },
 });

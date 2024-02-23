@@ -387,7 +387,7 @@ class Plugin extends BasePlugin
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'System Settings'),
-                'url' => 'commerce/settings',
+                'url' => 'commerce/settings/general',
             ];
         }
 

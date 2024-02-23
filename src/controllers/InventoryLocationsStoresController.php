@@ -26,17 +26,40 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
     {
         $store = Plugin::getInstance()->getStores()->getStoreByHandle(Craft::$app->getRequest()->getSegment(3));
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($store->id);
+        $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
         $currentUser = Craft::$app->getUser()->getIdentity();
 
+        $locationsCount = count($allInventoryLocations);
+        $userCanCreate = $currentUser->can('commerce-manageInventoryLocations');
+        $canCreate = false;
+        $limit = 1;
 
-        $inventoryLocationsField = CommerceCp::inventoryLocationFieldHtml([
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '=')) {
+            $limit = Plugin::EDITION_PRO_STORE_LIMIT;
+            if ($locationsCount < $limit) {
+                $canCreate = true;
+            }
+        }
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')) {
+            $limit = null;
+            $canCreate = true;
+        }
+
+        $config = [
             'label' => Craft::t('commerce', 'Inventory Locations'),
             'instructions' => Craft::t('commerce', 'The inventory locations this store uses.'),
             'id' => 'inventoryLocations',
             'name' => 'inventoryLocations[]',
             'values' => $inventoryLocations,
-            'create' => Plugin::getInstance()->is(Plugin::EDITION_PRO, '>='),
-        ]);
+            'create' => $userCanCreate && $canCreate,
+        ];
+
+        if ($limit !== null) {
+            $config['limit'] = $limit;
+        }
+
+        $inventoryLocationsField = CommerceCp::inventoryLocationFieldHtml($config);
 
         $variables = [
             'inventoryLocations' => $inventoryLocations,

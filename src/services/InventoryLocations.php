@@ -8,7 +8,14 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Transfer;
+use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\TransferStatusType;
+use craft\commerce\models\inventory\DeactivateInventoryLocation;
+use craft\commerce\models\inventory\InventoryMovement;
+use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -20,7 +27,6 @@ use craft\events\AuthorizationCheckEvent;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
-use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
 
 /**
@@ -32,29 +38,26 @@ use yii\base\InvalidConfigException;
 class InventoryLocations extends Component
 {
     /**
-     * @var Collection<InventoryLocation>|null All locations
-     */
-    private ?Collection $_allLocations = null;
-
-    /**
      * Returns all inventory locations.
      *
+     * @param bool $withTrashed
      * @return Collection All locations
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function getAllInventoryLocations(): Collection
+    public function getAllInventoryLocations(bool $withTrashed = false): Collection
     {
-        return $this->_getAllInventoryLocations();
+        return $this->_getAllInventoryLocations($withTrashed);
     }
 
     /**
      * Returns an inventory location by its ID.
      *
      * @param int $id
+     * @param bool $withTrashed
      * @return InventoryLocation|null The inventory location or null if not found.
      */
-    public function getInventoryLocationById(int $id): ?InventoryLocation
+    public function getInventoryLocationById(int $id, $withTrashed = false): ?InventoryLocation
     {
         return $this->_getAllInventoryLocations()->firstWhere('id', $id);
     }
@@ -66,7 +69,7 @@ class InventoryLocations extends Component
      *
      * @return Collection<InventoryLocation>
      */
-    public function getInventoryLocations(?int $storeId = null): Collection
+    public function getInventoryLocations(?int $storeId = null, bool $withTrashed = false): Collection
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
@@ -78,29 +81,9 @@ class InventoryLocations extends Component
             ->column();
 
         // Keep the order of the locationIds
-        return $this->_getAllInventoryLocations()->whereIn('id', $locationIds)->sortBy(function($inventoryLocation) use ($locationIds) {
+        return $this->_getAllInventoryLocations($withTrashed)->whereIn('id', $locationIds)->sortBy(function($inventoryLocation) use ($locationIds) {
             return array_search($inventoryLocation->id, $locationIds);
         });
-    }
-
-    /**
-     * Returns the primary (first) inventory location for a store.
-     *
-     * @param ?int $storeId
-     * @return InventoryLocation
-     */
-    public function getPrimaryInventoryLocation(int $storeId = null): InventoryLocation
-    {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-
-        $locationId = (new Query())
-            ->select(['inventoryLocationId'])
-            ->from([Table::INVENTORYLOCATIONS_STORES])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->where(['storeId' => $storeId])
-            ->scalar();
-
-        return $this->_getAllInventoryLocations()->firstWhere('id', $locationId);
     }
 
     /**
@@ -142,37 +125,71 @@ class InventoryLocations extends Component
     }
 
     /**
-     * @param int $id
      * @return bool
      * @throws Throwable
      * @throws \yii\db\Exception
      */
-    public function deleteInventoryLocationById(int $id): bool
+    public function deactivateInventoryLocation(DeactivateInventoryLocation $deactivateInventoryLocation): bool
     {
-        $location = $this->getInventoryLocationById($id);
-
-        if (!$location) {
+        // This will ensure that the location has no committed stock or incoming stock before deactivating it.
+        if (!$deactivateInventoryLocation->validate()) {
             return false;
-        }
-
-        if ($this->getAllInventoryLocations()->count() === 1) {
-            throw new ErrorException('You cannot delete the last inventory location.');
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::INVENTORYLOCATIONS, ['id' => $id])
-                ->execute();
+            $inventoryLocationRecord = InventoryLocationRecord::findOne($deactivateInventoryLocation->inventoryLocation->id);
+
+            // Get draft transfers that are destinations for the deactivated inventory location
+            /** @var Transfer $draftTransfers */
+            $draftTransfers = Transfer::find()
+                ->transferStatus(TransferStatusType::DRAFT)
+                ->destinationLocation($deactivateInventoryLocation->inventoryLocation)
+                ->all();
+
+            // Switch the draft transfer to the new destination location
+            foreach ($draftTransfers as $draftTransfer) {
+                $draftTransfer->destinationLocationId = $deactivateInventoryLocation->destinationInventoryLocation->id;
+                Craft::$app->getElements()->saveElement($draftTransfer, false);
+            }
+
+            // TODO: Add draft purchase order swapping
+
+            $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLocationLevels($deactivateInventoryLocation->inventoryLocation);
+            /** @var InventoryLevel $inventoryLevel */
+            foreach ($inventoryLevels as $inventoryLevel) {
+                $movements = new InventoryMovementCollection();
+                foreach (InventoryMovementType::allowedManualMovementTypes() as $type) {
+                    if ($inventoryLevel->getTotal($type) > 0) {
+                        $inventoryMovement = new InventoryMovement();
+                        $inventoryMovement->fromInventoryLocation = $deactivateInventoryLocation->inventoryLocation;
+                        $inventoryMovement->toInventoryLocation = $deactivateInventoryLocation->destinationInventoryLocation;
+                        $inventoryMovement->inventoryItem = $inventoryLevel->getInventoryItem();
+                        $inventoryMovement->quantity = $inventoryLevel->getTotal($type);
+                        $inventoryMovement->fromInventoryMovementType = $type;
+                        $inventoryMovement->toInventoryMovementType = $type;
+                        $inventoryMovement->userId = Craft::$app->getUser()->getIdentity()?->id;
+                        $inventoryMovement->note = Craft::t('commerce', 'Movement from deactivated inventory location');
+                        $inventoryMovement->allowInterLocationMovementWithoutTransfer = true;
+                        $movements->add($inventoryMovement);
+                    }
+                }
+
+                if ($movements->count() > 0) {
+                    if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements)) {
+                        throw new \Exception('Failed to move inventory from deactivated location');
+                    }
+                }
+            }
 
             $transaction->commit();
+            // Finally soft delete it now that it’s all migrated
+            $inventoryLocationRecord->softDelete();
         } catch (Throwable $e) {
             $transaction->rollBack();
 
             throw $e;
         }
-
-        $this->_allLocations = null;
 
         return true;
     }
@@ -232,8 +249,6 @@ class InventoryLocations extends Component
             throw $e;
         }
 
-        $this->_allLocations = null; // reset cache
-
         return true;
     }
 
@@ -242,9 +257,9 @@ class InventoryLocations extends Component
      *
      * @return Query The query object.
      */
-    private function _createLocationsQuery(): Query
+    private function _createInventoryLocationsQuery(bool $withTrashed = false): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
@@ -254,26 +269,28 @@ class InventoryLocations extends Component
                 'dateUpdated',
             ])
             ->from([Table::INVENTORYLOCATIONS]);
+
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
+        }
+
+        return $query;
     }
 
     /**
      * @return Collection<InventoryLocation>
      */
-    private function _getAllInventoryLocations(): Collection
+    private function _getAllInventoryLocations(bool $withTrashed = false): Collection
     {
-        if ($this->_allLocations === null) {
-            $results = $this->_createLocationsQuery()
-                ->all();
+        $results = $this->_createInventoryLocationsQuery($withTrashed)
+            ->all();
 
-            $locations = [];
-            foreach ($results as $result) {
-                $locations[] = new InventoryLocation($result);
-            }
-
-            $this->_allLocations = collect($locations);
+        $locations = [];
+        foreach ($results as $result) {
+            $locations[] = new InventoryLocation($result);
         }
 
-        return $this->_allLocations;
+        return collect($locations);
     }
 
     /**
@@ -286,7 +303,7 @@ class InventoryLocations extends Component
             return;
         }
 
-        if ($this->getAllInventoryLocations()->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+        if ($this->getAllInventoryLocations(true)->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
             return;
         }
 
@@ -299,7 +316,7 @@ class InventoryLocations extends Component
             return;
         }
 
-        if ($this->getAllInventoryLocations()->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
+        if ($this->getAllInventoryLocations(true)->firstWhere('addressId', $event->element->getCanonicalId()) === null) {
             return;
         }
 

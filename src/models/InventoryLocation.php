@@ -8,7 +8,6 @@ use craft\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\elements\Address;
-use craft\helpers\Cp;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use yii\base\InvalidConfigException;
@@ -106,11 +105,6 @@ class InventoryLocation extends Model implements Chippable
     public function getAddressLine(): string
     {
         return $this->addressId ? ($this->getAddress()->addressLine1 . ' ' . $this->getAddress()->getCountryCode()) : '';
-    }
-
-    public function getAddressCardHtml(): string
-    {
-        return Cp::elementCardHtml($this->getAddress());
     }
 
     /**
