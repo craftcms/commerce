@@ -96,8 +96,9 @@ class InventoryLevel extends Model
      */
     public function getInventoryItem(): InventoryItem
     {
-        if($this->_inventoryItem === null) {
-            $this->_inventoryItem =  Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);;
+        if ($this->_inventoryItem === null) {
+            $this->_inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+            ;
         }
         return $this->_inventoryItem;
     }

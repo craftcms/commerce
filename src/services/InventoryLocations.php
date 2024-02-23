@@ -27,9 +27,7 @@ use craft\events\AuthorizationCheckEvent;
 use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
-use yii\base\ErrorException;
 use yii\base\InvalidConfigException;
-use yii\db\Exception;
 
 /**
  * Inventory Locations service.
@@ -187,7 +185,6 @@ class InventoryLocations extends Component
             $transaction->commit();
             // Finally soft delete it now that it’s all migrated
             $inventoryLocationRecord->softDelete();
-
         } catch (Throwable $e) {
             $transaction->rollBack();
 

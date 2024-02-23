@@ -144,13 +144,13 @@ class InventoryMovement extends Model
             ['fromInventoryLocation', 'toInventoryLocation'],
             function($attribute, $params, $validator) {
                 if (!$this->transferId && $this->fromInventoryLocation->id !== $this->toInventoryLocation->id) {
-                    if(!$this->allowInterLocationMovementWithoutTransfer) {
+                    if (!$this->allowInterLocationMovementWithoutTransfer) {
                         $validator->addError($this, $attribute, 'The from and to inventory locations must be the same.');
                     }
                 }
 
                 if ($this->transferId && $this->fromInventoryLocation->id === $this->toInventoryLocation->id) {
-                    if(!$this->allowInterLocationMovementWithoutTransfer) {
+                    if (!$this->allowInterLocationMovementWithoutTransfer) {
                         $validator->addError($this, $attribute, 'The from and to inventory locations must be different.');
                     }
                 }
