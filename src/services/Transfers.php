@@ -55,8 +55,6 @@ class Transfers extends Component
         Craft::$app->getFields()->deleteLayoutsByType(Transfer::class);
     }
 
-
-
     /**
      * @return FieldLayout
      */

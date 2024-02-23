@@ -103,7 +103,7 @@
         fullPane: false,
         container: '#discounts-vue-admin-table',
         allowMultipleDeletions: true,
-        deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts') ? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
         padded: true,
         paginatedReorderAction: 'commerce/discounts/reorder',

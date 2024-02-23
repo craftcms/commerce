@@ -1,0 +1,16 @@
+{% import '_includes/forms' as forms %}
+
+<h3>{{ "Deleting the {location} location."|t('commerce', { location : deactivateInventoryLocation.inventoryLocation.name }) }}</h3>
+
+<div data-attribute="inventoryLocation"></div>
+
+{{ forms.selectField({
+    label: "Destination Inventory Location"|t('commerce'),
+    instructions: "Choose the destination inventory location for the existing on hand stock."|t('commerce'),
+    options: inventoryLocationOptions,
+    id: 'destinationInventoryLocation',
+    value: deactivateInventoryLocation.destinationInventoryLocation.id,
+    name: 'destinationInventoryLocation'
+}) }}
+
+{{ hiddenInput('inventoryLocation', deactivateInventoryLocation.inventoryLocation.id) }}

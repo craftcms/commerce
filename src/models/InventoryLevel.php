@@ -70,12 +70,17 @@ class InventoryLevel extends Model
     public int $onHandTotal = 0;
 
     /**
+     * @var InventoryItem|null The inventory item associated with this inventory level
+     */
+    private ?InventoryItem $_inventoryItem = null;
+
+    /**
      * @param InventoryMovementType $type
      * @return int
      */
     public function getTotal(InventoryMovementType $type): int
     {
-        return $this->{$type->key . 'Total'};
+        return $this->{$type->value . 'Total'};
     }
 
     /**
@@ -91,7 +96,20 @@ class InventoryLevel extends Model
      */
     public function getInventoryItem(): InventoryItem
     {
-        return Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+        if($this->_inventoryItem === null) {
+            $this->_inventoryItem =  Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);;
+        }
+        return $this->_inventoryItem;
+    }
+
+    /**
+     * @param InventoryItem $inventoryItem
+     * @return void
+     */
+    public function setInventoryItem(InventoryItem $inventoryItem): void
+    {
+        $this->_inventoryItem = $inventoryItem;
+        $this->inventoryItemId = $inventoryItem->id;
     }
 
     /**

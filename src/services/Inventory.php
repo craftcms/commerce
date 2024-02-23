@@ -88,6 +88,24 @@ class Inventory extends Component
     }
 
     /**
+     * @param array<int> $ids
+     * @return InventoryItem
+     */
+    public function getInventoryItemsByIds(array $ids): Collection
+    {
+        $inventoryItemsResults = InventoryItemRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        $inventoryItems = collect();
+        foreach ($inventoryItemsResults as $inventoryItem) {
+            $inventoryItems->push($this->_populateInventoryItem($inventoryItem->toArray()));
+        }
+
+        return $inventoryItems;
+    }
+
+    /**
      * Returns an inventory level model which is the sum of all inventory movements types for an item in a location.
      *
      * @param InventoryItem $inventoryItem
@@ -156,12 +174,20 @@ class Inventory extends Component
      * @param $inventoryLocation
      * @return Collection
      */
-    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation): Collection{
+    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation): Collection
+    {
         $levels = $this->getInventoryLevelQuery()
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
-            ->all();
+            ->collect();
 
-
+        $inventoryItems = Plugin::getInstance()->getInventory()->getInventoryItemsByIds($levels->pluck('inventoryItemId')->unique()->toArray());
+        return $levels->map(function($level) use ($inventoryItems) {
+            $inventoryLevel = $this->_populateInventoryLevel($level);
+            if ($item = $inventoryItems->firstWhere('id', $level['inventoryItemId'])) {
+                $inventoryLevel->setInventoryItem($item);
+            }
+            return $inventoryLevel;
+        });
     }
 
     /**
