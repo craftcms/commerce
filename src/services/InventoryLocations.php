@@ -305,5 +305,4 @@ class InventoryLocations extends Component
 
         $event->authorized = true;
     }
-
 }

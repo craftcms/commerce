@@ -217,7 +217,7 @@ class Stores extends Component
             $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
 
             foreach ($siteUids as $siteUid) {
-                if ($user->can('editSite:'.$siteUid)) {
+                if ($user->can('editSite:' . $siteUid)) {
                     return $store;
                 }
             }

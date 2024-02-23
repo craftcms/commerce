@@ -22,7 +22,6 @@ use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\helpers\StringHelper;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
@@ -193,7 +192,8 @@ class InventoryController extends Controller
             $inventoryItemModel = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryLevel['inventoryItemId']);
             $id = $inventoryLevel['inventoryItemId'];
             $purchasable = $inventoryItemModel->getPurchasable();
-            $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());;
+            $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
+            ;
             $inventoryLevel['title'] = $purchasable?->getDescription() ?? '';
             $inventoryLevel['url'] = $purchasable?->getCpEditUrl() ?? '';
             $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];

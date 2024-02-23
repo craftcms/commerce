@@ -5,10 +5,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
-use craft\elements\Address;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\web\assets\fieldsettings\FieldSettingsAsset;
 use craft\web\Controller;
 use yii\web\Response;
 
@@ -92,33 +90,33 @@ class InventoryLocationsController extends Controller
             }
         }
 
-            $address = $inventoryLocation->getAddress();
+        $address = $inventoryLocation->getAddress();
 
-            if ($inventoryLocation->id && !$address->id) {
-                if (Craft::$app->getElements()->saveElement($address, false)) {
-                    $inventoryLocation->setAddress($address);
-                    Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation, false);
-                } else {
-                    throw new \Exception('Could not save store location address');
-                }
+        if ($inventoryLocation->id && !$address->id) {
+            if (Craft::$app->getElements()->saveElement($address, false)) {
+                $inventoryLocation->setAddress($address);
+                Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation, false);
+            } else {
+                throw new \Exception('Could not save store location address');
             }
+        }
 
-            $addressCardId = 'inventory-location-address';
-            $locationFieldHtml = Html::tag('div',Cp::elementCardHtml($address, [
+        $addressCardId = 'inventory-location-address';
+        $locationFieldHtml = Html::tag('div',Cp::elementCardHtml($address, [
                 'context' => 'field',
                 'inputName' => 'addressId',
                 'showActionMenu' => true,
-            ]),['id'=> $addressCardId]);
+            ]),['id' => $addressCardId]);
 
-            $variables = [
+        $variables = [
                 'inventoryLocationId' => $inventoryLocationId,
                 'inventoryLocation' => $inventoryLocation,
                 'typeName' => Craft::t('commerce', 'Inventory Location'),
                 'lowerTypeName' => Craft::t('commerce', 'inventory location'),
-                'locationFieldHtml' => $locationFieldHtml
+                'locationFieldHtml' => $locationFieldHtml,
             ];
 
-            return $this->asCpScreen()
+        return $this->asCpScreen()
                 ->title($title)
                 ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
                 ->addCrumb(Craft::t('app', 'Locations'), 'commerce/inventory/locations')
@@ -127,7 +125,7 @@ class InventoryLocationsController extends Controller
                 ->selectedSubnavItem('inventory')
                 ->contentTemplate('commerce/inventory/locations/_edit', $variables)
                 ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables)
-                ->prepareScreen(function() use ($addressCardId){
+                ->prepareScreen(function() use ($addressCardId) {
                     $view = Craft::$app->getView();
                     $view->registerJsWithVars(fn($id, $elementType) => <<<JS
 let storeLocation = document.querySelector('#' + $id);
@@ -139,20 +137,18 @@ storeLocation.addEventListener('dblclick', function() {
 });
 JS, [$addressCardId, 'craft\elements\Address']);
                 });
-
     }
 
-        /**
-         * @return Response
-         * @throws \yii\base\ErrorException
-         * @throws \yii\base\Exception
-         * @throws \yii\base\InvalidConfigException
-         * @throws \yii\base\NotSupportedException
-         * @throws \yii\web\MethodNotAllowedHttpException
-         * @throws \yii\web\ServerErrorHttpException
-         */
-        public
-        function actionSave(): ?Response
+    /**
+     * @return Response
+     * @throws \yii\base\ErrorException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\web\MethodNotAllowedHttpException
+     * @throws \yii\web\ServerErrorHttpException
+     */
+    public function actionSave(): ?Response
         {
             $this->requirePostRequest();
 
@@ -187,16 +183,15 @@ JS, [$addressCardId, 'craft\elements\Address']);
             );
         }
 
-        /**
-         * @return Response
-         * @throws \Throwable
-         * @throws \yii\base\InvalidConfigException
-         * @throws \yii\db\Exception
-         * @throws \yii\web\BadRequestHttpException
-         * @throws \yii\web\MethodNotAllowedHttpException
-         */
-        public
-        function actionDelete(): Response
+    /**
+     * @return Response
+     * @throws \Throwable
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\MethodNotAllowedHttpException
+     */
+    public function actionDelete(): Response
         {
             $this->requirePostRequest();
             $this->requireAcceptsJson();
@@ -209,4 +204,4 @@ JS, [$addressCardId, 'craft\elements\Address']);
 
             return $this->asJson(['success' => false]);
         }
-    }
+}

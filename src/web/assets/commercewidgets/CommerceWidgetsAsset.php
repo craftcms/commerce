@@ -7,11 +7,7 @@
 
 namespace craft\commerce\web\assets\commercewidgets;
 
-use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\web\AssetBundle;
-use craft\web\assets\admintable\AdminTableAsset;
-use craft\web\assets\cp\CpAsset;
-use craft\web\assets\garnish\GarnishAsset;
 
 /**
  * Commerce Widgets functionality for the control panel

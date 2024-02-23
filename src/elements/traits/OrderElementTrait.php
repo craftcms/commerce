@@ -16,7 +16,6 @@ use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
-use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
@@ -27,7 +26,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\models\FieldLayout;
 use Exception;
-use Illuminate\Support\Collection;
 use yii\base\InvalidConfigException;
 
 trait OrderElementTrait

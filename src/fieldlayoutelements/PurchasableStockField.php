@@ -155,7 +155,7 @@ JS, [
             Html::beginTag('tbody') .
             $inventoryLevelTableRows .
             Html::beginTag('tr') .
-            Html::beginTag('td', ['colspan'=>'2']) .
+            Html::beginTag('td', ['colspan' => '2']) .
             $availableStockLabel .
             Html::beginTag('td') .
             Html::a(
