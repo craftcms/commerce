@@ -694,6 +694,7 @@ return [
     'New Customers' => 'New Customers',
     'New Order' => 'New order',
     'New PDF' => 'New PDF',
+    'This is the last location for the {store} store.' => 'This is the last location for the {store} store.',
     'New address' => 'New address',
     'New catalog pricing rule' => 'New catalog pricing rule',
     'New currency' => 'New currency',

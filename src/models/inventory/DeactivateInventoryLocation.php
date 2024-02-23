@@ -50,6 +50,20 @@ class DeactivateInventoryLocation extends Model
         $rules[] = [
             ['inventoryLocation'],
             function($attribute, $params, $validator) {
+                // Look through all the stores and see if they only have 1 location and it's the one we are deactivating
+                $stores = Plugin::getInstance()->getStores()->getAllStores();
+                foreach($stores as $store) {
+                    $locations = $store->getInventoryLocations();
+                    if ($locations->count() == 1 && $locations->contains('id', $this->inventoryLocation->id)) {
+                        $this->addError($attribute, \Craft::t('commerce','This is the last location for the {store} store.', ['store' => $store->getName()]));
+                    }
+                }
+            },
+        ];
+
+        $rules[] = [
+            ['inventoryLocation'],
+            function($attribute, $params, $validator) {
                 if ($this->hasOutStandingCommittedStock()) {
                     $this->addError($attribute, \Craft::t('commerce','Inventory location has committed stock, the order(s) must first be fulfilled.'));
                 }
