@@ -9,10 +9,15 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\orderswidget\OrdersWidgetAsset;
+use craft\helpers\Cp;
 use craft\helpers\StringHelper;
+use craft\models\Site;
 
 /**
  * Class Orders
@@ -25,6 +30,8 @@ use craft\helpers\StringHelper;
  */
 class Orders extends Widget
 {
+    use StatWidgetTrait;
+
     /**
      * @var int|string|null
      */
@@ -34,6 +41,17 @@ class Orders extends Widget
      * @var int
      */
     public int $limit = 10;
+
+    public function init(): void
+    {
+        parent::init();
+
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+    }
 
     /**
      * @inheritdoc
@@ -99,19 +117,17 @@ class Orders extends Widget
      */
     public function getSettingsHtml(): ?string
     {
-        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
-
         Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
 
         $id = 'recent-orders-settings-' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
-        Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('" . $namespaceId . "');");
-
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/settings', [
             'id' => $id,
             'widget' => $this,
-            'orderStatuses' => $orderStatuses,
+            'orderStatuses' => $this->getOrderStatusOptions(),
+            'namespaceId' => $namespaceId,
         ]);
     }
 
@@ -130,6 +146,7 @@ class Orders extends Widget
         $query->isCompleted(true);
         $query->dateOrdered(':notempty:');
         $query->limit($limit);
+        $query->storeId($this->storeId);
         $query->orderBy('dateOrdered DESC');
 
         if ($orderStatusId) {

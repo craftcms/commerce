@@ -103,7 +103,7 @@ class TopProducts extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null, ?int $storeId = null)
     {
         $this->_ifNullDbFunc = Craft::$app->getDb()->getIsPgsql() ? 'COALESCE' : 'IFNULL';
 
@@ -117,7 +117,7 @@ class TopProducts extends Stat
             $this->revenueOptions = $revenueOptions;
         }
 
-        parent::__construct($dateRange, $startDate, $endDate);
+        parent::__construct($dateRange, $startDate, $endDate, $storeId);
     }
 
     /**

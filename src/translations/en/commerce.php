@@ -572,6 +572,7 @@ return [
     'Invalid order condition syntax.' => 'Invalid order condition syntax.',
     'Invalid payment or order. Please review.' => 'Invalid payment or order. Please review.',
     'Invalid payment source ID: {value}' => 'Invalid payment source ID: {value}',
+    'Invalid store.' => 'Invalid store.',
     'Inventory Location' => 'Inventory Location',
     'Inventory Locations' => 'Inventory Locations',
     'Inventory Tracked' => 'Inventory Tracked',

@@ -142,6 +142,30 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
+     * Returns the order statuses for a store based on the current user.
+     *
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 5.0.0
+     */
+    public function actionGetOrderStatuses(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $storeId = $this->request->getRequiredParam('storeId');
+        $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
+        $allowableStoreIds = Plugin::getInstance()->getStores()->getStoresByUserId(Craft::$app->getUser()->id)->map(fn(Store $s) => $s->id)->all();
+
+        if (!$store || !in_array($store->id, $allowableStoreIds)) {
+            return $this->asFailure(Craft::t('commerce', 'Invalid store.'));
+        }
+
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($storeId)->all();
+
+        return $this->asSuccess(data: compact('orderStatuses'));
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws ErrorException

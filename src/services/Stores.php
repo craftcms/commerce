@@ -201,6 +201,32 @@ class Stores extends Component
     }
 
     /**
+     * Returns a collections of stores that are available to a user.
+     *
+     * @return Collection<Store>
+     */
+    public function getStoresByUserId(int $userId): Collection
+    {
+        $user = Craft::$app->getUsers()->getUserById($userId);
+
+        if (!$user) {
+            throw new InvalidConfigException('Invalid user ID: ' . $userId);
+        }
+
+        return $this->getAllStores()->filter(function(Store $store) use ($user) {
+            $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
+
+            foreach ($siteUids as $siteUid) {
+                if ($user->can('editSite:'.$siteUid)) {
+                    return $store;
+                }
+            }
+
+            return;
+        });
+    }
+
+    /**
      * Saves a store.
      *
      * @param Store $store The store to be saved

@@ -10,11 +10,15 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\stats\TopPurchasables as TopPurchasablesStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use craft\models\Site;
 use craft\web\assets\admintable\AdminTableAsset;
 
 /**
@@ -65,6 +69,12 @@ class TopPurchasables extends Widget
      */
     public function init(): void
     {
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->nameField = isset($this->nameField) ?: 'description';
 
         $this->_nameFieldOptions = [
@@ -89,7 +99,8 @@ class TopPurchasables extends Widget
             $this->dateRange,
             $this->type,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
 
         if (!empty($this->orderStatuses)) {
@@ -171,6 +182,8 @@ class TopPurchasables extends Widget
     {
         $id = 'top-purchasables' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/purchasables/top/settings', [
             'id' => $id,
