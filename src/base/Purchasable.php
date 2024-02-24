@@ -744,7 +744,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
-                    // @TODO change all attribute calls to pass in the the store from the order `$lineItem->getOrder()->getStore()`
                     if (!$this->hasStock()) {
                         $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
