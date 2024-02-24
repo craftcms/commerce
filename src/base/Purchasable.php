@@ -358,6 +358,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getIsAvailable(): bool
     {
+        // Is the element available for purchase?
         if (!$this->availableForPurchase) {
             return false;
         }
@@ -367,6 +368,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
+        // Is the inventory tracked and is there stock?
         if ($this->inventoryTracked && $this->getAvailableTotalStock() < 1) {
             return false;
         }
@@ -376,7 +378,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
-        return $this->getAvailableTotalStock() >= 1;
+        // If the inventory is not tracked then it is always available.
+        return !$this->inventoryTracked;
     }
 
     /**
