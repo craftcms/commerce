@@ -752,7 +752,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
 
-                    if ($this->hasStock() && !$this->inventoryTracked && $lineItemQty > $this->getAvailableTotalStock()) {
+                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getAvailableTotalStock()) {
                         $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getAvailableTotalStock(), 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
