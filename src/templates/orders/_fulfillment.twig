@@ -1,0 +1,21 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+
+]) %}
+
+<div id="fulfillmentTab" class="hidden">
+{% for fulfillment in fulfillmentForm %}
+    <div class="flex items-center mb-2">
+        <div class="w-1/3">
+            <div class="font-bold">{{dump(fulfillment)}}</div>
+        </div>
+
+    </div>
+{% endfor %}
+
+</div>
+
+
+{% js %}
+
+{% endjs %}

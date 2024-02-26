@@ -16,6 +16,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\InventoryMovementType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -226,6 +227,7 @@ class OrdersController extends Controller
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
+        $variables['fulfillmentForm'] = $this->_fulfillmentForm($order);
 
         $transactions = $order->getTransactions();
 
@@ -235,6 +237,22 @@ class OrdersController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
+    }
+
+    private function _fulfillmentForm(Order $order): array
+    {
+        $originalCommitted = (new Query)
+            ->select(['inventoryItemId','inventoryLocationId','orderId','lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
+            ->from(Table::INVENTORYMOVEMENTS )
+            ->where([
+                'orderId' => $order->id,
+                'type' => InventoryMovementType::COMMITTED->value
+            ])
+            ->groupBy(['inventoryItemId','inventoryLocationId','orderId','lineItemId'])
+            ->all();
+
+
+        return $originalCommitted;
     }
 
     /**
@@ -1196,6 +1214,12 @@ class OrdersController extends Controller
         $variables['tabs']['order-history'] = [
             'label' => Craft::t('commerce', 'Status History'),
             'url' => '#orderHistoryTab',
+            'class' => null,
+        ];
+
+        $variables['tabs']['order-fulfillment'] = [
+            'label' => Craft::t('commerce', 'Fulfillment'),
+            'url' => '#fulfillmentTab',
             'class' => null,
         ];
 

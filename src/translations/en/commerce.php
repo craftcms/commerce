@@ -693,6 +693,7 @@ return [
     'New Customer' => 'New Customer',
     'New Customers' => 'New Customers',
     'New Order' => 'New order',
+    'Fulfillment' => 'Fulfillment',
     'New PDF' => 'New PDF',
     'This is the last location for the {store} store.' => 'This is the last location for the {store} store.',
     'New address' => 'New address',
