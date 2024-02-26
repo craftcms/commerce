@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.5.0 - 2024-02-26
 
 - Removed the Lite edition.
 - Deprecated `craft\commerce\models\ShippingMethod::isLite`.
