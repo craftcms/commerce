@@ -11,7 +11,6 @@ use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\engines\Tax;
 use craft\commerce\events\TaxEngineEvent;
-use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**

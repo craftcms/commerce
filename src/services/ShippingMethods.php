@@ -16,7 +16,6 @@ use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use Throwable;

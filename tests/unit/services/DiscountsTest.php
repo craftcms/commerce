@@ -433,7 +433,6 @@ class DiscountsTest extends Unit
      */
     public function testGetAllActiveDiscounts(array|false $attributes, int $count, array $discounts): void
     {
-
         if (!empty($discounts)) {
             foreach ($discounts as &$discount) {
                 $emailUses = $discount['_emailUses'] ?? [];

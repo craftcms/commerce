@@ -11,12 +11,9 @@ use Craft;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
-use craft\errors\WrongEditionException;
 use craft\i18n\Locale;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
-use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
