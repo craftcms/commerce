@@ -22,6 +22,7 @@
 
 ### Development
 - Products no longer save their variants when saved. This is now done in a separate process.
+- Added the `currentStore` Twig variable.
 
 ### Extensibility
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
