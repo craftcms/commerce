@@ -8,21 +8,13 @@
 
 {% if currentUser.admin or currentUser.can('commerce-manageStoreSettings')%}
 {% set navItems = {
-    'store-heading': { heading: "Store"|t('commerce'), minEdition: 'lite' },
-    'store': { title: "Store"|t('commerce'), minEdition: 'lite' },
-    'paymentcurrencies': { title: "Payment Currencies"|t('commerce'), minEdition: 'lite' },
-    'donation': { title: "Donations"|t('commerce'), minEdition: 'lite' },
-    'subscriptions': { heading: 'Subscriptions'|t('commerce'), minEdition: 'lite' },
-    'subscription-plans': { title: 'Plans'|t('commerce'), minEdition: 'lite' }
+    'store-heading': { heading: "Store"|t('commerce')},
+    'store': { title: "Store"|t('commerce')},
+    'paymentcurrencies': { title: "Payment Currencies"|t('commerce')},
+    'donation': { title: "Donations"|t('commerce')},
+    'subscriptions': { heading: 'Subscriptions'|t('commerce')},
+    'subscription-plans': { title: 'Plans'|t('commerce')}
 } %}
-{% endif %}
-
-{% if currentUser.can('commerce-manageStoreSettings') and craft.commerce.is('lite') %}
-{% set navItems = navItems|merge({
-    'taxandshipping-heading': { heading: "Tax & Shipping (Lite)"|t('commerce'), minEdition: 'lite' },
-    'shipping': { title: "Shipping"|t('commerce'), minEdition: 'lite' },
-    'tax': { title: "Tax"|t('commerce'), minEdition: 'lite' },
-}) %}
 {% endif %}
 
 {% if selectedItem is not defined %}
@@ -38,7 +30,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in navItems %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

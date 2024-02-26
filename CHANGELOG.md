@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Removed the Lite edition. 
 - Fixed a SQL error when running the `php craft commerce/upgrade` command on PostgreSQL. ([#3380](https://github.com/craftcms/commerce/pull/3380))
 
 ## 4.4.1.1 - 2024-01-12

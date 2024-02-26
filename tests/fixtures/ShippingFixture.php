@@ -81,7 +81,6 @@ class ShippingFixture extends BaseModelFixture
     public function load(): void
     {
         $originalEdition = Plugin::getInstance()->edition;
-        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
 
         parent::load();
 

@@ -27,11 +27,6 @@ class OrderMarkAsCompleteTest extends Unit
     protected UnitTester $tester;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
@@ -92,8 +87,6 @@ class OrderMarkAsCompleteTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = Plugin::getInstance()->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
     }
 
     /**
@@ -102,8 +95,6 @@ class OrderMarkAsCompleteTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
 
         // Cleanup data.
         foreach ($this->_deleteElementIds as $elementId) {

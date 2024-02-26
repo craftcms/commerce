@@ -274,7 +274,6 @@ class CartTest extends Unit
      */
     public function testAddMultiplePurchasables(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
@@ -310,7 +309,6 @@ class CartTest extends Unit
      */
     public function testAddAddressCustomFieldsOnUpdateCart(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $shippingAddress = [
@@ -359,7 +357,6 @@ class CartTest extends Unit
      */
     public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $customerFixture = $this->tester->grabFixture('customer');
@@ -439,7 +436,6 @@ class CartTest extends Unit
      */
     public function testSetSaveAddresses(?bool $saveBillingAddress, ?bool $saveShippingAddress, ?bool $saveBoth): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $bodyParams = [];

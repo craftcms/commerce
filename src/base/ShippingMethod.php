@@ -59,12 +59,6 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var bool Is this the shipping method for the lite edition.
-     */
-    public bool $isLite = false;
-
-
-    /**
      * @inheritdoc
      */
     public function getType(): string

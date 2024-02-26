@@ -289,14 +289,9 @@ class ShippingMethods extends Component
                 'enabled',
                 'handle',
                 'id',
-                'isLite',
                 'name',
             ])
             ->from([Table::SHIPPINGMETHODS]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

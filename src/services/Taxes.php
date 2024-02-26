@@ -36,7 +36,7 @@ class Taxes extends Component implements TaxEngineInterface
         $event = new TaxEngineEvent(['engine' => new Tax()]);
 
         // Only allow third party tax engines for PRO edition
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO) && $this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             $this->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
         }
 

@@ -148,7 +148,6 @@ use yii\web\User;
 class Plugin extends BasePlugin
 {
     // Edition constants
-    public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
 
     public static function config(): array
@@ -201,7 +200,6 @@ class Plugin extends BasePlugin
     public static function editions(): array
     {
         return [
-            self::EDITION_LITE,
             self::EDITION_PRO,
         ];
     }
@@ -209,7 +207,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '4.2.8';
+    public string $schemaVersion = '4.5.0';
 
     /**
      * @inheritdoc
@@ -334,21 +332,21 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (self::getInstance()->is(self::EDITION_PRO, '>=')) {
-            if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
-                $ret['subnav']['shipping'] = [
-                    'label' => Craft::t('commerce', 'Shipping'),
-                    'url' => 'commerce/shipping',
-                ];
-            }
 
-            if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-                $ret['subnav']['tax'] = [
-                    'label' => Craft::t('commerce', 'Tax'),
-                    'url' => 'commerce/tax',
-                ];
-            }
+        if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
+            $ret['subnav']['shipping'] = [
+                'label' => Craft::t('commerce', 'Shipping'),
+                'url' => 'commerce/shipping',
+            ];
         }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+            $ret['subnav']['tax'] = [
+                'label' => Craft::t('commerce', 'Tax'),
+                'url' => 'commerce/tax',
+            ];
+        }
+
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-settings'] = [

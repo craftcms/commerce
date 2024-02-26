@@ -259,7 +259,6 @@ class ShippingRules extends Component
                 'description',
                 'enabled',
                 'id',
-                'isLite',
                 'maxQty',
                 'maxRate',
                 'maxTotal',
@@ -280,10 +279,6 @@ class ShippingRules extends Component
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

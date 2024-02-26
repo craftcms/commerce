@@ -8,17 +8,17 @@
 
 {% if currentUser.admin %}
 {% set navItems = {
-    'general': { title: "General Settings"|t('commerce'), minEdition: 'lite' },
-    'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: 'lite' },
-    'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: 'lite' },
-    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce'), minEdition: 'lite' },
-    'emails': { title: "Emails"|t('commerce'), minEdition: 'lite' },
-    'pdfs': { title: "PDFs"|t('commerce'), minEdition: 'lite' },
-    'gateways': { title: "Gateways"|t('commerce'), minEdition: 'lite' },
-    'products-heading': { heading: "Products"|t('commerce'), minEdition: 'lite' },
-    'producttypes': { title: "Product Types"|t('commerce'), minEdition: 'lite' },
-    'subscriptions-heading': { heading: "Subscriptions"|t('commerce'), minEdition: 'lite' },
-    'subscriptions/fields': { title: "Subscription Fields"|t('commerce'), minEdition: 'lite' },
+    'general': { title: "General Settings"|t('commerce')},
+    'ordersettings': { title: "Order Fields"|t('commerce')},
+    'orderstatuses': { title: "Order Statuses"|t('commerce')},
+    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
+    'emails': { title: "Emails"|t('commerce')},
+    'pdfs': { title: "PDFs"|t('commerce')},
+    'gateways': { title: "Gateways"|t('commerce')},
+    'products-heading': { heading: "Products"|t('commerce')},
+    'producttypes': { title: "Product Types"|t('commerce')},
+    'subscriptions-heading': { heading: "Subscriptions"|t('commerce')},
+    'subscriptions/fields': { title: "Subscription Fields"|t('commerce')},
 } %}
 {% endif %}
 
@@ -46,7 +46,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in navItems %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

@@ -106,10 +106,6 @@ trait Routes
             $event->rules['commerce/store-settings/states/new'] = 'commerce/states/edit';
             $event->rules['commerce/store-settings/states/<id:\d+>'] = 'commerce/states/edit';
 
-            // Lite shipping and tax
-            $event->rules['commerce/store-settings/shipping'] = 'commerce/lite-shipping/edit';
-            $event->rules['commerce/store-settings/tax'] = 'commerce/lite-tax/edit';
-
             // Shipping
             $event->rules['commerce/shipping/shippingzones'] = 'commerce/shipping-zones/index';
             $event->rules['commerce/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';

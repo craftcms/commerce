@@ -231,7 +231,6 @@ class TaxRates extends Component
                 'dateUpdated',
                 'id',
                 'include',
-                'isLite',
                 'isVat',
                 'name',
                 'rate',
@@ -243,10 +242,6 @@ class TaxRates extends Component
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from([Table::TAXRATES]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

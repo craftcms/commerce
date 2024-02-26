@@ -59,10 +59,6 @@ class DiscountsController extends BaseCpController
     {
         parent::init();
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '<')) {
-            throw new ForbiddenHttpException('Managing discounts is not permitted on the Lite edition.');
-        }
-
         $this->requirePermission('commerce-managePromotions');
     }
 
