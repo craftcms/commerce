@@ -128,8 +128,7 @@ class TaxRates extends Component
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
         $record->taxZoneId = $model->taxZoneId ?: null;
-        $record->isEverywhere = $model->getIsEverywhere() || $model->isLite;
-        $record->isLite = $model->isLite;
+        $record->isEverywhere = $model->getIsEverywhere();
 
         if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
@@ -162,17 +161,11 @@ class TaxRates extends Component
      * @return bool
      * @throws Exception
      * @throws \Exception
+     * @deprecated in 4.5.0. Use [[saveTaxRate()]] instead.
      */
     public function saveLiteTaxRate(TaxRate $model, bool $runValidation = true): bool
     {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite tax rate.
-        Craft::$app->getDb()->createCommand()
-            ->delete(TaxRateRecord::tableName(), ['isLite' => true])
-            ->execute();
-
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRates::saveLiteTaxRate() is deprecated. Use TaxRates::saveTaxRate() instead.');
         return $this->saveTaxRate($model, $runValidation);
     }
 
@@ -181,14 +174,15 @@ class TaxRates extends Component
      *
      * @return TaxRate
      * @throws InvalidConfigException
+     * @deprecated in 4.5.0. Use [[getAllTaxRates()]] instead.
      */
     public function getLiteTaxRate(): TaxRate
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRates::getLiteTaxRate() is deprecated. Use TaxRates::getAllTaxRates() instead.');
         $liteRate = $this->_createTaxRatesQuery()->one();
 
         if ($liteRate == null) {
             $liteRate = new TaxRate();
-            $liteRate->isLite = true;
             $liteRate->name = 'Tax';
             $liteRate->include = false;
             $liteRate->removeIncluded = true;
@@ -231,7 +225,6 @@ class TaxRates extends Component
                 'dateUpdated',
                 'id',
                 'include',
-                'isLite',
                 'isVat',
                 'name',
                 'rate',
@@ -243,10 +236,6 @@ class TaxRates extends Component
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from([Table::TAXRATES]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

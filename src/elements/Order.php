@@ -2685,16 +2685,7 @@ class Order extends Element
             $lineItem->setOrder($this);
         }
 
-        // Lite should only allow one line item while the order is a cart.
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE) && $this->isCompleted == false) {
-            if (empty($lineItems)) {
-                $this->_lineItems = [];
-            } else {
-                $this->_lineItems = [array_shift($lineItems)];
-            }
-        } else {
-            $this->_lineItems = $lineItems;
-        }
+        $this->_lineItems = $lineItems;
     }
 
     public function _getAdjustmentsTotalByType(array|string $types, bool $included = false): float|int
@@ -3142,7 +3133,7 @@ class Order extends Element
     /**
      * @return ShippingMethod|null
      * @throws InvalidConfigException
-     * @deprected in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
+     * @deprecated in 3.4.18. Use `$shippingMethodHandle` or `$shippingMethodName` instead.
      */
     public function getShippingMethod(): ?ShippingMethod
     {

@@ -11,12 +11,9 @@ use Craft;
 use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
-use craft\errors\WrongEditionException;
 use craft\i18n\Locale;
 use yii\base\Exception;
-use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
-use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -24,23 +21,10 @@ use yii\web\Response;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @deprecated in 4.5.0
  */
 class LiteTaxController extends BaseStoreSettingsController
 {
-    /**
-     * @throws WrongEditionException
-     * @throws InvalidConfigException
-     * @throws ForbiddenHttpException
-     */
-    public function init(): void
-    {
-        parent::init();
-
-        if (!Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            throw new WrongEditionException('Lite settings editable when using the lite edition only');
-        }
-    }
-
     /**
      * Commerce Settings Form
      */

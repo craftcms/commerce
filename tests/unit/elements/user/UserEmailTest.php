@@ -29,11 +29,6 @@ class UserEmailTest extends Unit
     protected UnitTester $tester;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var string|null
      */
     private ?string $_originalEmail = null;
@@ -67,10 +62,8 @@ class UserEmailTest extends Unit
     {
         parent::_before();
 
-        $this->originalEdition = Plugin::getInstance()->edition;
         $this->_user = User::find()->admin()->one();
         $this->_originalEmail = $this->_user->email;
-        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
     }
 
     public function testUpdatedEmail(): void
@@ -119,8 +112,6 @@ class UserEmailTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        Plugin::getInstance()->edition = $this->originalEdition;
 
         // Reset user email
         $this->_user->email = $this->_originalEmail;
