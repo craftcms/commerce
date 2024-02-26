@@ -50,7 +50,7 @@
                         }}</btn-link>
                     </div>
                     <!-- Edit-->
-                    <div v-if="isProEdition">
+                    <div>
                         <btn-link
                             button-class="btn-link btn-link--danger"
                             @click="removeLineItem"
@@ -296,7 +296,6 @@
                 'shippingCategories',
                 'taxCategories',
                 'orderId',
-                'isProEdition',
             ]),
 
             salePrice: {

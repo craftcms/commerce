@@ -20,9 +20,7 @@
                     </li>
                 </ul>
 
-                <template
-                    v-if="lineItems.length > 0 || (editing && isProEdition)"
-                >
+                <template v-if="lineItems.length > 0 || editing">
                     <line-items
                         :line-items="lineItems"
                         :editing="editing"
@@ -30,7 +28,7 @@
                         @updateLineItems="updateLineItems"
                     ></line-items>
 
-                    <template v-if="editing && isProEdition">
+                    <template v-if="editing">
                         <div
                             class="pb"
                             :class="{
@@ -128,8 +126,6 @@
         },
 
         computed: {
-            ...mapGetters(['isProEdition']),
-
             ...mapState({
                 recalculateLoading: (state) => state.recalculateLoading,
                 saveLoading: (state) => state.saveLoading,

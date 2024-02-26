@@ -119,7 +119,6 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -170,48 +169,6 @@ class ShippingRules extends Component
         $this->_allShippingRules = null; // clear cache
 
         return true;
-    }
-
-    /**
-     * Save a shipping rule.
-     *
-     * @param bool $runValidation should we validate this rule before saving.
-     * @throws Exception
-     */
-    public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
-    {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rule.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        $this->_allShippingRules = null; // clear cache
-        return $this->saveShippingRule($model, $runValidation);
-    }
-
-    /**
-     * Gets the lite shipping rule or returns a new one.
-     */
-    public function getLiteShippingRule(): ShippingRule
-    {
-        $liteRule = $this->_createShippingRulesQuery()->one();
-
-        if ($liteRule == null) {
-            $liteRule = new ShippingRule();
-            $liteRule->isLite = true;
-            $liteRule->name = 'Shipping Cost';
-            $liteRule->description = 'Shipping Cost';
-            $liteRule->enabled = true;
-        } else {
-            $liteRule = new ShippingRule($liteRule);
-        }
-
-        $this->_allShippingRules = null; // clear cache
-
-        return $liteRule;
     }
 
     /**

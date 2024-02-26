@@ -128,8 +128,7 @@ class TaxRates extends Component
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
         $record->taxZoneId = $model->taxZoneId ?: null;
-        $record->isEverywhere = $model->getIsEverywhere() || $model->isLite;
-        $record->isLite = $model->isLite;
+        $record->isEverywhere = $model->getIsEverywhere();
 
         if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
             $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
@@ -152,54 +151,6 @@ class TaxRates extends Component
         $model->id = $record->id;
 
         return true;
-    }
-
-    /**
-     * Saves a Commerce Lite tax rate.
-     *
-     * @param TaxRate $model          The tax rate model to be saved
-     * @param bool    $runValidation  Whether we should validate this rate before saving
-     * @return bool
-     * @throws Exception
-     * @throws \Exception
-     */
-    public function saveLiteTaxRate(TaxRate $model, bool $runValidation = true): bool
-    {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite tax rate.
-        Craft::$app->getDb()->createCommand()
-            ->delete(TaxRateRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        return $this->saveTaxRate($model, $runValidation);
-    }
-
-    /**
-     * Returns the Commerce Lite tax rate.
-     *
-     * @return TaxRate
-     * @throws InvalidConfigException
-     */
-    public function getLiteTaxRate(): TaxRate
-    {
-        $liteRate = $this->_createTaxRatesQuery()->one();
-
-        if ($liteRate == null) {
-            $liteRate = new TaxRate();
-            $liteRate->isLite = true;
-            $liteRate->name = 'Tax';
-            $liteRate->include = false;
-            $liteRate->removeIncluded = true;
-            $liteRate->removeVatIncluded = true;
-            $liteRate->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-            $liteRate->taxable = TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE;
-        } else {
-            $liteRate = new TaxRate($liteRate);
-        }
-
-        return $liteRate;
     }
 
     /**
