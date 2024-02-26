@@ -172,6 +172,45 @@ class ShippingRules extends Component
     }
 
     /**
+     * Save a shipping rule.
+     *
+     * @param bool $runValidation should we validate this rule before saving.
+     * @throws Exception
+     * @deprecated in 4.5.0. Use [[saveShippingRule()]] instead.
+     */
+    public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingRule::saveLiteShippingRule() is deprecated. Use ShippingRule::saveShippingRule() instead.');
+        $this->_allShippingRules = null; // clear cache
+        return $this->saveShippingRule($model, $runValidation);
+    }
+
+    /**
+     * Gets the lite shipping rule or returns a new one.
+     *
+     * @return ShippingRule
+     * @deprecated in 4.5.0. Use [[getAllShippingRules()]] instead.
+     */
+    public function getLiteShippingRule(): ShippingRule
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethod::getLiteShippingRule() is deprecated. Use ShippingMethod::getAllShippingRules() instead.');
+        $liteRule = $this->_createShippingRulesQuery()->one();
+
+        if ($liteRule == null) {
+            $liteRule = new ShippingRule();
+            $liteRule->name = 'Shipping Cost';
+            $liteRule->description = 'Shipping Cost';
+            $liteRule->enabled = true;
+        } else {
+            $liteRule = new ShippingRule($liteRule);
+        }
+
+        $this->_allShippingRules = null; // clear cache
+
+        return $liteRule;
+    }
+
+    /**
      * Reorders shipping rules by the given array of IDs.
      *
      * @throws \yii\db\Exception

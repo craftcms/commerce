@@ -26,6 +26,7 @@ use yii\base\Exception;
 /**
  * Shipping method service.
  *
+ * @property ShippingMethod $liteShippingMethod
  * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -195,6 +196,42 @@ class ShippingMethods extends Component
         $this->_allShippingMethods = null; //clear the cache
 
         return true;
+    }
+
+    /**
+     * Save a lite shipping method.
+     *
+     * @param bool $runValidation should we validate this method before saving.
+     * @throws Exception
+     * @deprecated in 4.5.0. Use [[saveShippingMethod()]] instead.
+     */
+    public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethods::saveLiteShippingMethods() is deprecated. Use ShippingMethods::saveShippingMethod() instead.');
+        $this->_allShippingMethods = null; //clear the cache
+        return $this->saveShippingMethod($model, $runValidation);
+    }
+
+    /**
+     * Gets the lite shipping method or returns a new one.
+     * @return ShippingMethod
+     * @deprecated in 4.5.0. Use [[getAllShippingMethods()]] instead.
+     */
+    public function getLiteShippingMethod(): ShippingMethod
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethods::getLiteShippingMethod() is deprecated. Use ShippingMethods::getAllShippingMethods() instead.');
+        $liteMethod = $this->_createShippingMethodQuery()->one();
+
+        if ($liteMethod == null) {
+            $liteMethod = new ShippingMethod();
+            $liteMethod->name = 'Shipping Cost';
+            $liteMethod->handle = 'liteShipping';
+            $liteMethod->enabled = true;
+        } else {
+            $liteMethod = new ShippingMethod($liteMethod);
+        }
+
+        return $liteMethod;
     }
 
     /**

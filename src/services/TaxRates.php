@@ -154,6 +154,49 @@ class TaxRates extends Component
     }
 
     /**
+     * Saves a Commerce Lite tax rate.
+     *
+     * @param TaxRate $model          The tax rate model to be saved
+     * @param bool    $runValidation  Whether we should validate this rate before saving
+     * @return bool
+     * @throws Exception
+     * @throws \Exception
+     * @deprecated in 4.5.0. Use [[saveTaxRate()]] instead.
+     */
+    public function saveLiteTaxRate(TaxRate $model, bool $runValidation = true): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRates::saveLiteTaxRate() is deprecated. Use TaxRates::saveTaxRate() instead.');
+        return $this->saveTaxRate($model, $runValidation);
+    }
+
+    /**
+     * Returns the Commerce Lite tax rate.
+     *
+     * @return TaxRate
+     * @throws InvalidConfigException
+     * @deprecated in 4.5.0. Use [[getAllTaxRates()]] instead.
+     */
+    public function getLiteTaxRate(): TaxRate
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRates::getLiteTaxRate() is deprecated. Use TaxRates::getAllTaxRates() instead.');
+        $liteRate = $this->_createTaxRatesQuery()->one();
+
+        if ($liteRate == null) {
+            $liteRate = new TaxRate();
+            $liteRate->name = 'Tax';
+            $liteRate->include = false;
+            $liteRate->removeIncluded = true;
+            $liteRate->removeVatIncluded = true;
+            $liteRate->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $liteRate->taxable = TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE;
+        } else {
+            $liteRate = new TaxRate($liteRate);
+        }
+
+        return $liteRate;
+    }
+
+    /**
      * Deletes a tax rate by ID.
      *
      * @throws Throwable

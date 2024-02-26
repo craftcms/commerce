@@ -7,10 +7,12 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\commerce\base\Model as BaseModel;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
+use craft\errors\DeprecationException;
 use DateTime;
 
 /**
@@ -23,6 +25,7 @@ use DateTime;
  * @property-read array $shippingRules
  * @property-read bool $isEnabled
  * @property-read string $type
+ * @property bool $isLite
  */
 abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
 {
@@ -57,6 +60,30 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function getIsLite(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethod::getIsLite() is deprecated.');
+        return false;
+    }
+
+    /**
+     * @param bool $isLite
+     * @return void
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function setIsLite(bool $isLite): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethod::setIsLite() is deprecated.');
+    }
 
     /**
      * @inheritdoc
