@@ -3,6 +3,21 @@
 ## Unreleased
 
 - Removed the Lite edition. 
+- Removed the single line item limit from Carts in the Lite edition.
+- Removed the limitation of being unable to register custom Tax engines.
+- Removed the limitation of adding custom adjusters in the Lite edition.
+- Removed the limitation of being unable to create orders form the Order index page in the Lite edition.
+- Removed `craft\commerce\models\ShippingMethod::isLite`.
+- Removed `craft\commerce\models\ShippingRule::isLite`.
+- Removed `craft\commerce\models\TaxRate::isLite`.
+- Removed `craft\commerce\models\LiteShippingSettings`.
+- Removed `craft\commerce\models\LiteTaxSettings`.
+- Removed `craft\commerce\controllers\LiteShippingController`.
+- Removed `craft\commerce\controllers\LiteTaxController`.
+- Removed `craft\commerce\services\ShippingMethods::saveLiteShippingMethod()`
+- Removed `craft\commerce\services\ShippingMethods::saveLiteShippingRule()`
+- Removed `craft\commerce\services\TaxRates::saveLiteTaxRate()`
+- 
 - Fixed a SQL error when running the `php craft commerce/upgrade` command on PostgreSQL. ([#3380](https://github.com/craftcms/commerce/pull/3380))
 
 ## 4.4.1.1 - 2024-01-12
