@@ -119,7 +119,6 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -177,31 +176,28 @@ class ShippingRules extends Component
      *
      * @param bool $runValidation should we validate this rule before saving.
      * @throws Exception
+     * @deprecated in 4.5.0. Use [[saveShippingRule()]] instead.
      */
     public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
     {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rule.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingRule::saveLiteShippingRule() is deprecated. Use ShippingRule::saveShippingRule() instead.');
         $this->_allShippingRules = null; // clear cache
         return $this->saveShippingRule($model, $runValidation);
     }
 
     /**
      * Gets the lite shipping rule or returns a new one.
+     *
+     * @return ShippingRule
+     * @deprecated in 4.5.0. Use [[getAllShippingRules()]] instead.
      */
     public function getLiteShippingRule(): ShippingRule
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethod::getLiteShippingRule() is deprecated. Use ShippingMethod::getAllShippingRules() instead.');
         $liteRule = $this->_createShippingRulesQuery()->one();
 
         if ($liteRule == null) {
             $liteRule = new ShippingRule();
-            $liteRule->isLite = true;
             $liteRule->name = 'Shipping Cost';
             $liteRule->description = 'Shipping Cost';
             $liteRule->enabled = true;
@@ -259,7 +255,6 @@ class ShippingRules extends Component
                 'description',
                 'enabled',
                 'id',
-                'isLite',
                 'maxQty',
                 'maxRate',
                 'maxTotal',
@@ -280,10 +275,6 @@ class ShippingRules extends Component
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

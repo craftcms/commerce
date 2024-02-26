@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
@@ -23,6 +24,7 @@ use yii\base\InvalidConfigException;
  * @property-read bool $isEverywhere
  * @property TaxAddressZone|null $taxZone
  * @property TaxCategory|null $taxCategory
+ * @property bool $isLite
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -86,11 +88,6 @@ class TaxRate extends Model
      * @var int|null Tax category ID
      */
     public ?int $taxCategoryId = null;
-
-    /**
-     * @var bool Is this the tax rate for the lite edition
-     */
-    public bool $isLite = false;
 
     /**
      * @var int|null Tax zone ID
@@ -209,5 +206,29 @@ class TaxRate extends Model
     public function getIsEverywhere(): bool
     {
         return !$this->getTaxZone();
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function getIsLite(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::getIsLite() is deprecated.');
+        return false;
+    }
+
+    /**
+     * @param bool $isLite
+     * @return void
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function setIsLite(bool $isLite): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'TaxRate::setIsLite() is deprecated.');
     }
 }

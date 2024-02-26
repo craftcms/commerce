@@ -433,9 +433,6 @@ class DiscountsTest extends Unit
      */
     public function testGetAllActiveDiscounts(array|false $attributes, int $count, array $discounts): void
     {
-        $originalEdition = Plugin::getInstance()->edition;
-        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
-
         if (!empty($discounts)) {
             foreach ($discounts as &$discount) {
                 $emailUses = $discount['_emailUses'] ?? [];
@@ -504,8 +501,6 @@ class DiscountsTest extends Unit
                 Plugin::getInstance()->getDiscounts()->deleteDiscountById($discountId);
             }
         }
-
-        Plugin::getInstance()->edition = $originalEdition;
     }
 
     /**

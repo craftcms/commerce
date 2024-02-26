@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use craft\errors\DeprecationException;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -25,6 +26,7 @@ use yii\base\InvalidConfigException;
  * @property array $options
  * @property array|ShippingRuleCategory[] $shippingRuleCategories
  * @property mixed $shippingZone
+ * @property bool $isLite
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -134,11 +136,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var float Maximum rate
      */
     public float $maxRate = 0;
-
-    /**
-     * @var bool Is lite shipping rule
-     */
-    public bool $isLite = false;
 
     /**
      * @var DateTime|null
@@ -522,5 +519,29 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         return $this->$attribute;
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function getIsLite(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingRule::getIsLite() is deprecated.');
+        return false;
+    }
+
+    /**
+     * @param bool $isLite
+     * @return void
+     * @throws DeprecationException
+     * @since 4.5.0
+     * @deprecated in 4.5.0.
+     */
+    public function setIsLite(bool $isLite): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingRule::setIsLite() is deprecated.');
     }
 }

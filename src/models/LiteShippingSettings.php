@@ -16,6 +16,7 @@ use craft\commerce\base\Model;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @deprecated in 4.5.0
  *
  */
 class LiteShippingSettings extends Model
