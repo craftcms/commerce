@@ -253,7 +253,18 @@ class Carts extends Component
      */
     public function getHasSessionCartNumber(): bool
     {
-        return $this->_cartNumber !== null && $this->_cartNumber !== false;
+        if ($this->_cartNumber === false) {
+            return false;
+        }
+
+        if ($this->_cartNumber === null) {
+            $request = Craft::$app->getRequest();
+            $requestCookies = $request->getCookies();
+
+            return $requestCookies->getValue($this->cartCookie['name'], false) !== false;
+        }
+
+        return true;
     }
 
     /**

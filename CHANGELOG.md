@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where `craft\commerce\services\Carts::getHasSessionCartNumber()` wasn’t checking the cart cookie. ([#3353](https://github.com/craftcms/commerce/issues/3353))
+
 ## 4.5.0 - 2024-02-26
 
 - Removed the Lite edition.
