@@ -8,18 +8,19 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\InventoryMovementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
-use craft\commerce\models\inventory\InventoryMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
+use craft\commerce\models\InventoryTransaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
@@ -160,6 +161,15 @@ class Inventory extends Component
 
     /**
      * @param array $data
+     * @return InventoryTransaction
+     */
+    private function _populateInventoryTransaction(array $data): InventoryTransaction
+    {
+        return new InventoryTransaction($data);
+    }
+
+    /**
+     * @param array $data
      * @return InventoryLevel
      */
     private function _populateInventoryLevel(array $data): InventoryLevel
@@ -206,7 +216,7 @@ class Inventory extends Component
             ])
             ->from(['il' => Table::INVENTORYLOCATIONS]) // we want a record for every location and...
             ->join('JOIN', ['ii' => Table::INVENTORYITEMS]) //  we want a record for every location and item
-            ->leftJoin(['im' => Table::INVENTORYMOVEMENTS], "im.inventoryLocationId = il.id and ii.id = im.inventoryItemId")
+            ->leftJoin(['im' => Table::INVENTORYTRANSACTIONS], "im.inventoryLocationId = il.id and ii.id = im.inventoryItemId")
             ->groupBy(['il.id', 'ii.id', 'im.type']);
 
         $query = (new Query())
@@ -279,10 +289,10 @@ class Inventory extends Component
      */
     private function _setInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
     {
-        $tableName = Table::INVENTORYMOVEMENTS;
+        $tableName = Table::INVENTORYTRANSACTIONS;
 
         if ($updateInventoryLevel->type === 'onHand') {
-            $types = collect(InventoryMovementType::onHand())->pluck('value');
+            $types = collect(InventoryTransactionType::onHand())->pluck('value');
         } else {
             $types = [$updateInventoryLevel->type];
         }
@@ -299,7 +309,7 @@ class Inventory extends Component
 
         $type = $updateInventoryLevel->type;
         if ($updateInventoryLevel->type === 'onHand') {
-            $type = InventoryMovementType::AVAILABLE->value;
+            $type = InventoryTransactionType::AVAILABLE->value;
         }
 
         Craft::$app->db->createCommand()
@@ -323,7 +333,7 @@ class Inventory extends Component
      */
     private function _adjustInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
     {
-        $tableName = Table::INVENTORYMOVEMENTS;
+        $tableName = Table::INVENTORYTRANSACTIONS;
 
         $type = $updateInventoryLevel->type;
         if ($updateInventoryLevel->type === 'onHand') {
@@ -353,15 +363,15 @@ class Inventory extends Component
      */
     public function executeInventoryMovements(InventoryMovementCollection $inventoryMovements): bool
     {
-        $tableName = Table::INVENTORYMOVEMENTS;
+        $tableName = Table::INVENTORYTRANSACTIONS;
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
 
         try {
-            /** @var InventoryMovement $inventoryMovement */
+            /** @var InventoryMovementInterface $inventoryMovement */
             foreach ($inventoryMovements as $inventoryMovement) {
-                if (!$inventoryMovement->validate()) {
+                if (!$inventoryMovement->isValid()) {
                     $transaction->rollBack();
                     return false;
                 }
@@ -371,17 +381,17 @@ class Inventory extends Component
                 // First insert operation
                 $fromInsertResult = $db->createCommand()
                     ->insert($tableName, [
-                        'quantity' => -$inventoryMovement->quantity,
-                        'type' => $inventoryMovement->fromInventoryMovementType->value,
-                        'inventoryItemId' => $inventoryMovement->inventoryItem->id,
-                        'inventoryLocationId' => $inventoryMovement->fromInventoryLocation->id,
+                        'quantity' => -$inventoryMovement->getQuantity(),
+                        'type' => $inventoryMovement->getFromInventoryTransactionType()->value,
+                        'inventoryItemId' => $inventoryMovement->getInventoryItem()->id,
+                        'inventoryLocationId' => $inventoryMovement->getFromInventoryLocation()->id,
                         'movementHash' => $inventoryMovement->getInventoryMovementHash(),
                         'dateCreated' => $movementDate,
-                        'transferId' => $inventoryMovement->transferId,
-                        'orderId' => $inventoryMovement->orderId,
-                        'lineItemId' => $inventoryMovement->lineItemId,
-                        'userId' => $inventoryMovement->userId,
-                        'note' => $inventoryMovement->note,
+                        'transferId' => $inventoryMovement->getTransferId(),
+                        'orderId' => $inventoryMovement->getOrderId(),
+                        'lineItemId' => $inventoryMovement->getLineItemId(),
+                        'userId' => $inventoryMovement->getUserId(),
+                        'note' => $inventoryMovement->getNote(),
                     ])
                     ->execute();
 
@@ -393,17 +403,17 @@ class Inventory extends Component
                 // Second insert operation
                 $toInsertResult = $db->createCommand()
                     ->insert($tableName, [
-                        'quantity' => $inventoryMovement->quantity,
-                        'type' => $inventoryMovement->toInventoryMovementType->value,
-                        'inventoryItemId' => $inventoryMovement->inventoryItem->id,
-                        'inventoryLocationId' => $inventoryMovement->toInventoryLocation->id,
+                        'quantity' => $inventoryMovement->getQuantity(),
+                        'type' => $inventoryMovement->getToInventoryTransactionType()->value,
+                        'inventoryItemId' => $inventoryMovement->getInventoryItem()->id,
+                        'inventoryLocationId' => $inventoryMovement->getToInventoryLocation()->id,
                         'movementHash' => $inventoryMovement->getInventoryMovementHash(),
                         'dateCreated' => $movementDate,
-                        'transferId' => $inventoryMovement->transferId,
-                        'orderId' => $inventoryMovement->orderId,
-                        'lineItemId' => $inventoryMovement->lineItemId,
-                        'userId' => $inventoryMovement->userId,
-                        'note' => $inventoryMovement->note,
+                        'transferId' => $inventoryMovement->getTransferId(),
+                        'orderId' => $inventoryMovement->getOrderId(),
+                        'lineItemId' => $inventoryMovement->getLineItemId(),
+                        'userId' => $inventoryMovement->getUserId(),
+                        'note' => $inventoryMovement->getNote(),
                     ])
                     ->execute();
 
@@ -446,7 +456,7 @@ class Inventory extends Component
             ->select(['orders.id'])
             ->from(['lineItems' => Table::LINEITEMS])
             ->leftJoin(['orders' => Table::ORDERS], '[[lineItems.orderId]] = [[orders.id]]')
-            ->leftJoin(['inventorymovements' => Table::INVENTORYMOVEMENTS], '[[inventorymovements.lineItemId]] = [[lineItems.id]]')
+            ->leftJoin(['inventorymovements' => Table::INVENTORYTRANSACTIONS], '[[inventorymovements.lineItemId]] = [[lineItems.id]]')
             ->where(['orders.isCompleted' => true])
             ->andWhere(['inventorymovements.inventoryItemId' => $inventoryItem->id])
             ->andWhere(['inventorymovements.inventoryLocationId' => $inventoryLocation->id])
@@ -460,16 +470,43 @@ class Inventory extends Component
     }
 
     /**
+     * @return Query
+     */
+    public function getMovementsQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'inventoryLocationId',
+                'inventoryItemId',
+                'movementHash',
+                'quantity',
+                'type',
+                'note',
+                'transferId',
+                'orderId',
+                'lineItemId',
+                'userId',
+                'dateCreated',
+            ])
+            ->orderBy(['dateCreated' => SORT_DESC])
+            ->from(Table::INVENTORYTRANSACTIONS);
+    }
+
+    /**
      * @param InventoryItem $inventoryItem
      * @param InventoryLocation $inventoryLocation
      * @return Collection
      */
     public function getMovements(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): Collection
     {
-        return (new Query())
-            ->select(['type', 'movementHash', 'quantity', 'note', 'dateCreated'])
-            ->from(Table::INVENTORYMOVEMENTS)
+        $transactions = $this->getMovementsQuery()
             ->where(['inventoryItemId' => $inventoryItem->id, 'inventoryLocationId' => $inventoryLocation->id])
-            ->collect();
+            ->all();
+
+        foreach ($transactions as $key => $transaction) {
+            $transactions[$key] = $this->_populateInventoryTransaction($transaction);
+        }
+
+        return collect($transactions);
     }
 }

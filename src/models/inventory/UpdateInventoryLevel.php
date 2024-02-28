@@ -3,7 +3,7 @@
 namespace craft\commerce\models\inventory;
 
 use craft\base\Model;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLocation;
@@ -16,7 +16,7 @@ use craft\commerce\models\InventoryLocation;
 class UpdateInventoryLevel extends Model
 {
     /**
-     * The type is the set of InventoryMovementType values, plus the `onHand` type.
+     * The type is the set of InventoryTransactionType values, plus the `onHand` type.
      * @var string The inventory update type.
      */
     public string $type;
@@ -51,7 +51,7 @@ class UpdateInventoryLevel extends Model
         return array_merge(parent::defineRules(), [
             [['updateAction', 'quantity', 'inventoryLocationId', 'inventoryId', 'type'], 'required'],
             [['note'], 'string'],
-            [['type'], 'in', 'range' => [...InventoryMovementType::allowedManualAdjustmentTypes(), 'onHand']],
+            [['type'], 'in', 'range' => [...InventoryTransactionType::allowedManualAdjustmentTypes(), 'onHand']],
             [['updateAction'], 'in', 'range' => InventoryUpdateQuantityType::values()],
         ]);
     }

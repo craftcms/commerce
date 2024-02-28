@@ -10,11 +10,11 @@
 }) }}
 
 {{  forms.selectField({
-    id: 'inventoryMovement-toInventoryMovementType',
-    name: 'inventoryMovement[toInventoryMovementType]',
+    id: 'inventoryMovement-toInventoryTransactionType',
+    name: 'inventoryMovement[toInventoryTransactionType]',
     label: 'Move To'|t('commerce'),
-    options: toInventoryMovementTypes,
-    value: inventoryMovement.toInventoryMovementType.value,
+    options: toInventoryTransactionTypes,
+    value: inventoryMovement.toInventoryTransactionType.value,
 }) }}
 
 {{ forms.textField({
@@ -27,8 +27,8 @@
 <p>{{ 'Move {qty} from {fromType} to {toType}'|t('commerce',
     {
         qty: inventoryMovement.quantity,
-        fromType: inventoryMovement.fromInventoryMovementType.typeAsLabel(),
-        toType: inventoryMovement.toInventoryMovementType.typeAsLabel()
+        fromType: inventoryMovement.fromInventoryTransactionType.typeAsLabel(),
+        toType: inventoryMovement.toInventoryTransactionType.typeAsLabel()
     }) }}
 
 {{ forms.hidden({
@@ -42,8 +42,8 @@
 }) }}
 
 {{ forms.hidden({
-    name: 'inventoryMovement[fromInventoryMovementType]',
-    value: inventoryMovement.fromInventoryMovementType.value,
+    name: 'inventoryMovement[fromInventoryTransactionType]',
+    value: inventoryMovement.fromInventoryTransactionType.value,
 }) }}
 
 {{ forms.hidden({

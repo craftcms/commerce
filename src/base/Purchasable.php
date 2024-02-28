@@ -12,10 +12,10 @@ use craft\base\Element;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
-use craft\commerce\models\inventory\InventoryMovement;
+use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -378,8 +378,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
-        // If the inventory is not tracked then it is always available.
-        return !$this->inventoryTracked;
+        return true;
     }
 
     /**
@@ -815,12 +814,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                 if ($inventoryLevel->availableTotal > 0) {
                     $deductQty = min($inventoryLevel->availableTotal, $remainingQty);
-                    $movements->push(new InventoryMovement([
+                    $movements->push(new InventoryManualMovement([
                         'inventoryItem' => $this->getInventoryItem(),
                         'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
                         'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                        'fromInventoryMovementType' => InventoryMovementType::AVAILABLE,
-                        'toInventoryMovementType' => InventoryMovementType::COMMITTED,
+                        'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
+                        'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
                         'quantity' => $deductQty,
                         'orderId' => $order->id,
                         'lineItemId' => $lineItem->id,
@@ -894,16 +893,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * @param InventoryMovementType $inventoryMovementType
+     * @param InventoryTransactionType $inventoryTransactionType
      * @return int
      */
-    private function _getTotalStockByType(InventoryMovementType $inventoryMovementType): int
+    private function _getTotalStockByType(InventoryTransactionType $inventoryTransactionType): int
     {
         if (!$this->inventoryTracked) {
             return 0;
         }
 
-        return $this->getInventoryLevels()->sum($inventoryMovementType->value . 'Total');
+        return $this->getInventoryLevels()->sum($inventoryTransactionType->value . 'Total');
     }
 
     /**
@@ -913,7 +912,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getAvailableTotalStock(): int
     {
-        return $this->_getTotalStockByType(InventoryMovementType::AVAILABLE);
+        return $this->_getTotalStockByType(InventoryTransactionType::AVAILABLE);
     }
 
     /**
