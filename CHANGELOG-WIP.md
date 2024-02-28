@@ -28,8 +28,8 @@
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
 - Added `craft\commerce\base\EnumHelpersTrait`
 - Added `craft\commerce\base\HasStoreInterface`.
-- Added `craft\commerce\base\InventoryMovement`.
 - Added `craft\commerce\base\InventoryMovementInterface`.
+- Added `craft\commerce\base\InventoryMovement`.
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
 - Added `craft\commerce\base\Purchasable::$freeShipping`.
 - Added `craft\commerce\base\Purchasable::$height`.
@@ -127,13 +127,15 @@
 - Added `craft\commerce\models\Level`.
 - Added `craft\commerce\models\LineItem::getSnapshot()`.
 - Added `craft\commerce\models\LineItem::setSnapshot()`.
+- Added `craft\commerce\models\LineItems::getFulfilledTotalQuantity()`.
 - Added `craft\commerce\models\PaymentSources::getStore()`.
 - Added `craft\commerce\models\ProductType::$maxVariants`.
 - Added `craft\commerce\models\PurchasableStore`.
 - Added `craft\commerce\models\Store::getInventoryLocations()`.
 - Added `craft\commerce\models\Store::getInventoryLocationsOptions()`.
-- Added `craft\commerce\models\inventory\InventoryManualMovement`.
+- Added `craft\commerce\models\inventory\InventoryCommittedMovement`
 - Added `craft\commerce\models\inventory\InventoryLocationDeactivatedMovement`.
+- Added `craft\commerce\models\inventory\InventoryManualMovement`.
 - Added `craft\commerce\models\inventory\UpdateInventoryLevel`.
 - Added `craft\commerce\plugin\Services::getVat()`.
 - Added `craft\commerce\records\CatalogPricingRulePurchasable`.

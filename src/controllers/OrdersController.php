@@ -14,6 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
@@ -29,6 +30,7 @@ use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
+use craft\commerce\models\inventory\InventoryFulfillMovement;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Pdf;
@@ -238,23 +240,73 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param Order $order
-     * @return array
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\web\MethodNotAllowedHttpException
      */
-    private function _fulfillmentForm(Order $order): array
+    public function actionFulfill(): Response
     {
-        $originalCommitted = (new Query())
-            ->select(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
-            ->from(Table::INVENTORYTRANSACTIONS)
-            ->where([
-                'orderId' => $order->id,
-                'type' => InventoryTransactionType::COMMITTED->value,
-            ])
-            ->groupBy(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId'])
-            ->all();
+        $this->requirePostRequest();
 
+        $fulfillments = $this->request->getBodyParam('fulfillment');
+        $movements = [];
+        foreach ($fulfillments as $fulfillment) {
+            $qty = $fulfillment['quantity'];
+            if($qty > 0) {
+                $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
+                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
+                $movement = new InventoryFulfillMovement();
+                $movement->fromInventoryLocation = $inventoryLocation;
+                $movement->inventoryItem = $inventoryItem;
+                $movement->toInventoryLocation = $inventoryLocation;
+                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
+                $movement->lineItemId = $fulfillment['lineItemId'];
+                $movement->quantity = $qty;
+                $movement->userId = Craft::$app->getUser()->getId();
+                $movements[] = $movement;
+            }
+        }
 
-        return $originalCommitted;
+        foreach ($movements as $movement) {
+            if(!$movement->isValid())
+            {
+                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+            }
+        }
+
+        $movements = InventoryMovementCollection::make($movements);
+
+        if(!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements))
+        {
+            return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     */
+    public function actionFulfillmentModal(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = $this->request->getRequiredParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
+
+        return $this->asCpModal()
+            ->action('commerce/orders/fulfill')
+            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+            ->contentTemplate('commerce/orders/modals/_fulfillmentModal', [
+                'inventoryFulfillmentLevels' => $inventoryFulfillmentLevels,
+                'order' => $order
+            ]);
     }
 
     /**
@@ -520,6 +572,7 @@ class OrdersController extends Controller
             'notices',
             'loadCartUrl',
             'store',
+            'totalCommittedStock',
         ];
 
         $lineItems = $order->getLineItems();
@@ -1273,7 +1326,7 @@ class OrdersController extends Controller
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
-        
+
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
             'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
@@ -1640,6 +1693,7 @@ class OrdersController extends Controller
                 $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
                 $row['price'] = $purchasable->getSalePrice();
+                $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
                 $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [

@@ -34,7 +34,7 @@
 
     {% for location in inventoryLocations %}
         <h3>{{ location.name }}</h3>
-        {% set movements = craft.commerce.inventory.getMovements(inventoryItem, location).groupBy('movementHash') %}
+        {% set movements = craft.commerce.inventory.getInventoryTransactions(inventoryItem, location).groupBy('movementHash') %}
         {% if movements|length %}
         <table class="data fullwidth">
             <thead>

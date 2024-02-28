@@ -68,6 +68,14 @@ export default new Vuex.Store({
       return window.orderEdit.orderId;
     },
 
+    totalCommittedStock(state) {
+      if (!state.draft) {
+        return 0;
+      }
+
+      return state.draft.order.totalCommittedStock;
+    },
+
     taxCategories() {
       return window.orderEdit.taxCategories;
     },

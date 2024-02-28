@@ -56,11 +56,6 @@ interface InventoryMovementInterface
     /**
      * @return int|null
      */
-    public function getOrderId(): ?int;
-
-    /**
-     * @return int|null
-     */
     public function getLineItemId(): ?int;
 
     /**

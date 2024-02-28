@@ -513,7 +513,23 @@ class LineItem extends Model
             }
         }
 
+        // TODO: If order is complete, qty can not be less that total fulfilled across locations
+
         return $rules;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFulfilledTotalQuantity(): int
+    {
+        if ($order = $this->getOrder()) {
+            return Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)
+                ->filter(fn($fulfillment) => $fulfillment->getLineItem()->id === $this->id)
+                ->sum('fulfilledQuantity');
+        }
+
+        return 0;
     }
 
     /**
@@ -554,6 +570,7 @@ class LineItem extends Model
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
+        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }

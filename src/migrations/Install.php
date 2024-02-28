@@ -352,11 +352,11 @@ class Install extends Migration
                 'reserved',
                 'damaged',
                 'safety',
+                'fulfilled',
                 'qualityControl',
             ])->notNull(),
             'note' => $this->string(),
             'transferId' => $this->integer(), // Can be null
-            'orderId' => $this->integer(), // Can be null
             'lineItemId' => $this->integer(), // Can be null
             'userId' => $this->integer(), // Can be null
             'dateCreated' => $this->dateTime()->notNull(),
@@ -1058,7 +1058,6 @@ class Install extends Migration
         $this->createIndex(null, Table::GATEWAYS, 'isArchived', false);
         $this->createIndex(null, Table::INVENTORYITEMS, 'purchasableId', true);
         $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', false);
-        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'lineItemId', false);
         $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'transferId', false);
         $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'userId', false);
@@ -1183,8 +1182,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'orderId', Table::ORDERS, 'id', 'SET NULL', null);
-        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'lineItemId', Table::LINEITEMS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'lineItemId', Table::LINEITEMS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'userId', CraftTable::USERS, 'id', 'SET NULL', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);

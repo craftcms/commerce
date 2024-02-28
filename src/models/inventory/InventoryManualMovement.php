@@ -50,12 +50,8 @@ class InventoryManualMovement extends InventoryMovement
         $rules[] = [
             ['fromInventoryLocation', 'toInventoryLocation'],
             function($attribute, $params, $validator) {
-                if (!$this->transferId && $this->fromInventoryLocation->id !== $this->toInventoryLocation->id) {
+                if ($this->fromInventoryLocation->id !== $this->toInventoryLocation->id) {
                     $validator->addError($this, $attribute, 'The from and to inventory locations must be the same.');
-                }
-
-                if ($this->transferId && $this->fromInventoryLocation->id === $this->toInventoryLocation->id) {
-                    $validator->addError($this, $attribute, 'The from and to inventory locations must be different.');
                 }
             },
         ];
@@ -102,7 +98,7 @@ class InventoryManualMovement extends InventoryMovement
     public function isManualMovement(): bool
     {
         return (
-            $this->lineItemId === null && $this->orderId === null && $this->transferId === null
+            $this->lineItemId === null && $this->transferId === null
         );
     }
 

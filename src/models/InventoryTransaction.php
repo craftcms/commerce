@@ -38,11 +38,6 @@ class InventoryTransaction extends Model
     /**
      * @var ?int
      */
-    public ?int $orderId = null;
-
-    /**
-     * @var ?int
-     */
     public ?int $lineItemId = null;
 
     /**
@@ -100,12 +95,12 @@ class InventoryTransaction extends Model
      */
     public function getOrder(): ?Order
     {
-        if (!$this->orderId) {
+        if (!$this->getLineItem()) {
             return null;
         }
 
         /** @var ?Order $order */
-        $order = Order::find()->id($this->orderId)->one();
+        $order = Order::find()->id($this->getLineItem()->orderId)->status(null)->one();
 
         return $order;
     }
@@ -129,7 +124,7 @@ class InventoryTransaction extends Model
         }
 
         /** @var ?Transfer $transfer */
-        $transfer = Transfer::find()->id($this->transferId)->one();
+        $transfer = Transfer::find()->id($this->transferId)->status(null)->one();
 
         return $transfer;
     }
@@ -144,7 +139,7 @@ class InventoryTransaction extends Model
         }
 
         /** @var ?User $user */
-        $user = User::find()->id($this->userId)->one();
+        $user = User::find()->id($this->userId)->status(null)->one();
 
         return $user;
     }

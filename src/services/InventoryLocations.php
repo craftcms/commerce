@@ -130,7 +130,7 @@ class InventoryLocations extends Component
      * @throws Throwable
      * @throws \yii\db\Exception
      */
-    public function deactivateInventoryLocation(DeactivateInventoryLocation $deactivateInventoryLocation): bool
+    public function executeDeactivateInventoryLocation(DeactivateInventoryLocation $deactivateInventoryLocation): bool
     {
         // This will ensure that the location has no committed stock or incoming stock before deactivating it.
         if (!$deactivateInventoryLocation->validate()) {

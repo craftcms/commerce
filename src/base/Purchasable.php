@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
+use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
@@ -814,14 +815,13 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                 if ($inventoryLevel->availableTotal > 0) {
                     $deductQty = min($inventoryLevel->availableTotal, $remainingQty);
-                    $movements->push(new InventoryManualMovement([
+                    $movements->push(new InventoryCommittedMovement([
                         'inventoryItem' => $this->getInventoryItem(),
                         'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
                         'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
                         'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
                         'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
                         'quantity' => $deductQty,
-                        'orderId' => $order->id,
                         'lineItemId' => $lineItem->id,
                         'note' => 'Order Completed',
                     ]));
