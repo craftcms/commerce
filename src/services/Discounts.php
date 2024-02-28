@@ -250,11 +250,6 @@ class Discounts extends Component
                 ->where(['storeId' => $storeId])
                 ->all();
 
-            // No discounts in Lite
-            if ($discounts && Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-                $discounts = [];
-            };
-
             if ($this->_allDiscounts === null) {
                 $this->_allDiscounts = [];
             }

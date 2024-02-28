@@ -52,11 +52,6 @@ class TaxRates extends Component
                 ->where(['storeId' => $storeId])
                 ->all();
 
-            // Limited to one Shipping method in Lite
-            if ($results && Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-                $results = array_slice($results, 0, 1);
-            };
-
             if ($this->_allTaxRates === null) {
                 $this->_allTaxRates = [];
             }

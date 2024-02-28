@@ -27,8 +27,7 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
     if (
       window.orderEdit &&
-      window.orderEdit.currentUserPermissions['commerce-editOrders'] &&
-      window.orderEdit.edition != 'lite'
+      window.orderEdit.currentUserPermissions['commerce-editOrders']
     ) {
       const $btn = $('<a/>', {
         type: 'button',

@@ -32,13 +32,10 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
         $locationsCount = count($allInventoryLocations);
         $userCanCreate = $currentUser->can('commerce-manageInventoryLocations');
         $canCreate = false;
-        $limit = 1;
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '=')) {
-            $limit = Plugin::EDITION_PRO_STORE_LIMIT;
-            if ($locationsCount < $limit) {
-                $canCreate = true;
-            }
+        $limit = Plugin::EDITION_PRO_STORE_LIMIT;
+        if ($locationsCount < $limit) {
+            $canCreate = true;
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')) {
