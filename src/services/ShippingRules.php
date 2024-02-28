@@ -233,8 +233,7 @@ class ShippingRules extends Component
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from(Table::SHIPPINGRULES . ' shippingrules')
-            ->innerJoin(Table::SHIPPINGMETHODS . ' methods', '[[methods.id]] = [[shippingrules.methodId]]')
-        ;
+            ->innerJoin(Table::SHIPPINGMETHODS . ' methods', '[[methods.id]] = [[shippingrules.methodId]]');
 
         return $query;
     }

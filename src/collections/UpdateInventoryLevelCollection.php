@@ -13,8 +13,6 @@ use Illuminate\Support\Collection;
 /**
  * UpdateInventoryLevelCollection represents a collection of UpdateInventoryLevel models.
  *
- * @extends Collection<UpdateInventoryLevel>
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
@@ -38,6 +36,8 @@ class UpdateInventoryLevelCollection extends Collection
             ]);
         }
 
-        return parent::make($items);
+        /** @var static $collection */
+        $collection = parent::make($items);
+        return $collection;
     }
 }

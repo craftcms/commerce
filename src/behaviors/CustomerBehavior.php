@@ -291,7 +291,7 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryPaymentSource(): ?PaymentSource
     {
-        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId($this->owner->id);
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId(customerId: $this->owner->id);
         if ($paymentSources->isEmpty()) {
             return null;
         }

@@ -25,6 +25,7 @@ use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -45,10 +46,6 @@ class InventoryController extends Controller
         if ($inventoryItemId !== null) {
             if ($inventoryItem === null) {
                 $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId);
-
-                if (!$inventoryItem) {
-                    throw new NotFoundHttpException('Inventory Item not found');
-                }
             }
         } else {
             if ($inventoryItem === null) {
@@ -79,7 +76,7 @@ class InventoryController extends Controller
                     ],
                 ])
             ->prepareScreen(
-                function(Response $response, string $containerId) use ($params) {
+                function(Response $response, string $containerId) {
                     /** @var CpScreenResponseBehavior $response */
                     $this->getView()->registerJs('htmx.process(document.getElementById("' . $containerId . '"));');
                 }
@@ -203,7 +200,7 @@ class InventoryController extends Controller
                     'url' => $purchasable->getCpEditUrl(),
                 ]);
                 $purchasableChip = Html::tag('div',  $purchasableChip, ['class' => 'flex-grow']);
-                $itemLink = Html::tag('div',Html::a($purchasable?->getSku() , "#", ['id' => "$inventoryItemDomId"]));
+                $itemLink = Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
                 $inventoryLevel['item'] = Html::tag('div', $purchasableChip . $itemLink, ['class' => 'flex']);
             } else {
                 $inventoryLevel['item'] = '';
@@ -411,13 +408,18 @@ JS, [
         ]);
     }
 
+    /**
+     * @return Response
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     */
     public function actionUpdateLevels(): Response
     {
         $updateAction = InventoryUpdateQuantityType::from(Craft::$app->getRequest()->getRequiredParam('updateAction'));
-        $quantity = (int)Craft::$app->getRequest()->getRequiredParam('quantity', 0);
-        $note = Craft::$app->getRequest()->getRequiredParam('note', '');
+        $quantity = (int)Craft::$app->getRequest()->getRequiredParam('quantity');
+        $note = Craft::$app->getRequest()->getRequiredParam('note');
         $inventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
-        $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids', []);
+        $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
         $type = Craft::$app->getRequest()->getParam('type', 'onHand');
 
@@ -518,6 +520,7 @@ JS, [
         );
 
         if ($inventoryMovement->validate()) {
+            /** @var InventoryMovementCollection $inventoryMovementCollection */
             $inventoryMovementCollection = InventoryMovementCollection::make()->push($inventoryMovement);
             if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection)) {
                 return $this->asFailure(Craft::t('commerce', 'Inventory movement could not be saved.'));
@@ -595,7 +598,6 @@ JS, [
         ]);
 
         return $this->asCpModal()
-            ->action(null)
             ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', compact(
                 'title',
                 'orders'

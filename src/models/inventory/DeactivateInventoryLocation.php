@@ -52,7 +52,7 @@ class DeactivateInventoryLocation extends Model
             function($attribute, $params, $validator) {
                 // Look through all the stores and see if they only have 1 location and it's the one we are deactivating
                 $stores = Plugin::getInstance()->getStores()->getAllStores();
-                foreach($stores as $store) {
+                foreach ($stores as $store) {
                     $locations = $store->getInventoryLocations();
                     if ($locations->count() == 1 && $locations->contains('id', $this->inventoryLocation->id)) {
                         $this->addError($attribute, \Craft::t('commerce','This is the last location for the {store} store.', ['store' => $store->getName()]));
@@ -96,14 +96,5 @@ class DeactivateInventoryLocation extends Model
             ->sum('incomingTotal');
 
         return $incomingTotal > 0;
-    }
-
-    public function getMigrationInformation(): array
-    {
-        // Get inventoryLevels at the destination location
-
-        $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
-            ->where(['locationId' => $this->destinationInventoryLocation->id])
-            ->all();
     }
 }

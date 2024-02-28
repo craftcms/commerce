@@ -13,7 +13,6 @@ use Illuminate\Support\Collection;
 /**
  * InventoryMovementCollection represents a collection of InventoryMovement models.
  *
- * @extends Collection<InventoryMovement>
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0

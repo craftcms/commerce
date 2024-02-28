@@ -211,7 +211,9 @@ class StoreSettings extends Model
      */
     public function getMarketAddressCondition(): ZoneAddressCondition
     {
-        return $this->_marketAddressCondition ?? Craft::$app->getConditions()->createCondition(ZoneAddressCondition::class);
+        /** @var ZoneAddressCondition $condition */
+        $condition = $this->_marketAddressCondition ?? Craft::$app->getConditions()->createCondition(ZoneAddressCondition::class);
+        return $condition;
     }
 
     /**
@@ -235,6 +237,7 @@ class StoreSettings extends Model
 
         $condition->forProjectConfig = false;
 
+        /** @var ZoneAddressCondition $condition */
         $this->_marketAddressCondition = $condition;
     }
 }

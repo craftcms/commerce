@@ -155,8 +155,6 @@ class ShippingRulesControllerTest extends Unit
      */
     public function testDeleteAjax(): void
     {
-        $originalEdition = Plugin::getInstance()->edition;
-        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
         // Test Ajax delete
         $this->request->headers->set('X-Requested-With', 'XMLHttpRequest');
         $this->request->headers->set('Accept', 'application/json');
@@ -170,8 +168,6 @@ class ShippingRulesControllerTest extends Unit
         self::assertEquals(200, $response->statusCode);
         self::assertIsArray($response->data);
         self::assertEmpty($response->data);
-
-        Plugin::getInstance()->edition = $originalEdition;
     }
 
     /**
@@ -181,7 +177,6 @@ class ShippingRulesControllerTest extends Unit
     public function testDelete(): void
     {
         $originalEdition = Plugin::getInstance()->edition;
-        Plugin::getInstance()->edition = Plugin::EDITION_PRO;
 
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $shippingFixture = $this->tester->grabFixture('shipping');

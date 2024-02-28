@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
+use craft\commerce\records\PurchasableStore;
 use craft\db\Migration;
 use craft\db\Query;
 
@@ -29,7 +30,11 @@ class m240219_194855_donation_multi_store extends Migration
 
         foreach ($donations as $donation) {
             foreach ($storeIds as $storeId) {
-                $this->upsert(Table::PURCHASABLES_STORES, [
+                if (PurchasableStore::findOne(['purchasableId' => $donation['id'], 'storeId' => $storeId])) {
+                    continue;
+                }
+
+                $this->insert(Table::PURCHASABLES_STORES, [
                     'purchasableId' => $donation['id'],
                     'storeId' => $storeId,
                     'basePrice' => 0,
@@ -42,7 +47,7 @@ class m240219_194855_donation_multi_store extends Migration
                     'availableForPurchase' => $donation['availableForPurchase'],
                     'freeShipping' => true,
                     'shippingCategoryId' => null,
-                ], ['purchasableId', 'storeId']);
+                ]);
             }
         }
 

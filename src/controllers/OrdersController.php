@@ -133,7 +133,6 @@ class OrdersController extends Controller
         ];
 
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         // @TODO store permissions
         $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
@@ -1277,9 +1276,7 @@ class OrdersController extends Controller
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
-
-        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
-
+        
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
             'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),

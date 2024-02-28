@@ -21,7 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property float|null $basePrice
  * @property float|null $basePromotionalPrice
  * @property int|null $stock
- * @property int|null $inventoryTracked
+ * @property bool $inventoryTracked
  * @property int|null $minQty
  * @property int|null $maxQty
  * @property bool $promotable

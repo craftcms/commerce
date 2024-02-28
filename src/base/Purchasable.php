@@ -358,6 +358,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getIsAvailable(): bool
     {
+        // Is the element available for purchase?
         if (!$this->availableForPurchase) {
             return false;
         }
@@ -367,6 +368,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
+        // Is the inventory tracked and is there stock?
         if ($this->inventoryTracked && $this->getAvailableTotalStock() < 1) {
             return false;
         }
@@ -376,7 +378,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             return false;
         }
 
-        return $this->getAvailableTotalStock() >= 1;
+        // If the inventory is not tracked then it is always available.
+        return !$this->inventoryTracked;
     }
 
     /**
@@ -744,7 +747,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             [
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $lineItemQuantitiesById, $lineItemQuantitiesByPurchasableId) {
-                    // @TODO change all attribute calls to pass in the the store from the order `$lineItem->getOrder()->getStore()`
                     if (!$this->hasStock()) {
                         $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
@@ -752,7 +754,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
 
-                    if ($this->hasStock() && !$this->inventoryTracked && $lineItemQty > $this->getAvailableTotalStock()) {
+                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getAvailableTotalStock()) {
                         $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getAvailableTotalStock(), 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
@@ -804,6 +806,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $inventoryLevels = $this->getInventoryLevels();
             $remainingQty = $lineItem->qty;
 
+            /** @var InventoryMovementCollection $movements */
             $movements = InventoryMovementCollection::make();
             foreach ($inventoryLevels as $inventoryLevel) {
                 if ($remainingQty <= 0) {

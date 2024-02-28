@@ -155,7 +155,7 @@ class Purchasables extends Component
      * Updated the cached stock value for the purchasable in a store.
      *
      * @param Purchasable $purchasable
-     * @return bool
+     * @return void
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      */

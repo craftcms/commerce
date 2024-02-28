@@ -45,7 +45,7 @@ class m240223_101158_update_recent_orders_widget_settings extends Migration
                 }
             }
 
-            $this->update(Table::WIDGETS, ['settings' => json_encode($settings)], ['id' => $widget['id']]);
+            $this->update(Table::WIDGETS, ['settings' => $settings], ['id' => $widget['id']]);
         }
 
         return true;

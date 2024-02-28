@@ -22,6 +22,7 @@
 
 ### Development
 - Products no longer save their variants when saved. This is now done in a separate process.
+- Added the `currentStore` Twig variable.
 
 ### Extensibility
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
@@ -162,6 +163,9 @@
 - Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
 - Deprecated `craft\commerce\elements\VariantQuery::hasUnlimitedStock()`. Use `craft\commerce\elements\db\VariantQuery::inventoryTracked()` instead.
+- Deprecated `craft\commerce\models\Store::getCountries()`. Use `craft\commerce\models\Store::getSettings()->getCountries()` instead.
+- Deprecated `craft\commerce\models\Store::getMarketAddressCondition()`. Use `craft\commerce\models\Store::getSettings()->getMarketAddressCondition()` instead.
+- Deprecated `craft\commerce\models\Store::setCountries()`. Use `craft\commerce\models\Store::getSettings()->setCountries()` instead.
 - Removed `craft\commerce\base\PurchasableInterface::getId()`
 - Removed `craft\commerce\base\Variant::$unlimitedStock`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
 - Removed `craft\commerce\console\controllers\UpgradeController`.
@@ -226,6 +230,7 @@
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 - Removed `craft\commerce\validators\StoreCountryValidator`.
+- Removed `craft\commerce\widgets\Orders::$orderStatusId`. Use `craft\commerce\widgets\Orders::$orderStatuses` instead.
 - Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\controllers\BaseStoreSettingsController` to `BaseStoreManagementController`.
 - Renamed `craft\commerce\controllers\StoreSettingsController` to `StoreManagementController`.

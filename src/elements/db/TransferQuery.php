@@ -19,7 +19,7 @@ class TransferQuery extends ElementQuery
 
 
     /**
-     * @var origin|null
+     * @var mixed
      */
     public mixed $destinationLocation = null;
 

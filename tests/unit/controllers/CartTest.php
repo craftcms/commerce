@@ -235,49 +235,12 @@ class CartTest extends Unit
     /**
      * @throws Throwable
      * @throws ElementNotFoundException
-     * @throws Exception
-     * @throws InvalidRouteException
-     */
-    public function testAddMultiplePurchasablesLite(): void
-    {
-        $this->request->headers->set('X-Http-Method-Override', 'POST');
-
-        $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
-        $purchasables = [];
-        foreach ($variants as $key => $variant) {
-            $purchasables[] = [
-                'id' => $variant->id,
-                'qty' => $key + 1,
-            ];
-        }
-        $this->request->setBodyParams([
-            'purchasables' => $purchasables,
-        ]);
-
-        $lastItem = array_pop($purchasables);
-
-        $this->cartController->runAction('update-cart');
-        $cart = Plugin::getInstance()->getCarts()->getCart();
-
-        self::assertGreaterThan(1, $cart->getLineItems(), 'More than one line item can be added');
-        $lineItem = $cart->getLineItems()[0];
-        self::assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
-
-        if ($cart->id) {
-            Craft::$app->getElements()->deleteElement($cart, true);
-        }
-    }
-
-    /**
-     * @throws Throwable
-     * @throws ElementNotFoundException
      * @throws InvalidPluginException
      * @throws Exception
      * @throws InvalidRouteException
      */
     public function testAddMultiplePurchasables(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
@@ -313,7 +276,6 @@ class CartTest extends Unit
      */
     public function testAddAddressCustomFieldsOnUpdateCart(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $shippingAddress = [
@@ -362,7 +324,6 @@ class CartTest extends Unit
      */
     public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
         $storesService = $this->make(Stores::class, [
             'getStoreById' => function(int $id) use ($autoSet) {
@@ -447,7 +408,6 @@ class CartTest extends Unit
      */
     public function testSetSaveAddresses(?bool $saveBillingAddress, ?bool $saveShippingAddress, ?bool $saveBoth): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $bodyParams = [];

@@ -95,14 +95,13 @@ class OrderAdjustments extends Component
         $taxEngine = Plugin::getInstance()->getTaxes()->getEngine();
         $adjusters[] = $taxEngine->taxAdjusterClass();
 
+
         $event = new RegisterComponentTypesEvent([
             'types' => $adjusters,
         ]);
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
-            if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_ADJUSTERS)) {
-                $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
-            }
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_ADJUSTERS)) {
+            $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
         }
 
         return $event->types;
@@ -278,13 +277,11 @@ class OrderAdjustments extends Component
             'types' => [],
         ]);
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, ">=")) {
-            if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
-                $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
-            }
-
-            $discountEvent->types[] = Discount::class;
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
+            $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
         }
+
+        $discountEvent->types[] = Discount::class;
 
         return $discountEvent->types;
     }

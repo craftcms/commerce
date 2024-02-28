@@ -168,11 +168,9 @@ use yii\web\User;
  */
 class Plugin extends BasePlugin
 {
-    public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
     public const EDITION_ENTERPRISE = 'enterprise';
 
-    public const EDITION_LITE_STORE_LIMIT = 1;
     public const EDITION_PRO_STORE_LIMIT = 5;
 
     public static function config(): array
@@ -238,7 +236,6 @@ class Plugin extends BasePlugin
     public static function editions(): array
     {
         return [
-            self::EDITION_LITE,
             self::EDITION_PRO,
             self::EDITION_ENTERPRISE,
         ];
@@ -379,10 +376,35 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $ret['subnav']['store-management'] = [
-            'label' => Craft::t('commerce', 'Store Management'),
-            'url' => 'commerce/store-management',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
+            $ret['subnav']['promotions'] = [
+                'label' => Craft::t('commerce', 'Promotions'),
+                'url' => 'commerce/promotions',
+            ];
+        }
+
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
+            $ret['subnav']['shipping'] = [
+                'label' => Craft::t('commerce', 'Shipping'),
+                'url' => 'commerce/shipping',
+            ];
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+            $ret['subnav']['tax'] = [
+                'label' => Craft::t('commerce', 'Tax'),
+                'url' => 'commerce/tax',
+            ];
+        }
+
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
+            $ret['subnav']['store-management'] = [
+                'label' => Craft::t('commerce', 'Store Management'),
+                'url' => 'commerce/store-management',
+            ];
+        }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [

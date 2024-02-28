@@ -9,19 +9,19 @@
 {% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}
     {% if craft.commerce.taxes.viewTaxRates %}
     {% set navItems = navItems|merge({
-        'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: 'pro', url: url('commerce/tax/taxrates') },
+        'taxrates': { title: "Tax Rates"|t('commerce'), url: url('commerce/tax/taxrates') },
     }) %}
     {% endif %}
 
     {% if craft.commerce.taxes.viewTaxCategories %}
     {% set navItems = navItems|merge({
-        'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: 'pro', url: url('commerce/tax/taxcategories') },
+        'taxcategories': { title: "Tax Categories"|t('commerce'), url: url('commerce/tax/taxcategories') },
     }) %}
     {% endif %}
 
     {% if craft.commerce.taxes.viewTaxZones %}
     {% set navItems = navItems|merge({
-        'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: 'pro', url: url('commerce/tax/taxzones') },
+        'taxzones': { title: "Tax Zones"|t('commerce'), url: url('commerce/tax/taxzones') },
     }) %}
     {% endif %}
 
@@ -39,7 +39,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in navItems %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

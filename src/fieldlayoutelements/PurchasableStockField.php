@@ -114,7 +114,7 @@ JS, [
                 Html::endTag('td') .
                 Html::beginTag('td') .
                 Html::beginTag('div', ['class' => 'flex']) .
-                Html::tag('div', $inventoryLevel->availableTotal) .
+                Html::tag('div', (string)$inventoryLevel->availableTotal) .
                 Html::tag('div',Html::button(Craft::t('commerce', ''),
                     [
                         'class' => 'btn menubtn action-btn',

@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
+use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
 use craft\errors\DeprecationException;
@@ -653,9 +654,32 @@ class Store extends Model
     }
 
     /**
+     * @param mixed $countries
+     * @return void
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use [[Store::getSettings()->setCountries()]] instead.
+     */
+    public function setCountries(mixed $countries): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::setCountries() is deprecated. Use Store::getSettings()->setCountries() instead.');
+        $this->getSettings()->setCountries($countries);
+    }
+
+    /**
+     * @return string[] $countries
+     * @deprecated in 5.0.0. Use [[Store::getSettings()->getCountries()]] instead.
+     */
+    public function getCountries(): array
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getCountries() is deprecated. Use Store::getSettings()->getCountries() instead.');
+        return $this->getSettings()->getCountries();
+    }
+
+    /**
      * @return array
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use [[StoreSettings::getCountriesList()]] instead..
+     * @deprecated in 5.0.0. Use [[Store::getSettings()->getCountriesList()]] instead.
      */
     public function getCountriesList(): array
     {
@@ -666,12 +690,22 @@ class Store extends Model
     /**
      * @return array
      * @throws DeprecationException
-     * @deprecated in 5.0.0. Use [[StoreSettings::getAdministrativeAreasListByCountryCode()]] instead.
+     * @deprecated in 5.0.0. Use [[Store::getSettings()->getAdministrativeAreasListByCountryCode()]] instead.
      */
     public function getAdministrativeAreasListByCountryCode(): array
     {
         Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getAdministrativeAreasListByCountryCode() has been deprecated. Use Store::getSettings()->getAdministrativeAreasListByCountryCode() instead.');
         return $this->getSettings()->getAdministrativeAreasListByCountryCode();
+    }
+
+    /**
+     * @return ZoneAddressCondition
+     * @deprecated in 5.0.0. Use [[Store::getSettings()->getMarketAddressCondition()]] instead.
+     */
+    public function getMarketAddressCondition(): ZoneAddressCondition
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Store::getMarketAddressCondition() has been deprecated. Use Store::getSettings()->getMarketAddressCondition() instead.');
+        return $this->getSettings()->getMarketAddressCondition();
     }
 
     /**
