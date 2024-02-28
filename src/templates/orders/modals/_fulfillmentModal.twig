@@ -21,18 +21,10 @@
                     },
                     name: 'fulfillment['~loop.index~'][quantity]',
                 }) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId, {
-                    form : 'fulfillmentForm'
-                }) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][inventoryItemId]', fulfillmentLevel.inventoryItemId, {
-                    form : 'fulfillmentForm'
-                }) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId, {
-                    form : 'fulfillmentForm'
-                }) }}
-                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId, {
-                    form : 'fulfillmentForm'
-                }) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
             </td>
             </tr>
         {% endfor %}

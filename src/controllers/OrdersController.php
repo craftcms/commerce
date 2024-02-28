@@ -14,8 +14,10 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -28,6 +30,7 @@ use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
+use craft\commerce\models\inventory\InventoryFulfillMovement;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Pdf;
@@ -775,6 +778,40 @@ class OrdersController extends Controller
     public function actionFulfill(): Response
     {
         $this->requirePostRequest();
+
+        $fulfillments = $this->request->getBodyParam('fulfillment');
+        $movements = [];
+        foreach ($fulfillments as $fulfillment) {
+            $qty = $fulfillment['quantity'];
+            if($qty > 0) {
+                $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
+                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
+                $movement = new InventoryFulfillMovement();
+                $movement->fromInventoryLocation = $inventoryLocation;
+                $movement->inventoryItem = $inventoryItem;
+                $movement->toInventoryLocation = $inventoryLocation;
+                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
+                $movement->lineItemId = $fulfillment['lineItemId'];
+                $movement->quantity = $qty;
+                $movement->userId = Craft::$app->getUser()->getId();
+                $movements[] = $movement;
+            }
+        }
+
+        foreach ($movements as $movement) {
+           if(!$movement->isValid())
+           {
+                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+           }
+        }
+
+        $movements = InventoryMovementCollection::make($movements);
+
+        if(!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements))
+        {
+            return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+        }
 
         return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
     }
