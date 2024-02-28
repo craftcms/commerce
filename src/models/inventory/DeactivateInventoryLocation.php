@@ -97,13 +97,4 @@ class DeactivateInventoryLocation extends Model
 
         return $incomingTotal > 0;
     }
-
-    public function getMigrationInformation(): array
-    {
-        // Get inventoryLevels at the destination location
-
-        $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
-            ->where(['locationId' => $this->destinationInventoryLocation->id])
-            ->all();
-    }
 }

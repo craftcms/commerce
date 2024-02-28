@@ -24,7 +24,7 @@ class Transfers extends Component
     /**
      * Handle field layout change
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function handleChangedFieldLayout(ConfigEvent $event): void
     {

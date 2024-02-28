@@ -9,6 +9,7 @@ use craft\commerce\Plugin;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\Controller;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -180,31 +181,6 @@ JS, [$addressCardId, 'craft\elements\Address']);
             message: Craft::t('commerce', 'Inventory location saved.'),
             modelName: 'inventoryLocation'
         );
-    }
-
-    /**
-     * @return Response
-     * @throws \Throwable
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\web\BadRequestHttpException
-     * @throws \yii\web\MethodNotAllowedHttpException
-     */
-    public function actionDelete(): Response
-    {
-        $this->requirePostRequest();
-        $this->requireAcceptsJson();
-
-        $inventoryLocationId = Craft::$app->getRequest()->getRequiredBodyParam('id');
-        $destinationInventoryLocationId = Craft::$app->getRequest()->getRequiredBodyParam('destinationInventoryLocationId');
-
-        $destinationInventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($destinationInventoryLocationId);
-
-        if (Plugin::getInstance()->getInventoryLocations()->deleteInventoryLocationById($inventoryLocationId)) {
-            return $this->asJson(['success' => true]);
-        };
-
-        return $this->asJson(['success' => false]);
     }
 
     public function actionInventoryLocationsTableData()

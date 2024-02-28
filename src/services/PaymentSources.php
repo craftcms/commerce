@@ -106,7 +106,6 @@ class PaymentSources extends Component
      * Returns a customer's payment sources, per the customer's ID.
      *
      * @param int|null $customerId the user's ID
-     * @param int|null $storeId
      * @param int|null $gatewayId the gateway's ID
      * @return Collection<PaymentSource>
      * @throws InvalidConfigException
@@ -115,8 +114,6 @@ class PaymentSources extends Component
      */
     public function getAllPaymentSourcesByCustomerId(?int $customerId = null, ?int $gatewayId = null): Collection
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-
         if ($customerId === null) {
             return collect();
         }
@@ -225,15 +222,12 @@ class PaymentSources extends Component
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
-     * @param int|null $storeId
      * @return PaymentSource|null
      * @throws InvalidConfigException
      * @throws SiteNotFoundException
      */
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
-
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
             ->innerJoin(Table::GATEWAYS . ' gateways', 'gateways.id = [[ps.gatewayId]]')

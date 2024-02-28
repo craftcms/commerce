@@ -25,8 +25,8 @@ use yii\web\Response;
  * Transfer element type
  *
  * @property TransferStatusType $transferStatus
- * @property int? $originLocationId
- * @property int? $destinationLocationId
+ * @property ?int $originLocationId
+ * @property ?int $destinationLocationId
  */
 class Transfer extends Element
 {
@@ -40,14 +40,14 @@ class Transfer extends Element
     /**
      * The origin location ID of the transfer
      *
-     * @var int
+     * @var ?int
      */
     public ?int $originLocationId = null;
 
     /**
      * The destination location ID of the transfer
      *
-     * @var int
+     * @var ?int
      */
     public ?int $destinationLocationId = null;
 
@@ -407,7 +407,7 @@ class Transfer extends Element
                 // Optional: Divide your source list into groups!
                 'heading' => Craft::t('commerce', 'Transfer Status'),
             ],
-            ...$transferStatusSources ?? [],
+            ...$transferStatusSources,
             [
                 // Optional: Divide your source list into groups!
                 'heading' => Craft::t('commerce', 'Incoming Location'),
@@ -600,7 +600,7 @@ JS, [
             $transferRecord->id = $this->id;
             $transferRecord->originLocationId = $this->originLocationId;
             $transferRecord->destinationLocationId = $this->destinationLocationId;
-            $transferRecord->transferStatus = $this->getTransferStatus()?->value ?? TransferStatusType::DRAFT->value;
+            $transferRecord->transferStatus = $this->getTransferStatus()->value ?? TransferStatusType::DRAFT->value;
 
             $transferRecord->save(false);
         }

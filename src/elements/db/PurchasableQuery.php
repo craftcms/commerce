@@ -107,7 +107,6 @@ abstract class PurchasableQuery extends ElementQuery
     public int|false|null $forCustomer = null;
 
     /**
-     * @var mixed
      * @inheritdoc
      */
     public function __set($name, $value)

@@ -28,6 +28,7 @@ use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii2tech\ar\softdelete\SoftDeleteBehavior;
 
 /**
  * Inventory Locations service.
@@ -65,7 +66,7 @@ class InventoryLocations extends Component
     /**
      * Gets all inventory locations for a store in order of configuration.
      *
-     * @param ?int $store
+     * @param ?int $storeId
      *
      * @return Collection<InventoryLocation>
      */
@@ -138,6 +139,7 @@ class InventoryLocations extends Component
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
+            /** @var SoftDeleteBehavior $inventoryLocationRecord */
             $inventoryLocationRecord = InventoryLocationRecord::findOne($deactivateInventoryLocation->inventoryLocation->id);
 
             // Get draft transfers that are destinations for the deactivated inventory location
@@ -223,12 +225,12 @@ class InventoryLocations extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
 
-            /** @var InventoryLocationRecord $locationRecord */
+            /** @var ?InventoryLocationRecord $locationRecord */
             $locationRecord = InventoryLocationRecord::find()
                 ->where(['id' => $inventoryLocation->id])
                 ->one();
 
-            if (!$locationRecord) {
+            if ($locationRecord === null) {
                 $locationRecord = new InventoryLocationRecord();
             }
 

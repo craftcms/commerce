@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use yii\db\ActiveQueryInterface;
 
 /**
  * Inventory Item record.
@@ -33,9 +34,6 @@ class InventoryItem extends ActiveRecord
         return Table::INVENTORYITEMS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);

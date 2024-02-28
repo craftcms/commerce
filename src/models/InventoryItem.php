@@ -57,11 +57,14 @@ class InventoryItem extends Model
     }
 
     /**
-     * @return Purchasable|null
+     * @return ?Purchasable
      */
-    public function getPurchasable()
+    public function getPurchasable(): ?Purchasable
     {
-        return \Craft::$app->getElements()->getElementById($this->purchasableId);
+        /** @var ?Purchasable $purchasable */
+        $purchasable = \Craft::$app->getElements()->getElementById($this->purchasableId);
+
+        return $purchasable;
     }
 
     public function getSku(): string

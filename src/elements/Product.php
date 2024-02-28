@@ -979,7 +979,7 @@ class Product extends Element
     {
         $stock = 0;
         foreach ($this->getVariants($includeDisabled) as $variant) {
-            $stock += $variant->getAvailableTotalStock;
+            $stock += $variant->getAvailableTotalStock();
         }
 
         return $stock;
@@ -1411,7 +1411,7 @@ class Product extends Element
                 $hasUnlimited = false;
 
                 foreach ($this->getVariants(true) as $variant) {
-                    $stock += $variant->stock;
+                    $stock += $variant->getStock();
                     if (!$variant->inventoryTracked) {
                         $hasUnlimited = true;
                     }

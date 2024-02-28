@@ -806,6 +806,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $inventoryLevels = $this->getInventoryLevels();
             $remainingQty = $lineItem->qty;
 
+            /** @var InventoryMovementCollection $movements */
             $movements = InventoryMovementCollection::make();
             foreach ($inventoryLevels as $inventoryLevel) {
                 if ($remainingQty <= 0) {

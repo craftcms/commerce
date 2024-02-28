@@ -23,7 +23,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0
  */
-class TransfersController extends BaseStoreSettingsController
+class TransfersController extends BaseStoreManagementController
 {
     /**
      * @return Response

@@ -78,28 +78,26 @@ class Inventory extends Component
      */
     public function getInventoryItemById(int $id): InventoryItem
     {
-        $inventoryItem = InventoryItemRecord::find()
+        $inventoryItem = $this->getInventoryItemQuery()
             ->where(['id' => $id])
             ->one();
 
-        if ($inventoryItem) {
-            return $this->_populateInventoryItem($inventoryItem->toArray());
-        }
+        return $this->_populateInventoryItem($inventoryItem);
     }
 
     /**
      * @param array<int> $ids
-     * @return InventoryItem
+     * @return Collection<InventoryItem>
      */
     public function getInventoryItemsByIds(array $ids): Collection
     {
-        $inventoryItemsResults = InventoryItemRecord::find()
+        $inventoryItemsResults = $this->getInventoryItemQuery()
             ->where(['id' => $ids])
             ->all();
 
         $inventoryItems = collect();
         foreach ($inventoryItemsResults as $inventoryItem) {
-            $inventoryItems->push($this->_populateInventoryItem($inventoryItem->toArray()));
+            $inventoryItems->push($this->_populateInventoryItem($inventoryItem));
         }
 
         return $inventoryItems;
@@ -134,12 +132,12 @@ class Inventory extends Component
      */
     public function saveInventoryItem(InventoryItem $inventoryItem, bool $validate = true): bool
     {
-        /** @var InventoryItemRecord $inventoryItemRecord */
+        /** @var ?InventoryItemRecord $inventoryItemRecord */
         $inventoryItemRecord = InventoryItemRecord::find()
             ->where(['id' => $inventoryItem->id])
             ->one();
 
-        if (!$inventoryItemRecord) {
+        if ($inventoryItemRecord === null) {
             throw new InvalidConfigException('No inventory item exists with the ID “' . $inventoryItem->id . '”');
         }
 
@@ -233,6 +231,22 @@ class Inventory extends Component
             ->offset($offset);
 
         return $query;
+    }
+
+    /**
+     * @return Query
+     */
+    public function getInventoryItemQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'purchasableId',
+                'countryCodeOfOrigin',
+                'administrativeAreaCodeOfOrigin',
+                'harmonizedSystemCode',
+            ])
+            ->from(Table::INVENTORYITEMS);
     }
 
     /**
@@ -333,7 +347,7 @@ class Inventory extends Component
 
     /**
      *
-     * @param InventoryMovementCollection $inventoryMovement
+     * @param InventoryMovementCollection $inventoryMovements
      * @return bool
      * @throws \yii\db\Exception
      */

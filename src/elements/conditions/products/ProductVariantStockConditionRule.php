@@ -11,6 +11,7 @@ use Craft;
 use craft\base\conditions\BaseNumberConditionRule;
 use craft\base\ElementInterface;
 use craft\commerce\elements\db\ProductQuery;
+use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementConditionRuleInterface;
@@ -45,9 +46,10 @@ class ProductVariantStockConditionRule extends BaseNumberConditionRule implement
      */
     public function modifyQuery(ElementQueryInterface $query): void
     {
+        /** @var VariantQuery $variantQuery */
         $variantQuery = Variant::find();
         $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
-        $variantQuery->hasUnlimitedStock(false);
+        $variantQuery->inventoryTracked(true);
         $variantQuery->stock($this->paramValue());
 
         /** @var ProductQuery $query */
@@ -59,8 +61,9 @@ class ProductVariantStockConditionRule extends BaseNumberConditionRule implement
      */
     public function matchElement(ElementInterface $element): bool
     {
+        /** @var Variant $variant */
         foreach ($element->getVariants() as $variant) {
-            if ($variant->hasUnlimitedStock === false && $this->matchValue($variant->stock)) {
+            if ($variant->inventoryTracked === true && $this->matchValue($variant->getStock())) {
                 // Skip out early if we have a match
                 return true;
             }

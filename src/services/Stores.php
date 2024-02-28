@@ -215,16 +215,17 @@ class Stores extends Component
             throw new InvalidConfigException('Invalid user ID: ' . $userId);
         }
 
-        return $this->getAllStores()->filter(function(Store $store) use ($user) {
+        $allStores = $this->getAllStores();
+        return $allStores->filter(function(Store $store) use ($user) {
             $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
 
             foreach ($siteUids as $siteUid) {
                 if ($user->can('editSite:' . $siteUid)) {
-                    return $store;
+                    return true;
                 }
             }
 
-            return;
+            return false;
         });
     }
 

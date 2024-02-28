@@ -10,6 +10,7 @@ use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\elements\Address;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
@@ -35,12 +36,12 @@ class InventoryLocation extends Model implements Chippable
     /**
      * @var DateTime|null
      */
-    public ?\DateTime $dateCreated = null;
+    public DateTime|null $dateCreated = null;
 
     /**
-     * @var \DateTime|null
+     * @var DateTime|null
      */
-    public ?\DateTime $dateUpdated = null;
+    public DateTime|null $dateUpdated = null;
 
     /**
      * @var ?int
@@ -57,6 +58,7 @@ class InventoryLocation extends Model implements Chippable
      */
     public static function get(int|string $id): ?static
     {
+        /** @phpstan-ignore-next-line */
         return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($id);
     }
 
@@ -75,7 +77,9 @@ class InventoryLocation extends Model implements Chippable
     {
         if (!isset($this->_address)) {
             if ($id = $this->addressId) {
-                $this->_address = Craft::$app->getElements()->getElementById($id);
+                /** @var Address $address */
+                $address = Craft::$app->getElements()->getElementById($id);
+                $this->_address = $address;
             } else {
                 $this->_address = new Address();
                 $this->_address->countryCode = 'US';

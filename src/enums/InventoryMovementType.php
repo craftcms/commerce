@@ -41,8 +41,7 @@ enum InventoryMovementType: string
             self::SAFETY => Craft::t('commerce', 'Safety'),
             self::QUALITY_CONTROL => Craft::t('commerce', 'Quality Control'),
             self::COMMITTED => Craft::t('commerce', 'Committed'),
-            self::INCOMING => Craft::t('commerce', 'Incoming'),
-            default => throw new \Exception('Invalid inventory movement type: ' . $this->value)
+            self::INCOMING => Craft::t('commerce', 'Incoming')
         };
     }
 
