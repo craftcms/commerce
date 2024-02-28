@@ -1,17 +1,43 @@
-#inventory-levels {
-  .inventory-cell,
-  .inventory-values {
-    .ltr & {
-      text-align: right;
-    }
+.inventory-headers,
+.inventory-cell {
+  .ltr & {
+    text-align: right;
+  }
 
-    .rtl & {
-      text-align: left;
-    }
+  .rtl & {
+    text-align: left;
+  }
+}
+
+.ltr {
+  .inventory-cell {
+    text-align: right;
+  }
+
+  .inventory-cell .action-btn {
+    right: calc(var(--touch-target-size) * -1);
+  }
+}
+
+.rtl {
+  .inventory-cell {
+    text-align: left;
+  }
+
+  .inventory-cell .action-btn {
+    left: calc(var(--touch-target-size) * -1);
+  }
+}
+
+#inventory-levels {
+  .inventory-cell {
+    position: relative;
   }
 
   .inventory-cell .action-btn {
     opacity: 0;
+    position: absolute;
+    z-index: 99;
   }
 
   .inventory-cell .action-btn[aria-expanded='true'] {
