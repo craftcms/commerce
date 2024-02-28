@@ -595,7 +595,6 @@ JS, [
         ]);
 
         return $this->asCpModal()
-            ->action(null)
             ->contentTemplate('commerce/inventory/levels/_unfulfilledOrdersModal', compact(
                 'title',
                 'orders'
