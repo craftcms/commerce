@@ -20,10 +20,12 @@ use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
@@ -31,6 +33,8 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
+use craft\commerce\models\inventory\InventoryManualMovement;
+use craft\commerce\models\inventory\InventoryRestockMovement;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
@@ -3553,6 +3557,34 @@ class Order extends Element implements HasStoreInterface
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
+
+                // Gets the per line item per location inventory fulfillment levels for the previousLineItems
+                $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($this)
+                    ->filter(function($fulfillmentLevel) use ($previousLineItem) {
+                        return $fulfillmentLevel->lineItemId == $previousLineItem->id;
+                    });
+
+                $restockMovements = [];
+                // Foreach location, restock.
+                foreach ($inventoryFulfillmentLevels as $inventoryFulfillmentLevel) {
+                    // Only restock when the line item has not been fulfilled, as we should be stopping a partially
+                    // fulfilled line item from being deleted in the first place.
+                    if ($inventoryFulfillmentLevel->fulfilledQuantity === 0) {
+                        $restockMovement = new InventoryRestockMovement();
+                        $restockMovement->quantity = $inventoryFulfillmentLevel->committedQuantity;
+                        $restockMovement->fromInventoryLocation = $inventoryFulfillmentLevel->getInventoryLocation();
+                        $restockMovement->toInventoryLocation = $inventoryFulfillmentLevel->getInventoryLocation();
+                        $restockMovement->inventoryItem = $inventoryFulfillmentLevel->getInventoryItem();
+                        $restockMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                        $restockMovement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                        $restockMovement->note = Craft::t('commerce', 'Restocked line item {lineItem} for order ID {orderId}', ['lineItem' => $previousLineItem->description, 'orderId' => $previousLineItem->orderId]);
+                        $restockMovements[] = $restockMovement;
+                    }
+                }
+
+                $restockMovements = InventoryMovementCollection::make($restockMovements);
+                Plugin::getInstance()->getInventory()->executeInventoryMovements($restockMovements);
+
                 $previousLineItem->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
@@ -3581,6 +3613,8 @@ class Order extends Element implements HasStoreInterface
                         'isNew' => true,
                     ]));
                 }
+            }else{
+
             }
 
             // Update any adjustments to this line item with the new line item ID.

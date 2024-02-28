@@ -104,6 +104,7 @@
 - Added `craft\commerce\enums\InventoryTransactionType`.
 - Added `craft\commerce\enums\InventoryUpdateQuantityType`.
 - Added `craft\commerce\enums\TransferStatusType`.
+- Added `craft\commerce\models\LineItems::getFulfilledTotalQuantity()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.

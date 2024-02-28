@@ -282,7 +282,7 @@ JS, [
             'destinationInventoryLocation' => $destinationInventoryLocation,
         ]);
 
-        if (!Plugin::getInstance()->getInventoryLocations()->deactivateInventoryLocation($deactivateInventoryLocation)) {
+        if (!Plugin::getInstance()->getInventoryLocations()->executeDeactivateInventoryLocation($deactivateInventoryLocation)) {
             return $this->asFailure(Craft::t('commerce', 'Inventory was not updated.',),
                 ['errors' => $deactivateInventoryLocation->getErrors()]
             );

@@ -17,6 +17,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
+use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
@@ -176,6 +177,15 @@ class Inventory extends Component
     {
         unset($data['purchasableId']);
         return new InventoryLevel($data);
+    }
+
+    /**
+     * @param array $data
+     * @return InventoryFulfillmentLevel
+     */
+    private function _populateInventoryFulfillmentLevel(array $data): InventoryFulfillmentLevel
+    {
+        return new InventoryFulfillmentLevel($data);
     }
 
     /**
@@ -388,7 +398,6 @@ class Inventory extends Component
                         'movementHash' => $inventoryMovement->getInventoryMovementHash(),
                         'dateCreated' => $movementDate,
                         'transferId' => $inventoryMovement->getTransferId(),
-                        'orderId' => $inventoryMovement->getOrderId(),
                         'lineItemId' => $inventoryMovement->getLineItemId(),
                         'userId' => $inventoryMovement->getUserId(),
                         'note' => $inventoryMovement->getNote(),
@@ -410,7 +419,6 @@ class Inventory extends Component
                         'movementHash' => $inventoryMovement->getInventoryMovementHash(),
                         'dateCreated' => $movementDate,
                         'transferId' => $inventoryMovement->getTransferId(),
-                        'orderId' => $inventoryMovement->getOrderId(),
                         'lineItemId' => $inventoryMovement->getLineItemId(),
                         'userId' => $inventoryMovement->getUserId(),
                         'note' => $inventoryMovement->getNote(),
@@ -456,12 +464,13 @@ class Inventory extends Component
             ->select(['orders.id'])
             ->from(['lineItems' => Table::LINEITEMS])
             ->leftJoin(['orders' => Table::ORDERS], '[[lineItems.orderId]] = [[orders.id]]')
-            ->leftJoin(['inventorymovements' => Table::INVENTORYTRANSACTIONS], '[[inventorymovements.lineItemId]] = [[lineItems.id]]')
+            ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], '[[it.lineItemId]] = [[lineItems.id]]')
             ->where(['orders.isCompleted' => true])
-            ->andWhere(['inventorymovements.inventoryItemId' => $inventoryItem->id])
-            ->andWhere(['inventorymovements.inventoryLocationId' => $inventoryLocation->id])
+            ->andWhere(['it.inventoryItemId' => $inventoryItem->id])
+            ->andWhere(['it.inventoryLocationId' => $inventoryLocation->id])
+            ->andWhere(['it.type' => InventoryTransactionType::COMMITTED->value])
             ->groupBy(['lineItems.orderId', 'lineItems.id'])
-            ->having(['>=', 'SUM(inventorymovements.quantity)', 'lineItems.qty'])
+            ->having(['>=', 'SUM(it.quantity)', 'lineItems.qty'])
             ->column();
 
         return Order::find()
@@ -512,51 +521,51 @@ class Inventory extends Component
 
     /**
      * @param Order $order
-     * @return array
+     * @return Collection<InventoryFulfillmentLevel>
      * @throws InvalidConfigException
      * @throws \craft\errors\DeprecationException
      */
-    public function fulfillmentData(Order $order): array
+    public function getInventoryFulfillmentLevels(Order $order): Collection
     {
         $locations = $order->getStore()->getInventoryLocations();
 
-        $dataByLocation = [];
+        $inventoryFulfillmentLevels = [];
         foreach ($locations as $location) {
-
             $data = (new Query())
                 ->select([
-                    'orderId',
-                    'lineItemId',
-                    'inventoryItemId',
-                    'inventoryLocationId',
+                    '[[it.lineItemId]]',
+                    '[[it.inventoryItemId]]',
+                    '[[it.inventoryLocationId]]',
                     'SUM(CASE WHEN [[type]] = :committedType AND SIGN(quantity) = 1 THEN [[quantity]] ELSE 0 END) AS committedQuantity',
                     'SUM(CASE WHEN [[type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
                     'SUM(CASE WHEN [[type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
                 ])
-                ->from(Table::INVENTORYTRANSACTIONS)
+                ->from(['it' => Table::INVENTORYTRANSACTIONS])
                 ->andWhere([
-                    'orderId' => $order->id,
-                    'inventoryLocationId' => $location->id,
+                    '[[li.orderId]]' => $order->id,
+                    '[[it.inventoryLocationId]]' => $location->id,
                 ])
                 ->andWhere(['or',
                     ['type' => InventoryTransactionType::COMMITTED->value],
                     ['type' => InventoryTransactionType::FULFILLED->value],
                 ])
                 ->groupBy([
-                    'orderId',
-                    'lineItemId',
-                    'inventoryItemId',
-                    'inventoryLocationId',
+                    '[[it.lineItemId]]',
+                    '[[it.inventoryItemId]]',
+                    '[[it.inventoryLocationId]]',
                 ])
                 ->params([
                     ':committedType' => InventoryTransactionType::COMMITTED->value,
                     ':fulfilledType' => InventoryTransactionType::FULFILLED->value,
                 ])
+                ->innerJoin(['li' => Table::LINEITEMS], '[[li.id]] = [[it.lineItemId]]')
                 ->all();
 
-            $dataByLocation[$location->id] = $data;
+            foreach ($data as $row) {
+                $inventoryFulfillmentLevels[] = $this->_populateInventoryFulfillmentLevel($row);
+            }
         }
 
-        return $dataByLocation;
+        return collect($inventoryFulfillmentLevels);
     }
 }

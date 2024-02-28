@@ -54,13 +54,6 @@ abstract class InventoryMovement extends Model implements InventoryMovementInter
     public ?int $transferId = null;
 
     /**
-     * The Order that made this movement
-     *
-     * @var ?int
-     */
-    public ?int $orderId = null;
-
-    /**
      * The line item that made this movement
      *
      * @var ?int
@@ -164,14 +157,6 @@ abstract class InventoryMovement extends Model implements InventoryMovementInter
     public function getTransferId(): ?int
     {
         return $this->transferId;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getOrderId(): ?int
-    {
-        return $this->orderId;
     }
 
     /**

@@ -12,7 +12,6 @@ use Illuminate\Support\Collection;
 /**
  * InventoryMovementCollection represents a collection of InventoryMovementInterface models.
  *
- *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */

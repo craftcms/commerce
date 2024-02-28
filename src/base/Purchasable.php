@@ -821,7 +821,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
                         'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
                         'quantity' => $deductQty,
-                        'orderId' => $order->id,
                         'lineItemId' => $lineItem->id,
                         'note' => 'Order Completed',
                     ]));

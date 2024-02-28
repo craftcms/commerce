@@ -16,7 +16,6 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -226,7 +225,6 @@ class OrdersController extends Controller
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
-        $variables['fulfillmentData'] = Plugin::getInstance()->getInventory()->fulfillmentData($order);
 
         $transactions = $order->getTransactions();
 
@@ -236,6 +234,23 @@ class OrdersController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
+    }
+
+    public function actionFulfillmentModal(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = $this->request->getRequiredParam('orderId');
+        $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
+
+        return $this->asCpModal()
+            ->action('commerce/orders/fulfill')
+            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+            ->contentTemplate('commerce/orders/modals/_fulfillmentModal', [
+                'inventoryFulfillmentLevels' => $inventoryFulfillmentLevels,
+                'order' => $order
+            ]);
     }
 
     /**
@@ -757,6 +772,13 @@ class OrdersController extends Controller
         return $this->asSuccess();
     }
 
+    public function actionFulfill(): Response
+    {
+        $this->requirePostRequest();
+
+        return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
+    }
+
     /**
      * @return Response
      * @throws BadRequestHttpException
@@ -1200,12 +1222,6 @@ class OrdersController extends Controller
             'class' => null,
         ];
 
-        $variables['tabs']['order-fulfillment'] = [
-            'label' => Craft::t('commerce', 'Fulfillment'),
-            'url' => '#fulfillmentTab',
-            'class' => null,
-        ];
-
         $variables['fullPageForm'] = true;
 
 
@@ -1465,8 +1481,12 @@ class OrdersController extends Controller
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
-                $lineItem->setPrice($lineItemData['price']);
+                if (isset($lineItemData['promotionalPrice'])) {
+                    $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
+                }
+                if (isset($lineItemData['price'])) {
+                    $lineItem->setPrice($lineItemData['price']);
+                }
             }
 
             if ($qty !== null && $qty > 0) {
