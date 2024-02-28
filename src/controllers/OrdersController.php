@@ -238,7 +238,60 @@ class OrdersController extends Controller
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
+    
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\web\MethodNotAllowedHttpException
+     */
+    public function actionFulfill(): Response
+    {
+        $this->requirePostRequest();
 
+        $fulfillments = $this->request->getBodyParam('fulfillment');
+        $movements = [];
+        foreach ($fulfillments as $fulfillment) {
+            $qty = $fulfillment['quantity'];
+            if($qty > 0) {
+                $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
+                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
+                $movement = new InventoryFulfillMovement();
+                $movement->fromInventoryLocation = $inventoryLocation;
+                $movement->inventoryItem = $inventoryItem;
+                $movement->toInventoryLocation = $inventoryLocation;
+                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
+                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
+                $movement->lineItemId = $fulfillment['lineItemId'];
+                $movement->quantity = $qty;
+                $movement->userId = Craft::$app->getUser()->getId();
+                $movements[] = $movement;
+            }
+        }
+
+        foreach ($movements as $movement) {
+            if(!$movement->isValid())
+            {
+                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+            }
+        }
+
+        $movements = InventoryMovementCollection::make($movements);
+
+        if(!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements))
+        {
+            return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     */
     public function actionFulfillmentModal(): Response
     {
         $this->requireAcceptsJson();
@@ -773,47 +826,6 @@ class OrdersController extends Controller
         }
 
         return $this->asSuccess();
-    }
-
-    public function actionFulfill(): Response
-    {
-        $this->requirePostRequest();
-
-        $fulfillments = $this->request->getBodyParam('fulfillment');
-        $movements = [];
-        foreach ($fulfillments as $fulfillment) {
-            $qty = $fulfillment['quantity'];
-            if($qty > 0) {
-                $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
-                $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
-                $movement = new InventoryFulfillMovement();
-                $movement->fromInventoryLocation = $inventoryLocation;
-                $movement->inventoryItem = $inventoryItem;
-                $movement->toInventoryLocation = $inventoryLocation;
-                $movement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
-                $movement->toInventoryTransactionType = InventoryTransactionType::FULFILLED;
-                $movement->lineItemId = $fulfillment['lineItemId'];
-                $movement->quantity = $qty;
-                $movement->userId = Craft::$app->getUser()->getId();
-                $movements[] = $movement;
-            }
-        }
-
-        foreach ($movements as $movement) {
-           if(!$movement->isValid())
-           {
-                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
-           }
-        }
-
-        $movements = InventoryMovementCollection::make($movements);
-
-        if(!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements))
-        {
-            return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
-        }
-
-        return $this->asSuccess(Craft::t('commerce', 'Updated committed stock successfully.'));
     }
 
     /**
