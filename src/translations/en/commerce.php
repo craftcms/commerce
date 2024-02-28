@@ -496,11 +496,8 @@ return [
     'Free orders complete immediately' => 'Free orders complete immediately',
     'Free shipping can only be for whole order or matching items, not both.' => 'Free shipping can only be for whole order or matching items, not both.',
     'From Name' => 'From Name',
-<<<<<<< HEAD
-=======
     'Fulfill' => 'Fulfill',
     'Fulfilled' => 'Fulfilled',
->>>>>>> 8e351da0d15c84baa844de34eda693b776851888
     'Fulfillment' => 'Fulfillment',
     'Full Name' => 'Full Name',
     'Gateway Code' => 'Gateway Code',
