@@ -1,3 +1,26 @@
-.red {
-  color: red;
+#inventory-levels {
+  .inventory-cell,
+  .inventory-values {
+    .ltr & {
+      text-align: right;
+    }
+
+    .rtl & {
+      text-align: left;
+    }
+  }
+
+  .inventory-cell .action-btn {
+    opacity: 0;
+  }
+
+  .inventory-cell .action-btn[aria-expanded='true'] {
+    opacity: 1;
+  }
+
+  .vue-admin-table tbody tr:hover {
+    .inventory-cell .action-btn {
+      opacity: 1;
+    }
+  }
 }

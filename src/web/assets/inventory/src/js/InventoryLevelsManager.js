@@ -39,45 +39,66 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     self = this;
 
     this.columns = [
-      {name: 'item', sortField: 'item', title: Craft.t('commerce', 'Item')},
+      {
+        name: 'item',
+        sortField: 'item',
+        title: Craft.t('commerce', 'Purchasable'),
+      },
+      {name: 'sku', sortField: 'sku', title: Craft.t('commerce', 'SKU')},
       {
         name: 'reserved',
         sortField: 'reservedTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Reserved'),
       },
       {
         name: 'damaged',
         sortField: 'damagedTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Damaged'),
       },
       {
         name: 'safety',
         sortField: 'safetyTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Safety'),
       },
       {
         name: 'qualityControl',
         sortField: 'qualityControlTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Quality Control'),
       },
       {
         name: 'committed',
         sortField: 'committedTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Committed'),
       },
       {
         name: 'available',
         sortField: 'availableTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Available'),
       },
       {
         name: 'onHand',
         sortField: 'onHandTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'On Hand'),
       },
       {
         name: 'incoming',
         sortField: 'incomingTotal',
+        titleClass: 'inventory-values',
+        dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'Incoming'),
       },
     ];

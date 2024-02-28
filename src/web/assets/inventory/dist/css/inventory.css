@@ -1,2 +1,2 @@
-.red{color:red}
+.ltr #inventory-levels .inventory-cell,.ltr #inventory-levels .inventory-values{text-align:right}.rtl #inventory-levels .inventory-cell,.rtl #inventory-levels .inventory-values{text-align:left}#inventory-levels .inventory-cell .action-btn{opacity:0}#inventory-levels .inventory-cell .action-btn[aria-expanded=true],#inventory-levels .vue-admin-table tbody tr:hover .inventory-cell .action-btn{opacity:1}
 /*# sourceMappingURL=inventory.css.map*/

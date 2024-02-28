@@ -201,8 +201,8 @@ class InventoryController extends Controller
                     'url' => $purchasable->getCpEditUrl(),
                 ]);
                 $purchasableChip = Html::tag('div',  $purchasableChip, ['class' => 'flex-grow']);
-                $itemLink = Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
-                $inventoryLevel['item'] = Html::tag('div', $purchasableChip . $itemLink, ['class' => 'flex']);
+                $inventoryLevel['sku'] =  Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
+                $inventoryLevel['item'] = Html::tag('div', $purchasableChip, ['class' => 'flex']);
             } else {
                 $inventoryLevel['item'] = '';
             }
@@ -392,12 +392,9 @@ JS, [
                         ],
                     ],
                 ];
-                $valueDiv = Html::tag('div', $inventoryLevel[$type . 'Total'], ['class' => '']);
-                $actionButton = Html::tag('div', Cp::disclosureMenu($items, $config), ['class' => 'flex-grow']);
-                $inventoryLevel[$type] = Html::tag('div',
-                    $valueDiv .
-                    (count($items) ? $actionButton : ''),
-                    ['class' => 'flex']);
+                $valueDiv = $inventoryLevel[$type . 'Total'];
+                $actionButton = Cp::disclosureMenu($items, $config);
+                $inventoryLevel[$type] = $valueDiv . (count($items) ? $actionButton : '');
             }
         }
 
