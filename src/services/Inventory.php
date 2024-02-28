@@ -472,7 +472,7 @@ class Inventory extends Component
     /**
      * @return Query
      */
-    public function getMovementsQuery(): Query
+    public function getTransactionQuery(): Query
     {
         return (new Query())
             ->select([
@@ -497,9 +497,9 @@ class Inventory extends Component
      * @param InventoryLocation $inventoryLocation
      * @return Collection
      */
-    public function getMovements(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): Collection
+    public function getInventoryTransactions(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): Collection
     {
-        $transactions = $this->getMovementsQuery()
+        $transactions = $this->getTransactionQuery()
             ->where(['inventoryItemId' => $inventoryItem->id, 'inventoryLocationId' => $inventoryLocation->id])
             ->all();
 
@@ -508,5 +508,55 @@ class Inventory extends Component
         }
 
         return collect($transactions);
+    }
+
+    /**
+     * @param Order $order
+     * @return array
+     * @throws InvalidConfigException
+     * @throws \craft\errors\DeprecationException
+     */
+    public function fulfillmentData(Order $order): array
+    {
+        $locations = $order->getStore()->getInventoryLocations();
+
+        $dataByLocation = [];
+        foreach ($locations as $location) {
+
+            $data = (new Query())
+                ->select([
+                    'orderId',
+                    'lineItemId',
+                    'inventoryItemId',
+                    'inventoryLocationId',
+                    'SUM(CASE WHEN [[type]] = :committedType AND SIGN(quantity) = 1 THEN [[quantity]] ELSE 0 END) AS committedQuantity',
+                    'SUM(CASE WHEN [[type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
+                    'SUM(CASE WHEN [[type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
+                ])
+                ->from(Table::INVENTORYTRANSACTIONS)
+                ->andWhere([
+                    'orderId' => $order->id,
+                    'inventoryLocationId' => $location->id,
+                ])
+                ->andWhere(['or',
+                    ['type' => InventoryTransactionType::COMMITTED->value],
+                    ['type' => InventoryTransactionType::FULFILLED->value],
+                ])
+                ->groupBy([
+                    'orderId',
+                    'lineItemId',
+                    'inventoryItemId',
+                    'inventoryLocationId',
+                ])
+                ->params([
+                    ':committedType' => InventoryTransactionType::COMMITTED->value,
+                    ':fulfilledType' => InventoryTransactionType::FULFILLED->value,
+                ])
+                ->all();
+
+            $dataByLocation[$location->id] = $data;
+        }
+
+        return $dataByLocation;
     }
 }

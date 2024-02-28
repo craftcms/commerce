@@ -3,14 +3,34 @@
 
 ]) %}
 
-<div id="fulfillmentTab" class="hidden">
-{% for fulfillment in fulfillmentForm %}
-    <div class="flex items-center mb-2">
-        <div class="w-1/3">
-            <div class="font-bold">{{dump(fulfillment)}}</div>
-        </div>
+{% import '_includes/forms.twig' as forms %}
 
-    </div>
+<div id="fulfillmentTab" class="hidden">
+{% for inventoryLocationId, fulfillmentLocationData in fulfillmentData %}
+    Location: {{ inventoryLocationId }}
+    <table class="data fullwidth">
+        <tr>
+            <th>Description</th>
+            <th>Fulfilled</th>
+            <th>Fulfill</th>
+        </tr>
+        {% for lineItemtotal in fulfillmentLocationData %}
+            <tr>
+            <td class="" data-note="Line Item Description">{{lineItemtotal.lineItemId}}</td>
+            <td class="">{{lineItemtotal.fulfilledQuantity}} / {{lineItemtotal.committedQuantity}}</td>
+            <td class="">
+                {{ forms.text({
+                    type: 'number',
+                    inputAttributes: {
+                        max: lineItemtotal.outstandingCommittedQuantity,
+                        step: 1,
+                    },
+                    name: 'fulfillment[' ~ inventoryLocationId ~ '][' ~ lineItemtotal.lineItemId ~ ']',
+                }) }}
+            </td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endfor %}
 
 </div>

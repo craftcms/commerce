@@ -26,6 +26,8 @@ enum InventoryTransactionType: string
     // Committed to ship
     case COMMITTED = 'committed';
 
+    case FULFILLED = 'fulfilled';
+
     // Unavailable since they are still incoming
     case INCOMING = 'incoming';
 

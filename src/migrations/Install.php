@@ -352,6 +352,7 @@ class Install extends Migration
                 'reserved',
                 'damaged',
                 'safety',
+                'fulfilled',
                 'qualityControl',
             ])->notNull(),
             'note' => $this->string(),

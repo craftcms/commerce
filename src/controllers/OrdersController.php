@@ -226,7 +226,7 @@ class OrdersController extends Controller
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
-        $variables['fulfillmentForm'] = $this->_fulfillmentForm($order);
+        $variables['fulfillmentData'] = Plugin::getInstance()->getInventory()->fulfillmentData($order);
 
         $transactions = $order->getTransactions();
 
@@ -236,42 +236,6 @@ class OrdersController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
-    }
-
-    private function _fulfillmentForm(Order $order): array
-    {
-        $originalCommitted = (new Query())
-            ->select(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
-            ->from(Table::INVENTORYTRANSACTIONS)
-            ->where([
-                'orderId' => $order->id,
-                'type' => InventoryTransactionType::COMMITTED->value,
-            ])
-            ->groupBy(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId'])
-            ->all();
-
-
-        return $originalCommitted;
-    }
-
-    /**
-     * @param Order $order
-     * @return array
-     */
-    private function _fulfillmentForm(Order $order): array
-    {
-        $originalCommitted = (new Query())
-            ->select(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
-            ->from(Table::INVENTORYTRANSACTIONS)
-            ->where([
-                'orderId' => $order->id,
-                'type' => InventoryTransactionType::COMMITTED->value,
-            ])
-            ->groupBy(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId'])
-            ->all();
-
-
-        return $originalCommitted;
     }
 
     /**
@@ -1296,7 +1260,7 @@ class OrdersController extends Controller
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
-        
+
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
             'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
