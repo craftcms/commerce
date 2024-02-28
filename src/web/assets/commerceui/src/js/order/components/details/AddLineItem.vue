@@ -228,7 +228,8 @@
                             lineItems.push({
                                 id: null,
                                 lineItemStatusId: null,
-                                salePrice: purchasable.price,
+                                price: purchasable.price,
+                                promotionalPrice: purchasable.promotionalPrice,
                                 qty: purchasable.qty,
                                 note: '',
                                 privateNote: '',

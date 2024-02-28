@@ -1481,12 +1481,8 @@ class OrdersController extends Controller
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                if (isset($lineItemData['promotionalPrice'])) {
-                    $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
-                }
-                if (isset($lineItemData['price'])) {
-                    $lineItem->setPrice($lineItemData['price']);
-                }
+                $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
+                $lineItem->setPrice($lineItemData['price']);
             }
 
             if ($qty !== null && $qty > 0) {
@@ -1647,6 +1643,7 @@ class OrdersController extends Controller
                 $baseCurrency = $purchasable->getStore()->getCurrency();
                 // @TODO revisit when updating currencies for stores
                 $row['price'] = $purchasable->getSalePrice();
+                $row['promotionalPrice'] = $purchasable->getPromotionalPrice();
                 $row['priceAsCurrency'] = MoneyHelper::toString(MoneyHelper::toMoney(['value' => $purchasable->getSalePrice(), 'currency' => $baseCurrency]));
                 $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
