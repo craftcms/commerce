@@ -33,7 +33,7 @@
       <form action="" method="post">
         {{ csrfInput() }}
         {{ actionInput('commerce/cart/update-cart') }}
-        {{ redirectInput(siteUrl('shop/checkout/payment')) }}
+        {{ redirectInput(siteUrl('[[folderName]]/checkout/payment')) }}
         {{ successMessageInput('Options saved.') }}
 
         {% set user = cart.email ? craft.users.email(cart.email).one() : null %}

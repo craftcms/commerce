@@ -1,5 +1,28 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Removed Lite edition. 
+- Removed the single line item limit from Carts in the Lite edition.
+- Removed the limitation of being unable to register custom Tax engines.
+- Removed the limitation of adding custom adjusters in the Lite edition.
+- Removed the limitation of being unable to create orders form the Order index page in the Lite edition.
+- Deprecated `craft\commerce\models\ShippingMethod::isLite`.
+- Deprecated `craft\commerce\models\ShippingRule::isLite`.
+- Deprecated `craft\commerce\models\TaxRate::isLite`.
+- Deprecated `craft\commerce\models\LiteShippingSettings`.
+- Deprecated `craft\commerce\models\LiteTaxSettings`.
+- Deprecated `craft\commerce\controllers\LiteShippingController`.
+- Deprecated `craft\commerce\controllers\LiteTaxController`.
+- Deprecated `craft\commerce\services\ShippingMethods::getLiteShippingMethod()`. Use `getAllShippingMethods()` instead.
+- Deprecated `craft\commerce\services\ShippingMethods::saveLiteShippingMethod()`. Use `saveShippingMethod()` instead.
+- Deprecated `craft\commerce\services\ShippingRules::getLiteShippingRule()`. Use `getAllShippingRules()` instead.
+- Deprecated `craft\commerce\services\ShippingRules::saveLiteShippingRule()`. Use `saveShippingRule()` instead.
+- Deprecated `craft\commerce\services\TaxRates::getLiteTaxRate()`. Use `getAllTaxRates()` instead.
+- Deprecated `craft\commerce\services\TaxRates::saveLiteTaxRate()`. Use `saveTaxRate()` instead.
+- 
+- Fixed a SQL error when running the `php craft commerce/upgrade` command on PostgreSQL. ([#3380](https://github.com/craftcms/commerce/pull/3380))
+
 ## 4.4.1.1 - 2024-01-12
 
 - Fixed a PHP error that occurred when saving a sale. ([#3364](https://github.com/craftcms/commerce/issues/3364))

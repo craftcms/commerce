@@ -60,14 +60,6 @@ export default new Vuex.Store({
       return window.orderEdit.ordersIndexUrl;
     },
 
-    edition() {
-      return window.orderEdit.edition;
-    },
-
-    isProEdition() {
-      return window.orderEdit.edition == 'pro';
-    },
-
     hasOrderChanged(state) {
       return !_isEqual(state.draft, state.originalDraft);
     },

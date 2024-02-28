@@ -238,7 +238,6 @@ class Plugin extends BasePlugin
     public static function editions(): array
     {
         return [
-            self::EDITION_LITE,
             self::EDITION_PRO,
             self::EDITION_ENTERPRISE,
         ];
@@ -379,10 +378,35 @@ class Plugin extends BasePlugin
             ];
         }
 
-        $ret['subnav']['store-management'] = [
-            'label' => Craft::t('commerce', 'Store Management'),
-            'url' => 'commerce/store-management',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
+            $ret['subnav']['promotions'] = [
+                'label' => Craft::t('commerce', 'Promotions'),
+                'url' => 'commerce/promotions',
+            ];
+        }
+
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
+            $ret['subnav']['shipping'] = [
+                'label' => Craft::t('commerce', 'Shipping'),
+                'url' => 'commerce/shipping',
+            ];
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
+            $ret['subnav']['tax'] = [
+                'label' => Craft::t('commerce', 'Tax'),
+                'url' => 'commerce/tax',
+            ];
+        }
+
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
+            $ret['subnav']['store-management'] = [
+                'label' => Craft::t('commerce', 'Store Management'),
+                'url' => 'commerce/store-management',
+            ];
+        }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [

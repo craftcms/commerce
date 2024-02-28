@@ -63,8 +63,6 @@ class OrdersFixture extends BaseElementFixture
 
     public function init(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
-
         parent::init();
     }
 
