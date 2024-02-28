@@ -51,6 +51,15 @@
                     </div>
                 </div>
             </template>
+
+            <template v-if="!editing && !hasOrderChanged && hasLineItems">
+                <button
+                    class="btn fulfillment"
+                    @click.prevent="handleFulfillment"
+                >
+                    {{ 'Fulfillment' | t('commerce') }}
+                </button>
+            </template>
         </div>
         <div v-else-if="hasOrderChanged">
             <span>{{ 'This order has unsaved changes.' | t('commerce') }}</span>
@@ -67,11 +76,18 @@
         data() {
             return {
                 emailLoading: false,
+                fulfillmentModal: null,
             };
         },
 
         computed: {
-            ...mapGetters(['emailTemplates', 'hasOrderChanged', 'pdfUrls']),
+            ...mapGetters([
+                'emailTemplates',
+                'hasLineItems',
+                'hasOrderChanged',
+                'orderId',
+                'pdfUrls',
+            ]),
 
             ...mapState({
                 editing: (state) => state.editing,
@@ -87,6 +103,26 @@
         },
 
         methods: {
+            handleFulfillment() {
+                this.fulfillmentModal = new Craft.CpModal(
+                    'commerce/orders/fulfillment-modal',
+                    {
+                        params: {
+                            orderId: this.orderId,
+                        },
+                    }
+                );
+
+                this.fulfillmentModal.on('close', () => {
+                    this.fulfillmentModal = null;
+                });
+
+                this.fulfillmentModal.on('submit', (e) => {
+                    // sleep to see success message?
+                    location.reload();
+                });
+            },
+
             sendEmail(emailTemplateId) {
                 const emailTemplate = this.emailTemplates.find(
                     (emailTemplate) => emailTemplate.id === emailTemplateId
@@ -149,6 +185,16 @@
 
         .rtl & {
             padding-right: 7px;
+        }
+    }
+
+    .btn.fulfillment {
+        .ltr & {
+            margin-left: 7px;
+        }
+
+        .rtl & {
+            margin-right: 7px;
         }
     }
 

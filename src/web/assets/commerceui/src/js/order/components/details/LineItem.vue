@@ -50,7 +50,7 @@
                         }}</btn-link>
                     </div>
                     <!-- Edit-->
-                    <div>
+                    <div v-if="lineItem.fulfilledTotalQuantity < 1">
                         <btn-link
                             button-class="btn-link btn-link--danger"
                             @click="removeLineItem"
