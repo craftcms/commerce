@@ -11,9 +11,9 @@ use Craft;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
-use craft\commerce\models\inventory\InventoryMovement;
+use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\Plugin;
@@ -222,13 +222,13 @@ JS, [
             ]);
 
             // TODO: Look to reduce the number of modal click listeners.
-            $columnTypes = [...InventoryMovementType::values(), 'onHand'];
+            $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
             foreach ($columnTypes as $type) {
                 $items = [];
                 $id = $inventoryLevel['id'];
 
                 $showOrderLinks = (
-                    $type == InventoryMovementType::COMMITTED->value &&
+                    $type == InventoryTransactionType::COMMITTED->value &&
                     $inventoryLevel['committedTotal'] > 0
                 );
 
@@ -265,7 +265,7 @@ JS, [
 
                 $showSet = (
                     $type == 'onHand' ||
-                    in_array(InventoryMovementType::from($type), InventoryMovementType::allowedManualAdjustmentTypes())
+                    in_array(InventoryTransactionType::from($type), InventoryTransactionType::allowedManualAdjustmentTypes())
                 );
 
                 if ($showSet) {
@@ -337,7 +337,7 @@ JS, [
 
                 $showMovement = (
                     $type !== 'onHand' &&
-                    in_array(InventoryMovementType::from($type), InventoryMovementType::allowedManualMovementTypes()) &&
+                    in_array(InventoryTransactionType::from($type), InventoryTransactionType::allowedManualMoveTransactionTypes()) &&
                     $inventoryLevel[$type . 'Total'] > 0);
 
                 if ($showMovement) {
@@ -366,7 +366,7 @@ JS, [
                         [
                             'inventoryMovement' => [
                                 'note' => '',
-                                'fromInventoryMovementType' => $type,
+                                'fromInventoryTransactionType' => $type,
                                 'quantity' => '0',
                                 'inventoryItemId' => $inventoryLevel['inventoryItemId'],
                                 'fromInventoryLocationId' => $inventoryLevel['inventoryLocationId'],
@@ -502,18 +502,18 @@ JS, [
         $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryLocationId');
         $note = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.note');
-        $fromInventoryMovementType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryMovementType');
-        $toInventoryMovementType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryMovementType');
+        $fromInventoryTransactionType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryTransactionType');
+        $toInventoryTransactionType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryTransactionType');
         $inventoryItemId = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.inventoryItemId');
         $quantity = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.quantity');
 
-        $inventoryMovement = new InventoryMovement(
+        $inventoryMovement = new InventoryManualMovement(
             [
                 'inventoryItem' => Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId),
                 'fromInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId),
                 'toInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId),
-                'fromInventoryMovementType' => InventoryMovementType::from($fromInventoryMovementType),
-                'toInventoryMovementType' => InventoryMovementType::from($toInventoryMovementType),
+                'fromInventoryTransactionType' => InventoryTransactionType::from($fromInventoryTransactionType),
+                'toInventoryTransactionType' => InventoryTransactionType::from($toInventoryTransactionType),
                 'quantity' => $quantity,
                 'note' => $note,
             ]
@@ -538,39 +538,39 @@ JS, [
         $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
         $note = Craft::$app->getRequest()->getParam('inventoryMovement.note', '');
-        $fromInventoryMovementType = Craft::$app->getRequest()->getParam('inventoryMovement.fromInventoryMovementType');
-        $toInventoryMovementType = Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryMovementType');
+        $fromInventoryTransactionType = Craft::$app->getRequest()->getParam('inventoryMovement.fromInventoryTransactionType');
+        $toInventoryTransactionType = Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryTransactionType');
         $inventoryItemId = Craft::$app->getRequest()->getParam('inventoryMovement.inventoryItemId');
         $quantity = (int)Craft::$app->getRequest()->getParam('inventoryMovement.quantity', 0);
 
-        $movableTo = collect(InventoryMovementType::allowedManualMovementTypes())
-            ->filter(fn($type) => $type->value !== $fromInventoryMovementType)
+        $movableTo = collect(InventoryTransactionType::allowedManualMoveTransactionTypes())
+            ->filter(fn($type) => $type->value !== $fromInventoryTransactionType)
             ->mapWithKeys(fn($type) => [$type->value => $type->typeAsLabel()]);
 
-        $toInventoryMovementType = InventoryMovementType::tryFrom($toInventoryMovementType);
-        if (!$toInventoryMovementType) {
-            $toInventoryMovementType = $movableTo->keys()->first();
+        $toInventoryTransactionType = InventoryTransactionType::tryFrom($toInventoryTransactionType);
+        if (!$toInventoryTransactionType) {
+            $toInventoryTransactionType = $movableTo->keys()->first();
         }
 
-        $inventoryMovement = new InventoryMovement(
+        $inventoryMovement = new InventoryManualMovement(
             [
                 'inventoryItem' => Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryItemId),
                 'fromInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fromInventoryLocationId),
                 'toInventoryLocation' => Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($toInventoryLocationId),
-                'fromInventoryMovementType' => InventoryMovementType::from($fromInventoryMovementType),
-                'toInventoryMovementType' => InventoryMovementType::from($toInventoryMovementType),
+                'fromInventoryTransactionType' => InventoryTransactionType::from($fromInventoryTransactionType),
+                'toInventoryTransactionType' => InventoryTransactionType::from($toInventoryTransactionType),
                 'quantity' => $quantity,
                 'note' => $note,
             ]
         );
 
         $fromLevel = Plugin::getInstance()->getInventory()->getInventoryLevel($inventoryMovement->inventoryItem, $inventoryMovement->fromInventoryLocation);
-        $fromTotal = $fromLevel->{$fromInventoryMovementType . 'Total'};
+        $fromTotal = $fromLevel->{$fromInventoryTransactionType . 'Total'};
 
         $movableTo = $movableTo->toArray();
         $params = [
             'inventoryMovement' => $inventoryMovement,
-            'toInventoryMovementTypes' => $movableTo,
+            'toInventoryTransactionTypes' => $movableTo,
             'maxFromQuantity' => $fromTotal,
         ];
 

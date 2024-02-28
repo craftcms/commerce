@@ -10,7 +10,7 @@ namespace craft\commerce\enums;
 use Craft;
 use craft\commerce\base\EnumHelpersTrait;
 
-enum InventoryMovementType: string
+enum InventoryTransactionType: string
 {
     use EnumHelpersTrait;
 
@@ -56,7 +56,7 @@ enum InventoryMovementType: string
     }
 
     /**
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function onHand(): array
     {
@@ -69,7 +69,7 @@ enum InventoryMovementType: string
     }
 
     /**
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function unavailable(): array
     {
@@ -82,7 +82,7 @@ enum InventoryMovementType: string
     }
 
     /**
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function available(): array
     {
@@ -92,7 +92,7 @@ enum InventoryMovementType: string
     }
 
     /**
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function incoming(): array
     {
@@ -102,7 +102,7 @@ enum InventoryMovementType: string
     }
 
     /**
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function committed(): array
     {
@@ -114,9 +114,9 @@ enum InventoryMovementType: string
     /**
      * These are the types that can be manually moved between (Outside a transfer or purchase order or fulfillment).
      *
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
-    public static function allowedManualMovementTypes(): array
+    public static function allowedManualMoveTransactionTypes(): array
     {
         return [
             // Unavailable
@@ -130,7 +130,7 @@ enum InventoryMovementType: string
     /**
      * These are the types that can be manually moved between (Outside a transfer or purchase order or fulfillment).
      *
-     * @return InventoryMovementType[]
+     * @return InventoryTransactionType[]
      */
     public static function allowedManualAdjustmentTypes(): array
     {

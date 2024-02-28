@@ -338,8 +338,8 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->archiveTableIfExists(Table::INVENTORYMOVEMENTS);
-        $this->createTable(Table::INVENTORYMOVEMENTS, [
+        $this->archiveTableIfExists(Table::INVENTORYTRANSACTIONS);
+        $this->createTable(Table::INVENTORYTRANSACTIONS, [
             'id' => $this->primaryKey(),
             'inventoryLocationId' => $this->integer()->notNull(),
             'inventoryItemId' => $this->integer()->notNull(),
@@ -1057,11 +1057,11 @@ class Install extends Migration
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
         $this->createIndex(null, Table::GATEWAYS, 'isArchived', false);
         $this->createIndex(null, Table::INVENTORYITEMS, 'purchasableId', true);
-        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'inventoryItemId', false);
-        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'orderId', false);
-        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'lineItemId', false);
-        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'transferId', false);
-        $this->createIndex(null, Table::INVENTORYMOVEMENTS, 'userId', false);
+        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', false);
+        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'orderId', false);
+        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'lineItemId', false);
+        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'transferId', false);
+        $this->createIndex(null, Table::INVENTORYTRANSACTIONS, 'userId', false);
         $this->createIndex(null, Table::LINEITEMS, 'purchasableId', false);
         $this->createIndex(null, Table::LINEITEMS, 'shippingCategoryId', false);
         $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
@@ -1181,13 +1181,13 @@ class Install extends Migration
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', '{{%addresses}}', 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'orderId', Table::ORDERS, 'id', 'SET NULL', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'lineItemId', Table::LINEITEMS, 'id', 'SET NULL', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'userId', CraftTable::USERS, 'id', 'SET NULL', null);
-        $this->addForeignKey(null, Table::INVENTORYMOVEMENTS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'orderId', Table::ORDERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'lineItemId', Table::LINEITEMS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'userId', CraftTable::USERS, 'id', 'SET NULL', null);
+        $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'transferId', Table::TRANSFERS, 'id', 'SET NULL', null);
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');

@@ -16,6 +16,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
@@ -234,6 +235,26 @@ class OrdersController extends Controller
         $this->_registerJavascript($variables);
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
+    }
+
+    /**
+     * @param Order $order
+     * @return array
+     */
+    private function _fulfillmentForm(Order $order): array
+    {
+        $originalCommitted = (new Query())
+            ->select(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
+            ->from(Table::INVENTORYTRANSACTIONS)
+            ->where([
+                'orderId' => $order->id,
+                'type' => InventoryTransactionType::COMMITTED->value,
+            ])
+            ->groupBy(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId'])
+            ->all();
+
+
+        return $originalCommitted;
     }
 
     /**

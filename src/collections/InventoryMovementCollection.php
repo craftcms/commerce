@@ -7,11 +7,10 @@
 
 namespace craft\commerce\collections;
 
-use craft\commerce\models\inventory\InventoryMovement;
 use Illuminate\Support\Collection;
 
 /**
- * InventoryMovementCollection represents a collection of InventoryMovement models.
+ * InventoryMovementCollection represents a collection of InventoryMovementInterface models.
  *
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

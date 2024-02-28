@@ -4,7 +4,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
@@ -75,10 +75,10 @@ class InventoryLevel extends Model
     private ?InventoryItem $_inventoryItem = null;
 
     /**
-     * @param InventoryMovementType $type
+     * @param InventoryTransactionType $type
      * @return int
      */
-    public function getTotal(InventoryMovementType $type): int
+    public function getTotal(InventoryTransactionType $type): int
     {
         return $this->{$type->value . 'Total'};
     }
@@ -98,7 +98,6 @@ class InventoryLevel extends Model
     {
         if ($this->_inventoryItem === null) {
             $this->_inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
-            ;
         }
         return $this->_inventoryItem;
     }

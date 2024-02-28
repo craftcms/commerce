@@ -11,10 +11,10 @@ use Craft;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Transfer;
-use craft\commerce\enums\InventoryMovementType;
+use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\TransferStatusType;
 use craft\commerce\models\inventory\DeactivateInventoryLocation;
-use craft\commerce\models\inventory\InventoryMovement;
+use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\Store;
@@ -161,18 +161,17 @@ class InventoryLocations extends Component
             /** @var InventoryLevel $inventoryLevel */
             foreach ($inventoryLevels as $inventoryLevel) {
                 $movements = new InventoryMovementCollection();
-                foreach (InventoryMovementType::allowedManualMovementTypes() as $type) {
+                foreach (InventoryTransactionType::allowedManualMoveTransactionTypes() as $type) {
                     if ($inventoryLevel->getTotal($type) > 0) {
-                        $inventoryMovement = new InventoryMovement();
+                        $inventoryMovement = new InventoryLocationDeactivatedMovement();
                         $inventoryMovement->fromInventoryLocation = $deactivateInventoryLocation->inventoryLocation;
                         $inventoryMovement->toInventoryLocation = $deactivateInventoryLocation->destinationInventoryLocation;
                         $inventoryMovement->inventoryItem = $inventoryLevel->getInventoryItem();
                         $inventoryMovement->quantity = $inventoryLevel->getTotal($type);
-                        $inventoryMovement->fromInventoryMovementType = $type;
-                        $inventoryMovement->toInventoryMovementType = $type;
+                        $inventoryMovement->fromInventoryTransactionType = $type;
+                        $inventoryMovement->toInventoryTransactionType = $type;
                         $inventoryMovement->userId = Craft::$app->getUser()->getIdentity()?->id;
                         $inventoryMovement->note = Craft::t('commerce', 'Movement from deactivated inventory location');
-                        $inventoryMovement->allowInterLocationMovementWithoutTransfer = true;
                         $movements->add($inventoryMovement);
                     }
                 }
