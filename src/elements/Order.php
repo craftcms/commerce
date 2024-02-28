@@ -54,6 +54,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\elements\Address as AddressElement;
 use craft\elements\User;
+use craft\errors\DeprecationException;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
@@ -1486,6 +1487,7 @@ class Order extends Element implements HasStoreInterface
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'store';
+        $names[] = 'totalCommittedStock';
         $names[] = 'transactions';
         return $names;
     }
@@ -2714,6 +2716,17 @@ class Order extends Element implements HasStoreInterface
     public function hasLineItems(): bool
     {
         return (bool)$this->getLineItems();
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws DeprecationException
+     * @since 5.0.0
+     */
+    public function getTotalCommittedStock(): int
+    {
+        return Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($this)->sum('committedQuantity') ?? 0;
     }
 
     /**

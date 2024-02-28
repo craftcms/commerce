@@ -20,6 +20,7 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\enums\MenuItemType;
 use craft\helpers\AdminTable;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
@@ -223,6 +224,7 @@ JS, [
 
             // TODO: Look to reduce the number of modal click listeners.
             $columnTypes = [...InventoryTransactionType::values(), 'onHand'];
+            ArrayHelper::removeValue($columnTypes, 'fulfilled');
             foreach ($columnTypes as $type) {
                 $items = [];
                 $id = $inventoryLevel['id'];

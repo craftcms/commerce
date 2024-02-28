@@ -238,7 +238,7 @@ class OrdersController extends Controller
 
         return $this->renderTemplate('commerce/orders/_edit', $variables);
     }
-    
+
     /**
      * @return Response
      * @throws InvalidConfigException
@@ -572,6 +572,7 @@ class OrdersController extends Controller
             'notices',
             'loadCartUrl',
             'store',
+            'totalCommittedStock',
         ];
 
         $lineItems = $order->getLineItems();

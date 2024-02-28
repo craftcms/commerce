@@ -50,7 +50,12 @@
                         }}</btn-link>
                     </div>
                     <!-- Edit-->
-                    <div v-if="lineItem.fulfilledTotalQuantity < 1">
+                    <div
+                        v-if="
+                            totalCommittedStock === 0 ||
+                            lineItem.fulfilledTotalQuantity < 1
+                        "
+                    >
                         <btn-link
                             button-class="btn-link btn-link--danger"
                             @click="removeLineItem"
@@ -343,11 +348,12 @@
             }),
 
             ...mapGetters([
-                'hasLineItemErrors',
                 'getErrors',
+                'hasLineItemErrors',
+                'orderId',
                 'shippingCategories',
                 'taxCategories',
-                'orderId',
+                'totalCommittedStock',
             ]),
 
             promotionalPrice: {

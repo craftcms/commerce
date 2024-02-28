@@ -52,7 +52,14 @@
                 </div>
             </template>
 
-            <template v-if="!editing && !hasOrderChanged && hasLineItems">
+            <template
+                v-if="
+                    !editing &&
+                    totalCommittedStock > 0 &&
+                    !hasOrderChanged &&
+                    hasLineItems
+                "
+            >
                 <button
                     class="btn fulfillment"
                     @click.prevent="handleFulfillment"
@@ -87,6 +94,7 @@
                 'hasOrderChanged',
                 'orderId',
                 'pdfUrls',
+                'totalCommittedStock',
             ]),
 
             ...mapState({
