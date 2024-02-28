@@ -65,8 +65,10 @@ use yii\base\InvalidConfigException;
 class Variant extends Purchasable implements NestedElementInterface
 {
     use NestedElementTrait {
+        eagerLoadingMap as traitEagerLoadingMap;
         setPrimaryOwner as traitSetPrimaryOwner;
         setOwner as traitSetOwner;
+        setEagerLoadedElements as traitSetEagerLoadedElements;
     }
 
     /**
@@ -772,7 +774,7 @@ class Variant extends Purchasable implements NestedElementInterface
             ];
         }
 
-        return parent::eagerLoadingMap($sourceElements, $handle);
+        return self::traitEagerLoadingMap($sourceElements, $handle);
     }
 
     /**
@@ -908,7 +910,7 @@ class Variant extends Purchasable implements NestedElementInterface
                 $this->setOwner($product);
             }
         } else {
-            parent::setEagerLoadedElements($handle, $elements, $plan);
+            $this->traitSetEagerLoadedElements($handle, $elements, $plan);
         }
     }
 
