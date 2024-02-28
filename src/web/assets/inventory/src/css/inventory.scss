@@ -15,7 +15,7 @@
   }
 
   .inventory-cell .action-btn {
-    right: calc(var(--touch-target-size) * -1);
+    right: calc(var(--touch-target-size) * -1 / 1.5);
   }
 }
 
@@ -25,7 +25,7 @@
   }
 
   .inventory-cell .action-btn {
-    left: calc(var(--touch-target-size) * -1);
+    left: calc(var(--touch-target-size) * -1 / 1.5);
   }
 }
 
