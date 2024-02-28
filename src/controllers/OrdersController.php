@@ -255,6 +255,26 @@ class OrdersController extends Controller
     }
 
     /**
+     * @param Order $order
+     * @return array
+     */
+    private function _fulfillmentForm(Order $order): array
+    {
+        $originalCommitted = (new Query())
+            ->select(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId', new Expression('SUM([[quantity]]) as totalCommitted')])
+            ->from(Table::INVENTORYTRANSACTIONS)
+            ->where([
+                'orderId' => $order->id,
+                'type' => InventoryTransactionType::COMMITTED->value,
+            ])
+            ->groupBy(['inventoryItemId', 'inventoryLocationId', 'orderId', 'lineItemId'])
+            ->all();
+
+
+        return $originalCommitted;
+    }
+
+    /**
      * @throws BadRequestHttpException
      * @throws ElementNotFoundException
      * @throws Exception
