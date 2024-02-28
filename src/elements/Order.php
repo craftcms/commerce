@@ -3569,7 +3569,7 @@ class Order extends Element implements HasStoreInterface
                 foreach ($inventoryFulfillmentLevels as $inventoryFulfillmentLevel) {
                     // Only restock when the line item has not been fulfilled, as we should be stopping a partially
                     // fulfilled line item from being deleted in the first place.
-                    if ($inventoryFulfillmentLevel->fulfilledQuantity === 0) {
+                    if ($inventoryFulfillmentLevel->fulfilledQuantity === 0 && $this->isCompleted) {
                         $restockMovement = new InventoryRestockMovement();
                         $restockMovement->quantity = $inventoryFulfillmentLevel->committedQuantity;
                         $restockMovement->fromInventoryLocation = $inventoryFulfillmentLevel->getInventoryLocation();
