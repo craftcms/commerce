@@ -55,7 +55,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
         $updates = $app->getUpdates();
         $isInstalled = $app->getIsInstalled() && $plugins->isPluginInstalled('commerce') && $plugins->isPluginEnabled('commerce');
 
-        if ($isInstalled  && !$updates->getIsCraftUpdatePending()) {
+        if ($isInstalled && !$updates->getIsCraftUpdatePending()) {
             /** @var Site|StoreBehavior $currentSite */
             $currentSite = $app->getSites()->getCurrentSite();
             $currentStore = $currentSite->getStore();

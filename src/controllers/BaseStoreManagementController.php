@@ -61,12 +61,10 @@ class BaseStoreManagementController extends BaseCpController
                 'heading' => Craft::t('commerce', 'Pricing'),
             ];
 
-            if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '>=')) {
-                $this->storeSettingsNav['discounts'] = [
-                    'label' => Craft::t('commerce', 'Discounts'),
-                    'path' => 'discounts',
-                ];
-            }
+            $this->storeSettingsNav['discounts'] = [
+                'label' => Craft::t('commerce', 'Discounts'),
+                'path' => 'discounts',
+            ];
 
             if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
                 $this->storeSettingsNav['pricing-rules'] = [

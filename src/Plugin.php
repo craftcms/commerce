@@ -168,11 +168,9 @@ use yii\web\User;
  */
 class Plugin extends BasePlugin
 {
-    public const EDITION_LITE = 'lite';
     public const EDITION_PRO = 'pro';
     public const EDITION_ENTERPRISE = 'enterprise';
 
-    public const EDITION_LITE_STORE_LIMIT = 1;
     public const EDITION_PRO_STORE_LIMIT = 5;
 
     public static function config(): array
