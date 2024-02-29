@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\InventoryItem;
@@ -852,6 +851,14 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function getHasUnlimitedStock(): bool
     {
         return !$this->inventoryTracked;
+    }
+
+    /**
+     * @deprecated in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.
+     */
+    public function setHasUnlimitedStock($value): bool
+    {
+        return $this->inventoryTracked = !$value;
     }
 
     /**

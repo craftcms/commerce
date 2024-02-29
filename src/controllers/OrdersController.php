@@ -278,6 +278,7 @@ class OrdersController extends Controller
             }
         }
 
+        /** @var InventoryMovementCollection $movements */
         $movements = InventoryMovementCollection::make($movements);
 
         if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements)) {
@@ -301,7 +302,8 @@ class OrdersController extends Controller
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)->groupBy('inventoryLocationId');
 
-        return $this->asCpModal()
+        /** @phpstan-ignore-next-line */
+        $response = $this->asCpModal()
             ->action('commerce/orders/fulfill')
             ->submitButtonLabel(Craft::t('commerce', 'Update'))
             ->contentTemplate('commerce/orders/modals/_fulfillmentModal', [
@@ -323,6 +325,8 @@ document.querySelector('input.fulfillment-quantity').addEventListener('input', e
 });
 JS, []);
             });
+
+        return $response;
     }
 
     /**

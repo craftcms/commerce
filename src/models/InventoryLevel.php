@@ -61,6 +61,11 @@ class InventoryLevel extends Model
     public int $incomingTotal = 0;
 
     /**
+     * @var int The total fulfilled stock
+     */
+    public int $fulfilledTotal = 0;
+
+    /**
      * @var int The total unavailable stock
      */
     public int $unavailableTotal = 0;

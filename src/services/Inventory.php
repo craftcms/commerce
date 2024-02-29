@@ -606,7 +606,7 @@ class Inventory extends Component
         $selectedInventoryLevelForItem = [];
         /**
          * @var  int $purchasableId
-         * @var  InventoryLevel $inventoryLevel
+         * @var  InventoryLevel $inventoryLevels
          */
         foreach ($allInventoryLevels as $purchasableId => $inventoryLevels) {
             foreach ($inventoryLevels as $level) {

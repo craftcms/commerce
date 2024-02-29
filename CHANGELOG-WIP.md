@@ -109,6 +109,11 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
 - Added `craft\commerce\helpers\Cp`.
+- Removed `craft\commerce\helpers\Product`
+- Removed `craft\commerce\controllers\ProductsController::actionDeleteProduct()`.
+- Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
+- Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
+- Removed `craft\commerce\controllers\ProductsPreviewController`.
 - Added `craft\commerce\helpers\Currency::moneyInputHtml()`.
 - Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
 - Added `craft\commerce\models\CatalogPricingRule`.
