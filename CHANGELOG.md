@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the “Share cart” action wasn’t activating on the Orders index page. 
+
 ## 4.5.1 - 2024-02-29
 
 - Fixed a SQL error that could occur when updating to Commerce 4 on MySQL. ([#3388](https://github.com/craftcms/commerce/pull/3388))
