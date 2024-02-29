@@ -9,13 +9,11 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\Element;
-use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
-use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -369,7 +367,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         }
 
         // Is the inventory tracked and is there stock?
-        if ($this->inventoryTracked && $this->getAvailableTotalStock() < 1) {
+        if ($this->inventoryTracked && $this->getSaleableTotalStock() < 1) {
             return false;
         }
 
@@ -573,7 +571,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     public function getStock(): int
     {
         if ($this->_stock === null) {
-            $this->_stock = $this->getAvailableTotalStock();
+            $this->_stock = $this->getSaleableTotalStock();
         }
 
         return $this->_stock;
@@ -584,7 +582,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function hasStock(): bool
     {
-        return !$this->inventoryTracked || $this->getAvailableTotalStock() > 0;
+        return !$this->inventoryTracked || $this->getSaleableTotalStock() > 0;
     }
 
     /**
@@ -683,8 +681,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if ($this->inventoryTracked && ($lineItem->qty > $this->getAvailableTotalStock())) {
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getAvailableTotalStock()]);
+            if ($this->inventoryTracked && ($lineItem->qty > $this->getSaleableTotalStock())) {
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getSaleableTotalStock()]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
@@ -695,7 +693,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     ],
                 ]);
                 $order->addNotice($notice);
-                $lineItem->qty = $this->getAvailableTotalStock();
+                $lineItem->qty = $this->getSaleableTotalStock();
             }
         }
 
@@ -753,8 +751,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
 
-                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getAvailableTotalStock()) {
-                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getAvailableTotalStock(), 'description' => $lineItem->purchasable->getDescription()]);
+                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getSaleableTotalStock()) {
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getSaleableTotalStock(), 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
@@ -800,7 +798,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
-
     }
 
     /**
@@ -871,13 +868,18 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * Returns the total available stock across all locations that this purchasable's store uses.
-     *
      * @return int
      */
-    public function getAvailableTotalStock(): int
+    public function getSaleableTotalStock(): int
     {
-        return $this->_getTotalStockByType(InventoryTransactionType::AVAILABLE);
+        $saleableAmount = 0;
+        foreach ($this->getInventoryLevels() as $inventoryLevel) {
+            if ($inventoryLevel->availableTotal > 0) {
+                $saleableAmount += $inventoryLevel->availableTotal;
+            }
+        }
+
+        return $saleableAmount;
     }
 
     /**
@@ -1062,7 +1064,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             if (!$this->inventoryTracked) {
                 $stock = '∞';
             } else {
-                $stock = $this->getAvailableTotalStock();
+                $stock = $this->getSaleableTotalStock();
             }
         }
 

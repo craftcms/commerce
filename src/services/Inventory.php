@@ -17,6 +17,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
+use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
@@ -618,8 +619,8 @@ class Inventory extends Component
                     continue;
                 }
 
-                if ($inventoryLevel->availableTotal >= $qtyLineItem[$purchasableId]) {
-                    $selectedInventoryLevelForItem[$purchasableId] = $inventoryLevel;
+                if ($level->availableTotal >= $qtyLineItem[$purchasableId]) {
+                    $selectedInventoryLevelForItem[$purchasableId] = $level;
                     break;
                 }
             }
@@ -631,6 +632,8 @@ class Inventory extends Component
             if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId])) {
                 $level = $selectedInventoryLevelForItem[$lineItem->purchasableId];
 
+                $splitableReserved = $qtyLineItem[$lineItem->purchasableId] - $level->availableTotal;
+
                 $movements->push(new InventoryCommittedMovement([
                     'inventoryItem' => $level->getInventoryItem(),
                     'fromInventoryLocation' => $level->getInventoryLocation(),
@@ -640,8 +643,32 @@ class Inventory extends Component
                     'quantity' => $lineItem->qty,
                     'lineItemId' => $lineItem->id,
                 ]));
+
+                if ($splitableReserved > 0) {
+                    foreach ($allInventoryLevels[$lineItem->purchasableId] as $inventoryLevel) {
+                        if ($level !== $inventoryLevel) {
+                            $availableInThisLocation = $inventoryLevel->availableTotal - $splitableReserved;
+                            $reserveAmount = $availableInThisLocation < 0 ? $inventoryLevel->availableTotal : $splitableReserved;
+                            if ($reserveAmount > 0) {
+                                $movements->push(new InventoryManualMovement([
+                                    'inventoryItem' => $inventoryLevel->getInventoryItem(),
+                                    'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
+                                    'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
+                                    'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
+                                    'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
+                                    'quantity' => $reserveAmount,
+                                    'lineItemId' => $lineItem->id,
+                                    'note' => 'Reserved for transfer from ' . $inventoryLevel->getInventoryLocation()->name . ' to ' . $level->getInventoryLocation()->name . ' for order ' . $order->getShortNumber(),
+                                ]));
+
+                                $splitableReserved -= $reserveAmount;
+                            }
+                        }
+                    }
+                }
             }
         }
+
 
         $this->executeInventoryMovements($movements);
 

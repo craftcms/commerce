@@ -28,6 +28,7 @@
 - Added `craft\commerce\base\HasStoreInterface`.
 - Added `craft\commerce\base\InventoryMovementInterface`.
 - Added `craft\commerce\base\InventoryMovement`.
+- Added `craft\commerce\base\Purchasable::getSaleableTotalStock()`
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
 - Added `craft\commerce\base\Purchasable::$freeShipping`.
 - Added `craft\commerce\base\Purchasable::$height`.
@@ -41,7 +42,6 @@
 - Added `craft\commerce\base\Purchasable::$taxCategoryId`.
 - Added `craft\commerce\base\Purchasable::$weight`.
 - Added `craft\commerce\base\Purchasable::$width`.
-- Added `craft\commerce\base\Purchasable::getAvailableTotalStock()`.
 - Added `craft\commerce\base\Purchasable::getInventoryItem()`.
 - Added `craft\commerce\base\Purchasable::getInventoryLevels()`.
 - Added `craft\commerce\base\Purchasable::getOnPromotion()`.
