@@ -859,6 +859,8 @@ class Variant extends Purchasable implements NestedElementInterface
             $ownerId = $this->getOwnerId();
             if ($ownerId && $this->saveOwnership) {
                 if (!isset($this->sortOrder) && !$isNew) {
+                    // todo: update based on Entry::afterSave() if we add draft support
+                    // (see https://github.com/craftcms/cms/pull/14497)
                     $this->sortOrder = (new Query())
                         ->select('sortOrder')
                         ->from(CraftTable::ELEMENTS_OWNERS)
