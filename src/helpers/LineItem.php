@@ -22,7 +22,7 @@ class LineItem
      */
     public static function generateOptionsSignature(array $options = [], ?int $lineItemId = null): string
     {
-        if($lineItemId) {
+        if ($lineItemId) {
             $options['lineItemId'] = $lineItemId;
         }
         ksort($options);

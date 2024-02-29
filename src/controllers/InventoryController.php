@@ -572,7 +572,7 @@ JS, [
         $toInventoryTransactionType = InventoryTransactionType::tryFrom($toInventoryTransactionType);
         if (!$toInventoryTransactionType) {
             $toInventoryTransactionType = $movableTo->keys()->first();
-        }else{
+        } else {
             $toInventoryTransactionType = $toInventoryTransactionType->value;
         }
 
