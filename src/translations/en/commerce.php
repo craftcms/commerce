@@ -15,6 +15,7 @@ return [
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.',
     'A valid email is required to create a customer.' => 'A valid email is required to create a customer.',
     'Actions' => 'Actions',
+    'Invalid inventory movements.' => 'Invalid inventory movements.',
     'Active Carts' => 'Active Carts',
     'Active subscriptions' => 'Active subscriptions',
     'Active' => 'Active',
