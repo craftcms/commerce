@@ -492,7 +492,6 @@ class Inventory extends Component
                 'type',
                 'note',
                 'transferId',
-                'orderId',
                 'lineItemId',
                 'userId',
                 'dateCreated',

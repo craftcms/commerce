@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Product;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\InventoryManualMovement;
@@ -32,6 +33,8 @@ use yii\web\Response;
 
 /**
  * Inventory controller
+ *
+ * @since 5.0
  */
 class InventoryController extends Controller
 {
@@ -154,7 +157,7 @@ class InventoryController extends Controller
     {
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $page = $this->request->getParam('page', 1);
-        $limit = $this->request->getParam('per_page', 50);
+        $limit = $this->request->getParam('per_page', 25);
         $offset = ($page - 1) * $limit;
         $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
         $search = $this->request->getParam('search');
@@ -162,9 +165,10 @@ class InventoryController extends Controller
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery(limit: $limit, offset: $offset)
             ->andWhere(['inventoryLocationId' => $inventoryLocationId]);
 
+        $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
+        $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
+
         if ($search) {
-            $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
-            $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
             $inventoryQuery->andWhere(['or', ['like', 'purchasables.description', $search], ['like', 'purchasables.sku', $search]]);
         }
 
@@ -174,15 +178,23 @@ class InventoryController extends Controller
             $direction = $sort[0]['direction'];
 
             if ($field && $direction) {
+                if($field == 'sku'){
+                    $field = 'purchasables.sku';
+                }
+
+                if($field == 'item'){
+                    $field = 'purchasables.description';
+                }
                 $inventoryQuery->addOrderBy($field . ' ' . $direction);
             }
         }
 
-        $total = Plugin::getInstance()->getInventory()->getInventoryLevelQuery()
-            ->andWhere(['inventoryLocationId' => $inventoryLocationId])
-            ->count();
-
         $inventoryTableData = $inventoryQuery->all();
+
+        $total = $inventoryQuery
+            ->limit(null)
+            ->offset(null)
+            ->count();
 
         $view = Craft::$app->getView();
         $time = microtime(true);
@@ -201,7 +213,7 @@ class InventoryController extends Controller
                     'url' => $purchasable->getCpEditUrl(),
                 ]);
                 $purchasableChip = Html::tag('div',  $purchasableChip, ['class' => 'flex-grow']);
-                $inventoryLevel['sku'] =  Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
+                $inventoryLevel['sku'] = Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
                 $inventoryLevel['item'] = Html::tag('div', $purchasableChip, ['class' => 'flex']);
             } else {
                 $inventoryLevel['item'] = '';

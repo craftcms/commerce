@@ -252,8 +252,8 @@ class OrdersController extends Controller
         $fulfillments = $this->request->getBodyParam('fulfillment');
         $movements = [];
         foreach ($fulfillments as $fulfillment) {
-            $qty = $fulfillment['quantity'];
-            if($qty > 0) {
+            $qty = (int)$fulfillment['quantity'];
+            if ($qty != 0) {
                 $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($fulfillment['inventoryLocationId']);
                 $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($fulfillment['inventoryItemId']);
                 $movement = new InventoryFulfillMovement();
@@ -270,16 +270,17 @@ class OrdersController extends Controller
         }
 
         foreach ($movements as $movement) {
-            if(!$movement->isValid())
-            {
-                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
+            if (!$movement->isValid()) {
+                return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'),
+                    [
+                        'errors' => $movement->getErrors(),
+                    ]);
             }
         }
 
         $movements = InventoryMovementCollection::make($movements);
 
-        if(!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements))
-        {
+        if (!Plugin::getInstance()->getInventory()->executeInventoryMovements($movements)) {
             return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'));
         }
 
@@ -305,8 +306,23 @@ class OrdersController extends Controller
             ->submitButtonLabel(Craft::t('commerce', 'Update'))
             ->contentTemplate('commerce/orders/modals/_fulfillmentModal', [
                 'inventoryFulfillmentLevels' => $inventoryFulfillmentLevels,
-                'order' => $order
-            ]);
+                'order' => $order,
+            ])->prepareModal(function() {
+                $view = Craft::$app->getView();
+                $view->registerJsWithVars(fn() => <<<JS
+document.querySelector('input.fulfillment-quantity').addEventListener('input', e=>{
+  const el = e.target || e
+  if(el.type == "number" && el.max && el.min ){
+    let value = parseInt(el.value)
+    el.value = value // for 000 like input cleanup to 0
+    let max = parseInt(el.max)
+    let min = parseInt(el.min)
+    if ( value > max ) el.value = el.max
+    if ( value < min ) el.value = el.min
+  }
+});
+JS, []);
+            });
     }
 
     /**

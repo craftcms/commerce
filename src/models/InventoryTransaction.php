@@ -12,6 +12,8 @@ use DateTime;
 
 /**
  * Inventory Item model
+ *
+ * @since 5.0
  */
 class InventoryTransaction extends Model
 {
@@ -110,6 +112,10 @@ class InventoryTransaction extends Model
      */
     public function getLineItem(): ?LineItem
     {
+        if ($this->lineItemId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
     }
 

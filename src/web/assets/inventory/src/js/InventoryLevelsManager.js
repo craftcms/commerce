@@ -40,7 +40,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
     this.columns = [
       {
-        name: 'item',
+        name: '__slot:title',
         sortField: 'item',
         title: Craft.t('commerce', 'Purchasable'),
       },
@@ -94,13 +94,14 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
         dataClass: 'inventory-cell',
         title: Craft.t('commerce', 'On Hand'),
       },
-      {
-        name: 'incoming',
-        sortField: 'incomingTotal',
-        titleClass: 'inventory-headers',
-        dataClass: 'inventory-cell',
-        title: Craft.t('commerce', 'Incoming'),
-      },
+      // TODO: Restore when Transfers are completed.
+      // {
+      //   name: 'incoming',
+      //   sortField: 'incomingTotal',
+      //   titleClass: 'inventory-headers',
+      //   dataClass: 'inventory-cell',
+      //   title: Craft.t('commerce', 'Incoming'),
+      // },
     ];
 
     this.adminTable = new Craft.VueAdminTable({
@@ -109,7 +110,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
       checkboxes: true,
       allowMultipleSelections: true,
       fullPane: false,
-      perPage: 50,
+      perPage: 25,
       tableDataEndpoint: 'commerce/inventory/inventory-levels-table-data',
       onQueryParams: function (params) {
         params.inventoryLocationId = self.settings.inventoryLocationId;

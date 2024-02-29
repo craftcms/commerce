@@ -11,16 +11,21 @@
         {% for fulfillmentLevel in fulfillmentLevels %}
             <tr>
             <td class="" data-note="Line Item Description">{{fulfillmentLevel.getLineItem().description}}</td>
-            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.committedQuantity}}</td>
+            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.getLineItem().qty}}</td>
             <td class="">
+                <div id="fulfillment-{{ loop.index }}">
                 {{ forms.text({
                     type: 'number',
                     inputAttributes: {
-                        max: fulfillmentLevel.outstandingCommittedQuantity,
+                        max: max(fulfillmentLevel.outstandingCommittedQuantity, 0),
+                        min: -fulfillmentLevel.fulfilledQuantity,
                         step: 1,
+                        class: 'fulfillment-quantity',
                     },
                     name: 'fulfillment['~loop.index~'][quantity]',
                 }) }}
+                </div>
+                {{ hiddenInput('fulfillment['~loop.index~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
                 {{ hiddenInput('fulfillment['~loop.index~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
                 {{ hiddenInput('fulfillment['~loop.index~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
                 {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}

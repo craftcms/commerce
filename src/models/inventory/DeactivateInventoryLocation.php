@@ -10,6 +10,8 @@ use craft\db\Query;
 
 /**
  * Deactivate (Soft-delete) Inventory Location
+ *
+ * @since 5.0
  */
 class DeactivateInventoryLocation extends Model
 {

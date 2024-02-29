@@ -8,6 +8,7 @@ use craft\helpers\UrlHelper;
 
 /**
  * Inventory Item model
+ * @since 5.0
  */
 class InventoryItem extends Model
 {

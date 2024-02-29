@@ -2,9 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
 
 /**
  * m240228_120911_drop_order_id_and_make_line_item_cascade migration.

@@ -3,12 +3,11 @@
 namespace craft\commerce\models\inventory;
 
 use craft\commerce\base\InventoryMovement;
-use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
-use craft\db\Query;
 
 /**
  * Inventory Manual movement model
+ * @since 5.0
  */
 class InventoryRestockMovement extends InventoryMovement
 {

@@ -33,7 +33,6 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
-use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\InventoryRestockMovement;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -3626,8 +3625,7 @@ class Order extends Element implements HasStoreInterface
                         'isNew' => true,
                     ]));
                 }
-            }else{
-
+            } else {
             }
 
             // Update any adjustments to this line item with the new line item ID.

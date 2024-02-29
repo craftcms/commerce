@@ -13,7 +13,9 @@ use craft\commerce\base\Model;
 use craft\commerce\enums\InventoryTransactionType;
 
 /**
- * Inventory Item model
+ * Inventory Location Deactivate model
+ *
+ * @since 5.0
  */
 class InventoryLocationDeactivatedMovement extends InventoryMovement
 {

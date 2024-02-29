@@ -10,6 +10,7 @@ use yii\base\InvalidConfigException;
 
 /**
  * Inventory Fulfillment Level model
+ * @since 5.0
  */
 class InventoryFulfillmentLevel extends Model
 {

@@ -3,12 +3,12 @@
 namespace craft\commerce\models\inventory;
 
 use craft\commerce\base\InventoryMovement;
-use craft\commerce\db\Table;
 use craft\commerce\enums\InventoryTransactionType;
-use craft\db\Query;
 
 /**
  * Inventory Fulfill movement model
+ *
+ * @since 5.0
  */
 class InventoryFulfillMovement extends InventoryMovement
 {

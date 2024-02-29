@@ -14,7 +14,9 @@ use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
- * Location model
+ * Inventory Location model
+ *
+ * @since 5.0
  */
 class InventoryLocation extends Model implements Chippable
 {
