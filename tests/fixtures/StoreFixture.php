@@ -107,7 +107,7 @@ class StoreFixture extends BaseModelFixture
             }
 
             $storeSettings->setCountries($settings['countries'] ?? []);
-            $this->_settingsService->saveStore($storeSettings);
+            $this->_settingsService->saveStoreSettings($storeSettings);
         }
     }
 
