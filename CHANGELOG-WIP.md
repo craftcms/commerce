@@ -3,24 +3,22 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
-- It’s now possible to create and manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
-- It’s now possible to create and manage multiple inventory locations per store. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
+- It’s now possible to manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
+- It’s now possible to manage multiple inventory locations per store. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
+- Product variants are now managed via nested element indexes rather than inline-editable blocks.
 - Product variants’ field layouts now support multiple tabs.
 - Product pages’ breadcrumbs now include a menu that links to each editable product type.
 - It’s now possible to create new products from product select modals when a custom source is selected, if the source is configured to only show products of one type.
 - The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
-- Shipping methods can now have condition builders, enabling flexible matching based on the order.
-- Shipping rules can now have condition builders, enabling flexible matching based on the order.
-
-### Accessibility
-
-### Administration
+- Shipping methods and shipping rules now support flexible order matching, based on an order condition.
 
 ### Development
-- Products no longer save their variants when saved. This is now done in a separate process.
 - Added the `currentStore` Twig variable.
+- Added `commerce/pricing-catalog/generate` command.
+- Deprecated the `hasUnlimitedStock` variant query param. `inventoryTracked` should be used instead.
+- Removed the `shippingCategory`, `shippingCategoryId`, `taxCategory`, and `taxCategoryId` product query params. The corresponding variant query params can be used instead.
 
 ### Extensibility
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
@@ -54,8 +52,6 @@
 - Added `craft\commerce\base\StoreTrait`.
 - Added `craft\commerce\behaviors\StoreBehavior`.
 - Added `craft\commerce\collections\InventoryMovementCollection`
-- Added `craft\commerce\collections\InventoryMovementCollection`
-- Added `craft\commerce\collections\UpdateInventoryLevelCollection`
 - Added `craft\commerce\collections\UpdateInventoryLevelCollection`
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingController`.
@@ -150,21 +146,19 @@
 - Added `craft\commerce\services\Stores`.
 - Added `craft\commerce\services\Vat`.
 - Added `craft\commerce\web\assets\inventory\InventoryAsset`.
-- Added `craft\commerce\web\assets\inventory\InventoryAsset`.
-- Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
-- Deprecated `craft\commerce\base\Variant::hasUnlimitedStock()`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
-- Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
+- Deprecated `craft\commerce\base\Purchasable::getOnSale()`. `getOnPromotion()` should be used instead.
+- Deprecated `craft\commerce\base\Variant::hasUnlimitedStock()`. `craft\commerce\base\Purchasable::$inventoryTracked` should be used instead.
+- Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. `$totalPromotionalAmount` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::getProduct()`. `getOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::getProductId()`. `getOwnerId()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
-- Deprecated `craft\commerce\elements\VariantQuery::hasUnlimitedStock()`. Use `craft\commerce\elements\db\VariantQuery::inventoryTracked()` instead.
-- Deprecated `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`. Use `ProductVariantInventoryTrackedConditionRule` instead.
-- Deprecated `craft\commerce\models\Store::getCountries()`. Use `craft\commerce\models\Store::getSettings()->getCountries()` instead.
-- Deprecated `craft\commerce\models\Store::getMarketAddressCondition()`. Use `craft\commerce\models\Store::getSettings()->getMarketAddressCondition()` instead.
-- Deprecated `craft\commerce\models\Store::setCountries()`. Use `craft\commerce\models\Store::getSettings()->setCountries()` instead.
-- Removed `craft\commerce\base\PurchasableInterface::getId()`
-- Removed `craft\commerce\base\Variant::$unlimitedStock`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
+- Deprecated `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`. `ProductVariantInventoryTrackedConditionRule` should be used instead.
+- Deprecated `craft\commerce\models\Store::getCountries()`. `craft\commerce\models\Store::getSettings()->getCountries()` should be used instead.
+- Deprecated `craft\commerce\models\Store::getMarketAddressCondition()`. `craft\commerce\models\Store::getSettings()->getMarketAddressCondition()` should be used instead.
+- Deprecated `craft\commerce\models\Store::setCountries()`. `craft\commerce\models\Store::getSettings()->setCountries()` should be used instead.
+- Removed `craft\commerce\base\PurchasableInterface::getId()`.
+- Removed `craft\commerce\base\Variant::$unlimitedStock`. `craft\commerce\base\Purchasable::$inventoryTracked` can be used instead.
 - Removed `craft\commerce\console\controllers\UpgradeController`.
 - Removed `craft\commerce\controllers\LiteShippingController`.
 - Removed `craft\commerce\controllers\LiteTaxController`.
@@ -172,45 +166,39 @@
 - Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
 - Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController`.
-- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getStock()` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategoryId()` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::taxCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
-- Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
-- Removed `craft\commerce\helpers\Product`
+- Removed `craft\commerce\elements\Variant::$stock`. `craft\commerce\base\Purchasable::getStock()` can be used instead.
+- Removed `craft\commerce\helpers\Product`.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\Currency`.
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\LiteShippingSettings`.
 - Removed `craft\commerce\models\LiteTaxSettings`.
-- Removed `craft\commerce\models\ProductType::$hasVariants`. Use `ProductType::$maxVariants` instead.
-- Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
-- Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. Use `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$autoSetCartShippingMethodOption`. Use `craft\commerce\models\Store::getAutoSetCartShippingMethodOption()` instead.
-- Removed `craft\commerce\models\Settings::$autoSetNewCartAddresses`. Use `craft\commerce\models\Store::getAutoSetNewCartAddresses()` instead.
-- Removed `craft\commerce\models\Settings::$autoSetPaymentSource`. Use `craft\commerce\models\Store::getAutoSetPaymentSource()` instead.
+- Removed `craft\commerce\models\ProductType::$hasVariants`. `$maxVariants` can be used instead.
+- Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` can be used instead.
+- Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` can be used instead.
+- Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` can be used instead.
+- Removed `craft\commerce\models\Settings::$autoSetCartShippingMethodOption`. `craft\commerce\models\Store::getAutoSetCartShippingMethodOption()` can be used instead.
+- Removed `craft\commerce\models\Settings::$autoSetNewCartAddresses`. `craft\commerce\models\Store::getAutoSetNewCartAddresses()` can be used instead.
+- Removed `craft\commerce\models\Settings::$autoSetPaymentSource`. `craft\commerce\models\Store::getAutoSetPaymentSource()` can be used instead.
 - Removed `craft\commerce\models\Settings::$emailSenderAddressPlaceholder`.
-- Removed `craft\commerce\models\Settings::$emailSenderAddress`. Use `craft\commerce\models\Email::$senderAddress` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderAddress`. `craft\commerce\models\Email::$senderAddress` can be used instead.
 - Removed `craft\commerce\models\Settings::$emailSenderNamePlaceholder`.
-- Removed `craft\commerce\models\Settings::$emailSenderName`. Use `craft\commerce\models\Email::$senderName` instead.
-- Removed `craft\commerce\models\Settings::$freeOrderPaymentStrategy`. Use `craft\commerce\models\Store::getFreeOrderPaymentStrategy()` instead.
-- Removed `craft\commerce\models\Settings::$minimumTotalPriceStrategy`. Use `craft\commerce\models\Store::getMinimumTotalPriceStrategy()` instead.
-- Removed `craft\commerce\models\Settings::$pdfPaperOrientation`. Use `craft\commerce\models\Pdf::$paperOrientation` instead.
-- Removed `craft\commerce\models\Settings::$pdfPaperSize`. Use `craft\commerce\models\Pdf::$paperSize` instead.
-- Removed `craft\commerce\models\Settings::$requireBillingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireBillingAddressAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. Use `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` instead.
-- Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. Use `craft\commerce\models\Store::getUseBillingAddressForTax()` instead.
-- Removed `craft\commerce\models\Settings::$validateBusinessTaxIdasVatId`. Use `craft\commerce\models\Store::getValidateOrganizationTaxIdasVatId()` instead.
-- Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` instead.
-- Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. Use `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` instead.
-- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` instead.
-- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING` instead.
-- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO`. Use `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO` instead.
+- Removed `craft\commerce\models\Settings::$emailSenderName`. `craft\commerce\models\Email::$senderName` can be used instead.
+- Removed `craft\commerce\models\Settings::$freeOrderPaymentStrategy`. `craft\commerce\models\Store::getFreeOrderPaymentStrategy()` can be used instead.
+- Removed `craft\commerce\models\Settings::$minimumTotalPriceStrategy`. `craft\commerce\models\Store::getMinimumTotalPriceStrategy()` can be used instead.
+- Removed `craft\commerce\models\Settings::$pdfPaperOrientation`. `craft\commerce\models\Pdf::$paperOrientation` can be used instead.
+- Removed `craft\commerce\models\Settings::$pdfPaperSize`. `craft\commerce\models\Pdf::$paperSize` can be used instead.
+- Removed `craft\commerce\models\Settings::$requireBillingAddressAtCheckout`. `craft\commerce\models\Store::getRequireBillingAddressAtCheckout()` can be used instead.
+- Removed `craft\commerce\models\Settings::$requireShippingAddressAtCheckout`. `craft\commerce\models\Store::getRequireShippingAddressAtCheckout()` can be used instead.
+- Removed `craft\commerce\models\Settings::$requireShippingMethodSelectionAtCheckout`. `craft\commerce\models\Store::getRequireShippingMethodSelectionAtCheckout()` can be used instead.
+- Removed `craft\commerce\models\Settings::$useBillingAddressForTax`. `craft\commerce\models\Store::getUseBillingAddressForTax()` can be used instead.
+- Removed `craft\commerce\models\Settings::$validateBusinessTaxIdasVatId`. `craft\commerce\models\Store::getValidateOrganizationTaxIdasVatId()` can be used instead.
+- Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE`. `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE` can be used instead.
+- Removed `craft\commerce\models\Settings::FREE_ORDER_PAYMENT_STRATEGY_PROCESS`. `craft\commerce\models\Store::FREE_ORDER_PAYMENT_STRATEGY_PROCESS` can be used instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT`. `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT` can be used instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING`. `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING` can be used instead.
+- Removed `craft\commerce\models\Settings::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO`. `craft\commerce\models\Store::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO` can be used instead.
 - Removed `craft\commerce\models\ShippingRule::$maxQty`.
 - Removed `craft\commerce\models\ShippingRule::$maxTotal`.
 - Removed `craft\commerce\models\ShippingRule::$maxWeight`.
@@ -232,29 +220,27 @@
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
 - Removed `craft\commerce\validators\StoreCountryValidator`.
-- Removed `craft\commerce\widgets\Orders::$orderStatusId`. Use `craft\commerce\widgets\Orders::$orderStatuses` instead.
+- Removed `craft\commerce\widgets\Orders::$orderStatusId`. `$orderStatuses` can be used instead.
+- `craft\commerce\base\PurchasableInterface` now extends `craft\base\ElementInterface`.
+- `craft\commerce\elements\Product::getVariants()` now returns a collection.
+- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
+- `craft\commerce\elements\db\PurchasableQuery` is now abstract.
+- `craft\commerce\services\Discounts::getAllDiscounts()` now returns a collection.
+- `craft\commerce\services\Gateways::getAllCustomerEnabledGateways()` now returns a collection.
+- `craft\commerce\services\Gateways::getAllGateways()` now returns a collection.
+- `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` now returns a collection.
+- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByCustomerId()` now returns a collection.
+- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()` now returns a collection.
+- `craft\commerce\services\ShippingCategories::getAllShippingCategories()` now returns a collection.
+- `craft\commerce\services\ShippingMethods::getAllShippingMethods()` now returns a collection.
+- `craft\commerce\services\ShippingRules::getAllShippingRules()` now returns a collection.
+- `craft\commerce\services\ShippingRules::getAllShippingRulesByShippingMethodId()` now returns a collection.
+- `craft\commerce\services\TaxRates::getAllTaxRates()` now returns a collection.
+- `craft\commerce\services\TaxRates::getTaxRatesByTaxZoneId()` now returns a collection.
+- `craft\commerce\services\TaxZones::getAllTaxZones()` now returns a collection.
 - Renamed `craft\commerce\base\Purchasable::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\controllers\BaseStoreSettingsController` to `BaseStoreManagementController`.
 - Renamed `craft\commerce\controllers\StoreSettingsController` to `StoreManagementController`.
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
-- `craft\commerce\base\PurchasableInterface` now extends `ElementInterface`.
-- `craft\commerce\elements\Product::getVariants()` now returns an `ElementCollection`.
-- `craft\commerce\elements\Variant` now implements `craft\base\NestedElementTrait`.
-- `craft\commerce\elements\db\PurchasableQuery` is now abstract.
-- `craft\commerce\services\Discounts::getAllDiscounts()` now returns a `Collection`.
-- `craft\commerce\services\Gateways::getAllCustomerEnabledGateways()` now returns a `Collection`.
-- `craft\commerce\services\Gateways::getAllGateways()` now returns a `Collection`.
-- `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByCustomerId()` now returns a `Collection`.
-- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByCustomerId()` now returns a `Collection`.
-- `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()` now returns a `Collection`.
-- `craft\commerce\services\ShippingCategories::getAllShippingCategories()` now returns a `Collection`.
-- `craft\commerce\services\ShippingMethods::getAllShippingMethods()` now returns a `Collection`.
-- `craft\commerce\services\ShippingRules::getAllShippingRules()` now returns a `Collection`.
-- `craft\commerce\services\ShippingRules::getAllShippingRulesByShippingMethodId()` now returns a `Collection`.
-- `craft\commerce\services\TaxRates::getAllTaxRates()` now returns a `Collection`.
-- `craft\commerce\services\TaxRates::getTaxRatesByTaxZoneId()` now returns a `Collection`.
-- `craft\commerce\services\TaxZones::getAllTaxZones()` now returns a `Collection`.
-
-### System
