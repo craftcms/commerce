@@ -376,29 +376,6 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
-            $ret['subnav']['promotions'] = [
-                'label' => Craft::t('commerce', 'Promotions'),
-                'url' => 'commerce/promotions',
-            ];
-        }
-
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
-            $ret['subnav']['shipping'] = [
-                'label' => Craft::t('commerce', 'Shipping'),
-                'url' => 'commerce/shipping',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-            $ret['subnav']['tax'] = [
-                'label' => Craft::t('commerce', 'Tax'),
-                'url' => 'commerce/tax',
-            ];
-        }
-
-
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
                 'label' => Craft::t('commerce', 'Store Management'),
