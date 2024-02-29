@@ -13,7 +13,7 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
   init: function (settings) {
     this.base('commerce/inventory/edit-update-levels-modal', settings);
 
-    this.debouncedRefresh = this.debounce(this.refresh, 300);
+    this.debouncedRefresh = this.debounce(this.refresh, 500);
 
     // after load event is triggered on this
     this.on('load', this.afterLoad.bind(this));
@@ -23,7 +23,7 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
     this.$quantityInput = this.$container.find('#' + quantityId);
     this.addListener(this.$quantityInput, 'keyup', this.debouncedRefresh);
 
-    const typeId = Craft.namespaceId('type', this.namespace);
+    const typeId = Craft.namespaceId('updateAction', this.namespace);
     this.$typeInput = this.$container.find('#' + typeId);
     this.addListener(this.$typeInput, 'change', this.refresh);
   },
