@@ -16,7 +16,6 @@ use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
-use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\LineItem;
@@ -823,7 +822,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
                         'quantity' => $deductQty,
                         'lineItemId' => $lineItem->id,
-                        'note' => 'Order Completed',
                     ]));
                     $remainingQty -= $deductQty;
                 }
