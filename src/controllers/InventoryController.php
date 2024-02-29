@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Product;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\InventoryManualMovement;
@@ -178,11 +177,11 @@ class InventoryController extends Controller
             $direction = $sort[0]['direction'];
 
             if ($field && $direction) {
-                if($field == 'sku'){
+                if ($field == 'sku') {
                     $field = 'purchasables.sku';
                 }
 
-                if($field == 'item'){
+                if ($field == 'item') {
                     $field = 'purchasables.description';
                 }
                 $inventoryQuery->addOrderBy($field . ' ' . $direction);
