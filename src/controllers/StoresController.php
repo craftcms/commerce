@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -44,6 +45,7 @@ class StoresController extends BaseStoreManagementController
         $storesService = Plugin::getInstance()->getStores();
 
         $brandNewStore = false;
+        $allowCurrencyChange = false;
 
         if ($storeId !== null) {
             if ($storeModel === null) {
@@ -59,6 +61,7 @@ class StoresController extends BaseStoreManagementController
             if ($storeModel === null) {
                 $storeModel = new Store();
                 $brandNewStore = true;
+                $allowCurrencyChange = true;
             }
 
             $title = Craft::t('app', 'Create a new Store');
@@ -76,6 +79,11 @@ class StoresController extends BaseStoreManagementController
             ],
         ];
 
+        $storeHasOrders = $storeModel->id && (new Query())->from(Table::ORDERS)->where(['storeId' => $storeModel->id])->exists();
+        if (!$storeHasOrders) {
+            $allowCurrencyChange = true;
+        }
+
         // map sites into select box options array
         $availableSiteOptions = collect(Craft::$app->getSites()->getAllSites())->map(function($site) {
             $availableForAssignmentToNewStores = Plugin::getInstance()->getStores()->getSiteIdsAvailableForAssignmentToNewStores();
@@ -90,6 +98,7 @@ class StoresController extends BaseStoreManagementController
 
         return $this->renderTemplate('commerce/settings/stores/_edit', [
             'brandNewStore' => $brandNewStore,
+            'allowCurrencyChange' => $allowCurrencyChange,
             'title' => $title,
             'crumbs' => $crumbs,
             'store' => $storeModel,
