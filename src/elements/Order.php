@@ -2716,7 +2716,7 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
-     * @return bool
+     * @return int
      * @throws InvalidConfigException
      * @throws DeprecationException
      * @since 5.0.0

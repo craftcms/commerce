@@ -855,20 +855,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * @param InventoryTransactionType $inventoryTransactionType
      * @return int
-     */
-    private function _getTotalStockByType(InventoryTransactionType $inventoryTransactionType): int
-    {
-        if (!$this->inventoryTracked) {
-            return 0;
-        }
-
-        return $this->getInventoryLevels()->sum($inventoryTransactionType->value . 'Total');
-    }
-
-    /**
-     * @return int
+     * @since 5.0.0
      */
     public function getSaleableTotalStock(): int
     {
@@ -885,6 +873,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * Returns the total stock across all locations this purchasable is tracked in.
      * @return Collection<InventoryLevel>
+     * @since 5.0.0
      */
     public function getInventoryLevels(): Collection
     {
