@@ -62,7 +62,7 @@ class ProductVariantStockConditionRuleTest extends Unit
                         'inventoryTracked' => true,
                     ]),
                 ]);
-            }
+            },
         ]);
 
         self::assertTrue($condition->matchElement($product));
