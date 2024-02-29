@@ -1384,7 +1384,6 @@ class Install extends Migration
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
             'isArchived' => false,
-            'storeId' => $this->_getPrimaryStoreId(),
         ];
         $gateway = new Dummy($data);
         Plugin::getInstance()->getGateways()->saveGateway($gateway);
