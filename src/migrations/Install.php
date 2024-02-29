@@ -38,11 +38,6 @@ use yii\base\NotSupportedException;
 class Install extends Migration
 {
     /**
-     * @var int|null
-     */
-    private ?int $_primaryStoreId = null;
-
-    /**
      * @inheritdoc
      */
     public function safeUp(): bool
@@ -1426,17 +1421,5 @@ class Install extends Migration
     {
         $class = new ReflectionClass(Table::class);
         return $class->getConstants();
-    }
-
-    /**
-     * @return int|null
-     */
-    private function _getPrimaryStoreId(): ?int
-    {
-        if ($this->_primaryStoreId === null) {
-            $this->_primaryStoreId = (new Query())->from(Table::STORES)->select(['id'])->scalar();
-        }
-
-        return $this->_primaryStoreId;
     }
 }
