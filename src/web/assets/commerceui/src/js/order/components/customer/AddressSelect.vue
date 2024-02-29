@@ -78,7 +78,7 @@
 
 <script>
     /* global Garnish, Craft */
-    import {mapGetters} from 'vuex';
+    import {mapGetters, mapState} from 'vuex';
     import _find from 'lodash.find';
     import customer from './Customer.vue';
 
@@ -113,6 +113,10 @@
             },
             ...mapGetters([]),
 
+            ...mapState({
+                draft: (state) => state.draft,
+            }),
+
             isDoneDisabled() {
                 if (this.selectedAddress) {
                     return false;
@@ -122,12 +126,14 @@
             },
 
             canSelectAddress() {
-                if (!this.$store.state.draft.order.customer) {
+                if (!this.draft.order.customer) {
                     return false;
                 }
 
                 if (
-                    this.$store.state.draft.order.customer.totalAddresses == 0
+                    this.draft.order &&
+                    this.draft.order.customer &&
+                    this.draft.order.customer.totalAddresses == 0
                 ) {
                     return false;
                 }
@@ -137,8 +143,10 @@
 
             isLoadMoreVisible() {
                 if (
-                    this.$store.state.draft.order.customer.totalAddresses ==
-                    this.addresses.length
+                    this.draft.order &&
+                    this.draft.order.customer &&
+                    this.draft.order.customer.totalAddresses ==
+                        this.addresses.length
                 ) {
                     return false;
                 }
