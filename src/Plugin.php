@@ -22,6 +22,7 @@ use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
+use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\exports\LineItemExport;
@@ -36,6 +37,7 @@ use craft\commerce\fieldlayoutelements\PurchasablePromotableField;
 use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
+use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -93,6 +95,8 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Transfers;
+use craft\commerce\services\Transfers as TransfersService;
 use craft\commerce\services\Variants as VariantsService;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
@@ -216,8 +220,7 @@ class Plugin extends BasePlugin
                 'taxZones' => ['class' => TaxZones::class],
                 'taxes' => ['class' => Taxes::class],
                 'transactions' => ['class' => Transactions::class],
-                // TODO: Restore this when transfers are enabled
-//                'transfers' => ['class' => Transfers::class],
+                'transfers' => ['class' => Transfers::class],
                 'variants' => ['class' => VariantsService::class],
                 'vat' => ['class' => Vat::class],
                 'webhooks' => ['class' => Webhooks::class],
@@ -302,11 +305,9 @@ class Plugin extends BasePlugin
         }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
-
-        // TODO: Restore this when transfers are enabled
-//        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
-//            $event->types[] = Transfer::class;
-//        });
+        Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = Transfer::class;
+        });
     }
 
     /**
@@ -612,11 +613,10 @@ class Plugin extends BasePlugin
             ->onUpdate(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleChangedFieldLayout'])
             ->onRemove(OrdersService::CONFIG_FIELDLAYOUT_KEY, [$ordersService, 'handleDeletedFieldLayout']);
 
-        // TODO: Restore this when transfers are enabled
-//        $transfersService = $this->getTransfers();
-//        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-//            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
-//            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
+        $transfersService = $this->getTransfers();
+        $projectConfigService->onAdd(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onUpdate(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleChangedFieldLayout'])
+            ->onRemove(TransfersService::CONFIG_FIELDLAYOUT_KEY, [$transfersService, 'handleDeletedFieldLayout']);
 
         $subscriptionsService = $this->getSubscriptions();
         $projectConfigService->onAdd(Subscriptions::CONFIG_FIELDLAYOUT_KEY, [$subscriptionsService, 'handleChangedFieldLayout'])
@@ -939,9 +939,7 @@ class Plugin extends BasePlugin
             $gc->deletePartialElements(Product::class, Table::PRODUCTS, 'id');
             $gc->deletePartialElements(Subscription::class, Table::SUBSCRIPTIONS, 'id');
             $gc->deletePartialElements(Variant::class, Table::VARIANTS, 'id');
-
-            // TODO: Restore this when transfers are enabled
-            // $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
+            $gc->deletePartialElements(Transfer::class, Table::TRANSFERS, 'id');
         });
     }
 
@@ -1006,10 +1004,9 @@ class Plugin extends BasePlugin
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsLayoutElement::class;
                     break;
-                // TODO: Restore this when transfers are enabled
-//                case Transfer::class:
-//                    $e->fields[] = TransferManagementField::class;
-//                    break;
+                case Transfer::class:
+                    $e->fields[] = TransferManagementField::class;
+                    break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;
                     $e->fields[] = PurchasableSkuField::class;
