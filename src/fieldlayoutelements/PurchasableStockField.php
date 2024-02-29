@@ -61,7 +61,7 @@ class PurchasableStockField extends BaseNativeField
 
         $view = Craft::$app->getView();
 
-        $totalStock = $element->getSaleableTotalStock();
+        $totalStock = $element->getStock();
         $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($element);
 
         $availableStockLabel = Craft::t('commerce', '{total} saleable across {locationCount} location(s)', [

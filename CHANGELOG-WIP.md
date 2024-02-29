@@ -46,8 +46,8 @@
 - Added `craft\commerce\base\Purchasable::getOnPromotion()`.
 - Added `craft\commerce\base\Purchasable::getPrice()`.
 - Added `craft\commerce\base\Purchasable::getPromotionalPrice()`.
-- Added `craft\commerce\base\Purchasable::getSaleableTotalStock()`
-- Added `craft\commerce\base\Purchasable::getStore()`.
+- Added `craft\commerce\base\Purchasable::getStore()`
+- Added `craft\commerce\base\Purchasable::getStock()`
 - Added `craft\commerce\base\Purchasable::setPrice()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
 - Added `craft\commerce\base\StoreRecordTrait`.
@@ -172,7 +172,7 @@
 - Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
 - Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController`.
-- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getSaleableTotalStock()` instead.
+- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getStock()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
