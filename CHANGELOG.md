@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a SQL error that could occur when updating to Commerce 4 on MySQL. ([#3388](https://github.com/craftcms/commerce/pull/3388))
 - Fixed a bug where `craft\commerce\services\Carts::getHasSessionCartNumber()` wasn’t checking the cart cookie. ([#3353](https://github.com/craftcms/commerce/issues/3353))
 - Fixed a bug where it wasn’t possible to submit a blank variant title on the Edit Product page. ([#3384](https://github.com/craftcms/commerce/issues/3384))
 
