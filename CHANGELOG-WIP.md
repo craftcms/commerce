@@ -46,8 +46,8 @@
 - Added `craft\commerce\base\Purchasable::getOnPromotion()`.
 - Added `craft\commerce\base\Purchasable::getPrice()`.
 - Added `craft\commerce\base\Purchasable::getPromotionalPrice()`.
-- Added `craft\commerce\base\Purchasable::getStore()`
 - Added `craft\commerce\base\Purchasable::getStock()`
+- Added `craft\commerce\base\Purchasable::getStore()`
 - Added `craft\commerce\base\Purchasable::setPrice()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
 - Added `craft\commerce\base\StoreRecordTrait`.
