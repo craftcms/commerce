@@ -3570,33 +3570,6 @@ class Order extends Element implements HasStoreInterface
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
 
-                // Gets the per line item per location inventory fulfillment levels for the previousLineItems
-                $inventoryFulfillmentLevels = Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($this)
-                    ->filter(function($fulfillmentLevel) use ($previousLineItem) {
-                        return $fulfillmentLevel->lineItemId == $previousLineItem->id;
-                    });
-
-                $restockMovements = [];
-                // Foreach location, restock.
-                foreach ($inventoryFulfillmentLevels as $inventoryFulfillmentLevel) {
-                    // Only restock when the line item has not been fulfilled, as we should be stopping a partially
-                    // fulfilled line item from being deleted in the first place.
-                    if ($inventoryFulfillmentLevel->fulfilledQuantity === 0 && $this->isCompleted) {
-                        $restockMovement = new InventoryRestockMovement();
-                        $restockMovement->quantity = $inventoryFulfillmentLevel->committedQuantity;
-                        $restockMovement->fromInventoryLocation = $inventoryFulfillmentLevel->getInventoryLocation();
-                        $restockMovement->toInventoryLocation = $inventoryFulfillmentLevel->getInventoryLocation();
-                        $restockMovement->inventoryItem = $inventoryFulfillmentLevel->getInventoryItem();
-                        $restockMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
-                        $restockMovement->fromInventoryTransactionType = InventoryTransactionType::COMMITTED;
-                        $restockMovement->note = Craft::t('commerce', 'Restocked line item {lineItem} for order ID {orderId}', ['lineItem' => $previousLineItem->description, 'orderId' => $previousLineItem->orderId]);
-                        $restockMovements[] = $restockMovement;
-                    }
-                }
-
-                $restockMovements = InventoryMovementCollection::make($restockMovements);
-                Plugin::getInstance()->getInventory()->executeInventoryMovements($restockMovements);
-
                 $previousLineItem->delete();
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {

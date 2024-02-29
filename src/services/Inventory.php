@@ -536,7 +536,9 @@ class Inventory extends Component
                     '[[it.lineItemId]]',
                     '[[it.inventoryItemId]]',
                     '[[it.inventoryLocationId]]',
-                    'SUM(CASE WHEN [[type]] = :committedType AND SIGN(quantity) = 1 THEN [[quantity]] ELSE 0 END) AS committedQuantity',
+
+                    'SUM(CASE WHEN (([[type]] = :committedType AND quantity > 0) OR ([[type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
+
                     'SUM(CASE WHEN [[type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
                     'SUM(CASE WHEN [[type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
                 ])

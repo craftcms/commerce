@@ -10,8 +10,8 @@
         </tr>
         {% for fulfillmentLevel in fulfillmentLevels %}
             <tr>
-            <td class="" data-note="Line Item Description">{{fulfillmentLevel.getLineItem().description}}</td>
-            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.getLineItem().qty}}</td>
+            <td class="">{{fulfillmentLevel.getLineItem().description}}</td>
+            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.committedQuantity}}</td>
             <td class="">
                 <div id="fulfillment-{{ loop.index }}">
                 {{ forms.text({

@@ -273,7 +273,7 @@ class OrdersController extends Controller
             if (!$movement->isValid()) {
                 return $this->asFailure(Craft::t('commerce', 'Invalid inventory movements.'),
                     [
-                        'errors' => $movement->getErrors(),
+                        'errors' => ['fulfillment' => $movement->getErrors() ],
                     ]);
             }
         }

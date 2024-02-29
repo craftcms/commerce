@@ -71,7 +71,6 @@ class PurchasableStockField extends BaseNativeField
         ]);
 
         $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
-        // Register the slideout for editing the inventory item global settings.
         $view->registerJsWithVars(fn($id, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
     e.preventDefault();
@@ -88,6 +87,7 @@ JS, [
 
             // Update the quantity button
             $editUpdateQuantityInventoryItemId = sprintf('action-update-qty-%s', mt_rand());
+            $updatedValueId = sprintf('updated-value-%s', mt_rand());
             $settings = [
                 'params' => [
                     'inventoryLocationId' => $inventoryLevel->getInventoryLocation()->id,
@@ -95,16 +95,17 @@ JS, [
                 ],
             ];
 
-            $view->registerJsWithVars(fn($id, $settings) => <<<JS
+            $view->registerJsWithVars(fn($id, $updatedValueId, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
     e.preventDefault();
   const slideout = new Craft.Commerce.UpdateInventoryLevelModal($settings);
   slideout.on('submit', (e) => {
-    console.log(e);
+    console.log(e.response.data);
   });
 });
 JS, [
                 $view->namespaceInputId($editUpdateQuantityInventoryItemId),
+                $view->namespaceInputId($updatedValueId),
                 $settings,
             ]);
 
@@ -114,7 +115,9 @@ JS, [
                 Html::endTag('td') .
                 Html::beginTag('td') .
                 Html::beginTag('div', ['class' => 'flex']) .
-                Html::tag('div', (string)$inventoryLevel->availableTotal) .
+                Html::tag('div', (string)$inventoryLevel->availableTotal, [
+                    'id' => $updatedValueId,
+                ]) .
                 Html::tag('div',Html::button(Craft::t('commerce', ''),
                     [
                         'class' => 'btn menubtn action-btn',

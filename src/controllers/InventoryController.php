@@ -465,7 +465,15 @@ JS, [
             );
         }
 
-        return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'));
+        $resultingInventoryLevels = [];
+        foreach ($updateInventoryLevels as $updateInventoryLevel) {
+            $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItem, $updateInventoryLevel->inventoryLocation);
+        }
+
+
+        return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'),[
+            'firstItemValue' => collect($resultingInventoryLevels)->first()->{$type . 'Total'},
+        ]);
     }
 
     /**
@@ -516,6 +524,10 @@ JS, [
         $toInventoryTransactionType = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryTransactionType');
         $inventoryItemId = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.inventoryItemId');
         $quantity = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.quantity');
+
+        if ($quantity == 0) {
+            return $this->asSuccess(Craft::t('commerce', 'No inventory movements made.'));
+        }
 
         $inventoryMovement = new InventoryManualMovement(
             [
