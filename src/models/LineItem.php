@@ -394,11 +394,9 @@ class LineItem extends Model
      */
     public function getOptionsSignature(): string
     {
-        if ($this->getOrder()->isCompleted) {
-            return LineItemHelper::generateOptionsSignature($this->_options, $this->id);
-        }
+        $orderId = $this->getOrder()?->isCompleted ? $this->id : null;
 
-        return LineItemHelper::generateOptionsSignature($this->_options);
+        return LineItemHelper::generateOptionsSignature($this->_options, $orderId);
     }
 
     /**
