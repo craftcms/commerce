@@ -48,7 +48,9 @@
                 value: null,
                 options: availableSiteOptions,
             }) }}
+        {% endif %}
 
+        {% if allowCurrencyChange %}
             {{ forms.selectField({
                 label: "Currency"|t('commerce'),
                 id: 'currency',
