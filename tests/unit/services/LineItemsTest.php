@@ -74,6 +74,27 @@ class LineItemsTest extends Unit
 
     public function testResolveLineItemExisting(): void
     {
+        $order = new Order();
+        $variant = Variant::find()->sku('hct-blue')->one();
+
+        $orderLineItem = $this->service->resolveLineItem($order, $variant->id, ['giftWrapped' => 'no']);
+
+        $resolvedLineItem = $this->service->resolveLineItem($order, $variant->id, ['giftWrapped' => 'no']);
+
+        self::assertInstanceOf(LineItem::class, $resolvedLineItem);
+        // Test that resolving line items without saving is consistent
+        self::assertEquals($orderLineItem->getPrice(), $resolvedLineItem->getPrice());
+        self::assertEquals($orderLineItem->getSalePrice(), $resolvedLineItem->getSalePrice());
+        self::assertEquals($orderLineItem->getOptionsSignature(), $resolvedLineItem->getOptionsSignature());
+        self::assertEquals($orderLineItem->purchasableId, $resolvedLineItem->purchasableId);
+        self::assertEquals($orderLineItem->orderId, $resolvedLineItem->orderId);
+    }
+
+
+    public function testResolveLineItemExistingCompletedOrder(): void
+    {
+        // Resolving a line item on a completed order should return a brand-new line item
+        // even if the purchasable and options are the same
         /** @var Order $order */
         $order = $this->fixtureData->getElement('completed-new');
         $orderLineItem = $order->getLineItems()[0];
@@ -84,7 +105,7 @@ class LineItemsTest extends Unit
         // Test that resolving line items without saving is consistent
         self::assertEquals($orderLineItem->getPrice(), $resolvedLineItem->getPrice());
         self::assertEquals($orderLineItem->getSalePrice(), $resolvedLineItem->getSalePrice());
-        self::assertEquals($orderLineItem->getOptionsSignature(), $resolvedLineItem->getOptionsSignature());
+        self::assertNotEquals($orderLineItem->getOptionsSignature(), $resolvedLineItem->getOptionsSignature());
         self::assertEquals($orderLineItem->purchasableId, $resolvedLineItem->purchasableId);
         self::assertEquals($orderLineItem->orderId, $resolvedLineItem->orderId);
     }
