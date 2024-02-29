@@ -628,11 +628,26 @@ class Inventory extends Component
 
         $movements = InventoryMovementCollection::make();
 
+        $reserveAmountByPurchasableId = [];
+        $availableTotalByPurchasableIdAndLocationId = [];
+
+        // Loop through line items and create committed movements for the selected inventory location
         foreach ($order->getLineItems() as $lineItem) {
             if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId])) {
                 $level = $selectedInventoryLevelForItem[$lineItem->purchasableId];
 
-                $splitableReserved = $qtyLineItem[$lineItem->purchasableId] - $level->availableTotal;
+                if (!isset($reserveAmountByPurchasableId[$lineItem->purchasableId])) {
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = $level->availableTotal;
+                    $reserveAmountByPurchasableId[$lineItem->purchasableId] = [];
+                }
+
+                if ($lineItem->qty > $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId]) {
+                    $totalToReserveForLineItem = $lineItem->qty - $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId];
+                    $reserveAmountByPurchasableId[$lineItem->purchasableId][$lineItem->id] = $totalToReserveForLineItem;
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = 0;
+                } else {
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] -= $lineItem->qty;
+                }
 
                 $movements->push(new InventoryCommittedMovement([
                     'inventoryItem' => $level->getInventoryItem(),
@@ -643,32 +658,47 @@ class Inventory extends Component
                     'quantity' => $lineItem->qty,
                     'lineItemId' => $lineItem->id,
                 ]));
+            }
+        }
 
-                if ($splitableReserved > 0) {
-                    foreach ($allInventoryLevels[$lineItem->purchasableId] as $inventoryLevel) {
-                        if ($level !== $inventoryLevel) {
-                            $availableInThisLocation = $inventoryLevel->availableTotal - $splitableReserved;
-                            $reserveAmount = $availableInThisLocation < 0 ? $inventoryLevel->availableTotal : $splitableReserved;
-                            if ($reserveAmount > 0) {
-                                $movements->push(new InventoryManualMovement([
-                                    'inventoryItem' => $inventoryLevel->getInventoryItem(),
-                                    'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                                    'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                                    'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
-                                    'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
-                                    'quantity' => $reserveAmount,
-                                    'lineItemId' => $lineItem->id,
-                                    'note' => 'Reserved for transfer from ' . $inventoryLevel->getInventoryLocation()->name . ' to ' . $level->getInventoryLocation()->name . ' for order ' . $order->getShortNumber(),
-                                ]));
+        // Loop through reserve amounts to reserve the remaining stock in the other inventory locations
+        foreach ($reserveAmountByPurchasableId as $purchasableId => $r) {
+            foreach ($r as $lineItemId => $qty) {
+                foreach ($allInventoryLevels[$purchasableId] as $level) {
+                    if ($level === $selectedInventoryLevelForItem[$purchasableId]) {
+                        continue;
+                    }
 
-                                $splitableReserved -= $reserveAmount;
-                            }
-                        }
+                    if (!isset($availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId])) {
+                        $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId] = $level->availableTotal;
+                    }
+
+                    $canReserveFullQty = $qty <= $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId];
+                    $qtyToReserve = $canReserveFullQty ? $qty : $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId];
+
+                    if ($qtyToReserve < 1) {
+                        break;
+                    }
+
+                    $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId] -= $qtyToReserve;
+
+                    $movements->push(new InventoryManualMovement([
+                        'inventoryItem' => $level->getInventoryItem(),
+                        'fromInventoryLocation' => $level->getInventoryLocation(),
+                        'toInventoryLocation' => $level->getInventoryLocation(),
+                        'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
+                        'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
+                        'quantity' => $qtyToReserve,
+                        'lineItemId' => $lineItemId,
+                    ]));
+
+                    $qty -= $qtyToReserve;
+                    if ($qty <= 0) {
+                        break;
                     }
                 }
             }
         }
-
 
         $this->executeInventoryMovements($movements);
 
