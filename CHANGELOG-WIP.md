@@ -62,7 +62,6 @@
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.
 - Added `craft\commerce\controllers\InventoryLocationsController`
 - Added `craft\commerce\controllers\InventoryLocationsStoresController`
-- Added `craft\commerce\controllers\TransfersController`
 - Added `craft\commerce\controllers\VariantsController`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES_USERS`.
 - Added `craft\commerce\db\Table::CATALOG_PRICING_RULES`.
@@ -76,7 +75,6 @@
 - Added `craft\commerce\db\Table::STORES`.
 - Added `craft\commerce\db\Table::TRANSFERS_INVENTORYITEMS`.
 - Added `craft\commerce\db\Table::TRANSFERS`.
-- Added `craft\commerce\element\Transfer`
 - Added `craft\commerce\elements\Product::getVariantManager()`.
 - Added `craft\commerce\elements\Variant::getProductSlug()`.
 - Added `craft\commerce\elements\Variant::getProductTypeHandle()`.
@@ -94,14 +92,11 @@
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\PurchasableConditionRule`.
-- Added `craft\commerce\elements\conditions\transfers\TransferCondition`.
 - Added `craft\commerce\elements\db\OrderQuery::$totalWeight`.
 - Added `craft\commerce\elements\db\OrderQuery::totalWeight()`.
-- Added `craft\commerce\elements\db\TransferQuery`
 - Added `craft\commerce\elements\traits\OrderValidatorsTrait::validateOrganizationTaxIdAsVatId()`.
 - Added `craft\commerce\enums\InventoryTransactionType`.
 - Added `craft\commerce\enums\InventoryUpdateQuantityType`.
-- Added `craft\commerce\enums\TransferStatusType`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::getShippingMethods()`.
 - Added `craft\commerce\events\RegisterAvailableShippingMethodsEvent::setShippingMethods()`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleAllowedQtyField`.
@@ -113,7 +108,6 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleSkuField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
-- Added `craft\commerce\fieldlayoutelements\TransferManagementField`.
 - Added `craft\commerce\helpers\Cp`.
 - Added `craft\commerce\helpers\Currency::moneyInputHtml()`.
 - Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
@@ -143,7 +137,6 @@
 - Added `craft\commerce\records\InventoryItem`.
 - Added `craft\commerce\records\InventoryLocation`.
 - Added `craft\commerce\records\PurchasableStore`.
-- Added `craft\commerce\records\Transfer`.
 - Added `craft\commerce\services\CatalogPricingRules`.
 - Added `craft\commerce\services\CatalogPricing`.
 - Added `craft\commerce\services\Discounts::getAllDiscountsByStoreId()`.
@@ -154,11 +147,9 @@
 - Added `craft\commerce\services\Sales::canUseSales()`.
 - Added `craft\commerce\services\ShippingCategories::clearCaches()`.
 - Added `craft\commerce\services\Stores`.
-- Added `craft\commerce\services\Transfers`.
 - Added `craft\commerce\services\Vat`.
 - Added `craft\commerce\web\assets\inventory\InventoryAsset`.
 - Added `craft\commerce\web\assets\inventory\InventoryAsset`.
-- Added `craft\commerce\web\assets\transfers\TransfersAsset`.
 - Deprecated `craft\commerce\base\Purchasable::getOnSale()`. Use `craft\commerce\base\Purchasable::getOnPromotion()` instead.
 - Deprecated `craft\commerce\base\Variant::hasUnlimitedStock()`. Use `craft\commerce\base\Purchasable::$inventoryTracked` instead.
 - Deprecated `craft\commerce\elements\Order::$totalSaleAmount`. Use `craft\commerce\elements\Order::$totalPromotionalAmount` instead.
@@ -175,7 +166,7 @@
 - Removed `craft\commerce\console\controllers\UpgradeController`.
 - Removed `craft\commerce\controllers\LiteShippingController`.
 - Removed `craft\commerce\controllers\LiteTaxController`.
-- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getAvailableTotalStock()` instead.
+- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getSaleableTotalStock()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
