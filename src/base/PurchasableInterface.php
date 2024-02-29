@@ -17,6 +17,7 @@ use craft\commerce\models\TaxCategory;
 /**
  * Interface Purchasable
  *
+ * @phpstan-require-extends Purchasable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
