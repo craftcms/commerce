@@ -352,6 +352,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @inheritdoc
      * @throws InvalidConfigException
+     * @since 5.0.0
      */
     public function getIsAvailable(): bool
     {
@@ -474,6 +475,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @return float|null
      * @throws InvalidConfigException
      * @throws \Throwable
+     * @since 5.0.0
      */
     public function getPrice(): ?float
     {
@@ -867,6 +869,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * Returns the cached total available stock across all inventory locations for this store.
      *
      * @return int
+     * @since 5.0.0
      */
     public function getStock(): int
     {

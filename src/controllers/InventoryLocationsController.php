@@ -14,6 +14,8 @@ use yii\web\Response;
 
 /**
  * Inventory Locations controller
+ *
+ * @since 5.0.0
  */
 class InventoryLocationsController extends Controller
 {

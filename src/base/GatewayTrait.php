@@ -18,8 +18,6 @@ use DateTime;
  */
 trait GatewayTrait
 {
-    use StoreTrait;
-
     /**
      * @var string|null Name
      */

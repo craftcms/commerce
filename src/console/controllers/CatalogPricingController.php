@@ -16,7 +16,7 @@ use yii\console\ExitCode;
  * Console command to generate catalog pricing.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0
+ * @since 5.0.0
  */
 class CatalogPricingController extends Controller
 {

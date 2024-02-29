@@ -64,7 +64,6 @@ class GatewaysController extends BaseAdminController
             } else {
                 $variables['gateway'] = $gatewayService->createGateway([
                     'type' => Dummy::class,
-                    'storeId' => $store->id,
                 ]);
             }
         }
@@ -127,7 +126,6 @@ class GatewaysController extends BaseAdminController
             'paymentType' => $this->request->getBodyParam('paymentTypes.' . $type . '.paymentType'),
             'isFrontendEnabled' => $this->request->getParam('isFrontendEnabled'),
             'settings' => $this->request->getBodyParam('types.' . $type),
-            'storeId' => $this->request->getBodyParam('storeId'),
         ];
 
         // For new gateway avoid NULL value.
