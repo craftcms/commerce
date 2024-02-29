@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Category;
@@ -21,14 +22,13 @@ use yii\db\ActiveQueryInterface;
  * @property bool $allPurchasables
  * @property float $baseDiscount
  * @property float $purchaseTotal
- * @property string $baseDiscountType
  * @property string $couponFormat
  * @property DateTime $dateFrom
  * @property DateTime $dateTo
  * @property string $description
  * @property ActiveQueryInterface $discountUserGroups
  * @property bool $enabled
- * @property bool $excludeOnSale
+ * @property bool $excludeOnPromotion
  * @property bool $hasFreeShippingForMatchingItems
  * @property bool $hasFreeShippingForOrder
  * @property UserGroup[] $groups
@@ -49,7 +49,8 @@ use yii\db\ActiveQueryInterface;
  * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing
- * @property bool $ignoreSales
+ * @property int $storeId
+ * @property bool $ignorePromotions
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses
  * @property string $categoryRelationshipType
@@ -58,14 +59,10 @@ use yii\db\ActiveQueryInterface;
  */
 class Discount extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     public const TYPE_ORIGINAL_SALEPRICE = 'original';
     public const TYPE_DISCOUNTED_SALEPRICE = 'discounted';
-
-    public const BASE_DISCOUNT_TYPE_VALUE = 'value';
-    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL = 'percentTotal';
-    public const BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED = 'percentTotalDiscounted';
-    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS = 'percentItems';
-    public const BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED = 'percentItemsDiscounted';
 
     public const CATEGORY_RELATIONSHIP_TYPE_SOURCE = 'sourceElement';
     public const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';

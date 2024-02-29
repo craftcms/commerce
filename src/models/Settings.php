@@ -9,10 +9,12 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
+use craft\models\Site;
 use yii\base\InvalidConfigException;
 
 /**
@@ -20,8 +22,6 @@ use yii\base\InvalidConfigException;
  *
  * @property-read array $weightUnitsOptions
  * @property-read array $dimensionsUnits
- * @property-read array $minimumTotalPriceStrategyOptions
- * @property-read array $freeOrderPaymentStrategyOptions
  * @property-read array $defaultViewOptions
  * @property-read string $paymentCurrency
  *
@@ -30,13 +30,6 @@ use yii\base\InvalidConfigException;
  */
 class Settings extends Model
 {
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
-    public const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
-
-    public const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
-    public const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
-
     public const VIEW_URI_ORDERS = 'commerce/orders';
     public const VIEW_URI_PRODUCTS = 'commerce/products';
     public const VIEW_URI_CUSTOMERS = 'commerce/customers';
@@ -55,50 +48,6 @@ class Settings extends Model
      * @defaultAlt 1 hour
      */
     public mixed $activeCartDuration = 3600;
-
-    /**
-     * @var bool Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
-     * @group Cart
-     */
-    public bool $autoSetNewCartAddresses = true;
-
-    /**
-     * @var bool Whether the first available shipping method option should be set automatically on carts.
-     *
-     * @group Cart
-     */
-    public bool $autoSetCartShippingMethodOption = false;
-
-    /**
-     * @var bool Whether the user's primary payment source should be set automatically on new carts.
-     *
-     * @group Cart
-     * @since 4.2
-     */
-    public bool $autoSetPaymentSource = false;
-
-    /**
-     * @var bool Whether carts are allowed to be empty on checkout.
-     * @group Cart
-     * @since 2.2
-     */
-    public bool $allowEmptyCartOnCheckout = false;
-
-    /**
-     * @var bool Whether carts are can be marked as completed without a payment.
-     * @group Cart
-     * @since 3.3
-     */
-    public bool $allowCheckoutWithoutPayment = false;
-
-    /**
-     * @var bool Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
-     *
-     * The `false` default does not allow partial payments on the front end.
-     *
-     * @group Payments
-     */
-    public bool $allowPartialPaymentOnCheckout = false;
 
     /**
      * @var string Key to be used when returning cart information in a response.
@@ -127,54 +76,6 @@ class Settings extends Model
      * @group Units
      */
     public string $dimensionUnits = 'mm';
-
-    /**
-     * @var string|null Default email address Commerce system messages should be sent from.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderAddress = null;
-
-    /**
-     * @var string|null Placeholder value displayed for the sender address control panel settings field.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft4:craft\models\MailSettings::$fromEmail) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderAddressPlaceholder = null;
-
-    /**
-     * @var string|null Default from name used for Commerce system emails.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderName = null;
-
-    /**
-     * @var string|null Placeholder value displayed for the sender name control panel settings field.
-     *
-     * If `null` (default), Craft’s [MailSettings::$fromName](craft4:craft\models\MailSettings::$fromName) will be used.
-     *
-     * @group System
-     */
-    public ?string $emailSenderNamePlaceholder = null;
-
-    /**
-     * @var string How Commerce should handle free orders.
-     *
-     * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
-     *
-     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance
-     * needs to be updated or otherwise adjusted by the payment gateway.
-     *
-     * @group Orders
-     */
-    public string $freeOrderPaymentStrategy = 'complete';
 
     /**
      * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
@@ -223,28 +124,6 @@ class Settings extends Model
     public ?string $loadCartRedirectUrl = null;
 
     /**
-     * @var string How Commerce should handle minimum total price for an order.
-     *
-     * Options:
-     *
-     * - `'default'` [rounds](commerce4:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
-     * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
-     * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
-     *
-     * @group Orders
-     */
-    public string $minimumTotalPriceStrategy = 'default';
-
-    /**
-     * @var string Human-friendly reference number format for orders. Result must be unique.
-     *
-     * See [Order Numbers](orders-carts.md#order-numbers).
-     *
-     * @group Orders
-     */
-    public string $orderReferenceFormat = '{{number[:7]}}';
-
-    /**
      * @var array|null ISO codes for supported payment currencies.
      *
      * See [Payment Currencies](payment-currencies.md).
@@ -252,24 +131,6 @@ class Settings extends Model
      * @group Payments
      */
     public ?array $paymentCurrency = null;
-
-    /**
-     * @var string The orientation of the paper to use for generated order PDF files.
-     *
-     * Options are `'portrait'` and `'landscape'`.
-     *
-     * @group Orders
-     */
-    public string $pdfPaperOrientation = 'portrait';
-
-    /**
-     * @var string The size of the paper to use for generated order PDFs.
-     *
-     * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
-     *
-     * @group Orders
-     */
-    public string $pdfPaperSize = 'letter';
 
     /**
      * @var bool Whether to allow non-local images in generated order PDFs.
@@ -297,24 +158,6 @@ class Settings extends Model
      * @defaultAlt 90 days
      */
     public mixed $purgeInactiveCartsDuration = 7776000;
-
-    /**
-     * @var bool Whether a shipping address is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireShippingAddressAtCheckout = false;
-
-    /**
-     * @var bool Whether a billing address is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireBillingAddressAtCheckout = false;
-
-    /**
-     * @var bool Whether shipping method selection is required before making payment on an order.
-     * @group Orders
-     */
-    public bool $requireShippingMethodSelectionAtCheckout = false;
 
     /**
      * @var bool Whether the [Commerce Tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
@@ -349,27 +192,6 @@ class Settings extends Model
     public bool $updateCartSearchIndexes = true;
 
     /**
-     * @var bool Whether taxes should be calculated based on the billing address instead of the shipping address.
-     * @group Orders
-     */
-    public bool $useBillingAddressForTax = false;
-
-    /**
-     * @var bool Whether to enable validation requiring the `businessTaxId` to be a valid VAT ID.
-     *
-     * When set to `false`, no validation is applied to `businessTaxId`.
-     *
-     * When set to `true`, `businessTaxId` must contain a valid VAT ID.
-     *
-     * ::: tip
-     * This setting strictly toggles input validation and has no impact on tax configuration or behavior elsewhere in the system.
-     * :::
-     *
-     * @group Orders
-     */
-    public bool $validateBusinessTaxIdAsVatId = false;
-
-    /**
      * @var string Units to be used for weight measurements.
      *
      * Options:
@@ -392,13 +214,32 @@ class Settings extends Model
      */
     public bool $validateCartCustomFieldsOnSubmission = false;
 
-
     /**
      * @inheritDoc
      */
     public function setAttributes($values, $safeOnly = true): void
     {
-        unset($values['orderPdfFilenameFormat'], $values['orderPdfPath']);
+        unset(
+            $values['orderPdfFilenameFormat'],
+            $values['orderPdfPath'],
+            $values['emailSenderAddress'],
+            $values['emailSenderAddressPlaceholder'],
+            $values['emailSenderName'],
+            $values['emailSenderNamePlaceholder'],
+            $values['autoSetNewCartAddresses'],
+            $values['autoSetCartShippingMethodOption'],
+            $values['autoSetPaymentSource'],
+            $values['allowEmptyCartOnCheckout'],
+            $values['allowCheckoutWithoutPayment'],
+            $values['allowPartialPaymentOnCheckout'],
+            $values['orderReferenceFormat'],
+            $values['requireShippingAddressAtCheckout'],
+            $values['requireBillingAddressAtCheckout'],
+            $values['requireShippingMethodSelectionAtCheckout'],
+            $values['useBillingAddressForTax'],
+            $values['freeOrderPaymentStrategy'],
+            $values['minimumTotalPriceStrategy']
+        );
         parent::setAttributes($values, $safeOnly);
     }
 
@@ -429,42 +270,26 @@ class Settings extends Model
     }
 
     /**
-     * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
-     */
-    public function getMinimumTotalPriceStrategyOptions(): array
-    {
-        return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
-        ];
-    }
-
-    /**
-     * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
-     */
-    public function getFreeOrderPaymentStrategyOptions(): array
-    {
-        return [
-            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Craft::t('commerce', 'Free orders complete immediately'),
-            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Craft::t('commerce', 'Free orders are processed by the payment gateway'),
-        ];
-    }
-
-    /**
      * Returns the ISO payment currency for a given site, or the default site if no handle is provided.
      *
      * @param string|null $siteHandle
-     * @throws InvalidConfigException if the currency in the config file is not set up
+     * @return string|null
      * @throws CurrencyException
+     * @throws InvalidConfigException if the currency in the config file is not set up
+     * @throws SiteNotFoundException
      */
     public function getPaymentCurrency(string $siteHandle = null): ?string
     {
-        $paymentCurrency = ConfigHelper::localizedValue($this->paymentCurrency, $siteHandle);
-        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
-        $paymentCurrencies = ArrayHelper::getColumn($allPaymentCurrencies, 'iso');
+        /** @var Site|StoreBehavior|null $site */
+        $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getPrimarySite();
+        if (!$site) {
+            throw new InvalidConfigException("Invalid site: $siteHandle");
+        }
 
-        if ($paymentCurrency && !in_array($paymentCurrency, $paymentCurrencies, false)) {
+        $paymentCurrency = ConfigHelper::localizedValue($this->paymentCurrency, $siteHandle);
+        $allPaymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($site->getStore()->id);
+
+        if ($paymentCurrency && !$allPaymentCurrencies->contains('iso', '==', $paymentCurrency)) {
             throw new InvalidConfigException("Invalid payment currency: $paymentCurrency");
         }
 
@@ -495,7 +320,7 @@ class Settings extends Model
     protected function defineRules(): array
     {
         return [
-            [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
+            [['weightUnits', 'dimensionUnits'], 'required'],
         ];
     }
 }

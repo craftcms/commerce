@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\ProductType;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopProducts;
 use craft\commerce\stats\TopProductTypes;
 use craft\elements\User;
@@ -56,8 +57,9 @@ class TopProductTypesTest extends Unit
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, array $productTypeData): void
     {
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
         $this->_mockUser();
-        $stat = new TopProductTypes($dateRange, $type, $startDate, $endDate);
+        $stat = new TopProductTypes($dateRange, $type, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

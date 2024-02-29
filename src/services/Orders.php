@@ -8,10 +8,14 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
+use craft\errors\UnsupportedSiteException;
 use craft\events\ConfigEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
@@ -19,6 +23,7 @@ use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\UserException;
 
 /**
  * Orders service.
@@ -56,14 +61,6 @@ class Orders extends Component
         $fieldsService->saveLayout($layout, false);
     }
 
-
-    /**
-     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
-     */
-    public function pruneDeletedField(): void
-    {
-    }
-
     /**
      * Handle field layout being deleted
      */
@@ -76,7 +73,7 @@ class Orders extends Component
      * Get an order by its ID.
      *
      * @param int $id
-     * @return Order|null
+     * @return ?Order
      */
     public function getOrderById(int $id): ?Order
     {
@@ -140,16 +137,32 @@ class Orders extends Component
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
 
-        /** @var Address[] $addresses */
-        $addresses = Address::find()->id($ids)->indexBy('id')->all();
+        // Query addresses as array to avoid instantiating elements immediately
+        $query = Address::find()
+            ->id($ids)
+            ->indexBy('id')
+            ->asArray();
+        /** @var array $addresses */
+        $addresses = $query->all();
 
         foreach ($orders as $key => $order) {
             if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
-                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
+                $data = $addresses[$order['shippingAddressId']];
+                $data['owner'] = $order;
+                /** @var Address $address */
+                $address = $query->createElement($data);
+
+                $order->setShippingAddress($address);
             }
 
             if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
-                $order->setBillingAddress($addresses[$order['billingAddressId']]);
+                $data = $addresses[$order['billingAddressId']];
+                $data['owner'] = $order;
+
+                /** @var Address $address */
+                $address = $query->createElement($data);
+
+                $order->setBillingAddress($address);
             }
 
             $orders[$key] = $order;
@@ -170,7 +183,64 @@ class Orders extends Component
 
         // If there are any orders, make sure that this is not allowed.
         if (Order::find()->customerId($user->id)->status(null)->exists()) {
-            $event->isValid = false;
+            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
+            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce order.', [
+                'user' => $user->id,
+            ]));
+        }
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
+     * @throws Exception
+     * @throws \Throwable
+     * @throws ElementNotFoundException
+     * @throws InvalidElementException
+     * @throws UnsupportedSiteException
+     * @since 4.2.11
+     */
+    public function afterSaveAddressHandler(ModelEvent $event): void
+    {
+
+        /** @var Address $address */
+        $address = $event->sender;
+        if ($address->getIsDraft()) {
+            return;
+        }
+
+        // Find all orders using this address as a source
+        $idQuery = (new Query())
+            ->select(['id'])
+            ->from(Table::ORDERS)
+            ->where(['sourceBillingAddressId' => $address->id])
+            ->orWhere(['sourceShippingAddressId' => $address->id]);
+
+        /** @var Order[] $carts */
+        $carts = Order::find()
+            ->where(['commerce_orders.id' => $idQuery])
+            ->isCompleted(false)
+            ->all();
+
+        if (empty($carts)) {
+            return;
+        }
+
+        foreach ($carts as $cart) {
+            // Update the billing address
+            if ($cart->sourceBillingAddressId === $address->id) {
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $cart->billingAddressId = $newBillingAddress->id;
+            }
+
+            // Update the shipping address
+            if ($cart->sourceShippingAddressId === $address->id) {
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Shipping Address')]);
+                $cart->shippingAddressId = $newShippingAddress->id;
+            }
+
+            // Save the cart to trigger events and recalculations.
+            Craft::$app->getElements()->saveElement($cart, false);
         }
     }
 }

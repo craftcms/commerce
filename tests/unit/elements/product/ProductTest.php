@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit\elements\order;
+namespace craftcommercetests\unit\elements\product;
 
 use Codeception\Test\Unit;
 use craft\commerce\elements\Product;

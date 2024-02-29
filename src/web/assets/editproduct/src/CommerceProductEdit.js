@@ -9,18 +9,11 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 Craft.Commerce.ProductEdit = Garnish.Base.extend({
-  $addToSale: null,
-  addToSaleSelector: '.product-add-to-sale',
-  $salesList: null,
   $discountsList: null,
-  salesListSelector: '.product-sales.commerce-sales',
-  spinnerSelector: '.product-sales.commerce-sales-spinner',
   discountListSelector: '.product-discounts.commerce-discounts',
-  saleIdsByVariantId: {},
   discountIdsByVariantId: {},
   $container: null,
   $window: null,
-  $modals: new Map(),
 
   init: function (settings) {
     var _this = this;
@@ -29,156 +22,11 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     this.$window = $(window);
 
     if (this.$container && this.$container.length) {
-      // List sales
-      this.$salesList = this.$container.find(this.salesListSelector);
-      if (this.$salesList && this.$salesList.length) {
-        this.$window.scroll(function (ev) {
-          _this.checkSalesInView();
-        });
-
-        _this.checkSalesInView();
-      }
-
       this.$discountsList = this.$container.find(this.discountListSelector);
       if (this.$discountsList && this.$discountsList.length) {
         this.populateDiscountList();
       }
-
-      // Add to sale button
-      this.$addToSale = this.$container.find(this.addToSaleSelector);
-      if (this.$addToSale && this.$addToSale.length) {
-        this.$addToSale.on('click', $.proxy(this, 'handleAddToSale'));
-      }
     }
-  },
-
-  checkSalesInView: function () {
-    if (this.$salesList && this.$salesList.length) {
-      var _this = this;
-      this.$salesList.each(function (el) {
-        var $spinner = _this.$container.find(
-          _this.spinnerSelector + '[data-id="' + $(this).data('id') + '"]'
-        );
-        if (!$spinner.hasClass('hidden') && !$spinner.data('loading')) {
-          var top_of_element = $(this).offset().top;
-          var bottom_of_element = $(this).offset().top + $(this).outerHeight();
-          var bottom_of_screen =
-            _this.$window.scrollTop() + _this.$window.innerHeight();
-          var top_of_screen = _this.$window.scrollTop();
-
-          if (
-            bottom_of_screen > top_of_element &&
-            top_of_screen < bottom_of_element
-          ) {
-            _this.populateSaleList($(this));
-          }
-        }
-      });
-    }
-  },
-
-  handleAddToSale: function (ev) {
-    ev.preventDefault();
-    var el = $(ev.target);
-
-    $.get({
-      url: Craft.getActionUrl('commerce/sales/get-all-sales'),
-      dataType: 'json',
-      success: $.proxy(function (data) {
-        this.createSalesModal(el.data('id'), data);
-      }, this),
-    });
-  },
-
-  resetSales: function () {
-    var $spinners = this.$container.find(this.spinnerSelector);
-
-    if (this.$salesList && this.$salesList.length) {
-      this.$salesList.each(function () {
-        $(this).empty();
-      });
-    }
-
-    if ($spinners && $spinners.length) {
-      $spinners.each(function () {
-        $(this).removeClass('hidden');
-      });
-    }
-    this.checkSalesInView();
-  },
-
-  createSalesModal: function (id, sales) {
-    if (this.$modals.has(id)) {
-      // Destroy the current modal just in case things have changed to keep things fresh.
-      var mdl = this.$modals.get(id);
-      mdl.destroy();
-      this.$modals.delete(id);
-    }
-
-    var data = {
-      existingSaleIds: [],
-      onHide: $.proxy(this, 'resetSales'),
-    };
-
-    if (id === 'all') {
-      data['purchasables'] = this.settings.purchasables;
-    } else {
-      data['id'] = id;
-      data['existingSaleIds'] = this.saleIdsByVariantId[id];
-    }
-
-    var salesModal = new Craft.Commerce.ProductSalesModal(sales, data);
-    this.$modals.set(id, salesModal);
-  },
-
-  populateSaleList: function (element) {
-    var _this = this;
-    var id = element.data('id');
-    var $spinner = _this.$container.find(
-      _this.spinnerSelector + '[data-id="' + id + '"]'
-    );
-    var data = {
-      id: id,
-    };
-
-    $spinner.removeClass('hidden');
-    $spinner.data('loading', true);
-
-    element.empty();
-    Craft.sendActionRequest(
-      'POST',
-      'commerce/sales/get-sales-by-purchasable-id',
-      {data}
-    )
-      .then((response) => {
-        $spinner.addClass('hidden');
-        $spinner.data('loading', false);
-        const {data} = response;
-        if (data.sales && data.sales.length) {
-          for (var i = 0; i < data.sales.length; i++) {
-            var sale = data.sales[i];
-            if (_this.saleIdsByVariantId[id] === undefined) {
-              _this.saleIdsByVariantId[id] = [];
-            }
-            _this.saleIdsByVariantId[id].push(sale.id);
-
-            var $saleLink = $('<a/>', {
-              href: sale.cpEditUrl,
-            });
-            $('<span>' + Craft.escapeHtml(sale.name) + '</span>').appendTo(
-              $saleLink
-            );
-
-            var $saleItem = $('<li>');
-            $saleItem.append($saleLink);
-            $saleItem.appendTo(element);
-          }
-        }
-      })
-      .catch(({response}) => {
-        $spinner.addClass('hidden');
-        $spinner.data('loading', false);
-      });
   },
 
   populateDiscountList: function () {
@@ -228,7 +76,6 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     container: '#main-content',
     onChange: $.noop,
     id: null,
-    hasVariants: false,
     purchasables: [],
   },
 });

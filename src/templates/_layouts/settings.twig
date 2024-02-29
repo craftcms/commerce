@@ -8,17 +8,24 @@
 
 {% if currentUser.admin %}
 {% set navItems = {
-    'general': { title: "General Settings"|t('commerce'), minEdition: 'lite' },
-    'ordersettings': { title: "Order Fields"|t('commerce'), minEdition: 'lite' },
-    'orderstatuses': { title: "Order Statuses"|t('commerce'), minEdition: 'lite' },
-    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce'), minEdition: 'lite' },
-    'emails': { title: "Emails"|t('commerce'), minEdition: 'lite' },
-    'pdfs': { title: "PDFs"|t('commerce'), minEdition: 'lite' },
-    'gateways': { title: "Gateways"|t('commerce'), minEdition: 'lite' },
-    'products-heading': { heading: "Products"|t('commerce'), minEdition: 'lite' },
-    'producttypes': { title: "Product Types"|t('commerce'), minEdition: 'lite' },
-    'subscriptions-heading': { heading: "Subscriptions"|t('commerce'), minEdition: 'lite' },
-    'subscriptions/fields': { title: "Subscription Fields"|t('commerce'), minEdition: 'lite' },
+    'Stores': { heading: "Stores & Sites"|t('commerce')},
+    'stores': { title: "Stores"|t('commerce')},
+    'sites': { title: "Sites"|t('app')},
+    'products-heading': { heading: "Products"|t('commerce')},
+    'producttypes': { title: "Product Types"|t('commerce')},
+    'orders-heading': { heading: "Orders"|t('commerce')},
+    'general': { title: "General Settings"|t('commerce')},
+    'ordersettings': { title: "Field Layout"|t('commerce')},
+    'orderstatuses': { title: "Order Statuses"|t('commerce')},
+    'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
+    'communication-heading': { heading: "PDFs & Emails"|t('commerce')},
+    'pdfs': { title: "PDFs"|t('commerce')},
+    'emails': { title: "Emails"|t('commerce')},
+    'payments-heading': { heading: "Payments"|t('commerce')},
+    'gateways': { title: "Gateways"|t('commerce')},
+    'field-layouts-heading': { heading: "Other Field Layouts"|t('commerce')},
+    'subscriptions/fields': { title: "Subscription"|t('commerce')},
+    'transfers': { title: "Inventory Transfer"|t('commerce')},
 } %}
 {% endif %}
 
@@ -27,7 +34,6 @@
 {% endif %}
 
 {% set docTitle = navItems[selectedItem].title~' - '~title %}
-
 
 {% macro configWarning(setting, file) -%}
     {%- apply spaceless %}
@@ -46,7 +52,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in navItems %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

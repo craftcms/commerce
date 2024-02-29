@@ -98,12 +98,15 @@ class OrdersTest extends Unit
 
     public function testGetOrdersByEmail(): void
     {
-        $orders = $this->service->getOrdersByEmail($this->fixtureData->getElement('completed-new')->email);
+        /** @var Order $orderFixture */
+        $orderFixture = $this->fixtureData->getElement('completed-new');
+        $email = $orderFixture->getEmail();
+        $orders = $this->service->getOrdersByEmail($email);
 
         self::assertIsArray($orders);
         self::assertCount(3, $orders);
         foreach ($orders as $order) {
-            self::assertEquals($this->fixtureData->getElement('completed-new')->email, $order->email);
+            self::assertEquals($email, $order->getEmail());
         }
     }
 }

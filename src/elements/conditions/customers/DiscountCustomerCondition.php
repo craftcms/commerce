@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\conditions\customers;
 
+use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
 use craft\elements\conditions\users\UserCondition as UserElementCondition;
 
 /**
@@ -15,10 +16,12 @@ class DiscountCustomerCondition extends UserElementCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(), [
+        return array_merge(parent::selectableConditionRules(), [
             HasOrdersConditionRule::class,
+            SignedInConditionRule::class,
+            DiscountGroupConditionRule::class,
         ]);
     }
 }

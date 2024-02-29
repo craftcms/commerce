@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Localization;
@@ -20,11 +21,16 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
+use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\errors\MissingComponentException;
+use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\MoneyHelper;
+use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
@@ -41,7 +47,7 @@ use function get_class;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DiscountsController extends BaseCpController
+class DiscountsController extends BaseStoreManagementController
 {
     public const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     public const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
@@ -54,20 +60,120 @@ class DiscountsController extends BaseCpController
     {
         parent::init();
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '<')) {
-            throw new ForbiddenHttpException('Managing discounts is not permitted on the Lite edition.');
-        }
-
         $this->requirePermission('commerce-managePromotions');
     }
 
     /**
      * @throws HttpException
      */
-    public function actionIndex(): Response
+    public function actionIndex(string $storeHandle = null): Response
     {
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
-        return $this->renderTemplate('commerce/promotions/discounts/index', compact('discounts'));
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        return $this->renderTemplate('commerce/store-management/discounts/index', [
+            'tableDataEndpoint' => UrlHelper::actionUrl('commerce/discounts/table-data', ['storeId' => $store->id]),
+        ]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.3.3
+     */
+    public function actionTableData(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $storeId = $this->request->getRequiredParam('storeId');
+
+        if (!$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
+            throw new InvalidConfigException('Invalid store.');
+        }
+
+
+        $page = $this->request->getParam('page', 1);
+        $limit = $this->request->getParam('per_page', 100);
+        $search = $this->request->getParam('search');
+        $offset = ($page - 1) * $limit;
+
+        $sqlQuery = (new Query())
+            ->from(['discounts' => Table::DISCOUNTS])
+            ->select([
+                'discounts.id',
+                'discounts.name',
+                'discounts.enabled',
+                'discounts.dateFrom',
+                'discounts.dateTo',
+                'discounts.totalDiscountUses',
+                'discounts.ignorePromotions',
+                'discounts.stopProcessing',
+                'discounts.sortOrder',
+                'coupons.discountId',
+            ])
+            ->distinct()
+            ->where(['discounts.storeId' => $storeId])
+            ->leftJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]')
+            ->orderBy(['sortOrder' => SORT_ASC]);
+
+
+        if ($search) {
+            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+            $sqlQuery
+                ->andWhere([
+                    'or',
+                    // Search discount name
+                    [$likeOperator, 'discounts.name', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search discount description
+                    [$likeOperator, 'discounts.description', '%' . str_replace(' ', '%', $search) . '%', false],
+                    // Search coupon code
+                    ['discounts.id' => (new Query())
+                        ->from(Table::COUPONS)
+                        ->select('discountId')
+                        ->where([$likeOperator, 'code', '%' . str_replace(' ', '%', $search) . '%', false]),
+                    ],
+                ]);
+        }
+
+        $total = $sqlQuery->count();
+
+        $sqlQuery->limit($limit);
+        $sqlQuery->offset($offset);
+
+        $result = $sqlQuery->all();
+
+        $tableData = [];
+        $dateFormat = Craft::$app->getFormattingLocale()->getDateTimeFormat('short');
+        foreach ($result as $item) {
+            $dateFrom = $item['dateFrom'] ? DateTimeHelper::toDateTime($item['dateFrom']) : null;
+            $dateTo = $item['dateTo'] ? DateTimeHelper::toDateTime($item['dateTo']) : null;
+            $dateRange = ($dateFrom ? $dateFrom->format($dateFormat) : '∞') . ' - ' > ($dateTo ? $dateTo->format($dateFormat) : '∞');
+            $dateRange = !$dateFrom && !$dateTo ? '∞' : $dateRange;
+
+            $tableData[] = [
+                'id' => $item['id'],
+                'title' => Craft::t('site', $item['name']),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $store->handle . '/discounts/' . $item['id']),
+                'status' => (bool)$item['enabled'],
+                'duration' => $dateRange,
+                'timesUsed' => $item['totalDiscountUses'],
+                // If there is joined data then there are coupons
+                'hasCoupons' => (bool)$item['discountId'],
+                'ignore' => (bool)$item['ignorePromotions'],
+                'stop' => (bool)$item['stopProcessing'],
+            ];
+        }
+
+        return $this->asSuccess(data: [
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $tableData,
+        ]);
     }
 
     /**
@@ -75,7 +181,7 @@ class DiscountsController extends BaseCpController
      * @param Discount|null $discount
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Discount $discount = null): Response
+    public function actionEdit(int $id = null, Discount $discount = null, string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createDiscounts');
@@ -86,17 +192,34 @@ class DiscountsController extends BaseCpController
         $variables = compact('id', 'discount');
         $variables['isNewDiscount'] = false;
 
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+        $variables['storeHandle'] = $store->handle;
+        $variables['currency'] = $store->getCurrency();
+        $variables['decimals'] = Plugin::getInstance()->getCurrencies()->getSubunitFor($store->getCurrency());
+
         if (!$variables['discount']) {
             if ($variables['id']) {
-                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id']);
+                $variables['discount'] = Plugin::getInstance()->getDiscounts()->getDiscountById($variables['id'], $store->id);
 
                 if (!$variables['discount']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['discount'] = new Discount();
-                $variables['discount']->allCategories = true;
-                $variables['discount']->allPurchasables = true;
+                $variables['discount'] = Craft::createObject([
+                    'class' => Discount::class,
+                    'attributes' => [
+                        'allCategories' => true,
+                        'allPurchasables' => true,
+                        'storeId' => $store->id,
+                    ],
+                ]);
                 $variables['isNewDiscount'] = true;
             }
         }
@@ -107,13 +230,13 @@ class DiscountsController extends BaseCpController
         $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $this->getView()->registerAssetBundle(CouponsAsset::class);
 
-        return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/discounts/_edit', $variables);
     }
 
     /**
      * @throws HttpException
      */
-    public function actionSave(): void
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -127,6 +250,7 @@ class DiscountsController extends BaseCpController
             $this->requirePermission('commerce-editDiscounts');
         }
 
+        $discount->storeId = $this->request->getBodyParam('storeId');
         $discount->name = $this->request->getBodyParam('name');
         $discount->description = $this->request->getBodyParam('description');
         $discount->enabled = (bool)$this->request->getBodyParam('enabled');
@@ -141,26 +265,36 @@ class DiscountsController extends BaseCpController
         $discount->percentageOffSubject = $this->request->getBodyParam('percentageOffSubject');
         $discount->hasFreeShippingForMatchingItems = (bool)$this->request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$this->request->getBodyParam('hasFreeShippingForOrder');
-        $discount->excludeOnSale = (bool)$this->request->getBodyParam('excludeOnSale');
+        $discount->excludeOnPromotion = (bool)$this->request->getBodyParam('excludeOnPromotion');
         $discount->couponFormat = $this->request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
-        $discount->perUserLimit = $this->request->getBodyParam('perUserLimit');
-        $discount->perEmailLimit = $this->request->getBodyParam('perEmailLimit');
-        $discount->totalDiscountUseLimit = $this->request->getBodyParam('totalDiscountUseLimit');
-        $discount->ignoreSales = (bool)$this->request->getBodyParam('ignoreSales');
-        $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType');
-        $discount->baseDiscountType = $this->request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
+        $discount->perUserLimit = (int)$this->request->getBodyParam('perUserLimit');
+        $discount->perEmailLimit = (int)$this->request->getBodyParam('perEmailLimit');
+        $discount->totalDiscountUseLimit = (int)$this->request->getBodyParam('totalDiscountUseLimit');
+        $discount->ignorePromotions = (bool)$this->request->getBodyParam('ignorePromotions');
+        $discount->categoryRelationshipType = $this->request->getBodyParam('categoryRelationshipType', $discount->categoryRelationshipType);
         $discount->appliedTo = $this->request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $this->request->getBodyParam('orderConditionFormula');
 
-        $baseDiscount = $this->request->getBodyParam('baseDiscount') ?: 0;
-        $baseDiscount = Localization::normalizeNumber($baseDiscount);
-        $discount->baseDiscount = $baseDiscount * -1;
+        $moneyInputAttributes = [
+            'baseDiscount',
+            'perItemDiscount',
+            'purchaseTotal',
+        ];
+        foreach ($moneyInputAttributes as $attr) {
+            $attrValue = $this->request->getBodyParam($attr) ?: ['value' => '0'];
+            $attrValue['value'] = preg_replace('/[^0-9\.\-\,]/', '', $attrValue['value']);
+            $attrValue += [
+                'currency' => $discount->getStore()->getCurrency(),
+            ];
+            $attrValue = MoneyHelper::toDecimal(MoneyHelper::toMoney($attrValue));
 
-        $perItemDiscount = $this->request->getBodyParam('perItemDiscount') ?: 0;
-        $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
-        $discount->perItemDiscount = $perItemDiscount * -1;
+            // Invert non-purchaseTotal values
+            if ($attr !== 'purchaseTotal') {
+                $attrValue = $attrValue * -1;
+            }
 
-        $discount->purchaseTotal = Localization::normalizeNumber($this->request->getBodyParam('purchaseTotal', 0));
+            $discount->{$attr} = $attrValue;
+        }
 
         $date = $this->request->getBodyParam('dateFrom');
         if ($date) {
@@ -174,10 +308,13 @@ class DiscountsController extends BaseCpController
             $discount->dateTo = $dateTime;
         }
 
-        $discount->percentDiscount = -Localization::normalizePercentage($this->request->getBodyParam('percentDiscount'));
+        $percentDiscount = $this->request->getBodyParam('percentDiscount', 0);
+        $percentDiscount = preg_replace('/[^0-9\.\-\,]/', '', $percentDiscount);
+        $discount->percentDiscount = -Localization::normalizePercentage($percentDiscount);
 
         // Set purchasable conditions
-        if ($discount->allPurchasables = (bool)$this->request->getBodyParam('allPurchasables')) {
+        $allPurchasables = !$this->request->getBodyParam('allPurchasables', false);
+        if ($discount->allPurchasables = $allPurchasables) {
             $discount->setPurchasableIds([]);
         } else {
             $purchasables = [];
@@ -191,15 +328,21 @@ class DiscountsController extends BaseCpController
             $discount->setPurchasableIds($purchasables);
         }
 
+        // False in the allCategories param is true in the DB
+        $allCategories = !$this->request->getBodyParam('allCategories', false);
         // Set category conditions
-        if ($discount->allCategories = (bool)$this->request->getBodyParam('allCategories')) {
+        if ($discount->allCategories = $allCategories) {
             $discount->setCategoryIds([]);
         } else {
-            $categories = $this->request->getBodyParam('categories', []);
-            if (!$categories) {
-                $categories = [];
+            $relatedElements = [];
+            $relatedElementByType = $this->request->getBodyParam('relatedElements') ?: [];
+            foreach ($relatedElementByType as $type) {
+                if (is_array($type)) {
+                    array_push($relatedElements, ...$type);
+                }
             }
-            $discount->setCategoryIds($categories);
+            $relatedElements = array_unique($relatedElements);
+            $discount->setCategoryIds($relatedElements);
         }
 
         $coupons = $this->request->getBodyParam('coupons') ?: [];
@@ -208,13 +351,13 @@ class DiscountsController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
-            $this->redirectToPostedUrl($discount);
+            return $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
 
             // Set back to original input value of the text field to prevent negative value.
-            $discount->baseDiscount = $baseDiscount;
-            $discount->perItemDiscount = $perItemDiscount;
+            $discount->baseDiscount = $this->request->getBodyParam('baseDiscount');
+            $discount->perItemDiscount = $this->request->getBodyParam('perItemDiscount');
         }
 
         // Send the model back to the template
@@ -224,6 +367,8 @@ class DiscountsController extends BaseCpController
         $this->_populateVariables($variables);
 
         Craft::$app->getUrlManager()->setRouteParams($variables);
+
+        return null;
     }
 
     /**
@@ -267,11 +412,44 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode($this->request->getRequiredBodyParam('ids'));
-        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
+        $key = $this->request->getBodyParam('startPosition');
+
+        $idsOrdered = [];
+        foreach ($ids as $id) {
+            // Temporary -1 because the `reorderDiscounts()` method will increment the key before saving.
+            // @TODO update this when we can change the behaviour of the `reorderDiscounts()` method.
+            $idsOrdered[$key - 1] = $id;
+            $key++;
+        }
+
+        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($idsOrdered)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
 
         return $this->asSuccess();
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 4.4.0
+     */
+    public function actionMoveToPage(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $id = $this->request->getRequiredBodyParam('id');
+        $page = $this->request->getRequiredBodyParam('page');
+        $perPage = $this->request->getRequiredBodyParam('perPage');
+
+        // @TODO figure out moving based on `storeId`
+
+        if (AdminTable::moveToPage(Table::DISCOUNTS, $id, $page, $perPage)) {
+            return $this->asSuccess(Craft::t('commerce', 'Discounts reordered.'));
+        }
+
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
     }
 
     /**
@@ -450,41 +628,13 @@ class DiscountsController extends BaseCpController
             $variables['customerUsage'] = 0;
         }
 
-        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
-        $currencyName = $currency ? $currency->getCurrency() : '';
-        $percentSymbol = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        $variables['baseDiscountTypes'] = [
-            DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Craft::t('commerce', $currencyName . ' value'),
-        ];
-
-        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Craft::t('commerce', '{pct} off total original price and shipping total (deprecated)', [
-                'pct' => $percentSymbol,
-            ]);
-        }
-
-        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price and shipping total (deprecated)', [
-                'pct' => $percentSymbol,
-            ]);
-        }
-
-        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Craft::t('commerce', '{pct} off total original price (deprecated)', [
-                'pct' => $percentSymbol,
-            ]);
-        }
-
-        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price (deprecated)', [
-                'pct' => $percentSymbol,
-            ]);
-        }
-
         $variables['categoryElementType'] = Category::class;
+        $variables['entryElementType'] = Entry::class;
         $variables['categories'] = null;
+        $variables['entries'] = null;
+
         $categories = [];
+        $entries = [];
 
         if (empty($variables['id']) && $this->request->getParam('categoryIds')) {
             $categoryIds = explode('|', $this->request->getParam('categoryIds'));
@@ -494,15 +644,22 @@ class DiscountsController extends BaseCpController
 
         foreach ($categoryIds as $categoryId) {
             $id = (int)$categoryId;
-            $categories[] = Craft::$app->getElements()->getElementById($id);
+            $element = Craft::$app->getElements()->getElementById($id);
+
+            if ($element instanceof Category) {
+                $categories[] = $element;
+            } elseif ($element instanceof Entry) {
+                $entries[] = $element;
+            }
         }
 
         $variables['categories'] = $categories;
+        $variables['entries'] = $entries;
 
-        $variables['categoryRelationshipTypeOptions'] = [
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'Source - The category relationship field is on the purchasable'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'Target - The purchasable relationship field is on the category'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either (Default) - The relationship field is on the purchasable or the category'),
+        $variables['elementRelationshipTypeOptions'] = [
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Craft::t('commerce', 'The purchasable defines the relationship'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Craft::t('commerce', 'The purchasable is related by another element'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Craft::t('commerce', 'Either way'),
         ];
 
         $variables['appliedTo'] = [

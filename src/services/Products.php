@@ -10,7 +10,8 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\events\SiteEvent;
-use craft\queue\jobs\ResaveElements;
+use craft\helpers\Queue;
+use craft\queue\jobs\PropagateElements;
 use yii\base\Component;
 
 /**
@@ -38,19 +39,14 @@ class Products extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        $queue = Craft::$app->getQueue();
-        $siteId = $event->oldPrimarySiteId;
-        $elementTypes = [
-            Product::class,
-        ];
-
-        foreach ($elementTypes as $elementType) {
-            $queue->push(new ResaveElements([
-                'elementType' => $elementType,
+        if ($event->isNew) {
+            Queue::push(new PropagateElements([
+                'elementType' => Product::class,
                 'criteria' => [
-                    'siteId' => $siteId,
+                    'siteId' => $event->oldPrimarySiteId,
                     'status' => null,
                 ],
+                'siteId' => $event->site->id,
             ]));
         }
     }

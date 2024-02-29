@@ -8,7 +8,9 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\DiscountAddressCondition;
 use craft\commerce\elements\conditions\customers\DiscountCustomerCondition;
@@ -21,7 +23,6 @@ use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
-use craft\helpers\UrlHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -40,8 +41,10 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Discount extends Model
+class Discount extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -149,11 +152,6 @@ class Discount extends Model
     public float $baseDiscount = 0;
 
     /**
-     * @var string Type of discount for the base discount e.g. currency value or percentage
-     */
-    public string $baseDiscountType = DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
-
-    /**
      * @var float Amount of discount per item
      */
     public float $perItemDiscount = 0.0;
@@ -169,9 +167,9 @@ class Discount extends Model
     public string $percentageOffSubject = DiscountRecord::TYPE_DISCOUNTED_SALEPRICE;
 
     /**
-     * @var bool Exclude the “On Sale” Purchasables
+     * @var bool Exclude the “On Promotion” Purchasables
      */
-    public bool $excludeOnSale = false;
+    public bool $excludeOnPromotion = false;
 
     /**
      * @var bool Matching products have free shipping.
@@ -190,11 +188,15 @@ class Discount extends Model
 
     /**
      * @var bool Match all product types
+     *
+     * TODO: Rename to $allEntries in Commerce 5
      */
     public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
+     *
+     * TODO: Rename to $entryRelationshipType in Commerce 5
      */
     public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
@@ -226,7 +228,7 @@ class Discount extends Model
     /**
      * @var bool Discount ignores sales
      */
-    public bool $ignoreSales = true;
+    public bool $ignorePromotions = true;
 
     /**
      * @var string What the per item amount and per item percentage off amounts can apply to
@@ -264,7 +266,30 @@ class Discount extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('discounts/' . $this->id);
+    }
+
+    /**
+     * @param bool $exclude
+     * @return void
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
+     */
+    public function setExcludeOnSale(bool $exclude): void
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
+        $this->excludeOnPromotion = $exclude;
+    }
+
+    /**
+     * @return bool
+     * @since 5.0.0
+     * @deprecated in 5.0.0. Use `$excludeOnPromotion` instead.
+     */
+    public function getExcludeOnSale(): bool
+    {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'Discount::$excludeOnSale is deprecated. Use Discount::$excludeOnPromotion instead.');
+        return $this->excludeOnPromotion;
     }
 
     /**
@@ -272,19 +297,40 @@ class Discount extends Model
      */
     public function getOrderCondition(): ElementConditionInterface
     {
+        /** @var DiscountOrderCondition $condition */
         $condition = $this->_orderCondition ?? new DiscountOrderCondition();
         $condition->mainTag = 'div';
         $condition->name = 'orderCondition';
+        $condition->storeId = $this->storeId;
 
         return $condition;
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasOrderCondition(): bool
+    {
+        if ($this->_orderCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getOrderCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setOrderCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_orderCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -312,11 +358,30 @@ class Discount extends Model
     }
 
     /**
-     * @param ElementConditionInterface|string|array $condition
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasCustomerCondition(): bool
+    {
+        if ($this->_customerCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getCustomerCondition()->getConditionRules());
+    }
+
+    /**
+     * @param ElementConditionInterface|string $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setCustomerCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_customerCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -345,11 +410,30 @@ class Discount extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasShippingAddressCondition(): bool
+    {
+        if ($this->_shippingAddressCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getShippingAddressCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setShippingAddressCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_shippingAddressCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -378,11 +462,30 @@ class Discount extends Model
     }
 
     /**
+     * @return bool
+     * @since 4.3.0
+     */
+    public function hasBillingAddressCondition(): bool
+    {
+        if ($this->_billingAddressCondition === null) {
+            return false;
+        }
+
+        return !empty($this->getBillingAddressCondition()->getConditionRules());
+    }
+
+    /**
      * @param ElementConditionInterface|string|array $condition
      * @return void
+     * @throws InvalidConfigException
      */
     public function setBillingAddressCondition(ElementConditionInterface|string|array $condition): void
     {
+        if (empty($condition)) {
+            $this->_billingAddressCondition = null;
+            return;
+        }
+
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition);
         }
@@ -441,11 +544,18 @@ class Discount extends Model
         $this->_purchasableIds = array_unique($purchasableIds);
     }
 
+    /**
+     * @param bool $value
+     * @return void
+     */
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
     }
 
+    /**
+     * @return bool
+     */
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;
@@ -545,6 +655,49 @@ class Discount extends Model
                     }
                 },
             ],
+            [[
+                'allCategories',
+                'allPurchasables',
+                'appliedTo',
+                'baseDiscount',
+                'baseDiscountType',
+                'billingAddressCondition',
+                'categoryIds',
+                'categoryRelationshipType',
+                'couponFormat',
+                'customerCondition',
+                'dateCreated',
+                'dateFrom',
+                'dateTo',
+                'dateUpdated',
+                'description',
+                'enabled',
+                // @TODO remove `excludeOnSale` in Commerce 6
+                'excludeOnSale',
+                'excludeOnPromotion',
+                'hasFreeShippingForMatchingItems',
+                'hasFreeShippingForOrder',
+                'id',
+                'ignoreSales',
+                'maxPurchaseQty',
+                'name',
+                'orderCondition',
+                'orderConditionFormula',
+                'perEmailLimit',
+                'perItemDiscount',
+                'perUserLimit',
+                'percentDiscount',
+                'percentageOffSubject',
+                'purchasableIds',
+                'purchaseQty',
+                'purchaseTotal',
+                'shippingAddressCondition',
+                'sortOrder',
+                'stopProcessing',
+                'storeId',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
+            ], 'safe'],
         ];
     }
 

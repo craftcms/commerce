@@ -19,6 +19,7 @@
             :clearSearchOnSelect="clearSearchOnSelect"
             @input="$emit('input', $event)"
             @search="onSearch"
+            @option:created="onOptionCreated"
         >
             <template v-slot:option="option">
                 <slot name="option" :option="option">{{ option.name }}</slot>
@@ -184,6 +185,10 @@
                     this.$refs.vSelect.open = true;
                     this.$refs.vSelect.searchEl.focus();
                 }
+            },
+
+            onOptionCreated(opt) {
+                this.$emit('created', opt);
             },
         },
     };

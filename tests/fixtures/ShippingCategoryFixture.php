@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\fixtures;
 
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory;
 use craft\test\ActiveFixture;
 
@@ -25,4 +26,10 @@ class ShippingCategoryFixture extends ActiveFixture
      * @inheritdoc
      */
     public $modelClass = ShippingCategory::class;
+
+    public function load(): void
+    {
+        parent::load();
+        Plugin::getInstance()->getShippingCategories()->clearCaches();
+    }
 }

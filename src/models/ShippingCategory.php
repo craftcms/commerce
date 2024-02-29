@@ -7,10 +7,14 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\helpers\ArrayHelper;
-use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
+use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
 
@@ -23,8 +27,10 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ShippingCategory extends Model
+class ShippingCategory extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -68,6 +74,12 @@ class ShippingCategory extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
+     * @var DateTime|null Date deleted
+     * @since 4.2.0.1
+     */
+    public ?DateTime $dateDeleted = null;
+
+    /**
      * Returns the name of this shipping category.
      *
      * @return string
@@ -79,7 +91,7 @@ class ShippingCategory extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/shipping/shippingcategories/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('shippingcategories/' . $this->id);
     }
 
     /**
@@ -118,6 +130,24 @@ class ShippingCategory extends Model
     {
         return [
             [['name', 'handle'], 'required'],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => ShippingCategoryRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.',
+            ],
+            [['handle'], HandleValidator::class],
+            [[
+                'dateCreated',
+                'dateDeleted',
+                'dateUpdated',
+                'default',
+                'description',
+                'handle',
+                'id',
+                'name',
+                'storeId',
+            ], 'safe'],
         ];
     }
 

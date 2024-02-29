@@ -21,7 +21,7 @@ use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 
 /**
- * Is Paid Condition Rule
+ * Has Orders Condition Rule
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0

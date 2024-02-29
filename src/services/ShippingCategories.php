@@ -10,11 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\ShippingCategory;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -33,67 +36,89 @@ use yii\db\StaleObjectException;
 class ShippingCategories extends Component
 {
     /**
-     * @var ShippingCategory[]|null
+     * @var Collection<ShippingCategory>[]|null
      */
     private ?array $_allShippingCategories = null;
 
     /**
      * Returns all Shipping Categories
      *
-     * @param bool $archive
-     * @return array|ShippingCategory[]
+     * @param int|null $storeId
+     * @param bool $withTrashed
+     * @return Collection
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      */
-    public function getAllShippingCategories(bool $archive = true): array
+    public function getAllShippingCategories(?int $storeId = null, bool $withTrashed = false): Collection
     {
-        if ($this->_allShippingCategories === null) {
-            $query = $this->_createShippingCategoryQuery();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            if ($archive === false) {
-                $query->where(['[[shippingCategories.dateDeleted]]' => null]);
+        if ($this->_allShippingCategories === null || !isset($this->_allShippingCategories[$storeId])) {
+            $results = $this->_createShippingCategoryQuery(true)
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            if ($this->_allShippingCategories === null) {
+                $this->_allShippingCategories = [];
             }
 
-            $results = $query->all();
-
-            $this->_allShippingCategories = [];
             foreach ($results as $result) {
-                $shippingCategory = new ShippingCategory($result);
-                $this->_allShippingCategories[] = $shippingCategory;
+                $shippingCategory = Craft::createObject([
+                    'class' => ShippingCategory::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allShippingCategories[$shippingCategory->storeId])) {
+                    $this->_allShippingCategories[$shippingCategory->storeId] = collect();
+                }
+
+                $this->_allShippingCategories[$shippingCategory->storeId]->push($shippingCategory);
             }
         }
 
-        return $this->_allShippingCategories;
+        if (!isset($this->_allShippingCategories[$storeId])) {
+            return collect();
+        }
+
+        return $this->_allShippingCategories[$storeId]->filter(fn(ShippingCategory $sc) => (!$withTrashed && $sc->dateDeleted === null) || $withTrashed);
     }
 
     /**
      * Returns all Shipping category names, by ID.
+     *
+     * @throws InvalidConfigException
      */
-    public function getAllShippingCategoriesAsList(): array
+    public function getAllShippingCategoriesAsList(?int $storeId = null): array
     {
-        $categories = $this->getAllShippingCategories();
+        $categories = $this->getAllShippingCategories($storeId);
 
-        return ArrayHelper::map($categories, 'id', 'name');
+        return $categories->mapWithKeys(function(ShippingCategory $category) {
+            return [$category->id => $category->name];
+        })->all();
     }
 
     /**
      * Get a shipping category by its ID.
+     *
+     * @param int $shippingCategoryId
+     * @param int|null $storeId
+     * @return ShippingCategory|null
+     * @throws InvalidConfigException
      */
-    public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
+    public function getShippingCategoryById(int $shippingCategoryId, ?int $storeId = null): ?ShippingCategory
     {
-        $categories = $this->getAllShippingCategories();
-
-        return ArrayHelper::firstWhere($categories, 'id', $shippingCategoryId);
+        return $this->getAllShippingCategories($storeId)->firstWhere('id', $shippingCategoryId);
     }
 
     /**
      * Get a shipping category by its handle.
      *
      * @noinspection PhpUnused
+     * @throws InvalidConfigException
      */
-    public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle, ?int $storeId = null): ?ShippingCategory
     {
-        $categories = $this->getAllShippingCategories();
-
-        return ArrayHelper::firstWhere($categories, 'handle', $shippingCategoryHandle);
+        return $this->getAllShippingCategories($storeId)->firstWhere('handle', $shippingCategoryHandle);
     }
 
     /**
@@ -101,14 +126,14 @@ class ShippingCategories extends Component
      *
      * @throws InvalidConfigException
      */
-    public function getDefaultShippingCategory(): ShippingCategory
+    public function getDefaultShippingCategory(int $storeId): ShippingCategory
     {
-        $categories = $this->getAllShippingCategories();
+        $categories = $this->getAllShippingCategories($storeId);
 
-        $default = ArrayHelper::firstWhere($categories, 'default', true);
+        $default = $categories->firstWhere('default', true);
 
         if (!$default) {
-            $default = ArrayHelper::firstValue($categories);
+            $default = $categories->first();
         }
 
         if (!$default) {
@@ -143,6 +168,7 @@ class ShippingCategories extends Component
         }
 
         $record->name = $shippingCategory->name;
+        $record->storeId = $shippingCategory->storeId;
         $record->handle = $shippingCategory->handle;
         $record->description = $shippingCategory->description;
         $record->default = $shippingCategory->default;
@@ -155,7 +181,12 @@ class ShippingCategories extends Component
 
         // If this was the default make all others not the default.
         if ($shippingCategory->default) {
-            ShippingCategoryRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
+            $condition = [
+                'and',
+                ['storeId' => $record->storeId],
+                ['not', ['id' => $record->id]],
+            ];
+            ShippingCategoryRecord::updateAll(['default' => false], $condition);
         }
 
         // Product type IDs this shipping category is available to
@@ -249,13 +280,14 @@ class ShippingCategories extends Component
     {
         $rows = $this->_createShippingCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[shippingCategories.id]] = [[productTypeShippingCategories.shippingCategoryId]]')
-            ->where(['productTypeShippingCategories.productTypeId' => $productTypeId])
+            ->andWhere(['productTypeShippingCategories.productTypeId' => $productTypeId])
             ->all();
 
         // Always need at least the default category
         if (empty($rows)) {
             try {
-                $shippingCategory = $this->getDefaultShippingCategory();
+                // @TODO fix this properly
+                $shippingCategory = $this->getAllShippingCategories()->firstWhere('default', true);
             } catch (InvalidConfigException) {
                 return [];
             }
@@ -274,20 +306,40 @@ class ShippingCategories extends Component
     }
 
     /**
-     * Returns a Query object prepped for retrieving shipping categories.
+     * @return void
+     * @since 5.0.0
      */
-    private function _createShippingCategoryQuery(): Query
+    public function clearCaches(): void
     {
-        return (new Query())
+        $this->_allShippingCategories = null;
+    }
+
+    /**
+     * Returns a Query object prepped for retrieving shipping categories.
+     *
+     * @param bool $withTrashed
+     * @return Query
+     */
+    private function _createShippingCategoryQuery(bool $withTrashed = false): Query
+    {
+        $query = (new Query())
             ->select([
                 'shippingCategories.dateCreated',
+                'shippingCategories.dateDeleted',
                 'shippingCategories.dateUpdated',
                 'shippingCategories.default',
                 'shippingCategories.description',
                 'shippingCategories.handle',
                 'shippingCategories.id',
                 'shippingCategories.name',
+                'shippingCategories.storeId',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
+
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
+        }
+
+        return $query;
     }
 }

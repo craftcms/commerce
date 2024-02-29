@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
+use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
@@ -119,21 +120,21 @@ class PaymentsController extends BaseFrontEndController
             ]);
         }
 
-        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
+        if ($order->getStore()->getRequireShippingAddressAtCheckout() && !$order->shippingAddressId) {
             $error = Craft::t('commerce', 'Shipping address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
+        if ($order->getStore()->getRequireBillingAddressAtCheckout() && !$order->billingAddressId) {
             $error = Craft::t('commerce', 'Billing address required.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
             ]);
         }
 
-        if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
+        if (!$order->getStore()->getAllowEmptyCartOnCheckout() && $order->getIsEmpty()) {
             $error = Craft::t('commerce', 'Order can not be empty.');
             return $this->asFailure($error, data: [
                 $this->_cartVariableName => $this->cartArray($order),
@@ -141,12 +142,25 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $order->registerUserOnOrderComplete = true;
+        $registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete');
+        if ($registerUserOnOrderComplete !== null) {
+            $order->registerUserOnOrderComplete = (bool)$registerUserOnOrderComplete;
         }
 
-        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $order->registerUserOnOrderComplete = false;
+        $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
+        if ($saveBillingAddressOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveBillingAddressOnOrderComplete;
+        }
+
+        $saveShippingAddressOnOrderComplete = $this->request->getBodyParam('saveShippingAddressOnOrderComplete');
+        if ($saveShippingAddressOnOrderComplete !== null) {
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveShippingAddressOnOrderComplete;
+        }
+
+        $saveAddressesOnOrderComplete = $this->request->getBodyParam('saveAddressesOnOrderComplete');
+        if ($saveAddressesOnOrderComplete !== null) {
+            $order->saveBillingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+            $order->saveShippingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
         }
 
         // These are used to compare if the order changed during its final
@@ -246,8 +260,16 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $this->request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
+                $sourceCreated = false;
                 try {
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+
+                    // Last line of try block we have a successful payment source creation
+                    $sourceCreated = true;
+                } catch (PaymentSourceCreatedLaterException $exception) {
+                    if (property_exists($paymentForm, 'paymentSource')) {
+                        $paymentForm->savePaymentSource = true;
+                    }
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
 
@@ -267,8 +289,12 @@ class PaymentsController extends BaseFrontEndController
                     );
                 }
 
-                $order->setPaymentSource($paymentSource);
-                $paymentForm->populateFromPaymentSource($paymentSource);
+                if ($sourceCreated) {
+                    /** @phpstan-ignore-next-line */
+                    $order->setPaymentSource($paymentSource);
+                    /** @phpstan-ignore-next-line */
+                    $paymentForm->populateFromPaymentSource($paymentSource);
+                }
             }
         }
 
@@ -296,7 +322,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
+        if ($order->hasShippableItems() && $order->getStore()->getRequireShippingMethodSelectionAtCheckout() && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             return $this->asModelFailure(
@@ -311,12 +337,13 @@ class PaymentsController extends BaseFrontEndController
 
         // Save the return and cancel URLs to the order
         $returnUrl = $this->request->getValidatedBodyParam('redirect');
-        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($returnUrl !== null) {
+            $order->returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $order);
+        }
 
-        if ($returnUrl !== null && $cancelUrl !== null) {
-            $view = $this->getView();
-            $order->returnUrl = $view->renderObjectTemplate($returnUrl, $order);
-            $order->cancelUrl = $view->renderObjectTemplate($cancelUrl, $order);
+        $cancelUrl = $this->request->getValidatedBodyParam('cancelUrl');
+        if ($cancelUrl !== null) {
+            $order->cancelUrl = $this->getView()->renderObjectTemplate($cancelUrl, $order);
         }
 
         // Do one final save to confirm the price does not change out from under the customer. Also removes any out of stock items etc.
@@ -364,6 +391,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         $redirect = '';
+        $redirectData = [];
         $transaction = null;
         $paymentForm->validate();
 
@@ -373,7 +401,7 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+        $partialAllowed = (($this->request->isSiteRequest && $order->getStore()->getAllowPartialPaymentOnCheckout()) || $this->request->isCpRequest);
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
@@ -403,7 +431,7 @@ class PaymentsController extends BaseFrontEndController
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
-                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
+                $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction, $redirectData);
                 $success = true;
             } catch (PaymentException $exception) {
                 $error = $exception->getMessage();
@@ -429,6 +457,11 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
+        // If the gateway did not give us a redirect URL, use the order's return URL.
+        if (!$redirect) {
+            // Can be set from the redirect body param
+            $redirect = $order->returnUrl;
+        }
 
         if ($this->request->getAcceptsJson()) {
             return $this->asModelSuccess(
@@ -438,6 +471,7 @@ class PaymentsController extends BaseFrontEndController
                 [
                     $this->_cartVariableName => $this->cartArray($order),
                     'redirect' => $redirect,
+                    'redirectData' => $redirectData,
                     'transactionId' => $transaction->reference ?? null,
                     'transactionHash' => $transaction->hash ?? null,
                 ],
@@ -445,15 +479,7 @@ class PaymentsController extends BaseFrontEndController
             );
         }
 
-        if ($redirect) {
-            return $this->redirect($redirect);
-        }
-
-        if ($order->returnUrl) {
-            return $this->redirect($order->returnUrl);
-        }
-
-        return $this->redirectToPostedUrl($order);
+        return $this->redirect($redirect);
     }
 
     /**

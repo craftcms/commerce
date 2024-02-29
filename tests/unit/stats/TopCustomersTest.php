@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopCustomers;
 use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
@@ -55,7 +56,8 @@ class TopCustomersTest extends Unit
      */
     public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, $count, $customerData): void
     {
-        $stat = new TopCustomers($dateRange, $type, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new TopCustomers($dateRange, $type, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

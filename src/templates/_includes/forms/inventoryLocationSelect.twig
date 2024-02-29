@@ -1,0 +1,4 @@
+{% include '_includes/forms/componentSelect.twig' with {
+    options: options ?? craft.commerce.inventoryLocations.getAllInventoryLocations().all(),
+    createAction: (create ?? false) ? 'commerce/inventory-locations/edit' : null,
+} %}

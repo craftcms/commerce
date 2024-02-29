@@ -16,17 +16,16 @@ use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping method service.
  *
- * @property ShippingMethod $liteShippingMethod
  * @property ShippingMethod[] $allShippingMethods the Commerce managed and 3rd party shipping methods
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -54,49 +53,62 @@ class ShippingMethods extends Component
      */
     public const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
-
     /**
-     * @var null|ShippingMethod[]
+     * @var null|Collection<ShippingMethod>[]
      */
     private ?array $_allShippingMethods = null;
 
     /**
      * Returns the Commerce managed shipping methods stored in the database.
      *
-     * @return ShippingMethod[]
+     * @param int|null $storeId
+     * @return Collection<ShippingMethod>
+     * @throws InvalidConfigException
      */
-    public function getAllShippingMethods(): array
+    public function getAllShippingMethods(?int $storeId = null): Collection
     {
-        if ($this->_allShippingMethods !== null) {
-            return $this->_allShippingMethods;
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        if ($this->_allShippingMethods === null || !isset($this->_allShippingMethods[$storeId])) {
+            $results = $this->_createShippingMethodQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            if ($this->_allShippingMethods === null) {
+                $this->_allShippingMethods = [];
+            }
+
+            foreach ($results as $result) {
+                $shippingMethod = Craft::createObject([
+                    'class' => ShippingMethod::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allShippingMethods[$shippingMethod->storeId])) {
+                    $this->_allShippingMethods[$shippingMethod->storeId] = collect();
+                }
+
+                $this->_allShippingMethods[$shippingMethod->storeId]->push($shippingMethod);
+            }
         }
 
-        $results = $this->_createShippingMethodQuery()->all();
-        $this->_allShippingMethods = [];
-
-        foreach ($results as $result) {
-            $shippingMethod = new ShippingMethod($result);
-
-            $this->_allShippingMethods[] = $shippingMethod;
-        }
-
-        return $this->_allShippingMethods;
+        return $this->_allShippingMethods[$storeId] ?? collect();
     }
 
     /**
      * Get a shipping method by its handle.
      */
-    public function getShippingMethodByHandle(string $shippingMethodHandle): ?ShippingMethod
+    public function getShippingMethodByHandle(string $shippingMethodHandle, ?int $storeId = null): ?ShippingMethod
     {
-        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'handle', $shippingMethodHandle);
+        return $this->getAllShippingMethods($storeId)->firstWhere('handle', $shippingMethodHandle);
     }
 
     /**
      * Get a shipping method by its ID.
      */
-    public function getShippingMethodById(int $shippingMethodId): ?ShippingMethod
+    public function getShippingMethodById(int $shippingMethodId, ?int $storeId = null): ?ShippingMethod
     {
-        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'id', $shippingMethodId);
+        return $this->getAllShippingMethods($storeId)->firstWhere('id', $shippingMethodId);
     }
 
     /**
@@ -108,7 +120,7 @@ class ShippingMethods extends Component
     {
         $matchingMethods = [];
 
-        $methods = $this->getAllShippingMethods();
+        $methods = $this->getAllShippingMethods($order->storeId);
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
@@ -120,7 +132,7 @@ class ShippingMethods extends Component
         }
 
         /** @var ShippingMethod $method */
-        foreach ($event->shippingMethods as $method) {
+        foreach ($event->getShippingMethods() as $method) {
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
@@ -180,10 +192,11 @@ class ShippingMethods extends Component
             return false;
         }
 
+        $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->handle = $model->handle;
+        $record->orderCondition = $model->getOrderCondition()->getConfig();
         $record->enabled = $model->enabled;
-        $record->isLite = $model->isLite;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -194,54 +207,9 @@ class ShippingMethods extends Component
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
 
-        $this->_allShippingMethods = null; //clear the cache
+        $this->clearCache();
 
         return true;
-    }
-
-    /**
-     * Save a lite shipping method.
-     *
-     * @param bool $runValidation should we validate this method before saving.
-     * @throws Exception
-     */
-    public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
-    {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rules also first.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        // Delete the current lite shipping method.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        $this->_allShippingMethods = null; //clear the cache
-        return $this->saveShippingMethod($model, $runValidation);
-    }
-
-    /**
-     * Gets the lite shipping method or returns a new one.
-     */
-    public function getLiteShippingMethod(): ShippingMethod
-    {
-        $liteMethod = $this->_createShippingMethodQuery()->one();
-
-        if ($liteMethod == null) {
-            $liteMethod = new ShippingMethod();
-            $liteMethod->isLite = true;
-            $liteMethod->name = 'Shipping Cost';
-            $liteMethod->handle = 'liteShipping';
-            $liteMethod->enabled = true;
-        } else {
-            $liteMethod = new ShippingMethod($liteMethod);
-        }
-
-        return $liteMethod;
     }
 
     /**
@@ -268,7 +236,7 @@ class ShippingMethods extends Component
             $record->delete();
 
             $transaction->commit();
-            $this->_allShippingMethods = null; //clear the cache
+            $this->clearCache();
             return true;
         } catch (\Exception) {
             $transaction->rollBack();
@@ -282,22 +250,26 @@ class ShippingMethods extends Component
      */
     private function _createShippingMethodQuery(): Query
     {
-        $query = (new Query())
+        return (new Query())
             ->select([
                 'dateCreated',
                 'dateUpdated',
                 'enabled',
                 'handle',
                 'id',
-                'isLite',
                 'name',
+                'orderCondition',
+                'storeId',
             ])
             ->from([Table::SHIPPINGMETHODS]);
+    }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
-
-        return $query;
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    protected function clearCache(): void
+    {
+        $this->_allShippingMethods = null;
     }
 }

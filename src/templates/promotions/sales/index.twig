@@ -1,6 +1,5 @@
-{% extends "commerce/_layouts/promotions" %}
-{% set selectedSidebarNavItem = 'sales' %}
-
+{% extends "commerce/_layouts/store-management" %}
+{% set isIndex = true %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Couldn’t reorder sale.',
@@ -21,7 +20,7 @@
 
 {% block actionButton %}
     {% if currentUser.can('commerce-createSales') %}
-        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+        <a href="{{ url("commerce/store-management/#{storeHandle}/sales/new") }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 
@@ -50,7 +49,7 @@
   {% set tableData = tableData|merge([{
     id: sale.id,
     title: sale.name|t('site'),
-    url: url('commerce/promotions/sales/' ~ sale.id),
+    url: sale.getCpEditUrl(),
     status: sale.enabled ? true : false,
     duration: dateRange,
     effect: effect,
@@ -116,6 +115,8 @@ var columns = [
     }
 ];
 
+let salesCount = {{ sales|length|raw }};
+
 new Craft.VueAdminTable({
   actions: actions,
   checkboxes: true,
@@ -128,6 +129,13 @@ new Craft.VueAdminTable({
   reorderAction: 'commerce/sales/reorder',
   reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
   reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.'),
-  tableData: {{ tableData|json_encode|raw }}
+  tableData: {{ tableData|json_encode|raw }},
+  deleteCallback: function(id) {
+    salesCount--;
+    if (salesCount === 0) {
+      // if last sale was deleted, redirect to CPR URL
+      window.location.reload();
+    }
+  },
 });
 {% endjs %}

@@ -9,11 +9,13 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\helpers\DebugPanel;
+use craft\commerce\models\Store;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -26,10 +28,19 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    public function actionIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(false);
-        return $this->renderTemplate('commerce/tax/taxcategories/index', compact('taxCategories'));
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/index', compact('taxCategories', 'store'));
     }
 
     /**
@@ -37,12 +48,17 @@ class TaxCategoriesController extends BaseTaxSettingsController
      * @param TaxCategory|null $taxCategory
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, TaxCategory $taxCategory = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, TaxCategory $taxCategory = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = [
             'id' => $id,
             'taxCategory' => $taxCategory,
             'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
+            'store' => $store,
         ];
 
         if (!$variables['taxCategory']) {
@@ -75,7 +91,12 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
         $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allTaxCategoryIds) === 1 && in_array($variables['id'], $allTaxCategoryIds);
 
-        return $this->renderTemplate('commerce/tax/taxcategories/_edit', $variables);
+        // Get all tax rates for all stores
+        $taxRates = collect();
+        Plugin::getInstance()->getStores()->getAllStores()->each(fn(Store $s) => $taxRates->push(...Plugin::getInstance()->getTaxRates()->getAllTaxRates($s->id)->all()));
+        $variables['taxRates'] = $taxRates;
+
+        return $this->renderTemplate('commerce/store-management/tax/taxcategories/_edit', $variables);
     }
 
     /**
@@ -97,8 +118,9 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->default = (bool)$this->request->getBodyParam('default');
 
         // Set the new product types
+        $postedProductTypes = $this->request->getBodyParam('productTypes', []) ?: [];
         $productTypes = [];
-        foreach ($this->request->getBodyParam('productTypes', []) as $productTypeId) {
+        foreach ($postedProductTypes as $productTypeId) {
             if ($productTypeId && $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($productTypeId)) {
                 $productTypes[] = $productType;
             }
@@ -106,21 +128,17 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $taxCategory->setProductTypes($productTypes);
 
         // Save it
-        if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-            return $this->asModelSuccess(
+        if (!Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+            return $this->asModelFailure(
                 $taxCategory,
-                Craft::t('commerce', 'Tax category saved.'),
-                'taxCategory',
-                [
-                    'id' => $taxCategory->id,
-                    'name' => $taxCategory->name,
-                ]
+                Craft::t('commerce', 'Couldn’t save tax category.'),
+                'taxCategory'
             );
         }
 
         return $this->asModelSuccess(
             $taxCategory,
-            Craft::t('commerce', 'Couldn’t save tax category.'),
+            Craft::t('commerce', 'Tax category saved.'),
             'taxCategory'
         );
     }

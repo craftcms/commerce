@@ -83,7 +83,6 @@ class ProductTypesController extends BaseAdminController
             'variantFields' => [
                 'label' => Craft::t('commerce', 'Variant Fields'),
                 'url' => '#variant-fields',
-                'class' => ($variables['productType']->hasVariants ? '' : 'hidden'),
             ],
         ];
 
@@ -114,11 +113,12 @@ class ProductTypesController extends BaseAdminController
         $productType->id = $this->request->getBodyParam('productTypeId');
         $productType->name = $this->request->getBodyParam('name');
         $productType->handle = $this->request->getBodyParam('handle');
+        $productType->enableVersioning = $this->request->getBodyParam('enableVersioning') ?? $productType->enableVersioning;
         $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
         $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
-        $productType->hasVariants = (bool)$this->request->getBodyParam('hasVariants');
-        $productType->hasVariantTitleField = $productType->hasVariants && $this->request->getBodyParam('hasVariantTitleField', false);
+        $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
+        $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');

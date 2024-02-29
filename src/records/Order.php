@@ -33,6 +33,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $gatewayId
  * @property OrderHistory[] $histories
  * @property int $id
+ * @property int $storeId
  * @property bool $isCompleted
  * @property float $itemSubtotal
  * @property float $itemTotal
@@ -49,6 +50,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $paymentCurrency
  * @property int $paymentSourceId
  * @property bool $registerUserOnOrderComplete
+ * @property bool $saveBillingAddressOnOrderComplete
+ * @property bool $saveShippingAddressOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode
@@ -63,12 +66,14 @@ use yii\db\ActiveQueryInterface;
  * @property float $totalShippingCost
  * @property float $totalDiscount
  * @property float $totalQty
+ * @property float $totalWeight
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
  * @property int $sourceBillingAddressId
  * @property int $sourceShippingAddressId
  * @property Transaction[] $transactions
+ * @property string $orderCompletedEmail
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

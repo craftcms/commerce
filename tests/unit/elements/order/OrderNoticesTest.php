@@ -33,11 +33,6 @@ class OrderNoticesTest extends Unit
     protected Order $order;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
@@ -157,9 +152,6 @@ class OrderNoticesTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = $this->pluginInstance->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
-
         $this->order = new Order();
     }
 
@@ -169,7 +161,5 @@ class OrderNoticesTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
     }
 }

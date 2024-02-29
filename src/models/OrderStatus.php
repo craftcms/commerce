@@ -8,7 +8,9 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -32,11 +34,12 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class OrderStatus extends Model
+class OrderStatus extends Model implements HasStoreInterface
 {
     use SoftDeleteTrait {
         SoftDeleteTrait::behaviors as softDeleteBehaviors;
     }
+    use StoreTrait;
 
     /**
      * @var int|null ID
@@ -102,7 +105,7 @@ class OrderStatus extends Model
     public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null) {
-            return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
+            return Craft::t('commerce', '{name} (Trashed)', ['name' => $this->name]);
         }
 
         return $this->name ?? '';
@@ -112,12 +115,18 @@ class OrderStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
-            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => OrderStatusRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.',
+            ],
             [
                 ['handle'],
                 HandleValidator::class,
                 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
             ],
+            [['id', 'color', 'description', 'default', 'sortOrder', 'dateDeleted', 'uid', 'storeId'], 'safe'],
         ];
     }
 
@@ -136,7 +145,7 @@ class OrderStatus extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/orderstatuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     /**
@@ -158,7 +167,7 @@ class OrderStatus extends Model
 
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
+        return sprintf('<span class="commerceStatusLabel nowrap"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
     }
 
     /**

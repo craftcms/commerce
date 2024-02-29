@@ -1,0 +1,19 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+{% import "_includes/forms" as forms %}
+
+{% set fullPageForm = true %}
+
+{% block content %}
+    <h2>{{ "Transfer Fields"|t('commerce') }}</h2>
+
+    <input type="hidden" name="action" value="commerce/transfers/save-settings">
+    {{ redirectInput('commerce/settings/transfers') }}
+
+    {{ csrfInput() }}
+
+    {{ forms.fieldLayoutDesignerField({
+        fieldLayout: fieldLayout,
+    }) }}
+{% endblock %}

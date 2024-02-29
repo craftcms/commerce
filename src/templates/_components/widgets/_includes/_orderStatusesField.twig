@@ -6,37 +6,15 @@
 {% if not id %}
   <p>{{ 'An ID must be provided'|t('commerce') }}</p>
 {% else %}
-  {{ forms.multiselectField({
+  {{ forms.selectizeField({
     label: 'Order Statuses'|t('commerce'),
-    instructions: 'Only orders with the following order statuses will be included. Leave blank to include all statuses.'|t,
+    instructions: 'Only orders with the following order statuses will be included. Leave blank to include all statuses.'|t('commerce'),
     id: 'orderStatuses',
     name: 'orderStatuses',
     options : orderStatuses,
     values : widget.orderStatuses,
     errors: widget.getErrors('orderStatuses') ?? null,
     containerAttributes: {class: 'selectize fullwidth multiselect order-status-multiselect'},
-
+    multi: true
   }) }}
 {% endif %}
-
-{% js %}
-  (() => {
-    $('#{{ 'orderStatuses'|namespaceInputId|e('js') }}').selectize({
-      plugins: ['remove_button'],
-      dropdownParent: 'body',
-      render: {
-        item: data => {
-          const status = data.color != undefined ? data.color : 'gray';
-
-          return `<div class="item"><div><span class="status ${status}"></span><span>${data.text}</span></div></div>`;
-        },
-        option: data => {
-          console.log({data});
-          const status = data.color != undefined ? data.color : 'gray';
-
-          return `<div><span class="status ${status}"></span>${data.text}</div>`;
-        }
-      },
-    });
-  })();
-{% endjs %}

@@ -1,0 +1,119 @@
+{% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Handle',
+    'Primary',
+]) %}
+{% set title = "Stores"|t('app') %}
+{% set stores = craft.commerce.stores.getAllStores() %}
+{% block actionButton %}
+    {% if stores|length < craft.app.sites.getAllSites()|length %}
+
+        {% set shownButton = false %}
+        {% set addButton %}
+            <a href="{{ url('commerce/settings/stores/new') }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
+        {% endset %}
+
+        {% if plugin('commerce').is('pro') and stores|length <  constant('craft\\commerce\\Plugin::EDITION_PRO_STORE_LIMIT') %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
+        {% if not shownButton and plugin('commerce').is('enterprise') %}
+            {% set shownButton = true %}
+            {{ addButton }}
+        {% endif %}
+
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="stores-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for store in stores %}
+
+    {% set menuItems = [
+        {
+            label: 'Payment Currencies'|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle ~ '/payment-currencies'),
+        },
+        {
+            label: 'Discounts'|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle ~ '/discounts'),
+        },
+        {
+            label: 'Pricing Rules'|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle ~ '/pricing-rules'),
+        },
+        {
+            label: 'Shipping Methods'|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle ~ '/shippingmethods'),
+        },
+        {
+            label: 'Tax Rates'|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle ~ '/taxrates'),
+        }
+    ] %}
+
+    {% set tableData = tableData|merge([{
+        id: store.id,
+        name: store.name|t('site'),
+        title: store.name|t('site'),
+        url: url('commerce/settings/stores/'~store.id),
+        handle: store.handle,
+        currency: store.currency,
+        primary: store.primary ? true : false,
+        sites: store.getSiteNames()|join(', '),
+        menu: {
+            showItems: true,
+            showCount: false,
+            menuBtnTitle: ''|t('app'),
+            label: 'Store Management    '|t('commerce'),
+            url: url('commerce/store-management/' ~ store.handle),
+            items: menuItems,
+        },
+        _showDelete : store.primary ? false : true
+    }]) %}
+{% endfor %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'sites', title: Craft.t('commerce', 'Sites') },
+        {
+            name: 'currency',
+            title: Craft.t('commerce', 'Currency'),
+            callback: function(value) {
+                if (value) {
+                    return '<code>'+Craft.escapeHtml(value)+'</code>';
+                }
+            }
+        },
+        {
+            name: 'primary',
+            title: Craft.t('commerce', 'Primary'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+            }
+        },
+        { name: '__slot:menu', title: Craft.t('app', 'Store Management') }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#stores-vue-admin-table',
+        deleteAction: 'commerce/stores/delete-store',
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to permanently delete this store and everything in it?'),
+        emptyMessage: Craft.t('commerce', 'No stores exist yet.'),
+        reorderAction: 'commerce/stores/reorder-stores',
+        reorderSuccessMessage: Craft.t('commerce', 'Stores reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder stores.'),
+        tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}

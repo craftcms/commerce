@@ -7,6 +7,8 @@
 
 namespace craft\commerce\behaviors;
 
+use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\PaymentSource;
@@ -109,6 +111,13 @@ class CustomerBehavior extends Behavior
 
         if ($user->primaryPaymentSourceId) {
             Plugin::getInstance()->getCustomers()->savePrimaryPaymentSourceId($user, $user->primaryPaymentSourceId);
+        }
+
+        // Keep orders `email` column up-to-date with user's email address
+        if ($user->email && $user->id) {
+            Craft::$app->getDb()->createCommand()
+                ->update(Table::ORDERS, ['email' => $user->email], ['customerId' => $user->id], [], false)
+                ->execute();
         }
     }
 
@@ -282,16 +291,16 @@ class CustomerBehavior extends Behavior
      */
     public function getPrimaryPaymentSource(): ?PaymentSource
     {
-        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId($this->owner->id);
-        if (empty($paymentSources)) {
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByCustomerId(customerId: $this->owner->id);
+        if ($paymentSources->isEmpty()) {
             return null;
         }
 
         if (!$this->_primaryPaymentSourceId) {
-            return ArrayHelper::firstValue($paymentSources);
+            return $paymentSources->first();
         }
 
-        return ArrayHelper::firstWhere($paymentSources, 'id', $this->_primaryPaymentSourceId);
+        return $paymentSources->firstWhere('id', $this->_primaryPaymentSourceId);
     }
 
     /**
