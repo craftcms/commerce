@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\base\Stat;
+use craft\commerce\Plugin;
 use DateInterval;
 use DateTime;
 use DateTimeZone;
@@ -48,7 +49,8 @@ class StatTest extends Unit
      */
     public function testInstantiateDates(string $dateRange, DateTime $startDate, DateTime $endDate): void
     {
-        $stat = $this->_createStatClass($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = $this->_createStatClass($dateRange, $startDate, $endDate, $storeId);
 
         $data = $stat->get();
 
@@ -70,7 +72,8 @@ class StatTest extends Unit
     public function testPredefinedDateRanges(string $dateRange, DateTime $startDate, DateTime $endDate, int $keysCount, bool $keyedByDays = true): void
     {
         $format = $keyedByDays ? 'Y-m-d' : 'Y-n';
-        $stat = $this->_createStatClass($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = $this->_createStatClass($dateRange, $startDate, $endDate, $storeId);
 
         $data = $stat->get();
 
@@ -94,9 +97,9 @@ class StatTest extends Unit
      * @param $end
      * @return Stat
      */
-    private function _createStatClass($range, $start, $end): Stat
+    private function _createStatClass($range, $start, $end, $storeId): Stat
     {
-        return new class($range, $start, $end) extends Stat {
+        return new class($range, $start, $end, $storeId) extends Stat {
             // Prevent caching
             public bool $cache = false;
 
@@ -144,50 +147,50 @@ class StatTest extends Unit
         $today = (new DateTime('now', $tz))->setTime(0, 0);
 
         return [
-            [
+            Stat::DATE_RANGE_TODAY => [
                 Stat::DATE_RANGE_TODAY,
                 clone $today,
                 clone $today,
                 1,
             ],
-            [
+            Stat::DATE_RANGE_PAST7DAYS => [
                 Stat::DATE_RANGE_PAST7DAYS,
                 (new DateTime('6 days ago', $tz))->setTime(0, 0),
                 clone $today,
                 7,
             ],
-            [
+            Stat::DATE_RANGE_PAST30DAYS => [
                 Stat::DATE_RANGE_PAST30DAYS,
                 (new DateTime('29 days ago', $tz))->setTime(0, 0),
                 clone $today,
                 30,
             ],
-            [
+            Stat::DATE_RANGE_PAST90DAYS => [
                 Stat::DATE_RANGE_PAST90DAYS,
                 (new DateTime('89 days ago', $tz))->setTime(0, 0),
                 clone $today,
                 90,
             ],
-            [
+            Stat::DATE_RANGE_PASTYEAR => [
                 Stat::DATE_RANGE_PASTYEAR,
                 (new DateTime('11 months ago', $tz))->setTime(0, 0),
                 clone $today,
                 12,
                 false,
             ],
-            [
+            Stat::DATE_RANGE_THISMONTH => [
                 Stat::DATE_RANGE_THISMONTH,
                 (new DateTime('now', $tz))->setDate($today->format('Y'), $today->format('n'), 1)->setTime(0, 0),
                 clone $today,
                 (int)$today->format('t'),
             ],
-            [
+            Stat::DATE_RANGE_THISWEEK => [
                 Stat::DATE_RANGE_THISWEEK,
                 (new DateTime('Monday this week', $tz))->setTime(0, 0),
                 clone $today,
                 7,
             ],
-            [
+            Stat::DATE_RANGE_THISYEAR => [
                 Stat::DATE_RANGE_THISYEAR,
                 (new DateTime('first day of January ' . $today->format('Y'), $tz))->setTime(0, 0),
                 clone $today,
