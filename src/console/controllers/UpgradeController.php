@@ -888,32 +888,32 @@ FROM $addressesTable AS a
 WHERE NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o1
-  WHERE o1."v3billingAddressId" = a.id
+  WHERE [[o1.v3billingAddressId]] = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2."v3shippingAddressId" = a.id
+  WHERE [[o2.v3shippingAddressId]] = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2."v3estimatedBillingAddressId" = a.id
+  WHERE [[o2.v3estimatedBillingAddressId]] = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2."v3shippingAddressId" = a.id
+  WHERE [[o2.v3shippingAddressId]] = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $ordersTable AS o2
-  WHERE o2."v3estimatedShippingAddressId" = a.id
+  WHERE [[o2.v3estimatedShippingAddressId]] = a.id
 )
 AND NOT EXISTS (
   SELECT 1
   FROM $customersAddressesTable AS ca
-  WHERE ca."addressId" = a.id
+  WHERE [[ca.addressId]] = a.id
 );
 SQL;
 

@@ -65,7 +65,7 @@ class Product
             $variantModel->setFieldValues($variant['fields']);
         }
 
-        if (!empty($variant['title'])) {
+        if (isset($variant['title'])) {
             $variantModel->title = $variant['title'];
         }
 
