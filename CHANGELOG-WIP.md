@@ -28,7 +28,6 @@
 - Added `craft\commerce\base\HasStoreInterface`.
 - Added `craft\commerce\base\InventoryMovementInterface`.
 - Added `craft\commerce\base\InventoryMovement`.
-- Added `craft\commerce\base\Purchasable::getSaleableTotalStock()`
 - Added `craft\commerce\base\Purchasable::$availableForPurchase`.
 - Added `craft\commerce\base\Purchasable::$freeShipping`.
 - Added `craft\commerce\base\Purchasable::$height`.
@@ -47,6 +46,7 @@
 - Added `craft\commerce\base\Purchasable::getOnPromotion()`.
 - Added `craft\commerce\base\Purchasable::getPrice()`.
 - Added `craft\commerce\base\Purchasable::getPromotionalPrice()`.
+- Added `craft\commerce\base\Purchasable::getSaleableTotalStock()`
 - Added `craft\commerce\base\Purchasable::getStore()`.
 - Added `craft\commerce\base\Purchasable::setPrice()`.
 - Added `craft\commerce\base\Purchasable::setPromotionalPrice()`.
@@ -88,6 +88,7 @@
 - Added `craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\ShippingRuleOrderCondition`.
 - Added `craft\commerce\elements\conditions\orders\TotalWeightConditionRule`.
+- Added `craft\commerce\elements\conditions\products\ProductVariantInventoryTrackedConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCondition`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingCustomerConditionRule`.
 - Added `craft\commerce\elements\conditions\purchasables\CatalogPricingPurchasableConditionRule`.
@@ -109,11 +110,6 @@
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleStockField`.
 - Added `craft\commerce\fieldlayoutelements\PurchasabaleWeightField`.
 - Added `craft\commerce\helpers\Cp`.
-- Removed `craft\commerce\helpers\Product`
-- Removed `craft\commerce\controllers\ProductsController::actionDeleteProduct()`.
-- Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
-- Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
-- Removed `craft\commerce\controllers\ProductsPreviewController`.
 - Added `craft\commerce\helpers\Currency::moneyInputHtml()`.
 - Added `craft\commerce\helpers\Purchasable::catalogPricingRulesTableByPurchasableId()`.
 - Added `craft\commerce\models\CatalogPricingRule`.
@@ -163,6 +159,7 @@
 - Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
 - Deprecated `craft\commerce\elements\VariantQuery::hasUnlimitedStock()`. Use `craft\commerce\elements\db\VariantQuery::inventoryTracked()` instead.
+- Deprecated `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`. Use `ProductVariantInventoryTrackedConditionRule` instead.
 - Deprecated `craft\commerce\models\Store::getCountries()`. Use `craft\commerce\models\Store::getSettings()->getCountries()` instead.
 - Deprecated `craft\commerce\models\Store::getMarketAddressCondition()`. Use `craft\commerce\models\Store::getSettings()->getMarketAddressCondition()` instead.
 - Deprecated `craft\commerce\models\Store::setCountries()`. Use `craft\commerce\models\Store::getSettings()->setCountries()` instead.
@@ -171,6 +168,10 @@
 - Removed `craft\commerce\console\controllers\UpgradeController`.
 - Removed `craft\commerce\controllers\LiteShippingController`.
 - Removed `craft\commerce\controllers\LiteTaxController`.
+- Removed `craft\commerce\controllers\ProductsController::actionDeleteProduct()`.
+- Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
+- Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
+- Removed `craft\commerce\controllers\ProductsPreviewController`.
 - Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getSaleableTotalStock()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
@@ -178,6 +179,7 @@
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategoryId()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::taxCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::taxCategoryId()`. Use `craft\commerce\elements\db\VariantQuery::taxCategoryId()` instead.
+- Removed `craft\commerce\helpers\Product`
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\helpers\VariantMatrix`.
 - Removed `craft\commerce\models\Currency`.
