@@ -473,12 +473,12 @@ JS, [
      */
     public function actionEditUpdateLevelsModal(): Response
     {
-        $inventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryLocationId');
-        $note = Craft::$app->getRequest()->getParam('note', '');
-        $inventoryItemIds = (array)Craft::$app->getRequest()->getParam('ids', []); // param needs to be 'ids' to be compatible with admin table
-        $updateAction = Craft::$app->getRequest()->getParam('updateAction', 'adjust');
-        $quantity = (int)Craft::$app->getRequest()->getParam('quantity', 0);
-        $type = Craft::$app->getRequest()->getParam('type', 'onHand');
+        $inventoryLocationId = (int)$this->request->getParam('inventoryLocationId');
+        $note = $this->request->getParam('note', '');
+        $inventoryItemIds = (array)$this->request->getParam('ids', []); // param needs to be 'ids' to be compatible with admin table
+        $updateAction = $this->request->getParam('updateAction', 'adjust');
+        $quantity = (int)$this->request->getParam('quantity', 0);
+        $type = $this->request->getParam('type', 'onHand');
 
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
