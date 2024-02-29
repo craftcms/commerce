@@ -16,6 +16,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
+use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
@@ -286,6 +287,10 @@ class Inventory extends Component
             }
 
             $transaction->commit();
+
+            // TODO: Update stock value on purchasable stores
+            // Craft::$app->getElements()->invalidateCachesForElement($this);
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -432,6 +437,10 @@ class Inventory extends Component
             }
 
             $transaction->commit();
+
+            // TODO: Update stock value on purchasable stores
+            //  Craft::$app->getElements()->invalidateCachesForElement($this);
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -569,5 +578,76 @@ class Inventory extends Component
         }
 
         return collect($inventoryFulfillmentLevels);
+    }
+
+    /**
+     * @param Order $order
+     * @return void
+     * @throws InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function orderCompleteHandler(Order $order)
+    {
+        $allInventoryLevels = [];
+        $qtyLineItem = [];
+        foreach ($order->getLineItems() as $lineItem) {
+            $purchasable = $lineItem->getPurchasable();
+            // Don't reduce stock of unlimited items.
+            if ($purchasable->inventoryTracked) {
+                if (!isset($qtyLineItem[$purchasable->id])) {
+                    $qtyLineItem[$purchasable->id] = 0;
+                }
+                $qtyLineItem[$purchasable->id] += $lineItem->qty;
+                $allInventoryLevels[$purchasable->id] = $purchasable->getInventoryLevels();
+            }
+        }
+
+        $selectedInventoryLevelForItem = [];
+        /**
+         * @var  int $purchasableId
+         * @var  InventoryLevel $inventoryLevel
+         */
+        foreach ($allInventoryLevels as $purchasableId => $inventoryLevels) {
+            foreach ($inventoryLevels as $level) {
+                if (!isset($selectedInventoryLevelForItem[$purchasableId])) {
+                    $selectedInventoryLevelForItem[$purchasableId] = $level;
+
+                    if ($level->availableTotal >= $qtyLineItem[$purchasableId]) {
+                        break;
+                    }
+                    continue;
+                }
+
+                if ($inventoryLevel->availableTotal >= $qtyLineItem[$purchasableId]) {
+                    $selectedInventoryLevelForItem[$purchasableId] = $inventoryLevel;
+                    break;
+                }
+            }
+        }
+
+        $movements = InventoryMovementCollection::make();
+
+        foreach ($order->getLineItems() as $lineItem) {
+            if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId])) {
+                $level = $selectedInventoryLevelForItem[$lineItem->purchasableId];
+
+                $movements->push(new InventoryCommittedMovement([
+                    'inventoryItem' => $level->getInventoryItem(),
+                    'fromInventoryLocation' => $level->getInventoryLocation(),
+                    'toInventoryLocation' => $level->getInventoryLocation(),
+                    'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
+                    'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
+                    'quantity' => $lineItem->qty,
+                    'lineItemId' => $lineItem->id,
+                ]));
+            }
+        }
+
+        $this->executeInventoryMovements($movements);
+
+        foreach ($selectedInventoryLevelForItem as $inventoryLevel) {
+            $purchasable = $inventoryLevel->getPurchasable();
+            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($purchasable);
+        }
     }
 }

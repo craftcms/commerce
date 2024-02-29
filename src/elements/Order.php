@@ -1796,6 +1796,7 @@ class Order extends Element implements HasStoreInterface
         // Run order complete handlers directly.
         Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
+        Plugin::getInstance()->getInventory()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
             Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);

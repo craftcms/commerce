@@ -800,41 +800,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
-        // Don't reduce stock of unlimited items.
-        if ($this->inventoryTracked) {
-            $inventoryLevels = $this->getInventoryLevels();
-            $remainingQty = $lineItem->qty;
 
-            /** @var InventoryMovementCollection $movements */
-            $movements = InventoryMovementCollection::make();
-            foreach ($inventoryLevels as $inventoryLevel) {
-                if ($remainingQty <= 0) {
-                    break; // Stop the loop if no remaining quantity needs to be deducted.
-                }
-
-                if ($inventoryLevel->availableTotal > 0) {
-                    $deductQty = min($inventoryLevel->availableTotal, $remainingQty);
-                    $movements->push(new InventoryCommittedMovement([
-                        'inventoryItem' => $this->getInventoryItem(),
-                        'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                        'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                        'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
-                        'toInventoryTransactionType' => InventoryTransactionType::COMMITTED,
-                        'quantity' => $deductQty,
-                        'lineItemId' => $lineItem->id,
-                    ]));
-                    $remainingQty -= $deductQty;
-                }
-            }
-
-            Plugin::getInstance()->getInventory()->executeInventoryMovements($movements);
-
-            Plugin::getInstance()->getPurchasables()->updateStoreStockCache($this);
-
-            Craft::$app->getElements()->invalidateCachesForElement($this);
-        }
     }
-
 
     /**
      * @inheritdoc
