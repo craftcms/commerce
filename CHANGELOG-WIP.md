@@ -3,10 +3,8 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
-- Added multi-location inventory management. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
-- The lite edition no longer limits the number of line items in a cart.
-- The lite edition no longer limits the number of Shipping Categories or Tax Categories. ([2591](https://github.com/craftcms/commerce/discussions/2591))
 - It’s now possible to create and manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
+- It’s now possible to create and manage multiple inventory locations per store. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants’ field layouts now support multiple tabs.
 - Product pages’ breadcrumbs now include a menu that links to each editable product type.
