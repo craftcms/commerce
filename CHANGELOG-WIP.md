@@ -166,7 +166,7 @@
 - Removed `craft\commerce\console\controllers\UpgradeController`.
 - Removed `craft\commerce\controllers\LiteShippingController`.
 - Removed `craft\commerce\controllers\LiteTaxController`.
-- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getAvailableTotalStock()` instead.
+- Removed `craft\commerce\elements\Variant::$stock`. Use `craft\commerce\base\Purchasable::getSaleableTotalStock()` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$shippingCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$shippingCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::$taxCategoryId`. Use `craft\commerce\elements\db\VariantQuery::$taxCategoryId` instead.
 - Removed `craft\commerce\elements\db\ProductQuery::shippingCategory()`. Use `craft\commerce\elements\db\VariantQuery::shippingCategory()` instead.
