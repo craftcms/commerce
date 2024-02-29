@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8921c55888a92bb93462dcb7965a58cb",
+    "content-hash": "46877060825b69cb3746afd1be13719a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -331,16 +331,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "5.0.x-dev",
+            "version": "5.0.0-beta.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "c413430c5b063aaae88af3fc62fb3c97cee624dc"
+                "reference": "d08cc1b051832c1cb32b51fa5a6453eb872f00da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/c413430c5b063aaae88af3fc62fb3c97cee624dc",
-                "reference": "c413430c5b063aaae88af3fc62fb3c97cee624dc",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/d08cc1b051832c1cb32b51fa5a6453eb872f00da",
+                "reference": "d08cc1b051832c1cb32b51fa5a6453eb872f00da",
                 "shasum": ""
             },
             "require": {
@@ -449,7 +449,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2024-02-29T14:27:31+00:00"
+            "time": "2024-02-29T18:33:31+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -9272,16 +9272,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "11.0.3",
+            "version": "11.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "de24e7e7c67fbf437f7b6cd7bc919f2dc6fd89d4"
+                "reference": "3f4261269c91370e9b2b3f64cc76c617c442c35a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/de24e7e7c67fbf437f7b6cd7bc919f2dc6fd89d4",
-                "reference": "de24e7e7c67fbf437f7b6cd7bc919f2dc6fd89d4",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3f4261269c91370e9b2b3f64cc76c617c442c35a",
+                "reference": "3f4261269c91370e9b2b3f64cc76c617c442c35a",
                 "shasum": ""
             },
             "require": {
@@ -9352,7 +9352,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.0.3"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/11.0.4"
             },
             "funding": [
                 {
@@ -9368,7 +9368,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-10T06:31:16+00:00"
+            "time": "2024-02-29T16:21:10+00:00"
         },
         {
             "name": "psy/psysh",
@@ -11132,7 +11132,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "craftcms/cms": 20,
         "craftcms/ckeditor": 20,
         "craftcms/ecs": 20,
         "craftcms/phpstan": 20,
