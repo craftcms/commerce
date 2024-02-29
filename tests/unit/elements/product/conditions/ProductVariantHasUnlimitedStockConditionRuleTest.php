@@ -8,8 +8,11 @@
 namespace unit\elements\product\conditions;
 
 use Codeception\Test\Unit;
+use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule;
 use craft\commerce\elements\Product;
+use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craftcommercetests\fixtures\ProductFixture;
 use yii\base\Exception;
@@ -104,6 +107,7 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
      */
     public function testModifyQueryMatch(bool $hasUnlimitedStock): void
     {
+        $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
         $condition = Product::createCondition();
         /** @var ProductVariantHasUnlimitedStockConditionRule $rule */
         $rule = \Craft::$app->getConditions()->createConditionRule(ProductVariantHasUnlimitedStockConditionRule::class);
@@ -115,22 +119,29 @@ class ProductVariantHasUnlimitedStockConditionRuleTest extends Unit
         $product = $productsFixture->getElement('rad-hoodie');
 
         if (!$hasUnlimitedStock) {
-            $variants = $product->getVariants();
-            $variants->each(function(&$variant) {
-                $variant->stock = 9;
-                $variant->hasUnlimitedStock = false;
+            $originalValues = (new Query())
+                ->from(Table::PURCHASABLES_STORES)
+                ->select(['purchasableId', 'stock', 'inventoryTracked'])
+                ->indexBy('purchasableId')
+                ->all();
 
-                \Craft::$app->getElements()->saveElement($variant, false, false, false, false);
-            });
-            $product->setVariants($variants);
+            \Craft::$app->getDb()->createCommand()
+                ->update(Table::PURCHASABLES_STORES, ['stock' => 9, 'inventoryTracked' => true], ['storeId' => $primaryStore->id])
+                ->execute();
         }
-
-        \Craft::$app->getElements()->saveElement($product, false, false, false, false);
 
         $query = Product::find();
         $condition->modifyQuery($query);
 
         self::assertContainsEquals($product->id, $query->ids());
+
+        if (!$hasUnlimitedStock) {
+            foreach ($originalValues as $purchasableId => $values) {
+                \Craft::$app->getDb()->createCommand()
+                    ->update(Table::PURCHASABLES_STORES, $values, ['purchasableId' => $purchasableId, 'storeId' => $primaryStore->id])
+                    ->execute();
+            }
+        }
     }
 
     /**
