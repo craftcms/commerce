@@ -11,7 +11,7 @@ use yii\web\Response;
 /**
  * Store Inventory Locations controller
  *
- * @since 5.0
+ * @since 5.0.0
  */
 class InventoryLocationsStoresController extends BaseStoreManagementController
 {

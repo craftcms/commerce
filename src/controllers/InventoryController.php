@@ -33,7 +33,7 @@ use yii\web\Response;
 /**
  * Inventory controller
  *
- * @since 5.0
+ * @since 5.0.0
  */
 class InventoryController extends Controller
 {

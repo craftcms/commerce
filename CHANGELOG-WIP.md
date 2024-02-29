@@ -186,7 +186,7 @@
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\LiteShippingSettings`.
 - Removed `craft\commerce\models\LiteTaxSettings`.
-- Removed `craft\commerce\models\ProductType::$hasVariants`.
+- Removed `craft\commerce\models\ProductType::$hasVariants`. Use `ProductType::$maxVariants` instead.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. Use `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. Use `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` instead.
 - Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. Use `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` instead.

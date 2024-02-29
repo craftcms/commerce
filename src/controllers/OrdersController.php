@@ -244,6 +244,7 @@ class OrdersController extends Controller
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\web\MethodNotAllowedHttpException
+     * @since 5.0.0
      */
     public function actionFulfill(): Response
     {
@@ -293,6 +294,7 @@ class OrdersController extends Controller
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws \craft\errors\DeprecationException
+     * @since 5.0.0
      */
     public function actionFulfillmentModal(): Response
     {

@@ -809,8 +809,8 @@ class Plugin extends BasePlugin
             $e->types[] = Variant::class;
             $e->types[] = Product::class;
             $e->types[] = Order::class;
-            // $e->types[] = Subscription::class;
-            // $e->types[] = Donation::class;
+            $e->types[] = Subscription::class;
+            $e->types[] = Donation::class;
         });
     }
 

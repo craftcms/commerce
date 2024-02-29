@@ -13,6 +13,8 @@ use craft\commerce\models\InventoryLocation;
 
 /**
  * Interface for inventory movements that will create movement transactions when executed.
+ *
+ * @since 5.0.0
  */
 abstract class InventoryMovement extends Model implements InventoryMovementInterface
 {
