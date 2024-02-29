@@ -526,7 +526,8 @@ class Inventory extends Component
      */
     public function getInventoryFulfillmentLevels(Order $order): Collection
     {
-        $locations = $order->getStore()->getInventoryLocations();
+        // We don’t limit this to the orders store locations since we want to show all locations that have historical inventory for the order.
+        $locations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
 
         $inventoryFulfillmentLevels = [];
         foreach ($locations as $location) {
