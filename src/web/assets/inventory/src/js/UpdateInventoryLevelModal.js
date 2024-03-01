@@ -39,7 +39,16 @@ Craft.Commerce.UpdateInventoryLevelModal = Craft.CpModal.extend({
     };
 
     Craft.sendActionRequest('POST', this.action, data).then((response) => {
-      this.update(response.data);
+      this.showLoadSpinner();
+      this.update(response.data)
+        .then(() => {
+          // focus on the quantity input
+          this.$quantityInput.trigger('focus');
+          this.updateSizeAndPosition();
+        })
+        .finally(() => {
+          this.hideLoadSpinner();
+        });
     });
   },
   debounce: function (func, delay) {
