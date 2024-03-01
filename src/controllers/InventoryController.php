@@ -117,6 +117,7 @@ class InventoryController extends Controller
         $view = Craft::$app->getView();
         $view->registerAssetBundle(InventoryAsset::class);
 
+        $inventoryItemId = $this->request->getQueryParam('inventoryItemId'); // Used for quick link to manage stock
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
 
         if (!$inventoryLocationHandle) {
@@ -141,6 +142,7 @@ class InventoryController extends Controller
             ->contentTemplate('commerce/inventory/levels/_index', compact(
                 'inventoryLocations',
                 'currentLocation',
+                'inventoryItemId',
                 'selectedItem',
                 'search',
             ))
@@ -155,6 +157,7 @@ class InventoryController extends Controller
     public function actionInventoryLevelsTableData(): Response
     {
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
+        $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
         $page = $this->request->getParam('page', 1);
         $limit = $this->request->getParam('per_page', 25);
         $offset = ($page - 1) * $limit;
@@ -163,6 +166,10 @@ class InventoryController extends Controller
 
         $inventoryQuery = Plugin::getInstance()->getInventory()->getInventoryLevelQuery(limit: $limit, offset: $offset)
             ->andWhere(['inventoryLocationId' => $inventoryLocationId]);
+
+        if ($inventoryItemId) {
+            $inventoryQuery->andWhere(['inventoryItemId' => $inventoryItemId]);
+        }
 
         $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
         $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
@@ -472,7 +479,7 @@ JS, [
 
 
         return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'),[
-            'firstItemValue' => collect($resultingInventoryLevels)->first()->{$type . 'Total'},
+            'updatedItems' => collect($resultingInventoryLevels)->toArray(),
         ]);
     }
 
