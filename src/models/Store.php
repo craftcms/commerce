@@ -10,9 +10,11 @@ namespace craft\commerce\models;
 use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
+use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
+use craft\db\Query;
 use craft\errors\DeprecationException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
@@ -179,6 +181,31 @@ class Store extends Model
         $rules = parent::defineRules();
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => StoreRecord::class, 'targetAttribute' => ['handle']];
         $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [
+            ['currency'],
+            // Only allow changing of currency if the store has no orders
+            function($attribute) {
+                $isCurrencyChanging = \craft\commerce\records\Store::findOne(['id' => $this->id, 'currency' => $this->$attribute]) === null;
+
+                if (!$isCurrencyChanging) {
+                    return;
+                }
+
+                $hasOrders = (new Query())
+                    ->from(Table::ORDERS)
+                    ->leftJoin(\craft\db\Table::ELEMENTS, '[[elements.id]] = [[commerce_orders.id]]')
+                    ->where([
+                        'storeId' => $this->id,
+                        'elements.dateDeleted' => null,
+                    ])
+                    ->exists();
+
+                if ($hasOrders) {
+                    $this->addError($attribute, Craft::t('commerce', 'The primary currency cannot be changed after orders are placed.'));
+                }
+            },
+            'when' => fn() => $this->id,
+        ];
         $rules[] = [[
             'allowCheckoutWithoutPayment',
             'allowEmptyCartOnCheckout',
