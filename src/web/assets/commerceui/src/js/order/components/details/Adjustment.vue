@@ -226,7 +226,7 @@
                     },
                 ],
                 allowedAdjustmentTypes: ['tax', 'discount', 'shipping'],
-                localAdjustment: this.adjustment,
+                localAdjustmentAmount: this.adjustment.amount,
                 amountNaN: false,
             };
         },
@@ -272,14 +272,13 @@
 
             amount: {
                 get() {
-                    return this.localAdjustment.amount;
+                    return this.localAdjustmentAmount;
                 },
 
                 set: debounce(function (value) {
-                    this.localAdjustment.amount = value;
+                    this.localAdjustmentAmount = value;
 
                     if (value === '' || isNaN(value)) {
-                        console.log("isn't a number", value);
                         if (value === '') {
                             this.amountNaN = false;
                         } else {
@@ -289,7 +288,9 @@
                     }
 
                     this.amountNaN = false;
-                    this.$emit('update', this.localAdjustment);
+                    let adjustment = this.adjustment;
+                    adjustment.amount = this.localAdjustmentAmount;
+                    this.$emit('update', adjustment);
                 }, 1000),
             },
 

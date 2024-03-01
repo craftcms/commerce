@@ -57,7 +57,7 @@ trait OrderElementTrait
     protected function htmlAttributes(string $context): array
     {
         $attributes = parent::htmlAttributes($context);
-        $attributes['data-number'] = $this->number;
+        $attributes['data'] = ['number' => $this->number];
         return $attributes;
     }
 
