@@ -16,6 +16,7 @@ use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -99,7 +100,9 @@ $('#' + $id).on('click', (e) => {
     e.preventDefault();
   const slideout = new Craft.Commerce.UpdateInventoryLevelModal($settings);
   slideout.on('submit', (e) => {
-    console.log(e.response.data);
+    if(e.response.data.updatedItems.length > 0 && e.response.data.updatedItems[0].availableTotal !== undefined) {
+      $('#' + $updatedValueId).html(e.response.data.updatedItems[0].availableTotal);
+    }
   });
 });
 JS, [
@@ -127,7 +130,9 @@ JS, [
                 Html::beginTag('td') .
                 Html::a(
                     Craft::t('commerce', 'Manage'),
-                    'commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle,
+                    UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
+                        'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
+                    ]),
                     [
                         'target' => '_blank',
                         'class' => 'btn small',
