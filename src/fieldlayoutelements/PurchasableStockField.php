@@ -100,7 +100,7 @@ $('#' + $id).on('click', (e) => {
     e.preventDefault();
   const slideout = new Craft.Commerce.UpdateInventoryLevelModal($settings);
   slideout.on('submit', (e) => {
-    if(e.response.data.updatedItems[0].availableTotal !== undefined) {
+    if(e.response.data.updatedItems.length > 0 && e.response.data.updatedItems[0].availableTotal !== undefined) {
       $('#' + $updatedValueId).html(e.response.data.updatedItems[0].availableTotal);
     }
   });
