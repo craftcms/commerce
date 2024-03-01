@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where the “Share cart” action wasn’t activating on the Orders index page. 
+- Fixed a bug where the “Share cart” action wasn’t activating on the Orders index page.
+- Fixed a bug where editing an adjustment’s amount could cause the adjustment to lose data on the Order edit page. ([#3392](https://github.com/craftcms/commerce/issues/3392))
 
 ## 4.5.1 - 2024-02-29
 
