@@ -27,15 +27,17 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
     if (
       window.orderEdit &&
-      window.orderEdit.currentUserPermissions['commerce-editOrders'] &&
-      window.orderEdit.edition != 'lite'
+      window.orderEdit.currentUserPermissions['commerce-editOrders']
     ) {
-      // Add the New Order button
-      var $btn = $('<a/>', {
+      const $btn = $('<a/>', {
+        type: 'button',
         class: 'btn submit icon add',
-        href: Craft.getUrl('commerce/orders/create'),
+        href: Craft.getUrl(
+          'commerce/orders/' + this.settings.store.handle + '/create'
+        ),
         text: Craft.t('commerce', 'New Order'),
       });
+      // Add the New Order button
       this.addButton($btn);
     }
   },
@@ -97,15 +99,20 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       url: Craft.getActionUrl('commerce/orders/get-index-sources-badge-counts'),
       type: 'GET',
       dataType: 'json',
-      success: $.proxy(function (data) {
+      success: function (data) {
         if (data.counts) {
           var $sidebar = this.$sidebar;
           $.each(data.counts, function (key, row) {
             var $item = $sidebar.find(
-              'nav a[data-key="orderStatus:' + row.handle + '"]'
+              'nav a[data-key="*/orderStatus:' + row.handle + '"]'
             );
             if ($item) {
-              $item.find('.badge').text(row.orderCount);
+              let $badge = $item.find('.badge');
+              if (!$badge.length) {
+                $badge = $('<span class="badge"/>').appendTo($item);
+              }
+
+              $badge.text(row.orderCount);
             }
           });
         }
@@ -113,10 +120,14 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         if (data.total) {
           var $total = this.$sidebar.find('nav a[data-key="*"]');
           if ($total) {
+            let $totalBadge = $total.find('.badge');
+            if (!$totalBadge.length) {
+              $totalBadge = $('<span class="badge"/>').appendTo($total);
+            }
             $total.find('.badge').text(data.total);
           }
         }
-      }, this),
+      }.bind(this), // Use .bind(this) to maintain the context of `this` within the success function
     });
   },
 

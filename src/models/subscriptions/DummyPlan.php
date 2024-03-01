@@ -20,6 +20,7 @@ class DummyPlan extends Plan
 {
     /**
      * @inheritdoc
+     * TODO: Fix typo in next major release currentPlant -> currentPlan
      */
     public function canSwitchFrom(PlanInterface $currentPlant): bool
     {

@@ -8,6 +8,7 @@
 
 namespace craft\commerce\behaviors;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\events\DefineFieldsEvent;
@@ -62,8 +63,10 @@ class CurrencyAttributeBehavior extends Behavior
 
     /**
      * @var string default currency
+     * @uses setDefaultCurrency()
+     * @uses getDefaultCurrency()
      */
-    public string $defaultCurrency;
+    private string $_defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
@@ -100,7 +103,7 @@ class CurrencyAttributeBehavior extends Behavior
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
 
-                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $params[0] ?? $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 $convert = $params[1] ?? false;
                 $format = $params[2] ?? true;
                 $stripZeros = $params[3] ?? false;
@@ -150,7 +153,7 @@ class CurrencyAttributeBehavior extends Behavior
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
             if (in_array($attributeName, $this->currencyAttributes, false)) {
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             }
         }
@@ -180,12 +183,35 @@ class CurrencyAttributeBehavior extends Behavior
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
                 $attributeName = $this->_attributeNameWithoutAsCurrency($attribute);
                 $amount = $this->owner->$attributeName ?? 0;
-                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->defaultCurrency;
+                $currency = $this->attributeCurrencyMap[$attributeName] ?? $this->getDefaultCurrency();
                 return Currency::formatAsCurrency($amount, $currency);
             };
         }
 
         return $fields;
+    }
+
+    /**
+     * @param string $value
+     * @return void
+     * @since 5.0.0
+     */
+    public function setDefaultCurrency(string $value): void
+    {
+        $this->_defaultCurrency = $value;
+    }
+
+    /**
+     * @return string
+     * @since 5.0.0
+     */
+    public function getDefaultCurrency(): string
+    {
+        if ($this->owner instanceof HasStoreInterface) {
+            return $this->owner->getStore()->getCurrency();
+        }
+
+        return $this->_defaultCurrency;
     }
 
     /**

@@ -7,36 +7,58 @@
 
 namespace craft\commerce\base;
 
+use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\Store;
+use craft\commerce\models\TaxCategory;
 
 /**
  * Interface Purchasable
  *
+ * @phpstan-require-extends Purchasable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-interface PurchasableInterface
+interface PurchasableInterface extends ElementInterface
 {
     /**
-     * Returns the element’s ID.
+     * Returns the store for the current instance of the purchasable.
+     *
+     * @return Store
      */
-    public function getId(): ?int;
+    public function getStore(): Store;
 
     /**
-     * Returns the base price the item will be added to the line item with.
+     * Returns the store ID for the current instance of the purchasable.
      *
-     * @return float decimal(14,4)
+     * @return int
      */
-    public function getPrice(): float;
+    public function getStoreId(): int;
+
 
     /**
-     * Returns the base price the item will be added to the line item with.
-     * It provides opportunity to populate the salePrice if sales have not already been applied.
+     * Returns the live price including catalog rule pricing.
      *
-     * @return float decimal(14,4)
+     * @return float|null decimal(14,4)
      */
-    public function getSalePrice(): float;
+    public function getPrice(): ?float;
+
+    /**
+     * Returns the live promotional price including the catalog rule pricing.
+     *
+     * @return float|null decimal(14,4)
+     * @since 5.0.0
+     */
+    public function getPromotionalPrice(): ?float;
+
+    /**
+     * Returns the actual price the purchasable will be sold for.
+     *
+     * @return float|null decimal(14,4)
+     */
+    public function getSalePrice(): ?float;
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
@@ -49,14 +71,14 @@ interface PurchasableInterface
     public function getDescription(): string;
 
     /**
-     * Returns the purchasable's tax category ID.
+     * Returns the purchasable's tax category.
      */
-    public function getTaxCategoryId(): int;
+    public function getTaxCategory(): TaxCategory;
 
     /**
-     * Returns the purchasable's shipping category ID.
+     * Returns the purchasable's shipping category.
      */
-    public function getShippingCategoryId(): int;
+    public function getShippingCategory(): ShippingCategory;
 
     /**
      * Returns whether the purchasable is currently available for purchase.

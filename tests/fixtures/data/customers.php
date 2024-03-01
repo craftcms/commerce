@@ -30,4 +30,21 @@ return [
         'email' => 'customer3@crafttest.com',
         'fieldLayoutType' => 'craft\elements\User',
     ],
+    'inactive-user' => [
+        'active' => false,
+        'firstName' => 'Inactive',
+        'lastName' => 'User',
+        'username' => 'inactive-user',
+        'email' => 'inactive.user@crafttest.com',
+        'fieldLayoutType' => 'craft\elements\User',
+    ],
+    'credentialed-user' => [
+        'active' => true,
+        'firstName' => 'Credentialed',
+        'lastName' => 'User',
+        'username' => 'cred-user',
+        'email' => 'cred.user@crafttest.com',
+        'newPassword' => 'credUserP455',
+        'fieldLayoutType' => 'craft\elements\User',
+    ],
 ];

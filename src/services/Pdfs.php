@@ -18,18 +18,20 @@ use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
 use craft\web\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
@@ -205,57 +207,75 @@ class Pdfs extends Component
     public const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
     /**
-     * @return array|null
+     * @param int|null $storeId
+     * @return Collection<Pdf>
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
      * @since 3.2
      */
-    public function getAllPdfs(): ?array
+    public function getAllPdfs(?int $storeId = null): Collection
     {
-        if ($this->_allPdfs === null) {
-            $pdfResults = $this->_createPdfsQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-            $this->_allPdfs = [];
+        if ($this->_allPdfs === null || !isset($this->_allPdfs[$storeId])) {
+            $results = $this->_createPdfsQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
 
-            foreach ($pdfResults as $result) {
-                $this->_allPdfs[] = new Pdf($result);
+            // Start with a blank slate if it isn't memoized, or we're fetching all shipping categories
+            if ($this->_allPdfs === null) {
+                $this->_allPdfs = [];
+            }
+
+            foreach ($results as $result) {
+                $pdf = Craft::createObject([
+                    'class' => Pdf::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allPdfs[$pdf->storeId])) {
+                    $this->_allPdfs[$pdf->storeId] = collect();
+                }
+
+                $this->_allPdfs[$pdf->storeId]->push($pdf);
             }
         }
 
-        return $this->_allPdfs;
+        return $this->_allPdfs[$storeId] ?? collect();
     }
 
     /**
      * @since 3.2
      */
-    public function getHasEnabledPdf(): bool
+    public function getHasEnabledPdf(?int $storeId = null): bool
     {
-        $pdfs = $this->getAllPdfs();
-        return ArrayHelper::contains($pdfs, 'enabled', true);
+        return $this->getAllPdfs($storeId)->contains('enabled', true);
     }
 
     /**
-     * @return Pdf[]
+     * @param int|null $storeId
+     * @return Collection<Pdf>
      * @since 3.2
      */
-    public function getAllEnabledPdfs(): array
+    public function getAllEnabledPdfs(?int $storeId = null): Collection
     {
-        $pdfs = $this->getAllPdfs();
-        return ArrayHelper::where($pdfs, 'enabled', true);
-    }
-
-    /**
-     * @since 3.2
-     */
-    public function getDefaultPdf(): ?Pdf
-    {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'isDefault', true);
+        return $this->getAllPdfs($storeId)->where('enabled', true);
     }
 
     /**
      * @since 3.2
      */
-    public function getPdfByHandle(string $handle): ?Pdf
+    public function getDefaultPdf(?int $storeId = null): ?Pdf
     {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
+        return $this->getAllPdfs($storeId)->firstWhere('isDefault', true);
+    }
+
+    /**
+     * @since 3.2
+     */
+    public function getPdfByHandle(string $handle, ?int $storeId = null): ?Pdf
+    {
+        return $this->getAllPdfs($storeId)->firstWhere('handle', $handle);
     }
 
     /**
@@ -263,9 +283,9 @@ class Pdfs extends Component
      *
      * @since 3.2
      */
-    public function getPdfById(int $id): ?Pdf
+    public function getPdfById(int $id, ?int $storeId = null): ?Pdf
     {
-        return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
+        return $this->getAllPdfs($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -324,7 +344,9 @@ class Pdfs extends Component
         try {
             $pdfRecord = $this->_getPdfRecord($pdfUid);
             $isNewPdf = $pdfRecord->getIsNewRecord();
+            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
+            $pdfRecord->storeId = $store->id;
             $pdfRecord->name = $data['name'];
             $pdfRecord->handle = $data['handle'];
             $pdfRecord->description = $data['description'];
@@ -334,13 +356,18 @@ class Pdfs extends Component
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
             $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
+            $pdfRecord->paperOrientation = $data['paperOrientation'] ?? PdfRecord::PAPER_ORIENTATION_PORTRAIT;
+            $pdfRecord->paperSize = $data['paperSize'] ?? 'letter';
 
             $pdfRecord->uid = $pdfUid;
 
             $pdfRecord->save(false);
 
             if ($pdfRecord->isDefault) {
-                PdfRecord::updateAll(['isDefault' => false], ['not', ['id' => $pdfRecord->id]]);
+                PdfRecord::updateAll(['isDefault' => false], ['and',
+                    ['not', ['id' => $pdfRecord->id]],
+                    ['storeId' => $pdfRecord->storeId],
+                ]);
             }
 
             $transaction->commit();
@@ -352,7 +379,7 @@ class Pdfs extends Component
         // Fire a 'afterSavePdf' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
             $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfEvent([
-                'pdf' => $this->getPdfById($pdfRecord->id),
+                'pdf' => $this->getPdfById($pdfRecord->id, $pdfRecord->storeId),
                 'isNew' => $isNewPdf,
             ]));
         }
@@ -367,13 +394,13 @@ class Pdfs extends Component
      */
     public function deletePdfById(int $id): bool
     {
-        $pdf = $this->getPdfById($id);
+        $pdf = PdfRecord::findOne($id);
 
         if ($pdf) {
             // Fire a 'beforeDeletePdf' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_PDF)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_PDF, new PdfEvent([
-                    'pdf' => $pdf,
+                    'pdf' => $this->getPdfById($pdf->id, $pdf->storeId),
                 ]));
             }
             Craft::$app->getProjectConfig()->remove(self::CONFIG_PDFS_KEY . '.' . $pdf->uid);
@@ -411,6 +438,7 @@ class Pdfs extends Component
     public function reorderPdfs(array $ids): bool
     {
         // TODO Add event
+        // @TODO make reordering consistent across features
         foreach ($ids as $index => $id) {
             if ($pdf = $this->getPdfById($id)) {
                 $pdf->sortOrder = $index + 1;
@@ -465,7 +493,8 @@ class Pdfs extends Component
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
-        $pdfLanguage = $pdf->getRenderLanguage($order);
+        $originalFormattingLanguage = Craft::$app->formattingLocale;
+        $pdfLanguage = $pdf?->getRenderLanguage($order) ?? $originalLanguage;
 
         // TODO add event
         Locale::switchAppLanguage($pdfLanguage);
@@ -476,7 +505,7 @@ class Pdfs extends Component
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
-            Locale::switchAppLanguage($originalLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -485,14 +514,14 @@ class Pdfs extends Component
             // TODO Add event
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
-            Locale::switchAppLanguage($originalLanguage);
+            Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
-        Locale::switchAppLanguage($originalLanguage);
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLanguage);
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
@@ -527,7 +556,6 @@ class Pdfs extends Component
         $options->setFontCache($dompdfFontCache);
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
-
         // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
@@ -538,12 +566,8 @@ class Pdfs extends Component
         // Set the options
         $dompdf->setOptions($options);
 
-        // Paper size and orientation
-        $pdfPaperSize = Plugin::getInstance()->getSettings()->pdfPaperSize;
-        $pdfPaperOrientation = Plugin::getInstance()->getSettings()->pdfPaperOrientation;
 
-
-        $dompdf->setPaper($pdfPaperSize, $pdfPaperOrientation);
+        $dompdf->setPaper($pdf->paperSize, $pdf->paperOrientation);
 
         $dompdf->loadHtml($html);
         $dompdf->render();
@@ -592,7 +616,10 @@ class Pdfs extends Component
                 'isDefault',
                 'language',
                 'name',
+                'paperOrientation',
+                'paperSize',
                 'sortOrder',
+                'storeId',
                 'templatePath',
                 'uid',
             ])

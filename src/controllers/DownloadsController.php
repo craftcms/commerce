@@ -46,17 +46,17 @@ class DownloadsController extends BaseFrontEndController
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
 
         if (!$order) {
-            throw new HttpException('404', 'Order not found');
+            throw new HttpException(404, 'Order not found');
         }
 
         if ($pdfHandle) {
-            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
+            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle, $order->storeId);
 
             if (!$pdf) {
                 throw new InvalidCallException("Can not find the PDF to render based on the handle supplied.");
             }
         } else {
-            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf();
+            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf($order->storeId);
         }
 
         if (!$pdf) {
@@ -64,6 +64,7 @@ class DownloadsController extends BaseFrontEndController
         }
 
         $originalLanguage = Craft::$app->language;
+        $originalFormattingLocale = Craft::$app->formattingLocale;
 
         $language = $pdf->getRenderLanguage($order);
         Locale::switchAppLanguage($language);
@@ -71,8 +72,7 @@ class DownloadsController extends BaseFrontEndController
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
 
         // Set previous language back
-        Craft::$app->language = $originalLanguage;
-        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
+        Locale::switchAppLanguage($originalLanguage, $originalFormattingLocale);
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {

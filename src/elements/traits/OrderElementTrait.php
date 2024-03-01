@@ -8,10 +8,12 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\conditions\orders\OrderCondition;
+use craft\commerce\elements\conditions\orders\OrderStatusConditionRule;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
@@ -21,19 +23,14 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\models\FieldLayout;
+use craft\models\Site;
 use Exception;
+use yii\base\InvalidConfigException;
 
 trait OrderElementTrait
 {
-    /**
-     * @inheritdoc
-     */
-    public static function hasContent(): bool
-    {
-        return true;
-    }
-
     /**
      * @inheritdoc
      * @return OrderQuery The newly created [[OrderQuery]] instance.
@@ -57,14 +54,14 @@ trait OrderElementTrait
     protected function htmlAttributes(string $context): array
     {
         $attributes = parent::htmlAttributes($context);
-        $attributes['data-number'] = $this->number;
+        $attributes['data'] = ['number' => $this->number];
         return $attributes;
     }
 
     /**
      * @inheritdoc
      */
-    protected function tableAttributeHtml(string $attribute): string
+    protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
             case 'orderStatus':
@@ -131,6 +128,10 @@ trait OrderElementTrait
             {
                 return $this->storedItemSubtotalAsCurrency;
             }
+            case 'totalQty':
+            {
+                return (string)$this->storedTotalQty;
+            }
             case 'total':
             {
                 return $this->totalAsCurrency;
@@ -158,6 +159,11 @@ trait OrderElementTrait
             case 'totals':
             {
                 $miniTable = [];
+
+                $miniTable[] = [
+                    'label' => Craft::t('commerce', 'Qty'),
+                    'value' => $this->storedTotalQty,
+                ];
 
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
@@ -210,7 +216,7 @@ trait OrderElementTrait
             }
             default:
             {
-                return parent::tableAttributeHtml($attribute);
+                return parent::attributeHtml($attribute);
             }
         }
     }
@@ -235,6 +241,7 @@ trait OrderElementTrait
             'reference',
             'skus',
             'lineItemDescriptions',
+            'customerName',
         ];
     }
 
@@ -271,6 +278,8 @@ trait OrderElementTrait
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
             case 'lineItemDescriptions':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
+            case 'customerName':
+                return $this->getCustomer()->fullName ?? '';
             default:
                 return parent::getSearchKeywords($attribute);
         }
@@ -283,6 +292,11 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
+        $siteHandle = Craft::$app->getRequest()->getParam('site');
+        $site = $siteHandle ? Craft::$app->getSites()->getSiteByHandle($siteHandle) : Craft::$app->getSites()->getCurrentSite();
+        /** @var StoreBehavior $site */
+        $store = $site->getStore();
+
         $sources = [
             '*' => [
                 'key' => '*',
@@ -296,13 +310,24 @@ trait OrderElementTrait
             ],
         ];
 
-        $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
 
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
+        $criteriaActive = ['dateUpdated' => ['>= ' . $edge], 'isCompleted' => false];
+        $criteriaInactive = ['dateUpdated' => ['< ' . $edge], 'isCompleted' => false];
+        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => false];
+
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id)->all();
+
+        $sources[] = ['heading' => $store->getName()];
+
+        foreach ($orderStatuses as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
-            $criteriaStatus = ['orderStatusId' => $orderStatus->id];
+            $criteriaStatus = [
+                'storeId' => $store->id,
+                'orderStatusId' => $orderStatus->id,
+            ];
 
-            $sources[] = [
+            $sources['*']['nested'][] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => Craft::t('site', $orderStatus->name),
@@ -316,32 +341,21 @@ trait OrderElementTrait
             ];
         }
 
-        $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
-
-        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
-
-        $updatedAfter = [];
-        $updatedAfter[] = '>= ' . $edge;
-
-        $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => false];
         $sources[] = [
-            'key' => 'carts:active',
+            'key' => 'carts:active:' . $store->handle,
             'label' => Craft::t('commerce', 'Active Carts'),
-            'criteria' => $criteriaActive,
+            'criteria' => ArrayHelper::merge($criteriaActive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
                 'handle' => 'cartsActive',
                 'date-attr' => 'dateUpdated',
             ],
         ];
-        $updatedBefore = [];
-        $updatedBefore[] = '< ' . $edge;
 
-        $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => false];
         $sources[] = [
-            'key' => 'carts:inactive',
+            'key' => 'carts:inactive:' . $store->handle,
             'label' => Craft::t('commerce', 'Inactive Carts'),
-            'criteria' => $criteriaInactive,
+            'criteria' => ArrayHelper::merge($criteriaInactive, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsInactive',
@@ -349,11 +363,10 @@ trait OrderElementTrait
             ],
         ];
 
-        $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => false];
         $sources[] = [
-            'key' => 'carts:attempted-payment',
+            'key' => 'carts:attempted-payment:' . $store->handle,
             'label' => Craft::t('commerce', 'Attempted Payments'),
-            'criteria' => $criteriaAttemptedPayment,
+            'criteria' => ArrayHelper::merge($criteriaAttemptedPayment, ['storeId' => $store->id]),
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
                 'handle' => 'cartsAttemptedPayment',
@@ -367,15 +380,25 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    protected static function defineActions(string $source = null): array
+    protected static function defineActions(string $source): array
     {
         $actions = parent::defineActions($source);
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
+            /** @var StoreBehavior|Site $site */
+            $site = Cp::requestedSite();
+            $store = $site->getStore();
+            // Remove nested "all" prefix if it exists at the start of the string
+            $source = strpos($source, '*/') === 0 ? substr($source, 2) : $source;
+
+
             $elementService = Craft::$app->getElements();
 
-            if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
-                $actions[] = DownloadOrderPdfAction::class;
+            if ($store && Plugin::getInstance()->getPdfs()->getHasEnabledPdf($store->id)) {
+                $actions[] = $elementService->createAction([
+                    'type' => DownloadOrderPdfAction::class,
+                    'storeId' => $store->id,
+                ]);
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
@@ -447,6 +470,7 @@ trait OrderElementTrait
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
             'totals' => ['label' => Craft::t('commerce', 'All Totals')],
+            'totalQty' => ['label' => Craft::t('commerce', 'Total Qty')],
             'total' => ['label' => Craft::t('commerce', 'Total')],
             'totalPrice' => ['label' => Craft::t('commerce', 'Total Price')],
             'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
@@ -638,5 +662,44 @@ trait OrderElementTrait
         $output .= '</table>';
 
         return $output;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function modifyCustomSource(array $config): array
+    {
+        try {
+            /** @var OrderCondition $condition */
+            $condition = Craft::$app->getConditions()->createCondition($config['condition']);
+        } catch (InvalidConfigException) {
+            return $config;
+        }
+
+        $rules = $condition->getConditionRules();
+
+        // see if it's limited to one product type
+        /** @var OrderStatusConditionRule|null $orderStatusConditionRule */
+        $orderStatusConditionRule = ArrayHelper::firstWhere($rules, fn($rule) => $rule instanceof OrderStatusConditionRule);
+        $orderStatusOptions = $orderStatusConditionRule?->getValues();
+
+        /** @var StoreBehavior $currentSite */
+        $currentSite = Cp::requestedSite();
+        $store = $currentSite->getStore();
+
+
+        if ($orderStatusOptions && count($orderStatusOptions) === 1) {
+            $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusByUid(reset($orderStatusOptions));
+
+            if ($store->id != $orderStatus->storeId) {
+                $config['disabled'] = true;
+            }
+
+            if ($orderStatus) {
+                $config['status'] = $orderStatus->color;
+            }
+        }
+
+        return $config;
     }
 }

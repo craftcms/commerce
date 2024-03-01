@@ -22,7 +22,6 @@ use craft\elements\User;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
-use yii\db\Schema;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
@@ -119,6 +118,71 @@ class OrderQuery extends ElementQuery
      * @var mixed The gateway ID that the resulting orders must have.
      */
     public mixed $gatewayId = null;
+
+    /**
+     * @var int|null The store ID that the resulting orders must have.
+     */
+    public ?int $storeId = null;
+
+    /**
+     * @var mixed The total of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $total = null;
+
+    /**
+     * @var mixed The total price of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalPrice = null;
+
+    /**
+     * @var mixed The total paid amount of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalPaid = null;
+
+    /**
+     * @var mixed The total qty of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalQty = null;
+
+    /**
+     * @var mixed The total weight of the order resulting orders must have.
+     * @since 5.0.0
+     */
+    public mixed $totalWeight = null;
+
+    /**
+     * @var mixed The total discount of the order resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalDiscount = null;
+
+    /**
+     * @var mixed The total tax resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $totalTax = null;
+
+    /**
+     * @var mixed The total price of the items resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $itemTotal = null;
+
+    /**
+     * @var mixed The subtotal price of the items resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $itemSubtotal = null;
+
+    /**
+     * @var mixed The shipping method handle the resulting orders must have.
+     * @since 4.2.0
+     */
+    public mixed $shippingMethodHandle = null;
 
     /**
      * @var bool|null Whether the order is paid
@@ -273,7 +337,13 @@ class OrderQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `'xxxx'` | with a matching order reference
+     * | `'Foo'` | with a reference of `Foo`.
+     * | `'Foo*'` | with a reference that begins with `Foo`.
+     * | `'*Foo'` | with a reference that ends with `Foo`.
+     * | `'*Foo*'` | with a reference that contains `Foo`.
+     * | `'not *Foo*'` | with a reference that doesn’t contain `Foo`.
+     * | `['*Foo*', '*Bar*']` | with a reference that contains `Foo` or `Bar`.
+     * | `['not', '*Foo*', '*Bar*']` | with a reference that doesn’t contain `Foo` or `Bar`.
      *
      * ---
      *
@@ -576,6 +646,44 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the shipping method handle.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'foo'` | with a shipping method with a handle of `foo`.
+     * | `'not foo'` | not with a shipping method with a handle of `foo`.
+     * | `['foo', 'bar']` | with a shipping method with a handle of `foo` or `bar`.
+     * | `['not', 'foo', 'bar']` | not with a shipping method with a handle of `foo` or `bar`.
+     * | a [[ShippingMethod|ShippingMethod]] object | with a shipping method represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch collection shipping method {elements} #}
+     * {% set {elements-var} = {twig-method}
+     *   .shippingMethodHandle('collection')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch collection shipping method {elements}
+     * ${elements-var} = {php-method}
+     *     ->shippingMethodHandle('collection')
+     *     ->all();
+     * ```
+     *
+     * @param string|string[]|null $value The property value
+     * @return static self reference
+     */
+    public function shippingMethodHandle(mixed $value): OrderQuery
+    {
+        $this->shippingMethodHandle = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results based on the order statuses, per their IDs.
      *
      * Possible values include:
@@ -815,6 +923,9 @@ class OrderQuery extends ElementQuery
      * | - | -
      * | `1` | with a customer with a user account ID of 1.
      * | a [[User|User]] object | with a customer with a user account represented by the object.
+     * | `'not 1'` | not the user account with an ID 1.
+     * | `[1, 2]` | with an user account ID of 1 or 2.
+     * | `['not', 1, 2]` | not with a user account ID of 1 or 2.
      *
      * ---
      *
@@ -876,12 +987,196 @@ class OrderQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param int|null $value The property value
+     * @param mixed $value The property value
      * @return static self reference
      */
     public function customerId(mixed $value): OrderQuery
     {
         $this->customerId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total price of $10.
+     * | `['and', 10, 20]` | an order with a total of $10 or $20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function total(mixed $value): OrderQuery
+    {
+        $this->total = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total price of $10.
+     * | `['and', 10, 20]` | an order with a total price of $10 or $20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalPrice(mixed $value): OrderQuery
+    {
+        $this->totalPrice = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total paid amount.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total paid amount of $10.
+     * | `['and', 10, 20]` | an order with a total paid amount of $10 or $20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalPaid(mixed $value): OrderQuery
+    {
+        $this->totalPaid = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total qty of items.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total qty of 10.
+     * | `[10, 20]` | an order with a total qty of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalQty(mixed $value): OrderQuery
+    {
+        $this->totalQty = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total weight of items.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total weight of 10.
+     * | `[10, 20]` | an order with a total weight of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalWeight(mixed $value): OrderQuery
+    {
+        $this->totalWeight = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total discount.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total discount of 10.
+     * | `[10, 20]` | an order with a total discount of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalDiscount(mixed $value): OrderQuery
+    {
+        $this->totalDiscount = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the total tax.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | with a total tax of 10.
+     * | `[10, 20]` | an order with a total tax of 10 or 20.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function totalTax(mixed $value): OrderQuery
+    {
+        $this->totalTax = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order’s item total.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with an item total of $100.
+     * | `'< 1000000'` | with an item total of less than $1,000,000.
+     * | `['>= 10', '< 100']` | with an item total of between $10 and $100.
+
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function itemTotal(mixed $value): OrderQuery
+    {
+        $this->itemTotal = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order’s item subtotal.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with an item subtotal of $100.
+     * | `'< 1000000'` | with an item subtotal of less than $1,000,000.
+     * | `['>= 10', '< 100']` | with an item subtotal of between $10 and $100.
+
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     * @since 4.2.0
+     */
+    public function itemSubtotal(mixed $value): OrderQuery
+    {
+        $this->itemSubtotal = $value;
         return $this;
     }
 
@@ -1007,7 +1302,7 @@ class OrderQuery extends ElementQuery
      * | a [[PurchasableInterface|PurchasableInterface]] object | with a purchasable represented by the object.
      * | an array of [[PurchasableInterface|PurchasableInterface]] objects | with all the purchasables represented by the objects.
      *
-     * @param PurchasableInterface|PurchasableInterface[]|null $value The property value
+     * @param PurchasableInterface|array<int, (int|PurchasableInterface)>|null $value The property value
      * @return static self reference
      */
     public function hasPurchasables(mixed $value): OrderQuery
@@ -1018,11 +1313,30 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     * Narrows the query results to only orders that are related to the given store.
      *
      * Possible values include:
      *
-     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a `storeId` of `1`.
+     *
+     * @param int|null $value
+     * @return static self reference
+     */
+    public function storeId(?int $value): OrderQuery
+    {
+        $this->storeId = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads all relational data (addresses, adjustments, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustments, customers, line items, transactions
      * | - | -
      * | bool | `true` to eager-load, `false` to not eager load.
      *
@@ -1039,7 +1353,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads the the shipping and billing addressees on the resulting orders.
+     * Eager loads the shipping and billing addressees on the resulting orders.
      *
      * Possible values include:
      *
@@ -1148,6 +1462,15 @@ class OrderQuery extends ElementQuery
      */
     public function populate($rows): array
     {
+        // @TODO remove at next breaking change
+        // Remove `email` key from each row.
+        array_walk($rows, function(&$row) {
+            if (array_key_exists('email', $row)) {
+                unset($row['email']);
+            }
+        });
+
+        /** @var Order[] $orders */
         $orders = parent::populate($rows);
 
         // Eager-load anything?
@@ -1193,12 +1516,16 @@ class OrderQuery extends ElementQuery
 
         $this->query->select([
             'commerce_orders.id',
+            'commerce_orders.storeId',
             'commerce_orders.number',
             'commerce_orders.reference',
             'commerce_orders.couponCode',
             'commerce_orders.orderStatusId',
             'commerce_orders.dateOrdered',
+
+            // @TODO remove at next breaking change
             'commerce_orders.email',
+
             'commerce_orders.isCompleted',
             'commerce_orders.datePaid',
             'commerce_orders.currency',
@@ -1220,6 +1547,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated',
             'commerce_orders.registerUserOnOrderComplete',
+            'commerce_orders.saveBillingAddressOnOrderComplete',
+            'commerce_orders.saveShippingAddressOnOrderComplete',
             'commerce_orders.recalculationMode',
             'commerce_orders.origin',
             'commerce_orders.dateAuthorized',
@@ -1231,9 +1560,11 @@ class OrderQuery extends ElementQuery
             'storedTotalTax' => 'commerce_orders.totalTax',
             'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
             'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            'storedTotalQty' => 'commerce_orders.totalQty',
             'commerce_orders.shippingMethodName',
             'commerce_orders.orderSiteId',
             'commerce_orders.orderLanguage',
+            'commerce_orders.orderCompletedEmail',
         ]);
 
         // Addresses table joined for sorting purposes
@@ -1259,21 +1590,28 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('LEFT([[commerce_orders.number]], 7) = :shortNumber', [':shortNumber' => $this->shortNumber]));
         }
 
+        if (isset($this->storeId) && $this->storeId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.storeId', $this->storeId));
+        }
+
         if (isset($this->origin) && $this->origin) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
         }
 
         if (isset($this->reference) && $this->reference) {
-            $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
+            // $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.reference', $this->reference));
         }
 
         if (isset($this->email) && $this->email) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.email', $this->email, '=', true));
+            // Join and search the users table for email address
+            $this->subQuery->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[commerce_orders.customerId]]');
+            $this->subQuery->andWhere(Db::parseParam('users.email', $this->email, '=', true));
         }
 
         // Allow true ot false but not null
         if (isset($this->isCompleted) && $this->isCompleted !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
+            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_orders.isCompleted', $this->isCompleted, false));
         }
 
         if (isset($this->dateAuthorized)) {
@@ -1296,6 +1634,10 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
         }
 
+        if (isset($this->shippingMethodHandle)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.shippingMethodHandle', $this->shippingMethodHandle));
+        }
+
         if (isset($this->orderLanguage)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderLanguage));
         }
@@ -1310,6 +1652,42 @@ class OrderQuery extends ElementQuery
 
         if (isset($this->gatewayId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.gatewayId', $this->gatewayId));
+        }
+
+        if (isset($this->total)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.total', $this->total));
+        }
+
+        if (isset($this->totalPrice)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPrice', $this->totalPrice));
+        }
+
+        if (isset($this->totalPaid)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalPaid', $this->totalPaid));
+        }
+
+        if (isset($this->itemTotal)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemTotal', $this->itemTotal));
+        }
+
+        if (isset($this->itemSubtotal)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.itemSubtotal', $this->itemSubtotal));
+        }
+
+        if (isset($this->totalQty)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalQty', $this->totalQty));
+        }
+
+        if (isset($this->totalWeight)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalWeight', $this->totalWeight));
+        }
+
+        if (isset($this->totalDiscount)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalDiscount', $this->totalDiscount));
+        }
+
+        if (isset($this->totalTax)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.totalTax', $this->totalTax));
         }
 
         // Allow true but not null

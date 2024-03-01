@@ -1,36 +1,9 @@
 {% import "_includes/forms" as forms %}
 
 <div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_storeField' with { id: namespaceId, widget: widget, updateOrderStatuses: true } %}
 
-    <div class="field">
-        <div class="heading">
-            <label>{{ "Order Status"|t('commerce') }}</label>
-        </div>
-        <div class="input ltr">
-
-            <input type="hidden" class="status-input" name="orderStatusId"
-                   value="{{ widget.orderStatusId }}"/>
-
-            <a class="btn menubtn"><span
-                        class="status"></span> {{ "All"|t('commerce') }}
-            </a>
-
-            <div class="menu">
-                <ul class="padded">
-                    <li><a><span class="commerceStatusLabel"><span
-                                        class="status"></span> {{ "All"|t('commerce') }}</span></a>
-                    </li>
-
-                    {% for status in orderStatuses %}
-                        <li>
-                            <a data-id="{{ status.id }}">{{ status.labelHtml|raw }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-        </div>
-    </div>
+  {% include 'commerce/_components/widgets/_includes/_orderStatusesField' with { id: namespaceId, widget: widget } %}
 
     {{ forms.textField({
         label: "Limit"|t('commerce'),

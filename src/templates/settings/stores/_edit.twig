@@ -1,0 +1,232 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set fullPageForm = true %}
+{% set selectedSubnavItem = 'settings' %}
+{% import '_includes/forms' as forms %}
+
+{% set tabs = {
+  0: {'label':'Store'|t('commerce'),'url':'#store'},
+  1: {'label':'Settings'|t('commerce'),'url':'#settings'},
+} %}
+
+{% block content %}
+    {{ actionInput('commerce/stores/save-store') }}
+    {{ redirectInput('commerce/settings/stores') }}
+    {% if not brandNewStore %}<input type="hidden" name="storeId" value="{{ store.id }}">{% endif %}
+
+    <div id="store">
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: store.getName(false),
+            errors: store.getErrors('name'),
+            autofocus: true,
+            required: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Handle"|t('app'),
+            instructions: "How you’ll refer to this store in the templates."|t('app'),
+            id: 'handle',
+            name: 'handle',
+            class: 'code',
+            autocorrect: false,
+            autocapitalize: false,
+            value: store.handle,
+            errors: store.getErrors('handle'),
+            required: true
+        }) }}
+
+        {% if brandNewStore %}
+            {{ forms.selectField({
+                label: 'Sites'|t('commerce'),
+                instructions: 'Every new store must be assigned to at least one site.'|t('commerce'),
+                id: 'siteId',
+                name: 'siteId',
+                value: null,
+                options: availableSiteOptions,
+            }) }}
+        {% endif %}
+
+        {% if allowCurrencyChange %}
+            {{ forms.selectField({
+                label: "Currency"|t('commerce'),
+                id: 'currency',
+                name: 'currency',
+                value: store.currency,
+                options: currencyOptions
+            }) }}
+        {% endif %}
+
+        {% if not store.primary %}
+            {{ forms.lightswitchField({
+                label: "Make this the primary store"|t('commerce'),
+                id: 'primary',
+                name: 'primary',
+                value: 1,
+                on: store.primary,
+                errors: store.getErrors('primary')
+            }) }}
+        {% endif %}
+    </div>
+
+    <div id="settings" class="hidden">
+
+        {{ forms.booleanMenuField({
+            label: 'Auto Set New Cart Addresses'|t('commerce'),
+            instructions: 'Whether the user’s primary shipping and billing addresses should be set automatically on new carts.'|t('commerce'),
+            id: 'autoSetNewCartAddresses',
+            name: 'autoSetNewCartAddresses',
+            value: store.getAutoSetNewCartAddresses(false),
+            errors: store.getErrors('autoSetNewCartAddresses'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Auto Set Cart Shipping Method Option'|t('commerce'),
+            instructions: 'Whether the first available shipping method option should be set automatically on carts.'|t('commerce'),
+            id: 'autoSetCartShippingMethodOption',
+            name: 'autoSetCartShippingMethodOption',
+            value: store.getAutoSetCartShippingMethodOption(false),
+            errors: store.getErrors('autoSetCartShippingMethodOption'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Auto Set Payment Source'|t('commerce'),
+            instructions: 'Whether the user’s primary payment source should be set automatically on new carts.'|t('commerce'),
+            id: 'autoSetPaymentSource',
+            name: 'autoSetPaymentSource',
+            value: store.getAutoSetPaymentSource(false),
+            errors: store.getErrors('autoSetPaymentSource'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Allow Empty Cart On Checkout'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'allowEmptyCartOnCheckout',
+            name: 'allowEmptyCartOnCheckout',
+            value: store.getAllowEmptyCartOnCheckout(false),
+            errors: store.getErrors('allowEmptyCartOnCheckout'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Allow Checkout Without Payment'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'allowCheckoutWithoutPayment',
+            name: 'allowCheckoutWithoutPayment',
+            value: store.getAllowCheckoutWithoutPayment(false),
+            errors: store.getErrors('allowCheckoutWithoutPayment'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Allow Partial Payment On Checkout'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'allowPartialPaymentOnCheckout',
+            name: 'allowPartialPaymentOnCheckout',
+            value: store.getAllowPartialPaymentOnCheckout(false),
+            errors: store.getErrors('allowPartialPaymentOnCheckout'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.selectizeField({
+            label: 'Free Order Payment Strategy'|t('commerce'),
+            instructions: 'Strategy to apply when an order is free or has a zero balance.'|t('commerce'),
+            name: 'freeOrderPaymentStrategy',
+            value: store.getFreeOrderPaymentStrategy(false),
+            options: freeOrderPaymentStrategyOptions,
+            errors: store.getErrors('freeOrderPaymentStrategy'),
+            required: true,
+            includeEnvVars: true,
+            allowedEnvValues: freeOrderPaymentStrategyOptions|keys,
+        }) }}
+
+        {{ forms.selectizeField({
+            label: "Minimum Total Price Strategy"|t('commerce'),
+            instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
+            id: 'minimumTotalPriceStrategy',
+            name: 'minimumTotalPriceStrategy',
+            value: store.getMinimumTotalPriceStrategy(false),
+            options: minimumTotalPriceStrategyOptions,
+            errors: store.getErrors('minimumTotalPriceStrategy'),
+            required: true,
+            includeEnvVars: true,
+            allowedEnvValues: minimumTotalPriceStrategyOptions|keys,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Require Shipping Address At Checkout'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'requireShippingAddressAtCheckout',
+            name: 'requireShippingAddressAtCheckout',
+            value: store.getRequireShippingAddressAtCheckout(false),
+            errors: store.getErrors('requireShippingAddressAtCheckout'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Require Billing Address At Checkout'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'requireBillingAddressAtCheckout',
+            name: 'requireBillingAddressAtCheckout',
+            value: store.getRequireBillingAddressAtCheckout(false),
+            errors: store.getErrors('requireBillingAddressAtCheckout'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Require Shipping Method Selection At Checkout'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'requireShippingMethodSelectionAtCheckout',
+            name: 'requireShippingMethodSelectionAtCheckout',
+            value: store.getRequireShippingMethodSelectionAtCheckout(false),
+            errors: store.getErrors('requireShippingMethodSelectionAtCheckout'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Use Billing Address For Tax'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'useBillingAddressForTax',
+            name: 'useBillingAddressForTax',
+            value: store.getUseBillingAddressForTax(false),
+            errors: store.getErrors('useBillingAddressForTax'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.booleanMenuField({
+            label: 'Validate Business Tax ID as Vat ID'|t('commerce'),
+            instructions: ''|t('commerce'),
+            id: 'validateOrganizationTaxIdAsVatId',
+            name: 'validateOrganizationTaxIdAsVatId',
+            value: store.getValidateOrganizationTaxIdAsVatId(false),
+            errors: store.getErrors('validateOrganizationTaxIdAsVatId'),
+            includeEnvVars: true,
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: 'Order Reference Number Format'|t('commerce'),
+            id: 'orderReferenceFormat',
+            name: 'orderReferenceFormat',
+            instructions: "A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique."|t('commerce', {
+              ex1: "<code>2018-{number[:7]}</code>",
+              ex2: "<code>{{object.dateCompleted|date('y')}}-{{ seq(object.dateCompleted|date('y'), 8) }}</code>"
+            }),
+            class: 'code ltr',
+            suggestEnvVars: true,
+            value: store.getOrderReferenceFormat(false),
+            errors: store.getErrors('orderReferenceForamt'),
+        }) }}
+    </div>
+{% endblock %}
+
+{% if not store.handle %}
+    {% js on ready %}
+        new Craft.HandleGenerator('#name', '#handle');
+    {% endjs %}
+{% endif %}

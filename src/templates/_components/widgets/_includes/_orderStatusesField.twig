@@ -1,0 +1,20 @@
+{# Date Range picker JS field #}
+{% import "_includes/forms" as forms %}
+{% set id = id is not defined ? null : id %}
+{% set widget = widget is not defined ? null : widget %}
+
+{% if not id %}
+  <p>{{ 'An ID must be provided'|t('commerce') }}</p>
+{% else %}
+  {{ forms.selectizeField({
+    label: 'Order Statuses'|t('commerce'),
+    instructions: 'Only orders with the following order statuses will be included. Leave blank to include all statuses.'|t('commerce'),
+    id: 'orderStatuses',
+    name: 'orderStatuses',
+    options : orderStatuses,
+    values : widget.orderStatuses,
+    errors: widget.getErrors('orderStatuses') ?? null,
+    containerAttributes: {class: 'selectize fullwidth multiselect order-status-multiselect'},
+    multi: true
+  }) }}
+{% endif %}

@@ -9,11 +9,15 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use DateTime;
+use craft\models\Site;
 
 /**
  * Average Order Total widget
@@ -26,20 +30,7 @@ use DateTime;
  */
 class AverageOrderTotal extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string
-     */
-    public string $dateRange = AverageOrderTotalStat::DATE_RANGE_TODAY;
+    use StatWidgetTrait;
 
     /**
      * @var null|AverageOrderTotalStat
@@ -53,11 +44,22 @@ class AverageOrderTotal extends Widget
     {
         parent::init();
 
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->_stat = new AverageOrderTotalStat(
             $this->dateRange,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -122,9 +124,12 @@ class AverageOrderTotal extends Widget
         $id = 'average-order-total' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
+
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/average/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
         ]);
     }

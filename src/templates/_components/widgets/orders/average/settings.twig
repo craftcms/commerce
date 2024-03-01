@@ -1,5 +1,9 @@
 {% import "_includes/forms" as forms %}
 
 <div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_storeField' with { id: namespaceId, widget: widget, updateOrderStatuses: true } %}
+
   {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+
+  {% include 'commerce/_components/widgets/_includes/_orderStatusesField' with { id: namespaceId, widget: widget } %}
 </div>

@@ -60,24 +60,20 @@ export default new Vuex.Store({
       return window.orderEdit.ordersIndexUrl;
     },
 
-    edition() {
-      return window.orderEdit.edition;
-    },
-
-    isProEdition() {
-      return window.orderEdit.edition == 'pro';
-    },
-
-    isLiteEdition() {
-      return window.orderEdit.edition == 'lite';
-    },
-
     hasOrderChanged(state) {
       return !_isEqual(state.draft, state.originalDraft);
     },
 
     orderId() {
       return window.orderEdit.orderId;
+    },
+
+    totalCommittedStock(state) {
+      if (!state.draft) {
+        return 0;
+      }
+
+      return state.draft.order.totalCommittedStock;
     },
 
     taxCategories() {
@@ -101,10 +97,6 @@ export default new Vuex.Store({
     },
 
     maxLineItems(state, getters) {
-      if (getters.edition === 'lite') {
-        return 1;
-      }
-
       return null;
     },
 
@@ -193,10 +185,10 @@ export default new Vuex.Store({
           state &&
           state.draft &&
           state.draft.order &&
-          state.draft.order.errors &&
-          state.draft.order.errors[errorKey]
+          state.draft.errors &&
+          state.draft.errors[errorKey]
         ) {
-          return [state.draft.order.errors[errorKey]];
+          return [state.draft.errors[errorKey]];
         }
 
         return [];
@@ -205,13 +197,8 @@ export default new Vuex.Store({
 
     hasLineItemErrors(state) {
       return (key) => {
-        if (
-          state &&
-          state.draft &&
-          state.draft.order &&
-          state.draft.order.errors
-        ) {
-          let errorKeys = Object.keys(state.draft.order.errors);
+        if (state && state.draft && state.draft.order && state.draft.errors) {
+          let errorKeys = Object.keys(state.draft.errors);
           let pattern = '^lineItems\\.' + key + '\\.';
           let regex = new RegExp(pattern, 'gm');
           for (let i = 0; i < errorKeys.length; i++) {
@@ -267,6 +254,37 @@ export default new Vuex.Store({
       let $transactionsTabContent =
         window.document.querySelector('#transactionsTab');
       $transactionsTabContent.classList.add('hidden');
+
+      // for the dropdown tab menu
+      const tabManager = Craft.cp.tabManager;
+      const tabsDropdownMenu = tabManager.$menuBtn.data('disclosureMenu');
+      const transactionsOption = tabsDropdownMenu.$container.find(
+        '[data-id="order-transactions"]'
+      );
+
+      // this will disable clicking on the transactions option in the dropdown tab menu
+      if (transactionsOption.length > 0) {
+        $(transactionsOption)
+          .disable()
+          .attr('disabled', 'disabled')
+          .css('pointer-events', 'none');
+      }
+
+      // and this is a fallback for selecting the transactions tab differently
+      let $prevSelectedTab = null;
+      let $selectedTab = tabManager.$selectedTab[0];
+
+      tabManager.on('selectTab', function (ev) {
+        $prevSelectedTab = $selectedTab;
+        $selectedTab = $(ev.$tab[0]);
+      });
+
+      tabsDropdownMenu.on('optionselect', function (ev) {
+        let $selectedOption = $(ev.selectedOption);
+        if ($selectedOption.data('id') === 'order-transactions') {
+          $prevSelectedTab.trigger('activate');
+        }
+      });
     },
 
     edit({commit, state, dispatch}) {
@@ -335,6 +353,40 @@ export default new Vuex.Store({
 
       // Update `editing` state
       commit('updateEditing', true);
+
+      // handle duplicate content (fields) tabs
+      dispatch('handleTabs');
+    },
+
+    handleTabs({state}) {
+      const tabManagerMenuBtn =
+        Craft.cp.tabManager.$menuBtn.data('disclosureMenu');
+      const tabsDropdownMenu = tabManagerMenuBtn;
+      if (tabsDropdownMenu !== undefined) {
+        const optionSelector =
+          '[id^="' + tabsDropdownMenu.menuId + '-option-"]';
+
+        const staticOptions = tabsDropdownMenu.$container.find(
+          optionSelector + '[data-id^="static-fields-"]'
+        );
+        const fieldsOptions = tabsDropdownMenu.$container.find(
+          optionSelector + '[data-id^="fields-"]'
+        );
+
+        if (state.editing) {
+          staticOptions.disable();
+          staticOptions.parent().addClass('hidden');
+
+          fieldsOptions.enable();
+          fieldsOptions.parent().removeClass('hidden');
+        } else {
+          staticOptions.enable();
+          staticOptions.parent().removeClass('hidden');
+
+          fieldsOptions.disable();
+          fieldsOptions.parent().addClass('hidden');
+        }
+      }
     },
 
     getOrder({state, commit}) {
@@ -412,8 +464,12 @@ export default new Vuex.Store({
 
           let errorMsg = 'Couldn’t recalculate order.';
 
+          const draft = error.response.data;
+          commit('updateDraft', draft);
+
           if (error.response.data.error) {
             errorMsg = error.response.data.error;
+            throw {response};
           }
 
           throw errorMsg;

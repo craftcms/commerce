@@ -9,12 +9,16 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\models\TaxAddressZone;
+use craft\commerce\Plugin;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\db\Query;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 
 /**
@@ -27,44 +31,54 @@ use yii\db\StaleObjectException;
 class TaxZones extends Component
 {
     /**
-     * @var TaxAddressZone[]
+     * @var Collection<TaxAddressZone>[]
      */
-    private array $_allZones = [];
+    private ?array $_allZones = null;
 
     /**
      * Get all tax zones.
      *
-     * @return TaxAddressZone[]
+     * @param int|null $storeId
+     * @return Collection
+     * @throws StoreNotFoundException
+     * @throws InvalidConfigException
      */
-    public function getAllTaxZones(): array
+    public function getAllTaxZones(?int $storeId = null): Collection
     {
-        $rows = $this->_createQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        foreach ($rows as $row) {
-            $this->_allZones[$row['id']] = new TaxAddressZone($row);
+        if ($this->_allZones === null || !isset($this->_allZones[$storeId])) {
+            $results = $this->_createQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            if ($this->_allZones === null) {
+                $this->_allZones = [];
+            }
+
+            foreach ($results as $result) {
+                $taxRate = Craft::createObject([
+                    'class' => TaxAddressZone::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allZones[$taxRate->storeId])) {
+                    $this->_allZones[$taxRate->storeId] = collect();
+                }
+
+                $this->_allZones[$taxRate->storeId]->push($taxRate);
+            }
         }
 
-        return $this->_allZones;
+        return $this->_allZones[$storeId] ?? collect();
     }
 
     /**
      * Get a tax zone by its ID.
      */
-    public function getTaxZoneById(int $id): ?TaxAddressZone
+    public function getTaxZoneById(int $id, ?int $storeId = null): ?TaxAddressZone
     {
-        if (isset($this->_allZones[$id])) {
-            return $this->_allZones[$id];
-        }
-
-        $result = $this->_createQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allZones[$id] = new TaxAddressZone($result);
+        return $this->getAllTaxZones($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -93,6 +107,7 @@ class TaxZones extends Component
         }
 
         //setting attributes
+        $record->storeId = $model->storeId;
         $record->name = $model->name;
         $record->description = $model->description;
         $record->default = $model->default;
@@ -106,6 +121,8 @@ class TaxZones extends Component
         if ($model->default) {
             TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $model->id]]);
         }
+
+        $this->_clearCaches();
 
         return true;
     }
@@ -144,6 +161,7 @@ class TaxZones extends Component
                 'description',
                 'id',
                 'name',
+                'storeId',
             ])
             ->orderBy('name')
             ->from([Table::TAXZONES]);

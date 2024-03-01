@@ -9,13 +9,17 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\models\OrderStatus;
+use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
 use DateInterval;
 use DateTime;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\Expression;
 
 /**
@@ -24,9 +28,10 @@ use yii\db\Expression;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-abstract class Stat implements StatInterface
+abstract class Stat implements StatInterface, HasStoreInterface
 {
     use StatTrait;
+    use StoreTrait;
 
     /**
      * Stat constructor.
@@ -36,7 +41,7 @@ abstract class Stat implements StatInterface
      * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null)
+    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
     {
         $this->dateRange = $dateRange ?? $this->dateRange;
         if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
@@ -50,6 +55,8 @@ abstract class Stat implements StatInterface
         if ($user) {
             $this->weekStartDay = $user->getPreference('weekStartDay') ?? $this->weekStartDay;
         }
+
+        $this->storeId = $storeId ?? $this->storeId;
     }
 
     /**
@@ -252,7 +259,7 @@ abstract class Stat implements StatInterface
             }
             case self::DATE_RANGE_THISYEAR:
             {
-                $date->setDate($date->format('Y'), 1, 1);
+                $date->setDate((int)$date->format('Y'), 1, 1);
                 break;
             }
             case self::DATE_RANGE_PAST7DAYS:
@@ -404,6 +411,49 @@ abstract class Stat implements StatInterface
     }
 
     /**
+     * @inheritdoc
+     * @throws InvalidConfigException
+     */
+    public function getOrderStatuses(): ?array
+    {
+        if (empty($this->_orderStatuses)) {
+            return $this->_orderStatuses;
+        }
+
+        $allOrderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
+        foreach ($this->_orderStatuses as $key => $orderStatus) {
+            if ($orderStatus instanceof OrderStatus) {
+                continue;
+            }
+
+            if (!is_string($orderStatus)) {
+                unset($this->_orderStatuses[$key]);
+                continue;
+            }
+
+            $orderStatus = ArrayHelper::firstWhere($allOrderStatuses, function(OrderStatus $os) use ($orderStatus) {
+                return $orderStatus === $os->handle || $orderStatus === $os->uid;
+            });
+            if (!$orderStatus) {
+                unset($this->_orderStatuses[$key]);
+                continue;
+            }
+
+            $this->_orderStatuses[$key] = $orderStatus;
+        }
+
+        return $this->_orderStatuses;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setOrderStatuses(?array $orderStatuses): void
+    {
+        $this->_orderStatuses = $orderStatuses;
+    }
+
+    /**
      * Generate base stat query
      */
     protected function _createStatQuery(): \yii\db\Query
@@ -413,13 +463,27 @@ abstract class Stat implements StatInterface
             $this->_endDate->setTime(23, 59, 59);
         }
 
-        return (new Query())
+        if ($this->storeId === null) {
+            throw new InvalidConfigException('The store ID has not been set.');
+        }
+
+        $query = (new Query())
             ->from(Table::ORDERS . ' orders')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
-            ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
+            ->where(['orders.storeId' => $this->storeId])
+            ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
             ->andWhere(['isCompleted' => true])
             ->andWhere(['elements.dateDeleted' => null]);
+
+        $orderStatuses = $this->getOrderStatuses();
+        if (!empty($orderStatuses)) {
+            $query->innerJoin(Table::ORDERSTATUSES . ' os', '[[orders.orderStatusId]] = [[os.id]]');
+            $orderStatusIds = ArrayHelper::getColumn($orderStatuses, 'id');
+            $query->andWhere(['os.id' => $orderStatusIds]);
+        }
+
+        return $query;
     }
 
     /**
@@ -447,7 +511,7 @@ abstract class Stat implements StatInterface
         while ($dateKeyDate <= $endDate) {
             // If we are looking monthly make sure we get every month by using the 1st day
             if ($dateRangeInterval == 'month') {
-                $dateKeyDate->setDate($dateKeyDate->format('Y'), $dateKeyDate->format('m'), 1);
+                $dateKeyDate->setDate((int)$dateKeyDate->format('Y'), (int)$dateKeyDate->format('n'), 1);
             }
 
             $key = $dateKeyDate->format($options['dateKeyFormat']);

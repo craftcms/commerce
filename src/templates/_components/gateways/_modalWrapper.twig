@@ -93,7 +93,6 @@
                 'orderId' : orderId
             },
             success: function(data){
-                console.log(data);
                 form.find(".baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
                 form.find(".response-message").html(data.message);
                 window.dispatchEvent(new Event('resize'));
@@ -116,7 +115,6 @@
     $("select.paymentCurrency").each(function( index ) {
         var $form = $(this.form);
         $(this).on('change', function() {
-            console.log('change');
             updatePrice($form);
         });
     });

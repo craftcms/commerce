@@ -9,13 +9,17 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use DateTime;
+use craft\models\Site;
 
 /**
  * Total Orders widget
@@ -28,20 +32,7 @@ use DateTime;
  */
 class TotalOrders extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var int|bool
@@ -56,13 +47,25 @@ class TotalOrders extends Widget
     public function init(): void
     {
         parent::init();
+
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersStat(
             $this->dateRange,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -167,9 +170,12 @@ class TotalOrders extends Widget
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
+
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/total/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
         ]);
     }

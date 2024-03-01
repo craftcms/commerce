@@ -2,9 +2,8 @@
 
 namespace craft\commerce\elements\conditions\customers;
 
+use craft\commerce\elements\conditions\users\DiscountGroupConditionRule;
 use craft\elements\conditions\users\UserCondition as UserElementCondition;
-use craft\elements\db\ElementQueryInterface;
-use yii\base\NotSupportedException;
 
 /**
  * Discount Order condition.
@@ -17,20 +16,12 @@ class DiscountCustomerCondition extends UserElementCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(), [
-
+        return array_merge(parent::selectableConditionRules(), [
+            HasOrdersConditionRule::class,
+            SignedInConditionRule::class,
+            DiscountGroupConditionRule::class,
         ]);
-    }
-
-    /**
-     * @param ElementQueryInterface $query
-     * @return void
-     * @throws NotSupportedException
-     */
-    public function modifyQuery(ElementQueryInterface $query): void
-    {
-        throw new NotSupportedException('Discount User Condition does not support element queries.');
     }
 }

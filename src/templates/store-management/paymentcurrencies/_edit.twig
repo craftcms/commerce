@@ -1,0 +1,71 @@
+{% extends "commerce/_layouts/store-management" %}
+{% set isIndex = false %}
+
+{% set crumbs = [
+    { label: "Payment Currencies"|t('commerce'), url: url('commerce/store-management/'~store.handle~'/payment-currencies') },
+] %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block details %}
+    {% if currency and currency.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ currency.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ currency.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/payment-currencies/save">
+    <input type="hidden" name="storeId" value="{{ currency.storeId }}">
+    {{ redirectInput("commerce/store-management/#{store.handle}/payment-currencies") }}
+    {% if currency.id %}<input type="hidden" name="currencyId" value="{{ currency.id }}">{% endif %}
+    {% if currency.id and currency.primary and hasCompletedOrders %}
+      {{ hiddenInput('iso', currency.iso) }}
+      {{ forms.selectField({
+        label: 'Currency Code'|t('commerce'),
+        instructions: 'Choose the currency’s ISO code.'|t('commerce'),
+        id: 'iso-readonly',
+        name: 'iso-readonly',
+        readonly: true,
+        value: currency.iso,
+        options: currencyOptions,
+        class: 'disabled',
+        warning: 'The primary currency cannot be changed after orders are placed.'|t('commerce')
+      }) }}
+    {% else %}
+      {{ forms.selectField({
+          label: 'Currency Code'|t('commerce'),
+          first: true,
+          instructions: 'Choose the currency’s ISO code.'|t('commerce'),
+          id: 'iso',
+          name: 'iso',
+          value: currency.iso,
+          errors: currency.getErrors('iso'),
+          options: currencyOptions
+      }) }}
+    {% endif %}
+
+    {{ forms.textField({
+        label: "Conversion Rate"|t('commerce'),
+        instructions: "The conversion rate that will be used when converting an amount to this currency. For example, if an item costs {amount1}, a conversion rate of {rate} would result in {amount2} in the alternate currency."|t('commerce', {
+            amount1: 10,
+            rate: 1.5,
+            amount2: 15
+        }),
+        id: 'rate',
+        name: 'rate',
+        disabled: currency.primary ? true : false,
+        value: currency.rate ? currency.rate + 0 : 1,
+        errors: currency.getErrors('rate')
+    }) }}
+{% endblock %}

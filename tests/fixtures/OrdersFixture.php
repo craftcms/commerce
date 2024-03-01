@@ -36,7 +36,9 @@ class OrdersFixture extends BaseElementFixture
     public $depends = [
         CustomerFixture::class,
         ProductFixture::class,
+        StoreFixture::class,
         OrderStatusesFixture::class,
+        ShippingFixture::class,
     ];
 
     /**
@@ -61,8 +63,6 @@ class OrdersFixture extends BaseElementFixture
 
     public function init(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
-
         parent::init();
     }
 
@@ -97,7 +97,7 @@ class OrdersFixture extends BaseElementFixture
         $this->_setLineItems($element, $this->_lineItems);
 
         // Re-save after extra data
-        if (!$result = Craft::$app->getElements()->saveElement($element)) {
+        if (!$result = Craft::$app->getElements()->saveElement($element, false)) {
             throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
 

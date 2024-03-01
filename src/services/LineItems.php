@@ -242,18 +242,19 @@ class LineItems extends Component
 
         $lineItemRecord->qty = $lineItem->qty;
         $lineItemRecord->price = $lineItem->price;
+        $lineItemRecord->promotionalPrice = $lineItem->promotionalPrice;
 
         $lineItemRecord->weight = $lineItem->weight;
         $lineItemRecord->width = $lineItem->width;
         $lineItemRecord->length = $lineItem->length;
         $lineItemRecord->height = $lineItem->height;
 
-        $lineItemRecord->snapshot = $lineItem->snapshot;
+        $lineItemRecord->snapshot = $lineItem->getSnapshot();
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
         $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
-        $lineItemRecord->saleAmount = $lineItem->saleAmount;
+        $lineItemRecord->promotionalAmount = $lineItem->promotionalAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
@@ -312,6 +313,11 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
+        if ($result) {
+            // Unpack the snapshot
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+        }
+
         return $result ? new LineItem($result) : null;
     }
 
@@ -335,8 +341,8 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        /** @var PurchasableInterface|null $purchasable */
-        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        $forCustomer = $order->customerId ?? false;
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 
         if ($purchasable instanceof PurchasableInterface) {
             $lineItem->setPurchasable($purchasable);
@@ -442,10 +448,10 @@ class LineItems extends Component
                 'options',
                 'orderId',
                 'price',
+                'promotionalPrice',
                 'privateNote',
                 'purchasableId',
                 'qty',
-                'salePrice',
                 'shippingCategoryId',
                 'sku',
                 'snapshot',

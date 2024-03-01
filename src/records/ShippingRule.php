@@ -18,34 +18,23 @@ use yii\db\ActiveQueryInterface;
  * @property string $description
  * @property bool $enabled
  * @property int $id
- * @property bool $isLite
  * @property ShippingMethod $method
  * @property int $methodId
  * @property string $orderConditionFormula
- * @property int $maxQty
+ * @property array|string $orderCondition
  * @property float $maxRate
- * @property float $maxTotal
- * @property string $minMaxTotalType
- * @property float $maxWeight
- * @property int $minQty
+
  * @property float $minRate
- * @property float $minTotal
- * @property float $minWeight
  * @property string $name
  * @property float $percentageRate
  * @property float $perItemRate
  * @property int $priority
- * @property ActiveQueryInterface $shippingZone
- * @property int $shippingZoneId
  * @property float $weightRate
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class ShippingRule extends ActiveRecord
 {
-    public const TYPE_MIN_MAX_TOTAL_SALEPRICE = 'salePrice';
-    public const TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS = 'salePriceWithDiscounts';
-
     /**
      * @inheritdoc
      */
@@ -62,14 +51,6 @@ class ShippingRule extends ActiveRecord
         return [
             [['name'], 'required'],
         ];
-    }
-
-    /**
-     * @noinspection PhpUnused
-     */
-    public function getShippingZone(): ActiveQueryInterface
-    {
-        return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
     }
 
     public function getMethod(): ActiveQueryInterface

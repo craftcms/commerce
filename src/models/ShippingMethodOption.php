@@ -7,9 +7,9 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
 
 /**
@@ -40,6 +40,12 @@ class ShippingMethodOption extends ShippingMethod
     public bool $matchesOrder;
 
     /**
+     * @var ?ShippingMethodInterface
+     * @since 4.3.1
+     */
+    public ?ShippingMethodInterface $shippingMethod = null;
+
+    /**
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -48,7 +54,6 @@ class ShippingMethodOption extends ShippingMethod
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
         ];
 

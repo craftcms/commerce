@@ -37,23 +37,32 @@ class TaxCategories extends Component
     private ?array $_allTaxCategories = null;
 
     /**
+     * @var TaxCategory[]|null
+     */
+    private ?array $_allTaxCategoriesWithTrashed = null;
+
+    /**
      * Returns all Tax Categories
-     *
+     * @param bool $withTrashed
      * @return TaxCategory[]
      */
-    public function getAllTaxCategories(): array
+    public function getAllTaxCategories(bool $withTrashed = false): array
     {
-        if ($this->_allTaxCategories === null) {
-            $results = $this->_createTaxCategoryQuery()->all();
+        if ($this->_allTaxCategories === null || $this->_allTaxCategoriesWithTrashed === null) {
+            $results = $this->_createTaxCategoryQuery(true)->all();
 
             $this->_allTaxCategories = [];
             foreach ($results as $result) {
                 $taxCategory = new TaxCategory($result);
-                $this->_allTaxCategories[] = $taxCategory;
+
+                if (!$taxCategory->dateDeleted) {
+                    $this->_allTaxCategories[] = $taxCategory;
+                }
+                $this->_allTaxCategoriesWithTrashed[] = $taxCategory;
             }
         }
 
-        return $this->_allTaxCategories;
+        return $withTrashed ? $this->_allTaxCategoriesWithTrashed : $this->_allTaxCategories;
     }
 
     /**
@@ -217,15 +226,16 @@ class TaxCategories extends Component
     {
         $all = $this->getAllTaxCategories();
 
-        // Not the last one.
-        if (count($all) === 1) {
+        if (count($all) === 0) {
             return false;
         }
 
-        $record = TaxCategoryRecord::findOne($id);
+        $affectedRows = Craft::$app->getDb()->createCommand()
+            ->softDelete(\craft\commerce\db\Table::TAXCATEGORIES, ['id' => $id])
+            ->execute();
 
-        if ($record) {
-            return (bool)$record->delete();
+        if ($affectedRows > 0) {
+            return true;
         }
 
         return false;
@@ -239,7 +249,7 @@ class TaxCategories extends Component
     {
         $rows = $this->_createTaxCategoryQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[taxCategories.id]] = [[productTypeTaxCategories.taxCategoryId]]')
-            ->where(['productTypeTaxCategories.productTypeId' => $productTypeId])
+            ->andWhere(['productTypeTaxCategories.productTypeId' => $productTypeId])
             ->all();
 
         if (empty($rows)) {
@@ -265,11 +275,12 @@ class TaxCategories extends Component
     /**
      * Returns a Query object prepped for retrieving tax categories.
      */
-    private function _createTaxCategoryQuery(): Query
+    private function _createTaxCategoryQuery(bool $withTrashed = false): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'taxCategories.dateCreated',
+                'taxCategories.dateDeleted',
                 'taxCategories.dateUpdated',
                 'taxCategories.default',
                 'taxCategories.description',
@@ -278,5 +289,11 @@ class TaxCategories extends Component
                 'taxCategories.name',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
+
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
+        }
+
+        return $query;
     }
 }

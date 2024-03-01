@@ -11,8 +11,6 @@ use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\engines\Tax;
 use craft\commerce\events\TaxEngineEvent;
-use craft\commerce\Plugin;
-use yii\base\InvalidConfigException;
 
 /**
  * Class Taxes
@@ -35,14 +33,8 @@ class Taxes extends Component implements TaxEngineInterface
     {
         $event = new TaxEngineEvent(['engine' => new Tax()]);
 
-        // Only allow third party tax engines for PRO edition
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO) && $this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
+        if ($this->hasEventHandlers(self::EVENT_REGISTER_TAX_ENGINE)) {
             $this->trigger(self::EVENT_REGISTER_TAX_ENGINE, $event);
-        }
-
-        // Give plugins a chance to register the tax engine
-        if (!$event->engine instanceof TaxEngineInterface) {
-            throw new InvalidConfigException('No tax engine has been registered.');
         }
 
         return $event->engine;

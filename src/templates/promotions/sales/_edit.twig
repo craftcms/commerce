@@ -1,16 +1,27 @@
-{% extends "commerce/_layouts/cp" %}
-
-{% set selectedSubnavItem = "promotions" %}
+{% extends "commerce/_layouts/store-management" %}
+{% set isIndex = false %}
 
 {% set crumbs = [
-    { label: "Promotions"|t('commerce'), url: url('commerce/promotions') },
-    { label: "Sales"|t('commerce'), url: url('commerce/promotions/sales') },
+    { label: "Sales"|t('commerce'), url: url("commerce/store-management/#{storeHandle}/sales") },
 ] %}
 
 {% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
+
+{% set mainFormAttributes = {
+    id: 'saleform',
+    method: 'post',
+    'accept-charset': 'UTF-8'
+} %}
+
+{% set formActions = [{
+        label: 'Save and continue editing'|t('app'),
+        redirect: (isNewSale ? "commerce/store-management/#{storeHandle}/sales/{id}" : sale.getCpEditUrl())|hash,
+        retainScroll: true,
+        shortcut: true,
+}] %}
 
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
@@ -28,10 +39,10 @@
 {% endif %}
 
 {% set tabs = {
-    0: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
-    1: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
-    2: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-    3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+    sale: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
+    matchingItems: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
+    conditions: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    actions: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
 {% hook "cp.commerce.sales.edit" %}
@@ -69,7 +80,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
-    {{ redirectInput('commerce/promotions/sales') }}
+    {{ redirectInput("commerce/store-management/#{storeHandle}/sales") }}
     {% if sale.id %}
         <input type="hidden" name="id" value="{{ sale.id }}">
         <input type="hidden" name="sortOrder" value="{{ sale.sortOrder }}">
@@ -99,14 +110,16 @@
 
     </div>
 
-    <div id="matching-items" class="hidden">
+    <div id="matching-items" class="hidden flex-fields">
+
+        <h3>{{ "Limit which purchasables this sale applies to."|t('commerce') }}</h3>
 
         {{ forms.lightswitchField({
-            label: "All purchasables"|t('commerce'),
+            label: "Only match certain purchasables…"|t('commerce'),
             id: 'allPurchasables',
             name: 'allPurchasables',
-            reverseToggle: '#matching-items-purchasables',
-            on: sale.allPurchasables ? true : false,
+            toggle: '#matching-items-purchasables',
+            on: not sale.allPurchasables,
             errors: sale.getErrors('allPurchasables')
         }) }}
 
@@ -114,60 +127,83 @@
             {% for purchasableType in purchasableTypes %}
                 {{ forms.elementSelectField({
                     id: 'purchasables-'~purchasableType.elementType|id,
-                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                    label: purchasableType.name,
                     name: 'purchasables['~purchasableType.elementType~']',
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
-                    instructions: '{type} for which this sale will be applicable to.'|t('commerce', {
-                        type: purchasableType.name
-                    }),
                     errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
                 }) }}
             {% endfor %}
         </div>
 
+
+        {% set showCategories = craft.categories.exists() %}
+        {% set showEntries = craft.entries.exists() %}
+
+        {% if not showCategories and not showEntries %}
+            {{ forms.hidden({
+                name: 'allCategories',
+                value: false,
+            }) }}
+        {% endif %}
+
+        {% if showCategories or showEntries %}
+
+        <hr class="hr">
+
         {{ forms.lightswitchField({
-            label: "All categories"|t('commerce'),
+            label: "Only match purchasables related to…"|t('commerce'),
             id: 'allCategories',
             name: 'allCategories',
-            reverseToggle: '#matching-items-categories',
-            on: sale.allCategories ? true : false,
+            toggle: '#matching-items-categories',
+            on: not sale.allCategories,
             errors: sale.getErrors('allCategories')
         }) }}
 
         <div id="matching-items-categories" {% if sale.allCategories %}class="hidden"{% endif %}>
 
-        {{ forms.elementSelectField({
-            id: 'categories',
-            label: 'Categories'|t('commerce'),
-            name: 'categories',
-            elements: categories ? categories : null,
-            elementType: categoryElementType,
-            limit: null,
-            instructions: "Categories that the purchasables must be related to."|t('commerce'),
-            errors: sale.getErrors('categoryIds'),
-        }) }}
+            {% if showCategories %}
+                {{ forms.elementSelectField({
+                    id: 'categories',
+                    label: 'Categories'|t('commerce'),
+                    name: 'relatedElements[categories]',
+                    elements: categories ? categories : null,
+                    elementType: categoryElementType,
+                    limit: null,
+                    errors: sale.getErrors('categories'),
+                }) }}
+            {% endif %}
 
-        <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}"
-           data-target="categoryRelationshipType-advanced">Advanced</a>
+            {% if showEntries %}
+                {{ forms.elementSelectField({
+                    id: 'entries',
+                    label: 'Entries'|t('app'),
+                    name: 'relatedElements[entries]',
+                    elements: entries ? entries : null,
+                    elementType: entryElementType,
+                    limit: null,
+                    errors: sale.getErrors('categories'),
+                }) }}
+            {% endif %}
 
-        <div id="categoryRelationshipType-advanced"
-             class="{% if (sale.categoryRelationshipType == 'element') %}hidden{% endif %}">
-            {{ forms.selectField({
-                id: 'categoryRelationshipType',
-                name: 'categoryRelationshipType',
-                label: 'Categories Relationship Type'|t('commerce'),
-                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
-                    link: 'https://craftcms.com/docs/4.x/relations.html#terminology',
-                }),
-                options: categoryRelationshipType,
-                value: sale.categoryRelationshipType,
-                errors: sale.getErrors('categoryRelationshipType')
-            }) }}
+            <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}"
+               data-target="categoryRelationshipType-advanced">{{ 'Advanced'|t('app') }}</a>
+
+            <div id="categoryRelationshipType-advanced"
+                 class="{% if (sale.categoryRelationshipType == 'element') %}hidden{% endif %}">
+
+                {{ forms.radioGroupField({
+                    id: 'categoryRelationshipType',
+                    name: 'categoryRelationshipType',
+                    label: 'Relationship Type'|t('commerce'),
+                    options: elementRelationshipTypeOptions,
+                    value: sale.categoryRelationshipType,
+                    errors: sale.getErrors('categoryRelationshipType')
+                }) }}
+            </div>
         </div>
-
-       </div>
+        {% endif %}
     </div>
 
     <div id="conditions" class="hidden">

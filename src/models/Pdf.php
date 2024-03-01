@@ -7,10 +7,17 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
 use craft\commerce\elements\Order;
 use craft\commerce\records\Pdf as PdfRecord;
+use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
+use Dompdf\Adapter\CPDF;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * PDF model.
@@ -20,8 +27,10 @@ use yii\base\InvalidArgumentException;
  *
  * @property-read array $config
  */
-class Pdf extends Model
+class Pdf extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -68,6 +77,24 @@ class Pdf extends Model
     public ?int $sortOrder = null;
 
     /**
+     * @var string The orientation of the paper to use for generated order PDF files.
+     *
+     * Options are `'portrait'` and `'landscape'`.
+     *
+     * @since 5.0.0
+     */
+    public string $paperOrientation = PdfRecord::PAPER_ORIENTATION_PORTRAIT;
+
+    /**
+     * @var string The size of the paper to use for generated order PDFs.
+     *
+     * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
+     *
+     * @since 5.0.0
+     */
+    public string $paperSize = 'letter';
+
+    /**
      * @var string|null UID
      */
     public ?string $uid = null;
@@ -77,6 +104,17 @@ class Pdf extends Model
      */
     public string $language = PdfRecord::LOCALE_ORDER_LANGUAGE;
 
+
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function getCpEditUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/settings/pdfs/' . $this->getStore()->handle . '/' . $this->id);
+    }
+
     /**
      * @inheritdoc
      */
@@ -84,6 +122,30 @@ class Pdf extends Model
     {
         return [
             [['name', 'handle', 'templatePath', 'language'], 'required'],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => PdfRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'message' => '{attribute} "{value}" has already been taken.',
+            ],
+            [['paperOrientation'], 'in', 'range' => [PdfRecord::PAPER_ORIENTATION_PORTRAIT, PdfRecord::PAPER_ORIENTATION_LANDSCAPE]],
+            [['paperSize'], 'in', 'range' => array_keys(CPDF::$PAPER_SIZES)],
+            [[
+                'description',
+                'enabled',
+                'fileNameFormat',
+                'handle',
+                'id',
+                'isDefault',
+                'language',
+                'name',
+                'paperOrientation',
+                'paperSize',
+                'sortOrder',
+                'storeId',
+                'templatePath',
+                'uid',
+            ], 'safe'],
         ];
     }
 
@@ -126,15 +188,39 @@ class Pdf extends Model
     public function getConfig(): array
     {
         return [
-            'name' => $this->name,
-            'handle' => $this->handle,
             'description' => $this->description,
-            'templatePath' => $this->templatePath,
-            'fileNameFormat' => $this->fileNameFormat,
             'enabled' => $this->enabled,
-            'sortOrder' => $this->sortOrder ?: 9999,
+            'fileNameFormat' => $this->fileNameFormat,
+            'handle' => $this->handle,
             'isDefault' => $this->isDefault,
             'language' => $this->language,
+            'name' => $this->name,
+            'paperOrientation' => $this->paperOrientation,
+            'paperSize' => $this->paperSize,
+            'sortOrder' => $this->sortOrder ?: 9999,
+            'store' => $this->getStore()->uid,
+            'templatePath' => $this->templatePath,
         ];
+    }
+
+    /**
+     * @return string[]
+     * @since 5.0.0
+     */
+    public static function getPaperOrientationOptions(): array
+    {
+        return [
+            PdfRecord::PAPER_ORIENTATION_PORTRAIT => Craft::t('commerce', 'Portrait'),
+            PdfRecord::PAPER_ORIENTATION_LANDSCAPE => Craft::t('commerce', 'Landscape'),
+        ];
+    }
+
+    /**
+     * @return array
+     * @since 5.0.0
+     */
+    public static function getPaperSizeOptions(): array
+    {
+        return collect(CPDF::$PAPER_SIZES)->mapWithKeys(fn($value, $key) => [$key => $key])->all();
     }
 }

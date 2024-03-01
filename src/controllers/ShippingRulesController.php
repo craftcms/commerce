@@ -17,6 +17,7 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use craft\helpers\MoneyHelper;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -47,12 +48,16 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @throws SyntaxError
      * @throws Exception
      */
-    public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
+    public function actionEdit(?string $storeHandle = null, int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('methodId', 'ruleId', 'shippingRule');
 
         $plugin = Plugin::getInstance();
-        $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId']);
+        $variables['shippingMethod'] = $plugin->getShippingMethods()->getShippingMethodById($variables['methodId'], $store->id);
 
         if (!$variables['shippingMethod']) {
             throw new HttpException(404);
@@ -67,6 +72,8 @@ class ShippingRulesController extends BaseShippingSettingsController
                 }
             } else {
                 $variables['shippingRule'] = new ShippingRule();
+                $variables['shippingRule']->methodId = $variables['shippingMethod']->id;
+                $variables['shippingRule']->storeId = $variables['shippingMethod']->storeId;
             }
         }
 
@@ -84,9 +91,10 @@ class ShippingRulesController extends BaseShippingSettingsController
         ]);
 
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
+            $this->getView()->renderTemplate('commerce/store-management/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
+        $this->getView()->setNamespace(null);
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
@@ -97,7 +105,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingMethod'], prepend: true);
         DebugPanel::prependOrAppendModelTab(model: $variables['shippingRule'], prepend: true);
 
-        $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
+        $shippingZones = $plugin->getShippingZones()->getAllShippingZones($store->id)->all();
         $variables['shippingZones'] = [];
         $variables['shippingZones'][] = Craft::t('commerce', 'Anywhere');
         foreach ($shippingZones as $model) {
@@ -109,7 +117,10 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
+        $variables['storeId'] = $store->id;
+        $variables['storeHandle'] = $store->handle;
+
+        return $this->renderTemplate('commerce/store-management/shipping/shippingrules/_edit', $variables);
     }
 
     /**
@@ -136,26 +147,31 @@ class ShippingRulesController extends BaseShippingSettingsController
         if (!$duplicate) {
             $shippingRule->id = $this->request->getBodyParam('id');
         }
+        $shippingRule->storeId = $this->request->getBodyParam('storeId');
+
+        $moneyInputs = [
+            'baseRate',
+            'maxRate',
+            'minRate',
+            'perItemRate',
+            'weightRate',
+        ];
+
+        foreach ($moneyInputs as $moneyInput) {
+            $input = $this->request->getBodyParam($moneyInput);
+            $input += [
+                'currency' => $shippingRule->getStore()->getCurrency(),
+            ];
+            $shippingRule->$moneyInput = (float)MoneyHelper::toDecimal(MoneyHelper::toMoney($input));
+        }
 
         $shippingRule->name = $this->request->getBodyParam('name');
         $shippingRule->description = $this->request->getBodyParam('description');
-        $shippingRule->shippingZoneId = $this->request->getBodyParam('shippingZoneId');
         $shippingRule->methodId = $this->request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$this->request->getBodyParam('enabled');
         $shippingRule->orderConditionFormula = trim($this->request->getBodyParam('orderConditionFormula', ''));
-        $shippingRule->minQty = $this->request->getBodyParam('minQty');
-        $shippingRule->maxQty = $this->request->getBodyParam('maxQty');
-        $shippingRule->minTotal = Localization::normalizeNumber($this->request->getBodyParam('minTotal'));
-        $shippingRule->maxTotal = Localization::normalizeNumber($this->request->getBodyParam('maxTotal'));
-        $shippingRule->minMaxTotalType = $this->request->getBodyParam('minMaxTotalType');
-        $shippingRule->minWeight = Localization::normalizeNumber($this->request->getBodyParam('minWeight'));
-        $shippingRule->maxWeight = Localization::normalizeNumber($this->request->getBodyParam('maxWeight'));
-        $shippingRule->baseRate = Localization::normalizeNumber($this->request->getBodyParam('baseRate'));
-        $shippingRule->perItemRate = Localization::normalizeNumber($this->request->getBodyParam('perItemRate'));
-        $shippingRule->weightRate = Localization::normalizeNumber($this->request->getBodyParam('weightRate'));
         $shippingRule->percentageRate = Localization::normalizeNumber($this->request->getBodyParam('percentageRate'));
-        $shippingRule->minRate = Localization::normalizeNumber($this->request->getBodyParam('minRate'));
-        $shippingRule->maxRate = Localization::normalizeNumber($this->request->getBodyParam('maxRate'));
+        $shippingRule->setOrderCondition($this->request->getBodyParam('orderCondition'));
 
         $ruleCategories = [];
         $allRulesCategories = $this->request->getBodyParam('ruleCategories');
@@ -163,8 +179,16 @@ class ShippingRulesController extends BaseShippingSettingsController
             $perItemRate = $ruleCategory['perItemRate'];
             $weightRate = $ruleCategory['weightRate'];
             $percentageRate = $ruleCategory['percentageRate'];
-            $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim($perItemRate) === '') ? null : Localization::normalizeNumber($perItemRate);
-            $ruleCategory['weightRate'] = (!isset($weightRate) || trim($weightRate) === '') ? null : Localization::normalizeNumber($weightRate);
+            $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim($perItemRate['value']) === '')
+                ? null
+                : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
+                    'currency' => $shippingRule->getStore()->getCurrency(),
+                ], $perItemRate)));
+            $ruleCategory['weightRate'] = (!isset($weightRate) || trim($weightRate['value']) === '')
+                ? null
+                : MoneyHelper::toDecimal(MoneyHelper::toMoney(array_merge([
+                'currency' => $shippingRule->getStore()->getCurrency(),
+            ], $weightRate)));
             $ruleCategory['percentageRate'] = (!isset($percentageRate) || trim($percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate);
 
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);

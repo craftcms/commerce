@@ -48,7 +48,7 @@ class TransferCustomerDataController extends Controller
      */
     public function actionIndex(): int
     {
-        $this->stdout("This command will transfer all commerce data from one user to another.\n");
+        $this->stdout('This command will transfer all commerce data from one user to another.' . PHP_EOL);
 
         $this->fromUser = $this->prompt('Move Commerce data from user (email or username):', [
             'required' => true,
@@ -61,7 +61,7 @@ class TransferCustomerDataController extends Controller
         ]);
 
         if ($this->fromUser === '' || $this->toUser === '') {
-            $this->stderr("No 'fromUser' or 'toUser' specified.\n", Console::FG_RED);
+            $this->stderr('You must specify both a “to” and “from” user.' . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
@@ -69,27 +69,38 @@ class TransferCustomerDataController extends Controller
         $toUser = Craft::$app->getUsers()->getUserByUsernameOrEmail($this->toUser);
 
         if ($fromUser === null) {
-            $this->stderr("No user with {$this->fromUser} found.\n", Console::FG_RED);
+            $this->stderr("No user found with a username or email of `{$this->fromUser}`" . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
         if ($toUser === null) {
-            $this->stderr("No user with {$this->toUser} found.\n", Console::FG_RED);
+            $this->stderr("No user found with a username or email of `{$this->toUser}`" . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $confirm = $this->confirm('Are you sure you want to move all Commerce data from user: ' . $this->fromUser . ' to user: ' . $this->toUser . '? (y/n)');
+        // Make sure they're not the same!
+        if ($fromUser->id === $toUser->id) {
+            $this->stderr('The transfer must happen between different users.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $confirm = $this->confirm('Are you sure you want to move all Commerce data from user: ' . $this->fromUser . ' to user: ' . $this->toUser . '?');
         if (!$confirm) {
-            $this->stdout('Aborting.');
+            $this->stdout('No data will be moved.', Console::FG_YELLOW);
             return ExitCode::OK;
         }
+
+        $this->stdout('Moving data... ');
 
         try {
             Plugin::getInstance()->getCustomers()->transferCustomerData($fromUser, $toUser);
         } catch (Exception $e) {
-            $this->stderr($e->getMessage() . "\n", Console::FG_RED);
+            $this->stderr('failed!' . PHP_EOL, Console::FG_RED);
+            $this->stderr($e->getMessage() . PHP_EOL, Console::FG_RED);
             return ExitCode::UNSPECIFIED_ERROR;
         }
+
+        $this->stdout('done!' . PHP_EOL, Console::FG_GREEN);
 
         return ExitCode::OK;
     }

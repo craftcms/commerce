@@ -9,13 +9,17 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use DateTime;
+use craft\models\Site;
 
 /**
  * Total Orders By Country widget
@@ -29,23 +33,10 @@ use DateTime;
  */
 class TotalOrdersByCountry extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
+    use StatWidgetTrait;
 
     /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
-
-    /**
-     * @var string Options 'billing', 'shippinh'.
+     * @var string Options 'billing', 'shipping'.
      */
     public string $type;
 
@@ -71,6 +62,12 @@ class TotalOrdersByCountry extends Widget
     {
         parent::init();
 
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->_typeOptions = [
             'billing' => Craft::t('commerce', 'Billing'),
             'shipping' => Craft::t('commerce', 'Shipping'),
@@ -89,8 +86,13 @@ class TotalOrdersByCountry extends Widget
             $this->dateRange,
             $this->type,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
     }
 
     /**
@@ -171,9 +173,12 @@ class TotalOrdersByCountry extends Widget
         $id = 'total-orders' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
+
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/country/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
         ]);

@@ -34,11 +34,6 @@ class OrderAddressesTest extends Unit
     protected Order $order;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
@@ -51,12 +46,12 @@ class OrderAddressesTest extends Unit
      * @throws InvalidConfigException
      * @dataProvider hasMatchingAddressesDataProvider
      */
-    public function testHasMatchingAddresses(?array $billingAddress, ?array $shippingAddress, bool $expected): void
+    public function testHasMatchingAddresses(?array $billingAddress, ?array $shippingAddress, bool $expected, ?array $attributes = null): void
     {
         $this->order->setBillingAddress(Craft::createObject($billingAddress));
         $this->order->setShippingAddress(Craft::createObject($shippingAddress));
 
-        self::assertSame($expected, $this->order->hasMatchingAddresses());
+        self::assertSame($expected, $this->order->hasMatchingAddresses($attributes));
     }
 
     public function hasMatchingAddressesDataProvider(): array
@@ -124,6 +119,60 @@ class OrderAddressesTest extends Unit
                 ],
                 true,
             ],
+            'attributes-matching' => [
+                [
+                    'class' => Address::class,
+                    'fullName' => 'Johnny Appleseed',
+                    'addressLine1' => '1 Main Street',
+                    'addressLine2' => 'SW',
+                    'locality' => 'Bend',
+                    'administrativeArea' => 'OR',
+                    'countryCode' => 'US',
+                    'postalCode' => '12345',
+                ],
+                [
+                    'class' => Address::class,
+                    'fullName' => 'Johnny Appleseed',
+                    'addressLine1' => '123 Main Street',
+                    'addressLine2' => 'SW',
+                    'locality' => 'Bend',
+                    'administrativeArea' => 'OR',
+                    'countryCode' => 'US',
+                    'postalCode' => '12345',
+                ],
+                true,
+                [
+                    'addressLine2',
+                    'locality',
+                    'administrativeArea',
+                ],
+            ],
+            'attributes-not-matching' => [
+                [
+                    'class' => Address::class,
+                    'fullName' => 'Johnny Appleseed',
+                    'addressLine1' => '1 Main Street',
+                    'addressLine2' => 'SW',
+                    'locality' => 'Bend',
+                    'administrativeArea' => 'OR',
+                    'countryCode' => 'US',
+                    'postalCode' => '12345',
+                ],
+                [
+                    'class' => Address::class,
+                    'fullName' => 'Johnny Appleseed',
+                    'addressLine1' => '123 Main Street',
+                    'addressLine2' => 'SW',
+                    'locality' => 'Bend',
+                    'administrativeArea' => 'OR',
+                    'countryCode' => 'US',
+                    'postalCode' => '12345',
+                ],
+                false,
+                [
+                    'addressLine1',
+                ],
+            ],
         ];
     }
 
@@ -135,8 +184,6 @@ class OrderAddressesTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = $this->pluginInstance->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
 
         $this->order = new Order();
     }
@@ -147,7 +194,5 @@ class OrderAddressesTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
     }
 }

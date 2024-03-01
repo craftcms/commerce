@@ -1,5 +1,7 @@
 {% import '_includes/forms' as forms %}
 <div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_storeField' with { id: namespaceId, widget: widget, updateOrderStatuses: true } %}
+
   {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
 
   {{ forms.lightswitchField({
@@ -18,4 +20,6 @@
     options: types,
     value: widget.type,
   }) }}
+
+  {% include 'commerce/_components/widgets/_includes/_orderStatusesField' with { id: namespaceId, widget: widget } %}
 </div>

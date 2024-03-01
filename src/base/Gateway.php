@@ -42,6 +42,16 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * Shows the payment button on the payment form.
+     *
+     * @return bool
+     */
+    public function showPaymentFormSubmitButton(): bool
+    {
+        return true;
+    }
+
+    /**
      * Returns the webhook url for this gateway.
      *
      * @param array $params Parameters for the url.
@@ -52,7 +62,12 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
         $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', $params);
 
-        return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
+        // Remove the cpTrigger from the url if it's there.
+        if (Craft::$app->getConfig()->getGeneral()->cpTrigger) {
+            $url = StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
+        }
+
+        return $url;
     }
 
     /**

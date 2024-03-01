@@ -10,11 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
+use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\db\Query;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 
 /**
@@ -27,44 +30,51 @@ use yii\db\StaleObjectException;
 class ShippingZones extends Component
 {
     /**
-     * @var ShippingAddressZone[]
+     * @var Collection<ShippingAddressZone>[]
      */
-    private array $_allZones = [];
+    private ?array $_allZones = null;
 
     /**
      * Get all shipping zones.
      *
-     * @return ShippingAddressZone[]
+     * @param int|null $storeId
+     * @return Collection<ShippingAddressZone>
+     * @throws InvalidConfigException
      */
-    public function getAllShippingZones(): array
+    public function getAllShippingZones(?int $storeId = null): Collection
     {
-        $rows = $this->_createQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        foreach ($rows as $row) {
-            $this->_allZones[$row['id']] = new ShippingAddressZone($row);
+        if ($this->_allZones === null || !isset($this->_allZones[$storeId])) {
+            $results = $this->_createQuery()->where(['storeId' => $storeId])->all();
+
+            if ($this->_allZones === null) {
+                $this->_allZones = [];
+            }
+
+            foreach ($results as $result) {
+                $shippingAddressZone = Craft::createObject([
+                    'class' => ShippingAddressZone::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allZones[$shippingAddressZone->storeId])) {
+                    $this->_allZones[$shippingAddressZone->storeId] = collect();
+                }
+
+                $this->_allZones[$shippingAddressZone->storeId]->push($shippingAddressZone);
+            }
         }
 
-        return $this->_allZones;
+        return $this->_allZones[$storeId] ?? collect();
     }
 
     /**
      * Get a shipping zone by its ID.
      */
-    public function getShippingZoneById(int $id): ?ShippingAddressZone
+    public function getShippingZoneById(int $id, ?int $storeId = null): ?ShippingAddressZone
     {
-        if (isset($this->_allZones[$id])) {
-            return $this->_allZones[$id];
-        }
-
-        $result = $this->_createQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allZones[$id] = new ShippingAddressZone($result);
+        return $this->getAllShippingZones($storeId)->firstWhere('id', $id);
     }
 
     /**
@@ -94,6 +104,7 @@ class ShippingZones extends Component
 
         //setting attributes
         $record->name = $model->name;
+        $record->storeId = $model->storeId;
         $record->description = $model->description;
         $record->condition = $model->getCondition()->getConfig();
         $this->_clearCaches();
@@ -137,6 +148,7 @@ class ShippingZones extends Component
                 'description',
                 'id',
                 'name',
+                'storeId',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);

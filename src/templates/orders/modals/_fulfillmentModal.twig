@@ -1,0 +1,37 @@
+{% import '_includes/forms.twig' as forms %}
+
+{% for inventoryLocationId, fulfillmentLevels in inventoryFulfillmentLevels %}
+    <h3>{{ fulfillmentLevels[0].getInventoryLocation().name }}</h3>
+    <table class="data fullwidth">
+        <tr>
+            <th>{{ "Description"|t('commerce') }}</th>
+            <th>{{ "Fulfilled"|t('commerce') }}</th>
+            <th>{{ "Fulfill"|t('commerce') }}</th>
+        </tr>
+        {% for fulfillmentLevel in fulfillmentLevels %}
+            <tr>
+            <td class="">{{fulfillmentLevel.getLineItem().description}}</td>
+            <td class="">{{fulfillmentLevel.fulfilledQuantity}} / {{fulfillmentLevel.committedQuantity}}</td>
+            <td class="">
+                <div id="fulfillment-{{ loop.index }}">
+                {{ forms.text({
+                    type: 'number',
+                    inputAttributes: {
+                        max: max(fulfillmentLevel.outstandingCommittedQuantity, 0),
+                        min: -fulfillmentLevel.fulfilledQuantity,
+                        step: 1,
+                        class: 'fulfillment-quantity',
+                    },
+                    name: 'fulfillment['~loop.index~'][quantity]',
+                }) }}
+                </div>
+                {{ hiddenInput('fulfillment['~loop.index~'][max]', max(fulfillmentLevel.outstandingCommittedQuantity, 0)) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][inventoryLocationId]', fulfillmentLevel.inventoryLocationId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][inventoryItemId]', fulfillmentLevel.inventoryItemId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
+                {{ hiddenInput('fulfillment['~loop.index~'][lineItemId]', fulfillmentLevel.lineItemId) }}
+            </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endfor %}

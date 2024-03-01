@@ -9,14 +9,18 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\helpers\Currency;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
-use DateTime;
+use craft\models\Site;
 
 /**
  * Total Revenue widget
@@ -30,20 +34,7 @@ use DateTime;
  */
 class TotalRevenue extends Widget
 {
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $startDate = null;
-
-    /**
-     * @var int|DateTime|null
-     */
-    public mixed $endDate = null;
-
-    /**
-     * @var string|null
-     */
-    public ?string $dateRange = null;
+    use StatWidgetTrait;
 
     /**
      * @var string
@@ -67,13 +58,25 @@ class TotalRevenue extends Widget
     public function init(): void
     {
         parent::init();
+
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
+
+        if (!empty($this->orderStatuses)) {
+            $this->_stat->setOrderStatuses($this->orderStatuses);
+        }
 
         $this->_stat->type = $this->type;
     }
@@ -184,10 +187,13 @@ class TotalRevenue extends Widget
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
+
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/revenue/settings', [
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
+            'orderStatuses' => $this->getOrderStatusOptions(),
             'types' => [
                 TotalRevenueStat::TYPE_TOTAL => Craft::t('commerce', 'Total'),
                 TotalRevenueStat::TYPE_TOTAL_PAID => Craft::t('commerce', 'Total Paid'),

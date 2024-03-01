@@ -20,6 +20,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * ProductQuery represents a SELECT SQL statement for products in a way that is independent of DBMS.
@@ -44,11 +45,6 @@ use yii\db\Connection;
  */
 class ProductQuery extends ElementQuery
 {
-    /**
-     * @var bool|null Whether the product is available for purchase
-     */
-    public ?bool $availableForPurchase = null;
-
     /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
@@ -186,7 +182,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultPrice(mixed $value): ProductQuery
+    public function defaultPrice(mixed $value): static
     {
         $this->defaultPrice = $value;
 
@@ -224,7 +220,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultHeight(mixed $value): ProductQuery
+    public function defaultHeight(mixed $value): static
     {
         $this->defaultHeight = $value;
 
@@ -262,7 +258,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultLength(mixed $value): ProductQuery
+    public function defaultLength(mixed $value): static
     {
         $this->defaultLength = $value;
 
@@ -300,7 +296,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWidth(mixed $value): ProductQuery
+    public function defaultWidth(mixed $value): static
     {
         $this->defaultWidth = $value;
 
@@ -338,7 +334,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWeight(mixed $value): ProductQuery
+    public function defaultWeight(mixed $value): static
     {
         $this->defaultWeight = $value;
 
@@ -376,7 +372,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultSku(mixed $value): ProductQuery
+    public function defaultSku(mixed $value): static
     {
         $this->defaultSku = $value;
 
@@ -412,10 +408,10 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      *
-     * @param string|string[]|ProductType|null $value The property value
+     * @param ProductType|string|null|array<string> $value The property value
      * @return static self reference
      */
-    public function type(mixed $value): ProductQuery
+    public function type(mixed $value): static
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
@@ -465,7 +461,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before(DateTime|string $value): ProductQuery
+    public function before(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -510,7 +506,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after(DateTime|string $value): ProductQuery
+    public function after(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -528,7 +524,7 @@ class ProductQuery extends ElementQuery
      * @param bool $value The property value (defaults to true)
      * @return static self reference
      */
-    public function editable(bool $value = true): ProductQuery
+    public function editable(bool $value = true): static
     {
         $this->editable = $value;
         return $this;
@@ -565,7 +561,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function typeId(mixed $value): ProductQuery
+    public function typeId(mixed $value): static
     {
         $this->typeId = $value;
         return $this;
@@ -584,7 +580,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant(mixed $value): ProductQuery
+    public function hasVariant(mixed $value): static
     {
         $this->hasVariant = $value;
         return $this;
@@ -626,7 +622,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function postDate(mixed $value): ProductQuery
+    public function postDate(mixed $value): static
     {
         $this->postDate = $value;
         return $this;
@@ -666,37 +662,9 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate(mixed $value): ProductQuery
+    public function expiryDate(mixed $value): static
     {
         $this->expiryDate = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only products that are available for purchase.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch products that are available for purchase #}
-     * {% set {elements-var} = {twig-method}
-     *   .availableForPurchase()
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch products that are available for purchase
-     * ${elements-var} = {element-class}::find()
-     *     ->availableForPurchase()
-     *     ->all();
-     * ```
-     *
-     * @param bool|null $value The property value
-     * @return static self reference
-     */
-    public function availableForPurchase(?bool $value = true): ProductQuery
-    {
-        $this->availableForPurchase = $value;
         return $this;
     }
 
@@ -729,7 +697,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status(array|string|null $value): ProductQuery
+    public function status(array|string|null $value): static
     {
         parent::status($value);
         return $this;
@@ -754,9 +722,6 @@ class ProductQuery extends ElementQuery
         $this->query->select([
             'commerce_products.id',
             'commerce_products.typeId',
-            'commerce_products.promotable',
-            'commerce_products.freeShipping',
-            'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -766,13 +731,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultLength',
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
-            'commerce_products.taxCategoryId',
-            'commerce_products.shippingCategoryId',
         ]);
-
-        if (isset($this->availableForPurchase)) {
-            $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
-        }
 
         if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
@@ -915,17 +874,20 @@ class ProductQuery extends ElementQuery
             $query = Variant::find();
             $variantQuery = Craft::configure($query, $this->hasVariant);
         } else {
-            return;
+            throw new QueryAbortedException('Invalid param used. ProductQuery::hasVariant param only expects a variant query or variant query config.');
         }
 
         $variantQuery->limit = null;
-        $variantQuery->select('commerce_variants.productId');
-        $productIds = $variantQuery->asArray()->column();
+        $variantQuery->select('commerce_variants.primaryOwnerId');
 
         // Remove any blank product IDs (if any)
-        $productIds = array_filter($productIds);
+        $variantQuery->andWhere(['not', ['commerce_variants.primaryOwnerId' => null]]);
 
-        $this->subQuery->andWhere(['commerce_products.id' => array_values($productIds)]);
+        // Uses exists subquery for speed to check for the variant
+        $existsQuery = (new Query())
+            ->from(['existssub' => $variantQuery])
+            ->where(['existssub.primaryOwnerId' => new Expression('[[commerce_products.id]]')]);
+        $this->subQuery->andWhere(['exists', $existsQuery]);
     }
 
     /**

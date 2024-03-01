@@ -1,0 +1,12 @@
+{% if inventoryLocation and inventoryLocation.id %}
+    <div class="meta read-only">
+        <div class="data">
+            <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+            <div id="date-created-value" class="value">{{ inventoryLocation.dateCreated|datetime('short') }}</div>
+        </div>
+        <div class="data">
+            <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+            <div id="date-updated-value" class="value">{{ inventoryLocation.dateUpdated|datetime('short') }}</div>
+        </div>
+    </div>
+{% endif %}

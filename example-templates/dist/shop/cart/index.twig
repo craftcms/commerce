@@ -89,7 +89,7 @@ Outputs cart.
                       </label>
                       {{ input('text', 'lineItems[' ~ item.id ~ '][note]', item.note, {
                         id: 'lineitem-note-' ~ item.id,
-                        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded',
+                        class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-full',
                         size: 20,
                         placeholder: 'My Note'|t
                       }) }}
@@ -119,21 +119,22 @@ Outputs cart.
                     <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                       <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
                       <div class="text-sm tabular-nums">
-                        {%- if item.onSale %}<del>{% endif %}
+                        {%- if item.onPromotion %}<del>{% endif %}
                         {{- item.priceAsCurrency -}}
-                        {% if item.onSale %}</del>{% endif -%}
+                        {% if item.onPromotion %}</del>{% endif -%}
                       </div>
                     </div>
-                    {% if item.onSale %}
-                      <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
-                        <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
+                    {% if item.onPromotion %}
+                      <div class="flex items-center w-full justify-end" title="{{ item.promotionalAmount }}">
+                        <div class="text-xs pr-2">{{ 'Promotional Price'|t }}:</div>
                         <div class="text-sm tabular-nums">{{ item.salePriceAsCurrency }}</div>
                       </div>
-                      <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
-                        <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                        <div class="text-sm tabular-nums">{{ item.saleAmountAsCurrency }}</div>
+                      <div class="flex items-center w-full justify-end" title="{{ item.promotionalAmount }}">
+                        <div class="text-xs pr-2">{{ 'Promotional Amount'|t }}:</div>
+                        <div class="text-sm tabular-nums">{{ item.promotionalAmountAsCurrency }}</div>
                       </div>
 
+                      {# Only in use for the deprecated sales system #}
                       {% set itemSales = item.snapshot.sales ?? [] %}
                       {% if itemSales|length %}
                         <div class="flex w-full justify-end">
@@ -320,7 +321,7 @@ Outputs cart.
     </form>
   {% else %}
     <p>{{ 'Empty cart. Add items on the {link} page.'|t({
-      link: tag('a', { href: url('/shop/products'), text: 'products', class: 'underline' })
+      link: tag('a', { href: url('shop/products'), text: 'products', class: 'underline' })
     })|raw }}</p>
   {% endif %}
 {% endblock %}

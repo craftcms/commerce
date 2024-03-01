@@ -1,0 +1,31 @@
+{# Date Range picker JS field #}
+{% import "_includes/forms" as forms %}
+{% set id = id is not defined ? null : id %}
+{% set widget = widget is not defined ? null : widget %}
+{% set stores = craft.commerce.stores.getStoresByUserId(currentUser.id)|map((store) => ({ label: store.name, value: store.id})) %}
+{% set updateOrderStatuses = updateOrderStatuses is not defined ? false : updateOrderStatuses %}
+
+{% if not id %}
+  <p>{{ 'An ID must be provided'|t('commerce') }}</p>
+{% else %}
+  {{ forms.selectField({
+    label: "Store"|t('commerce'),
+    id: 'storeId',
+    name: 'storeId',
+    value: widget ? widget.storeId : null,
+    options: stores,
+    errors: widget.getErrors('storeId')
+  }) }}
+{% endif %}
+
+{% js %}
+  {% if updateOrderStatuses %}
+    (() => {
+      if (typeof Craft.Commerce !== typeof undefined) {
+        document.querySelector('#{{ 'storeId'|namespaceInputId }}').addEventListener('change', function(ev) {
+          Craft.Commerce.CommerceWidgets.updateOrderStatuses(ev.target.value, '{{ id|e('js') }}');
+        });
+      }
+    })();
+  {% endif %}
+{% endjs %}

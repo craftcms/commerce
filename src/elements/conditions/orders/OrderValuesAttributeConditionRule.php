@@ -1,8 +1,12 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\elements\conditions\orders;
 
-use Craft;
 use craft\base\conditions\BaseNumberConditionRule;
 use craft\base\ElementInterface;
 use craft\elements\conditions\ElementConditionRuleInterface;
@@ -25,7 +29,7 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
      */
     public function getExclusiveQueryParams(): array
     {
-        return [];
+        return [$this->orderAttribute];
     }
 
     /**
@@ -33,7 +37,7 @@ abstract class OrderValuesAttributeConditionRule extends BaseNumberConditionRule
      */
     public function getLabel(): string
     {
-        return Craft::t('commerce', 'Order Value');
+        return 'Label not implemented';
     }
 
     /**

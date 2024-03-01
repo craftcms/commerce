@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -150,6 +149,16 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypes(): array
     {
+        if (Craft::$app->getRequest()->getIsConsoleRequest()) {
+            return $this->getAllProductTypes();
+        }
+
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return [];
+        }
+
         $editableProductTypeIds = $this->getEditableProductTypeIds();
         $editableProductTypes = [];
 
@@ -370,18 +379,13 @@ class ProductTypes extends Component
 
         $this->_savingProductTypes[$productType->uid] = $productType;
 
-        // If the product type does not have variants, default the title format.
-        if (!$isNewProductType && !$productType->hasVariants) {
-            $productType->hasVariantTitleField = false;
-            $productType->variantTitleFormat = '{product.title}';
-        }
-
         $projectConfig = Craft::$app->getProjectConfig();
         $configData = [
             'name' => $productType->name,
             'handle' => $productType->handle,
+            'enableVersioning' => $productType->enableVersioning,
             'hasDimensions' => $productType->hasDimensions,
-            'hasVariants' => $productType->hasVariants,
+            'maxVariants' => $productType->maxVariants,
 
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
@@ -414,11 +418,7 @@ class ProductTypes extends Component
         };
 
         $configData['productFieldLayouts'] = $generateLayoutConfig($productType->getFieldLayout());
-        $configData['variantFieldLayouts'] = [];
-        if ($productType->hasVariants) {
-            $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
-        }
-
+        $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
 
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
@@ -478,6 +478,7 @@ class ProductTypes extends Component
             $productTypeRecord->uid = $productTypeUid;
             $productTypeRecord->name = $data['name'];
             $productTypeRecord->handle = $data['handle'];
+            $productTypeRecord->enableVersioning = $data['enableVersioning'] ?? false;
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
 
             // Variant title fields
@@ -498,10 +499,10 @@ class ProductTypes extends Component
             $productTypeRecord->productTitleFormat = $productTitleFormat;
             $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
-            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
+            if ($productTypeRecord->maxVariants != $data['maxVariants']) {
                 $shouldResaveProducts = true;
             }
-            $productTypeRecord->hasVariants = $data['hasVariants'];
+            $productTypeRecord->maxVariants = $data['maxVariants'];
 
             $skuFormat = $data['skuFormat'] ?? '';
             if ($productTypeRecord->skuFormat != $skuFormat) {
@@ -952,10 +953,10 @@ class ProductTypes extends Component
                 'productTypes.handle',
                 'productTypes.hasDimensions',
                 'productTypes.hasProductTitleField',
-                'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
                 'productTypes.id',
                 'productTypes.name',
+                'productTypes.maxVariants',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
                 'productTypes.uid',
@@ -963,13 +964,16 @@ class ProductTypes extends Component
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
 
-        // in 4.0 `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+        // todo: remove after the next breakpoint
+        $db = Craft::$app->getDb();
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleFormat')) {
             $query->addSelect('productTypes.variantTitleFormat');
         } else {
             $query->addSelect('productTypes.titleFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
+            $query->addSelect('productTypes.enableVersioning');
         }
 
         return $query;

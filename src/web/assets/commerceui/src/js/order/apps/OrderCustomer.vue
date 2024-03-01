@@ -36,10 +36,10 @@
         >
             <div class="w-1/2 pr" v-show="!editing || !editMode">
                 <template v-if="draft && draft.order.billingAddressHtml">
-                    <div
+                    <ul
                         class="order-address-display order-address-display--static"
                         v-html="draft.order.billingAddressHtml"
-                    ></div>
+                    ></ul>
                 </template>
                 <template v-else>
                     <div class="zilch">
@@ -51,10 +51,10 @@
             </div>
             <div class="w-1/2 pl" v-show="!editing || !editMode">
                 <template v-if="draft && draft.order.shippingAddressHtml">
-                    <div
+                    <ul
                         class="order-address-display order-address-display--static"
                         v-html="draft.order.shippingAddressHtml"
-                    ></div>
+                    ></ul>
                 </template>
                 <template v-else>
                     <div class="zilch">
@@ -420,9 +420,11 @@
 
     .customer-select-wrapper {
         width: 50%;
+        padding-right: 14px;
 
         @media only screen and (max-width: 767px) {
             width: 100%;
+            padding-right: 0;
         }
     }
 </style>

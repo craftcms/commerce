@@ -17,14 +17,15 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\events\ConfigEvent;
-use craft\helpers\App;
 use craft\helpers\Assets;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\mail\Message;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -205,51 +206,74 @@ class Emails extends Component
 
     public const CONFIG_EMAILS_KEY = 'commerce.emails';
 
+    /**
+     * @var Collection[]|null
+     * @since 5.0.0
+     */
+    private ?array $_allEmails = null;
 
     /**
      * Get an email by its ID.
      */
-    public function getEmailById(int $id): ?Email
+    public function getEmailById(int $id, ?int $storeId = null): ?Email
     {
-        $result = $this->_createEmailQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        return $result ? new Email($result) : null;
+        return $this->getAllEmails($storeId)->firstWhere('id', $id);
     }
 
     /**
      * Get all emails.
      *
-     * @return Email[]
+     * @param int|null $storeId
+     * @return Collection<Email>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getAllEmails(): array
+    public function getAllEmails(?int $storeId = null): Collection
     {
-        $rows = $this->_createEmailQuery()->all();
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $emails = [];
-        foreach ($rows as $row) {
-            $emails[] = new Email($row);
+        if ($this->_allEmails === null || !isset($this->_allEmails[$storeId])) {
+            $results = $this->_createEmailQuery()
+                ->where(['storeId' => $storeId])
+                ->all();
+
+            // Start with a blank slate if it isn't memoized
+            if ($this->_allEmails === null) {
+                $this->_allEmails = [];
+            }
+
+            foreach ($results as $result) {
+                $email = Craft::createObject([
+                    'class' => Email::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allEmails[$email->storeId])) {
+                    $this->_allEmails[$email->storeId] = collect();
+                }
+
+                $this->_allEmails[$email->storeId]->push($email);
+            }
         }
 
-        return $emails;
+        if (!isset($this->_allEmails[$storeId])) {
+            return collect();
+        }
+
+        return $this->_allEmails[$storeId];
     }
 
     /**
      * Get all emails that are enabled.
      *
-     * @return Email[]
+     * @param int|null $storeId
+     * @return Collection<Email>
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
      */
-    public function getAllEnabledEmails(): array
+    public function getAllEnabledEmails(?int $storeId = null): Collection
     {
-        $rows = $this->_createEmailQuery()->andWhere(['enabled' => true])->all();
-
-        $emails = [];
-        foreach ($rows as $row) {
-            $emails[] = new Email($row);
-        }
-
-        return $emails;
+        return $this->getAllEmails($storeId)->where('enabled', true);
     }
 
     /**
@@ -312,7 +336,9 @@ class Emails extends Component
         try {
             $emailRecord = $this->_getEmailRecord($emailUid);
             $isNewEmail = $emailRecord->getIsNewRecord();
+            $store = Plugin::getInstance()->getStores()->getStoreByUid($data['store']);
 
+            $emailRecord->storeId = $store->id;
             $emailRecord->name = $data['name'];
             $emailRecord->subject = $data['subject'];
             $emailRecord->recipientType = $data['recipientType'];
@@ -321,6 +347,8 @@ class Emails extends Component
             $emailRecord->cc = $data['cc'] ?? null;
             $emailRecord->replyTo = $data['replyTo'] ?? null;
             $emailRecord->enabled = $data['enabled'];
+            $emailRecord->senderAddress = $data['senderAddress'];
+            $emailRecord->senderName = $data['senderName'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
@@ -338,10 +366,12 @@ class Emails extends Component
         // Fire a 'afterSaveEmail' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
             $this->trigger(self::EVENT_AFTER_SAVE_EMAIL, new EmailEvent([
-                'email' => $this->getEmailById($emailRecord->id),
+                'email' => $this->getEmailById($emailRecord->id, $emailRecord->storeId),
                 'isNew' => $isNewEmail,
             ]));
         }
+
+        $this->clearCache();
     }
 
     /**
@@ -355,7 +385,7 @@ class Emails extends Component
             // Fire a 'beforeDeleteEmail' event
             if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_EMAIL)) {
                 $this->trigger(self::EVENT_BEFORE_DELETE_EMAIL, new EmailEvent([
-                    'email' => $this->getEmailById($id),
+                    'email' => $this->getEmailById($id, $email->storeId),
                 ]));
             }
 
@@ -380,7 +410,7 @@ class Emails extends Component
             return;
         }
 
-        $email = $this->getEmailById($emailRecord->id);
+        $email = $this->getEmailById($emailRecord->id, $emailRecord->storeId);
         $emailRecord->delete();
 
         // Fire a 'beforeDeleteEmail' event
@@ -389,6 +419,8 @@ class Emails extends Component
                 'email' => $email,
             ]));
         }
+
+        $this->clearCache();
     }
 
     /**
@@ -405,6 +437,11 @@ class Emails extends Component
     {
         if (!$email->enabled) {
             $error = Craft::t('commerce', 'Email is not enabled.');
+            return false;
+        }
+
+        if ($email->storeId !== $order->getStore()->id) {
+            $error = Craft::t('commerce', 'Email unavailable.');
             return false;
         }
 
@@ -434,13 +471,9 @@ class Emails extends Component
         $newEmail = Craft::createObject(['class' => $mailer->messageClass, 'mailer' => $mailer]);
 
         $originalLanguage = Craft::$app->language;
-        $craftMailSettings = App::mailSettings();
 
-        $fromEmail = Plugin::getInstance()->getSettings()->emailSenderAddress ?: $craftMailSettings->fromEmail;
-        $fromEmail = App::parseEnv($fromEmail);
-
-        $fromName = Plugin::getInstance()->getSettings()->emailSenderName ?: $craftMailSettings->fromName;
-        $fromName = App::parseEnv($fromName);
+        $fromEmail = $email->getSenderAddress();
+        $fromName = $email->getSenderName();
 
         if ($fromEmail) {
             $newEmail->setFrom($fromEmail);
@@ -691,9 +724,18 @@ class Emails extends Component
 
                 file_put_contents($tempPath, $renderedPdf);
 
-                $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                $fileName = '';
+                $defaultFileName = $pdf->handle . '-' . $order->number;
+                if ($pdf->fileNameFormat) {
+                    try {
+                        $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                    } catch (\Throwable $e) {
+                        $fileName = $defaultFileName;
+                    }
+                }
+
                 if (!$fileName) {
-                    $fileName = $pdf->handle . '-' . $order->number;
+                    $fileName = $defaultFileName;
                 }
 
                 // Attachment information
@@ -886,12 +928,15 @@ class Emails extends Component
                 'emails.plainTextTemplatePath',
                 'emails.recipientType',
                 'emails.replyTo',
+                'emails.senderAddress',
+                'emails.senderName',
+                'emails.storeId',
                 'emails.subject',
                 'emails.templatePath',
                 'emails.to',
                 'emails.uid',
             ])
-            ->orderBy('name')
+            ->orderBy('emails.name')
             ->from([Table::EMAILS . ' emails']);
     }
 
@@ -906,5 +951,14 @@ class Emails extends Component
         }
 
         return new EmailRecord();
+    }
+
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    protected function clearCache(): void
+    {
+        $this->_allEmails = null;
     }
 }
