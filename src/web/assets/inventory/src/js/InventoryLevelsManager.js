@@ -40,7 +40,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
 
     this.columns = [
       {
-        name: '__slot:title',
+        name: 'purchasable',
         sortField: 'item',
         title: Craft.t('commerce', 'Purchasable'),
       },
@@ -107,7 +107,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     this.adminTable = new Craft.VueAdminTable({
       columns: self.columns,
       container: '#' + self.adminTableId,
-      checkboxes: true,
+      checkboxes: false,
       allowMultipleSelections: true,
       fullPane: false,
       perPage: 25,

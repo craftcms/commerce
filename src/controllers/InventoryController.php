@@ -23,6 +23,7 @@ use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\StringHelper;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
@@ -156,6 +157,7 @@ class InventoryController extends Controller
 
     public function actionInventoryLevelsTableData(): Response
     {
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
         $page = $this->request->getParam('page', 1);
@@ -209,22 +211,9 @@ class InventoryController extends Controller
             $id = $inventoryLevel['inventoryItemId'];
             $purchasable = $inventoryItemModel->getPurchasable();
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            $inventoryLevel['title'] = $purchasable?->getDescription() ?? '';
-            $inventoryLevel['url'] = $purchasable?->getCpEditUrl() ?? '';
+            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu'=> $purchasable->canSave($currentUser)]);
             $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];
-
-            if ($purchasable) {
-                $purchasableChip = Cp::elementChipHtml($purchasable, [
-                    'id' => $id,
-                    'url' => $purchasable->getCpEditUrl(),
-                ]);
-                $purchasableChip = Html::tag('div',  $purchasableChip, ['class' => 'flex-grow']);
-                $inventoryLevel['sku'] = Html::tag('div',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId"]));
-                $inventoryLevel['item'] = Html::tag('div', $purchasableChip, ['class' => 'flex']);
-            } else {
-                $inventoryLevel['item'] = '';
-            }
-
+            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
 $('#' + $id).on('click', (e) => {
