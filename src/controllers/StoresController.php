@@ -162,6 +162,7 @@ class StoresController extends BaseStoreManagementController
         $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
+        $store->primary = (bool)$this->request->getBodyParam('primary', $store->primary);
 
         if ($currency = $this->request->getBodyParam('currency')) {
             $store->setCurrency($currency);
