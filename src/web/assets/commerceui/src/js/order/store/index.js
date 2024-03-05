@@ -80,8 +80,16 @@ export default new Vuex.Store({
       return window.orderEdit.taxCategories;
     },
 
+    defaultTaxCategoryId() {
+      return window.orderEdit.defaultTaxCategoryId;
+    },
+
     shippingCategories() {
       return window.orderEdit.shippingCategories;
+    },
+
+    defaultShippingCategoryId() {
+      return window.orderEdit.defaultShippingCategoryId;
     },
 
     statesByCountryId() {

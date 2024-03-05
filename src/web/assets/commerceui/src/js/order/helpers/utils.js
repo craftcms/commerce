@@ -70,6 +70,9 @@ export default {
       if (lineItem.type === 'custom' && lineItem.description) {
         _lineItem.description = lineItem.description;
       }
+      if (lineItem.type === 'custom' && lineItem.sku) {
+        _lineItem.sku = lineItem.sku;
+      }
 
       _lineItem.purchasableId = this.parseInputValue(
         'int',
@@ -78,6 +81,10 @@ export default {
       _lineItem.shippingCategoryId = this.parseInputValue(
         'int',
         lineItem.shippingCategoryId
+      );
+      _lineItem.taxCategoryId = this.parseInputValue(
+        'int',
+        lineItem.taxCategoryId
       );
       _lineItem.promotionalPrice =
         lineItem.promotionalPrice === ''

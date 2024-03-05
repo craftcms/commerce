@@ -52,7 +52,14 @@
                         </span>
                     </order-title>
                     <!-- SKU -->
-                    <div>
+                    <div
+                        :class="{
+                            'mt-s':
+                                editing &&
+                                editMode &&
+                                lineItem.type === lineItemTypes.custom,
+                        }"
+                    >
                         <template
                             v-if="
                                 editing &&

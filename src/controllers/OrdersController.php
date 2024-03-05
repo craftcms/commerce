@@ -1357,8 +1357,14 @@ JS, []);
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
 
+        $defaultTaxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()?->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultTaxCategoryId = ' . Json::encode($defaultTaxCategoryId) . ';', View::POS_BEGIN);
+
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($order->storeId);
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
+
+        $defaultShippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($order->storeId)?->id;
+        Craft::$app->getView()->registerJs('window.orderEdit.defaultShippingCategoryId = ' . Json::encode($defaultShippingCategoryId) . ';', View::POS_BEGIN);
 
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
@@ -1530,6 +1536,7 @@ JS, []);
             // Normalize data
             $type = $lineItemData['type'] ?? LineItemModel::TYPE_PURCHASABLE;
             $description = $lineItemData['description'] ?? null;
+            $sku = $lineItemData['sku'] ?? null;
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
             $privateNote = $lineItemData['privateNote'] ?? '';
@@ -1537,6 +1544,8 @@ JS, []);
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $shippingCategoryId = $lineItemData['shippingCategoryId'] ?? null;
+            $taxCategoryId = $lineItemData['taxCategoryId'] ?? null;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             if ($lineItemId) {
@@ -1550,6 +1559,8 @@ JS, []);
                 }
             }
 
+            $lineItem->type = $type;
+
             $lineItem->purchasableId = $purchasableId;
             $lineItem->qty = $qty;
             $lineItem->note = $note;
@@ -1560,8 +1571,22 @@ JS, []);
 
             $lineItem->setOrder($order);
 
-            if ($lineItem->type === LineItemModel::TYPE_CUSTOM && $description) {
-                $lineItem->setDescription($description);
+            if ($lineItem->type === LineItemModel::TYPE_CUSTOM) {
+                if ($description) {
+                    $lineItem->setDescription($description);
+                }
+
+                if ($sku) {
+                    $lineItem->setSku($sku);
+                }
+
+                if ($shippingCategoryId) {
+                    $lineItem->shippingCategoryId = $shippingCategoryId;
+                }
+
+                if ($taxCategoryId) {
+                    $lineItem->taxCategoryId = $taxCategoryId;
+                }
             }
 
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
