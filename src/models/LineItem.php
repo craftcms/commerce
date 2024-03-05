@@ -21,6 +21,7 @@ use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\errors\DeprecationException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
@@ -70,9 +71,27 @@ use yii\base\InvalidConfigException;
 class LineItem extends Model
 {
     /**
+     * @var string
+     * @since 5.0.0
+     */
+    public const TYPE_PURCHASABLE = 'purchasable';
+
+    /**
+     * @var string
+     * @since 5.0.0
+     */
+    public const TYPE_CUSTOM = 'custom';
+
+
+    /**
      * @var int|null ID
      */
     public ?int $id = null;
+
+    /**
+     * @var string
+     */
+    public string $type = self::TYPE_PURCHASABLE;
 
     /**
      * @var string Description
@@ -495,6 +514,7 @@ class LineItem extends Model
                     'qty',
                     'snapshot',
                     'taxCategoryId',
+                    'type',
                     'shippingCategoryId',
                 ], 'required',
             ],
@@ -504,7 +524,7 @@ class LineItem extends Model
             [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
         ];
 
-        if ($this->purchasableId) {
+        if ($this->type === self::TYPE_PURCHASABLE && $this->purchasableId) {
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
             $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
@@ -522,6 +542,9 @@ class LineItem extends Model
 
     /**
      * @return int
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.0.0
      */
     public function getFulfilledTotalQuantity(): int
     {
@@ -647,6 +670,11 @@ class LineItem extends Model
         return $this->getSubtotal() + $this->getAdjustmentsTotal();
     }
 
+    /**
+     * @param string $taxable
+     * @return float
+     * @throws InvalidConfigException
+     */
     public function getTaxableSubtotal(string $taxable): float
     {
         return match ($taxable) {
@@ -663,6 +691,10 @@ class LineItem extends Model
      */
     public function refreshFromPurchasable(): bool
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            throw new InvalidConfigException('Cannot refresh a custom line item from a purchasable');
+        }
+
         if ($this->qty <= 0 && $this->id) {
             return false;
         }
@@ -678,8 +710,17 @@ class LineItem extends Model
         return true;
     }
 
+    /**
+     * @return PurchasableInterface|null
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     */
     public function getPurchasable(): ?PurchasableInterface
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            throw new InvalidConfigException('Cannot get a purchasable for a custom line item');
+        }
+
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
             $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
@@ -690,10 +731,34 @@ class LineItem extends Model
         return $this->_purchasable;
     }
 
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return void
+     * @throws InvalidConfigException
+     */
     public function setPurchasable(PurchasableInterface $purchasable): void
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            throw new InvalidConfigException('Cannot set a purchasable for a custom line item');
+        }
+
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
+    }
+
+    /**
+     * @return void
+     * @since 5.0.0
+     */
+    public function populate(mixed $data = null): void
+    {
+        if ($this->type === self::TYPE_CUSTOM) {
+            return;
+        }
+
+        if ($data) {
+            $this->populateFromPurchasable($data);
+        }
     }
 
     /**
@@ -701,6 +766,10 @@ class LineItem extends Model
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            throw new InvalidConfigException('Cannot populate a custom line item from a purchasable');
+        }
+
         $this->setPrice($purchasable->getPrice());
         $this->setPromotionalPrice($purchasable->getPromotionalPrice());
         $this->taxCategoryId = $purchasable->getTaxCategory()->id;
@@ -763,6 +832,7 @@ class LineItem extends Model
     /**
      * @return bool
      * @throws DeprecationException
+     * @deprecated in 5.0.0. Use `getOnPromotion()` instead.
      */
     public function getOnSale(): bool
     {
@@ -850,6 +920,10 @@ class LineItem extends Model
      */
     public function getIsTaxable(): bool
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            return true;
+        }
+
         if (!$this->getPurchasable()) {
             return true; // we have a default tax category so assume so.
         }
@@ -862,6 +936,10 @@ class LineItem extends Model
      */
     public function getIsShippable(): bool
     {
+        if ($this->type === self::TYPE_CUSTOM) {
+            return true;
+        }
+
         if (!$this->getPurchasable()) {
             return true; // we have a default shipping category so assume so.
         }

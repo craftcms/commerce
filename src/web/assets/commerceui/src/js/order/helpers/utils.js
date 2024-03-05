@@ -65,6 +65,12 @@ export default {
         lineItem.lineItemStatusId
       );
       _lineItem.id = this.parseInputValue('int', lineItem.id);
+      _lineItem.type = lineItem.type;
+
+      if (lineItem.type === 'custom' && lineItem.description) {
+        _lineItem.description = lineItem.description;
+      }
+
       _lineItem.purchasableId = this.parseInputValue(
         'int',
         lineItem.purchasableId

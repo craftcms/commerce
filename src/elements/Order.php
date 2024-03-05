@@ -1922,6 +1922,12 @@ class Order extends Element implements HasStoreInterface
 
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
+                if ($item->type === LineItem::TYPE_CUSTOM) {
+                    // @TODO figure out if we need to have a population/refresh here
+                    $item->populate();
+                    continue;
+                }
+
                 $originalSalePrice = $item->getSalePrice();
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
                 if ($item->refreshFromPurchasable()) {

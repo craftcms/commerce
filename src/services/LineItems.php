@@ -230,6 +230,7 @@ class LineItems extends Component
             return false;
         }
 
+        $lineItemRecord->type = $lineItem->type;
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
@@ -332,7 +333,7 @@ class LineItems extends Component
      * @param string|null $uid
      * @throws \Exception
      */
-    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
+    public function createLineItem(Order $order, ?int $purchasableId = null, array $options = [], int $qty = 1, string $note = '', string $uid = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
@@ -341,15 +342,26 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        $forCustomer = $order->customerId ?? false;
-        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
+        $populateData = null;
+        if ($purchasableId) {
+            $forCustomer = $order->customerId ?? false;
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 
-        if ($purchasable instanceof PurchasableInterface) {
-            $lineItem->setPurchasable($purchasable);
-            $lineItem->populateFromPurchasable($purchasable);
+            if ($purchasable instanceof PurchasableInterface) {
+                $lineItem->setPurchasable($purchasable);
+                $populateData = $purchasable;
+            } else {
+                throw new InvalidArgumentException('Invalid purchasable ID');
+            }
         } else {
-            throw new InvalidArgumentException('Invalid purchasable ID');
+            $lineItem->type = LineItem::TYPE_CUSTOM;
+            // @TODO add event to hook into custom line item population
+
+            // Temp snapshot for custom line items
+            $lineItem->setSnapshot(['foo' => 'bar a custom line item']);
         }
+
+        $lineItem->populate($populateData);
 
         // Raise a 'createLineItem' event
         if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
@@ -359,7 +371,9 @@ class LineItems extends Component
             ]));
         }
 
-        $lineItem->refreshFromPurchasable();
+        if ($lineItem->type === LineItem::TYPE_PURCHASABLE) {
+            $lineItem->refreshFromPurchasable();
+        }
 
         return $lineItem;
     }
@@ -456,6 +470,7 @@ class LineItems extends Component
                 'sku',
                 'snapshot',
                 'taxCategoryId',
+                'type',
                 'uid',
                 'weight',
                 'width',

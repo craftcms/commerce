@@ -362,6 +362,7 @@ class Install extends Migration
         $this->createTable(Table::LINEITEMS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
+            'type' => $this->enum('type', ['purchasable', 'custom'])->defaultValue('purchasable')->notNull(),
             'purchasableId' => $this->integer(),
             'taxCategoryId' => $this->integer()->notNull(),
             'shippingCategoryId' => $this->integer()->notNull(),

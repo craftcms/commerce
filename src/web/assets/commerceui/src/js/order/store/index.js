@@ -157,6 +157,10 @@ export default new Vuex.Store({
       return window.orderEdit.lineItemStatuses;
     },
 
+    lineItemTypes() {
+      return window.orderEdit.lineItemTypes;
+    },
+
     shippingMethods(state) {
       const shippingMethodsObject = JSON.parse(
         JSON.stringify(state.draft.order.availableShippingMethodOptions)

@@ -11,7 +11,36 @@
             <order-block class="order-flex order-box-sizing">
                 <div class="w-1/4">
                     <!-- Description -->
-                    <order-title>
+                    <div
+                        v-if="
+                            editing &&
+                            editMode &&
+                            lineItem.type === lineItemTypes.custom
+                        "
+                    >
+                        <field
+                            :label="
+                                $options.filters.t('Description', 'commerce')
+                            "
+                            v-slot:default="slotProps"
+                        >
+                            <input
+                                :id="slotProps.id"
+                                type="text"
+                                class="text"
+                                size="10"
+                                v-model="description"
+                                :class="{
+                                    error: getErrors(
+                                        'lineItems.' +
+                                            lineItemKey +
+                                            '.description'
+                                    ).length,
+                                }"
+                            />
+                        </field>
+                    </div>
+                    <order-title v-else>
                         <a
                             :href="lineItem.purchasableCpEditUrl"
                             v-if="lineItem.purchasableCpEditUrl"
@@ -72,7 +101,8 @@
                                         v-if="
                                             editing &&
                                             editMode &&
-                                            recalculationMode === 'none'
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type === 'custom')
                                         "
                                     >
                                         <field
@@ -112,7 +142,8 @@
                                         v-if="
                                             editing &&
                                             editMode &&
-                                            recalculationMode === 'none'
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type === 'custom')
                                         "
                                     >
                                         <div>
@@ -350,11 +381,23 @@
             ...mapGetters([
                 'getErrors',
                 'hasLineItemErrors',
+                'lineItemTypes',
                 'orderId',
                 'shippingCategories',
                 'taxCategories',
                 'totalCommittedStock',
             ]),
+
+            description: {
+                get() {
+                    return this.lineItem.description;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.description = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
 
             promotionalPrice: {
                 get() {

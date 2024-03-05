@@ -31,6 +31,7 @@ use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\inventory\InventoryFulfillMovement;
+use craft\commerce\models\LineItem as LineItemModel;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Pdf;
@@ -600,6 +601,10 @@ JS, []);
         $lineItems = $order->getLineItems();
         $purchasableCpEditUrlByPurchasableId = [];
         foreach ($lineItems as $lineItem) {
+            if ($lineItem->type === LineItemModel::TYPE_CUSTOM) {
+                continue;
+            }
+
             /** @var Purchasable|PurchasableElement|null $purchasable */
             $purchasable = $lineItem->getPurchasable();
             if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
@@ -1343,6 +1348,12 @@ JS, []);
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($order->storeId)->all();
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
 
+        $lineItemTypes = [
+            LineItemModel::TYPE_CUSTOM => Craft::t('commerce', 'Custom'),
+            LineItemModel::TYPE_PURCHASABLE => Craft::t('commerce', 'Purchasable'),
+        ];
+        Craft::$app->getView()->registerJs('window.orderEdit.lineItemTypes = ' . Json::encode($lineItemTypes) . ';', View::POS_BEGIN);
+
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.taxCategories = ' . Json::encode(ArrayHelper::toArray($taxCategories)) . ';', View::POS_BEGIN);
 
@@ -1517,6 +1528,8 @@ JS, []);
 
         foreach ($orderRequestData['order']['lineItems'] as $lineItemData) {
             // Normalize data
+            $type = $lineItemData['type'] ?? LineItemModel::TYPE_PURCHASABLE;
+            $description = $lineItemData['description'] ?? null;
             $lineItemId = $lineItemData['id'] ?? null;
             $note = $lineItemData['note'] ?? '';
             $privateNote = $lineItemData['privateNote'] ?? '';
@@ -1547,12 +1560,16 @@ JS, []);
 
             $lineItem->setOrder($order);
 
+            if ($lineItem->type === LineItemModel::TYPE_CUSTOM && $description) {
+                $lineItem->setDescription($description);
+            }
+
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
-            if ($purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
+            if ($lineItem->type === LineItemModel::TYPE_PURCHASABLE && $purchasableId && !Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $orderRequestData['order']['orderSiteId'], $orderRequestData['order']['customerId'] ?? false)) {
                 $lineItem->purchasableId = null;
             }
 
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE || $lineItem->type === LineItemModel::TYPE_CUSTOM) {
                 $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
                 $lineItem->setPrice($lineItemData['price']);
             }

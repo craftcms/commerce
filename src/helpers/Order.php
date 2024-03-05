@@ -26,7 +26,13 @@ class Order
         $lineItemsByKey = [];
 
         foreach ($lineItems as $lineItem) {
-            $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+            // Generate a key depending on line item type
+            if ($lineItem->type === $lineItem::TYPE_PURCHASABLE) {
+                $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+            } else {
+                $key = $lineItem->orderId . '-' . md5($lineItem->getDescription()) . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
+            }
+
             if (!isset($lineItemsByKey[$key])) {
                 $lineItemsByKey[$key] = $lineItem;
                 continue;

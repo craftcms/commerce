@@ -3,6 +3,18 @@
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">
+                    <div clas="btngroup">
+                        <button class="btn menubtn" ref="menuBtn">
+                            {{ buttonText }}
+                        </button>
+                        <div class="menu">
+                            <ul>
+                                <li>
+                                   <a href="#">Test</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                     <btn-link
                         @click="showForm = true"
                         button-class="btn icon add"
@@ -14,6 +26,16 @@
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{ 'Your order is empty' | t('commerce') }}</h2>
+                    <menu-btn :button-text="'Add a line item'|t('commerce')">
+                        <slot>
+                            <ul>
+                                <li>
+                                    <button @click.prevent>Test</button>
+                                </li>
+                            </ul>
+                        </slot>
+                    </menu-btn>
+
                     <btn-link
                         @click="showForm = true"
                         button-class="btn icon add"
@@ -101,10 +123,12 @@
     import {mapActions, mapGetters, mapState} from 'vuex';
     import _find from 'lodash.find';
     import AdminTable from '@craftcms/vue/admintable/App';
+    import MenuBtn from '../../../base/components/MenuBtn';
 
     export default {
         components: {
             AdminTable,
+            MenuBtn,
         },
 
         data() {
