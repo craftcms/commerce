@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where it wasn’t possible to change the primary store. ([#3398](https://github.com/craftcms/commerce/issues/3398))
+
 ## 5.0.0-beta.1 - 2024-02-29
 
 ### Store Management
