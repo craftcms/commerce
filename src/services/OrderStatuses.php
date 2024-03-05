@@ -223,7 +223,7 @@ class OrderStatuses extends Component
      */
     public function getOrderCountByStatus(?int $storeId = null): array
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
