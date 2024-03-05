@@ -1349,8 +1349,8 @@ JS, []);
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode($lineItemStatuses) . ';', View::POS_BEGIN);
 
         $lineItemTypes = [
-            LineItemModel::TYPE_CUSTOM => Craft::t('commerce', 'Custom'),
-            LineItemModel::TYPE_PURCHASABLE => Craft::t('commerce', 'Purchasable'),
+            LineItemModel::TYPE_CUSTOM => LineItemModel::TYPE_CUSTOM,
+            LineItemModel::TYPE_PURCHASABLE => LineItemModel::TYPE_CUSTOM,
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemTypes = ' . Json::encode($lineItemTypes) . ';', View::POS_BEGIN);
 

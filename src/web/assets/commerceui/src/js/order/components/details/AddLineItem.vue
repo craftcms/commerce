@@ -3,44 +3,53 @@
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-left">
-                    <div clas="btngroup">
-                        <button class="btn menubtn" ref="menuBtn">
-                            {{ buttonText }}
-                        </button>
-                        <div class="menu">
-                            <ul>
-                                <li>
-                                   <a href="#">Test</a>
-                                </li>
-                            </ul>
+                    <div class="order-flex">
+                        <div>
+                            <btn-link
+                                @click="showForm = true"
+                                button-class="btn icon add"
+                                >{{
+                                    'Add a line item' | t('commerce')
+                                }}</btn-link
+                            >
+                        </div>
+                        <div>
+                            <btn-link
+                                @click="handleAddCustomLineItem"
+                                button-class="btn icon add"
+                                >{{
+                                    'Add a custom line item' | t('commerce')
+                                }}</btn-link
+                            >
                         </div>
                     </div>
-                    <btn-link
-                        @click="showForm = true"
-                        button-class="btn icon add"
-                        >{{ 'Add a line item' | t('commerce') }}</btn-link
-                    >
                 </div>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{ 'Your order is empty' | t('commerce') }}</h2>
-                    <menu-btn :button-text="'Add a line item'|t('commerce')">
-                        <slot>
-                            <ul>
-                                <li>
-                                    <button @click.prevent>Test</button>
-                                </li>
-                            </ul>
-                        </slot>
-                    </menu-btn>
 
-                    <btn-link
-                        @click="showForm = true"
-                        button-class="btn icon add"
-                        >{{ 'Add a line item' | t('commerce') }}</btn-link
-                    >
+                    <div class="order-flex">
+                        <div>
+                            <btn-link
+                                @click="showForm = true"
+                                button-class="btn icon add"
+                                >{{
+                                    'Add a line item' | t('commerce')
+                                }}</btn-link
+                            >
+                        </div>
+                        <div>
+                            <btn-link
+                                @click="handleAddCustomLineItem"
+                                button-class="btn icon add"
+                                >{{
+                                    'Add a custom line item' | t('commerce')
+                                }}</btn-link
+                            >
+                        </div>
+                    </div>
                 </div>
             </template>
         </template>
@@ -123,12 +132,10 @@
     import {mapActions, mapGetters, mapState} from 'vuex';
     import _find from 'lodash.find';
     import AdminTable from '@craftcms/vue/admintable/App';
-    import MenuBtn from '../../../base/components/MenuBtn';
 
     export default {
         components: {
             AdminTable,
-            MenuBtn,
         },
 
         data() {
@@ -314,6 +321,10 @@
 
             handleTableData(data) {
                 this.currentTableData = data;
+            },
+
+            handleAddCustomLineItem() {
+                console.log('Add custom line item');
             },
         },
 

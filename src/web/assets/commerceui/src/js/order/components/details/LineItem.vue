@@ -53,7 +53,34 @@
                     </order-title>
                     <!-- SKU -->
                     <div>
-                        <code class="extralight">{{ lineItem.sku }}</code>
+                        <template
+                            v-if="
+                                editing &&
+                                editMode &&
+                                lineItem.type === lineItemTypes.custom
+                            "
+                        >
+                            <field
+                                :label="$options.filters.t('SKU', 'commerce')"
+                                v-slot:default="slotProps"
+                            >
+                                <input
+                                    :id="slotProps.id"
+                                    type="text"
+                                    class="text"
+                                    size="4"
+                                    v-model="sku"
+                                    :class="{
+                                        error: getErrors(
+                                            'lineItems.' + lineItemKey + '.sku'
+                                        ).length,
+                                    }"
+                                />
+                            </field>
+                        </template>
+                        <code class="extralight" v-else>{{
+                            lineItem.sku
+                        }}</code>
                     </div>
 
                     <!-- Status -->
@@ -395,6 +422,17 @@
                 set: debounce(function (val) {
                     const lineItem = this.lineItem;
                     lineItem.description = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            sku: {
+                get() {
+                    return this.lineItem.sku;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.sku = val;
                     this.$emit('updateLineItem', lineItem);
                 }, 1000),
             },
