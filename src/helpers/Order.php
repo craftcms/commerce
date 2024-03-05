@@ -28,9 +28,9 @@ class Order
         foreach ($lineItems as $lineItem) {
             // Generate a key depending on line item type
             if ($lineItem->type === $lineItem::TYPE_PURCHASABLE) {
-                $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+                $key = $lineItem->orderId . '-' . $lineItem::TYPE_PURCHASABLE . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
             } else {
-                $key = $lineItem->orderId . '-' . md5($lineItem->getDescription()) . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
+                $key = $lineItem->orderId . '-' . $lineItem::TYPE_CUSTOM . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
             }
 
             if (!isset($lineItemsByKey[$key])) {
