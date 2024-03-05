@@ -23,7 +23,6 @@ use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
-use craft\helpers\StringHelper;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
@@ -211,7 +210,7 @@ class InventoryController extends Controller
             $id = $inventoryLevel['inventoryItemId'];
             $purchasable = $inventoryItemModel->getPurchasable();
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu'=> $purchasable->canSave($currentUser)]);
+            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => $purchasable->canSave($currentUser)]);
             $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];
             $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
 
