@@ -18,7 +18,9 @@ use yii\db\ActiveQueryInterface;
  * Discount record.
  *
  * @property bool $allCategories
+ * @property ?string $categoryIds
  * @property bool $allPurchasables
+ * @property ?string $purchasableIds
  * @property float $baseDiscount
  * @property float $purchaseTotal
  * @property string $baseDiscountType
