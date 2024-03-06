@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where order status counts weren’t showing on the Order index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))
-- Fixed a bug where querying for discounts did not return all related purchasable and categories. ([#3379](https://github.com/craftcms/commerce/issues/3379))
+- Fixed a bug where order status sources weren’t showing count badges on the Orders index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))
+- Fixed a bug where discounts weren’t listing more than 128 related purchasables or categories. ([#3379](https://github.com/craftcms/commerce/issues/3379))
 
 ## 4.5.1.1 - 2024-03-01
 
