@@ -35,7 +35,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\helpers\Json;
-use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use Twig\Error\LoaderError;

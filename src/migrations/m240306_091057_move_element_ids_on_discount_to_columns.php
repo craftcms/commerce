@@ -5,6 +5,7 @@ namespace craft\commerce\migrations;
 use craft\db\Migration;
 use craft\db\Query as Query;
 use craft\helpers\Json;
+
 /**
  * m240306_091057_move_element_ids_on_discount_to_columns migration.
  */
