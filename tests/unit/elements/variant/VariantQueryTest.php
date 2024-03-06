@@ -16,7 +16,6 @@ use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
-use craft\commerce\records\CatalogPricing;
 use craft\db\Query;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
