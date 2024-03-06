@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.5.2 - 2024-03-06
 
 - Fixed a bug where order status sources weren’t showing count badges on the Orders index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))
 - Fixed a bug where discounts weren’t listing more than 128 related purchasables or categories. ([#3379](https://github.com/craftcms/commerce/issues/3379))
