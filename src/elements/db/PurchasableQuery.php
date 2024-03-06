@@ -700,7 +700,7 @@ abstract class PurchasableQuery extends ElementQuery
         }
 
         if (isset($this->inventoryTracked)) {
-            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.inventoryTracked', $this->stock));
+            $this->subQuery->andWhere(Db::parseParam('purchasables_stores.inventoryTracked', $this->inventoryTracked));
         }
 
         if (isset($this->availableForPurchase)) {
