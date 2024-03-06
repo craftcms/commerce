@@ -547,10 +547,10 @@ class Inventory extends Component
                     '[[it.inventoryItemId]]',
                     '[[it.inventoryLocationId]]',
 
-                    'SUM(CASE WHEN (([[type]] = :committedType AND quantity > 0) OR ([[type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
+                    'SUM(CASE WHEN (([[it.type]] = :committedType AND quantity > 0) OR ([[it.type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
 
-                    'SUM(CASE WHEN [[type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
-                    'SUM(CASE WHEN [[type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
+                    'SUM(CASE WHEN [[it.type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
+                    'SUM(CASE WHEN [[it.type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
                 ])
                 ->from(['it' => Table::INVENTORYTRANSACTIONS])
                 ->andWhere([
@@ -558,8 +558,8 @@ class Inventory extends Component
                     '[[it.inventoryLocationId]]' => $location->id,
                 ])
                 ->andWhere(['or',
-                    ['type' => InventoryTransactionType::COMMITTED->value],
-                    ['type' => InventoryTransactionType::FULFILLED->value],
+                    ['it.type' => InventoryTransactionType::COMMITTED->value],
+                    ['it.type' => InventoryTransactionType::FULFILLED->value],
                 ])
                 ->groupBy([
                     '[[it.lineItemId]]',
