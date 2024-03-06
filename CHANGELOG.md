@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where order status counts weren’t showing on the Order index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))
+
 ## 4.5.1.1 - 2024-03-01
 
 - Fixed a bug where the “Share cart” order index action wasn’t working.
