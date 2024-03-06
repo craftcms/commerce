@@ -106,6 +106,15 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
             if ($item) {
               let $badge = $item.find('.badge');
+
+              if (row.orderCount === 0) {
+                if ($badge.length) {
+                  $badge.remove();
+                }
+
+                return;
+              }
+
               if (!$badge.length) {
                 $badge = $('<span class="badge"/>').appendTo($item);
               }
@@ -119,6 +128,15 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
           var $total = this.$sidebar.find('nav a[data-key="*"]');
           if ($total) {
             let $totalBadge = $total.find('.badge');
+
+            if (data.total === 0) {
+              if ($totalBadge.length) {
+                $totalBadge.remove();
+              }
+
+              return;
+            }
+
             if (!$totalBadge.length) {
               $totalBadge = $('<span class="badge"/>').appendTo($total);
             }
