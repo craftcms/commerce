@@ -228,7 +228,7 @@ class Inventory extends Component
             ])
             ->from(['il' => Table::INVENTORYLOCATIONS]) // we want a record for every location and...
             ->join('JOIN', ['ii' => Table::INVENTORYITEMS]) //  we want a record for every location and item
-            ->leftJoin(['im' => Table::INVENTORYTRANSACTIONS], "im.inventoryLocationId = il.id and ii.id = im.inventoryItemId")
+            ->leftJoin(['im' => Table::INVENTORYTRANSACTIONS], "[[im.inventoryLocationId]] = [[il.id]] and [[ii.id]] = [[im.inventoryItemId]]")
             ->groupBy(['il.id', 'ii.id', 'im.type']);
 
         $query = (new Query())
