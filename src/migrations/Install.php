@@ -823,7 +823,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(siteId)',
+            'PRIMARY KEY([[siteId]])',
         ]);
 
         $this->archiveTableIfExists(Table::STORES);
