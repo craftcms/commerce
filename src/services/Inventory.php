@@ -220,10 +220,6 @@ class Inventory extends Component
      */
     public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null): Query
     {
-        $inventoryTransactionsTable = Table::INVENTORYTRANSACTIONS;
-        $inventoryItemsTable = Table::INVENTORYITEMS;
-        $inventoryLocationsTable = Table::INVENTORYLOCATIONS;
-
         $inventoryTotals = (new Query())
             ->select([
                 'inventoryLocationId' => '[[il.id]]',
