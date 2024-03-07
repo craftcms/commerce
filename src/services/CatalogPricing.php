@@ -176,14 +176,16 @@ class CatalogPricing extends Component
                     Console::stdout(PHP_EOL . sprintf('Generating base prices rows for purchasables %s to %s of %s... ', $fromCount, $toCount, $total));
                 }
 
+                $uuidFunction = Craft::$app->getDb()->getIsPgsql() ? 'gen_random_uuid()' : 'UUID()';
+
                 Craft::$app->getDb()->createCommand()->setSql('
     INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePrice]], [[purchasableId]], [[storeId]], UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
+    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[commerce_purchasables_stores]]
     WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
                 ')->execute();
                 Craft::$app->getDb()->createCommand()->setSql('
     INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], 1, UUID(), NOW(), NOW() FROM [[commerce_purchasables_stores]]
+    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], true, ' . $uuidFunction . ', NOW(), NOW() FROM [[commerce_purchasables_stores]]
     WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
                 ')->execute();
                 if ($showConsoleOutput) {
