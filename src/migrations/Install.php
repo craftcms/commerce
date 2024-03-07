@@ -862,7 +862,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
@@ -962,7 +962,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::TRANSFERS);
         $this->createTable(Table::TRANSFERS, [
             'id' => $this->primaryKey(),
-            'transferStatus' => $this->enum('status', [
+            'transferStatus' => $this->enum('transferStatus', [
                 'draft',
                 'pending',
                 'partial',
@@ -994,7 +994,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
     }
 
