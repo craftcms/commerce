@@ -658,8 +658,8 @@ JS, []);
             throw new InvalidArgumentException('siteId is required');
         }
 
-        $storeId = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
-        if (!$storeId) {
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        if (!$store) {
             throw new InvalidArgumentException('Store not found');
         }
 
@@ -675,7 +675,7 @@ JS, []);
             ])
             ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
-            ->andWhere(['pstores.storeId' => $storeId])
+            ->andWhere(['pstores.storeId' => $store->id])
             ->from(['purchasables' => Table::PURCHASABLES]);
 
         // Are they searching for a SKU or purchasable description?

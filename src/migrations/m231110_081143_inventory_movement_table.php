@@ -68,7 +68,7 @@ class m231110_081143_inventory_movement_table extends Migration
         // Create the transfers table
         $this->createTable('{{%commerce_transfers}}', [
             'id' => $this->primaryKey(),
-            'transferStatus' => $this->enum('status', [
+            'transferStatus' => $this->enum('transferStatus', [
                 'draft',
                 'pending',
                 'partial',

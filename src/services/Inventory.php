@@ -31,6 +31,7 @@ use craft\helpers\Db;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 
 /**
  * Inventory service.
@@ -221,34 +222,34 @@ class Inventory extends Component
     {
         $inventoryTotals = (new Query())
             ->select([
-                'il.id as inventoryLocationId',
-                'ii.id as inventoryItemId',
-                'im.type',
-                'COALESCE(SUM(im.quantity), 0) as quantity',
+                'inventoryLocationId' => '[[il.id]]',
+                'inventoryItemId' => '[[ii.id]]',
+                'type' => '[[it.type]]',
+                'quantity' => (new Expression('COALESCE(SUM([[it.quantity]]), 0)')),
             ])
             ->from(['il' => Table::INVENTORYLOCATIONS]) // we want a record for every location and...
-            ->join('JOIN', ['ii' => Table::INVENTORYITEMS]) //  we want a record for every location and item
-            ->leftJoin(['im' => Table::INVENTORYTRANSACTIONS], "im.inventoryLocationId = il.id and ii.id = im.inventoryItemId")
-            ->groupBy(['il.id', 'ii.id', 'im.type']);
+            ->join('CROSS JOIN', ['ii' => Table::INVENTORYITEMS]) // ...every inventory item
+            ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], "[[il.id]] = [[it.inventoryLocationId]] AND [[ii.id]] = [[it.inventoryItemId]]")
+            ->groupBy(['[[il.id]]', '[[ii.id]]', '[[it.type]]']);
 
         $query = (new Query())
             ->select([
-                'ii.id as inventoryItemId',
-                'ii.purchasableId as purchasableId',
-                'it.inventoryLocationId as inventoryLocationId',
-                'SUM(CASE WHEN [[it.type]] = "available" THEN [[it.quantity]] ELSE 0 END) as availableTotal',
-                'SUM(CASE WHEN [[it.type]] = "committed" THEN [[it.quantity]] ELSE 0 END) as committedTotal',
-                'SUM(CASE WHEN [[it.type]] = "reserved" THEN [[it.quantity]] ELSE 0 END) as reservedTotal',
-                'SUM(CASE WHEN [[it.type]] = "damaged" THEN [[it.quantity]] ELSE 0 END) as damagedTotal',
-                'SUM(CASE WHEN [[it.type]] = "safety" THEN [[it.quantity]] ELSE 0 END) as safetyTotal',
-                'SUM(CASE WHEN [[it.type]] = "qualityControl" THEN [[it.quantity]] ELSE 0 END) as qualityControlTotal',
-                'SUM(CASE WHEN [[it.type]] = "incoming" THEN [[it.quantity]] ELSE 0 END) as incomingTotal',
-                'SUM(CASE WHEN [[it.type]] IN ("qualityControl","safety","damaged","reserved") THEN [[it.quantity]] ELSE 0 END) as unavailableTotal',
-                'SUM(CASE WHEN [[it.type]] IN ("qualityControl","safety","damaged","reserved", "available", "committed") THEN [[it.quantity]] ELSE 0 END) as onHandTotal',
+                '[[ii.id]] as inventoryItemId',
+                '[[ii.purchasableId]] as purchasableId',
+                '[[it.inventoryLocationId]] as inventoryLocationId',
+                'SUM(CASE WHEN [[it.type]] = \'available\' THEN [[it.quantity]] ELSE 0 END) as availableTotal',
+                'SUM(CASE WHEN [[it.type]] = \'committed\' THEN [[it.quantity]] ELSE 0 END) as committedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'reserved\' THEN [[it.quantity]] ELSE 0 END) as reservedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'damaged\' THEN [[it.quantity]] ELSE 0 END) as damagedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'safety\' THEN [[it.quantity]] ELSE 0 END) as safetyTotal',
+                'SUM(CASE WHEN [[it.type]] = \'qualityControl\' THEN [[it.quantity]] ELSE 0 END) as qualityControlTotal',
+                'SUM(CASE WHEN [[it.type]] = \'incoming\' THEN [[it.quantity]] ELSE 0 END) as incomingTotal',
+                'SUM(CASE WHEN [[it.type]] IN (\'qualityControl\',\'safety\',\'damaged\',\'reserved\') THEN [[it.quantity]] ELSE 0 END) as unavailableTotal',
+                'SUM(CASE WHEN [[it.type]] IN (\'qualityControl\',\'safety\',\'damaged\',\'reserved\', \'available\', \'committed\') THEN [[it.quantity]] ELSE 0 END) as onHandTotal',
             ])
             ->from(['ii' => Table::INVENTORYITEMS])
             ->leftJoin(['it' => $inventoryTotals], '[[it.inventoryItemId]] = [[ii.id]]')
-            ->groupBy(['ii.id', 'it.inventoryLocationId'])
+            ->groupBy(["[[ii.id]]", "[[ii.purchasableId]]", "[[it.inventoryLocationId]]"])
             ->limit($limit)
             ->offset($offset);
 

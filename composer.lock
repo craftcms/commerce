@@ -7908,12 +7908,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/ckeditor.git",
-                "reference": "6a4109772efeca715463c56de0f85ece572dced3"
+                "reference": "86569da34681c6c57bd51962d7466980cac44432"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/6a4109772efeca715463c56de0f85ece572dced3",
-                "reference": "6a4109772efeca715463c56de0f85ece572dced3",
+                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/86569da34681c6c57bd51962d7466980cac44432",
+                "reference": "86569da34681c6c57bd51962d7466980cac44432",
                 "shasum": ""
             },
             "require": {
@@ -7964,7 +7964,7 @@
                 "rss": "https://github.com/craftcms/ckeditor/commits/master.atom",
                 "source": "https://github.com/craftcms/ckeditor"
             },
-            "time": "2024-02-22T00:05:43+00:00"
+            "time": "2024-03-06T22:47:33+00:00"
         },
         {
             "name": "craftcms/ecs",
@@ -8001,23 +8001,23 @@
         },
         {
             "name": "craftcms/html-field",
-            "version": "3.0.0-alpha.1",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/html-field.git",
-                "reference": "3cc7d78af3bc0880ba11f00d44c89eea5f26a694"
+                "reference": "54f6e6178b696d5b7bb886631e161293b73d565e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/html-field/zipball/3cc7d78af3bc0880ba11f00d44c89eea5f26a694",
-                "reference": "3cc7d78af3bc0880ba11f00d44c89eea5f26a694",
+                "url": "https://api.github.com/repos/craftcms/html-field/zipball/54f6e6178b696d5b7bb886631e161293b73d565e",
+                "reference": "54f6e6178b696d5b7bb886631e161293b73d565e",
                 "shasum": ""
             },
             "require": {
+                "craftcms/cms": "^5.0.0-beta.1",
                 "php": "^8.2"
             },
             "require-dev": {
-                "craftcms/cms": "^5.0.0-alpha",
                 "craftcms/ecs": "dev-main",
                 "craftcms/phpstan": "dev-main",
                 "craftcms/rector": "dev-main"
@@ -8046,7 +8046,7 @@
                 "rss": "https://github.com/craftcms/html-field/commits/main.atom",
                 "source": "https://github.com/craftcms/html-field"
             },
-            "time": "2023-10-03T17:46:07+00:00"
+            "time": "2024-03-06T18:17:06+00:00"
         },
         {
             "name": "craftcms/phpstan",

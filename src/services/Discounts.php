@@ -405,7 +405,7 @@ class Discounts extends Component
             $matchPurchasableSubQuery = (new Query())
                 ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
                 ->where(new Expression('[[subdp.discountId]] = [[discounts.id]]'))
-                ->andWhere(['subdp.purchasableId' => $purchasableIds]);
+                ->andWhere(['[[subdp.purchasableId]]' => $purchasableIds]);
 
             $discountQuery->andWhere(
                 [
