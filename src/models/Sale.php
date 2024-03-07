@@ -207,7 +207,7 @@ class Sale extends Model
             $purchasableIds = [];
             if ($this->id) {
                 $purchasableIds = (new Query())->select(
-                    'sp.purchasableId')
+                    '[[sp.purchasableId]]')
                     ->from(Table::SALES . ' sales')
                     ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
                     ->where(['sales.id' => $this->id])

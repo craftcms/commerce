@@ -661,7 +661,7 @@ abstract class PurchasableQuery extends ElementQuery
         $catalogPricingQuery = Plugin::getInstance()
             ->getCatalogPricing()
             ->createCatalogPricingQuery(userId: $customerId)
-            ->addSelect(['cp.purchasableId', 'cp.storeId']);
+            ->addSelect(['[[cp.purchasableId]]', '[[cp.storeId]]']);
         $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
         $catalogPromotionalPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => true]);
         $catalogSalePriceQuery = (clone $catalogPricingQuery);

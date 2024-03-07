@@ -401,7 +401,7 @@ class CatalogPricing extends Component
             $subQuery->andWhere([$likeOperator, 'purchasables.description', $searchText]);
         }
 
-        $query->innerJoin(['purchasables' => $subQuery], 'purchasables.id = cp.purchasableId');
+        $query->innerJoin(['purchasables' => $subQuery], '[[purchasables.id]] = [[cp.purchasableId]]');
 
         // If there is a condition builder, modify the query
         $conditionBuilder?->modifyQuery($query);

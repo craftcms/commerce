@@ -38,9 +38,9 @@ class InventoryItem extends Model
     public string $harmonizedSystemCode;
 
     /**
-     * @var string
+     * @var ?string
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var \DateTime|null
