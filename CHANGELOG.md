@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Successfully refunding a payment that returns a 'processing' status will no longer show a failed flash message.
+
 ## 4.5.2 - 2024-03-06
 
 - Fixed a bug where order status sources weren’t showing count badges on the Orders index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))

@@ -1039,7 +1039,7 @@ class OrdersController extends Controller
 
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
-                if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                if ($child->status == TransactionRecord::STATUS_SUCCESS || $child->status == TransactionRecord::STATUS_PROCESSING) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message,
@@ -1210,7 +1210,7 @@ class OrdersController extends Controller
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
-        
+
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [
             'commerce-manageOrders' => $currentUser->can('commerce-manageOrders'),
