@@ -16,4 +16,4 @@ jobs:
           linear-status-opened: 0d75943a-30a3-4b3c-92f6-7c049cb5ca34 # Pixel & Tonic -> Triage
           linear-status-closed: 09599c9a-218c-4ede-bbf4-4751d112bf09 # Pixel & Tonic -> Done
           linear-status-reopened: 0ed995c8-7c09-4394-99e1-a32077a8b344 # Pixel & Tonic -> Todo
-          linear-issue-label: b62137e9-842c-4718-b4ad-d65cbf85a48d # Craft Commerce
+          linear-issue-label: 058b1d13-23f4-4a8e-a92a-a862bcb0f831 # Craft Commerce
