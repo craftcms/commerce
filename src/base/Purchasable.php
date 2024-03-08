@@ -325,7 +325,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function getStore(): Store
     {
-        if ($this->_store === null) {
+        if ($this->_store === null || !in_array($this->siteId, $this->_store->getSites()->pluck('id')->all())) {
             if ($this->siteId === null) {
                 throw new InvalidConfigException('Purchasable::siteId cannot be null');
             }
