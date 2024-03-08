@@ -40,6 +40,7 @@ use yii\base\Exception as YiiBaseException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Exception as YiiDbException;
+use yii\db\Expression;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -635,7 +636,7 @@ class Stores extends Component
             ->select('storeId')
             ->from(Table::SITESTORES)
             ->groupBy('storeId')
-            ->having(['>', 'COUNT(storeId)', 1]);
+            ->having(['>', new Expression('COUNT([[storeId]])'), 1]);
 
         return (new Query())
             ->select('siteId')
