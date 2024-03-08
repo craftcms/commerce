@@ -331,16 +331,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "5.0.0-beta.6",
+            "version": "5.0.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "f43e6c811e95faeeacc702ddc80490928b3b99a6"
+                "reference": "09bf3d0b726da29eeda4b801eb9e84e733960168"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/f43e6c811e95faeeacc702ddc80490928b3b99a6",
-                "reference": "f43e6c811e95faeeacc702ddc80490928b3b99a6",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/09bf3d0b726da29eeda4b801eb9e84e733960168",
+                "reference": "09bf3d0b726da29eeda4b801eb9e84e733960168",
                 "shasum": ""
             },
             "require": {
@@ -449,7 +449,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2024-03-05T20:13:35+00:00"
+            "time": "2024-03-08T05:07:28+00:00"
         },
         {
             "name": "craftcms/plugin-installer",
@@ -7244,16 +7244,16 @@
         },
         {
             "name": "codeception/codeception",
-            "version": "5.1.1",
+            "version": "5.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "fcfa1d0ec2eb7439e5290fd3ea685b5d1f90075a"
+                "reference": "3b2d7d1a88e7e1d9dc0acb6d3c8f0acda0a37374"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/fcfa1d0ec2eb7439e5290fd3ea685b5d1f90075a",
-                "reference": "fcfa1d0ec2eb7439e5290fd3ea685b5d1f90075a",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/3b2d7d1a88e7e1d9dc0acb6d3c8f0acda0a37374",
+                "reference": "3b2d7d1a88e7e1d9dc0acb6d3c8f0acda0a37374",
                 "shasum": ""
             },
             "require": {
@@ -7348,7 +7348,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/Codeception/issues",
-                "source": "https://github.com/Codeception/Codeception/tree/5.1.1"
+                "source": "https://github.com/Codeception/Codeception/tree/5.1.2"
             },
             "funding": [
                 {
@@ -7356,7 +7356,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-02-23T21:42:47+00:00"
+            "time": "2024-03-07T07:19:42+00:00"
         },
         {
             "name": "codeception/lib-asserts",
@@ -7908,16 +7908,16 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/ckeditor.git",
-                "reference": "86569da34681c6c57bd51962d7466980cac44432"
+                "reference": "4b9c6b7f1f6cb247a9a0082e38ff44be1af3dcc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/86569da34681c6c57bd51962d7466980cac44432",
-                "reference": "86569da34681c6c57bd51962d7466980cac44432",
+                "url": "https://api.github.com/repos/craftcms/ckeditor/zipball/4b9c6b7f1f6cb247a9a0082e38ff44be1af3dcc1",
+                "reference": "4b9c6b7f1f6cb247a9a0082e38ff44be1af3dcc1",
                 "shasum": ""
             },
             "require": {
-                "craftcms/cms": "^5.0.0-beta.2",
+                "craftcms/cms": "^5.0.0-beta.7",
                 "craftcms/html-field": "^3.0.0-alpha",
                 "nystudio107/craft-code-editor": ">=1.0.8 <=1.0.13 || ^1.0.16",
                 "php": "^8.2"
@@ -7964,7 +7964,7 @@
                 "rss": "https://github.com/craftcms/ckeditor/commits/master.atom",
                 "source": "https://github.com/craftcms/ckeditor"
             },
-            "time": "2024-03-06T22:47:33+00:00"
+            "time": "2024-03-08T05:10:45+00:00"
         },
         {
             "name": "craftcms/ecs",
@@ -8081,12 +8081,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/rector.git",
-                "reference": "0e05b018baf2f9297ea451c5c259e22c471d1789"
+                "reference": "7f9150f2527118b50bd1c5347849d8ef7ce0f2b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/rector/zipball/0e05b018baf2f9297ea451c5c259e22c471d1789",
-                "reference": "0e05b018baf2f9297ea451c5c259e22c471d1789",
+                "url": "https://api.github.com/repos/craftcms/rector/zipball/7f9150f2527118b50bd1c5347849d8ef7ce0f2b1",
+                "reference": "7f9150f2527118b50bd1c5347849d8ef7ce0f2b1",
                 "shasum": ""
             },
             "require": {
@@ -8112,7 +8112,7 @@
                 "issues": "https://github.com/craftcms/rector/issues",
                 "source": "https://github.com/craftcms/rector/tree/main"
             },
-            "time": "2024-02-16T11:54:18+00:00"
+            "time": "2024-03-07T00:11:17+00:00"
         },
         {
             "name": "craftcms/redactor",
@@ -8894,16 +8894,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.59",
+            "version": "1.10.60",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "e607609388d3a6d418a50a49f7940e8086798281"
+                "reference": "95dcea7d6c628a3f2f56d091d8a0219485a86bbe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e607609388d3a6d418a50a49f7940e8086798281",
-                "reference": "e607609388d3a6d418a50a49f7940e8086798281",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/95dcea7d6c628a3f2f56d091d8a0219485a86bbe",
+                "reference": "95dcea7d6c628a3f2f56d091d8a0219485a86bbe",
                 "shasum": ""
             },
             "require": {
@@ -8952,7 +8952,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-20T13:59:13+00:00"
+            "time": "2024-03-07T13:30:19+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
