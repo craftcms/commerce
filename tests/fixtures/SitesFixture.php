@@ -40,5 +40,7 @@ class SitesFixture extends ActiveFixture
         // Because the Sites() class memoizes on initialization we need to set() a new sites class
         // with the updated fixture data
         Craft::$app->set('sites', new Sites());
+        Craft::$app->getIsMultiSite(true);
+        Craft::$app->getIsMultiSite(true, true);
     }
 }
