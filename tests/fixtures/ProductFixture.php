@@ -9,8 +9,12 @@ namespace craftcommercetests\fixtures;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
+use craft\commerce\elements\Variant;
+use craft\commerce\elements\VariantCollection;
 use craft\commerce\test\fixtures\elements\ProductFixture as BaseProductFixture;
+use craft\db\Query;
 
 /**
  * Class ProductFixture.
@@ -30,6 +34,8 @@ class ProductFixture extends BaseProductFixture
      */
     public $depends = [ProductTypeFixture::class];
 
+    private ?VariantCollection $_variants = null;
+
     /**
      * @inheritdoc
      */
@@ -40,9 +46,39 @@ class ProductFixture extends BaseProductFixture
             if ($name !== '_variants') {
                 $element->$name = $value;
             } else {
+                $this->_variants = VariantCollection::make($value);
                 $element->setVariants($value);
             }
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function saveElement(ElementInterface $element): bool
+    {
+        $return = parent::saveElement($element);
+
+        // Save the variants
+        $this->_variants->each(function(Variant $v) use ($element) {
+            if ((new Query())
+                ->from(Table::VARIANTS . ' v')
+                ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[v.id]]')
+                ->where(['primaryOwnerId' => $element->id])
+                ->andWhere(['p.sku' => $v->getSku()])
+                ->exists()
+            ) {
+                return;
+            }
+
+            $v->setPrimaryOwnerId($element->id);
+            $v->setOwnerId($element->id);
+            \Craft::$app->getElements()->saveElement($v,false);
+        });
+
+        $this->_variants = null;
+
+        return $return;
     }
 
     /**
