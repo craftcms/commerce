@@ -21,7 +21,7 @@ class CategoriesFixture extends CategoryFixture
      */
     public $dataFile = __DIR__ . '/data/categories.php';
 
-    public $depends = [FieldLayoutFixture::class, ProductFixture::class, SitesFixture::class];
+    public $depends = [FieldLayoutFixture::class, ProductFixture::class];
 
 
     public function load(): void
