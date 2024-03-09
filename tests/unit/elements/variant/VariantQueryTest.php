@@ -121,8 +121,8 @@ class VariantQueryTest extends Unit
      */
     public function shippingCategoryDataProvider(): array
     {
-        $matchingShippingCategory = new ShippingCategory(['id' => 101]);
-        $nonMatchingShippingCategory = new ShippingCategory(['id' => 999]);
+        $matchingShippingCategory = new ShippingCategory(['id' => 10001]);
+        $nonMatchingShippingCategory = new ShippingCategory(['id' => 9999]);
 
         return [
             'no-params' => [null, 3],
@@ -202,8 +202,8 @@ class VariantQueryTest extends Unit
      */
     public function taxCategoryDataProvider(): array
     {
-        $matchingTaxCategory = new TaxCategory(['id' => 101]);
-        $nonMatchingTaxCategory = new TaxCategory(['id' => 999]);
+        $matchingTaxCategory = new TaxCategory(['id' => 10001]);
+        $nonMatchingTaxCategory = new TaxCategory(['id' => 9999]);
 
         return [
             'no-params' => [null, 3],
