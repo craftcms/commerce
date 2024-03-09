@@ -9,7 +9,7 @@ jobs:
   linear:
     runs-on: ubuntu-latest
     steps:
-      - uses: timkelty/gh-action-linear@bugfix/test
+      - uses: timkelty/gh-action-linear@bugfix/label-not-added
         with:
           linear-api-key: ${{ secrets.LINEAR_API_KEY }}
           linear-team-id: 21f7e595-5487-493e-b859-79625335ab55 # Pixel & Tonic
