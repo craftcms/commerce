@@ -29,10 +29,15 @@ use function is_array;
  */
 class PlansController extends BaseStoreManagementController
 {
-    public function actionPlanIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionPlanIndex(?string $storeHandle = null): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/store-management/subscription-plans', ['plans' => $plans]);
+        return $this->renderTemplate('commerce/store-management/subscription-plans', ['plans' => $plans, 'storeHandle' => $storeHandle]);
     }
 
     /**
@@ -40,7 +45,7 @@ class PlansController extends BaseStoreManagementController
      * @param Plan|null $plan
      * @throws HttpException
      */
-    public function actionEditPlan(int $planId = null, Plan $plan = null): Response
+    public function actionEditPlan(?string $storeHandle = null, int $planId = null, Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
 
@@ -82,6 +87,8 @@ class PlansController extends BaseStoreManagementController
         foreach ($gateways as $gateway) {
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
+
+        $variables['storeHandle'] = $storeHandle;
 
         return $this->renderTemplate('commerce/store-management/subscription-plans/_edit', $variables);
     }

@@ -40,7 +40,7 @@
     {% if gatewayOptions|length > 0 or plan is not null %}
 
         <input type="hidden" name="action" value="commerce/plans/save-plan">
-        {{ redirectInput('commerce/store-management/subscription-plans') }}
+        {{ redirectInput('commerce/store-management/'~storeHandle~'/subscription-plans') }}
 
         {% if plan is not null and plan.id %}
             <input type="hidden" name="planId" value="{{ plan.id }}">
