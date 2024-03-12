@@ -4,6 +4,8 @@ title: '[4.x]: '
 labels:
   - 🐞 bug
   - commerce4
+  - Craft Commerce # Linear
+  - Bug # Linear
 body:
   - type: markdown
     attributes:
