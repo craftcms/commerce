@@ -4,6 +4,7 @@
 
 - Fixed a bug where it wasn’t possible to change the primary store. ([#3398](https://github.com/craftcms/commerce/issues/3398))
 - Fixed a bug where the `hasUnlimitedStock` variant query param did not work. ([#3400](https://github.com/craftcms/commerce/issues/3400))
+- Fixed an error that could occur when upgrading with MariaDB.3411
 
 ## 5.0.0-beta.1 - 2024-02-29
 
