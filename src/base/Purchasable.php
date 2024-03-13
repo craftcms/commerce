@@ -34,6 +34,7 @@ use craft\validators\UniqueValidator;
 
 use Illuminate\Support\Collection;
 use Money\Money;
+use Money\Teller;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -321,6 +322,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency());
+    }
+
+    /**
      * @inheritdoc
      */
     public function getStore(): Store
@@ -485,12 +496,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         $price = $this->_price ?? $this->basePrice;
 
-        $price = MoneyHelper::toMoney([
-            'value' => $price,
-            'currency' => $this->getStore()->getCurrency(),
-        ]);
-
-        return (float)MoneyHelper::toDecimal($price);
+        return (float)$this->_getTeller()->convertToString($price);
     }
 
     /**
@@ -510,7 +516,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $promotionalPrice = $this->_promotionalPrice ?? $this->basePromotionalPrice;
         }
 
-        return ($promotionalPrice !== null && $promotionalPrice < $price) ? $promotionalPrice : null;
+        if ($promotionalPrice === null) {
+            return null;
+        }
+
+        $promotionalPrice = (float)$this->_getTeller()->convertToString($promotionalPrice);
+        return $this->_getTeller()->lessThan($promotionalPrice, $price) ? $promotionalPrice : null;
     }
 
     /**
