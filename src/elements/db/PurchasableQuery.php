@@ -678,8 +678,8 @@ abstract class PurchasableQuery extends ElementQuery
             'purchasables_stores.promotable',
             'purchasables_stores.shippingCategoryId',
             'subquery.price',
-            'subquery.price as promotionalPrice',
-            'subquery.price as salePrice',
+            'subquery.promotionalPrice as promotionalPrice',
+            'subquery.salePrice as salePrice',
             'inventoryitems.id as inventoryItemId',
         ]);
 

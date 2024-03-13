@@ -293,6 +293,7 @@ class VariantQueryTest extends Unit
 
         self::assertCount(1, $results);
         self::assertSame('hct-blue', $results[0]->sku);
+        self::assertEquals(11, $results[0]->getPrice());
 
         // Check sale price
         $query = Variant::find();
@@ -301,6 +302,7 @@ class VariantQueryTest extends Unit
 
         self::assertCount(1, $results);
         self::assertSame('hct-blue', $results[0]->sku);
+        self::assertEquals(11, $results[0]->getSalePrice());
 
         // Delete the catalog pricing rule
         Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($catalogPricingRule->id);
@@ -342,6 +344,7 @@ class VariantQueryTest extends Unit
 
         self::assertCount(1, $results);
         self::assertSame('hct-blue', $results[0]->sku);
+        self::assertEquals(11, $results[0]->getPromotionalPrice());
 
         // Check sale price
         $query = Variant::find();
@@ -350,6 +353,7 @@ class VariantQueryTest extends Unit
 
         self::assertCount(1, $results);
         self::assertSame('hct-blue', $results[0]->sku);
+        self::assertEquals(11, $results[0]->getSalePrice());
 
         // Check the price hasn't been altered
         $query = Variant::find();
@@ -359,6 +363,7 @@ class VariantQueryTest extends Unit
 
         self::assertCount(1, $results);
         self::assertSame('hct-blue', $results[0]->sku);
+        self::assertEquals(21.99, $results[0]->getPrice());
 
         // Delete the catalog pricing rule
         Plugin::getInstance()->getCatalogPricingRules()->deleteCatalogPricingRuleById($catalogPricingRule->id);
