@@ -127,8 +127,8 @@ trait Routes
 
             // Subscription plans
             $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories'] = 'commerce/tax-categories/index';

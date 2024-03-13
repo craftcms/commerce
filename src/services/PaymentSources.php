@@ -229,8 +229,8 @@ class PaymentSources extends Component
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
         $result = $this->_createPaymentSourcesQuery()
-            ->where(['id' => $sourceId])
-            ->innerJoin(Table::GATEWAYS . ' gateways', 'gateways.id = [[ps.gatewayId]]')
+            ->where(['[[ps.id]]' => $sourceId])
+            ->innerJoin(['gateways' => Table::GATEWAYS], 'gateways.id = [[ps.gatewayId]]') // ensure it is a gateway payment source
             ->one();
 
         return $result ? Craft::createObject(['class' => PaymentSource::class, 'attributes' => $result]) : null;
