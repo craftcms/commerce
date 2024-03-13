@@ -17,8 +17,8 @@ return [
             'new_0' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
-                'taxCategoryId' => 101,
+                'shippingCategoryId' => 10001,
+                'taxCategoryId' => 10001,
                 'title' => 'Rad Hoodie',
                 'slug' => 'rad-hoodie',
                 'isDefault' => 1,
@@ -46,8 +46,8 @@ return [
             'new1' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
-                'taxCategoryId' => 101,
+                'shippingCategoryId' => 10001,
+                'taxCategoryId' => 10001,
                 'title' => 'White',
                 'slug' => 'white',
                 'isDefault' => 1,
@@ -65,8 +65,8 @@ return [
             'new_2' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
-                'taxCategoryId' => 101,
+                'shippingCategoryId' => 10001,
+                'taxCategoryId' => 10001,
                 'title' => 'Blue',
                 'slug' => 'blue',
                 'isDefault' => 0,
