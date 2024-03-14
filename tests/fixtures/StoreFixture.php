@@ -17,6 +17,7 @@ use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\db\Query;
 use craft\elements\Address;
+use craft\test\DbFixtureTrait;
 
 /**
  * Class StoreFixture
@@ -25,6 +26,7 @@ use craft\elements\Address;
  */
 class StoreFixture extends BaseModelFixture
 {
+    use DbFixtureTrait;
     /**
      * @inheritdoc
      */
@@ -158,24 +160,26 @@ class StoreFixture extends BaseModelFixture
      */
     public function unload(): void
     {
+        $this->checkIntegrity(true);
         unset($this->data['primary']);
         parent::unload();
+        $this->checkIntegrity(false);
 
         // Delete store location addresses
-        foreach ($this->_storeSettings as $key => $settings) {
-            if (!empty($settings['_storeLocationAddressId'])) {
-                Craft::$app->getElements()->deleteElementById($settings['_storeLocationAddressId'], hardDelete: true);
-            }
-        }
+        // foreach ($this->_storeSettings as $key => $settings) {
+        //     if (!empty($settings['_storeLocationAddressId'])) {
+        //         Craft::$app->getElements()->deleteElementById($settings['_storeLocationAddressId'], hardDelete: true);
+        //     }
+        // }
 
-        // Delete site stores records
-        foreach ($this->_storeSites as $siteIds) {
-            foreach ($siteIds as $siteId) {
-                $siteStoreRecord = SiteStore::findOne(['siteId' => $siteId]);
-                if ($siteStoreRecord) {
-                    $siteStoreRecord->delete();
-                }
-            }
-        }
+        // // Delete site stores records
+        // foreach ($this->_storeSites as $siteIds) {
+        //     foreach ($siteIds as $siteId) {
+        //         $siteStoreRecord = SiteStore::findOne(['siteId' => $siteId]);
+        //         if ($siteStoreRecord) {
+        //             $siteStoreRecord->delete();
+        //         }
+        //     }
+        // }
     }
 }

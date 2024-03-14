@@ -11,6 +11,7 @@ use Craft;
 use craft\records\Site;
 use craft\services\Sites;
 use craft\test\ActiveFixture;
+use craft\test\DbFixtureTrait;
 
 /**
  * Class SitesFixture
@@ -42,5 +43,13 @@ class SitesFixture extends ActiveFixture
         Craft::$app->set('sites', new Sites());
         Craft::$app->getIsMultiSite(true);
         Craft::$app->getIsMultiSite(true, true);
+    }
+
+    use DbFixtureTrait;
+    public function unload(): void
+    {
+        $this->checkIntegrity(true);
+        parent::unload();
+        $this->checkIntegrity(false);
     }
 }
