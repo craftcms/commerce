@@ -6,13 +6,13 @@
  */
 
 return [
-    [
-        'id' => 10001,
+    'anotherShippingCategory' => [
+        'id' => 101,
         'name' => 'Another Shipping Category',
         'handle' => 'anotherShippingCategory',
         'description' => 'this is another shipping category',
         'default' => 0,
         'storeId' => 1, // Primary
-        'uid' => 'ship-category-10001--------------uid',
+        'uid' => 'ship-category-1001---------------uid',
     ],
 ];

@@ -92,11 +92,11 @@ class VariantQueryTest extends Unit
     {
         return [
             'no-params' => [null, 3],
-            'specific-id' => [10001, 3],
-            'in' => [[10001, 10002], 3],
-            'not-in' => [['not', 10002, 10003], 3],
-            'greater-than' => ['> 10000', 3],
-            'less-than' => ['< 10000', 0],
+            'specific-id' => [101, 3],
+            'in' => [[101, 102], 3],
+            'not-in' => [['not', 102, 103], 3],
+            'greater-than' => ['> 100', 3],
+            'less-than' => ['< 100', 0],
         ];
     }
 
@@ -121,8 +121,8 @@ class VariantQueryTest extends Unit
      */
     public function shippingCategoryDataProvider(): array
     {
-        $matchingShippingCategory = new ShippingCategory(['id' => 10001]);
-        $nonMatchingShippingCategory = new ShippingCategory(['id' => 9999]);
+        $matchingShippingCategory = new ShippingCategory(['id' => 101]);
+        $nonMatchingShippingCategory = new ShippingCategory(['id' => 999]);
 
         return [
             'no-params' => [null, 3],
@@ -173,11 +173,11 @@ class VariantQueryTest extends Unit
     {
         return [
             'no-params' => [null, 3],
-            'specific-id' => [10001, 3],
-            'in' => [[10001, 10002], 3],
-            'not-in' => [['not', 10002, 10003], 3],
-            'greater-than' => ['> 10000', 3],
-            'less-than' => ['< 10000', 0],
+            'specific-id' => [101, 3],
+            'in' => [[101, 102], 3],
+            'not-in' => [['not', 102, 103], 3],
+            'greater-than' => ['> 100', 3],
+            'less-than' => ['< 100', 0],
         ];
     }
 
@@ -202,8 +202,8 @@ class VariantQueryTest extends Unit
      */
     public function taxCategoryDataProvider(): array
     {
-        $matchingTaxCategory = new TaxCategory(['id' => 10001]);
-        $nonMatchingTaxCategory = new TaxCategory(['id' => 9999]);
+        $matchingTaxCategory = new TaxCategory(['id' => 101]);
+        $nonMatchingTaxCategory = new TaxCategory(['id' => 999]);
 
         return [
             'no-params' => [null, 3],

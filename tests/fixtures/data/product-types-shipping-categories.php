@@ -9,6 +9,6 @@ return [
     [
         'id' => 1,
         'productTypeId' => 2000,
-        'shippingCategoryId' => 10001,
+        'shippingCategoryId' => 101,
     ],
 ];

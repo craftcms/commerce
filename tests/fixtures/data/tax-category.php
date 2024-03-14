@@ -7,7 +7,7 @@
 
 return [
     [
-        'id' => 10001,
+        'id' => 101,
         'name' => 'Another Tax Category',
         'handle' => 'anotherTaxCategory',
         'description' => 'this is another tax category',
