@@ -639,6 +639,8 @@ return [
     'Manage All Shipping Categories' => 'Spravovať všetky kategórie dopravy',
     'Manage All Tax Categories' => 'Spravovať všetky daňové kategórie',
     'Manage Inventory' => 'Manage Inventory',
+    'Manage inventory stock levels' => 'Manage inventory stock levels',
+    'Manage inventory stock locations' => 'Manage inventory stock locations',
     'Manage orders' => 'Správa objednávok',
     'Manage promotions' => 'Spravovať akcie',
     'Manage shipping (Pro edition only)' => 'Spravovať dopravu (len verzia Pro)',
