@@ -18,10 +18,13 @@
 }) %}
 {% endif %}
 
-{% set navItems = navItems|merge({
-    'settings': { heading: "Settings"|t('commerce')},
-    'locations': { title: "Locations"|t('app'), url: url('commerce/inventory/locations')},
-}) %}
+
+{% if currentUser and currentUser.can('commerce-manageInventoryLocations') %}
+    {% set navItems = navItems|merge({
+        'settings': { heading: "Settings"|t('commerce')},
+        'locations': { title: "Locations"|t('app'), url: url('commerce/inventory/locations')},
+    }) %}
+{% endif %}
 
 {% if selectedItem is not defined %}
     {% set selectedItem = craft.app.request.getSegment(3) %}
