@@ -639,6 +639,8 @@ return [
     'Manage All Shipping Categories' => 'Alle Versandkategorien verwalten',
     'Manage All Tax Categories' => 'Alle Steuerkategorien verwalten',
     'Manage Inventory' => 'Manage Inventory',
+    'Manage inventory stock levels' => 'Manage inventory stock levels',
+    'Manage inventory stock locations' => 'Manage inventory stock locations',
     'Manage orders' => 'Bestellungen verwalten',
     'Manage promotions' => 'Werbeaktionen verwalten',
     'Manage shipping (Pro edition only)' => 'Versand verwalten (nur in der Pro Edition)',
