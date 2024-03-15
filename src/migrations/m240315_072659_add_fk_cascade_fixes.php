@@ -2,11 +2,10 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\db\Table;
 use craft\db\Migration;
-use craft\helpers\MigrationHelper;
 use craft\db\Table as CraftTable;
+use craft\helpers\MigrationHelper;
 
 /**
  * m240315_072659_add_fk_cascade_fixes migration.
