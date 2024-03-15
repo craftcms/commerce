@@ -5,6 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
+$shippingCategoryId = (new \craft\db\Query())
+    ->select('id')
+    ->from(\craft\commerce\db\Table::SHIPPINGCATEGORIES)
+    ->where(['handle' => 'anotherShippingCategory'])
+    ->scalar();
+
 return [
     'rad-hoodie' => [
         'typeId' => '2000',
@@ -17,7 +23,7 @@ return [
             'new_0' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'Rad Hoodie',
                 'slug' => 'rad-hoodie',
@@ -46,7 +52,7 @@ return [
             'new1' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'White',
                 'slug' => 'white',
@@ -65,7 +71,7 @@ return [
             'new_2' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'Blue',
                 'slug' => 'blue',
