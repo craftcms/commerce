@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Added a “Manage inventory levels” permission.
+- Added a “Manage inventory stock levels” permission.
 - Added a “Manage inventory locations” permission.
 - Fixed a bug where it wasn’t possible to change the primary store. ([#3398](https://github.com/craftcms/commerce/issues/3398))
 - Fixed a bug where the `hasUnlimitedStock` variant query param did not work. ([#3400](https://github.com/craftcms/commerce/issues/3400))
