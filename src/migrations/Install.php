@@ -1172,7 +1172,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', '{{%addresses}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', CraftTable::ELEMENTS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
@@ -1239,6 +1239,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::STORESETTINGS, ['locationAddressId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
