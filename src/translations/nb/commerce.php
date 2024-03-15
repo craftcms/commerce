@@ -639,6 +639,8 @@ return [
     'Manage All Shipping Categories' => 'Administrer alle fraktkategorier',
     'Manage All Tax Categories' => 'Administrer alle avgiftskategorier',
     'Manage Inventory' => 'Manage Inventory',
+    'Manage inventory stock levels' => 'Manage inventory stock levels',
+    'Manage inventory stock locations' => 'Manage inventory stock locations',
     'Manage orders' => 'Administrer ordrer',
     'Manage promotions' => 'Administrer kampanjer',
     'Manage shipping (Pro edition only)' => 'Administrer frakt (kun Pro-utgaven)',
