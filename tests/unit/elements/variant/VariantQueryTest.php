@@ -17,7 +17,6 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\ShippingCategoryFixture;
 use UnitTester;
@@ -89,7 +88,6 @@ class VariantQueryTest extends Unit
             $query->shippingCategoryId = $criteria;
             self::assertCount($count, $query->all(), "shippingCategoryIdProperty Test $key");
         }
-
     }
 
     /**
@@ -109,7 +107,7 @@ class VariantQueryTest extends Unit
                 'not-in' => [['not', 99998, 99999], 3],
                 'greater-than' => ['> ' . ($shippingCategoryId - 1), 3],
                 'less-than' => ['< ' . ($shippingCategoryId), 0],
-            ]
+            ],
         ];
     }
 
@@ -118,7 +116,6 @@ class VariantQueryTest extends Unit
      */
     public function testShippingCategory(): void
     {
-
         self::assertTrue(method_exists(Variant::find(), 'shippingCategoryId'));
         $fixture = $this->tester->grabFixture('shippingCategories');
         $matchingShippingCategory = new ShippingCategory(['id' => $fixture->data['anotherShippingCategory']['id']]);

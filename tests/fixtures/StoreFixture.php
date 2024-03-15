@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\models\Store;
 use craft\commerce\models\StoreSettings as StoreSettingsModel;
 use craft\commerce\Plugin;
-use craft\commerce\records\SiteStore;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
 use craft\db\Query;

@@ -59,7 +59,7 @@ class CategoriesFixture extends CategoryFixture
         if (count($allSiteSettings) !== count($sites)) {
             foreach ($sites as $site) {
                 if (!ArrayHelper::firstWhere($allSiteSettings, 'siteId', $site->id)) {
-                    $siteSettings = new CategoryGroup_SiteSettings();;
+                    $siteSettings = new CategoryGroup_SiteSettings();
                     $siteSettings->siteId = $site->id;
                     $allSiteSettings[] = $siteSettings;
                 }
