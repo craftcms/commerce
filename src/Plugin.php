@@ -358,7 +358,7 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') && $hasEditableProductTypes) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') || Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
             $ret['subnav']['inventory'] = [
                 'label' => Craft::t('commerce', 'Inventory'),
                 'url' => 'commerce/inventory',

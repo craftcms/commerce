@@ -1,15 +1,18 @@
 {% set navItems = {} %}
 
-{% set navItems = navItems|merge({
-    'manage-levels': { heading: "Manage"|t('commerce')},
-}) %}
+{% if currentUser and currentUser.can('commerce-manageInventoryStockLevels') %}
 
-{% for location in craft.commerce.inventoryLocations.getAllInventoryLocations()  %}
     {% set navItems = navItems|merge({
-        ('manage-'~location.handle) : { title: location.name, url: url('commerce/inventory/levels/'~location.handle) }
+        'manage-levels': { heading: "Manage"|t('commerce')},
     }) %}
-{% endfor %}
 
+    {% for location in craft.commerce.inventoryLocations.getAllInventoryLocations()  %}
+        {% set navItems = navItems|merge({
+            ('manage-'~location.handle) : { title: location.name, url: url('commerce/inventory/levels/'~location.handle) }
+        }) %}
+    {% endfor %}
+
+{% endif %}
 
 {% if craft.commerce.inventoryLocations.getAllInventoryLocations()|length > 1 and false %} {# TODO: Remove false to work on transfers #}
 {% set navItems = navItems|merge({
