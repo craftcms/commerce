@@ -639,6 +639,8 @@ return [
     'Manage All Shipping Categories' => 'Alle verzendcategorieën beheren',
     'Manage All Tax Categories' => 'Alle belastingcategorieën beheren',
     'Manage Inventory' => 'Manage Inventory',
+    'Manage inventory stock levels' => 'Manage inventory stock levels',
+    'Manage inventory stock locations' => 'Manage inventory stock locations',
     'Manage orders' => 'Bestellingen beheren',
     'Manage promotions' => 'Promoties beheren',
     'Manage shipping (Pro edition only)' => 'Verzending beheren (alleen in de Pro-editie)',
