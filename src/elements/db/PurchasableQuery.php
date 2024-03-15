@@ -229,7 +229,7 @@ abstract class PurchasableQuery extends ElementQuery
         $this->stock = $value;
         return $this;
     }
-    
+
     /**
      * Narrows the query results to only variants that have stock.
      *
@@ -626,6 +626,38 @@ abstract class PurchasableQuery extends ElementQuery
     /**
      * @inheritdoc
      */
+    protected function afterPrepare(): bool
+    {
+        // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
+        $customerId = $this->forCustomer;
+        if ($customerId === null) {
+            $customerId = Craft::$app->getUser()->getIdentity()?->id;
+        } elseif ($customerId === false) {
+            $customerId = null;
+        }
+
+        $catalogPricingQuery = Plugin::getInstance()
+            ->getCatalogPricing()
+            ->createCatalogPricingQuery(userId: $customerId)
+            ->addSelect(['cp.purchasableId', 'cp.storeId']);
+        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
+        $catalogPromotionalPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => true]);
+        $catalogSalePriceQuery = (clone $catalogPricingQuery);
+
+        $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+        $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
+
+        $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
+        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
+
+        return parent::afterPrepare();
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function beforePrepare(): bool
     {
         $this->joinElementTable('commerce_purchasables');
@@ -645,32 +677,14 @@ abstract class PurchasableQuery extends ElementQuery
             'purchasables_stores.inventoryTracked',
             'purchasables_stores.promotable',
             'purchasables_stores.shippingCategoryId',
-            'catalogprices.price',
-            'catalogpromotionalprices.price as promotionalPrice',
-            'catalogsaleprices.price as salePrice',
+            'subquery.price',
+            'subquery.promotionalPrice as promotionalPrice',
+            'subquery.salePrice as salePrice',
             'inventoryitems.id as inventoryItemId',
         ]);
 
-        $customerId = $this->forCustomer;
-        if ($customerId === null) {
-            $customerId = Craft::$app->getUser()->getIdentity()?->id;
-        } elseif ($customerId === false) {
-            $customerId = null;
-        }
-
-        $catalogPricingQuery = Plugin::getInstance()
-            ->getCatalogPricing()
-            ->createCatalogPricingQuery(userId: $customerId)
-            ->addSelect(['[[cp.purchasableId]]', '[[cp.storeId]]']);
-        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
-        $catalogPromotionalPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => true]);
-        $catalogSalePriceQuery = (clone $catalogPricingQuery);
-
         $this->query->leftJoin(Table::SITESTORES . ' sitestores', '[[elements_sites.siteId]] = [[sitestores.siteId]]');
         $this->query->leftJoin(Table::PURCHASABLES_STORES . ' purchasables_stores', '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
-        $this->query->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
-        $this->query->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
-        $this->query->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
         $this->query->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
         $this->subQuery->addSelect([
@@ -678,17 +692,6 @@ abstract class PurchasableQuery extends ElementQuery
             'catalogpromotionalprices.price as promotionalPrice',
             'catalogsaleprices.price as salePrice',
         ]);
-
-        $this->subQuery->leftJoin(['comelsites' => \craft\db\Table::ELEMENTS_SITES], '[[comelsites.elementId]] = [[elements.id]]');
-        $this->subQuery->andWhere(Db::parseParam('comelsites.siteId', $this->siteId));
-
-        $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[comelsites.siteId]] = [[sitestores.siteId]]');
-        $this->subQuery->leftJoin(['purchasables_stores' => Table::PURCHASABLES_STORES], '[[purchasables_stores.storeId]] = [[sitestores.storeId]] AND [[purchasables_stores.purchasableId]] = [[commerce_purchasables.id]]');
-
-        $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['catalogpromotionalprices' => $catalogPromotionalPricesQuery], '[[catalogpromotionalprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogpromotionalprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['catalogsaleprices' => $catalogSalePriceQuery], '[[catalogsaleprices.purchasableId]] = [[commerce_purchasables.id]] AND [[catalogsaleprices.storeId]] = [[sitestores.storeId]]');
-        $this->subQuery->leftJoin(['inventoryitems' => Table::INVENTORYITEMS], '[[inventoryitems.purchasableId]] = [[commerce_purchasables.id]]');
 
         if (isset($this->sku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_purchasables.sku', $this->sku));
@@ -818,11 +821,15 @@ abstract class PurchasableQuery extends ElementQuery
         return parent::beforePrepare();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function populate($rows): array
     {
         foreach ($rows as &$row) {
             unset($row['salePrice']);
         }
-        return parent::populate($rows); // TODO: Change the autogenerated stub
+
+        return parent::populate($rows);
     }
 }

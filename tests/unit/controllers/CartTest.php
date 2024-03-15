@@ -325,6 +325,7 @@ class CartTest extends Unit
     public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
         $this->request->headers->set('X-Http-Method-Override', 'POST');
+        $originalStoresService = Plugin::getInstance()->get('stores');
         $storesService = $this->make(Stores::class, [
             'getStoreById' => function(int $id) use ($autoSet) {
                 /** @var Store $store */
@@ -372,6 +373,7 @@ class CartTest extends Unit
         }
 
         Craft::$app->getElements()->deleteElement($cart, true);
+        Plugin::getInstance()->set('stores', $originalStoresService);
     }
 
     /**

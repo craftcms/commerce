@@ -21,6 +21,7 @@ use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\Address;
 use craft\errors\BusyResourceException;
 use craft\errors\SiteNotFoundException;
 use craft\errors\StaleResourceException;
@@ -40,6 +41,7 @@ use yii\base\Exception as YiiBaseException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Exception as YiiDbException;
+use yii\db\Expression;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -465,9 +467,16 @@ class Stores extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $locationAddressId = $store->getSettings()->getLocationAddressId();
+
             Craft::$app->getDb()->createCommand()
                 ->delete(Table::STORES, ['id' => $storeRecord->id])
                 ->execute();
+
+            // Delete store address
+            if ($locationAddressId) {
+                Craft::$app->getElements()->deleteElementById($locationAddressId, Address::class, hardDelete: true);
+            }
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -635,7 +644,7 @@ class Stores extends Component
             ->select('storeId')
             ->from(Table::SITESTORES)
             ->groupBy('storeId')
-            ->having(['>', 'COUNT(storeId)', 1]);
+            ->having(['>', new Expression('COUNT([[storeId]])'), 1]);
 
         return (new Query())
             ->select('siteId')
