@@ -639,6 +639,8 @@ return [
     'Manage All Shipping Categories' => 'すべての配送カテゴリを管理する',
     'Manage All Tax Categories' => 'すべての税カテゴリを管理する',
     'Manage Inventory' => 'Manage Inventory',
+    'Manage inventory stock levels' => 'Manage inventory stock levels',
+    'Manage inventory stock locations' => 'Manage inventory stock locations',
     'Manage orders' => '注文を管理',
     'Manage promotions' => '販売促進を管理',
     'Manage shipping (Pro edition only)' => '配送を管理（Proエディションのみ）',
