@@ -17,7 +17,9 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\ProductFixture;
+use craftcommercetests\fixtures\ShippingCategoryFixture;
 use UnitTester;
 
 /**
@@ -39,6 +41,9 @@ class VariantQueryTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'shippingCategories' => [
+                'class' => ShippingCategoryFixture::class,
+            ],
             'products' => [
                 'class' => ProductFixture::class,
             ],
@@ -54,77 +59,72 @@ class VariantQueryTest extends Unit
     }
 
     /**
-     * @param mixed $shippingCategoryId
-     * @param int $count
      * @return void
-     * @dataProvider shippingCategoryIdDataProvider
      */
-    public function testShippingCategoryId(mixed $shippingCategoryId, int $count): void
+    public function testShippingCategoryId(): void
     {
-        $query = Variant::find();
+        self::assertTrue(method_exists(Variant::find(), 'shippingCategoryId'), 'shippingCategoryId method exists');
 
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategoryId($shippingCategoryId);
+        [$shippingCategoryId, $tests] = $this->_getShippingCategoryIdData();
 
-        self::assertCount($count, $query->all());
+        foreach ($tests as $key => [$criteria, $count]) {
+            $query = Variant::find();
+            $query->shippingCategoryId($criteria);
+
+            self::assertCount($count, $query->all(), "shippingCategoryId Test $key");
+        }
     }
 
     /**
-     * @param mixed $shippingCategoryId
-     * @param int $count
      * @return void
-     * @dataProvider shippingCategoryIdDataProvider
      */
-    public function testShippingCategoryIdProperty(mixed $shippingCategoryId, int $count): void
+    public function testShippingCategoryIdProperty(): void
     {
-        $query = Variant::find();
+        self::assertTrue(property_exists(Variant::find(), 'shippingCategoryId'), 'shippingCategoryId property exists');
 
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategoryId = $shippingCategoryId;
+        [$shippingCategoryId, $tests] = $this->_getShippingCategoryIdData();
 
-        self::assertCount($count, $query->all());
+        foreach ($tests as $key => [$criteria, $count]) {
+            $query = Variant::find();
+            $query->shippingCategoryId = $criteria;
+            self::assertCount($count, $query->all(), "shippingCategoryIdProperty Test $key");
+        }
+
     }
 
     /**
      * @return array
      */
-    public function shippingCategoryIdDataProvider(): array
+    private function _getShippingCategoryIdData(): array
     {
+        $fixture = $this->tester->grabFixture('shippingCategories');
+        $shippingCategoryId = $fixture->data['anotherShippingCategory']['id'];
+
         return [
-            'no-params' => [null, 3],
-            'specific-id' => [101, 3],
-            'in' => [[101, 102], 3],
-            'not-in' => [['not', 102, 103], 3],
-            'greater-than' => ['> 100', 3],
-            'less-than' => ['< 100', 0],
+            $shippingCategoryId,
+            [
+                'no-params' => [null, 3],
+                'specific-id' => [$shippingCategoryId, 3],
+                'in' => [[$shippingCategoryId, 99999], 3],
+                'not-in' => [['not', 99998, 99999], 3],
+                'greater-than' => ['> ' . ($shippingCategoryId - 1), 3],
+                'less-than' => ['< ' . ($shippingCategoryId), 0],
+            ]
         ];
     }
 
     /**
-     * @param mixed $shippingCategory
-     * @param int $count
      * @return void
-     * @dataProvider shippingCategoryDataProvider
      */
-    public function testShippingCategory(mixed $shippingCategory, int $count): void
+    public function testShippingCategory(): void
     {
-        $query = Variant::find();
 
-        self::assertTrue(method_exists($query, 'shippingCategoryId'));
-        $query->shippingCategory($shippingCategory);
+        self::assertTrue(method_exists(Variant::find(), 'shippingCategoryId'));
+        $fixture = $this->tester->grabFixture('shippingCategories');
+        $matchingShippingCategory = new ShippingCategory(['id' => $fixture->data['anotherShippingCategory']['id']]);
+        $nonMatchingShippingCategory = new ShippingCategory(['id' => 99999]);
 
-        self::assertCount($count, $query->all());
-    }
-
-    /**
-     * @return array
-     */
-    public function shippingCategoryDataProvider(): array
-    {
-        $matchingShippingCategory = new ShippingCategory(['id' => 101]);
-        $nonMatchingShippingCategory = new ShippingCategory(['id' => 999]);
-
-        return [
+        $tests = [
             'no-params' => [null, 3],
             'specific-handle' => ['anotherShippingCategory', 3],
             'in' => [['anotherShippingCategory', 'general'], 3],
@@ -132,6 +132,13 @@ class VariantQueryTest extends Unit
             'matching-shipping-category' => [$matchingShippingCategory, 3],
             'non-matching-shipping-category' => [$nonMatchingShippingCategory, 0],
         ];
+
+        foreach ($tests as $key => list($criteria, $count)) {
+            $query = Variant::find();
+            $query->shippingCategory($criteria);
+
+            self::assertCount($count, $query->all());
+        }
     }
 
     /**
