@@ -9,6 +9,7 @@
 - Fixed a bug where Variant queries were returning duplicate rows. ([#3401](https://github.com/craftcms/commerce/issues/3401))
 - Fixed a bug where shipping categories weren’t being deleted when a store was deleted.
 - Fixed an error that could occur when upgrading with MariaDB. ([#3411](https://github.com/craftcms/commerce/issues/3411))
+- Fixed a bug where prices weren’t showing their currency symbol on the Variant Edit page. ([#3405](https://github.com/craftcms/commerce/issues/3405))
 
 ## 5.0.0-beta.1 - 2024-02-29
 
