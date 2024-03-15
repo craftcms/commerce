@@ -22,6 +22,17 @@ class InventoryLocationsController extends Controller
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
     /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $this->requirePermission('commerce-manageInventoryLocations');
+    }
+
+
+    /**
      * Inventory Locations index
      *
      * @return Response

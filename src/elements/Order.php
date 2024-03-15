@@ -1492,6 +1492,7 @@ class Order extends Element implements HasStoreInterface
     /**
      * @return Teller
      * @throws InvalidConfigException
+     * @since 5.0.0
      */
     private function _getTeller(): Teller
     {

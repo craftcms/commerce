@@ -339,7 +339,9 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
 
-        $ret['label'] = Craft::t('commerce', 'Commerce');
+        if (Craft::$app->getUser()->checkPermission('accessPlugin-commerce')) {
+            $ret['label'] = Craft::t('commerce', 'Commerce');
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
@@ -356,11 +358,12 @@ class Plugin extends BasePlugin
             ];
         }
 
-
-        $ret['subnav']['inventory'] = [
-            'label' => Craft::t('commerce', 'Inventory'),
-            'url' => 'commerce/inventory',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') || Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
+            $ret['subnav']['inventory'] = [
+                'label' => Craft::t('commerce', 'Inventory'),
+                'url' => 'commerce/inventory',
+            ];
+        }
 
         // @TODO add permissions check for pricing
         // $ret['subnav']['prices'] = [
@@ -529,6 +532,8 @@ class Plugin extends BasePlugin
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                         'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
                         'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
+                        'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
                         'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],

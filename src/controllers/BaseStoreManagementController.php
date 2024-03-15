@@ -22,6 +22,18 @@ class BaseStoreManagementController extends BaseCpController
     public array $storeSettingsNav = [];
 
     /**
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $this->requirePermission('commerce-manageStoreSettings');
+    }
+
+    /**
      * @inheritDoc
      */
     public function renderTemplate(string $template, array $variables = [], ?string $templateMode = null): YiiResponse
@@ -53,7 +65,6 @@ class BaseStoreManagementController extends BaseCpController
             'label' => Craft::t('commerce', "Locations"),
             'path' => 'inventory-locations',
         ];
-
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
@@ -139,9 +150,9 @@ class BaseStoreManagementController extends BaseCpController
         ];
 
         $this->storeSettingsNav['donation'] = [
-             'label' => Craft::t('commerce', 'Donation'),
-             'path' => 'donation',
-         ];
+            'label' => Craft::t('commerce', 'Donation'),
+            'path' => 'donation',
+        ];
 
 
         return $this->storeSettingsNav;

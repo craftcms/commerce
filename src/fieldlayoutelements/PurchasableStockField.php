@@ -128,6 +128,7 @@ JS, [
                 Html::endTag('div') .
                 Html::endTag('td') .
                 Html::beginTag('td') .
+                (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
                 Html::a(
                     Craft::t('commerce', 'Manage'),
                     UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
@@ -140,7 +141,7 @@ JS, [
                         'aria-label' => Craft::t('app', 'Open in a new tab'),
                         'data-icon' => 'external',
                     ]
-                ) .
+                ) : '') .
                 Html::endTag('td') .
                 Html::endTag('tr');
         }
