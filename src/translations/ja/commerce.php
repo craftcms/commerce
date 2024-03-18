@@ -1415,7 +1415,7 @@ return [
     '{pct} off total discounted price and shipping total (deprecated)' => '合計ディスカウント済み価格と合計配送料の {pct} 割引（使用廃止）',
     '{pct} off total original price (deprecated)' => '元の合計価格の {pct} 割引（使用廃止）',
     '{pct} off total original price and shipping total (deprecated)' => '元の価格の合計および合計配送料の {pct} 割引（使用廃止）',
-    '{storeNames} have not been assigned to a site.' => '{storeNames} have not been assigned to a site.',
+    '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.' => '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.',
     '{total} in total revenue' => '合計収益の {total}',
     '{total} orders' => '注文数 {total}',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
