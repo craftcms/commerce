@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -17,6 +18,7 @@ use craft\errors\BusyResourceException;
 use craft\errors\StaleResourceException;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use Illuminate\Support\Collection;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -265,11 +267,11 @@ class StoresController extends BaseStoreManagementController
     }
 
     /**
-     * @param array|null $siteStores
+     * @param Collection|null $sitesStores
      * @return Response
      * @throws InvalidConfigException
      */
-    public function actionEditSiteStores(array $siteStores = null): Response
+    public function actionEditSiteStores(Collection $sitesStores = null): Response
     {
         // Breadcrumbs
         $crumbs = [
@@ -282,7 +284,8 @@ class StoresController extends BaseStoreManagementController
         return $this->renderTemplate('commerce/settings/stores/_siteStore', [
             'crumbs' => $crumbs,
             'stores' => Plugin::getInstance()->getStores()->getAllStores(),
-            'sitesStores' => $siteStores ?? Plugin::getInstance()->getStores()->getAllSiteStores(),
+            'sites' => Craft::$app->getSites()->getAllSites(),
+            'sitesStores' => $sitesStores ?? Plugin::getInstance()->getStores()->getAllSiteStores(),
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
         ]);
     }
@@ -295,10 +298,10 @@ class StoresController extends BaseStoreManagementController
     public function actionSaveSiteStores(): ?Response
     {
         $siteStoresData = $this->request->getBodyParam('siteStores', []);
-        $siteStores = Plugin::getInstance()->getStores()->getAllSiteStores();
+        $sitesStores = Plugin::getInstance()->getStores()->getAllSiteStores();
         $stores = Plugin::getInstance()->getStores()->getAllStores();
 
-        foreach ($siteStores as $siteStore) {
+        foreach ($sitesStores as $siteStore) {
             if (isset($siteStoresData[$siteStore->siteId])) {
                 $siteStore->storeId = $siteStoresData[$siteStore->siteId]['storeId'];
             }
@@ -307,7 +310,7 @@ class StoresController extends BaseStoreManagementController
         $unassignedStores = [];
         foreach ($stores as $store) {
             $storeAssigned = false;
-            foreach ($siteStores as $siteStore) {
+            foreach ($sitesStores as $siteStore) {
                 if ($siteStore->storeId == $store->id) {
                     $storeAssigned = true;
                 }
@@ -318,14 +321,15 @@ class StoresController extends BaseStoreManagementController
         }
         if ($unassignedStores) {
             return $this->asFailure(
-                Craft::t('commerce', '{storeNames} have not been assigned to a site.', [
+                Craft::t('commerce', '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.', [
                     'storeNames' => implode(', ', $unassignedStores),
+                    'num' => count($unassignedStores),
                 ]),
-                routeParams: ['siteStores' => $siteStores]
+                routeParams: ['sitesStores' => collect($sitesStores)]
             );
         }
 
-        foreach ($siteStores as $siteStore) {
+        foreach ($sitesStores as $siteStore) {
             Plugin::getInstance()->getStores()->saveSiteStore($siteStore);
         }
 
