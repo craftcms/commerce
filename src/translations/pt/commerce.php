@@ -1415,7 +1415,7 @@ return [
     '{pct} off total discounted price and shipping total (deprecated)' => '{pct} de desconto do preço descontado e do total do envio (descontinuado)',
     '{pct} off total original price (deprecated)' => '{pct} de desconto no preço original (descontinuado)',
     '{pct} off total original price and shipping total (deprecated)' => '{pct} de desconto do preço original total e do envio (descontinuado)',
-    '{storeNames} have not been assigned to a site.' => '{storeNames} have not been assigned to a site.',
+    '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.' => '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.',
     '{total} in total revenue' => '{total} em receitas totais',
     '{total} orders' => '{total} pedidos',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
