@@ -1415,7 +1415,7 @@ return [
     '{pct} off total discounted price and shipping total (deprecated)' => '{pct} rabatt på total rabattert pris og frakttotal (utfasing)',
     '{pct} off total original price (deprecated)' => '{pct} avslag på samlet opprinnelig pris (utfasing)',
     '{pct} off total original price and shipping total (deprecated)' => '{pct} rabatt på total opprinnelig pris og frakttotal (utfasing)',
-    '{storeNames} have not been assigned to a site.' => '{storeNames} have not been assigned to a site.',
+    '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.' => '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.',
     '{total} in total revenue' => '{total} i total inntekt',
     '{total} orders' => '{total} ordrer',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
