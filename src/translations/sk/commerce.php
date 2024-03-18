@@ -1415,7 +1415,7 @@ return [
     '{pct} off total discounted price and shipping total (deprecated)' => '{pct} z celkovej zľavnenej ceny položky a spôsobu dopravy (zastarané)',
     '{pct} off total original price (deprecated)' => '{pct} z celkovej pôvodnej ceny (zastarané)',
     '{pct} off total original price and shipping total (deprecated)' => 'Zľava {pct} z pôvodnej ceny a celková cena za dopravu (zastarané)',
-    '{storeNames} have not been assigned to a site.' => '{storeNames} have not been assigned to a site.',
+    '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.' => '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.',
     '{total} in total revenue' => 'celkový príjem {total}',
     '{total} orders' => '{total} objednávok',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
