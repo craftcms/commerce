@@ -1415,7 +1415,7 @@ return [
     '{pct} off total discounted price and shipping total (deprecated)' => '{pct} korting op de totale prijs met korting en het totaal voor verzending (afgeschaft)',
     '{pct} off total original price (deprecated)' => '{pct} korting op de oorspronkelijke prijs (afgeschaft)',
     '{pct} off total original price and shipping total (deprecated)' => '{pct} korting op het totaal van de oorspronkelijke prijs en het totaal voor verzending (afgeschaft)',
-    '{storeNames} have not been assigned to a site.' => '{storeNames} have not been assigned to a site.',
+    '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.' => '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.',
     '{total} in total revenue' => '{total} aan totale omzet',
     '{total} orders' => '{total} bestellingen',
     '{total} saleable across {locationCount} location(s)' => '{total} saleable across {locationCount} location(s)',
