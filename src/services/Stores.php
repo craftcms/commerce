@@ -218,6 +218,10 @@ class Stores extends Component
         }
 
         $allStores = $this->getAllStores();
+        if (!Craft::$app->getIsMultiSite()) {
+            return $allStores;
+        }
+
         return $allStores->filter(function(Store $store) use ($user) {
             $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
 
