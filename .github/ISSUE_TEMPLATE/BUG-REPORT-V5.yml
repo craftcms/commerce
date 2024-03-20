@@ -2,10 +2,9 @@ name: Bug Report – Commerce 5
 description: Report an issue or unexpected behavior pertaining to Commerce 5
 title: '[5.x]: '
 labels:
-  - 🐞 bug
   - commerce5
   - Craft Commerce # Linear
-  - Bug # Linear
+  - bug # Linear
 body:
   - type: markdown
     attributes:
