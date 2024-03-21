@@ -116,18 +116,27 @@ class BaseStoreManagementController extends BaseCpController
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-            $this->storeSettingsNav['taxrates'] = [
-                'label' => Craft::t('commerce', 'Tax Rates'),
-                'path' => 'taxrates',
-            ];
-            $this->storeSettingsNav['taxzones'] = [
-                'label' => Craft::t('commerce', 'Tax Zones'),
-                'path' => 'taxzones',
-            ];
-            $this->storeSettingsNav['taxcategories'] = [
-                'label' => Craft::t('commerce', 'Tax Categories'),
-                'path' => 'taxcategories',
-            ];
+
+            if (Plugin::getInstance()->getTaxes()->viewTaxRates()) {
+                $this->storeSettingsNav['taxrates'] = [
+                    'label' => Craft::t('commerce', 'Tax Rates'),
+                    'path' => 'taxrates',
+                ];
+            }
+
+            if (Plugin::getInstance()->getTaxes()->viewTaxZones()) {
+                $this->storeSettingsNav['taxzones'] = [
+                    'label' => Craft::t('commerce', 'Tax Zones'),
+                    'path' => 'taxzones',
+                ];
+            }
+
+            if (Plugin::getInstance()->getTaxes()->viewTaxCategories()) {
+                $this->storeSettingsNav['taxcategories'] = [
+                    'label' => Craft::t('commerce', 'Tax Categories'),
+                    'path' => 'taxcategories',
+                ];
+            }
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
