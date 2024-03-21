@@ -427,7 +427,7 @@ JS, [
         $inventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
         $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
-        $type = Craft::$app->getRequest()->getParam('type', 'onHand');
+        $type = Craft::$app->getRequest()->getRequiredParam('type');
 
         // We don't add zero amounts as transactions movements
         if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity == 0) {
@@ -482,7 +482,7 @@ JS, [
         $inventoryItemIds = (array)$this->request->getParam('ids', []); // param needs to be 'ids' to be compatible with admin table
         $updateAction = $this->request->getParam('updateAction', 'adjust');
         $quantity = (int)$this->request->getParam('quantity', 0);
-        $type = $this->request->getParam('type', 'onHand');
+        $type = $this->request->getRequiredParam('type');
 
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
