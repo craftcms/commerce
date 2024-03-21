@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Successfully refunding a payment that returns a 'processing' status will no longer show a failed flash message.
+- Fixed a bug where order adjustments could be duplicated. ([#3438](https://github.com/craftcms/commerce/issues/3438))
 
 ## 4.5.2 - 2024-03-06
 
