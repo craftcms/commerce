@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -51,6 +52,16 @@ class CartController extends BaseFrontEndController
      * @var User|null
      */
     protected ?User $_currentUser = null;
+
+    /**
+     * @var Mutex|null
+     */
+    private ?Mutex $_mutex = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $_mutexLockName = null;
 
     /**
      * @throws InvalidConfigException
@@ -95,6 +106,31 @@ class CartController extends BaseFrontEndController
         $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
+
+        $useMutex = ($isSiteRequest && Craft::$app->getRequest()->getBodyParam('number')) || $plugin->getCarts()->getHasSessionCartNumber();
+
+        if ($useMutex) {
+            $lockOrderNumber = null;
+            if ($bodyNumber = Craft::$app->getRequest()->getBodyParam('number')) {
+                $lockOrderNumber = $bodyNumber;
+            } elseif ($isSiteRequest) {
+                $request = Craft::$app->getRequest();
+                $requestCookies = $request->getCookies();
+                $cookieNumber = $requestCookies->getValue($plugin->getCarts()->cartCookie['name']);
+
+                if ($cookieNumber) {
+                    $lockOrderNumber = $cookieNumber;
+                }
+            }
+
+            if ($lockOrderNumber) {
+                $this->_mutexLockName = "order:$lockOrderNumber";
+                $this->_mutex = Craft::$app->getMutex();
+                if (!$this->_mutex->acquire($this->_mutexLockName, 5)) {
+                    throw new Exception('Unable to acquire a lock for saving of Order: ' . $lockOrderNumber);
+                }
+            }
+        }
 
         // Get the cart from the request or from the session.
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
@@ -489,6 +525,10 @@ class CartController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Unable to update cart.');
             $message = $this->request->getValidatedBodyParam('failMessage') ?? $error;
 
+            if ($this->_mutex && $this->_mutexLockName) {
+                $this->_mutex->release($this->_mutexLockName);
+            }
+
             return $this->asModelFailure(
                 $this->_cart,
                 $message,
@@ -508,6 +548,10 @@ class CartController extends BaseFrontEndController
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart,
         ]);
+
+        if ($this->_mutex && $this->_mutexLockName) {
+            $this->_mutex->release($this->_mutexLockName);
+        }
 
         return $this->asModelSuccess(
             $this->_cart,
