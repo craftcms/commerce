@@ -116,7 +116,6 @@ class BaseStoreManagementController extends BaseCpController
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-
             if (Plugin::getInstance()->getTaxes()->viewTaxRates()) {
                 $this->storeSettingsNav['taxrates'] = [
                     'label' => Craft::t('commerce', 'Tax Rates'),
