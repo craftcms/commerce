@@ -73,7 +73,7 @@ class PurchasableStockField extends BaseNativeField
         $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
         $view->registerJsWithVars(fn($id, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
-    e.preventDefault();
+  e.preventDefault();
   const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
 });
 JS, [
@@ -92,6 +92,7 @@ JS, [
                 'params' => [
                     'inventoryLocationId' => $inventoryLevel->getInventoryLocation()->id,
                     'ids[]' => [$element->inventoryItemId],
+                    'type' => 'available',
                 ],
             ];
 
