@@ -13,6 +13,7 @@
 - Fixed an error that could occur when updating site/store assignments. ([#3426](https://github.com/craftcms/commerce/issues/3426))
 - Fixed a bug where Commerce widgets weren’t displaying the list of stores. ([#3428](https://github.com/craftcms/commerce/issues/3428))
 - Fixed an error that could occur when editing a store. ([#3433](https://github.com/craftcms/commerce/issues/3433))
+- Fixed a bug where variant titles were being shown as links when editing a product. ([#3431](https://github.com/craftcms/commerce/issues/3431))
 
 ## 5.0.0-beta.1 - 2024-02-29
 
