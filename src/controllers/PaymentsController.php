@@ -81,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
 
         $number = $this->request->getParam('number');
 
-        $useMutex = $number || $plugin->getCarts()->getHasSessionCartNumber();
+        $useMutex = $number || ($isSiteRequest && $plugin->getCarts()->getHasSessionCartNumber());
 
         if ($useMutex) {
             $lockOrderNumber = null;

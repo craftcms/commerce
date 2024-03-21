@@ -107,7 +107,7 @@ class CartController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
-        $useMutex = ($isSiteRequest && Craft::$app->getRequest()->getBodyParam('number')) || $plugin->getCarts()->getHasSessionCartNumber();
+        $useMutex = ($isSiteRequest && Craft::$app->getRequest()->getBodyParam('number')) || ($isSiteRequest && $plugin->getCarts()->getHasSessionCartNumber());
 
         if ($useMutex) {
             $lockOrderNumber = null;
