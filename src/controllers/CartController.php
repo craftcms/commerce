@@ -103,17 +103,18 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $isSiteRequest = $this->request->getIsSiteRequest();
+        $isConsoleRequest = $this->request->getIsConsoleRequest();
         $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
 
-        $useMutex = ($isSiteRequest && Craft::$app->getRequest()->getBodyParam('number')) || ($isSiteRequest && $plugin->getCarts()->getHasSessionCartNumber());
+        $useMutex = (!$isConsoleRequest && Craft::$app->getRequest()->getBodyParam('number')) || (!$isConsoleRequest && $plugin->getCarts()->getHasSessionCartNumber());
 
         if ($useMutex) {
             $lockOrderNumber = null;
             if ($bodyNumber = Craft::$app->getRequest()->getBodyParam('number')) {
                 $lockOrderNumber = $bodyNumber;
-            } elseif ($isSiteRequest) {
+            } elseif (!$isConsoleRequest) {
                 $request = Craft::$app->getRequest();
                 $requestCookies = $request->getCookies();
                 $cookieNumber = $requestCookies->getValue($plugin->getCarts()->cartCookie['name']);

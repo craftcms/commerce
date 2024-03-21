@@ -81,13 +81,13 @@ class PaymentsController extends BaseFrontEndController
 
         $number = $this->request->getParam('number');
 
-        $useMutex = $number || ($isSiteRequest && $plugin->getCarts()->getHasSessionCartNumber());
+        $useMutex = $number || (!$isCpRequest && $plugin->getCarts()->getHasSessionCartNumber());
 
         if ($useMutex) {
             $lockOrderNumber = null;
             if ($number) {
                 $lockOrderNumber = $number;
-            } elseif ($isSiteRequest) {
+            } elseif (!$isCpRequest) {
                 $request = Craft::$app->getRequest();
                 $requestCookies = $request->getCookies();
                 $cookieNumber = $requestCookies->getValue($plugin->getCarts()->cartCookie['name']);
