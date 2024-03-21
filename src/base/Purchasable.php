@@ -735,7 +735,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
                     }
 
-                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                    if (!$purchasable->getIsAvailable()) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 },
