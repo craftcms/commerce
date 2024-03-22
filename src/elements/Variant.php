@@ -1120,7 +1120,7 @@ class Variant extends Purchasable implements NestedElementInterface
     protected static function defineDefaultTableAttributes(string $source): array
     {
         // Only add product as a `product` if we are viewing an implicit table
-        if ($source !== "__IMP__")  {
+        if ($source !== "__IMP__") {
             $extras[] = 'product';
         }
         $extras = ['isDefault'];
