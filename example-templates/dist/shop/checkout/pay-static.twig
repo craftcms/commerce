@@ -88,7 +88,7 @@
           {% set paymentSources = [] %}
 
           {% if currentUserIsCartUser %}
-            {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id) %}
+            {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id) %}
           {% endif %}
 
           {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
@@ -174,9 +174,6 @@
                         {{ cart.gateway.getPaymentFormHtml(params)|raw }}
                       {% endnamespace %}
                     </div>
-
-                    {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-                    {% include 'shop/checkout/_includes/base-payment-form-styles' %}
 
                     {% if gateway.supportsPaymentSources() and currentUserIsCartUser %}
                       <div class="checkbox">
