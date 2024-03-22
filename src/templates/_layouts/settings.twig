@@ -8,13 +8,13 @@
 
 {% if currentUser.admin %}
 {% set navItems = {
+    'general': { title: "General Settings"|t('commerce')},
     'Stores': { heading: "Stores & Sites"|t('commerce')},
     'stores': { title: "Stores"|t('commerce')},
     'sites': { title: "Sites"|t('app')},
     'products-heading': { heading: "Products"|t('commerce')},
     'producttypes': { title: "Product Types"|t('commerce')},
     'orders-heading': { heading: "Orders"|t('commerce')},
-    'general': { title: "General Settings"|t('commerce')},
     'ordersettings': { title: "Field Layout"|t('commerce')},
     'orderstatuses': { title: "Order Statuses"|t('commerce')},
     'lineitemstatuses': { title: "Line Item Statuses"|t('commerce')},
