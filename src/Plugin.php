@@ -115,6 +115,7 @@ use craft\console\controllers\ResaveController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
+use craft\enums\CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
@@ -257,6 +258,11 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public string $minVersionRequired = '3.4.11';
+
+    /**
+     * @inheritdoc
+     */
+    public CmsEdition $minCmsEdition = CmsEdition::Pro;
 
     use CommerceServices;
     use Variables;
