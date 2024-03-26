@@ -1175,7 +1175,7 @@ JS, []);
 
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
-                if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                if ($child->status == TransactionRecord::STATUS_SUCCESS || $child->status == TransactionRecord::STATUS_PROCESSING) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message,

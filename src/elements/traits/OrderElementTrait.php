@@ -303,7 +303,6 @@ trait OrderElementTrait
                 'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => 0,
                 'data' => [
                     'date-attr' => 'dateOrdered',
                 ],
@@ -333,7 +332,6 @@ trait OrderElementTrait
                 'label' => Craft::t('site', $orderStatus->name),
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => 0,
                 'data' => [
                     'handle' => $orderStatus->handle,
                     'date-attr' => 'dateOrdered',
