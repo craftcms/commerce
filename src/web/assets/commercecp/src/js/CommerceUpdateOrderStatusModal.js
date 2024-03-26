@@ -24,6 +24,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend({
 
     settings.onHide = $.proxy(function () {
       this.destroy();
+      Craft.elementIndex.setIndexAvailable();
     }, this);
 
     this.setSettings(settings, {
