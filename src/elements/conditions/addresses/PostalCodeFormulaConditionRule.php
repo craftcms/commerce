@@ -22,11 +22,18 @@ use yii\base\NotSupportedException;
  */
 class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
+
+    /**
+     * @inheritdoc
+     */
     public function getLabel(): string
     {
         return Craft::t('commerce', 'Postal Code Formula');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getExclusiveQueryParams(): array
     {
         return [];
@@ -70,7 +77,7 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
     public function inputHtml(): string
     {
         return Html::hiddenLabel($this->getLabel(), 'value') .
-        Cp::textHtml([
+        Cp::textareaHtml([
             'type' => $this->inputType(),
             'id' => 'value',
             'name' => 'value',

@@ -249,4 +249,3 @@
 
 ### System
 - Craft Commerce now strictly requires Craft CMS Pro edition.
-- 
