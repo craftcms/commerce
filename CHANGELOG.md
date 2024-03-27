@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where successful refunds could show a failure notice.
+- Fixed "Postcode Condition Formula" condition rule to use a textarea instead of a text input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
 
 ## 4.5.2 - 2024-03-06
 
