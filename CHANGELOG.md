@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Successfully refunding a payment that returns a 'processing' status will no longer show a failed flash message.
+- Fixed a bug where successful refunds could show a failure notice.
 
 ## 4.5.2 - 2024-03-06
 
