@@ -13,6 +13,8 @@
 - The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods and shipping rules now support flexible order matching, based on an order condition.
+- Added a new “Manage inventory stock levels” permission.
+- Added a new “Manage inventory locations” permission.
 
 ### Development
 - Added the `currentStore` Twig variable.
@@ -247,3 +249,4 @@
 
 ### System
 - Craft Commerce now strictly requires Craft CMS Pro edition.
+- 
