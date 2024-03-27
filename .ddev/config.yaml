@@ -1,7 +1,7 @@
 name: commerce
 type: php
 docroot: ""
-php_version: "8.0"
+php_version: "8.2"
 webserver_type: nginx-fpm
 router_http_port: "80"
 router_https_port: "443"
@@ -16,7 +16,7 @@ mutagen_enabled: false
 use_dns_when_possible: true
 composer_version: "2"
 web_environment: []
-nodejs_version: "16"
+nodejs_version: "20"
 
 # Key features of ddev's config.yaml:
 

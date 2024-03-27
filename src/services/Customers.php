@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
@@ -339,17 +340,26 @@ class Customers extends Component
 
         if ($saveBillingAddress && $saveShippingAddress && $order->hasMatchingAddresses()) {
             // Only save one address if they are matching
-            $newAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(), ['ownerId' => $order->getCustomer()->id]);
+            $newAddress = Craft::$app->getElements()->duplicateElement(
+                $order->getBillingAddress(),
+                ['primaryOwner' => $order->getCustomer()]
+            );
             $newSourceBillingAddressId = $newAddress->id;
             $newSourceShippingAddressId = $newAddress->id;
         } else {
             if ($saveBillingAddress) {
-                $newBillingAddress = Craft::$app->getElements()->duplicateElement($order->getBillingAddress(), ['ownerId' => $order->getCustomer()->id]);
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement(
+                    $order->getBillingAddress(),
+                    ['primaryOwner' => $order->getCustomer()]
+                );
                 $newSourceBillingAddressId = $newBillingAddress->id;
             }
 
             if ($saveShippingAddress) {
-                $newShippingAddress = Craft::$app->getElements()->duplicateElement($order->getShippingAddress(), ['ownerId' => $order->getCustomer()->id]);
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement(
+                    $order->getShippingAddress(),
+                    ['primaryOwner' => $order->getCustomer()]
+                );
                 $newSourceShippingAddressId = $newShippingAddress->id;
             }
         }
@@ -405,7 +415,7 @@ class Customers extends Component
             }
 
             if ($billingAddress || $shippingAddress) {
-                $newAttributes = ['ownerId' => $user->id];
+                $newAttributes = ['primaryOwner' => $user];
 
                 // If there is only one address make sure we don't add duplicates to the user
                 if ($order->hasMatchingAddresses()) {

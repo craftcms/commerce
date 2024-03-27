@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
@@ -20,10 +21,13 @@ use craft\db\ActiveRecord;
  * @property int $id
  * @property string $name
  * @property string $recipientType
+ * @property string $senderAddress
+ * @property string $senderName
  * @property string $subject
  * @property string $templatePath
  * @property string $plainTextTemplatePath
  * @property int|null $pdfId
+ * @property int $storeId
  * @property string $to
  * @property string $language
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -31,6 +35,8 @@ use craft\db\ActiveRecord;
  */
 class Email extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     public const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
 
     public const TYPE_CUSTOMER = 'customer';

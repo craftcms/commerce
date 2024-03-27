@@ -14,14 +14,15 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\Cookie;
 
 /**
@@ -106,16 +107,30 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
+        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
-            $this->_cart = new Order();
-            $this->_cart->number = $this->generateCartNumber();
+            $cartAttributes = [
+                'number' => $this->getSessionCartNumber(),
+                'orderSiteId' => Craft::$app->getSites()->getCurrentSite()->id,
+                'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
+            ];
+
             if ($currentUser) {
-                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
+                $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
+
+            $this->_cart = Craft::createObject([
+                'class' => Order::class,
+                'attributes' => $cartAttributes,
+            ]);
+        } elseif ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
+            $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $forceSave = true;
         }
         if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
             $forceSave = true;
@@ -181,6 +196,7 @@ class Carts extends Component
             ->withLineItems()
             ->withAdjustments()
             ->number($number)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
             ->trashed(null)
             ->status(null)
             ->one();
@@ -393,17 +409,45 @@ class Carts extends Component
     }
 
     /**
+     * @return void
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     */
+    protected function loadCookie(): void
+    {
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
+        // Complete the cart cookie config
+        if (!isset($this->cartCookie['name'])) {
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+        }
+
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+
+            $requestCookies = $request->getCookies();
+
+            // If we have a cart cookie, assign it to the cart number.
+            if ($requestCookies->has($this->cartCookie['name'])) {
+                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            }
+        }
+    }
+
+    /**
      * Gets the current payment currency ISO code
+     * @TODO: Fix this for 5.0
      */
     private function _getCartPaymentCurrencyIso(): string
     {
         if ($this->_cart) {
             // Is the payment currency locked to the constant
             if (defined('COMMERCE_PAYMENT_CURRENCY')) {
-                $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
-                if (in_array($currency, $allCurrencies, false)) {
-                    return $currency;
+                $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($this->_cart->storeId);
+                // if not in array
+                if (!$paymentCurrencies->contains('iso', '==', COMMERCE_PAYMENT_CURRENCY)) {
+                    throw new InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
                 }
             }
 

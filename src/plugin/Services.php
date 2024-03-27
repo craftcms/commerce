@@ -8,6 +8,8 @@
 namespace craft\commerce\plugin;
 
 use craft\commerce\services\Carts;
+use craft\commerce\services\CatalogPricing;
+use craft\commerce\services\CatalogPricingRules;
 use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
@@ -15,6 +17,8 @@ use craft\commerce\services\Discounts;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
+use craft\commerce\services\Inventory;
+use craft\commerce\services\InventoryLocations;
 use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
@@ -37,6 +41,8 @@ use craft\commerce\services\ShippingRuleCategories;
 use craft\commerce\services\ShippingRules;
 use craft\commerce\services\ShippingZones;
 use craft\commerce\services\Store;
+use craft\commerce\services\Stores;
+use craft\commerce\services\StoreSettings;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
 use craft\commerce\services\Taxes;
@@ -44,6 +50,7 @@ use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
 use craft\commerce\services\Variants;
+use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
 use yii\base\InvalidConfigException;
 
@@ -66,6 +73,8 @@ use yii\base\InvalidConfigException;
  * @property PaymentSources $paymentSources the payment sources service
  * @property Pdfs $pdf the pdf service
  * @property Plans $plans the plans service
+ * @property CatalogPricing $catalogPricing the catalog pricing rules service
+ * @property CatalogPricingRules $catalogPricingRules the catalog pricing rules service
  * @property Products $products the products service
  * @property ProductTypes $productTypes the product types service
  * @property Purchasables $purchasables the purchasables service
@@ -174,6 +183,28 @@ trait Services
     public function getGateways(): Gateways
     {
         return $this->get('gateways');
+    }
+
+    /**
+     * Returns the inventory service
+     *
+     * @return Inventory The inventory service
+     * @throws InvalidConfigException
+     */
+    public function getInventory(): Inventory
+    {
+        return $this->get('inventory');
+    }
+
+    /**
+     * Returns the inventory locations service
+     *
+     * @return InventoryLocations The inventory locations service
+     * @throws InvalidConfigException
+     */
+    public function getInventoryLocations(): InventoryLocations
+    {
+        return $this->get('inventoryLocations');
     }
 
     /**
@@ -309,6 +340,28 @@ trait Services
     }
 
     /**
+     * Returns the catalog pricing service
+     *
+     * @return CatalogPricing
+     * @throws InvalidConfigException
+     */
+    public function getCatalogPricing(): CatalogPricing
+    {
+        return $this->get('catalogPricing');
+    }
+
+    /**
+     * Returns the catalog pricing rules service
+     *
+     * @return CatalogPricingRules
+     * @throws InvalidConfigException
+     */
+    public function getCatalogPricingRules(): CatalogPricingRules
+    {
+        return $this->get('catalogPricingRules');
+    }
+
+    /**
      * Returns the products service
      *
      * @return Products The products service
@@ -410,6 +463,28 @@ trait Services
     /**
      * Returns the store service
      *
+     * @return StoreSettings The store service
+     * @throws InvalidConfigException
+     */
+    public function getStoreSettings(): StoreSettings
+    {
+        return $this->get('storeSettings');
+    }
+
+    /**
+     * Returns the stores service
+     *
+     * @return Stores The stores service
+     * @throws InvalidConfigException
+     */
+    public function getStores(): Stores
+    {
+        return $this->get('stores');
+    }
+
+    /**
+     * Returns the stores service
+     *
      * @return Store The store service
      * @throws InvalidConfigException
      */
@@ -485,6 +560,17 @@ trait Services
     }
 
     /**
+     * Returns the transfers service
+     *
+     * @return Transfers The transfers service
+     * @throws InvalidConfigException
+     */
+//    public function getTransfers(): Transfers
+//    {
+//        return $this->get('transfers');
+//    }
+
+    /**
      * Returns the variants service
      *
      * @return Variants The variants service
@@ -493,6 +579,17 @@ trait Services
     public function getVariants(): Variants
     {
         return $this->get('variants');
+    }
+
+    /**
+     * Returns the VAT service
+     *
+     * @return Vat The VAT service
+     * @throws InvalidConfigException
+     */
+    public function getVat(): Vat
+    {
+        return $this->get('vat');
     }
 
     /**

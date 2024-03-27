@@ -28,9 +28,10 @@ use yii\db\Expression;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
  */
-abstract class Stat implements StatInterface
+abstract class Stat implements StatInterface, HasStoreInterface
 {
     use StatTrait;
+    use StoreTrait;
 
     /**
      * Stat constructor.
@@ -40,7 +41,7 @@ abstract class Stat implements StatInterface
      * @param DateTime|bool|null $endDate
      * @throws \Exception
      */
-    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null)
+    public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
     {
         $this->dateRange = $dateRange ?? $this->dateRange;
         if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
@@ -54,6 +55,8 @@ abstract class Stat implements StatInterface
         if ($user) {
             $this->weekStartDay = $user->getPreference('weekStartDay') ?? $this->weekStartDay;
         }
+
+        $this->storeId = $storeId ?? $this->storeId;
     }
 
     /**
@@ -460,10 +463,15 @@ abstract class Stat implements StatInterface
             $this->_endDate->setTime(23, 59, 59);
         }
 
+        if ($this->storeId === null) {
+            throw new InvalidConfigException('The store ID has not been set.');
+        }
+
         $query = (new Query())
             ->from(Table::ORDERS . ' orders')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
-            ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
+            ->where(['orders.storeId' => $this->storeId])
+            ->andWhere(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
             ->andWhere(['isCompleted' => true])
             ->andWhere(['elements.dateDeleted' => null]);

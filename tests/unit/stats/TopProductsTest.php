@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\elements\Product;
+use craft\commerce\Plugin;
 use craft\commerce\stats\TopProducts;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -54,7 +55,8 @@ class TopProductsTest extends Unit
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $productDataFunction): void
     {
-        $stat = new TopProducts($dateRange, $type, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new TopProducts($dateRange, $type, $startDate, $endDate, storeId: $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

@@ -5,7 +5,8 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
-    { label: "Orders"|t('commerce'), url: url('commerce/orders') }
+    { label: "Orders"|t('commerce'), url: url('commerce/orders') },
+    { label: order.getStore().name|t('site'), url: url('commerce/orders') },
 ] %}
 
 {% do view.registerTranslations('commerce', [
@@ -71,6 +72,7 @@
     "Enter coupon code",
     "Enter reference",
     "First Name",
+    "Fulfillment",
     "Full Name",
     "Hide snapshot",
     "ID",
@@ -109,6 +111,8 @@
     "Primary Billing Address",
     "Primary Shipping Address",
     "Private Note",
+    "Promotional Amount",
+    "Promotional Price",
     "Quantity",
     "Qty",
     "Recalculate order",
@@ -116,7 +120,6 @@
     "Remove address",
     "Remove",
     "SKU",
-    "Sale Amount Off",
     "Sale Price",
     "Save and continue editing",
     "Save and return to all orders",
@@ -135,6 +138,7 @@
     "Sorry, no matching options.",
     "State",
     "Status",
+    "Store",
     "Suppress emails",
     "Tax",
     "There are errors on the order",

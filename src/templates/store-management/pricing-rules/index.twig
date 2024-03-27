@@ -1,0 +1,114 @@
+{% extends "commerce/_layouts/store-management" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Delete',
+  'Disabled',
+  'Duration',
+  'Effect',
+  'Enabled',
+  'Is Promotional Price?',
+  'Name',
+  'No catalog pricing rules exist yet.',
+  'No',
+  'Set status',
+  'Yes',
+]) %}
+
+{% block actionButton %}
+    {% if currentUser.can('commerce-createPricingCatalogRules') %}
+        <a href="{{ url("commerce/store-management/#{storeHandle}/pricing-rules/new") }}" class="btn submit add icon">{{ 'New catalog pricing rule'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="pcr-vue-admin-table"></div>
+
+    {% hook "cp.commerce.catalogPricingRules.index" %}
+{% endblock %}
+
+{% set tableData = [] %}
+{% for pcr in catalogPricingRules %}
+  {% set effect %}
+      {% if pcr.apply == 'byPercent' or pcr.apply == 'toPercent' %}
+          {{ pcr.applyAmountAsPercent }}
+          {{ pcr.apply == 'byPercent' ? '(off original price)'|t('commerce') : '(of original price)'|t('commerce') }}
+      {% else %}
+          {{ pcr.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }}
+          {{ pcr.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}
+      {% endif %}
+{% endset %}
+
+  {% set dateRange = (pcr.dateFrom ? pcr.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (pcr.dateTo ? pcr.dateTo|datetime('short') : '∞') %}
+  {% if not pcr.dateFrom and not pcr.dateTo %}
+    {% set dateRange = '∞' %}
+  {% endif %}
+  {% set tableData = tableData|merge([{
+    id: pcr.id,
+    title: pcr.name|t('site'),
+    url: pcr.getCpEditUrl(),
+    status: pcr.enabled ? true : false,
+    duration: dateRange,
+    effect: effect,
+    isPromotionalPrice: pcr.isPromotionalPrice,
+  }]) %}
+{% endfor %}
+
+
+{% js %}
+var actions = [
+    {% if currentUser.can('commerce-editPricingCatalogRules') %}
+    {
+        label: Craft.t('commerce', 'Set status'),
+        actions: [
+            {
+                label: Craft.t('commerce', 'Enabled'),
+                action: 'commerce/catalog-pricing-rules/update-status',
+                param: 'status',
+                value: 'enabled',
+                status: 'enabled'
+            },
+            {
+                label: Craft.t('commerce', 'Disabled'),
+                action: 'commerce/catalog-pricing-rules/update-status',
+                param: 'status',
+                value: 'disabled',
+                status: 'disabled'
+            },
+        ]
+    },
+    {% endif %}
+    {% if currentUser.can('commerce-deletePricingCatalogRules') %}
+    {
+        label: Craft.t('commerce', 'Delete'),
+        action: 'commerce/catalog-pricing-rules/delete',
+        error: true
+    }
+    {% endif %}
+];
+
+var columns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'duration', title: Craft.t('commerce', 'Duration') },
+    { name: 'effect', title: Craft.t('commerce', 'Effect') },
+    { name: 'isPromotionalPrice', title: Craft.t('commerce', 'Is Promotional Price?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        }
+    },
+];
+
+new Craft.VueAdminTable({
+  actions: actions,
+  checkboxes: true,
+  columns: columns,
+  fullPane: false,
+  container: '#pcr-vue-admin-table',
+  deleteAction: {{ currentUser.can('commerce-deletePricingCatalogRules')? '"commerce/catalog-pricing-rules/delete"' : 'null' }},
+  emptyMessage: Craft.t('commerce', 'No catalog pricing rules exist yet.'),
+  padded: true,
+  tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

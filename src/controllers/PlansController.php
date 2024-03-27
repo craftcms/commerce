@@ -27,12 +27,17 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseStoreSettingsController
+class PlansController extends BaseStoreManagementController
 {
-    public function actionPlanIndex(): Response
+    /**
+     * @param string|null $storeHandle
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionPlanIndex(?string $storeHandle = null): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/store-settings/subscription-plans', ['plans' => $plans]);
+        return $this->renderTemplate('commerce/store-management/subscription-plans', ['plans' => $plans, 'storeHandle' => $storeHandle]);
     }
 
     /**
@@ -40,10 +45,10 @@ class PlansController extends BaseStoreSettingsController
      * @param Plan|null $plan
      * @throws HttpException
      */
-    public function actionEditPlan(int $planId = null, Plan $plan = null): Response
+    public function actionEditPlan(?string $storeHandle = null, int $planId = null, Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
-        
+
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
@@ -83,7 +88,9 @@ class PlansController extends BaseStoreSettingsController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        return $this->renderTemplate('commerce/store-settings/subscription-plans/_edit', $variables);
+        $variables['storeHandle'] = $storeHandle;
+
+        return $this->renderTemplate('commerce/store-management/subscription-plans/_edit', $variables);
     }
 
     /**
@@ -118,7 +125,7 @@ class PlansController extends BaseStoreSettingsController
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
-        
+
         if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }

@@ -1,0 +1,37 @@
+{% import "_includes/forms" as forms %}
+
+{{ forms.textField({
+    first: true,
+    label: "Name"|t('commerce'),
+    id: 'name',
+    name: 'name',
+    value: inventoryLocation.name,
+    errors: inventoryLocation.getErrors('name'),
+    autofocus: true,
+    required: true,
+}) }}
+
+{{ forms.textField({
+    label: "Handle"|t('commerce'),
+    id: 'handle',
+    name: 'handle',
+    value: inventoryLocation.handle,
+    errors: inventoryLocation.getErrors('handle'),
+}) }}
+
+{{ forms.hidden({
+    name: 'inventoryLocationId',
+    value: inventoryLocation.id ?? ''
+}) }}
+
+{% if inventoryLocation.id %}
+    {{ locationFieldHtml|raw }}
+{% else %}
+    <p>{{ 'Save this inventory location first, then add an address.'|t('commerce') }}</p>
+{% endif %}
+
+{% hook "cp.commerce.inventoryLocation.edit" %}
+
+{% if not inventoryLocation.id %}
+{% js "new Craft.HandleGenerator('##{'name'|namespaceInputId}', '##{'handle'|namespaceInputId}');" %}
+{% endif %}

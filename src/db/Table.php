@@ -53,12 +53,25 @@ abstract class Table
     public const SHIPPINGRULE_CATEGORIES = '{{%commerce_shippingrule_categories}}';
     public const SHIPPINGRULES = '{{%commerce_shippingrules}}';
     public const SHIPPINGZONES = '{{%commerce_shippingzones}}';
-    /** @since 4.0.0 */
-    public const STORES = '{{%commerce_stores}}';
     public const SUBSCRIPTIONS = '{{%commerce_subscriptions}}';
     public const TAXCATEGORIES = '{{%commerce_taxcategories}}';
     public const TAXRATES = '{{%commerce_taxrates}}';
     public const TAXZONES = '{{%commerce_taxzones}}';
     public const TRANSACTIONS = '{{%commerce_transactions}}';
     public const VARIANTS = '{{%commerce_variants}}';
+
+    /** @since 5.0.0 */
+    public const CATALOG_PRICING = '{{%commerce_catalogpricing}}';
+    public const CATALOG_PRICING_RULES = '{{%commerce_catalogpricingrules}}';
+    public const CATALOG_PRICING_RULES_USERS = '{{%commerce_catalogpricingrules_users}}';
+    public const PURCHASABLES_STORES = '{{%commerce_purchasables_stores}}';
+    public const SITESTORES = '{{%commerce_site_stores}}';
+    public const STORES = '{{%commerce_stores}}';
+    public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
+    public const TRANSFERS = '{{%commerce_transfers}}';
+    public const TRANSFERS_INVENTORYITEMS = '{{%commerce_transfers_inventoryitems}}';
+    public const INVENTORYITEMS = '{{%commerce_inventoryitems}}';
+    public const INVENTORYLOCATIONS = '{{%commerce_inventorylocations}}';
+    public const INVENTORYLOCATIONS_STORES = '{{%commerce_inventorylocations_stores}}';
+    public const INVENTORYTRANSACTIONS = '{{%commerce_inventorytransactions}}';
 }

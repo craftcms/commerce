@@ -46,7 +46,7 @@ class ProductVariantSkuConditionRule extends BaseTextConditionRule implements El
     public function modifyQuery(ElementQueryInterface $query): void
     {
         $variantQuery = Variant::find();
-        $variantQuery->select(['commerce_variants.productId as id']);
+        $variantQuery->select(['commerce_variants.primaryOwnerId as id']);
         $variantQuery->sku($this->paramValue());
 
         /** @var ProductQuery $query */

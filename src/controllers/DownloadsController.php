@@ -50,13 +50,13 @@ class DownloadsController extends BaseFrontEndController
         }
 
         if ($pdfHandle) {
-            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
+            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle, $order->storeId);
 
             if (!$pdf) {
                 throw new InvalidCallException("Can not find the PDF to render based on the handle supplied.");
             }
         } else {
-            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf();
+            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf($order->storeId);
         }
 
         if (!$pdf) {

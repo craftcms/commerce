@@ -1,0 +1,52 @@
+{% import "_includes/forms" as forms %}
+{% if catalogPricingRule.id %}
+  {{ hiddenInput('id', catalogPricingRule.id) }}
+{% endif %}
+{{ hiddenInput('storeId', catalogPricingRule.storeId) }}
+{{ hiddenInput('purchasableId', catalogPricingRule.purchasableId) }}
+
+<div id="conditions">
+  {{ forms.textField({
+    first: true,
+    label: "Name"|t('commerce'),
+    instructions: "What this catalog pricing rule will be called in the control panel."|t('commerce'),
+    id: 'name',
+    name: 'name',
+    value: catalogPricingRule.name,
+    errors: catalogPricingRule.getErrors('name'),
+    autofocus: true,
+    required: true,
+  }) }}
+
+  {{ forms.dateTimeField({
+    label: "Start Date"|t('commerce'),
+    instructions: "Date from which the catalog pricing rule will be active. Leave blank for unlimited start date"|t('commerce'),
+    id: 'dateFrom',
+    name: 'dateFrom',
+    value: catalogPricingRule.dateFrom,
+    errors: catalogPricingRule.getErrors('dateFrom'),
+  }) }}
+
+  {{ forms.dateTimeField({
+    label: "End Date"|t('commerce'),
+    instructions: "Date when the catalog pricing rule will be finished. Leave blank for unlimited end date"|t('commerce'),
+    id: 'dateTo',
+    name: 'dateTo',
+    value: catalogPricingRule.dateTo,
+    errors: catalogPricingRule.getErrors('dateTo'),
+  }) }}
+
+  {% set customerConditionInput %}
+    {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}
+  {% endset %}
+
+  {{ forms.field({
+    id: 'customerCondition',
+    label: 'Match Customer'|t('commerce'),
+    errors: catalogPricingRule.getErrors('customerCondition')
+  }, customerConditionInput) }}
+</div>
+
+<div id="actions" class="hidden">
+  {% include 'commerce/store-management/pricing-rules/_actions-fields' %}
+</div>

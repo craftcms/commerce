@@ -38,7 +38,7 @@
         title: type.name|t('site'),
         url: type.cpEditUrl,
         handle: type.handle|e,
-        hasVariants: type.hasVariants ? true : false,
+        maxVariants: type.maxVariants ?? '',
         shipping: shipping,
         tax: tax,
     }]) %}
@@ -48,13 +48,7 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
-            callback: function(value) {
-                if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-                }
-            }
-        },
+        { name: 'maxVariants', title: Craft.t('commerce', 'Max Variants') },
         { name: 'shipping', title: Craft.t('commerce', 'Available Shipping Categories'),
             callback: function(value) {
                 return value;

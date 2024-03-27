@@ -15,16 +15,16 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 
 /**
  * Shipping rule service.
  *
- * @property ShippingRule $liteShippingRule The lite shipping rule
  * @property ShippingRule[] $allShippingRules
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -32,27 +32,35 @@ use yii\db\StaleObjectException;
 class ShippingRules extends Component
 {
     /**
-     * @var null|ShippingRule[]
+     * @var null|Collection<ShippingRule>
      */
-    private ?array $_allShippingRules = null;
+    private ?Collection $_allShippingRules = null;
 
     /**
      * Get all shipping rules.
      *
-     * @return ShippingRule[]
+     * @return Collection<ShippingRule>
+     * @throws InvalidConfigException
      */
-    public function getAllShippingRules(): array
+    public function getAllShippingRules(): Collection
     {
+        // @TODO figure out if we need to memoize this
         if ($this->_allShippingRules !== null) {
             return $this->_allShippingRules;
         }
 
         $results = $this->_createShippingRulesQuery()->all();
-        $this->_allShippingRules = [];
+        $allShippingRules = [];
 
         foreach ($results as $result) {
-            $this->_allShippingRules[] = new ShippingRule($result);
+            $result['orderCondition'] = $result['orderCondition'] ?? '';
+            $allShippingRules[] = Craft::createObject([
+                'class' => ShippingRule::class,
+                'attributes' => $result,
+            ]);
         }
+
+        $this->_allShippingRules = collect($allShippingRules);
 
         return $this->_allShippingRules;
     }
@@ -60,11 +68,13 @@ class ShippingRules extends Component
     /**
      * Get all shipping rules by a shipping method ID.
      *
-     * @return ShippingRule[]
+     * @param int $id
+     * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getAllShippingRulesByShippingMethodId(int $id): array
+    public function getAllShippingRulesByShippingMethodId(int $id): Collection
     {
-        return ArrayHelper::where($this->getAllShippingRules(), 'methodId', $id);
+        return $this->getAllShippingRules()->where('methodId', $id);
     }
 
     /**
@@ -72,7 +82,7 @@ class ShippingRules extends Component
      */
     public function getShippingRuleById(int $id): ?ShippingRule
     {
-        return ArrayHelper::firstWhere($this->getAllShippingRules(), 'id', $id);
+        return $this->getAllShippingRules()->firstWhere('id', $id);
     }
 
     /**
@@ -106,13 +116,6 @@ class ShippingRules extends Component
             'methodId',
             'enabled',
             'orderConditionFormula',
-            'minQty',
-            'maxQty',
-            'minTotal',
-            'maxTotal',
-            'minMaxTotalType',
-            'minWeight',
-            'maxWeight',
             'baseRate',
             'perItemRate',
             'weightRate',
@@ -124,7 +127,7 @@ class ShippingRules extends Component
             $record->$field = $model->$field;
         }
 
-        $record->shippingZoneId = $model->shippingZoneId ?: null;
+        $record->orderCondition = $model->getOrderCondition()->getConfig();
 
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
@@ -172,45 +175,6 @@ class ShippingRules extends Component
     }
 
     /**
-     * Save a shipping rule.
-     *
-     * @param bool $runValidation should we validate this rule before saving.
-     * @throws Exception
-     * @deprecated in 4.5.0. Use [[saveShippingRule()]] instead.
-     */
-    public function saveLiteShippingRule(ShippingRule $model, bool $runValidation = true): bool
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingRule::saveLiteShippingRule() is deprecated. Use ShippingRule::saveShippingRule() instead.');
-        $this->_allShippingRules = null; // clear cache
-        return $this->saveShippingRule($model, $runValidation);
-    }
-
-    /**
-     * Gets the lite shipping rule or returns a new one.
-     *
-     * @return ShippingRule
-     * @deprecated in 4.5.0. Use [[getAllShippingRules()]] instead.
-     */
-    public function getLiteShippingRule(): ShippingRule
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethod::getLiteShippingRule() is deprecated. Use ShippingMethod::getAllShippingRules() instead.');
-        $liteRule = $this->_createShippingRulesQuery()->one();
-
-        if ($liteRule == null) {
-            $liteRule = new ShippingRule();
-            $liteRule->name = 'Shipping Cost';
-            $liteRule->description = 'Shipping Cost';
-            $liteRule->enabled = true;
-        } else {
-            $liteRule = new ShippingRule($liteRule);
-        }
-
-        $this->_allShippingRules = null; // clear cache
-
-        return $liteRule;
-    }
-
-    /**
      * Reorders shipping rules by the given array of IDs.
      *
      * @throws \yii\db\Exception
@@ -251,30 +215,25 @@ class ShippingRules extends Component
     {
         $query = (new Query())
             ->select([
-                'baseRate',
-                'description',
-                'enabled',
-                'id',
-                'maxQty',
-                'maxRate',
-                'maxTotal',
-                'maxWeight',
-                'methodId',
-                'minMaxTotalType',
-                'minQty',
-                'minRate',
-                'minTotal',
-                'minWeight',
-                'name',
-                'orderConditionFormula',
-                'percentageRate',
-                'perItemRate',
-                'priority',
-                'shippingZoneId',
-                'weightRate',
+                'shippingrules.baseRate',
+                'shippingrules.description',
+                'shippingrules.enabled',
+                'shippingrules.id',
+                'shippingrules.maxRate',
+                'shippingrules.methodId',
+                'shippingrules.minRate',
+                'shippingrules.name',
+                'shippingrules.orderConditionFormula',
+                'shippingrules.orderCondition',
+                'shippingrules.percentageRate',
+                'shippingrules.perItemRate',
+                'shippingrules.priority',
+                'shippingrules.weightRate',
+                'methods.storeId',
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
-            ->from([Table::SHIPPINGRULES]);
+            ->from(Table::SHIPPINGRULES . ' shippingrules')
+            ->innerJoin(Table::SHIPPINGMETHODS . ' methods', '[[methods.id]] = [[shippingrules.methodId]]');
 
         return $query;
     }

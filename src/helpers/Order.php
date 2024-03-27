@@ -23,25 +23,21 @@ class Order
     public static function mergeDuplicateLineItems(OrderElement $order): bool
     {
         $lineItems = $order->getLineItems();
-        // Ensure no duplicate line items exist, and if they do, combine them.
         $lineItemsByKey = [];
+
         foreach ($lineItems as $lineItem) {
             $key = $lineItem->orderId . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
-            if (isset($lineItemsByKey[$key])) {
-                $lineItemsByKey[$key]->qty += $lineItem->qty;
-                // If a note already exists, merge it.
-                if ($lineItemsByKey[$key]->note && $lineItem->note) {
-                    $lineItemsByKey[$key]->note .= ' - ' . $lineItem->note;
-                } else {
-                    $lineItemsByKey[$key]->note = $lineItem->note;
-                }
-            } else {
+            if (!isset($lineItemsByKey[$key])) {
                 $lineItemsByKey[$key] = $lineItem;
+                continue;
             }
+
+            $lineItemsByKey[$key]->qty += $lineItem->qty;
+            $lineItemsByKey[$key]->note = trim(($lineItemsByKey[$key]->note ? $lineItemsByKey[$key]->note . ' - ' : '') . $lineItem->note, ' -');
         }
 
         $order->setLineItems(array_values($lineItemsByKey));
 
-        return $lineItems > $lineItemsByKey;
+        return count($lineItems) > count($lineItemsByKey);
     }
 }

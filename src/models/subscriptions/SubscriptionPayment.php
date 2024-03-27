@@ -8,8 +8,8 @@
 namespace craft\commerce\models\subscriptions;
 
 use craft\base\Model;
-use craft\commerce\models\Currency;
 use DateTime;
+use Money\Currency;
 
 /**
  * Class SubscriptionPayment

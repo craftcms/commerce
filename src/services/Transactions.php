@@ -152,6 +152,9 @@ class Transactions extends Component
      */
     public function refundableAmountForTransaction(Transaction $transaction): float
     {
+        // We need to use the payment currency to calculate the refundable amount
+        $teller = Plugin::getInstance()->getCurrencies()->getTeller($transaction->paymentCurrency);
+
         $amount = (new Query())
             ->where([
                 'type' => TransactionRecord::TYPE_REFUND,
@@ -162,7 +165,7 @@ class Transactions extends Component
             ->from([Table::TRANSACTIONS])
             ->sum('[[paymentAmount]]');
 
-        return $transaction->paymentAmount - $amount;
+        return (float)$teller->subtract($transaction->paymentAmount, $amount);
     }
 
     /**

@@ -55,6 +55,9 @@ class ProductFixture extends BaseElementFixture
     public function afterLoad(): void
     {
         $this->productTypeIds = $this->_getProductTypeIds();
+
+        // Generate catalog pricing
+        Plugin::getInstance()->getCatalogPricing()->generateCatalogPrices();
     }
 
     protected function createElement(): ElementInterface

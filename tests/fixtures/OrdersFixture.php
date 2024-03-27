@@ -36,6 +36,7 @@ class OrdersFixture extends BaseElementFixture
     public $depends = [
         CustomerFixture::class,
         ProductFixture::class,
+        StoreFixture::class,
         OrderStatusesFixture::class,
         ShippingFixture::class,
     ];
@@ -96,7 +97,7 @@ class OrdersFixture extends BaseElementFixture
         $this->_setLineItems($element, $this->_lineItems);
 
         // Re-save after extra data
-        if (!$result = Craft::$app->getElements()->saveElement($element)) {
+        if (!$result = Craft::$app->getElements()->saveElement($element, false)) {
             throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
 
@@ -176,19 +177,19 @@ class OrdersFixture extends BaseElementFixture
             ? [$element->billingAddressId, $element->estimatedBillingAddressId, $element->shippingAddressId, $element->estimatedShippingAddressId]
             : [];
 
-        $result = parent::deleteElement($element);
-
+        // Delete addresses first
         $addressIds = array_filter($addressIds);
         if (!empty($addressIds)) {
             foreach ($addressIds as $addressId) {
                 Craft::$app->getElements()->deleteElementById(elementId: $addressId, hardDelete: true);
             }
         }
+
         //
         // if ($customerId = $element->getCustomerId()) {
         //     Craft::$app->getElements()->deleteElementById(elementId: $customerId, hardDelete: true);
         // }
 
-        return $result;
+        return parent::deleteElement($element);
     }
 }

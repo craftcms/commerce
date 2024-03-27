@@ -13,6 +13,7 @@ use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
+use yii\base\InvalidConfigException;
 use yii\queue\RetryableJobInterface;
 
 class SendEmail extends BaseJob implements RetryableJobInterface
@@ -38,25 +39,39 @@ class SendEmail extends BaseJob implements RetryableJobInterface
     public int $orderHistoryId;
 
     /**
+     * @var Order|null
+     */
+    private ?Order $_order = null;
+
+
+    /**
      * @inheritDoc
      */
     public function execute($queue): void
     {
         $this->setProgress($queue, 0.2);
 
-        $order = Order::find()->id($this->orderId)->one();
-        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
-        $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
+        if (!$this->_getOrder()) {
+            throw new InvalidConfigException('Invalid order ID: ' . $this->orderId);
+        }
+
+        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId, $this->_getOrder()->id);
+        if (!$email) {
+            throw new InvalidConfigException('Invalid email ID: ' . $this->commerceEmailId);
+        }
 
         $originalLanguage = Craft::$app->language;
         $originalFormattingLocale = Craft::$app->formattingLocale;
-        $language = $email->getRenderLanguage($order);
+
+        $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
+
+        $language = $email->getRenderLanguage($this->_getOrder());
         Locale::switchAppLanguage($language);
 
         $this->setProgress($queue, 0.5);
 
         $error = '';
-        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
+        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $this->_getOrder(), $orderHistory, $this->orderData, $error)) {
             throw new EmailException($error);
         }
 
@@ -67,6 +82,19 @@ class SendEmail extends BaseJob implements RetryableJobInterface
     }
 
     /**
+     * @return Order|null
+     */
+    private function _getOrder(): ?Order
+    {
+        if ($this->_order === null) {
+            $this->_order = Order::find()->id($this->orderId)->one();
+        }
+
+        return $this->_order;
+    }
+
+    /**
+     * @return int
      * @inheritDoc
      */
     public function getTtr(): int
@@ -84,9 +112,10 @@ class SendEmail extends BaseJob implements RetryableJobInterface
 
     /**
      * @inheritDoc
+     *
      */
     protected function defaultDescription(): ?string
     {
-        return 'Sending email for order #' . $this->orderId;
+        return 'Sending email for order ' . $this->_getOrder()?->reference;
     }
 }

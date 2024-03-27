@@ -10,11 +10,15 @@ namespace craft\commerce\widgets;
 use Craft;
 use craft\base\Widget;
 use craft\commerce\base\StatWidgetTrait;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\stats\TopCustomers as TopCustomersStat;
+use craft\commerce\web\assets\commercewidgets\CommerceWidgetsAsset;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
+use craft\models\Site;
 use craft\web\assets\admintable\AdminTableAsset;
 
 /**
@@ -55,6 +59,12 @@ class TopCustomers extends Widget
      */
     public function init(): void
     {
+        if (!(isset($this->storeId)) || !$this->storeId) {
+            /** @var Site|StoreBehavior $site */
+            $site = Cp::requestedSite();
+            $this->storeId = $site->getStore()->id;
+        }
+
         $this->_typeOptions = [
             'total' => Craft::t('commerce', 'Total'),
             'average' => Craft::t('commerce', 'Average'),
@@ -71,7 +81,8 @@ class TopCustomers extends Widget
             $this->dateRange,
             $this->type,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->storeId
         );
 
         if (!empty($this->orderStatuses)) {
@@ -151,6 +162,8 @@ class TopCustomers extends Widget
     {
         $id = 'top-products' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+        Craft::$app->getView()->registerAssetBundle(CommerceWidgetsAsset::class);
 
         return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/customers/top/settings', [
             'id' => $id,

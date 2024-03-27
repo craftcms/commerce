@@ -334,11 +334,21 @@ class CustomersTest extends Unit
 
         \Craft::$app->getElements()->saveElement($order, false, false, false);
 
+        // Get the ID in early to delete in case of failure
+        $this->_deleteElementIds[] = $order->id;
+
         self::assertTrue($order->markAsComplete());
 
         // @TODO change this to `$customer->getAddresses()` when `getAddresses()` memoization is fixed
-        $idWhere = array_merge(['not'], $originalAddressIds);
-        $addresses = Address::find()->ownerId($customer->id)->id($idWhere)->all();
+        $addressQuery = Address::find()->ownerId($customer->id);
+        // @TODO update this to use `primaryOwnerId` when `primaryOwnerId` query param is fixed
+        // $addressQuery = Address::find()->primaryOwnerId($customer->id);
+
+        if (!empty($originalAddressIds)) {
+            $addressQuery->id(array_merge(['not'], $originalAddressIds));
+        }
+
+        $addresses = $addressQuery->all();
         self::assertCount($newAddressCount, $addresses);
         $addressNames = collect($addresses)->pluck('fullName')->all();
         $addressLine1s = collect($addresses)->pluck('addressLine1')->all();
@@ -352,10 +362,6 @@ class CustomersTest extends Unit
             self::assertContains($shippingAddress['fullName'], $addressNames);
             self::assertContains($shippingAddress['addressLine1'], $addressLine1s);
         }
-
-        $this->_deleteElementIds[] = $order->id;
-//        \Craft::$app->getElements()->deleteElementById($order->id, null, null, true);
-        // No need to delete the customer as it comes from the fixtures
     }
 
     /**

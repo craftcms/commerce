@@ -52,7 +52,7 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
+        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->all()));
         $type = Json::encode(static::class);
 
         $js = <<<EOT

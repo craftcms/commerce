@@ -7,6 +7,7 @@ return [
     'us-zone' => [
         'name' => 'US Zone',
         'description' => 'US Zone',
+        'storeId' => 1, // Primary
         'condition' => [
             'elementType' => null,
             'fieldContext' => 'global',
@@ -24,6 +25,7 @@ return [
     'eu-zone' => [
         'name' => 'EU Zone',
         'description' => 'EU Zone',
+        'storeId' => 1, // Primary
         'condition' => [
             'elementType' => null,
             'fieldContext' => 'global',

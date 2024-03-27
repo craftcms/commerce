@@ -8,7 +8,6 @@
 namespace craft\commerce\elements\db;
 
 use craft\commerce\elements\Donation;
-use craft\elements\db\ElementQuery;
 use yii\db\Connection;
 
 /**
@@ -22,49 +21,8 @@ use yii\db\Connection;
  * @since 2.0
  * @doc-path donations.md
  */
-class DonationQuery extends ElementQuery
+class DonationQuery extends PurchasableQuery
 {
-    /**
-     * @var mixed The SKU of the donation purchasable
-     */
-    public mixed $sku = null;
-
-    /**
-     * Narrows the query results based on the SKU.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `'DON-123'` | with a matching sku
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch the requested {element} #}
-     * {% set sku = craft.app.request.getQueryParam('sku') %}
-     * {% set {element-var} = {twig-method}
-     *   .sku(sku)
-     *   .one() %}
-     * ```
-     *
-     * ```php
-     * // Fetch the requested {element}
-     * $sku = Craft::$app->request->getQueryParam('sku');
-     * ${element-var} = {php-method}
-     *     ->sku($sku)
-     *     ->one();
-     * ```
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function sku(mixed $value): DonationQuery
-    {
-        $this->sku = $value;
-        return $this;
-    }
-
     /**
      * @inheritdoc
      */
@@ -74,8 +32,6 @@ class DonationQuery extends ElementQuery
 
         $this->query->select([
             'commerce_donations.id',
-            'commerce_donations.sku',
-            'commerce_donations.availableForPurchase',
         ]);
 
         if ($this->sku) {

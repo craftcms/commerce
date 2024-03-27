@@ -25,15 +25,8 @@ use yii\db\ActiveQueryInterface;
  * @property float $defaultWidth
  * @property ActiveQueryInterface $element
  * @property DateTime $expiryDate
- * @property bool $freeShipping
  * @property int $id
  * @property DateTime $postDate
- * @property bool $promotable
- * @property bool $availableForPurchase
- * @property ActiveQueryInterface $shippingCategory
- * @property int $shippingCategoryId
- * @property int $taxCategoryId
- * @property TaxCategory $taxCategory
  * @property ActiveQueryInterface $type
  * @property int $typeId
  * @property Variant[] $variants
@@ -63,15 +56,5 @@ class Product extends ActiveRecord
     public function getType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id' => 'productTypeId']);
-    }
-
-    public function getShippingCategory(): ActiveQueryInterface
-    {
-        return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
-    }
-
-    public function getTaxCategory(): ActiveQueryInterface
-    {
-        return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);
     }
 }

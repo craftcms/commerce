@@ -14,6 +14,7 @@ use craft\db\ActiveRecord;
  * Currency record.
  *
  * @property int $id
+ * @property int $storeId
  * @property string $iso
  * @property bool $primary
  * @property float $rate

@@ -8,6 +8,7 @@
 namespace craft\commerce\base;
 
 use craft\commerce\elements\Order;
+use Illuminate\Support\Collection;
 
 /**
  * Interface ShippingMethod
@@ -49,9 +50,9 @@ interface ShippingMethodInterface
     /**
      * Returns an array of rules that meet the `ShippingRules` interface.
      *
-     * @return ShippingRuleInterface[] The array of ShippingRules
+     * @return Collection<ShippingRuleInterface> The array of ShippingRules
      */
-    public function getShippingRules(): array;
+    public function getShippingRules(): Collection;
 
     /**
      * Returns whether this shipping method is enabled for listing and selection by customers.

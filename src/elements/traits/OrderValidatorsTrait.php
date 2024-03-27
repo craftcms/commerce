@@ -87,9 +87,25 @@ trait OrderValidatorsTrait
             $this->addModelErrors($address, $attribute);
         }
 
-        $marketLocationCondition = Plugin::getInstance()->getStore()->getStore()->getMarketAddressCondition();
+        $marketLocationCondition = $this->getStore()->getSettings()->getMarketAddressCondition();
         if ($address && count($marketLocationCondition->getConditionRules()) > 0 && !$marketLocationCondition->matchElement($address)) {
             $this->addError($attribute, Craft::t('commerce', 'The address provided is outside the store’s market.'));
+        }
+    }
+
+    /**
+     * Validates that address country is in the allowed list.
+     *
+     * @param string $attribute the attribute being validated
+     */
+    public function validateAddressCountry(string $attribute): void
+    {
+        $address = $this->$attribute;
+        if ($address && $address->countryCode) {
+            $countriesList = array_keys($this->getStore()->getSettings()->getCountriesList());
+            if (count($countriesList) && !in_array($address->countryCode, $countriesList, false)) {
+                $this->addError($attribute, Craft::t('commerce', 'Country not allowed.'));
+            }
         }
     }
 
@@ -144,5 +160,28 @@ trait OrderValidatorsTrait
             $this->addNotice($notice);
             $this->$attribute = null;
         }
+    }
+
+    /**
+     * @param $attribute
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function validateOrganizationTaxIdAsVatId($attribute): void
+    {
+        $address = $this->$attribute;
+
+        // Skip on empty
+        if (!$address->organizationTaxId) {
+            return;
+        }
+
+        if (Plugin::getInstance()->getVat()->isValidVatId($address->organizationTaxId)) {
+            return;
+        }
+
+        $address->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
+        $this->addModelErrors($address, $attribute);
     }
 }

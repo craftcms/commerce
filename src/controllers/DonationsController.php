@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
+use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;
@@ -22,7 +23,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseStoreSettingsController
+class DonationsController extends BaseStoreManagementController
 {
     public function actionEdit(): Response
     {
@@ -30,12 +31,14 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
-            $donation->sku = 'DONATION-CC3';
+            $donation->sku = 'DONATION-CC5';
             $donation->availableForPurchase = true;
             $donation->enabled = true;
         }
 
-        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+
+        return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation', 'store'));
     }
 
     /**
@@ -55,6 +58,7 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
+            $donation->siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
 
         $donation->sku = $this->request->getBodyParam('sku');
@@ -62,7 +66,7 @@ class DonationsController extends BaseStoreSettingsController
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
-            return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+            return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation'));
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));

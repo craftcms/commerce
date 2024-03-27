@@ -9,11 +9,10 @@ use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\elements\conditions\ElementConditionRuleInterface;
-use craft\helpers\ArrayHelper;
 use yii\db\QueryInterface;
 
 /**
- * Element status condition rule.
+ * Shipping Method condition rule.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
@@ -41,7 +40,9 @@ class ShippingMethodConditionRule extends BaseMultiSelectConditionRule implement
      */
     protected function options(): array
     {
-        return ArrayHelper::map(Plugin::getInstance()->getShippingMethods()->getAllShippingMethods(), 'handle', 'name');
+        return Plugin::getInstance()->getShippingMethods()->getAllShippingMethods()->mapWithKeys(function($method) {
+            return [$method->handle => $method->name];
+        })->all();
     }
 
     /**

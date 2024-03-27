@@ -31,10 +31,8 @@ class GatewaysController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
-        $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
-
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => $gateways,
+            'gateways' => Plugin::getInstance()->getGateways()->getAllGateways(),
         ]);
     }
 
@@ -46,10 +44,13 @@ class GatewaysController extends BaseAdminController
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, ?GatewayInterface $gateway = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, ?GatewayInterface $gateway = null): Response
     {
         /** @var Gateway|null $gateway */
         $variables = compact('id', 'gateway');
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
 
         $gatewayService = Plugin::getInstance()->getGateways();
 
@@ -61,7 +62,9 @@ class GatewaysController extends BaseAdminController
                     throw new HttpException(404);
                 }
             } else {
-                $variables['gateway'] = $gatewayService->createGateway(Dummy::class);
+                $variables['gateway'] = $gatewayService->createGateway([
+                    'type' => Dummy::class,
+                ]);
             }
         }
 

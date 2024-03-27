@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
+use craft\commerce\Plugin;
 use craft\commerce\stats\RepeatCustomers;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
@@ -53,7 +54,8 @@ class RepeatCustomersTest extends Unit
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $repeat, int $percentage): void
     {
-        $stat = new RepeatCustomers($dateRange, $startDate, $endDate);
+        $storeId = Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $stat = new RepeatCustomers($dateRange, $startDate, $endDate, $storeId);
         $data = $stat->get();
 
         self::assertIsArray($data);

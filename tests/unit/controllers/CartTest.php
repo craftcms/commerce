@@ -13,7 +13,9 @@ use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\services\Stores;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidPluginException;
@@ -163,6 +165,7 @@ class CartTest extends Unit
         self::assertIsFloat($data['cart']['totalPrice']);
         self::assertIsInt($data['cart']['totalQty']);
         self::assertIsFloat($data['cart']['totalSaleAmount']);
+        self::assertIsFloat($data['cart']['totalPromotionalAmount']);
         self::assertIsFloat($data['cart']['totalWeight']);
         self::assertIsString($data['cart']['adjustmentSubtotalAsCurrency']);
         self::assertIsString($data['cart']['adjustmentsTotalAsCurrency']);
@@ -173,6 +176,7 @@ class CartTest extends Unit
         self::assertIsString($data['cart']['totalPaidAsCurrency']);
         self::assertIsString($data['cart']['totalAsCurrency']);
         self::assertIsString($data['cart']['totalPriceAsCurrency']);
+        self::assertIsString($data['cart']['totalPromotionalAmountAsCurrency']);
         self::assertIsString($data['cart']['totalSaleAmountAsCurrency']);
         self::assertIsString($data['cart']['totalTaxAsCurrency']);
         self::assertIsString($data['cart']['totalTaxIncludedAsCurrency']);
@@ -321,6 +325,16 @@ class CartTest extends Unit
     public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
         $this->request->headers->set('X-Http-Method-Override', 'POST');
+        $originalStoresService = Plugin::getInstance()->get('stores');
+        $storesService = $this->make(Stores::class, [
+            'getStoreById' => function(int $id) use ($autoSet) {
+                /** @var Store $store */
+                $store = Plugin::getInstance()->getStores()->getAllStores()->firstWhere('id', $id);
+                $store->setAutoSetNewCartAddresses($autoSet);
+                return $store;
+            },
+        ]);
+        Plugin::getInstance()->set('stores', $storesService);
 
         $customerFixture = $this->tester->grabFixture('customer');
         /** @var User|CustomerBehavior $customer */
@@ -339,8 +353,6 @@ class CartTest extends Unit
         ];
 
         $this->request->setBodyParams($bodyParams);
-        $originalSettingValue = Plugin::getInstance()->getSettings()->autoSetNewCartAddresses;
-        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $autoSet;
 
         $this->cartController->runAction('update-cart');
 
@@ -361,8 +373,7 @@ class CartTest extends Unit
         }
 
         Craft::$app->getElements()->deleteElement($cart, true);
-
-        Plugin::getInstance()->getSettings()->autoSetNewCartAddresses = $originalSettingValue;
+        Plugin::getInstance()->set('stores', $originalStoresService);
     }
 
     /**

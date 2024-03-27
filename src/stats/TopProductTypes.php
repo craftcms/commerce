@@ -40,11 +40,11 @@ class TopProductTypes extends Stat
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, ?int $storeId = null)
     {
         $this->type = $type ?? $this->type;
 
-        parent::__construct($dateRange, $startDate, $endDate);
+        parent::__construct($dateRange, $startDate, $endDate, $storeId);
     }
 
     /**
@@ -57,9 +57,9 @@ class TopProductTypes extends Stat
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
-        
+
         $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
-        
+
         $results = $this->_createStatQuery()
             ->select([
                 '[[pt.id]] as id',
@@ -70,12 +70,12 @@ class TopProductTypes extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
-            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.primaryOwnerId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', [
+            ->leftJoin(CraftTable::ELEMENTS_SITES . ' es', [
                 'and',
-                '[[content.elementId]] = [[v.productId]]',
-                ['content.siteId' => $primarySite->id],
+                '[[es.elementId]] = [[v.primaryOwnerId]]',
+                ['es.siteId' => $primarySite->id],
             ])
             ->andWhere(['not', ['pt.name' => null]])
             ->andWhere(['pt.id' => $editableProductTypeIds])

@@ -39,7 +39,7 @@ use function get_class;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class SalesController extends BaseCpController
+class SalesController extends BaseStoreManagementController
 {
     public function beforeAction($action): bool
     {
@@ -49,15 +49,23 @@ class SalesController extends BaseCpController
 
         $this->requirePermission('commerce-managePromotions');
 
+        if (!Plugin::getInstance()->getSales()->canUseSales()) {
+            throw new ForbiddenHttpException('Unable to use sales while using multi store or pricing rules.');
+        }
+
         return true;
     }
 
     /**
      * @throws InvalidConfigException
      */
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
         $sales = Plugin::getInstance()->getSales()->getAllSales();
+        if (empty($sales)) {
+            return $this->redirect('commerce/store-management/' . $storeHandle . '/pricing-rules');
+        }
+
         return $this->renderTemplate('commerce/promotions/sales/index', compact('sales'));
     }
 
@@ -67,7 +75,7 @@ class SalesController extends BaseCpController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, Sale $sale = null): Response
+    public function actionEdit(int $id = null, Sale $sale = null, ?string $storeHandle = null): Response
     {
         if ($id === null) {
             $this->requirePermission('commerce-createSales');
@@ -76,6 +84,16 @@ class SalesController extends BaseCpController
         }
 
         $variables = compact('id', 'sale');
+
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+        $variables['storeHandle'] = $store->handle;
 
         $variables['isNewSale'] = false;
 

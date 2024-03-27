@@ -13,60 +13,91 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/settings/orderstatuses/new') }}" class="btn submit add icon">{{ 'New order status'|t('commerce') }}</a>
+    <div class="btngroup">
+        <button type="button" class="btn submit add icon menubtn">{{ 'New order status'|t('commerce') }}</button>
+        <div class="menu">
+            <ul>
+                {% for store in stores %}
+                    <li>
+                        <a href="{{ url("commerce/settings/orderstatuses/#{store.handle}/new") }}">{{ store.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
-{% block content %}
-    <div id="statuses-vue-admin-table"></div>
+{% block main %}
+    <div id="content">
+        {% for store in stores %}
+            <h2 id="{{ store.handle }}" class="os-margin-top">{{ store.name }}</h2>
+            <div class="content-pane">
+                <div id="statuses-vue-admin-table-{{ store.handle }}"></div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for orderStatus in orderStatuses %}
-	{% set tableData = tableData|merge([{
-        id: orderStatus.id,
-        labelHtml: {
-            url: orderStatus.cpEditUrl,
-            html: orderStatus.labelHtml|raw
-        },
-        title: orderStatus.name|t('site'),
-        url: orderStatus.cpEditUrl,
-        handle: orderStatus.handle|e,
-        hasEmails: orderStatus.emails|length ?:'',
-        default: orderStatus.default ? true : false,
-        _showDelete: orderStatus.canDelete(),
-    }]) %}
+{% for handle, storeStatuses in orderStatuses %}
+  {% set tableData = [] %}
+  {% for orderStatus in storeStatuses %}
+      {% set tableData = tableData|merge([{
+          id: orderStatus.id,
+          labelHtml: {
+              url: orderStatus.cpEditUrl,
+              html: orderStatus.labelHtml|raw
+          },
+          title: orderStatus.name|t('site'),
+          url: orderStatus.cpEditUrl,
+          handle: orderStatus.handle|e,
+          hasEmails: orderStatus.emails|length ?:'',
+          default: orderStatus.default ? true : false,
+          _showDelete: orderStatus.canDelete(),
+      }]) %}
+  {% endfor %}
+
+  {% js %}
+      var columns = [
+          {
+              name: 'labelHtml',
+              title: Craft.t('commerce', 'Name'),
+              callback: function(value) {
+                  return '<a class="cell-bold" href="'+value.url+'">'+value.html+'</a>';
+              }
+          },
+          { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+          { name: 'hasEmails', title: Craft.t('commerce', 'Has Emails?') },
+          {
+              name: 'default',
+              title: Craft.t('commerce', 'Default Status?'),
+              callback: function(value) {
+                  if (value) {
+                      return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                  }
+              }
+          }
+      ];
+
+      new Craft.VueAdminTable({
+          columns: columns,
+          container: '#statuses-vue-admin-table-{{ handle }}',
+          deleteAction: 'commerce/order-statuses/delete',
+          minItems: 1,
+          reorderAction: 'commerce/order-statuses/reorder',
+          reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.'),
+          reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.'),
+          tableData: {{ tableData|json_encode|raw }},
+      });
+  {% endjs %}
 {% endfor %}
 
-{% js %}
-    var columns = [
-        {
-            name: 'labelHtml',
-            title: Craft.t('commerce', 'Name'),
-            callback: function(value) {
-                return '<a class="cell-bold" href="'+value.url+'">'+value.html+'</a>';
-            }
-        },
-        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
-        { name: 'hasEmails', title: Craft.t('commerce', 'Has Emails?') },
-        {
-            name: 'default',
-            title: Craft.t('commerce', 'Default Status?'),
-            callback: function(value) {
-                if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
-                }
-            }
-        }
-    ];
+{% css %}
+  table.data thead .vuetable-th-labelHtml,
+  table.data thead .vuetable-th-slot-handle {
+  width: 30%;
+  }
 
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#statuses-vue-admin-table',
-        deleteAction: 'commerce/order-statuses/delete',
-        minItems: 1,
-        reorderAction: 'commerce/order-statuses/reorder',
-        reorderSuccessMessage: Craft.t('commerce', 'Order statuses reordered.'),
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.'),
-        tableData: {{ tableData|json_encode|raw }},
-    });
-{% endjs %}
+  .os-margin-top {
+    margin-top: var(--xl);
+  }
+{% endcss %}

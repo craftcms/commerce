@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\models\Settings;
 use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;
-use craft\helpers\App;
 use craft\helpers\StringHelper;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -30,17 +29,7 @@ class SettingsController extends BaseAdminController
      */
     public function actionEdit(): Response
     {
-        $settings = Plugin::getInstance()->getSettings();
-
-        $craftSettings = App::mailSettings();
-        $settings->emailSenderAddressPlaceholder = $craftSettings['fromEmail'] ?? '';
-        $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
-
-        $variables = [
-            'settings' => $settings,
-        ];
-
-        return $this->renderTemplate('commerce/settings/general', $variables);
+        return $this->renderTemplate('commerce/settings/general', ['settings' => Plugin::getInstance()->getSettings()]);
     }
 
     /**
@@ -55,13 +44,8 @@ class SettingsController extends BaseAdminController
         $data = $params['settings'];
 
         $settings = Plugin::getInstance()->getSettings();
-        $settings->emailSenderAddress = $data['emailSenderAddress'] ?? $settings->emailSenderAddress;
-        $settings->emailSenderName = $data['emailSenderName'] ?? $settings->emailSenderName;
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
-        $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
-        $settings->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'] ?? Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE;
-        $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
         $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 
@@ -100,5 +84,26 @@ class SettingsController extends BaseAdminController
         $this->setSuccessFlash(Craft::t('commerce', 'Subscription fields saved.'));
 
         return $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
+    public function actionSites(): Response
+    {
+        $sites = Craft::$app->getSites()->getAllSites();
+
+        return $this->renderTemplate('commerce/settings/sites/_edit', [
+            'sites' => $sites,
+            'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'stores' => Plugin::getInstance()->getStores()->getAllStores(),
+            'storesList' => Plugin::getInstance()->getStores()->getAllStores()->map(function($store) {
+                return [
+                    'label' => $store->name . ($store->primary ? ' (' . Craft::t('commerce', 'Primary') . ')' : ''),
+                    'value' => $store->id,
+                ];
+            }),
+        ]);
     }
 }

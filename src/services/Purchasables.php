@@ -8,13 +8,19 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
+use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
+use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\errors\SiteNotFoundException;
 use craft\events\RegisterComponentTypesEvent;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -97,6 +103,13 @@ class Purchasables extends Component
     public const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
+     * Memoization of purchasables by ID to avoid duplicate queries.
+     *
+     * @var Collection|null
+     */
+    private ?Collection $_purchasableById = null;
+
+    /**
      * @param Order|null $order
      * @param User|null $currentUser
      * @since 3.3.1
@@ -139,6 +152,26 @@ class Purchasables extends Component
     }
 
     /**
+     * Updated the cached stock value for the purchasable in a store.
+     *
+     * @param Purchasable $purchasable
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     */
+    public function updateStoreStockCache(Purchasable $purchasable): void
+    {
+        $stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($purchasable)->sum('availableTotal');
+
+        Craft::$app->getDb()->createCommand()
+            ->update(
+                table:Table::PURCHASABLES_STORES,
+                columns: ['stock' => $stock],
+                condition: ['id' => $purchasable->id, 'storeId' => $purchasable->getStore()->id])
+            ->execute();
+    }
+
+    /**
      * Delete a purchasable by its ID.
      *
      * @throws Throwable
@@ -146,6 +179,8 @@ class Purchasables extends Component
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
+        $this->_purchasableById?->pull($purchasableId);
+
         return Craft::$app->getElements()->deleteElementById($purchasableId);
     }
 
@@ -153,15 +188,48 @@ class Purchasables extends Component
      * Get a purchasable by its ID.
      *
      * @param int $purchasableId
+     * @param int|null $siteId
+     * @param int|false|null $forCustomer
      * @return PurchasableInterface|null
-     * @throws InvalidArgumentException if $purchasableId is an element ID but not a purchasable
+     * @throws SiteNotFoundException
      */
-    public function getPurchasableById(int $purchasableId): ?PurchasableInterface
+    public function getPurchasableById(int $purchasableId, ?int $siteId = null, int|false|null $forCustomer = null): ?PurchasableInterface
     {
-        $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+        // @TODO clarify that this change won't break anything
+        if ($this->_purchasableById !== null && $this->_purchasableById->has($purchasableId)) {
+            return $this->_purchasableById->get($purchasableId);
+        }
+
+        $siteId = $siteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+        $elementType = Craft::$app->getElements()->getElementTypeById($purchasableId);
+
+        if ($elementType === null || !class_exists($elementType)) {
+            return null;
+        }
+
+        $query = Craft::$app->getElements()->createElementQuery($elementType)
+            ->id($purchasableId)
+            ->siteId($siteId)
+            ->status(null)
+            ->drafts(null)
+            ->provisionalDrafts(null)
+            ->revisions(null);
+
+        if ($query instanceof PurchasableQuery) {
+            $query->forCustomer($forCustomer);
+        }
+
+        $purchasable = $query->one();
         if ($purchasable && !$purchasable instanceof PurchasableInterface) {
             throw new InvalidArgumentException(sprintf('Element %s does not implement %s', $purchasableId, PurchasableInterface::class));
         }
+
+        if ($this->_purchasableById === null) {
+            $this->_purchasableById = collect();
+        }
+
+        $this->_purchasableById->put($purchasableId, $purchasable);
+
         return $purchasable;
     }
 

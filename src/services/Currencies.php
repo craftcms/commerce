@@ -7,7 +7,13 @@
 
 namespace craft\commerce\services;
 
-use craft\commerce\models\Currency;
+use Illuminate\Support\Collection;
+use Money\Currencies\ISOCurrencies;
+use Money\Currency;
+use Money\Formatter\DecimalMoneyFormatter;
+use Money\Money;
+use Money\Parser\DecimalMoneyParser;
+use Money\Teller;
 use yii\base\Component;
 
 /**
@@ -19,44 +25,94 @@ use yii\base\Component;
  */
 class Currencies extends Component
 {
-    /**
-     * @var array
-     */
-    private array $_allCurrencies;
+    private ?ISOCurrencies $_isoCurrencies = null;
 
+    public function init()
+    {
+        $this->_isoCurrencies = new ISOCurrencies();
+    }
+
+    /**
+     * @param Currency|string $currency
+     * @return Teller
+     */
+    public function getTeller(\Money\Currency|string $currency): Teller
+    {
+        if (is_string($currency)) {
+            $currency = new \Money\Currency($currency);
+        }
+
+        $parser = new DecimalMoneyParser($this->_isoCurrencies);
+        $formatter = new DecimalMoneyFormatter($this->_isoCurrencies);
+        $roundingMode = Money::ROUND_HALF_UP;
+        return new \Money\Teller(
+            $currency,
+            $parser,
+            $formatter,
+            $roundingMode
+        );
+    }
 
     /**
      * Get a currency by it's ISO code.
      *
      * @param string $iso
-     * @return Currency|null
+     * @return \Money\Currency|null
      */
-    public function getCurrencyByIso(string $iso): ?Currency
+    public function getCurrencyByIso(string $iso): ?\Money\Currency
     {
-        foreach ($this->getAllCurrencies() as $currency) {
-            if ($currency->alphabeticCode == $iso) {
-                return $currency;
-            }
-        }
-
-        return null;
+        return $this->getAllCurrencies()->first(function(\Money\Currency $currency) use ($iso) {
+            return $currency->getCode() == $iso;
+        });
     }
+
 
     /**
      * Get a list of all available currencies.
      *
-     * @return Currency[]
+     * @return Collection<\Money\Currency>
      */
-    public function getAllCurrencies(): array
+    public function getAllCurrencies(): Collection
     {
-        if (!isset($this->_allCurrencies)) {
-            $this->_allCurrencies = [];
-            $data = require __DIR__ . '/../etc/currencies.php';
-            foreach ($data as $key => $currency) {
-                $this->_allCurrencies[$key] = new Currency($currency);
-            }
+        return collect($this->_isoCurrencies);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllCurrenciesList(): array
+    {
+        return $this->getAllCurrencies()->map(function($currency) {
+            return [
+                'label' => $currency->getCode(), // TODO get name somehow
+                'value' => $currency->getCode(),
+            ];
+        })->toArray();
+    }
+
+    /**
+     * @param Currency|string $currency
+     * @return int
+     */
+    public function getSubunitFor(Currency|string $currency)
+    {
+        if (is_string($currency)) {
+            $currency = $this->getCurrencyByIso($currency);
         }
 
-        return $this->_allCurrencies;
+        return $this->_isoCurrencies->subunitFor($currency);
+    }
+
+    /**
+     * @param Currency|string $currency
+     * @return int
+     */
+    public function numericCodeFor(Currency|string $currency)
+    {
+        if (is_string($currency)) {
+            $currency = $this->getCurrencyByIso($currency);
+        }
+
+        return $this->_isoCurrencies->subunitFor($currency);
     }
 }

@@ -63,7 +63,10 @@ class DiscountTest extends Unit
     {
         if ($condition === 'class' || $condition === 'rules') {
             /** @var DiscountOrderCondition $condition */
-            $conditionBuilder = \Craft::$app->getConditions()->createCondition(DiscountOrderCondition::class);
+            $conditionBuilder = \Craft::$app->getConditions()->createCondition([
+                'class' => DiscountOrderCondition::class,
+            ]);
+            $conditionBuilder->storeId = 1;
 
             if ($condition === 'rules') {
                 $rule = \Craft::$app->getConditions()->createConditionRule([

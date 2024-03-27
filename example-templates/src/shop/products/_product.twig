@@ -45,7 +45,7 @@
                   <span class="inline-block font-mono text-xs text-gray-500">{{ variant.sku }}</span>
                 </div>
                 <div class="pl-4 text-right w-1/4">
-                  {% if variant.onSale %}
+                  {% if variant.onPromotion %}
                     <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
                     <br>{{ variant.salePriceAsCurrency }}
                   {% else %}
@@ -55,7 +55,7 @@
                 <div class="pl-4 w-1/4">
                   {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
                     step: 1,
-                    min: 1,
+                    min: 0,
                     class: ['w-full', '[[classes.input]]']
                   }) }}
                 </div>

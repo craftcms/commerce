@@ -6,7 +6,9 @@
                     {{ $options.filters.t('Item', 'commerce') }}
                 </h4>
             </div>
-            <div class="line-items-heading orderedit-border-color w-1/4">
+            <div
+                class="line-items-heading line-items-heading--price orderedit-border-color"
+            >
                 <h4 class="extralight">
                     {{ $options.filters.t('Unit Price', 'commerce') }}
                 </h4>
@@ -86,5 +88,9 @@
         border-top: 1px solid;
         padding-bottom: 14px;
         padding-top: 14px;
+
+        &--price {
+            width: 37.5%;
+        }
     }
 </style>

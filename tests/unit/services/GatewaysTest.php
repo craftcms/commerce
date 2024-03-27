@@ -52,7 +52,7 @@ class GatewaysTest extends Unit
         unset($gateway);
 
         $this->tester->mockMethods(Plugin::getInstance(), 'gateways', [
-            'getAllGateways' => $gateways,
+            'getAllGateways' => collect($gateways),
         ]);
 
         $enabledGateways = Plugin::getInstance()->getGateways()->getAllCustomerEnabledGateways();

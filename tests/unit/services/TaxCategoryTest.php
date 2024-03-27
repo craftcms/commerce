@@ -52,7 +52,8 @@ class TaxCategoryTest extends Unit
     {
         $product = Product::find()->where(['slug' => 'rad-hoodie'])->one();
 
-        $taxCategoryId = $product->getTaxCategory()->id;
+        $variant = $product->getVariants()->first();
+        $taxCategoryId = $variant->getTaxCategory()->id;
 
         $result = $this->taxCategories->deleteTaxCategoryById($taxCategoryId);
 

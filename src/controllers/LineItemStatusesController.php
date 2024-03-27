@@ -8,9 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\LineItemStatus;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use Throwable;
@@ -32,9 +35,15 @@ class LineItemStatusesController extends BaseAdminController
 {
     public function actionIndex(): Response
     {
-        $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
+        $lineItemStatuses = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
 
-        return $this->renderTemplate('commerce/settings/lineitemstatuses/index', compact('lineItemStatuses'));
+        $stores->each(function(Store $store) use (&$lineItemStatuses) {
+            $lineItemStatuses[$store->handle] = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id);
+        });
+        $stores = $stores->all();
+
+        return $this->renderTemplate('commerce/settings/lineitemstatuses/index', compact('lineItemStatuses', 'stores'));
     }
 
     /**
@@ -42,21 +51,30 @@ class LineItemStatusesController extends BaseAdminController
      * @param LineItemStatus|null $lineItemStatus
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, LineItemStatus $lineItemStatus = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, LineItemStatus $lineItemStatus = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('id', 'lineItemStatus');
 
         if (!$variables['lineItemStatus']) {
             if ($variables['id']) {
-                $variables['lineItemStatus'] = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($variables['id']);
+                $variables['lineItemStatus'] = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($variables['id'], $store->id);
 
                 if (!$variables['lineItemStatus']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['lineItemStatus'] = new LineItemStatus();
+                $variables['lineItemStatus'] = Craft::createObject([
+                    'class' => LineItemStatus::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
+
+        $variables['statusColors'] = ['green', 'orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'];
 
         DebugPanel::prependOrAppendModelTab(model: $variables['lineItemStatus'], prepend: true);
 
@@ -64,6 +82,16 @@ class LineItemStatusesController extends BaseAdminController
             $variables['title'] = $variables['lineItemStatus']->name;
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new line item status');
+
+            $statusColors = $variables['statusColors'];
+            Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id)->each(function(LineItemStatus $status) use (&$statusColors) {
+                $key = array_search($status->color, $statusColors, true);
+                if ($key !== false) {
+                    unset($statusColors[$key]);
+                }
+            });
+
+            $variables['nextAvailableColor'] = !empty($statusColors) ? array_shift($statusColors) : 'green';
         }
 
         return $this->renderTemplate('commerce/settings/lineitemstatuses/_edit', $variables);
@@ -80,12 +108,13 @@ class LineItemStatusesController extends BaseAdminController
         $this->requirePostRequest();
 
         $id = $this->request->getBodyParam('id');
-        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id) : false;
+        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id, $this->request->getBodyParam('storeId')) : false;
 
         if (!$lineItemStatus) {
             $lineItemStatus = new LineItemStatus();
         }
 
+        $lineItemStatus->storeId = $this->request->getBodyParam('storeId');
         $lineItemStatus->name = $this->request->getBodyParam('name');
         $lineItemStatus->handle = $this->request->getBodyParam('handle');
         $lineItemStatus->color = $this->request->getBodyParam('color');
@@ -132,7 +161,9 @@ class LineItemStatusesController extends BaseAdminController
 
         $lineItemStatusId = $this->request->getRequiredParam('id');
 
-        if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
+        $storeId = (new Query())->from(Table::LINEITEMSTATUSES)->select(['storeId'])->where(['id' => $lineItemStatusId])->scalar();
+
+        if (!$storeId || !Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId, $storeId)) {
             return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
         }
 

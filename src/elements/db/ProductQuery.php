@@ -12,8 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\QueryAbortedException;
@@ -47,11 +45,6 @@ use yii\db\Expression;
  */
 class ProductQuery extends ElementQuery
 {
-    /**
-     * @var bool|null Whether the product is available for purchase
-     */
-    public ?bool $availableForPurchase = null;
-
     /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
@@ -108,16 +101,6 @@ class ProductQuery extends ElementQuery
     public mixed $typeId = null;
 
     /**
-     * @var mixed The shipping category ID(s) that the resulting products must have.
-     */
-    public mixed $shippingCategoryId = null;
-
-    /**
-     * @var mixed The tax category ID(s) that the resulting products must have.
-     */
-    public mixed $taxCategoryId = null;
-
-    /**
      * @inheritdoc
      */
     protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
@@ -165,9 +148,6 @@ class ProductQuery extends ElementQuery
             case 'defaultSku':
                 $this->defaultSku($value);
                 break;
-            case 'shippingCategory':
-                $this->shippingCategory($value);
-                break;
             default:
                 parent::__set($name, $value);
         }
@@ -202,7 +182,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultPrice(mixed $value): ProductQuery
+    public function defaultPrice(mixed $value): static
     {
         $this->defaultPrice = $value;
 
@@ -240,7 +220,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultHeight(mixed $value): ProductQuery
+    public function defaultHeight(mixed $value): static
     {
         $this->defaultHeight = $value;
 
@@ -278,7 +258,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultLength(mixed $value): ProductQuery
+    public function defaultLength(mixed $value): static
     {
         $this->defaultLength = $value;
 
@@ -316,7 +296,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWidth(mixed $value): ProductQuery
+    public function defaultWidth(mixed $value): static
     {
         $this->defaultWidth = $value;
 
@@ -354,7 +334,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWeight(mixed $value): ProductQuery
+    public function defaultWeight(mixed $value): static
     {
         $this->defaultWeight = $value;
 
@@ -392,7 +372,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultSku(mixed $value): ProductQuery
+    public function defaultSku(mixed $value): static
     {
         $this->defaultSku = $value;
 
@@ -431,7 +411,7 @@ class ProductQuery extends ElementQuery
      * @param ProductType|string|null|array<string> $value The property value
      * @return static self reference
      */
-    public function type(mixed $value): ProductQuery
+    public function type(mixed $value): static
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
@@ -443,176 +423,6 @@ class ProductQuery extends ElementQuery
                 ->column();
         } else {
             $this->typeId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ shipping categories, per the shipping categories’ IDs.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `1` | of a shipping category with an ID of 1.
-     * | `'not 1'` | not of a shipping category with an ID of 1.
-     * | `[1, 2]` | of a shipping category with an ID of 1 or 2.
-     * | `['not', 1, 2]` | not of a shipping category with an ID of 1 or 2.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch {elements} of the shipping category with an ID of 1 #}
-     * {% set {elements-var} = {twig-method}
-     *   .shippingCategoryId(1)
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch {elements} of the shipping category with an ID of 1
-     * ${elements-var} = {php-method}
-     *     ->shippingCategoryId(1)
-     *     ->all();
-     * ```
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function shippingCategoryId(mixed $value): ProductQuery
-    {
-        $this->shippingCategoryId = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ shipping category.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `'foo'` | of a shipping category with a handle of `foo`.
-     * | `'not foo'` | not of a shipping category with a handle of `foo`.
-     * | `['foo', 'bar']` | of a shipping category with a handle of `foo` or `bar`.
-     * | `['not', 'foo', 'bar']` | not of a shipping category with a handle of `foo` or `bar`.
-     * | an [[ShippingCategory|ShippingCategory]] object | of a shipping category represented by the object.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch {elements} with a Foo shipping category #}
-     * {% set {elements-var} = {twig-method}
-     *   .shippingCategory('foo')
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch {elements} with a Foo shipping category
-     * ${elements-var} = {php-method}
-     *     ->shippingCategory('foo')
-     *     ->all();
-     * ```
-     *
-     * @param ShippingCategory|string|null|array<string> $value The property value
-     * @return static self reference
-     */
-    public function shippingCategory(mixed $value): ProductQuery
-    {
-        if ($value instanceof ShippingCategory) {
-            $this->shippingCategoryId = [$value->id];
-        } elseif ($value !== null) {
-            $this->shippingCategoryId = (new Query())
-                ->from(['shippingcategories' => Table::SHIPPINGCATEGORIES])
-                ->where(['shippingcategories.id' => new Expression('[[commerce_products.shippingCategoryId]]')])
-                ->andWhere(Db::parseParam('handle', $value));
-        } else {
-            $this->shippingCategoryId = null;
-        }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ tax categories, per the tax categories’ IDs.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `1` | of a tax category with an ID of 1.
-     * | `'not 1'` | not of a tax category with an ID of 1.
-     * | `[1, 2]` | of a tax category with an ID of 1 or 2.
-     * | `['not', 1, 2]` | not of a tax category with an ID of 1 or 2.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch {elements} of the tax category with an ID of 1 #}
-     * {% set {elements-var} = {twig-method}
-     *   .taxCategoryId(1)
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch {elements} of the tax category with an ID of 1
-     * ${elements-var} = {php-method}
-     *     ->taxCategoryId(1)
-     *     ->all();
-     * ```
-     *
-     * @param mixed $value The property value
-     * @return static self reference
-     */
-    public function taxCategoryId(mixed $value): ProductQuery
-    {
-        $this->taxCategoryId = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the products’ tax category.
-     *
-     * Possible values include:
-     *
-     * | Value | Fetches {elements}…
-     * | - | -
-     * | `'foo'` | of a tax category with a handle of `foo`.
-     * | `'not foo'` | not of a tax category with a handle of `foo`.
-     * | `['foo', 'bar']` | of a tax category with a handle of `foo` or `bar`.
-     * | `['not', 'foo', 'bar']` | not of a tax category with a handle of `foo` or `bar`.
-     * | an [[ShippingCategory|ShippingCategory]] object | of a tax category represented by the object.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch {elements} with a Foo tax category #}
-     * {% set {elements-var} = {twig-method}
-     *   .taxCategory('foo')
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch {elements} with a Foo tax category
-     * ${elements-var} = {php-method}
-     *     ->taxCategory('foo')
-     *     ->all();
-     * ```
-     *
-     * @param TaxCategory|string|null|array<string> $value The property value
-     * @return static self reference
-     */
-    public function taxCategory(mixed $value): ProductQuery
-    {
-        if ($value instanceof TaxCategory) {
-            $this->taxCategoryId = [$value->id];
-        } elseif ($value !== null) {
-            $this->taxCategoryId = (new Query())
-                ->from(['taxcategories' => Table::TAXCATEGORIES])
-                ->where(['taxcategories.id' => new Expression('[[commerce_products.taxCategoryId]]')])
-                ->andWhere(Db::parseParam('handle', $value));
-        } else {
-            $this->taxCategoryId = null;
         }
 
         return $this;
@@ -651,7 +461,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before(DateTime|string $value): ProductQuery
+    public function before(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -696,7 +506,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after(DateTime|string $value): ProductQuery
+    public function after(DateTime|string $value): static
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -714,7 +524,7 @@ class ProductQuery extends ElementQuery
      * @param bool $value The property value (defaults to true)
      * @return static self reference
      */
-    public function editable(bool $value = true): ProductQuery
+    public function editable(bool $value = true): static
     {
         $this->editable = $value;
         return $this;
@@ -751,7 +561,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function typeId(mixed $value): ProductQuery
+    public function typeId(mixed $value): static
     {
         $this->typeId = $value;
         return $this;
@@ -770,7 +580,7 @@ class ProductQuery extends ElementQuery
      * @return static self reference
      * @noinspection PhpUnused
      */
-    public function hasVariant(mixed $value): ProductQuery
+    public function hasVariant(mixed $value): static
     {
         $this->hasVariant = $value;
         return $this;
@@ -812,7 +622,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function postDate(mixed $value): ProductQuery
+    public function postDate(mixed $value): static
     {
         $this->postDate = $value;
         return $this;
@@ -852,37 +662,9 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate(mixed $value): ProductQuery
+    public function expiryDate(mixed $value): static
     {
         $this->expiryDate = $value;
-        return $this;
-    }
-
-    /**
-     * Narrows the query results to only products that are available for purchase.
-     *
-     * ---
-     *
-     * ```twig
-     * {# Fetch products that are available for purchase #}
-     * {% set {elements-var} = {twig-method}
-     *   .availableForPurchase()
-     *   .all() %}
-     * ```
-     *
-     * ```php
-     * // Fetch products that are available for purchase
-     * ${elements-var} = {element-class}::find()
-     *     ->availableForPurchase()
-     *     ->all();
-     * ```
-     *
-     * @param bool|null $value The property value
-     * @return static self reference
-     */
-    public function availableForPurchase(?bool $value = true): ProductQuery
-    {
-        $this->availableForPurchase = $value;
         return $this;
     }
 
@@ -915,7 +697,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status(array|string|null $value): ProductQuery
+    public function status(array|string|null $value): static
     {
         parent::status($value);
         return $this;
@@ -940,9 +722,6 @@ class ProductQuery extends ElementQuery
         $this->query->select([
             'commerce_products.id',
             'commerce_products.typeId',
-            'commerce_products.promotable',
-            'commerce_products.freeShipping',
-            'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -952,13 +731,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultLength',
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
-            'commerce_products.taxCategoryId',
-            'commerce_products.shippingCategoryId',
         ]);
-
-        if (isset($this->availableForPurchase)) {
-            $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
-        }
 
         if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
@@ -970,26 +743,6 @@ class ProductQuery extends ElementQuery
 
         if (isset($this->typeId)) {
             $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
-        }
-
-        if (isset($this->shippingCategoryId)) {
-            if ($this->shippingCategoryId instanceof Query) {
-                $shippingCategoryWhere = ['exists', $this->shippingCategoryId];
-            } else {
-                $shippingCategoryWhere = Db::parseParam('commerce_products.shippingCategoryId', $this->shippingCategoryId);
-            }
-
-            $this->subQuery->andWhere($shippingCategoryWhere);
-        }
-
-        if (isset($this->taxCategoryId)) {
-            if ($this->taxCategoryId instanceof Query) {
-                $taxCategoryWhere = ['exists', $this->taxCategoryId];
-            } else {
-                $taxCategoryWhere = Db::parseParam('commerce_products.taxCategoryId', $this->taxCategoryId);
-            }
-
-            $this->subQuery->andWhere($taxCategoryWhere);
         }
 
         if (isset($this->defaultPrice)) {
@@ -1125,12 +878,16 @@ class ProductQuery extends ElementQuery
         }
 
         $variantQuery->limit = null;
-        $variantQuery->select('commerce_variants.productId');
+        $variantQuery->select('commerce_variants.primaryOwnerId');
 
         // Remove any blank product IDs (if any)
-        $variantQuery->andWhere(['not', ['commerce_variants.productId' => null]]);
+        $variantQuery->andWhere(['not', ['commerce_variants.primaryOwnerId' => null]]);
 
-        $this->subQuery->andWhere(['commerce_products.id' => $variantQuery]);
+        // Uses exists subquery for speed to check for the variant
+        $existsQuery = (new Query())
+            ->from(['existssub' => $variantQuery])
+            ->where(['existssub.primaryOwnerId' => new Expression('[[commerce_products.id]]')]);
+        $this->subQuery->andWhere(['exists', $existsQuery]);
     }
 
     /**

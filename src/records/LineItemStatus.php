@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\base\StoreRecordTrait;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use DateTime;
@@ -22,11 +23,14 @@ use DateTime;
  * @property string|DateTime|null $dateArchived
  * @property string $name
  * @property int $sortOrder
+ * @property int $storeId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class LineItemStatus extends ActiveRecord
 {
+    use StoreRecordTrait;
+
     /**
      * @inheritdoc
      */

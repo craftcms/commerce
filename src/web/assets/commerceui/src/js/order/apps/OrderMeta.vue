@@ -135,6 +135,11 @@
             </div>
 
             <div class="data">
+                <h5 class="heading">{{ 'Store' | t('commerce') }}</h5>
+                <p class="value">{{ draft.order.store.name }}</p>
+            </div>
+
+            <div class="data">
                 <h5 class="heading">{{ 'Coupon Code' | t('commerce') }}</h5>
                 <span class="value code">{{ draft.order.couponCode }}</span>
             </div>
@@ -225,6 +230,11 @@
                         'Copy' | t('commerce')
                     }}</btn-link>
                 </div>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{ 'Store' | t('commerce') }}</h5>
+                <p class="value">{{ draft.order.store.name }}</p>
             </div>
 
             <div class="data">

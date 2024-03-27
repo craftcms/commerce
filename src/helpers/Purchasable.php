@@ -7,7 +7,13 @@
 
 namespace craft\commerce\helpers;
 
+use Craft;
+use craft\commerce\Plugin;
+use craft\errors\SiteNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\StringHelper;
+use Illuminate\Support\Collection;
+use yii\base\InvalidConfigException;
 
 /**
  * Purchasable helper
@@ -37,5 +43,66 @@ class Purchasable
     public static function isTempSku(string $sku): bool
     {
         return str_starts_with($sku, static::TEMPORARY_SKU_PREFIX);
+    }
+
+    /**
+     * @param int $purchasableId
+     * @param int $storeId
+     * @param Collection|null $catalogPricing
+     * @return string
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     */
+    public static function catalogPricingRulesTableByPurchasableId(int $purchasableId, int $storeId, ?Collection $catalogPricing = null): string
+    {
+        $catalogPricing = $catalogPricing ?? Plugin::getInstance()->getCatalogPricing()->getCatalogPricesByPurchasableId($purchasableId);
+        $catalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRulesByPurchasableId($purchasableId, $storeId);
+
+        if ($catalogPricingRules->isEmpty()) {
+            return '';
+        }
+
+        return Cp::renderTemplate('commerce/prices/_table', [
+            'catalogPrices' => $catalogPricing,
+            'showPurchasable' => false,
+            'removeMargin' => true,
+        ]);
+    }
+
+    /**
+     * @param string|null $value
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function skuInputHtml(?string $value = null, array $config = []): string
+    {
+        $config += [
+            'id' => 'sku',
+            'name' => 'sku',
+            'value' => $value,
+            'placeholder' => Craft::t('commerce', 'Enter SKU'),
+            'class' => 'code',
+        ];
+
+        return Cp::textHtml($config);
+    }
+
+    /**
+     * @param bool $value
+     * @param array $config
+     * @return string
+     * @since 5.0.0
+     */
+    public static function availableForPurchaseInputHtml(bool $value, array $config = []): string
+    {
+        $config += [
+            'id' => 'available-for-purchase',
+            'name' => 'availableForPurchase',
+            'small' => true,
+            'on' => $value,
+        ];
+
+        return Cp::lightswitchHtml($config);
     }
 }

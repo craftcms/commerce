@@ -46,10 +46,11 @@ class LineItemTest extends Unit
     {
         $lineItem = new LineItem();
         $lineItem->setPrice(1.239);
-        $lineItem->setSalePrice(1.114);
+        $lineItem->setPromotionalPrice(1.114);
         $lineItem->qty = 2;
 
         self::assertSame(1.24, $lineItem->getPrice());
+        self::assertSame(1.11, $lineItem->getPromotionalPrice());
         self::assertSame(1.11, $lineItem->getSalePrice());
         self::assertSame(2.22, $lineItem->getSubtotal());
     }
@@ -65,7 +66,7 @@ class LineItemTest extends Unit
 
         self::assertSame(25.10, $lineItem->price);
         self::assertSame(25.10, $lineItem->salePrice);
-        self::assertSame(0.0, $lineItem->saleAmount);
+        self::assertSame(0.0, $lineItem->getPromotionalAmount());
         self::assertSame('commerce_testing_unique_sku', $lineItem->sku);
         self::assertFalse($lineItem->getOnSale());
     }
@@ -81,7 +82,7 @@ class LineItemTest extends Unit
 
         self::assertSame(123.99, round($lineItem->price, 2));
         self::assertSame(111.59, round($lineItem->salePrice, 2));
-        self::assertSame(12.40, round($lineItem->saleAmount, 2));
+        self::assertSame(12.40, round($lineItem->getPromotionalAmount(), 2));
         self::assertTrue($lineItem->getOnSale());
     }
 

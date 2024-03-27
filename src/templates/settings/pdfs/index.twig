@@ -11,48 +11,79 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/settings/pdfs/new') }}" class="btn submit add icon">{{ 'New PDF'|t('commerce') }}</a>
+    <div class="btngroup">
+        <button type="button" class="btn submit add icon menubtn">{{ 'New PDF'|t('commerce') }}</button>
+        <div class="menu">
+            <ul>
+                {% for store in stores %}
+                    <li>
+                        <a href="{{ url("commerce/settings/pdfs/#{store.handle}/new") }}">{{ store.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
-{% block content %}
-    <div id="pdfs-vue-admin-table"></div>
+{% block main %}
+    <div id="content">
+        {% for store in stores %}
+            <h2 id="{{ store.handle }}" class="pdfs-margin-top">{{ store.name }}</h2>
+            <div class="content-pane">
+                <div id="pdfs-vue-admin-table-{{ store.handle }}"></div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
-{% set tableData = [] %}
-{% for pdf in pdfs %}
-    {% set tableData = tableData|merge([{
-        id: pdf.id,
-        title: pdf.name|t('site'),
-        handle: pdf.handle|t('site'),
-        status: pdf.enabled ? true : false,
-        url: url('commerce/settings/pdfs/'~pdf.id),
-        isDefault: pdf.isDefault ? true : false,
-    }]) %}
-{% endfor %}
+{% for storeHandle, storePdfs in pdfs %}
+    {% set tableData = [] %}
+    {% for pdf in storePdfs %}
+        {% set tableData = tableData|merge([{
+            id: pdf.id,
+            title: pdf.name|t('site'),
+            handle: pdf.handle|t('site'),
+            status: pdf.enabled ? true : false,
+            url:pdf.getCpEditUrl(),
+            isDefault: pdf.isDefault ? true : false,
+        }]) %}
+    {% endfor %}
 
-{% js %}
-    var columns = [
-        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
-        { name: 'handle', title: Craft.t('commerce', 'Handle') },
-        {
-            name: 'isDefault',
-            title: Craft.t('commerce', 'Default?'),
-            callback: function(value) {
-                if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+    {% js %}
+        var columns = [
+            { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+            { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+            {
+                name: 'isDefault',
+                title: Craft.t('commerce', 'Default?'),
+                callback: function(value) {
+                    if (value) {
+                        return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                    }
                 }
             }
-        }
-    ];
+        ];
 
-    new Craft.VueAdminTable({
-        columns: columns,
-        container: '#pdfs-vue-admin-table',
-        deleteAction: 'commerce/pdfs/delete',
-        emptyMessage: Craft.t('commerce', 'No PDFs exist yet.'),
-        reorderAction: 'commerce/pdfs/reorder',
-        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder PDFs.'),
-        reorderSuccessMessage: Craft.t('commerce', 'PDFs reordered.'),
-        tableData: {{ tableData|json_encode|raw }},
-    });
-{% endjs %}
+        new Craft.VueAdminTable({
+            columns: columns,
+            container: '#pdfs-vue-admin-table-{{ storeHandle }}',
+            deleteAction: 'commerce/pdfs/delete',
+            emptyMessage: Craft.t('commerce', 'No PDFs exist yet.'),
+            reorderAction: 'commerce/pdfs/reorder',
+            reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder PDFs.'),
+            reorderSuccessMessage: Craft.t('commerce', 'PDFs reordered.'),
+            tableData: {{ tableData|json_encode|raw }},
+        });
+    {% endjs %}
+{% endfor %}
+
+{% css %}
+  table.data thead .vuetable-th-slot-title,
+  table.data thead .vuetable-th-slot-handle {
+    width: 33%;
+  }
+
+  .pdfs-margin-top {
+    margin-top: var(--xl);
+  }
+{% endcss %}

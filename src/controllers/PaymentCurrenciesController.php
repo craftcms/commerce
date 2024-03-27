@@ -13,7 +13,6 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
-use craft\db\Table as CraftTable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Exception as DbException;
@@ -27,16 +26,19 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PaymentCurrenciesController extends BaseStoreSettingsController
+class PaymentCurrenciesController extends BaseStoreManagementController
 {
     /**
      * @throws CurrencyException
      */
-    public function actionIndex(): Response
+    public function actionIndex(?string $storeHandle = null): Response
     {
-        $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies();
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
 
-        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/index', compact('currencies'));
+        $currencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($store->id);
+        return $this->renderTemplate('commerce/store-management/paymentcurrencies/index', compact('currencies', 'store'));
     }
 
     /**
@@ -45,24 +47,36 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
+    public function actionEdit(int $id = null, PaymentCurrency $currency = null, string $storeHandle = null): Response
     {
         $variables = compact('id', 'currency');
 
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         if (!$variables['currency']) {
             if ($variables['id']) {
-                $variables['currency'] = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($variables['id']);
+                $variables['currency'] = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($variables['id'], $store->id);
 
-                if (!$variables['currency']) {
+                if (!$variables['currency'] || $variables['currency']->storeId !== $store->id) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['currency'] = new PaymentCurrency();
+                $variables['currency'] = Craft::createObject([
+                    'class' => PaymentCurrency::class,
+                    'storeId' => $store->id,
+                ]);
             }
         }
 
         if ($variables['currency']->id) {
-            $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
+            $variables['title'] = $variables['currency']->iso; // TODO: get the currency name
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }
@@ -70,11 +84,11 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         DebugPanel::prependOrAppendModelTab(model: $variables['currency'], prepend: true);
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
-
+        $variables['currencyOptions'] = Plugin::getInstance()->getCurrencies()->getAllCurrenciesList();
+        $variables['store'] = $store;
         $variables['hasCompletedOrders'] = Order::find()->isCompleted(true)->exists();
 
-        return $this->renderTemplate('commerce/store-settings/paymentcurrencies/_edit', $variables);
+        return $this->renderTemplate('commerce/store-management/paymentcurrencies/_edit', $variables);
     }
 
     /**
@@ -90,35 +104,13 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
 
         // Shared attributes
         $currency->id = $this->request->getBodyParam('currencyId');
+        $currency->storeId = $this->request->getBodyParam('storeId');
         $currency->iso = $this->request->getBodyParam('iso');
         $currency->rate = $this->request->getBodyParam('rate', 1);
-        $currency->primary = (bool)$this->request->getBodyParam('primary');
-
-        // Check to see if the primary currency is being changed
-        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
-        $changingPrimaryCurrency = false;
-        if ($currency->id && $currency->primary && $primaryCurrency && $primaryCurrency->iso != $currency->iso) {
-            $changingPrimaryCurrency = true;
-        }
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Currency saved.'));
-
-            // Delete all carts if primary currency is being changed
-            if ($changingPrimaryCurrency) {
-                $cartIds = Order::find()->isCompleted(false)->ids();
-                if (!empty($cartIds)) {
-                    // Delete in the same way that carts are purged
-                    Craft::$app->getDb()->createCommand()
-                        ->delete(CraftTable::ELEMENTS, ['id' => $cartIds])
-                        ->execute();
-
-                    Craft::$app->getDb()->createCommand()
-                        ->delete(CraftTable::SEARCHINDEX, ['elementId' => $cartIds])
-                        ->execute();
-                }
-            }
             $this->redirectToPostedUrl($currency);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save currency.'));
@@ -138,13 +130,9 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
 
         $id = $this->request->getRequiredBodyParam('id');
-        $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyById($id);
-
-        if (!$currency || $currency->primary) {
-            return $this->asFailure(Craft::t('commerce', 'You can not delete that currency.'));
-        }
 
         Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
+
         return $this->asSuccess();
     }
 }

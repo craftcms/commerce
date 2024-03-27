@@ -2,82 +2,85 @@
     <div ref="container">
         <div class="order-address-display">
             <template v-if="address">
-                <ul ref="address" v-html="address"></ul>
+                <ul
+                    ref="address"
+                    v-html="address"
+                    @click="handleEditAddress"
+                ></ul>
             </template>
             <template v-else>
                 <div class="zilch">{{ emptyMsg }}</div>
             </template>
-
-            <div
-                class="order-address-display-buttons order-flex"
-                v-show="hasCustomer"
-            >
-                <div
-                    class="btn menubtn"
-                    data-icon="settings"
-                    :title="$options.filters.t('Actions', 'commerce')"
-                    ref="addressmenubtn"
-                ></div>
-                <div class="menu">
-                    <ul>
-                        <li>
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                @click.prevent="handleEditAddress"
-                            >
-                                {{
-                                    $options.filters.t(
-                                        'Edit address',
-                                        'commerce'
-                                    )
-                                }}
-                            </a>
-                        </li>
-                        <li>
-                            <address-select
-                                :customer-id="customerId"
-                                @update="handleSelect"
-                            ></address-select>
-                        </li>
-                        <li>
-                            <a @click.prevent="handleNewAddress">{{
-                                $options.filters.t('New address', 'commerce')
-                            }}</a>
-                        </li>
-                        <li v-if="copyToAddress">
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                @click.prevent="$emit('copy')"
-                                >{{
-                                    $options.filters.t(
-                                        'Copy to {location}',
-                                        'commerce',
-                                        {location: copyToAddress}
-                                    )
-                                }}</a
-                            >
-                        </li>
-                    </ul>
-                    <hr />
-                    <ul>
-                        <li>
-                            <a
-                                :class="{disabled: !address}"
-                                :disabled="!address"
-                                class="error"
-                                @click.prevent="$emit('remove')"
-                                >{{
-                                    $options.filters.t(
-                                        'Remove address',
-                                        'commerce'
-                                    )
-                                }}</a
-                            >
-                        </li>
-                    </ul>
-                </div>
+            <button
+                type="button"
+                class="btn menubtn action-btn"
+                title="Actions"
+                :aria-controls="disclosureId"
+                ref="disclosureMenu"
+                data-disclosure-trigger
+            ></button>
+            <div :id="disclosureId" class="menu menu--disclosure">
+                <ul>
+                    <li>
+                        <button
+                            class="menu-item"
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            data-icon="edit"
+                            @click.prevent="handleEditAddress"
+                        >
+                            {{ $options.filters.t('Edit address', 'commerce') }}
+                        </button>
+                    </li>
+                    <li>
+                        <address-select
+                            :customer-id="customerId"
+                            @update="handleSelect"
+                        ></address-select>
+                    </li>
+                    <li>
+                        <button
+                            class="menu-item"
+                            data-icon="plus"
+                            @click.prevent="handleNewAddress"
+                        >
+                            {{ $options.filters.t('New address', 'commerce') }}
+                        </button>
+                    </li>
+                    <li v-if="copyToAddress">
+                        <button
+                            class="menu-item"
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            data-icon="clipboard"
+                            @click.prevent="handleCopy"
+                        >
+                            {{
+                                $options.filters.t(
+                                    'Copy to {location}',
+                                    'commerce',
+                                    {location: copyToAddress}
+                                )
+                            }}
+                        </button>
+                    </li>
+                </ul>
+                <hr class="padded" />
+                <ul class="padded">
+                    <li>
+                        <button
+                            :class="{disabled: !address}"
+                            :disabled="!address"
+                            class="error menu-item"
+                            data-icon="trash"
+                            @click.prevent="handleRemove"
+                        >
+                            {{
+                                $options.filters.t('Remove address', 'commerce')
+                            }}
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -96,6 +99,11 @@
             display: none;
         }
 
+        // Hide initial action button
+        .card-actions {
+            padding-right: 24px;
+        }
+
         &--static .address-card:hover {
             cursor: initial;
             background-color: initial;
@@ -110,6 +118,17 @@
             *:not(:last-child) {
                 margin-right: 4px;
             }
+        }
+
+        .menubtn.action-btn {
+            position: absolute;
+            top: var(--m);
+            right: var(--m);
+            background-color: transparent;
+
+            height: var(--touch-target-size);
+            margin: 0 -4px;
+            width: var(--touch-target-size);
         }
     }
 </style>
@@ -149,7 +168,10 @@
 
         data() {
             return {
-                addressCard: null,
+                disclosureMenu: null,
+                disclosureId: `address-disclosure-${Math.floor(
+                    Math.random() * 1000000
+                )}`,
             };
         },
 
@@ -166,29 +188,48 @@
         },
 
         methods: {
-            _initAddressCard(newAdd = false) {
-                if (this.addressCard) {
-                    this.addressCard.$container.data('addresses').destroy();
-                    this.addressCard.$container.removeData('addresses');
-                    this.addressCard = null;
-                }
-
-                if (this.address) {
-                    // Remove the included menubtn from the address card
-                    $(this.$refs.address).find('.menubtn').remove();
-                    this.addressCard = new Craft.AddressesInput(
-                        this.$refs.address,
-                        {ownerId: this.address.ownerId, maxAddresses: 1}
-                    );
-                }
-            },
-
             handleEditAddress() {
-                if (!this.address || !this.addressCard) {
+                if (!this.address) {
                     return;
                 }
+                const slideout = Craft.createElementEditor(
+                    'craft\\elements\\Address',
+                    this.$refs.address.querySelector('.element.card'),
+                    {ownerId: this.address.ownerId}
+                );
 
-                this.addressCard.$cards.eq(0).trigger('click');
+                slideout.on('submit', (ev) => {
+                    Craft.sendActionRequest('POST', 'app/render-elements', {
+                        data: {
+                            elements: [
+                                {
+                                    type: 'craft\\elements\\Address',
+                                    id: ev.data.id,
+                                    siteId: ev.data.siteId,
+                                    draftId: null,
+                                    instances: [{ui: 'card'}],
+                                },
+                            ],
+                        },
+                    }).then((response) => {
+                        this.address =
+                            response.data.elements[ev.data.id].join('');
+                    });
+                });
+
+                slideout.on('load', (ev) => {
+                    const $titleField = slideout.$content.find(
+                        '[type="text"][name*="[title]"]'
+                    );
+
+                    if (!$titleField.length) {
+                        return;
+                    }
+
+                    $titleField.addClass('readonly');
+                    $titleField.attr('readonly', true);
+                    $titleField.css('cursor', 'not-allowed');
+                });
             },
 
             handleNewAddress() {
@@ -230,14 +271,38 @@
                     this.$emit('update', address);
                 }
             },
-        },
 
-        updated() {
-            this._initAddressCard();
+            handleCopy() {
+                this.hideDisclosureMenu();
+
+                this.$emit('copy');
+            },
+
+            handleRemove() {
+                this.hideDisclosureMenu();
+
+                this.$emit('remove');
+            },
+
+            hideDisclosureMenu() {
+                if (!this.disclosureMenu) {
+                    this.disclosureMenu = $(this.$refs.disclosureMenu);
+                }
+
+                if (!this.disclosureMenu.length) {
+                    return;
+                }
+
+                if (!this.disclosureMenu.data('disclosureMenu')) {
+                    return;
+                }
+
+                this.disclosureMenu.data('disclosureMenu').hide();
+            },
         },
 
         mounted() {
-            this._initAddressCard();
+            this.disclosureMenu = null;
         },
     };
 </script>

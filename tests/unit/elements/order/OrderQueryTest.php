@@ -57,9 +57,9 @@ class OrderQueryTest extends Unit
     public function emailDataProvider(): array
     {
         return [
-            'normal' => ['email' => 'customer1@crafttest.com', 3],
-            'case-insensitive' => ['email' => 'CuStOmEr1@crafttest.com', 3],
-            'no-results' => ['email' => 'null@craftcms.com', 0],
+            'normal' => ['customer1@crafttest.com', 3],
+            'case-insensitive' => ['CuStOmEr1@crafttest.com', 3],
+            'no-results' => ['null@craftcms.com', 0],
         ];
     }
 

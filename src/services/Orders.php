@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\console\controllers\UpgradeController;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\db\Query;
@@ -62,14 +61,6 @@ class Orders extends Component
         $fieldsService->saveLayout($layout, false);
     }
 
-
-    /**
-     * @deprecated in 3.4.17. Unused fields will be pruned automatically as field layouts are resaved.
-     */
-    public function pruneDeletedField(): void
-    {
-    }
-
     /**
      * Handle field layout being deleted
      */
@@ -82,7 +73,7 @@ class Orders extends Component
      * Get an order by its ID.
      *
      * @param int $id
-     * @return Order|null
+     * @return ?Order
      */
     public function getOrderById(int $id): ?Order
     {
@@ -211,9 +202,6 @@ class Orders extends Component
      */
     public function afterSaveAddressHandler(ModelEvent $event): void
     {
-        if (UpgradeController::isRunning()) {
-            return;
-        }
 
         /** @var Address $address */
         $address = $event->sender;
@@ -241,13 +229,13 @@ class Orders extends Component
         foreach ($carts as $cart) {
             // Update the billing address
             if ($cart->sourceBillingAddressId === $address->id) {
-                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Billing Address')]);
+                $newBillingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Billing Address')]);
                 $cart->billingAddressId = $newBillingAddress->id;
             }
 
             // Update the shipping address
             if ($cart->sourceShippingAddressId === $address->id) {
-                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['ownerId' => $cart->id, 'title' => Craft::t('commerce', 'Shipping Address')]);
+                $newShippingAddress = Craft::$app->getElements()->duplicateElement($address, ['primaryOwner' => $cart, 'title' => Craft::t('commerce', 'Shipping Address')]);
                 $cart->shippingAddressId = $newShippingAddress->id;
             }
 

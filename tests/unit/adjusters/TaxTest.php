@@ -101,7 +101,7 @@ class TaxTest extends Unit
         foreach ($lineItemData as $item) {
             $lineItem = new LineItem();
             $lineItem->qty = $item['qty'];
-            $lineItem->salePrice = $item['salePrice'];
+            $lineItem->price = $item['price'];
             $lineItem->taxCategoryId = 1;
             $lineItems[] = $lineItem;
         }
@@ -109,7 +109,7 @@ class TaxTest extends Unit
         $order->setLineItems($lineItems);
 
         $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => $taxRates,
+            'getTaxRates' => collect($taxRates),
             'validateVatNumber' => function($vatNum) use ($addressData) {
                 return $addressData['_validateVat'] ?? false;
             },
@@ -147,7 +147,7 @@ class TaxTest extends Unit
                     'countryCode' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -204,7 +204,7 @@ class TaxTest extends Unit
                     'countryCode' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -240,8 +240,8 @@ class TaxTest extends Unit
                     'countryCode' => 'NL',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
-                    ['salePrice' => 50, 'qty' => 2], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 50, 'qty' => 2], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -283,7 +283,7 @@ class TaxTest extends Unit
                     'countryCode' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -333,7 +333,7 @@ class TaxTest extends Unit
                     'countryCode' => 'AU',
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -393,7 +393,7 @@ class TaxTest extends Unit
                     '_validateVat' => true,
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -453,7 +453,7 @@ class TaxTest extends Unit
                     '_validateVat' => true,
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -506,7 +506,7 @@ class TaxTest extends Unit
                     '_validateVat' => false,
                 ],
                 [ // Line Items
-                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['price' => 100, 'qty' => 1], // 100 total price
                 ],
                 [ // Tax Rates
                     [
@@ -564,7 +564,7 @@ class TaxTest extends Unit
                     'countryCode' => 'UK',
                 ],
                 [ // Line Items
-                    ['salePrice' => 49.17, 'qty' => 1], // 49.17 total price
+                    ['price' => 49.17, 'qty' => 1], // 49.17 total price
                 ],
                 [ // Tax Rates
                     [
@@ -599,7 +599,7 @@ class TaxTest extends Unit
                     'countryCode' => 'UK',
                 ],
                 [ // Line Items
-                    ['salePrice' => 49.17, 'qty' => 1], // 49.17 total price
+                    ['price' => 49.17, 'qty' => 1], // 49.17 total price
                 ],
                 [ // Tax Rates
                     [
@@ -634,7 +634,7 @@ class TaxTest extends Unit
                     'countryCode' => 'UK',
                 ],
                 [ // Line Items
-                    ['salePrice' => 49.17, 'qty' => 4], // 49.17 total price
+                    ['price' => 49.17, 'qty' => 4], // 49.17 total price
                 ],
                 [ // Tax Rates
                     [
@@ -669,7 +669,7 @@ class TaxTest extends Unit
                     'countryCode' => 'UK',
                 ],
                 [ // Line Items
-                    ['salePrice' => 49.17, 'qty' => 4], // 49.17 total price
+                    ['price' => 49.17, 'qty' => 4], // 49.17 total price
                 ],
                 [ // Tax Rates
                     [

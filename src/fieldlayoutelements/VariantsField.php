@@ -10,9 +10,8 @@ namespace craft\commerce\fieldlayoutelements;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
-use craft\commerce\helpers\VariantMatrix;
-use craft\fieldlayoutelements\BaseField;
-use craft\helpers\Html;
+use craft\enums\ElementIndexViewMode;
+use craft\fieldlayoutelements\BaseNativeField;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -21,23 +20,17 @@ use yii\base\InvalidArgumentException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2.0
  */
-class VariantsField extends BaseField
+class VariantsField extends BaseNativeField
 {
     /**
      * @inheritdoc
      */
-    public function attribute(): string
-    {
-        return 'variants';
-    }
+    public bool $mandatory = true;
 
     /**
      * @inheritdoc
      */
-    public function mandatory(): bool
-    {
-        return true;
-    }
+    public string $attribute = 'variants';
 
     /**
      * @inheritdoc
@@ -58,30 +51,18 @@ class VariantsField extends BaseField
     /**
      * @inheritdoc
      */
-    protected function selectorInnerHtml(): string
-    {
-        return
-            Html::tag('span', '', [
-                'class' => ['fld-variants-field-icon', 'fld-field-hidden', 'hidden'],
-            ]) .
-            parent::selectorInnerHtml();
-    }
-
-    /**
-     * @inheritdoc
-     */
     protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        $type = $element->getType();
+        Craft::$app->getView()->registerDeltaName($this->attribute());
 
-        if (!$type->hasVariants) {
-            return null;
-        }
-
-        return VariantMatrix::getVariantMatrixHtml($element);
+        return $element->getVariantManager()->getIndexHtml($element, [
+            'canCreate' => true,
+            'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
+            'sortable' => true,
+        ]);
     }
 }

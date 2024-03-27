@@ -7,6 +7,10 @@
 
 namespace craft\commerce\web\assets\commercecp;
 
+use Craft;
+use craft\commerce\models\ProductType;
+use craft\commerce\Plugin;
+use craft\helpers\Json;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
@@ -54,8 +58,6 @@ class CommerceCpAsset extends AssetBundle
                 'Address Line 2',
                 'Address Updated.',
                 'Alternative Phone',
-                'Organization Name',
-                'Organization Tax ID',
                 'Cancel',
                 'City',
                 'Country',
@@ -66,9 +68,12 @@ class CommerceCpAsset extends AssetBundle
                 'Last Name',
                 'Message',
                 'New product',
+                'New product, choose a type',
                 'New {productType} product',
                 'New',
                 'No Address',
+                'Organization Name',
+                'Organization Tax ID',
                 'PDF',
                 'Phone (Alt)',
                 'Phone',
@@ -82,5 +87,24 @@ class CommerceCpAsset extends AssetBundle
                 'Zip Code',
             ]);
         }
+
+        // Define the Craft.Commerce object
+        $commerceJson = Json::encode($this->_commerceData());
+        $js = <<<JS
+window.Craft.Commerce = $commerceJson;
+JS;
+        $view->registerJs($js, View::POS_HEAD);
+    }
+
+    private function _commerceData(): array
+    {
+        return [
+            'editableProductTypes' => array_map(fn(ProductType $productType) => [
+                'id' => $productType->id,
+                'uid' => $productType->uid,
+                'name' => Craft::t('site', $productType->name),
+                'handle' => $productType->handle,
+            ], Plugin::getInstance()->getProductTypes()->getCreatableProductTypes()),
+        ];
     }
 }

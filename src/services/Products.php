@@ -11,7 +11,7 @@ use Craft;
 use craft\commerce\elements\Product;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
-use craft\queue\jobs\ResaveElements;
+use craft\queue\jobs\PropagateElements;
 use yii\base\Component;
 
 /**
@@ -40,20 +40,14 @@ class Products extends Component
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
         if ($event->isNew) {
-            $oldPrimarySiteId = $event->oldPrimarySiteId;
-            $elementTypes = [
-                Product::class,
-            ];
-
-            foreach ($elementTypes as $elementType) {
-                Queue::push(new ResaveElements([
-                    'elementType' => $elementType,
-                    'criteria' => [
-                        'siteId' => $oldPrimarySiteId,
-                        'status' => null,
-                    ],
-                ]));
-            }
+            Queue::push(new PropagateElements([
+                'elementType' => Product::class,
+                'criteria' => [
+                    'siteId' => $event->oldPrimarySiteId,
+                    'status' => null,
+                ],
+                'siteId' => $event->site->id,
+            ]));
         }
     }
 }

@@ -11,8 +11,11 @@ use Craft;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
+use craft\commerce\models\Pdf;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\helpers\App;
 use craft\helpers\ArrayHelper;
 use yii\base\ErrorException;
 use yii\base\Exception;
@@ -36,8 +39,15 @@ class EmailsController extends BaseAdminController
      */
     public function actionIndex(): Response
     {
-        $emails = Plugin::getInstance()->getEmails()->getAllEmails();
-        return $this->renderTemplate('commerce/settings/emails/index', compact('emails'));
+        $emails = [];
+        $stores = Plugin::getInstance()->getStores()->getAllStores();
+
+        $stores->each(function(Store $store) use (&$emails) {
+            $emails[$store->handle] = Plugin::getInstance()->getEmails()->getAllEmails($store->id);
+        });
+        $stores = $stores->all();
+
+        return $this->renderTemplate('commerce/settings/emails/index', compact('emails', 'stores'));
     }
 
     /**
@@ -45,19 +55,26 @@ class EmailsController extends BaseAdminController
      * @param Email|null $email
      * @throws HttpException
      */
-    public function actionEdit(int $id = null, Email $email = null): Response
+    public function actionEdit(?string $storeHandle = null, int $id = null, Email $email = null): Response
     {
+        if ($storeHandle === null || !$store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $variables = compact('email', 'id');
 
         if (!$variables['email']) {
             if ($variables['id']) {
-                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id']);
+                $variables['email'] = Plugin::getInstance()->getEmails()->getEmailById($variables['id'], $store->id);
 
                 if (!$variables['email']) {
                     throw new HttpException(404);
                 }
             } else {
-                $variables['email'] = new Email();
+                $variables['email'] = Craft::createObject([
+                    'class' => Email::class,
+                    'attributes' => ['storeId' => $store->id],
+                ]);
             }
         }
 
@@ -69,10 +86,12 @@ class EmailsController extends BaseAdminController
 
         DebugPanel::prependOrAppendModelTab(model: $variables['email'], prepend: true);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs($variables['email']->storeId);
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
-        $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
+        $pdfList = ArrayHelper::merge($pdfList, $pdfs->mapWithKeys(fn(Pdf $pdf) => [$pdf->id => $pdf->name])->all());
         $variables['pdfList'] = $pdfList;
+        $variables['senderAddressPlaceholder'] = App::mailSettings()->fromEmail;
+        $variables['senderNamePlaceholder'] = App::mailSettings()->fromName;
 
         $emailLanguageOptions = [
             EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
@@ -96,9 +115,14 @@ class EmailsController extends BaseAdminController
 
         $emailsService = Plugin::getInstance()->getEmails();
         $emailId = $this->request->getBodyParam('emailId');
+        $storeId = $this->request->getBodyParam('storeId');
+
+        if (!$storeId) {
+            throw new BadRequestHttpException("Invalid store ID: $storeId");
+        }
 
         if ($emailId) {
-            $email = $emailsService->getEmailById($emailId);
+            $email = $emailsService->getEmailById($emailId, $storeId);
             if (!$email) {
                 throw new BadRequestHttpException("Invalid email ID: $emailId");
             }
@@ -107,6 +131,7 @@ class EmailsController extends BaseAdminController
         }
 
         // Shared attributes
+        $email->storeId = $storeId;
         $email->name = $this->request->getBodyParam('name');
         $email->subject = $this->request->getBodyParam('subject');
         $email->recipientType = $this->request->getBodyParam('recipientType');
@@ -120,6 +145,8 @@ class EmailsController extends BaseAdminController
         $pdfId = $this->request->getBodyParam('pdfId');
         $email->pdfId = $pdfId ?: null;
         $email->language = $this->request->getBodyParam('language');
+        $email->setSenderAddress($this->request->getBodyParam('senderAddress'));
+        $email->setSenderName($this->request->getBodyParam('senderName'));
 
         // Save it
         if ($emailsService->saveEmail($email)) {
@@ -143,8 +170,14 @@ class EmailsController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $id = $this->request->getRequiredBodyParam('id');
+        if (!$id) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t delete email.'));
+        }
 
-        Plugin::getInstance()->getEmails()->deleteEmailById($id);
+        if (!Plugin::getInstance()->getEmails()->deleteEmailById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t delete email.'));
+        }
+
         return $this->asSuccess();
     }
 }
