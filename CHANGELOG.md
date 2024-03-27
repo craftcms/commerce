@@ -4,12 +4,13 @@
 
 - Added a new “Manage inventory stock levels” permission.
 - Added a new “Manage inventory locations” permission.
+- Craft Commerce now strictly requires Craft CMS Pro edition.
 - Fixed a bug where it wasn’t possible to change the primary store. ([#3398](https://github.com/craftcms/commerce/issues/3398))
-- Fixed a bug where the `hasUnlimitedStock` variant query param did not work. ([#3400](https://github.com/craftcms/commerce/issues/3400))
-- Fixed a bug where Variant queries were returning duplicate rows. ([#3401](https://github.com/craftcms/commerce/issues/3401))
-- Fixed a bug where shipping categories weren’t being deleted when a store was deleted.
-- Fixed an error that could occur when upgrading with MariaDB. ([#3411](https://github.com/craftcms/commerce/issues/3411))
-- Fixed a bug where prices weren’t showing their currency symbol on the Variant Edit page. ([#3405](https://github.com/craftcms/commerce/issues/3405))
+- Fixed a bug where the `hasUnlimitedStock` variant query param wasn’t working. ([#3400](https://github.com/craftcms/commerce/issues/3400))
+- Fixed a bug where variant queries could return duplicate rows. ([#3401](https://github.com/craftcms/commerce/issues/3401))
+- Fixed a bug where shipping categories weren’t getting deleted when a store was deleted.
+- Fixed an error that could occur when upgrading to Commerce 5 with MariaDB. ([#3411](https://github.com/craftcms/commerce/issues/3411))
+- Fixed a bug where prices weren’t showing their currency symbol on Edit Variant pages. ([#3405](https://github.com/craftcms/commerce/issues/3405))
 - Fixed an error that could occur when updating site/store assignments. ([#3426](https://github.com/craftcms/commerce/issues/3426))
 - Fixed a bug where Commerce widgets weren’t displaying the list of stores. ([#3428](https://github.com/craftcms/commerce/issues/3428))
 - Fixed an error that could occur when editing a store. ([#3433](https://github.com/craftcms/commerce/issues/3433))
