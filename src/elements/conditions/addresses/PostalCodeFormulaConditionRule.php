@@ -22,7 +22,6 @@ use yii\base\NotSupportedException;
  */
 class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
-
     /**
      * @inheritdoc
      */
