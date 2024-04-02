@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce
 
+## 4.5.3 - 2024-04-02
+
+- The “Postcode Condition Formula” condition rule now allows multi-line input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
+- Fixed a bug where order adjustments could be duplicated. ([#3438](https://github.com/craftcms/commerce/issues/3438))
+- Fixed a bug where successful refunds could show a failure notice.
+
+## 4.5.2 - 2024-03-06
+
+- Fixed a bug where order status sources weren’t showing count badges on the Orders index page. ([#3397](https://github.com/craftcms/commerce/issues/3397))
+- Fixed a bug where discounts weren’t listing more than 128 related purchasables or categories. ([#3379](https://github.com/craftcms/commerce/issues/3379))
+
 ## 4.5.1.1 - 2024-03-01
 
 - Fixed a bug where the “Share cart” order index action wasn’t working.
