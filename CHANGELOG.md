@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.5.3 - 2024-04-02
 
 - The “Postcode Condition Formula” condition rule now allows multi-line input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
 - Fixed a bug where order adjustments could be duplicated. ([#3438](https://github.com/craftcms/commerce/issues/3438))
