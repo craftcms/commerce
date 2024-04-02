@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Successfully refunding a payment that returns a 'processing' status will no longer show a failed flash message.
+- The “Postcode Condition Formula” condition rule now allows multi-line input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
 - Fixed a bug where order adjustments could be duplicated. ([#3438](https://github.com/craftcms/commerce/issues/3438))
+- Fixed a bug where successful refunds could show a failure notice.
 
 ## 4.5.2 - 2024-03-06
 
