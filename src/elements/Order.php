@@ -3399,6 +3399,12 @@ class Order extends Element
                 $previousAdjustment->delete();
             }
         }
+
+        // Make sure all other adjustments have been cleaned up.
+        Db::delete(
+            Table::ORDERADJUSTMENTS,
+            ['and', ['orderId' => $this->id], ['not', ['id' => $newAdjustmentIds]]]
+        );
     }
 
 
