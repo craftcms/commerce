@@ -22,7 +22,6 @@ use yii\base\NotSupportedException;
  */
 class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements ElementConditionRuleInterface
 {
-
     /**
      * @inheritdoc
      */
@@ -77,14 +76,14 @@ class PostalCodeFormulaConditionRule extends BaseTextConditionRule implements El
     public function inputHtml(): string
     {
         return Html::hiddenLabel($this->getLabel(), 'value') .
-        Cp::textareaHtml([
-            'type' => $this->inputType(),
-            'id' => 'value',
-            'name' => 'value',
-            'code' => 'value',
-            'value' => $this->value,
-            'autocomplete' => false,
-            'class' => 'fullwidth code',
-        ]);
+            Cp::textareaHtml([
+                'type' => $this->inputType(),
+                'id' => 'value',
+                'name' => 'value',
+                'code' => 'value',
+                'value' => $this->value,
+                'autocomplete' => false,
+                'class' => 'fullwidth code',
+            ]);
     }
 }
