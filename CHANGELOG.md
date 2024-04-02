@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.0-beta.2 - 2024-03-02
 
 - Added a new “Manage inventory stock levels” permission.
 - Added a new “Manage inventory locations” permission.
