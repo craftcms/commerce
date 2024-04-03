@@ -417,6 +417,16 @@ class ProductType extends Model
     }
 
     /**
+     * @return bool
+     * @deprecated 5.0.0
+     */
+    public function getHasVariants(): bool
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::hasVariants', 'Use `ProductType::maxVariants > 1` instead.');
+        return $this->maxVariants > 1;
+    }
+
+    /**
      * @inheritdoc
      */
     public function behaviors(): array

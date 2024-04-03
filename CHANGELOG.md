@@ -170,6 +170,7 @@
 - Deprecated `craft\commerce\elements\Variant::setProduct()`. `setOwner()` should be used instead.
 - Deprecated `craft\commerce\elements\Variant::setProductId()`. `setOwnerId()` should be used instead.
 - Deprecated `craft\commerce\elements\conditions\products\ProductVariantHasUnlimitedStockConditionRule`. `ProductVariantInventoryTrackedConditionRule` should be used instead.
+- Deprecated `craft\commerce\models\ProductType::$hasVariants`. `$maxVariants` can be used instead.
 - Deprecated `craft\commerce\models\Store::getCountries()`. `craft\commerce\models\Store::getSettings()->getCountries()` should be used instead.
 - Deprecated `craft\commerce\models\Store::getMarketAddressCondition()`. `craft\commerce\models\Store::getSettings()->getMarketAddressCondition()` should be used instead.
 - Deprecated `craft\commerce\models\Store::setCountries()`. `craft\commerce\models\Store::getSettings()->setCountries()` should be used instead.
@@ -190,7 +191,6 @@
 - Removed `craft\commerce\models\Discount::$baseDiscountType`.
 - Removed `craft\commerce\models\LiteShippingSettings`.
 - Removed `craft\commerce\models\LiteTaxSettings`.
-- Removed `craft\commerce\models\ProductType::$hasVariants`. `$maxVariants` can be used instead.
 - Removed `craft\commerce\models\Settings::$allowCheckoutWithoutPayment`. `craft\commerce\models\Store::getAllowCheckoutWithoutPayment()` can be used instead.
 - Removed `craft\commerce\models\Settings::$allowEmptyCartOnCheckout`. `craft\commerce\models\Store::getAllowEmptyCartOnCheckout()` can be used instead.
 - Removed `craft\commerce\models\Settings::$allowPartialPaymentOnCheckout`. `craft\commerce\models\Store::getAllowPartialPaymentOnCheckout()` can be used instead.
