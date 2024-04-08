@@ -13,6 +13,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
@@ -439,7 +440,11 @@ class PaymentsController extends BaseFrontEndController
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
+                // Payment amount in the CP accepts number based in the user's formatting locale
+                $cpPaymentAmount = $this->request->getBodyParam('paymentAmount');
+                $cpPaymentAmount = Localization::normalizeNumber($cpPaymentAmount);
+
+                $order->setPaymentAmount($cpPaymentAmount);
             } elseif ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = (float)$this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);
