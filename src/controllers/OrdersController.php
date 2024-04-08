@@ -58,7 +58,6 @@ use craft\helpers\MoneyHelper;
 use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\web\assets\money\MoneyAsset;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -1575,8 +1574,8 @@ JS, []);
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
-                $promotionalPrice  = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
-                $price  = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : null;
+                $promotionalPrice = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
+                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : null;
 
                 $lineItem->setPromotionalPrice($promotionalPrice);
                 $lineItem->setPrice($price);
