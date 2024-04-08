@@ -1,7 +1,9 @@
 <template>
     <div>
         <div class="order-flex order-box-sizing" v-if="lineItems.length > 0">
-            <div class="line-items-heading orderedit-border-color w-1/4">
+            <div
+                class="line-items-heading line-items-heading--details orderedit-border-color"
+            >
                 <h4 class="extralight">
                     {{ $options.filters.t('Item', 'commerce') }}
                 </h4>
@@ -13,13 +15,15 @@
                     {{ $options.filters.t('Unit Price', 'commerce') }}
                 </h4>
             </div>
-            <div class="line-items-heading orderedit-border-color w-1/4">
+            <div
+                class="line-items-heading line-items-heading--quantity orderedit-border-color"
+            >
                 <h4 class="extralight">
                     {{ $options.filters.t('Quantity', 'commerce') }}
                 </h4>
             </div>
             <div
-                class="line-items-heading orderedit-border-color text-right order-flex-grow"
+                class="line-items-heading line-items-heading--total orderedit-border-color text-right order-flex-grow"
             >
                 <h4 class="extralight">
                     {{ $options.filters.t('Total', 'commerce') }}
@@ -89,8 +93,17 @@
         padding-bottom: 14px;
         padding-top: 14px;
 
+        &--details {
+            width: 25%;
+        }
+
         &--price {
-            width: 37.5%;
+            width: 45%;
+        }
+
+        &--quantity,
+        &--total {
+            width: 15%;
         }
     }
 </style>
