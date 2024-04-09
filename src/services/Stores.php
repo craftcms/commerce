@@ -579,31 +579,48 @@ class Stores extends Component
      */
     private function _createStoreQuery(): Query
     {
-        return (new Query())
-            ->select([
+        $selectColumns = [
+            'handle',
+            'id',
+            'name',
+            'primary',
+            'uid',
+        ];
+
+        // Added to avoid migration issues, as settings were moved after stores table creation
+        // @TODO remove at next breaking change release
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+            $selectColumns = array_merge($selectColumns, [
                 'allowCheckoutWithoutPayment',
                 'allowEmptyCartOnCheckout',
                 'allowPartialPaymentOnCheckout',
                 'autoSetCartShippingMethodOption',
                 'autoSetNewCartAddresses',
                 'autoSetPaymentSource',
-                'freeOrderPaymentStrategy',
-                'handle',
-                'id',
-                'minimumTotalPriceStrategy',
                 'currency',
-                'name',
-                'primary',
+                'freeOrderPaymentStrategy',
+                'minimumTotalPriceStrategy',
                 'requireBillingAddressAtCheckout',
                 'requireShippingAddressAtCheckout',
                 'requireShippingMethodSelectionAtCheckout',
                 'sortOrder',
-                'uid',
                 'useBillingAddressForTax',
                 'validateOrganizationTaxIdAsVatId',
-            ])
-            ->from([Table::STORES])
-            ->orderBy(['sortOrder' => SORT_ASC]);
+            ]);
+        }
+
+        $query = (new Query())
+            ->select($selectColumns)
+            ->from([Table::STORES]);
+
+        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+            $query->orderBy(['sortOrder' => SORT_ASC]);
+        }
+
+        return $query;
     }
 
     /**
