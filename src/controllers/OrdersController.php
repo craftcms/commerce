@@ -986,7 +986,7 @@ JS, []);
     {
         $this->requireAcceptsJson();
 
-        /** @var Site|StoreBehavior $site */
+        /** @var Site|StoreBehavior|null $site */
         $site = Cp::requestedSite();
         $storeId = $site?->getStore()->id ?? null;
 
