@@ -97,6 +97,7 @@
                                                             '.promotionalPrice'
                                                     ).length,
                                                 }"
+                                                ref="promotionalPrice"
                                             />
                                         </field>
                                     </template>
@@ -138,6 +139,7 @@
                                                                 '.price'
                                                         ).length,
                                                     }"
+                                                    ref="price"
                                                 />
                                             </field>
                                         </div>
@@ -149,9 +151,9 @@
                                     <span class="light">{{
                                         'Original Price' | t('commerce')
                                     }}</span
-                                    >&nbsp;<strike>{{
+                                    >&nbsp;<del>{{
                                         lineItem.priceAsCurrency
-                                    }}</strike>
+                                    }}</del>
                                 </li>
                                 <li>
                                     <span class="light">{{
@@ -332,22 +334,37 @@
         data() {
             return {
                 editMode: false,
+                highlight: false,
+                maskOptions: {
+                    alias: 'currency',
+                    autoGroup: false,
+                    clearMaskOnLostFocus: false,
+                    digits: 2,
+                    digitsOptional: false,
+                    groupSeparator: ',',
+                    placeholder: '0',
+                    prefix: '',
+                    radixPoint: '.',
+                },
                 modal: {
                     ref: 'snapshots',
                     modal: null,
                     isVisible: false,
                 },
                 originalLineItem: null,
-                highlight: false,
+                priceInput: null,
+                promotionalPriceInput: null,
             };
         },
 
         computed: {
             ...mapState({
+                draft: (state) => state.draft,
                 recentlyAddedLineItems: (state) => state.recentlyAddedLineItems,
             }),
 
             ...mapGetters([
+                'currencyConfig',
                 'getErrors',
                 'hasLineItemErrors',
                 'orderId',
@@ -360,11 +377,6 @@
                 get() {
                     return this.lineItem.promotionalPrice;
                 },
-                set: debounce(function (val) {
-                    const lineItem = this.lineItem;
-                    lineItem.promotionalPrice = val;
-                    this.$emit('updateLineItem', lineItem);
-                }, 1000),
             },
 
             price: {
@@ -508,6 +520,72 @@
                 lineItem.lineItemStatusId = lineItemStatusId;
                 this.$emit('updateLineItem', lineItem);
             },
+
+            onPriceChange: debounce(function () {
+                const lineItem = this.lineItem;
+                let price = this.priceInput.val();
+                if (price === '') {
+                    price = null;
+                }
+
+                lineItem.price = price;
+                this.$emit('updateLineItem', lineItem);
+            }, 1000),
+
+            onPromotionalPriceChange: debounce(function () {
+                const lineItem = this.lineItem;
+                let promotionalPrice = this.promotionalPriceInput.val();
+                if (promotionalPrice === '') {
+                    promotionalPrice = null;
+                }
+
+                lineItem.promotionalPrice = promotionalPrice;
+                this.$emit('updateLineItem', lineItem);
+            }, 1000),
+
+            initPriceInputs() {
+                if (
+                    this.promotionalPriceInput === null &&
+                    this.$refs.promotionalPrice
+                ) {
+                    this.promotionalPriceInput = $(this.$refs.promotionalPrice);
+                    this.promotionalPriceInput.on(
+                        'keyup',
+                        this.onPromotionalPriceChange
+                    );
+
+                    this.promotionalPriceInput.inputmask(this.maskOptions);
+                }
+
+                if (this.priceInput === null && this.$refs.price) {
+                    this.priceInput = $(this.$refs.price);
+                    this.priceInput.on('keyup', this.onPriceChange);
+
+                    this.priceInput.inputmask(this.maskOptions);
+                }
+            },
+        },
+
+        watch: {
+            editMode(val) {
+                if (val) {
+                    this.$nextTick(() => {
+                        this.initPriceInputs();
+                    });
+                }
+            },
+        },
+
+        mounted() {
+            // Setup mask settings passed from the controller
+            this.maskOptions.digits = this.currencyConfig.decimals;
+            this.maskOptions.groupSeparator =
+                this.currencyConfig.groupSeparator;
+            this.maskOptions.radixPoint = this.currencyConfig.decimalSeparator;
+
+            this.$nextTick(() => {
+                this.initPriceInputs();
+            });
         },
     };
 </script>
@@ -532,11 +610,11 @@
         }
 
         &-section {
-            width: 25%;
+            width: 20%;
         }
 
         &-price {
-            width: 50%;
+            width: 60%;
         }
 
         &-buttons::after {

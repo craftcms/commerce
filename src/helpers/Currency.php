@@ -105,7 +105,7 @@ class Currency
         }
 
         if ($format) {
-            $numberFormatter = new \NumberFormatter(Craft::$app->language, \NumberFormatter::CURRENCY);
+            $numberFormatter = new \NumberFormatter(Craft::$app->getFormattingLocale(), \NumberFormatter::CURRENCY);
             $moneyFormatter = new IntlMoneyFormatter($numberFormatter, new ISOCurrencies());
             $money = Plugin::getInstance()->getCurrencies()->getTeller($currencyIso)->convertToMoney($amount);
 

@@ -48,6 +48,10 @@ export default new Vuex.Store({
       return window.orderEdit.countries;
     },
 
+    currencyConfig() {
+      return window.orderEdit.currencyConfig;
+    },
+
     forceEdit() {
       return window.orderEdit.forceEdit;
     },

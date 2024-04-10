@@ -62,6 +62,22 @@ new Craft.VueAdminTable({
     container: '#transactions-vue-admin-table',
     emptyMessage: Craft.t('commerce', 'No transactions exist.'),
     padded: true,
-    tableData: {{ orderTransactions|json_encode|raw }}
+    tableData: {{ orderTransactions|json_encode|raw }},
+    onLoaded: function() {
+      {% if not (order.paidStatus == constant('craft\\commerce\\elements\\Order::PAID_STATUS_UNPAID')) %}
+        $(document).ready(function() {
+          console.log('ready');
+          new Craft.Money(
+            'refund-amount',
+            {
+              decimals: window.orderEdit.currencyConfig.decimals,
+              placeholder: '0',
+              decimalSeparator: window.orderEdit.currencyConfig.decimalSeparator,
+              groupSeparator: window.orderEdit.currencyConfig.groupSeparator,
+            }
+          );
+        });
+      {% endif %}
+    },
 });
 {% endjs %}
