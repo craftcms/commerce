@@ -7,6 +7,7 @@
 - Removed `craft\commerce\services\Customers::addEditUserCommerceTabContent()`.
 - Fixed a PHP error that occurred when migrating from Commerce 4. ([#3448](https://github.com/craftcms/commerce/issues/3448))
 - Fixed a bug where customer orders and carts weren’t shown within profiles.
+- Fixed a bug where the Orders index page was showing all orders, not just orders for the selected site’s store. ([#3446](https://github.com/craftcms/commerce/issues/3446))
 
 ## 5.0.0-beta.2 - 2024-03-02
 
