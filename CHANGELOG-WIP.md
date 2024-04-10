@@ -23,6 +23,7 @@
 - Added `commerce/pricing-catalog/generate` command.
 - Deprecated the `hasUnlimitedStock` variant query param. `inventoryTracked` should be used instead.
 - Removed the `shippingCategory`, `shippingCategoryId`, `taxCategory`, and `taxCategoryId` product query params. The corresponding variant query params can be used instead.
+- Removed the `showEditUserCommerceTab` config setting.
 
 ### Extensibility
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
@@ -220,6 +221,8 @@
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\services\Customers::addEditUserCommerceTab()`.
+- Removed `craft\commerce\services\Customers::addEditUserCommerceTabContent()`.
 - Removed `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
