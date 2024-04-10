@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when migrating from Commerce 4. ([#3448](https://github.com/craftcms/commerce/issues/3448))
+
 ## 5.0.0-beta.2 - 2024-03-02
 
 - Added a new “Manage inventory stock levels” permission.

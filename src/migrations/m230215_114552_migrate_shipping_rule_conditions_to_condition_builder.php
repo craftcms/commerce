@@ -44,8 +44,15 @@ class m230215_114552_migrate_shipping_rule_conditions_to_condition_builder exten
             return true;
         }
 
+        $primaryStoreId = (new Query())
+            ->select(['id'])
+            ->from(Table::STORES)
+            ->where(['primary' => true])
+            ->scalar();
+
         foreach ($shippingRules as $shippingRule) {
             $orderCondition = new ShippingRuleOrderCondition();
+            $orderCondition->storeId = $primaryStoreId;
 
             // Convert min/max qty to order condition rule
             if ($shippingRule['minQty'] > 0 || $shippingRule['maxQty'] > 0) {
