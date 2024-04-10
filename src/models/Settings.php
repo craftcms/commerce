@@ -185,13 +185,6 @@ class Settings extends Model
     public mixed $purgeInactiveCartsDuration = 7776000;
 
     /**
-     * @var bool Whether the [Commerce Tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
-     * @group System
-     * @since 4.0
-     */
-    public bool $showEditUserCommerceTab = true;
-
-    /**
      * @var string URL for a user to resolve billing issues with their subscription.
      *
      * ::: tip
@@ -263,7 +256,8 @@ class Settings extends Model
             $values['requireShippingMethodSelectionAtCheckout'],
             $values['useBillingAddressForTax'],
             $values['freeOrderPaymentStrategy'],
-            $values['minimumTotalPriceStrategy']
+            $values['minimumTotalPriceStrategy'],
+            $values['showEditUserCommerceTab'],
         );
         parent::setAttributes($values, $safeOnly);
     }
