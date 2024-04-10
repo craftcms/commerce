@@ -301,7 +301,7 @@ trait OrderElementTrait
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true],
+                'criteria' => ['isCompleted' => true, 'storeId' => $store->id],
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'data' => [
                     'date-attr' => 'dateOrdered',

@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that occurred when migrating from Commerce 4. ([#3448](https://github.com/craftcms/commerce/issues/3448))
+- Fixed a bug where orders were incorrectly showing on the Orders index page. ([#3446](https://github.com/craftcms/commerce/issues/3446))
 
 ## 5.0.0-beta.2 - 2024-03-02
 
