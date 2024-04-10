@@ -58,6 +58,7 @@ use craft\helpers\MoneyHelper;
 use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -136,10 +137,6 @@ class OrdersController extends Controller
         ];
 
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-
-        // @TODO store permissions
-        $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
-
 
         return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'));
     }
@@ -989,7 +986,11 @@ JS, []);
     {
         $this->requireAcceptsJson();
 
-        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
         $total = array_reduce($counts, static function($sum, $thing) {
             return $sum + (int)$thing['orderCount'];
