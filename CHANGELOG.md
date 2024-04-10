@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.0-beta.3 - 2024-04-10
 
 - Removed the `showEditUserCommerceTab` config setting.
 - Removed `craft\commerce\services\Customers::addEditUserCommerceTab()`.
