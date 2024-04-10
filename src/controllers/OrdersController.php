@@ -988,8 +988,9 @@ JS, []);
 
         /** @var Site|StoreBehavior $site */
         $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
 
-        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($site->getStore()->id);
+        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
         $total = array_reduce($counts, static function($sum, $thing) {
             return $sum + (int)$thing['orderCount'];
