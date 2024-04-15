@@ -445,7 +445,7 @@ class Pdfs extends Component
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
         $originalLanguage = Craft::$app->language;
-        $pdfLanguage = $pdf->getRenderLanguage($order);
+        $pdfLanguage = $pdf ? $pdf->getRenderLanguage($order) : $originalLanguage;
         Locale::switchAppLanguage($pdfLanguage);
 
         $oldTemplateMode = $view->getTemplateMode();
