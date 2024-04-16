@@ -347,6 +347,7 @@ class Store extends Model
             'handle' => $this->handle,
             'minimumTotalPriceStrategy' => $this->getMinimumTotalPriceStrategy(false),
             'name' => $this->_name,
+            'orderReferenceFormat' => $this->getOrderReferenceFormat(false),
             'primary' => $this->primary,
             'requireBillingAddressAtCheckout' => $this->getRequireBillingAddressAtCheckout(false),
             'requireShippingAddressAtCheckout' => $this->getRequireShippingAddressAtCheckout(false),
@@ -608,11 +609,15 @@ class Store extends Model
     }
 
     /**
-     * @param string $orderReferenceFormat
+     * @param string|null $orderReferenceFormat
      * @return void
      */
-    public function setOrderReferenceFormat(string $orderReferenceFormat): void
+    public function setOrderReferenceFormat(?string $orderReferenceFormat): void
     {
+        if (!$orderReferenceFormat) {
+            return;
+        }
+
         $this->_orderReferenceFormat = $orderReferenceFormat;
     }
 

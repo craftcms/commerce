@@ -394,6 +394,7 @@ class Stores extends Component
             $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
             $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
             $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
+            $storeRecord->orderReferenceFormat = $data['orderReferenceFormat'];
             $storeRecord->currency = $data['currency'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
@@ -603,6 +604,7 @@ class Stores extends Component
                 'currency',
                 'freeOrderPaymentStrategy',
                 'minimumTotalPriceStrategy',
+                'orderReferenceFormat',
                 'requireBillingAddressAtCheckout',
                 'requireShippingAddressAtCheckout',
                 'requireShippingMethodSelectionAtCheckout',

@@ -160,7 +160,7 @@ class StoresController extends BaseStoreManagementController
         $store->setRequireShippingMethodSelectionAtCheckout($this->request->getBodyParam('requireShippingMethodSelectionAtCheckout'));
         $store->setUseBillingAddressForTax($this->request->getBodyParam('useBillingAddressForTax'));
         $store->setValidateOrganizationTaxIdAsVatId($this->request->getBodyParam('validateOrganizationTaxIdAsVatId'));
-        $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
+        $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat'));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
         $store->primary = (bool)$this->request->getBodyParam('primary', $store->primary);
