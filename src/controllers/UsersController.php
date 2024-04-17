@@ -49,7 +49,7 @@ class UsersController extends BaseFrontEndController
         $view = Craft::$app->getView();
         $view->registerAssetBundle(CommerceCpAsset::class);
 
-        $config  = [
+        $config = [
             'context' => 'embedded-index',
             'sources' => false,
             'showSiteMenu' => true,
@@ -65,8 +65,8 @@ class UsersController extends BaseFrontEndController
                 Cp::elementIndexHtml(Order::class, ArrayHelper::merge($config, [
                     'id' => sprintf('element-index-%s', mt_rand()),
                     'jsSettings' => [
-                        'criteria' => ['isCompleted' => true]
-                    ]
+                        'criteria' => ['isCompleted' => true],
+                    ],
                 ])) .
             Html::endTag('div') .
 
@@ -80,8 +80,8 @@ class UsersController extends BaseFrontEndController
                         'criteria' => [
                             'isCompleted' => false,
                             'dateUpdated' => '>= ' . $edge,
-                        ]
-                    ]
+                        ],
+                    ],
                 ])) .
             Html::endTag('div') .
 
@@ -95,8 +95,8 @@ class UsersController extends BaseFrontEndController
                         'criteria' => [
                             'isCompleted' => false,
                             'dateUpdated' => '< ' . $edge,
-                        ]
-                    ]
+                        ],
+                    ],
                 ])) .
             Html::endTag('div');
 
