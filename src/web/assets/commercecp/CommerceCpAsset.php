@@ -8,9 +8,11 @@
 namespace craft\commerce\web\assets\commercecp;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
+use craft\models\Site;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
@@ -98,6 +100,12 @@ JS;
 
     private function _commerceData(): array
     {
+        $sitesStores = [];
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            /** @var Site|StoreBehavior $site */
+            $sitesStores[$site->id] = $site->getStore()->id;
+        }
+
         return [
             'editableProductTypes' => array_map(fn(ProductType $productType) => [
                 'id' => $productType->id,
@@ -105,6 +113,7 @@ JS;
                 'name' => Craft::t('site', $productType->name),
                 'handle' => $productType->handle,
             ], Plugin::getInstance()->getProductTypes()->getCreatableProductTypes()),
+            'sitesStores' => $sitesStores,
         ];
     }
 }

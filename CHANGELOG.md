@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added `craft\commerce\controllers\UsersController`.
 - Fixed a bug where stores’ “Order Reference Number Format” weren’t being saved to the database. ([#3454](https://github.com/craftcms/commerce/issues/3454))
 
 ## 5.0.0-beta.3 - 2024-04-10

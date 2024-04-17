@@ -56,8 +56,9 @@
 - Added `craft\commerce\base\StoreRecordTrait`.
 - Added `craft\commerce\base\StoreTrait`.
 - Added `craft\commerce\behaviors\StoreBehavior`.
-- Added `craft\commerce\collections\InventoryMovementCollection`
-- Added `craft\commerce\collections\UpdateInventoryLevelCollection`
+- Added `craft\commerce\collections\InventoryMovementCollection`.
+- Added `craft\commerce\collections\UpdateInventoryLevelCollection`.
+- Added `craft\commerce\collections\UsersController`.
 - Added `craft\commerce\console\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingController`.
 - Added `craft\commerce\controllers\CatalogPricingRulesController`.

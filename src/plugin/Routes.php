@@ -37,6 +37,10 @@ trait Routes
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
+            // User edit screen
+            $event->rules['myaccount/commerce'] = 'commerce/users/index';
+            $event->rules['users/<userId:\d+>/commerce'] = 'commerce/users/index';
+
             $event->rules['commerce/products'] = 'commerce/products/product-index';
             $event->rules['commerce/variants'] = 'commerce/variants/index';
             $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
