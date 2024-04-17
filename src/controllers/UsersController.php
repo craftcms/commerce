@@ -17,6 +17,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\CpScreenResponseBehavior;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\Response;
@@ -38,6 +39,8 @@ class UsersController extends BaseFrontEndController
      * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
+     * @throws \Throwable
+     * @throws InvalidConfigException
      */
     public function actionIndex(?int $userId = null): Response
     {
