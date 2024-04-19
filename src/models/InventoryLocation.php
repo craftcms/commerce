@@ -145,6 +145,7 @@ class InventoryLocation extends Model implements Chippable
     {
         $rules = parent::defineRules();
 
+        $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [
             ['name'],
             UniqueValidator::class,
