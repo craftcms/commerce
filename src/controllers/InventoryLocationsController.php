@@ -6,7 +6,8 @@ use Craft;
 use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
-use craft\helpers\Cp;
+use craft\elements\Address;
+use craft\fieldlayoutelements\addresses\AddressField;
 use craft\helpers\Html;
 use craft\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -99,32 +100,14 @@ class InventoryLocationsController extends Controller
             }
         }
 
-        $address = $inventoryLocation->getAddress();
-
-        if ($inventoryLocation->id && !$address->id) {
-            if (Craft::$app->getElements()->saveElement($address, false)) {
-                $inventoryLocation->setAddress($address);
-                Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation, false);
-            } else {
-                throw new \Exception('Could not save store location address');
-            }
-        }
-
-        $isNew = !$inventoryLocation->id;
-
-        $addressCardId = 'inventory-location-address';
-        $locationFieldHtml = Html::tag('div', Cp::elementCardHtml($address, [
-            'context' => 'field',
-            'inputName' => 'addressId',
-            'showActionMenu' => true,
-        ]), ['id' => $addressCardId]);
-
         $variables = [
             'inventoryLocationId' => $inventoryLocationId,
             'inventoryLocation' => $inventoryLocation,
             'typeName' => Craft::t('commerce', 'Inventory Location'),
             'lowerTypeName' => Craft::t('commerce', 'inventory location'),
-            'locationFieldHtml' => $locationFieldHtml,
+            'locationFieldHtml' => '',
+            'addressField' => new AddressField(),
+            'countries' => Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language),
         ];
 
         return $this->asCpScreen()
@@ -135,21 +118,7 @@ class InventoryLocationsController extends Controller
             ->redirectUrl('commerce/inventory/locations')
             ->selectedSubnavItem('inventory')
             ->contentTemplate('commerce/inventory/locations/_edit', $variables)
-            ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables)
-            ->prepareScreen(function() use ($isNew, $addressCardId) {
-                $view = Craft::$app->getView();
-                if (!$isNew) {
-                    $view->registerJsWithVars(fn($id, $elementType) => <<<JS
-let storeLocation = document.querySelector('#' + $id);
-storeLocation.addEventListener('dblclick', function() {
-  const slideout = Craft.createElementEditor(
-    $elementType,
-    storeLocation.querySelector('.element.card')
-  );
-});
-JS, [$addressCardId, 'craft\elements\Address']);
-                }
-            });
+            ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables);
     }
 
     /**
@@ -179,9 +148,44 @@ JS, [$addressCardId, 'craft\elements\Address']);
 
         $inventoryLocation->name = Craft::$app->getRequest()->getBodyParam('name');
         $inventoryLocation->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $inventoryLocation->addressId = Craft::$app->getRequest()->getBodyParam('addressId');
 
-        if (!Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation)) {
+        // Pre-validate the inventory location so that we don't save the address if the rest isn't valid
+        // This is to avoid orphaned addresses
+        $isValid = $inventoryLocation->validate();
+
+        if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
+            if ($isValid) {
+                $addressId = $inventoryLocationAddress['id'] ?: null;
+                $address = $addressId ? Craft::$app->getElements()->getElementById($addressId, Address::class) : new Address();
+
+                $address->id = $addressId;
+            } else {
+                $address = new Address();
+            }
+
+            $address->setAttributes($inventoryLocationAddress, false);
+
+            // Only try and save if the inventory location is valid
+            $hasAddressErrors = false;
+            if ($isValid && !Craft::$app->getElements()->saveElement($address)) {
+                $hasAddressErrors = $address->hasErrors();
+            } else {
+                // If we aren't saving the address let's validate it to show any potential errors
+                if (!$address->validate()) {
+                    $hasAddressErrors = $address->hasErrors();
+                }
+            }
+
+            if ($hasAddressErrors) {
+                $inventoryLocation->addModelErrors($address, 'address');
+            }
+
+            $inventoryLocation->setAddress($address);
+        }
+
+        $inventoryLocation->addressId = $inventoryLocation->getAddress()->id;
+
+        if ($inventoryLocation->hasErrors() || !Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation)) {
             return $this->asModelFailure(
                 model: $inventoryLocation,
                 message: Craft::t('commerce', 'Couldn’t save inventory location.'),

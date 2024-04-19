@@ -11,7 +11,6 @@ use craft\elements\Address;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Inventory Location model
@@ -94,13 +93,9 @@ class InventoryLocation extends Model implements Chippable
     /**
      * @param Address $address
      * @return void
-     * @throws InvalidConfigException
      */
     public function setAddress(Address $address): void
     {
-        if (!$address->id) {
-            throw new InvalidConfigException('Address must be saved before it can be set on an inventory location.');
-        }
         $this->setAddressId($address->id);
         $this->_address = $address;
     }
