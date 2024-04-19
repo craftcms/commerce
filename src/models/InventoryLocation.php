@@ -96,7 +96,7 @@ class InventoryLocation extends Model implements Chippable
      * @return void
      * @throws InvalidConfigException
      */
-    public function setAddress(Address $address)
+    public function setAddress(Address $address): void
     {
         if (!$address->id) {
             throw new InvalidConfigException('Address must be saved before it can be set on an inventory location.');
