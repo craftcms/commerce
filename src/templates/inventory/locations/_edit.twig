@@ -33,14 +33,6 @@
   <h2>{{ 'Address'|t('commerce') }}</h2>
   {{ hiddenInput('id', address.id) }}
 
-  {{ forms.textField({
-    id: 'label',
-    name: 'title',
-    label: 'Label'|t('commerce'),
-    value: address.title,
-    errors: address.getErrors('title'),
-  }) }}
-
   <div class="flex flex-nowrap">
     {{ forms.selectizeField({
       id: 'countryCode',

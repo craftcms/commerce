@@ -154,6 +154,7 @@ class InventoryLocationsController extends Controller
         $isValid = $inventoryLocation->validate();
 
         if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
+            $inventoryLocationAddress['title'] = $inventoryLocation->name;
             if ($isValid) {
                 $addressId = $inventoryLocationAddress['id'] ?: null;
                 $address = $addressId ? Craft::$app->getElements()->getElementById($addressId, Address::class) : new Address();
