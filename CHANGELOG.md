@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a date rendering bug on the Discount index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
+
 ## 4.5.3 - 2024-04-02
 
 - The “Postcode Condition Formula” condition rule now allows multi-line input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
