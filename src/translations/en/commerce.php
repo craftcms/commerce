@@ -602,6 +602,7 @@ return [
     'Link' => 'Link',
     'Live' => 'Live',
     'Location' => 'Location',
+    'Locations Assignment' => 'Locations Assignment',
     'Locations' => 'Locations',
     'MM' => 'MM',
     'Make a payment' => 'Make a payment',

@@ -4,6 +4,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\base\Chippable;
+use craft\base\CpEditable;
 use craft\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
@@ -11,13 +12,14 @@ use craft\elements\Address;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Inventory Location model
  *
  * @since 5.0
  */
-class InventoryLocation extends Model implements Chippable
+class InventoryLocation extends Model implements Chippable, CpEditable
 {
     /**
      * @var ?int
@@ -126,11 +128,17 @@ class InventoryLocation extends Model implements Chippable
     }
 
     /**
+     * @param int|null $storeId
      * @return string
+     * @throws InvalidConfigException
      */
-    public function cpEditUrl(): string
+    public function getCpEditUrl(?int $storeId = null): string
     {
-        return UrlHelper::cpUrl('commerce/inventory/locations/' . $this->id);
+        if ($storeId === null || !$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
+        return $store->getStoreSettingsUrl('inventory-locations/' . $this->id);
     }
 
     /**

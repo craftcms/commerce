@@ -1,12 +1,33 @@
-{% extends "commerce/_layouts/store-management" %}
-
-{% import "_includes/forms" as forms %}
-
-{% set fullPageForm = true %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+]) %}
 
 {% block content %}
-    {{ inventoryLocationsField|raw }}
-
-    {{ actionInput('commerce/inventory-locations-stores/save') }}
-    {{ hiddenInput('storeId', store.id) }}
+    <div id="locations-table"></div>
 {% endblock %}
+
+{% set tableData = [] %}
+
+{% js %}
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'address', title: Craft.t('commerce', 'Address') },
+        { name: 'delete', title: Craft.t('commerce', '') }
+    ];
+
+ window.InventoryLocationsAdminTable = new Craft.VueAdminTable({
+        checkboxes: false,
+        columns: columns,
+        fullPane: true,
+        container: '#locations-table',
+        emptyMessage: Craft.t('commerce', 'No inventory locations exist yet.'),
+        padded: true,
+        tableDataEndpoint: 'commerce/inventory-locations/inventory-locations-table-data',
+        onQueryParams: function(params) {
+          params.storeId = {{ store.id }};
+
+          return params;
+        },
+});
+{% endjs %}
