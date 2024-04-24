@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Fixed a date rendering bug on the Discount index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
-- Fixed a bug where carts created as a guest weren’t being associated with the user when they logged in. ([#3445](https://github.com/craftcms/commerce/issues/3445))
+- Fixed a bug where date ranges weren’t displayed correctly on the Discounts index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
+- Fixed a bug where guest carts weren’t getting assigned to users after login. ([#3445](https://github.com/craftcms/commerce/issues/3445))
 
 ## 4.5.3 - 2024-04-02
 
