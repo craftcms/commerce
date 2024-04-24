@@ -201,7 +201,7 @@ class InventoryLocationsController extends Controller
         );
     }
 
-    public function actionInventoryLocationsTableData()
+    public function actionInventoryLocationsTableData(): Response
     {
         $this->requireAcceptsJson();
         $view = $this->getView();
@@ -256,7 +256,7 @@ JS, [
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\web\BadRequestHttpException
      */
-    public function actionPrepareDeleteModal()
+    public function actionPrepareDeleteModal(): Response
     {
         $this->requireAcceptsJson();
         $inventoryLocationId = Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
@@ -284,7 +284,7 @@ JS, [
             ]);
     }
 
-    public function actionDeactivate()
+    public function actionDeactivate(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
