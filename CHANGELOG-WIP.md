@@ -171,6 +171,10 @@
 - Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
 - Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController`.
+- Removed `craft\commerce\elements\Product::$availableForPurchase`. `craft\commerce\base\Purchasable::$availableForPurchase` can be used instead.
+- Removed `craft\commerce\elements\Product::$promotable`. `craft\commerce\base\Purchasable::$promotable` can be used instead.
+- Removed `craft\commerce\elements\Product::$shippingCategoryId`. `craft\commerce\base\Purchasable::$shippingCategoryId` can be used instead.
+- Removed `craft\commerce\elements\Product::$taxCategoryId`. `craft\commerce\base\Purchasable::$taxCategoryId` can be used instead.
 - Removed `craft\commerce\elements\Variant::$stock`. `craft\commerce\base\Purchasable::getStock()` can be used instead.
 - Removed `craft\commerce\helpers\Product`.
 - Removed `craft\commerce\helpers\VariantMatrix`.
