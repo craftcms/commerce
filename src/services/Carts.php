@@ -342,12 +342,26 @@ class Carts extends Component
             ->trashed(false)
             ->one();
 
+        /** @var Order|null $currentCartInSession */
+        $currentCartInSession = Order::find()
+            ->number($this->getSessionCartNumber())
+            ->isCompleted(false)
+            ->hasLineItems()
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
             $previousCartsWithLineItems
         ) {
+            // Restore previous cart that has line items
             $this->_cart = $previousCartsWithLineItems;
             $this->setSessionCartNumber($previousCartsWithLineItems->number);
+        } elseif ($currentUser && $currentCartInSession) {
+            // Give the cart to the current customer if they are logging in and there are items in the cart
+            // Call get cart as this will switch the user and save it if needed
+            $this->getCart();
         } elseif ($currentUser && $anyPreviousCart) {
+            // Finally try to restore any other previous cart for the customer
             $this->_cart = $anyPreviousCart;
             $this->setSessionCartNumber($anyPreviousCart->number);
         }

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 4.5.4 - 2024-04-24
+
+- Fixed a bug where date ranges weren’t displayed correctly on the Discounts index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
+- Fixed a bug where guest carts weren’t getting assigned to users after login. ([#3445](https://github.com/craftcms/commerce/issues/3445))
+
 ## 4.5.3 - 2024-04-02
 
 - The “Postcode Condition Formula” condition rule now allows multi-line input. ([#3147](https://github.com/craftcms/commerce/issues/3147)
