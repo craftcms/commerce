@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.5.4 - 2024-04-24
 
 - Fixed a bug where date ranges weren’t displayed correctly on the Discounts index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
 - Fixed a bug where guest carts weren’t getting assigned to users after login. ([#3445](https://github.com/craftcms/commerce/issues/3445))
