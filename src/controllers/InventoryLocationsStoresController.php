@@ -22,9 +22,17 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
      *
      * @return Response
      */
-    public function actionIndex(): Response
+    public function actionIndex(string $storeHandle = null): Response
     {
-        $store = Plugin::getInstance()->getStores()->getStoreByHandle(Craft::$app->getRequest()->getSegment(3));
+        if ($storeHandle) {
+            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
+            if ($store === null) {
+                throw new InvalidConfigException('Invalid store.');
+            }
+        } else {
+            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        }
+
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($store->id);
         $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
         $currentUser = Craft::$app->getUser()->getIdentity();
