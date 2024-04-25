@@ -364,10 +364,17 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') || Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels')) {
             $ret['subnav']['inventory'] = [
                 'label' => Craft::t('commerce', 'Inventory'),
                 'url' => 'commerce/inventory',
+            ];
+        }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
+            $ret['subnav']['inventory-locations'] = [
+                'label' => Craft::t('commerce', 'Inventory Locations'),
+                'url' => 'commerce/inventory-locations',
             ];
         }
 

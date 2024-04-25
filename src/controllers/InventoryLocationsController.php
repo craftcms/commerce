@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\controllers;
 
@@ -6,15 +11,24 @@ use Craft;
 use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
-use craft\helpers\Cp;
+use craft\elements\Address;
+use craft\errors\DeprecationException;
+use craft\errors\ElementNotFoundException;
+use craft\fieldlayoutelements\addresses\AddressField;
 use craft\helpers\Html;
 use craft\web\Controller;
+use Throwable;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
  * Inventory Locations controller
  *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
 class InventoryLocationsController extends Controller
@@ -36,6 +50,9 @@ class InventoryLocationsController extends Controller
      * Inventory Locations index
      *
      * @return Response
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     public function actionIndex(): Response
     {
@@ -45,10 +62,8 @@ class InventoryLocationsController extends Controller
 
         $screen = $this->asCpScreen()
             ->title(Craft::t('commerce', 'Inventory Locations'))
-            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
-            ->selectedSubnavItem('inventory')
-            ->pageSidebarTemplate('commerce/inventory/_sidebar', $variables)
-            ->contentTemplate('commerce/inventory/locations/_index', $variables);
+            ->selectedSubnavItem('inventory-locations')
+            ->contentTemplate('commerce/inventory-locations/_index', $variables);
 
         $locationCount = count($inventoryLocations);
         $showNewButton = false;
@@ -61,7 +76,7 @@ class InventoryLocationsController extends Controller
         if ($userCanCreate && $showNewButton) {
             $button = Html::a(
                 Craft::t('commerce', 'New location'),
-                'commerce/inventory/locations/new',
+                'commerce/inventory-locations/new',
                 [
                     'class' => 'btn submit add icon',
                 ]);
@@ -75,7 +90,8 @@ class InventoryLocationsController extends Controller
      * @param int|null $inventoryLocationId
      * @param InventoryLocation|null $inventoryLocation
      * @return Response
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws NotFoundHttpException
      */
     public function actionEdit(?int $inventoryLocationId = null, ?InventoryLocation $inventoryLocation = null): Response
     {
@@ -99,67 +115,33 @@ class InventoryLocationsController extends Controller
             }
         }
 
-        $address = $inventoryLocation->getAddress();
-
-        if ($inventoryLocation->id && !$address->id) {
-            if (Craft::$app->getElements()->saveElement($address, false)) {
-                $inventoryLocation->setAddress($address);
-                Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation, false);
-            } else {
-                throw new \Exception('Could not save store location address');
-            }
-        }
-
-        $isNew = !$inventoryLocation->id;
-
-        $addressCardId = 'inventory-location-address';
-        $locationFieldHtml = Html::tag('div', Cp::elementCardHtml($address, [
-            'context' => 'field',
-            'inputName' => 'addressId',
-            'showActionMenu' => true,
-        ]), ['id' => $addressCardId]);
-
         $variables = [
             'inventoryLocationId' => $inventoryLocationId,
             'inventoryLocation' => $inventoryLocation,
             'typeName' => Craft::t('commerce', 'Inventory Location'),
             'lowerTypeName' => Craft::t('commerce', 'inventory location'),
-            'locationFieldHtml' => $locationFieldHtml,
+            'locationFieldHtml' => '',
+            'addressField' => new AddressField(),
+            'countries' => Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language),
         ];
 
         return $this->asCpScreen()
             ->title($title)
-            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
-            ->addCrumb(Craft::t('app', 'Locations'), 'commerce/inventory/locations')
+            ->addCrumb(Craft::t('app', 'Inventory Locations'), 'commerce/inventory-locations')
             ->action('commerce/inventory-locations/save')
-            ->redirectUrl('commerce/inventory/locations')
-            ->selectedSubnavItem('inventory')
-            ->contentTemplate('commerce/inventory/locations/_edit', $variables)
-            ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables)
-            ->prepareScreen(function() use ($isNew, $addressCardId) {
-                $view = Craft::$app->getView();
-                if (!$isNew) {
-                    $view->registerJsWithVars(fn($id, $elementType) => <<<JS
-let storeLocation = document.querySelector('#' + $id);
-storeLocation.addEventListener('dblclick', function() {
-  const slideout = Craft.createElementEditor(
-    $elementType,
-    storeLocation.querySelector('.element.card')
-  );
-});
-JS, [$addressCardId, 'craft\elements\Address']);
-                }
-            });
+            ->redirectUrl('commerce/inventory-locations')
+            ->selectedSubnavItem('inventory-locations')
+            ->contentTemplate('commerce/inventory-locations/_edit', $variables)
+            ->metaSidebarTemplate('commerce/inventory-locations/_sidebar', $variables);
     }
 
     /**
-     * @return Response
-     * @throws \yii\base\ErrorException
+     * @return Response|null
+     * @throws InvalidConfigException
+     * @throws MethodNotAllowedHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\web\MethodNotAllowedHttpException
-     * @throws \yii\web\ServerErrorHttpException
      */
     public function actionSave(): ?Response
     {
@@ -179,9 +161,45 @@ JS, [$addressCardId, 'craft\elements\Address']);
 
         $inventoryLocation->name = Craft::$app->getRequest()->getBodyParam('name');
         $inventoryLocation->handle = Craft::$app->getRequest()->getBodyParam('handle');
-        $inventoryLocation->addressId = Craft::$app->getRequest()->getBodyParam('addressId');
 
-        if (!Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation)) {
+        // Pre-validate the inventory location so that we don't save the address if the rest isn't valid
+        // This is to avoid orphaned addresses
+        $isValid = $inventoryLocation->validate();
+
+        if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
+            $inventoryLocationAddress['title'] = $inventoryLocation->name;
+            if ($isValid) {
+                $addressId = $inventoryLocationAddress['id'] ?: null;
+                $address = $addressId ? Craft::$app->getElements()->getElementById($addressId, Address::class) : new Address();
+
+                $address->id = $addressId;
+            } else {
+                $address = new Address();
+            }
+
+            $address->setAttributes($inventoryLocationAddress, false);
+
+            // Only try and save if the inventory location is valid
+            $hasAddressErrors = false;
+            if ($isValid && !Craft::$app->getElements()->saveElement($address)) {
+                $hasAddressErrors = $address->hasErrors();
+            } else {
+                // If we aren't saving the address let's validate it to show any potential errors
+                if (!$address->validate()) {
+                    $hasAddressErrors = $address->hasErrors();
+                }
+            }
+
+            if ($hasAddressErrors) {
+                $inventoryLocation->addModelErrors($address, 'address');
+            }
+
+            $inventoryLocation->setAddress($address);
+        }
+
+        $inventoryLocation->addressId = $inventoryLocation->getAddress()->id;
+
+        if ($inventoryLocation->hasErrors() || !Plugin::getInstance()->getInventoryLocations()->saveInventoryLocation($inventoryLocation)) {
             return $this->asModelFailure(
                 model: $inventoryLocation,
                 message: Craft::t('commerce', 'Couldn’t save inventory location.'),
@@ -196,7 +214,13 @@ JS, [$addressCardId, 'craft\elements\Address']);
         );
     }
 
-    public function actionInventoryLocationsTableData()
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     */
+    public function actionInventoryLocationsTableData(): Response
     {
         $this->requireAcceptsJson();
         $view = $this->getView();
@@ -233,7 +257,7 @@ JS, [
                 'title' => $inventoryLocation->name,
                 'handle' => $inventoryLocation->handle,
                 'address' => $inventoryLocation->getAddressLine(),
-                'url' => $inventoryLocation->cpEditUrl(),
+                'url' => $inventoryLocation->getCpEditUrl(),
                 'delete' => $deleteButton,
             ];
         }
@@ -247,11 +271,11 @@ JS, [
 
     /**
      * @return \craft\web\Response
-     * @throws \craft\errors\DeprecationException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
-    public function actionPrepareDeleteModal()
+    public function actionPrepareDeleteModal(): Response
     {
         $this->requireAcceptsJson();
         $inventoryLocationId = Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
@@ -273,13 +297,21 @@ JS, [
             ->action('commerce/inventory-locations/deactivate')
             ->submitButtonLabel(Craft::t('commerce', 'Delete'))
             ->errorSummary('errors man')
-            ->contentTemplate('commerce/inventory/locations/_deleteModal', [
+            ->contentTemplate('commerce/inventory-locations/_deleteModal', [
                 'deactivateInventoryLocation' => $deactivateInventoryLocation,
                 'inventoryLocationOptions' => $destinationInventoryLocationsOptions,
             ]);
     }
 
-    public function actionDeactivate()
+    /**
+     * @return Response
+     * @throws Throwable
+     * @throws InvalidConfigException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     * @throws MethodNotAllowedHttpException
+     */
+    public function actionDeactivate(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

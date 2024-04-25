@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\web\Response as YiiResponse;
 
 /**
@@ -44,6 +45,7 @@ class BaseStoreManagementController extends BaseCpController
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     protected function getStoreSettingsNav(): array
     {
@@ -55,15 +57,6 @@ class BaseStoreManagementController extends BaseCpController
         $this->storeSettingsNav['payment-currencies'] = [
             'label' => Craft::t('commerce', 'Payment Currencies'),
             'path' => 'payment-currencies',
-        ];
-
-        $this->storeSettingsNav['inventory-heading'] = [
-            'heading' => Craft::t('commerce', 'Inventory'),
-        ];
-
-        $this->storeSettingsNav['inventory-locations'] = [
-            'label' => Craft::t('commerce', "Locations"),
-            'path' => 'inventory-locations',
         ];
 
         // TODO: Split into separate permissions
