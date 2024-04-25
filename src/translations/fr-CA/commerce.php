@@ -1310,7 +1310,6 @@ return [
     '{count} Unfulfilled Orders' => '{count} Unfulfilled Orders',
     '{description} is no longer available.' => '{description} n\'est plus disponible.',
     '{description} only has {stock} in stock.' => '{description} n\'a que {stock} unités en stock.',
-    '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}' => '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
     '{name} (Primary)' => '{name} (primaire)',
     '{name} (Trashed)' => '{name} (Trashed)',
     '{name} catalog price' => '{name} catalog price',
