@@ -1,32 +1,43 @@
 {% extends "commerce/_layouts/store-management" %}
 
 {% import "_includes/forms" as forms %}
+
 {% set fullPageForm = true %}
+
 {% block content %}
 
-    {{ actionInput('commerce/store-management/save') }}
-    {{ redirectInput(store.getStoreSettingsUrl()) }}
-    {{ hiddenInput('id', store.id) }}
-    {{ hiddenInput('locationAddressId', storeSettings.locationAddress.id) }}
+  {{ actionInput('commerce/store-management/save') }}
+  {{ redirectInput(store.getStoreSettingsUrl()) }}
+  {{ hiddenInput('id', store.id) }}
+  {{ hiddenInput('locationAddressId', storeSettings.locationAddress.id) }}
 
-    <h2 class="first">{{ "Store Location"|t('commerce') }}</h2>
-    <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
+  <h2 class="first">{{ "Store Location"|t('commerce') }}</h2>
+  <p>{{ 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.'|t('commerce') }}</p>
 
-    <div id="commerce-store-location">
-      {{ locationField|raw }}
-    </div>
+  <div id="commerce-store-location">
+    {{ locationField|raw }}
+  </div>
 
+  <hr>
+
+  <h2>{{ "Store Markets"|t('commerce') }}</h2>
+
+  {{ countriesField|raw }}
+
+  {{ marketAddressConditionField|raw }}
+
+  {{ actionInput('commerce/store-management/save') }}
+  {{ redirectInput(store.getStoreSettingsUrl()) }}
+  {{ hiddenInput('id', store.id) }}
+
+
+  {% if currentUser and currentUser.can('commerce-manageInventoryLocations') %}
     <hr>
 
-    <h2>{{ "Store Markets"|t('commerce') }}</h2>
+    <h2>{{ 'Inventory Locations'|t('commerce') }}</h2>
 
-    {{ countriesField|raw }}
-
-    {{ marketAddressConditionField|raw }}
-
-    {{ actionInput('commerce/store-management/save') }}
-    {{ redirectInput(store.getStoreSettingsUrl()) }}
-    {{ hiddenInput('id', store.id) }}
+    {{ inventoryLocationsField|raw }}
+  {% endif %}
 
 {% endblock %}
 

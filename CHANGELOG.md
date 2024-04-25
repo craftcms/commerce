@@ -5,6 +5,7 @@
 - Added `craft\commerce\controllers\UsersController`.
 - Fixed a bug where stores’ “Order Reference Number Format” weren’t being saved to the database. ([#3454](https://github.com/craftcms/commerce/issues/3454))
 - Fixed a bug where inventory locations weren’t requiring a name and handle. 
+- Fixed an error that could occur when saving a tax rate. ([#3461](https://github.com/craftcms/commerce/issues/3461))
 
 ## 5.0.0-beta.3 - 2024-04-10
 
