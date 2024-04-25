@@ -66,7 +66,7 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
         return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($id);
     }
 
-    /*
+    /**
      * @inheritdoc
      */
     public function getUiLabel(): string
