@@ -13,7 +13,6 @@ use craft\elements\Address;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Inventory Location model

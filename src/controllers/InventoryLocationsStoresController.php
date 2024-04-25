@@ -5,9 +5,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\Plugin;
-use craft\errors\DeprecationException;
 use craft\web\Controller;
-use yii\base\InvalidConfigException;
 use yii\web\Response;
 
 /**
@@ -22,11 +20,7 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
     /**
      * Inventory Locations index
      *
-     * @param string|null $storeHandle
      * @return Response
-     * @throws \Throwable
-     * @throws DeprecationException
-     * @throws InvalidConfigException
      */
     public function actionIndex(string $storeHandle = null): Response
     {
@@ -79,7 +73,7 @@ class InventoryLocationsStoresController extends BaseStoreManagementController
             'store' => $store,
         ];
 
-        return $this->renderTemplate('commerce/store-management/inventory-locations/_assignment', $variables);
+        return $this->renderTemplate('commerce/store-management/inventory-locations/index', $variables);
     }
 
     public function actionSave()

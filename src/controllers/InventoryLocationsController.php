@@ -7,26 +7,18 @@ use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\elements\Address;
-use craft\errors\DeprecationException;
 use craft\fieldlayoutelements\addresses\AddressField;
 use craft\helpers\Html;
-use Throwable;
-use yii\base\ErrorException;
-use yii\base\Exception;
-use yii\base\InvalidConfigException;
-use yii\base\NotSupportedException;
-use yii\web\BadRequestHttpException;
-use yii\web\MethodNotAllowedHttpException;
+use craft\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use yii\web\ServerErrorHttpException;
 
 /**
  * Inventory Locations controller
  *
  * @since 5.0.0
  */
-class InventoryLocationsController extends BaseStoreManagementController
+class InventoryLocationsController extends Controller
 {
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
@@ -44,35 +36,20 @@ class InventoryLocationsController extends BaseStoreManagementController
     /**
      * Inventory Locations index
      *
-     * @param string|null $storeHandle
      * @return Response
-     * @throws InvalidConfigException
-     * @throws Throwable
-     * @throws DeprecationException
      */
-    public function actionIndex(string $storeHandle = null): Response
+    public function actionIndex(): Response
     {
-        if ($storeHandle) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
-            if ($store === null) {
-                throw new InvalidConfigException('Invalid store.');
-            }
-        } else {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-        }
-
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $variables = [
-            'store' => $store,
-            'storeSettingsNav' => $this->getStoreSettingsNav(),
-            'selectedItem' => 'inventory-locations',
-        ];
+        $variables = [];
 
         $screen = $this->asCpScreen()
-            ->title(Craft::t('commerce', 'Store Management'))
-            ->pageSidebarTemplate('commerce/_includes/_storeManagementNav', $variables)
-            ->contentTemplate('commerce/store-management/inventory-locations/index', $variables);
+            ->title(Craft::t('commerce', 'Inventory Locations'))
+            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
+            ->selectedSubnavItem('inventory')
+            ->pageSidebarTemplate('commerce/inventory/_sidebar', $variables)
+            ->contentTemplate('commerce/inventory/locations/_index', $variables);
 
         $locationCount = count($inventoryLocations);
         $showNewButton = false;
@@ -83,13 +60,13 @@ class InventoryLocationsController extends BaseStoreManagementController
         }
 
         if ($userCanCreate && $showNewButton) {
-            $screen->additionalButtonsHtml(Html::a(
+            $button = Html::a(
                 Craft::t('commerce', 'New location'),
-                'commerce/store-management/' . $store->handle . '/inventory-locations/new',
+                'commerce/inventory/locations/new',
                 [
                     'class' => 'btn submit add icon',
-                ]
-            ));
+                ]);
+            $screen->additionalButtonsHtml($button);
         }
 
         return $screen;
@@ -99,19 +76,10 @@ class InventoryLocationsController extends BaseStoreManagementController
      * @param int|null $inventoryLocationId
      * @param InventoryLocation|null $inventoryLocation
      * @return Response
-     * @throws InvalidConfigException
+     * @throws \yii\base\InvalidConfigException
      */
-    public function actionEdit(?string $storeHandle = null, ?int $inventoryLocationId = null, ?InventoryLocation $inventoryLocation = null): Response
+    public function actionEdit(?int $inventoryLocationId = null, ?InventoryLocation $inventoryLocation = null): Response
     {
-        if ($storeHandle) {
-            $store = Plugin::getInstance()->getStores()->getStoreByHandle($storeHandle);
-            if ($store === null) {
-                throw new InvalidConfigException('Invalid store.');
-            }
-        } else {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-        }
-
         if ($inventoryLocationId !== null) {
             if ($inventoryLocation === null) {
                 $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
@@ -137,28 +105,30 @@ class InventoryLocationsController extends BaseStoreManagementController
             'inventoryLocation' => $inventoryLocation,
             'typeName' => Craft::t('commerce', 'Inventory Location'),
             'lowerTypeName' => Craft::t('commerce', 'inventory location'),
+            'locationFieldHtml' => '',
             'addressField' => new AddressField(),
             'countries' => Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language),
         ];
 
         return $this->asCpScreen()
             ->title($title)
-            ->addCrumb(Craft::t('site', $store->getName()), 'commerce/store-management/' . $store->handle)
-            ->addCrumb(Craft::t('app', 'Locations'), 'commerce/store-management/' . $store->handle . '/inventory-locations')
+            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
+            ->addCrumb(Craft::t('app', 'Locations'), 'commerce/inventory/locations')
             ->action('commerce/inventory-locations/save')
-            ->redirectUrl('commerce/store-management/' . $store->handle . '/inventory-locations')
-            ->contentTemplate('commerce/store-management/inventory-locations/_edit', $variables)
-            ->metaSidebarTemplate('commerce/store-management/inventory-locations/_sidebar', $variables);
+            ->redirectUrl('commerce/inventory/locations')
+            ->selectedSubnavItem('inventory')
+            ->contentTemplate('commerce/inventory/locations/_edit', $variables)
+            ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables);
     }
 
     /**
      * @return Response
-     * @throws ErrorException
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws MethodNotAllowedHttpException
-     * @throws ServerErrorHttpException
+     * @throws \yii\base\ErrorException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\base\NotSupportedException
+     * @throws \yii\web\MethodNotAllowedHttpException
+     * @throws \yii\web\ServerErrorHttpException
      */
     public function actionSave(): ?Response
     {
@@ -231,18 +201,9 @@ class InventoryLocationsController extends BaseStoreManagementController
         );
     }
 
-    /**
-     * @return Response
-     * @throws DeprecationException
-     * @throws InvalidConfigException
-     * @throws BadRequestHttpException
-     */
     public function actionInventoryLocationsTableData(): Response
     {
         $this->requireAcceptsJson();
-        $storeId = Craft::$app->getRequest()->getQueryParam('storeId', null);
-        $storeId = $storeId ?: Plugin::getInstance()->getStores()->getPrimaryStore()->id;
-
         $view = $this->getView();
         $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
 
@@ -277,7 +238,7 @@ JS, [
                 'title' => $inventoryLocation->name,
                 'handle' => $inventoryLocation->handle,
                 'address' => $inventoryLocation->getAddressLine(),
-                'url' => $inventoryLocation->getCpEditUrl($storeId),
+                'url' => $inventoryLocation->cpEditUrl(),
                 'delete' => $deleteButton,
             ];
         }
@@ -291,9 +252,9 @@ JS, [
 
     /**
      * @return \craft\web\Response
-     * @throws DeprecationException
-     * @throws InvalidConfigException
-     * @throws BadRequestHttpException
+     * @throws \craft\errors\DeprecationException
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
      */
     public function actionPrepareDeleteModal(): Response
     {
@@ -317,7 +278,7 @@ JS, [
             ->action('commerce/inventory-locations/deactivate')
             ->submitButtonLabel(Craft::t('commerce', 'Delete'))
             ->errorSummary('errors man')
-            ->contentTemplate('commerce/store-management/inventory-locations/_deleteModal', [
+            ->contentTemplate('commerce/inventory/locations/_deleteModal', [
                 'deactivateInventoryLocation' => $deactivateInventoryLocation,
                 'inventoryLocationOptions' => $destinationInventoryLocationsOptions,
             ]);
