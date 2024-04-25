@@ -107,9 +107,6 @@ trait Routes
 
             $event->rules['commerce/store-management/<storeHandle:{handle}>/donation'] = 'commerce/donations/edit';
 
-            // Inventory
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/inventory-locations'] = 'commerce/inventory-locations-stores/index';
-
             // Shipping
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones'] = 'commerce/shipping-zones/index';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones/new'] = 'commerce/shipping-zones/edit';
