@@ -1310,7 +1310,6 @@ return [
     '{count} Unfulfilled Orders' => '{count} Unfulfilled Orders',
     '{description} is no longer available.' => '{description}はご利用いただけません。',
     '{description} only has {stock} in stock.' => '{description}の在庫数は {stock} のみです。',
-    '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}' => '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
     '{name} (Primary)' => '{name} (既定)',
     '{name} (Trashed)' => '{name} (Trashed)',
     '{name} catalog price' => '{name} catalog price',
