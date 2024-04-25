@@ -1310,7 +1310,6 @@ return [
     '{count} Unfulfilled Orders' => '{count} Unfulfilled Orders',
     '{description} is no longer available.' => '{description} er ikke tilgjengelig lenger.',
     '{description} only has {stock} in stock.' => '{description} har bare {stock} på lager.',
-    '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}' => '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
     '{name} (Primary)' => '{name} (Primære)',
     '{name} (Trashed)' => '{name} (Trashed)',
     '{name} catalog price' => '{name} catalog price',
