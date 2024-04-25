@@ -1310,7 +1310,6 @@ return [
     '{count} Unfulfilled Orders' => 'Nesplnené objednávky: {count}',
     '{description} is no longer available.' => '{description} už nie je dostupný.',
     '{description} only has {stock} in stock.' => 'Počet kusov {description} na sklade je už len {stock}.',
-    '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}' => '{first, number}-{last, number} of {total, number} {total, plural, =1{{item}} other{{items}}}',
     '{name} (Primary)' => '{name} (Hlavná)',
     '{name} (Trashed)' => '{name} (Zahodené do koša)',
     '{name} catalog price' => '{name} katalógová cena',
