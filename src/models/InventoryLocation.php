@@ -3,12 +3,14 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Actionable;
 use craft\base\Chippable;
 use craft\base\CpEditable;
 use craft\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\elements\Address;
+use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
@@ -18,7 +20,7 @@ use yii\base\InvalidConfigException;
  *
  * @since 5.0
  */
-class InventoryLocation extends Model implements Chippable, CpEditable
+class InventoryLocation extends Model implements Chippable, CpEditable, Actionable
 {
     /**
      * @var ?int
@@ -56,7 +58,7 @@ class InventoryLocation extends Model implements Chippable, CpEditable
     private ?Address $_address = null;
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
@@ -65,7 +67,7 @@ class InventoryLocation extends Model implements Chippable, CpEditable
     }
 
     /*
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -127,21 +129,15 @@ class InventoryLocation extends Model implements Chippable, CpEditable
     }
 
     /**
-     * @param int|null $storeId
      * @return string
-     * @throws InvalidConfigException
      */
-    public function getCpEditUrl(?int $storeId = null): string
+    public function getCpEditUrl(): string
     {
-        if ($storeId === null || !$store = Plugin::getInstance()->getStores()->getStoreById($storeId)) {
-            $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-        }
-
-        return $store->getStoreSettingsUrl('inventory-locations/' . $this->id);
+        return UrlHelper::cpUrl('commerce/inventory-locations/' . $this->id);
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function defineRules(): array
     {
@@ -168,10 +164,24 @@ class InventoryLocation extends Model implements Chippable, CpEditable
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getId(): string|int|null
     {
         return $this->id;
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public function getActionMenuItems(): array
+    {
+        return [
+            [
+                'label' => Craft::t('commerce', 'Edit'),
+                'url' => $this->getCpEditUrl(),
+                'icon' => 'edit',
+            ],
+        ];
     }
 }
