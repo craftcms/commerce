@@ -157,9 +157,9 @@ trait Routes
             $event->rules['commerce/inventory/item/<inventoryItemId:\d+>'] = 'commerce/inventory/item-edit';
             $event->rules['commerce/inventory/levels/<inventoryLocationHandle:{handle}>'] = 'commerce/inventory/edit-location-levels';
 
-            $event->rules['commerce/inventory/locations'] = 'commerce/inventory-locations/index';
-            $event->rules['commerce/inventory/locations/new'] = 'commerce/inventory-locations/edit';
-            $event->rules['commerce/inventory/locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
+            $event->rules['commerce/inventory-locations'] = 'commerce/inventory-locations/index';
+            $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
+            $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
 
             $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
             $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';

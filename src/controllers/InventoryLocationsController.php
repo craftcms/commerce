@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\controllers;
 
@@ -7,15 +12,23 @@ use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\Plugin;
 use craft\elements\Address;
+use craft\errors\DeprecationException;
+use craft\errors\ElementNotFoundException;
 use craft\fieldlayoutelements\addresses\AddressField;
 use craft\helpers\Html;
 use craft\web\Controller;
+use Throwable;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
  * Inventory Locations controller
  *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
 class InventoryLocationsController extends Controller
@@ -37,6 +50,9 @@ class InventoryLocationsController extends Controller
      * Inventory Locations index
      *
      * @return Response
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     public function actionIndex(): Response
     {
@@ -46,10 +62,8 @@ class InventoryLocationsController extends Controller
 
         $screen = $this->asCpScreen()
             ->title(Craft::t('commerce', 'Inventory Locations'))
-            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
-            ->selectedSubnavItem('inventory')
-            ->pageSidebarTemplate('commerce/inventory/_sidebar', $variables)
-            ->contentTemplate('commerce/inventory/locations/_index', $variables);
+            ->selectedSubnavItem('inventory-locations')
+            ->contentTemplate('commerce/inventory-locations/_index', $variables);
 
         $locationCount = count($inventoryLocations);
         $showNewButton = false;
@@ -62,7 +76,7 @@ class InventoryLocationsController extends Controller
         if ($userCanCreate && $showNewButton) {
             $button = Html::a(
                 Craft::t('commerce', 'New location'),
-                'commerce/inventory/locations/new',
+                'commerce/inventory-locations/new',
                 [
                     'class' => 'btn submit add icon',
                 ]);
@@ -76,7 +90,8 @@ class InventoryLocationsController extends Controller
      * @param int|null $inventoryLocationId
      * @param InventoryLocation|null $inventoryLocation
      * @return Response
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @throws NotFoundHttpException
      */
     public function actionEdit(?int $inventoryLocationId = null, ?InventoryLocation $inventoryLocation = null): Response
     {
@@ -112,23 +127,21 @@ class InventoryLocationsController extends Controller
 
         return $this->asCpScreen()
             ->title($title)
-            ->addCrumb(Craft::t('app', 'Inventory'), 'commerce/inventory')
-            ->addCrumb(Craft::t('app', 'Locations'), 'commerce/inventory/locations')
+            ->addCrumb(Craft::t('app', 'Inventory Locations'), 'commerce/inventory-locations')
             ->action('commerce/inventory-locations/save')
-            ->redirectUrl('commerce/inventory/locations')
-            ->selectedSubnavItem('inventory')
-            ->contentTemplate('commerce/inventory/locations/_edit', $variables)
-            ->metaSidebarTemplate('commerce/inventory/locations/_sidebar', $variables);
+            ->redirectUrl('commerce/inventory-locations')
+            ->selectedSubnavItem('inventory-locations')
+            ->contentTemplate('commerce/inventory-locations/_edit', $variables)
+            ->metaSidebarTemplate('commerce/inventory-locations/_sidebar', $variables);
     }
 
     /**
-     * @return Response
-     * @throws \yii\base\ErrorException
+     * @return Response|null
+     * @throws InvalidConfigException
+     * @throws MethodNotAllowedHttpException
+     * @throws Throwable
+     * @throws ElementNotFoundException
      * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\base\NotSupportedException
-     * @throws \yii\web\MethodNotAllowedHttpException
-     * @throws \yii\web\ServerErrorHttpException
      */
     public function actionSave(): ?Response
     {
@@ -201,6 +214,12 @@ class InventoryLocationsController extends Controller
         );
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     */
     public function actionInventoryLocationsTableData(): Response
     {
         $this->requireAcceptsJson();
@@ -238,7 +257,7 @@ JS, [
                 'title' => $inventoryLocation->name,
                 'handle' => $inventoryLocation->handle,
                 'address' => $inventoryLocation->getAddressLine(),
-                'url' => $inventoryLocation->cpEditUrl(),
+                'url' => $inventoryLocation->getCpEditUrl(),
                 'delete' => $deleteButton,
             ];
         }
@@ -252,9 +271,9 @@ JS, [
 
     /**
      * @return \craft\web\Response
-     * @throws \craft\errors\DeprecationException
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
     public function actionPrepareDeleteModal(): Response
     {
@@ -278,12 +297,20 @@ JS, [
             ->action('commerce/inventory-locations/deactivate')
             ->submitButtonLabel(Craft::t('commerce', 'Delete'))
             ->errorSummary('errors man')
-            ->contentTemplate('commerce/inventory/locations/_deleteModal', [
+            ->contentTemplate('commerce/inventory-locations/_deleteModal', [
                 'deactivateInventoryLocation' => $deactivateInventoryLocation,
                 'inventoryLocationOptions' => $destinationInventoryLocationsOptions,
             ]);
     }
 
+    /**
+     * @return Response
+     * @throws Throwable
+     * @throws InvalidConfigException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     * @throws MethodNotAllowedHttpException
+     */
     public function actionDeactivate(): Response
     {
         $this->requirePostRequest();
