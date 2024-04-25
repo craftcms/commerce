@@ -17,7 +17,8 @@ use DateTime;
 /**
  * Inventory Location model
  *
- * @since 5.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 5.0.0
  */
 class InventoryLocation extends Model implements Chippable, CpEditable, Actionable
 {
