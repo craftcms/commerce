@@ -1117,7 +1117,7 @@ return [
     'Value of products before any discounts are applied.' => 'Valeur des produits avant l\'application de toute réduction.',
     'Value of products with applied discounts.' => 'Valeur des produits avec les réductions appliquées.',
     'Variant Fields' => 'Champs de variante',
-    'Variant Has Unlimited Stock' => 'La variante a un stock illimité',
+    'Variant Has Unlimited Stock' => 'La variante a des stocks illimités',
     'Variant Price' => 'Prix de la variante',
     'Variant SKU' => 'UGS de la variante',
     'Variant Stock' => 'Stock de la variante',
