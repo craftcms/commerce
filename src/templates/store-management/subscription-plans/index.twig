@@ -31,7 +31,7 @@
   {% set tableData = tableData|merge([{
     id: plan.id,
     title: plan.name|t('site'),
-    url: url('commerce/store-management/'~storeHandle~'/subscription-plans/plan/'~plan.id),
+    url: url('commerce/store-management/'~storeHandle~'/subscription-plans/'~plan.id),
     status: plan.enabled ? true : false,
     handle: plan.handle|e,
     gateway: plan.gateway.name|t('site')|e,
