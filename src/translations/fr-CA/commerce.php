@@ -1074,7 +1074,7 @@ return [
     'URI' => 'URI',
     'Unable to cancel subscription at this time.' => 'Impossible d\'annuler l’abonnement actuellement.',
     'Unable to delete user {user}: the user has a Craft Commerce order.' => 'Impossible de supprimer l\'utilisateur {user} : l\'utilisateur a une commande Craft Commerce.',
-    'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Unable to delete user {user}: the user has a Craft Commerce subscription.',
+    'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Impossible de supprimer l\'utilisateur {user} : l\'utilisateur a un abonnement Craft Commerce.',
     'Unable to generate coupon codes: {message}' => 'Impossible de générer des codes de réduction : {message}',
     'Unable to make payment at this time.' => 'Impossible d’effectuer le paiement pour le moment.',
     'Unable to modify subscription at this time.' => 'Impossible de modifier l’abonnement actuellement.',
