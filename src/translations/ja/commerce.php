@@ -401,7 +401,7 @@ return [
     'Edit' => '編集',
     'Effect' => '効果',
     'Either (Default) - The relationship field is on the purchasable or the category' => 'いずれか（デフォルト）- 関連フィールドはパーチャサブルまたはカテゴリにあります',
-    'Either way' => 'Either way',
+    'Either way' => 'どちらでもいい',
     'Email PDF generation error for email “{email}”. Order: “{order}”. PDF Template error: “{message}” {file}:{line}' => 'メール「{email}」に対し、メール PDF の生成エラーが発生しました。注文: “{order}”。PDF テンプレートエラー: 「{message}」{file}:{line}',
     'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.' => 'メール「{email}」のメール PDF のテンプレートは「{templatePath}」に存在しません。注文:「{order}」。',
     'Email Subject' => 'メールの件名',
