@@ -6,6 +6,7 @@
 - Fixed a bug where inventory locations weren’t requiring a name and handle. 
 - Fixed an error that could occur when saving a tax rate. ([#3461](https://github.com/craftcms/commerce/issues/3461))
 - Fixed a bug where it wasn’t possible to access the Edit Plan page.
+- Fixed a bug where it wasn’t possible to select entries from a different site when editing a discount. 
 
 ## 5.0.0-beta.3 - 2024-04-10
 
