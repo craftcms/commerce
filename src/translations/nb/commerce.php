@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => 'Vellykket fanging av transaksjoner: {message}',
     'Transaction refunded successfully: {message}' => 'Vellykket refusjon av transaksjon: {message}',
     'Transactions' => 'Transaksjoner',
-    'Transfer Fields' => 'Overføringsfelt',
     'Transfers' => 'Overføringer',
     'Trial days credited' => 'Prøvedager kreditert',
     'Trial expiration' => 'Utløpstid for prøveperiode',
