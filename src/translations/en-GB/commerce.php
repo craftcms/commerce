@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => 'Transaction captured successfully: {message}',
     'Transaction refunded successfully: {message}' => 'Transaction refunded successfully: {message}',
     'Transactions' => 'Transactions',
-    'Transfer Fields' => 'Transfer Fields',
     'Transfers' => 'Transfers',
     'Trial days credited' => 'Trial days credited',
     'Trial expiration' => 'Trial expiration',
