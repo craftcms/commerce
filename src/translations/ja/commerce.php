@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => '取引は正しくキャプチャされました: {message}',
     'Transaction refunded successfully: {message}' => '取引は正しく払い戻されました: {message}',
     'Transactions' => '取引',
-    'Transfer Fields' => '移動フィールド',
     'Transfers' => '移動',
     'Trial days credited' => '付与されたトライアル期間',
     'Trial expiration' => 'トライアル期限',
