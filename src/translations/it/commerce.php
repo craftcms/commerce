@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => 'Transazione acquisita correttamente: {message}',
     'Transaction refunded successfully: {message}' => 'Transazione rimborsata correttamente: {message}',
     'Transactions' => 'Transazioni',
-    'Transfer Fields' => 'Campi di trasferimento',
     'Transfers' => 'Trasferimenti',
     'Trial days credited' => 'Giorni di prova concessi',
     'Trial expiration' => 'Scadenza prova',
