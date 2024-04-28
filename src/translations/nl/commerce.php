@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => 'Transactie succesvol vastgelegd: {message}',
     'Transaction refunded successfully: {message}' => 'Transactie succesvol terugbetaald: {message}',
     'Transactions' => 'Transacties',
-    'Transfer Fields' => 'Overdrachtsvelden',
     'Transfers' => 'Overdrachten',
     'Trial days credited' => 'Dagen voor proefversie gecrediteerd',
     'Trial expiration' => 'Proefperiode verlopen',
