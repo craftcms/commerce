@@ -1170,7 +1170,6 @@ return [
     'Transaction captured successfully: {message}' => 'Transakcia úspešne zachytená: {message}',
     'Transaction refunded successfully: {message}' => 'Transakcia úspešne vrátená: {message}',
     'Transactions' => 'Transakcie',
-    'Transfer Fields' => 'Polia na prenos',
     'Transfers' => 'Prevody',
     'Trial days credited' => 'Priznané dni skúšobnej verzie',
     'Trial expiration' => 'Vypršanie platnosti skúšobnej verzie',
