@@ -1,7 +1,3 @@
-{% extends "commerce/_layouts/store-management" %}
-{% set hasStoreSelector = false %}
-{% set selectedItem = 'subscription-plans' %}
-
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Active subscriptions',
@@ -18,10 +14,6 @@
   'Yes',
 ]) %}
 
-{% block actionButton %}
-  <a href="{{ url('commerce/store-management/'~storeHandle~'/subscription-plans/new') }}" class="btn submit add icon">{{ 'New subscription plan'|t('commerce') }}</a>
-{% endblock %}
-
 {% block content %}
   <div id="plans-vue-admin-table"></div>
 {% endblock %}
@@ -31,7 +23,7 @@
   {% set tableData = tableData|merge([{
     id: plan.id,
     title: plan.name|t('site'),
-    url: url('commerce/store-management/'~storeHandle~'/subscription-plans/'~plan.id),
+    url: plan.getCpEditUrl(),
     status: plan.enabled ? true : false,
     handle: plan.handle|e,
     gateway: plan.gateway.name|t('site')|e,

@@ -13,10 +13,16 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
+use craft\errors\DeprecationException;
+use craft\helpers\Cp;
+use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function is_array;
@@ -27,25 +33,38 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseStoreManagementController
+class PlansController extends BaseCpController
 {
     /**
-     * @param string|null $storeHandle
      * @return Response
      * @throws InvalidConfigException
      */
-    public function actionPlanIndex(?string $storeHandle = null): Response
+    public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/store-management/subscription-plans', ['plans' => $plans, 'storeHandle' => $storeHandle]);
+
+        return $this->asCpScreen()
+            ->title(Craft::t('commerce', 'Subscription plans'))
+            ->redirectUrl('commerce/subscription-plans')
+            ->selectedSubnavItem('subscription-plans')
+            ->additionalButtonsHtml(Html::a(
+                Craft::t('commerce', 'New subscription plan'),
+                'commerce/subscription-plans/new',
+                ['class' => 'submit btn add icon']
+            ))
+            ->contentTemplate('commerce/subscriptions/plans/index.twig', compact('plans'));
     }
 
     /**
      * @param int|null $planId
      * @param Plan|null $plan
+     * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws DeprecationException
+     * @throws ForbiddenHttpException
      */
-    public function actionEditPlan(?string $storeHandle = null, int $planId = null, Plan $plan = null): Response
+    public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
 
@@ -88,9 +107,36 @@ class PlansController extends BaseStoreManagementController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        $variables['storeHandle'] = $storeHandle;
+        $sidebar = Html::beginTag('div', ['class' => 'meta']) .
+                Cp::lightswitchFieldHtml([
+                    'label' => Craft::t('commerce', 'Enabled for customers to select?'),
+                    'name' => 'enabled',
+                    'on' => $variables['plan']?->enabled ?? false,
+                    'errors' => $variables['plan']?->getErrors('enabled') ?? null,
+                ]) .
+            Html::endTag('div');
 
-        return $this->renderTemplate('commerce/store-management/subscription-plans/_edit', $variables);
+        if ($variables['plan']?->id) {
+            $sidebar .= Html::beginTag('div', ['class' => 'meta readonly']) .
+                Html::beginTag('div', ['class' => 'data']) .
+                    Html::tag('h5', Craft::t('app', 'Created at'), ['class' => 'heading']) .
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateCreated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-created-value']) .
+                Html::endTag('div') .
+                Html::beginTag('div', ['class' => 'data']) .
+                    Html::tag('h5', Craft::t('app', 'Updated at'), ['class' => 'heading']) .
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateUpdated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-updated-value']) .
+                Html::endTag('div');
+        }
+
+        return $this->asCpScreen()
+            ->title($variables['title'])
+            ->selectedSubnavItem('subscription-plans')
+            ->addCrumb(Craft::t('commerce', 'Plans'), 'commerce/subscription-plans')
+            ->contentTemplate('commerce/subscriptions/plans/_edit.twig', $variables)
+            ->action('commerce/plans/save-plan')
+            ->redirectUrl('commerce/subscription-plans')
+            ->metaSidebarHtml($sidebar)
+            ;
     }
 
     /**

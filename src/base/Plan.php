@@ -7,13 +7,16 @@
 
 namespace craft\commerce\base;
 
+use craft\base\CpEditable;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Subscription;
+use craft\commerce\helpers\Cp;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
 use yii\base\InvalidConfigException;
@@ -29,7 +32,7 @@ use function count;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-abstract class Plan extends Model implements PlanInterface
+abstract class Plan extends Model implements PlanInterface, CpEditable
 {
     use PlanTrait;
 
@@ -173,5 +176,13 @@ abstract class Plan extends Model implements PlanInterface
             ],
             [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required'],
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCpEditUrl(): ?string
+    {
+        return $this->id ? UrlHelper::cpUrl('commerce/subscription-plans/' . $this->id) : null;
     }
 }

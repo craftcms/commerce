@@ -385,6 +385,14 @@ class Plugin extends BasePlugin
             ];
         }
 
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
+            // @TODO: change "Plans" to "Subscription Plans" in 5.1.0
+            $ret['subnav']['subscription-plans'] = [
+                'label' => Craft::t('commerce', 'Plans'),
+                'url' => 'commerce/subscription-plans',
+            ];
+        }
+
         $ret['subnav']['donations'] = [
             'label' => Craft::t('commerce', 'Donations'),
             'url' => 'commerce/donations',
