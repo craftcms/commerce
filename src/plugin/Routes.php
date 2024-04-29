@@ -105,7 +105,7 @@ trait Routes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/new'] = 'commerce/payment-currencies/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
 
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/donation'] = 'commerce/donations/edit';
+            $event->rules['commerce/donations'] = 'commerce/donations/edit';
 
             // Shipping
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones'] = 'commerce/shipping-zones/index';

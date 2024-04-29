@@ -146,16 +146,6 @@ class BaseStoreManagementController extends BaseCpController
             'heading' => Craft::t('commerce', 'Subscriptions'),
         ];
 
-        $this->storeSettingsNav['donation-heading'] = [
-            'heading' => Craft::t('commerce', 'Donation'),
-        ];
-
-        $this->storeSettingsNav['donation'] = [
-            'label' => Craft::t('commerce', 'Donation'),
-            'path' => 'donation',
-        ];
-
-
         return $this->storeSettingsNav;
     }
 }

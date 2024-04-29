@@ -378,18 +378,17 @@ class Plugin extends BasePlugin
             ];
         }
 
-        // @TODO add permissions check for pricing
-        // $ret['subnav']['prices'] = [
-        //     'label' => Craft::t('commerce', 'Prices'),
-        //     'url' => 'commerce/prices',
-        // ];
-
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
                 'url' => 'commerce/subscriptions',
             ];
         }
+
+        $ret['subnav']['donations'] = [
+            'label' => Craft::t('commerce', 'Donations'),
+            'url' => 'commerce/donations',
+        ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
