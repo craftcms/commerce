@@ -150,7 +150,7 @@ return [
     'Commerce email “{email}” could not be sent for order “{order}”.' => 'Die Commerce E-Mail "{email}" konnte nicht für die Bestellung "{order}" gesendet werden.',
     'Commerce order exports' => 'Exporte von Commerce Bestellungen',
     'Commerce' => 'Commerce',
-    'Completed Email' => 'Vollständige E-Mail-Adresse',
+    'Completed Email' => 'Abgeschlossene E-Mail-Adresse',
     'Completed' => 'Abgeschlossen',
     'Completing order failed.' => 'Bestellungsabschluss fehlgeschlagen.',
     'Condition' => 'Bedingung',
