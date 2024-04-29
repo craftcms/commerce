@@ -42,7 +42,6 @@ class DonationsController extends BaseCpController
             ->submitButtonLabel(Craft::t('app', 'Save'))
             ->redirectUrl('commerce/donations')
             ->contentTemplate('commerce/donation/_edit.twig', compact('donation'));
-
     }
 
     /**
