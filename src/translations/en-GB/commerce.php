@@ -244,7 +244,7 @@ return [
     'Couldn’t save tax rate.' => 'Couldn’t save tax rate.',
     'Couldn’t save tax zone.' => 'Couldn’t save tax zone.',
     'Couldn’t update status.' => 'Couldn’t update status.',
-    'Couldn’t update catalog pricing rule statuses.' => 'Couldn’t update catalog pricing rule statuses.',
+    'Couldn’t update catalog pricing rule statuses.' => 'Couldn’t update catalogue pricing rules status.',
     'Couldn’t updated sales status.' => 'Couldn’t update sales status.',
     'Country Code of Origin' => 'Country Code of Origin',
     'Country List' => 'Country List',
