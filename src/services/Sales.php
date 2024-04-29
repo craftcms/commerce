@@ -22,7 +22,9 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\Entry;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use DateTime;
 use yii\base\Component;
 use yii\base\Exception;
@@ -274,9 +276,13 @@ class Sales extends Component
         return $matchedSales;
     }
 
-
+    /**
+     * @param PurchasableInterface $purchasable
+     * @return array
+     */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
+        /** @var Purchasable $purchasable */
         $sales = [];
         $id = $purchasable->getId();
 
@@ -288,9 +294,20 @@ class Sales extends Component
                 // Get related via category
                 $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
                 $saleCategories = $sale->getCategoryIds();
-                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
+                $relatedCategories = Category::find()
+                    ->id($saleCategories)
+                    ->relatedTo($relatedTo)
+                    ->siteId($purchasable->siteId)
+                    ->ids();
+                $relatedEntries = Entry::find()
+                    ->id($saleCategories)
+                    ->relatedTo($relatedTo)
+                    ->siteId($purchasable->siteId)
+                    ->ids();
+                $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategoriesOrEntries)) {
                     $sales[] = $sale;
                 }
             }
@@ -424,7 +441,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = ArrayHelper::getColumn($user->getGroups(),'id');
+                $userGroups = ArrayHelper::getColumn($user->getGroups(), 'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -436,7 +453,7 @@ class Sales extends Component
             // User groups of the currently logged in user
             $userGroups = null;
             if ($currentUser = Craft::$app->getUser()->getIdentity()) {
-                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(),'id');
+                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(), 'id');
             }
 
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
@@ -448,9 +465,18 @@ class Sales extends Component
         if (!$sale->allCategories) {
             $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
-            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
-
-            if (empty($relatedCategories)) {
+            $relatedCategories = Category::find()
+                ->id($saleCategories)
+                ->relatedTo($relatedTo)
+                ->siteId($purchasable->siteId)
+                ->ids();
+            $relatedEntries = Entry::find()
+                ->id($saleCategories)
+                ->relatedTo($relatedTo)
+                ->siteId($purchasable->siteId)
+                ->ids();
+            $relatedCategoriesOrEntries = array_merge($relatedCategories, $relatedEntries);
+            if (empty($relatedCategoriesOrEntries)) {
                 return false;
             }
         }
@@ -526,6 +552,12 @@ class Sales extends Component
             $model->setPurchasableIds([]);
         }
 
+        // Make sure `dateCreated` and `dateUpdated` are set on the model
+        if (!$isNewSale) {
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
+        }
+
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
@@ -540,6 +572,10 @@ class Sales extends Component
         try {
             $record->save(false);
             $model->id = $record->id;
+
+            // Update datetime attributes
+            $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
+            $model->dateUpdated = DateTimeHelper::toDateTime($record->dateUpdated);
 
             SaleUserGroupRecord::deleteAll(['saleId' => $model->id]);
             SalePurchasableRecord::deleteAll(['saleId' => $model->id]);

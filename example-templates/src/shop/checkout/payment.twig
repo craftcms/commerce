@@ -64,6 +64,8 @@
             {{ hiddenInput('cancelUrl', siteUrl('/[[folderName]]/checkout/payment')|hash) }}
             {{ hiddenInput('orderEmail', cart.email) }}
 
+            {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
+
             {% if cart.gatewayId %}
               {{ hiddenInput('gatewayId', cart.gatewayId) }}
               {% set params = {} %}
@@ -75,7 +77,6 @@
 
               {% if className(cart.gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
                 {% set params = {
-                  paymentFormType: 'elements',
                   appearance: {
                     theme: 'stripe'
                   },
@@ -87,48 +88,31 @@
                       spacedAccordionItems: false
                     }
                   },
+                  order: cart,
                   submitButtonClasses: '[[classes.btn.base]] [[classes.btn.mainColor]] my-2',
                   submitButtonLabel: 'Pay',
                   errorMessageClasses: 'bg-red-200 text-red-600 my-2 p-2 rounded',
                 } %}
               {% endif %}
               <div class="gateway-payment-form max-w-3/4">
+                {% if cart.gateway.supportsPaymentSources() and currentUser %}
+                  <div class="checkbox">
+                    <label>
+                      {{ input('checkbox', 'savePaymentSource', 1, {
+                        class: ['inline-block', 'mr-1']
+                      }) }}
+                      {{ 'Save card for future purchases'|t }}
+                    </label>
+                  </div>
+                {% endif %}
+
                 {% namespace cart.gateway.handle|commercePaymentFormNamespace %}
                     {{ cart.gateway.getPaymentFormHtml(params)|raw }}
                 {% endnamespace %}
               </div>
-
-              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
-              {% include '[[folderName]]/checkout/_includes/base-payment-form-styles' %}
-
-              {% if cart.gateway.supportsPaymentSources() and currentUser %}
-                <div class="checkbox">
-                  <label>
-                    {{ input('checkbox', 'savePaymentSource', 1, {
-                      class: ['inline-block', 'mr-1']
-                    }) }}
-                    {{ 'Save card for future purchases'|t }}
-                  </label>
-                </div>
-              {% endif %}
             {% else %}
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
             {% endif %}
-
-            {% set user = cart.email ? craft.users.email(cart.email).one() : null %}
-            {% if not user or not user.getIsCredentialed() %}
-              <div class="mt-3">
-                <label for="registerUserOnOrderComplete">
-                  {{ hiddenInput('registerUserOnOrderComplete', false) }}
-                  {{ input('checkbox', 'registerUserOnOrderComplete', 1, {
-                    id: 'registerUserOnOrderComplete'
-                  }) }}
-                  {{ 'Create an account'|t }}
-                </label>
-              </div>
-            {% endif %}
-
-            {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
 
             {% if cart.paymentSourceId or cart.gateway.showPaymentFormSubmitButton() %}
               <div class="mt-3 text-right">

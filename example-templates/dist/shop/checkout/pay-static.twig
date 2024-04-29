@@ -137,7 +137,7 @@
             >
               {{ csrfInput() }}
               {{ hiddenInput('action', 'commerce/payments/pay') }}
-              {{ redirectInput('/shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
+              {{ redirectInput('shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
               {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
               {{ hiddenInput('email', email) }}
               {{ hiddenInput('number', cart.number) }}

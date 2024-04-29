@@ -49,6 +49,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $paymentCurrency
  * @property int $paymentSourceId
  * @property bool $registerUserOnOrderComplete
+ * @property bool $saveBillingAddressOnOrderComplete
+ * @property bool $saveShippingAddressOnOrderComplete
  * @property string $returnUrl
  * @property string $reference
  * @property string $recalculationMode

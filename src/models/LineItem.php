@@ -108,6 +108,7 @@ class LineItem extends Model
 
     /**
      * @var mixed Snapshot
+     * @TODO add get and set methods in 5.0.0. Strict typing will be enforced.
      */
     public mixed $snapshot = null;
 
@@ -445,7 +446,7 @@ class LineItem extends Model
     {
         if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];
-            $method->bindTo($purchasable);
+            $method = $method->bindTo($purchasable);
             $rule[1] = static function($attribute, $params, $validator, $current) use ($method) {
                 $method($attribute, $params, $validator, $current);
             };

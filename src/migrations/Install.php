@@ -130,6 +130,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        // TODO: rename to `discount_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
         $this->archiveTableIfExists(Table::DISCOUNT_CATEGORIES);
         $this->createTable(Table::DISCOUNT_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -168,7 +169,9 @@ class Install extends Migration
             'hasFreeShippingForMatchingItems' => $this->boolean()->notNull()->defaultValue(false),
             'hasFreeShippingForOrder' => $this->boolean()->notNull()->defaultValue(false),
             'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'purchasableIds' => $this->text(),
             'allCategories' => $this->boolean()->notNull()->defaultValue(false),
+            'categoryIds' => $this->text(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
             'orderConditionFormula' => $this->text(),
@@ -373,6 +376,8 @@ class Install extends Migration
             'origin' => $this->enum('origin', ['web', 'cp', 'remote'])->notNull()->defaultValue('web'),
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'saveBillingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
+            'saveShippingAddressOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
             'returnUrl' => $this->text(),
             'cancelUrl' => $this->text(),
@@ -556,6 +561,7 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        // TODO: rename to `sale_entries` table in Commerce 5 or remove if purchasable condition builder can replace it
         $this->archiveTableIfExists(Table::SALE_CATEGORIES);
         $this->createTable(Table::SALE_CATEGORIES, [
             'id' => $this->primaryKey(),
@@ -617,7 +623,6 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -660,7 +665,6 @@ class Install extends Migration
             'percentageRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'minRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -739,7 +743,6 @@ class Install extends Migration
             'removeIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'removeVatIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'taxable' => $this->enum('taxable', ['purchasable', 'price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
-            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -864,6 +867,8 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'shippingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'estimatedBillingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'estimatedShippingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'sourceBillingAddressId', false);
+        $this->createIndex(null, Table::ORDERS, 'sourceShippingAddressId', false);
         $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
@@ -933,7 +938,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::CUSTOMERS, ['primaryPaymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['categoryId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
@@ -978,7 +983,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['productTypeId'], Table::PRODUCTTYPES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PRODUCTTYPES_TAXCATEGORIES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PURCHASABLES, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], '{{%categories}}', ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::SALE_CATEGORIES, ['categoryId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_CATEGORIES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');

@@ -8,9 +8,9 @@
 
 {% if currentUser.admin or currentUser.can('commerce-manageShipping') %}
     {% set navItems = navItems|merge({
-        'shippingmethods': { title: "Shipping Methods"|t('commerce'), minEdition: 'pro' },
-        'shippingcategories': { title: "Shipping Categories"|t('commerce'), minEdition: 'pro' },
-        'shippingzones': { title: "Shipping Zones"|t('commerce'), minEdition: 'pro' }
+        'shippingmethods': { title: "Shipping Methods"|t('commerce')},
+        'shippingcategories': { title: "Shipping Categories"|t('commerce')},
+        'shippingzones': { title: "Shipping Zones"|t('commerce')}
     }) %}
 {% endif %}
 
@@ -26,7 +26,7 @@
 {% block sidebar %}
     <nav>
         <ul>
-            {% for handle, item in navItems|filter(item => craft.commerce.is(item.minEdition, '>=')) %}
+            {% for handle, item in navItems %}
                 {% if item.heading is defined %}
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}

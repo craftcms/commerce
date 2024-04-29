@@ -58,7 +58,7 @@ class Carts extends Component
     /**
      * @var string|null The current cart number
      */
-    private ?string $_cartNumber = null;
+    private string|false|null $_cartNumber = null;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.
@@ -87,13 +87,9 @@ class Carts extends Component
             $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
             $session = Craft::$app->getSession();
-            $requestCookies = $request->getCookies();
 
-            // If we have a cart cookie, assign it to the cart number.
             // Also check pre Commerce 4.0 for a cart number in the session just in case.
-            if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
-            } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
+            if (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
                 $this->setSessionCartNumber($session->get('commerce_cart'));
                 $session->remove('commerce_cart');
             }
@@ -116,7 +112,7 @@ class Carts extends Component
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order();
-            $this->_cart->number = $this->getSessionCartNumber();
+            $this->_cart->number = $this->generateCartNumber();
             if ($currentUser) {
                 $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
             }
@@ -153,10 +149,9 @@ class Carts extends Component
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
-        if ($currentUser) {
-            if ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->email)) {
-                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
-            }
+        // Switch the cart customer if needed
+        if ($currentUser && ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->getEmail()))) {
+            $this->_cart->setCustomer($currentUser);
         }
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;
@@ -205,7 +200,8 @@ class Carts extends Component
     public function forgetCart(): void
     {
         $this->_cart = null;
-        $this->_cartNumber = null;
+        // Force a new cart number to be generated when next requested.
+        $this->_cartNumber = false;
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
             $cookie = Craft::createObject(array_merge($this->cartCookie, [
                 'class' => Cookie::class,
@@ -257,7 +253,18 @@ class Carts extends Component
      */
     public function getHasSessionCartNumber(): bool
     {
-        return ($this->_cartNumber !== null);
+        if ($this->_cartNumber === false) {
+            return false;
+        }
+
+        if ($this->_cartNumber === null) {
+            $request = Craft::$app->getRequest();
+            $requestCookies = $request->getCookies();
+
+            return $requestCookies->getValue($this->cartCookie['name'], false) !== false;
+        }
+
+        return true;
     }
 
     /**
@@ -266,8 +273,24 @@ class Carts extends Component
      */
     protected function getSessionCartNumber(): string
     {
-        if ($this->_cartNumber === null) {
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $request = Craft::$app->getRequest();
+            $requestCookies = $request->getCookies();
+
+            // Only try to retrieve the cart number from the cookie if `_cartNumber` is `null`.
+            if ($this->_cartNumber === null && $cookieNumber = $requestCookies->getValue($this->cartCookie['name'])) {
+                $this->_cartNumber = $cookieNumber;
+            }
+        }
+
+        // A `null` or `false` value means we need to generate a new cart number.
+        if ($this->_cartNumber === null || $this->_cartNumber === false) {
             $this->_cartNumber = $this->generateCartNumber();
+        }
+
+        /// Just in case the current cart is not the one in session, clear the cached cart.
+        if ($this->_cart && $this->_cart->number !== $this->_cartNumber) {
+            $this->_cart = null;
         }
 
         return $this->_cartNumber;
@@ -301,24 +324,46 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $cart = $this->getCart();
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        /** @var Order|null $previousCart */
-        $previousCart = Order::find()
+        /** @var Order|null $previousCartsWithLineItems */
+        $previousCartsWithLineItems = Order::find()
             ->customer($currentUser)
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
             ->one();
 
+        /** @var Order|null $anyPreviousCart */
+        $anyPreviousCart = Order::find()
+            ->customer($currentUser)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
+        /** @var Order|null $currentCartInSession */
+        $currentCartInSession = Order::find()
+            ->number($this->getSessionCartNumber())
+            ->isCompleted(false)
+            ->hasLineItems()
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
-            $cart->getIsEmpty() &&
-            $previousCart
+            $previousCartsWithLineItems
         ) {
-            $this->_cart = $previousCart;
-            $this->setSessionCartNumber($previousCart->number);
+            // Restore previous cart that has line items
+            $this->_cart = $previousCartsWithLineItems;
+            $this->setSessionCartNumber($previousCartsWithLineItems->number);
+        } elseif ($currentUser && $currentCartInSession) {
+            // Give the cart to the current customer if they are logging in and there are items in the cart
+            // Call get cart as this will switch the user and save it if needed
+            $this->getCart();
+        } elseif ($currentUser && $anyPreviousCart) {
+            // Finally try to restore any other previous cart for the customer
+            $this->_cart = $anyPreviousCart;
+            $this->setSessionCartNumber($anyPreviousCart->number);
         }
     }
 

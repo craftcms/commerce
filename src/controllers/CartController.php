@@ -24,6 +24,7 @@ use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\mutex\Mutex;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
@@ -51,6 +52,16 @@ class CartController extends BaseFrontEndController
      * @var User|null
      */
     protected ?User $_currentUser = null;
+
+    /**
+     * @var Mutex|null
+     */
+    private ?Mutex $_mutex = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $_mutexLockName = null;
 
     /**
      * @throws InvalidConfigException
@@ -92,9 +103,35 @@ class CartController extends BaseFrontEndController
     {
         $this->requirePostRequest();
         $isSiteRequest = $this->request->getIsSiteRequest();
+        $isConsoleRequest = $this->request->getIsConsoleRequest();
         $currentUser = Craft::$app->getUser()->getIdentity();
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
+
+        $useMutex = (!$isConsoleRequest && Craft::$app->getRequest()->getBodyParam('number')) || (!$isConsoleRequest && $plugin->getCarts()->getHasSessionCartNumber());
+
+        if ($useMutex) {
+            $lockOrderNumber = null;
+            if ($bodyNumber = Craft::$app->getRequest()->getBodyParam('number')) {
+                $lockOrderNumber = $bodyNumber;
+            } elseif (!$isConsoleRequest) {
+                $request = Craft::$app->getRequest();
+                $requestCookies = $request->getCookies();
+                $cookieNumber = $requestCookies->getValue($plugin->getCarts()->cartCookie['name']);
+
+                if ($cookieNumber) {
+                    $lockOrderNumber = $cookieNumber;
+                }
+            }
+
+            if ($lockOrderNumber) {
+                $this->_mutexLockName = "order:$lockOrderNumber";
+                $this->_mutex = Craft::$app->getMutex();
+                if (!$this->_mutex->acquire($this->_mutexLockName, 5)) {
+                    throw new Exception('Unable to acquire a lock for saving of Order: ' . $lockOrderNumber);
+                }
+            }
+        }
 
         // Get the cart from the request or from the session.
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
@@ -121,7 +158,6 @@ class CartController extends BaseFrontEndController
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
-
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
                     $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
@@ -221,7 +257,8 @@ class CartController extends BaseFrontEndController
             $email = $this->request->getParam('email');
             if ($email && ($this->_cart->getEmail() === null || $this->_cart->getEmail() != $email)) {
                 try {
-                    $this->_cart->setEmail($email);
+                    $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+                    $this->_cart->setCustomer($user);
                 } catch (\Exception $e) {
                     $this->_cart->addError('email', $e->getMessage());
                 }
@@ -229,12 +266,25 @@ class CartController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $this->_cart->registerUserOnOrderComplete = true;
+        $registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete');
+        if ($registerUserOnOrderComplete !== null) {
+            $this->_cart->registerUserOnOrderComplete = (bool)$registerUserOnOrderComplete;
         }
 
-        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $this->_cart->registerUserOnOrderComplete = false;
+        $saveBillingAddressOnOrderComplete = $this->request->getBodyParam('saveBillingAddressOnOrderComplete');
+        if ($saveBillingAddressOnOrderComplete !== null) {
+            $this->_cart->saveBillingAddressOnOrderComplete = (bool)$saveBillingAddressOnOrderComplete;
+        }
+
+        $saveShippingAddressOnOrderComplete = $this->request->getBodyParam('saveShippingAddressOnOrderComplete');
+        if ($saveShippingAddressOnOrderComplete !== null) {
+            $this->_cart->saveShippingAddressOnOrderComplete = (bool)$saveShippingAddressOnOrderComplete;
+        }
+
+        $saveAddressesOnOrderComplete = $this->request->getBodyParam('saveAddressesOnOrderComplete');
+        if ($saveAddressesOnOrderComplete !== null) {
+            $this->_cart->saveBillingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
+            $this->_cart->saveShippingAddressOnOrderComplete = (bool)$saveAddressesOnOrderComplete;
         }
 
         // Set payment currency on cart
@@ -476,6 +526,10 @@ class CartController extends BaseFrontEndController
             $error = Craft::t('commerce', 'Unable to update cart.');
             $message = $this->request->getValidatedBodyParam('failMessage') ?? $error;
 
+            if ($this->_mutex && $this->_mutexLockName) {
+                $this->_mutex->release($this->_mutexLockName);
+            }
+
             return $this->asModelFailure(
                 $this->_cart,
                 $message,
@@ -495,6 +549,10 @@ class CartController extends BaseFrontEndController
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart,
         ]);
+
+        if ($this->_mutex && $this->_mutexLockName) {
+            $this->_mutex->release($this->_mutexLockName);
+        }
 
         return $this->asModelSuccess(
             $this->_cart,

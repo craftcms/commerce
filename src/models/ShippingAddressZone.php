@@ -8,7 +8,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Zone;
+use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\helpers\UrlHelper;
+use craft\validators\UniqueValidator;
 
 /**
  * Shipping zone model.
@@ -26,5 +28,17 @@ class ShippingAddressZone extends Zone
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/shipping/shippingzones/' . $this->id);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function defineRules(): array
+    {
+        return [
+            [['name'], 'required'],
+            [['condition'], 'required'],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+        ];
     }
 }

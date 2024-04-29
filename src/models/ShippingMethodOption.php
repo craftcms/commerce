@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -38,6 +39,12 @@ class ShippingMethodOption extends ShippingMethod
      * @var boolean
      */
     public bool $matchesOrder;
+
+    /**
+     * @var ?ShippingMethodInterface
+     * @since 4.3.1
+     */
+    public ?ShippingMethodInterface $shippingMethod = null;
 
     /**
      * @throws InvalidConfigException

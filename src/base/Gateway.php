@@ -62,7 +62,12 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
         $url = UrlHelper::actionUrl('commerce/webhooks/process-webhook', $params);
 
-        return StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
+        // Remove the cpTrigger from the url if it's there.
+        if (Craft::$app->getConfig()->getGeneral()->cpTrigger) {
+            $url = StringHelper::replace($url, Craft::$app->getConfig()->getGeneral()->cpTrigger . '/', '');
+        }
+
+        return $url;
     }
 
     /**

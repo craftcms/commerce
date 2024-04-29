@@ -222,39 +222,10 @@ class CartTest extends Unit
         self::assertCount(1, $cart->getLineItems());
         self::assertSame(2, $cart->getTotalQty());
         self::assertSame($variant->getSalePrice() * 2, $cart->getTotal());
-    }
 
-    /**
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws Exception
-     * @throws InvalidRouteException
-     */
-    public function testAddMultiplePurchasablesLite(): void
-    {
-        $this->request->headers->set('X-Http-Method-Override', 'POST');
-
-        $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
-        $purchasables = [];
-        foreach ($variants as $key => $variant) {
-            $purchasables[] = [
-                'id' => $variant->id,
-                'qty' => $key + 1,
-            ];
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
         }
-        $this->request->setBodyParams([
-            'purchasables' => $purchasables,
-        ]);
-
-        $lastItem = array_pop($purchasables);
-
-        $this->cartController->runAction('update-cart');
-        $cart = Plugin::getInstance()->getCarts()->getCart();
-
-        self::assertCount(1, $cart->getLineItems(), 'Only one line item can be added');
-        self::assertSame($lastItem['qty'], $cart->getTotalQty());
-        $lineItem = $cart->getLineItems()[0];
-        self::assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
     }
 
     /**
@@ -266,7 +237,6 @@ class CartTest extends Unit
      */
     public function testAddMultiplePurchasables(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
@@ -285,6 +255,10 @@ class CartTest extends Unit
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
         self::assertCount(2, $cart->getLineItems(), 'Has all items in the car');
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
@@ -298,7 +272,6 @@ class CartTest extends Unit
      */
     public function testAddAddressCustomFieldsOnUpdateCart(): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $shippingAddress = [
@@ -326,6 +299,10 @@ class CartTest extends Unit
         self::assertEquals($shippingAddress['fields']['testPhone'], $cartShippingAddress->testPhone);
         self::assertEquals($billingAddress['addressLine1'], $cartBillingAddress->addressLine1);
         self::assertEquals($billingAddress['fields']['testPhone'], $cartBillingAddress->testPhone);
+
+        if ($cart->id) {
+            Craft::$app->getElements()->deleteElement($cart, true);
+        }
     }
 
     /**
@@ -343,7 +320,6 @@ class CartTest extends Unit
      */
     public function testAutoSetNewCartAddresses(string $customerHandle, bool $autoSet): void
     {
-        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
         $customerFixture = $this->tester->grabFixture('customer');
@@ -403,6 +379,80 @@ class CartTest extends Unit
             'dont-auto-set' => [
                 'customer3', // customer
                 true, // auto set
+            ],
+        ];
+    }
+
+    /**
+     * @param bool|null $saveBillingAddress
+     * @param bool|null $saveShippingAddress
+     * @param bool|null $saveBoth
+     * @return void
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws InvalidPluginException
+     * @throws InvalidRouteException
+     * @throws Throwable
+     * @since 4.3.0
+     * @dataProvider setSaveAddressesDataProvider
+     */
+    public function testSetSaveAddresses(?bool $saveBillingAddress, ?bool $saveShippingAddress, ?bool $saveBoth): void
+    {
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $bodyParams = [];
+        if ($saveBoth) {
+            $bodyParams['saveAddressesOnOrderComplete'] = true;
+        } else {
+            $bodyParams['saveBillingAddressOnOrderComplete'] = $saveBillingAddress;
+            $bodyParams['saveShippingAddressOnOrderComplete'] = $saveShippingAddress;
+        }
+
+        $this->request->setBodyParams($bodyParams);
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        if ($saveBoth) {
+            self::assertTrue($cart->saveBillingAddressOnOrderComplete);
+            self::assertTrue($cart->saveShippingAddressOnOrderComplete);
+        } else {
+            self::assertEquals($saveBillingAddress, $cart->saveBillingAddressOnOrderComplete);
+            self::assertEquals($saveShippingAddress, $cart->saveShippingAddressOnOrderComplete);
+        }
+
+        Plugin::getInstance()->getCarts()->forgetCart();
+
+        Craft::$app->getElements()->deleteElement($cart, true);
+    }
+
+    /**
+     * @return array[]
+     * @since 4.3.0
+     */
+    public function setSaveAddressesDataProvider(): array
+    {
+        return [
+            'save-billing' => [
+                true, // save billing
+                false, // save shipping
+                false, // save both
+            ],
+            'save-shipping' => [
+                false, // save billing
+                true, // save shipping
+                false, // save both
+            ],
+            'save-both' => [
+                false, // save billing
+                false, // save shipping
+                true, // save both
+            ],
+            'save-both-individually' => [
+                true, // save billing
+                true, // save shipping
+                false, // save both
             ],
         ];
     }

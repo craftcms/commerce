@@ -16,7 +16,6 @@ use craft\commerce\events\RegisterAvailableShippingMethodsEvent;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use Throwable;
@@ -183,7 +182,6 @@ class ShippingMethods extends Component
         $record->name = $model->name;
         $record->handle = $model->handle;
         $record->enabled = $model->enabled;
-        $record->isLite = $model->isLite;
 
         $record->validate();
         $model->addErrors($record->getErrors());
@@ -204,36 +202,27 @@ class ShippingMethods extends Component
      *
      * @param bool $runValidation should we validate this method before saving.
      * @throws Exception
+     * @deprecated in 4.5.0. Use [[saveShippingMethod()]] instead.
      */
     public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
     {
-        $model->isLite = true;
-        $model->id = null;
-
-        // Delete the current lite shipping rules also first.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingRuleRecord::tableName(), ['isLite' => true])
-            ->execute();
-
-        // Delete the current lite shipping method.
-        Craft::$app->getDb()->createCommand()
-            ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
-            ->execute();
-
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethods::saveLiteShippingMethods() is deprecated. Use ShippingMethods::saveShippingMethod() instead.');
         $this->_allShippingMethods = null; //clear the cache
         return $this->saveShippingMethod($model, $runValidation);
     }
 
     /**
      * Gets the lite shipping method or returns a new one.
+     * @return ShippingMethod
+     * @deprecated in 4.5.0. Use [[getAllShippingMethods()]] instead.
      */
     public function getLiteShippingMethod(): ShippingMethod
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'ShippingMethods::getLiteShippingMethod() is deprecated. Use ShippingMethods::getAllShippingMethods() instead.');
         $liteMethod = $this->_createShippingMethodQuery()->one();
 
         if ($liteMethod == null) {
             $liteMethod = new ShippingMethod();
-            $liteMethod->isLite = true;
             $liteMethod->name = 'Shipping Cost';
             $liteMethod->handle = 'liteShipping';
             $liteMethod->enabled = true;
@@ -289,14 +278,9 @@ class ShippingMethods extends Component
                 'enabled',
                 'handle',
                 'id',
-                'isLite',
                 'name',
             ])
             ->from([Table::SHIPPINGMETHODS]);
-
-        if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
-            $query->andWhere('[[isLite]] = true');
-        }
 
         return $query;
     }

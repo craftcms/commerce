@@ -27,11 +27,6 @@ class OrderMarkAsCompleteTest extends Unit
     protected UnitTester $tester;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
@@ -60,7 +55,8 @@ class OrderMarkAsCompleteTest extends Unit
     {
         $order = new Order();
         $email = 'test@newemailaddress.xyz';
-        $order->setEmail($email);
+        $user = \Craft::$app->getUsers()->ensureUserByEmail($email);
+        $order->setCustomer($user);
         /** @var Order $order */
         $completedOrder = $this->tester->grabFixture('orders')->getElement('completed-new');
         $lineItem = $completedOrder->getLineItems()[0];
@@ -80,7 +76,7 @@ class OrderMarkAsCompleteTest extends Unit
         self::assertEquals($email, $order->orderCompletedEmail);
 
         $this->_deleteElementIds[] = $order->id;
-        $this->_deleteElementIds[] = $order->getCustomerId();
+        $this->_deleteElementIds[] = $user->id;
     }
 
     /**
@@ -91,8 +87,6 @@ class OrderMarkAsCompleteTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = Plugin::getInstance()->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
     }
 
     /**
@@ -101,8 +95,6 @@ class OrderMarkAsCompleteTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
 
         // Cleanup data.
         foreach ($this->_deleteElementIds as $elementId) {

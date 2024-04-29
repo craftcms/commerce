@@ -9,60 +9,70 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">
+  <h1 class="text-3xl block">
     {{- 'Manage Stored Cards'|t -}}
   </h1>
 
-{% for gateway in gateways %}
-  <div>
-    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' %}
-      <a class="my-2 text-blue-500 hover:text-blue-600" href="{{ gateway.billingPortalUrl(currentUser) }}">Manage cards on Stripe Billing portal &rarr;</a>
-    {% endif %}
-  </div>
-    <div class="mt-3 flex flex-wrap -mx-2">
-      {% set gatewayPaymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id, gateway.id) %}
-      {% for paymentSource in gatewayPaymentSources %}
-            <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
-              <div class="card bg-gray-100 border-blue-300 border-b-2 p-6">
-                <div class="my-3">
-                  <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}<span class="text-red-500">{{ 'Primary'|t }}</span>{% endif %}</strong>
-                  {% if paymentSource.gateway %}
-                    <div class="text-sm text-grey-dark">{{ paymentSource.gateway.name }} ({{ paymentSource.token }})</div>
-                  {% endif %}
-                </div>
+  {% for gateway in gateways %}
+    {% set gatewayPaymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByCustomerId(currentUser.id, gateway.id) %}
 
-                <div>
-                  {% if paymentSource.id != currentUser.primaryPaymentSourceId %}
-                    <form method="post" action="">
-                      {{ csrfInput() }}
-                      {{ redirectInput('/shop/customer/cards') }}
-                      {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
-                      {{ hiddenInput('id', paymentSource.id) }}
-                      {{ tag('button', {
-                        type: 'submit',
-                        class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
-                        text: 'Set as primary'|t
-                      }) }}
-                    </form>
-                  {% endif %}
-                  <form method="post" action="">
-                    {{ csrfInput() }}
-                    {{ redirectInput('/shop/customer/cards') }}
-                    {{ actionInput('commerce/payment-sources/delete') }}
-                    {{ hiddenInput('id', paymentSource.id) }}
-                    {{ tag('button', {
-                      type: 'submit',
-                      class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
-                      text: 'Delete card'|t
-                    }) }}
-                  </form>
-                </div>
-              </div>
+    <h2 class="text-xl block mt-4">{{ gateway.name }}</h2>
+
+    <div class="mt-3 flex flex-wrap -mx-2">
+      {% for paymentSource in gatewayPaymentSources %}
+        <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
+          <div class="card bg-gray-100 border-blue-300 border-b-2 p-6">
+            <div class="my-3">
+              <strong>{{ paymentSource.description }} {% if paymentSource.id == currentUser.primaryPaymentSourceId %}<span class="text-red-500">{{ 'Primary'|t }}</span>{% endif %}</strong>
+              {% if paymentSource.gateway %}
+                <div class="text-sm text-grey-dark">{{ paymentSource.gateway.name }} ({{ paymentSource.token }})</div>
+              {% endif %}
             </div>
-          {% endfor %}
+
+            <div>
+              {% if paymentSource.id != currentUser.primaryPaymentSourceId %}
+                <form method="post" action="">
+                  {{ csrfInput() }}
+                  {{ redirectInput('shop/customer/cards') }}
+                  {{ actionInput('commerce/payment-sources/set-primary-payment-source') }}
+                  {{ hiddenInput('id', paymentSource.id) }}
+                  {{ tag('button', {
+                    type: 'submit',
+                    class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
+                    text: 'Set as primary'|t
+                  }) }}
+                </form>
+              {% endif %}
+              <form method="post" action="">
+                {{ csrfInput() }}
+                {{ redirectInput('shop/customer/cards') }}
+                {{ actionInput('commerce/payment-sources/delete') }}
+                {{ hiddenInput('id', paymentSource.id) }}
+                {{ tag('button', {
+                  type: 'submit',
+                  class: 'cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
+                  text: 'Delete card'|t
+                }) }}
+              </form>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <div class="w-full px-2">
+          <p class="bg-gray-100 p-4">{{ 'You don’t have any payment sources for this gateway. Add one, below.'|t }}</p>
+        </div>
+      {% endfor %}
     </div>
-{% endfor %}
-  <h2 class="text-lg font-semibold block mt-10">
+
+    {# Provide a management link for Stripe-provided payment sources: #}
+    {% if className(gateway) == 'craft\\commerce\\stripe\\gateways\\PaymentIntents' and gateway['billingPortalUrl'] is defined %}
+      <div class="mt-2">
+        <a class="text-blue-500 hover:text-blue-600" href="{{ gateway.getBillingPortalUrl(currentUser) }}">Manage on Stripe &rarr;</a>
+      </div>
+    {% endif %}
+  {% endfor %}
+
+  <h2 class="text-2xl block mt-6">
     {{- 'Add a Card'|t -}}
   </h2>
 
@@ -108,8 +118,8 @@
             {{ actionInput('commerce/payment-sources/add') }}
             {{ hiddenInput('gatewayId', gateway.id) }}
             {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
-            {{ hiddenInput('cancelUrl', '/shop/customer/cards'|hash) }}
-            {{ redirectInput('/shop/customer/cards') }}
+            {{ hiddenInput('cancelUrl', 'shop/customer/cards'|hash) }}
+            {{ redirectInput('shop/customer/cards') }}
 
             {% set params = {} %}
 

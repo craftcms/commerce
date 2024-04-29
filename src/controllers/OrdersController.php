@@ -18,6 +18,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
+use craft\commerce\events\ModifyPurchasablesTableQueryEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\DebugPanel;
@@ -30,6 +31,7 @@ use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
@@ -73,6 +75,27 @@ use yii\web\Response;
 class OrdersController extends Controller
 {
     /**
+     * @event Event The event that’s triggered when retrieving the purchasables for the add line item table on the order edit page.
+     * @since 4.3.0
+     *
+     * ---
+     * ```php
+     * use craft\commerce\controllers\OrdersController;
+     * use craft\commerce\events\ModifyPurchasablesQueryEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrdersController::class,
+     *     OrdersController::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY,
+     *     function(ModifyCartInfoEvent $e) {
+     *         $e->query->andWhere(['sku' => 'foo']);
+     *     }
+     * );
+     * ```
+     */
+    public const EVENT_MODIFY_PURCHASABLES_TABLE_QUERY = 'modifyPurchasablesTableQuery';
+
+    /**
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -100,7 +123,6 @@ class OrdersController extends Controller
         ];
 
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle'));
     }
@@ -542,10 +564,21 @@ class OrdersController extends Controller
             $sqlQuery->orderBy(['id' => 'asc']);
         }
 
+        // Trigger event before working out the total and limiting the results for pagination
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY)) {
+            $event = new ModifyPurchasablesTableQueryEvent([
+                'query' => $sqlQuery,
+                'search' => $search,
+            ]);
+            $this->trigger(self::EVENT_MODIFY_PURCHASABLES_TABLE_QUERY, $event);
+            $sqlQuery = $event->query;
+        }
+
         $total = $sqlQuery->count();
 
         $sqlQuery->limit($limit);
         $sqlQuery->offset($offset);
+
         $result = $sqlQuery->all();
 
         $purchasables = $this->_addLivePurchasableInfo($result);
@@ -879,10 +912,21 @@ class OrdersController extends Controller
                 $paymentFormModel = $gateway->getPaymentFormModel();
             }
 
-            $paymentFormHtml = $gateway->getPaymentFormHtml([
-                'paymentForm' => $paymentFormModel,
-                'order' => $order,
-            ]);
+            // For backend stripe payments we cant use the 3D secure form.
+            /** @TODO remove at next breaking change */
+            /** @phpstan-ignore-next-line */
+            if ($gateway instanceof PaymentIntents) {
+                /** @phpstan-ignore-next-line */
+                $paymentFormHtml = $gateway->getOldPaymentFormHtml([
+                    'paymentForm' => $paymentFormModel,
+                    'order' => $order,
+                ]);
+            } else {
+                $paymentFormHtml = $gateway->getPaymentFormHtml([
+                    'paymentForm' => $paymentFormModel,
+                    'order' => $order,
+                ]);
+            }
 
             $paymentFormHtml = Html::namespaceInputs($paymentFormHtml, PaymentForm::getPaymentFormNamespace($gateway->handle));
 
@@ -995,7 +1039,7 @@ class OrdersController extends Controller
 
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
-                if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                if ($child->status == TransactionRecord::STATUS_SUCCESS || $child->status == TransactionRecord::STATUS_PROCESSING) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message,
@@ -1166,8 +1210,6 @@ class OrdersController extends Controller
 
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList();
         Craft::$app->getView()->registerJs('window.orderEdit.shippingCategories = ' . Json::encode(ArrayHelper::toArray($shippingCategories)) . ';', View::POS_BEGIN);
-
-        Craft::$app->getView()->registerJs('window.orderEdit.edition = "' . Plugin::getInstance()->edition . '"', View::POS_BEGIN);
 
         $currentUser = Craft::$app->getUser()->getIdentity();
         $permissions = [

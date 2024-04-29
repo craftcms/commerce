@@ -89,7 +89,7 @@ Outputs cart.
                       </label>
                       {{ input('text', 'lineItems[' ~ item.id ~ '][note]', item.note, {
                         id: 'lineitem-note-' ~ item.id,
-                        class: '[[classes.input]]',
+                        class: '[[classes.input]] w-full',
                         size: 20,
                         placeholder: 'My Note'|t
                       }) }}
@@ -320,7 +320,7 @@ Outputs cart.
     </form>
   {% else %}
     <p>{{ 'Empty cart. Add items on the {link} page.'|t({
-      link: tag('a', { href: url('/[[folderName]]/products'), text: 'products', class: 'underline' })
+      link: tag('a', { href: url('[[folderName]]/products'), text: 'products', class: 'underline' })
     })|raw }}</p>
   {% endif %}
 {% endblock %}

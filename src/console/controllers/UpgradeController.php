@@ -13,13 +13,14 @@ use craft\commerce\console\Controller;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\commerce\Plugin;
-use craft\commerce\records\Customer;
 use craft\commerce\records\Store;
+use craft\db\Connection;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\Address;
 use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
 use craft\elements\conditions\addresses\CountryConditionRule;
+use craft\elements\User;
 use craft\errors\OperationAbortedException;
 use craft\fieldlayoutelements\addresses\OrganizationField;
 use craft\fieldlayoutelements\addresses\OrganizationTaxIdField;
@@ -31,14 +32,16 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\MigrationHelper;
+use craft\helpers\ElementHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
 use craft\validators\HandleValidator;
 use Throwable;
 use yii\console\ExitCode;
 use yii\db\Exception;
+use yii\db\Expression;
 use yii\db\Schema;
+use yii\di\Instance;
 
 /**
  * Command to be run once upgraded to Commerce 4.
@@ -52,6 +55,8 @@ class UpgradeController extends Controller
      * @inheritdoc
      */
     public $defaultAction = 'run';
+
+    private static bool $isRunning = false;
 
     /**
      * The list of fields that can be converted to PlainText fields
@@ -164,11 +169,25 @@ class UpgradeController extends Controller
     private bool $_allowAdminChanges;
     private FieldLayout $_addressFieldLayout;
 
+    private Connection|string $db = 'db';
+
+    /**
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     */
     public function init(): void
     {
         $this->_allowAdminChanges = Craft::$app->getConfig()->getGeneral()->allowAdminChanges;
         $this->_addressFieldLayout = Craft::$app->getAddresses()->getLayout();
+
+        $this->db = Instance::ensure($this->db, Connection::class);
+
         parent::init();
+    }
+
+    public static function isRunning(): bool
+    {
+        return self::$isRunning;
     }
 
     /**
@@ -183,6 +202,8 @@ class UpgradeController extends Controller
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
+        self::$isRunning = true;
+
         // Make sure Commerce 4 migrations have been run
         $schemaVersion = Craft::$app->getProjectConfig()->get('plugins.commerce.schemaVersion', true);
         if (version_compare($schemaVersion, '4.0.0', '<')) {
@@ -193,7 +214,7 @@ class UpgradeController extends Controller
         // Make sure all the legacy tables still exist
         foreach ($this->_v3tables as $table) {
             $cleanTableName = str_replace(['{{%', '}}'], '', $table);
-            if (!Craft::$app->getDb()->tableExists($table)) {
+            if (!$this->db->tableExists($table)) {
                 $this->stderr(sprintf("Unable to proceed with the Commerce 4 migration: the `%s` table no longer exists.\n", $cleanTableName), Console::FG_RED);
                 return ExitCode::UNSPECIFIED_ERROR;
             }
@@ -214,16 +235,16 @@ class UpgradeController extends Controller
                 continue;
             }
 
-            $this->stdout(sprintf("Invalid custom country found: %s (%s)\n", $country['name'], $country['iso']));
-            $this->stdout("We need to map this to a valid country code. (All related addresses and zones will be updated.)\n");
+            $this->stdout(sprintf("Invalid custom country found: %s (%s)", $country['name'], $country['iso']));
+            $this->stdout("We need to map this to a valid country code. (All related addresses and zones will be updated.)");
             $this->stdout('See: ');
-            $this->stdout("https://www.iban.com/country-codes\n", Console::FG_BLUE);
+            $this->stdout("https://www.iban.com/country-codes", Console::FG_BLUE);
             $country['iso'] = $this->prompt('Enter a valid Alpha-2 country code:', [
                 'required' => true,
                 'validator' => fn($code) => isset($validCountries[$code]),
                 'default' => 'US',
             ]);
-            $this->stdout("\n");
+            $this->stdout("");
         }
         unset($country);
 
@@ -243,68 +264,71 @@ class UpgradeController extends Controller
                 ->exists();
         }, ARRAY_FILTER_USE_KEY);
 
-        $db = Craft::$app->getDb();
+        $startTime = DateTimeHelper::currentUTCDateTime();
 
         try {
-            $db->transaction(function() {
-                $this->stdout("Ensuring we have all the required custom fields…\n");
+            $this->db->transaction(function() {
+                $this->stdout("Ensuring we have all the required custom fields…");
                 $this->_migrateAddressCustomFields();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
 
-                $this->stdout("Creating a user for every customer…\n");
-                $this->_migrateCustomers();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Migrating address data…\n");
-                $this->_migrateAddresses();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating orders…\n");
-                $this->_migrateOrderAddresses();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating users…\n");
-                $this->_migrateUserAddressBook();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating the store location…\n");
+                $this->stdout("Updating the store location…");
                 $this->_migrateStore();
-                $this->stdout("\nDone.\n\n");
+                $this->stdoutlast('Done.', Console::FG_GREEN);
 
-                $this->stdout("Updating shipping zones…\n");
-                $this->_migrateShippingZones();
-                $this->stdout("\nDone.\n\n");
+                $this->stdout("Ensuring a user exists for all customers…");
+                $this->_migrateCustomers();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
 
-                $this->stdout("Updating tax zones…\n");
-                $this->_migrateTaxZones();
-                $this->stdout("\nDone.\n\n");
-
-                $this->stdout("Updating order histories…\n");
+                $this->stdout("Updating order histories…");
                 $this->_migrateOrderHistoryUser();
-                $this->stdout("\nDone.\n\n");
+                $this->stdoutlast('Done.', Console::FG_GREEN);
 
-                $this->stdout("Updating discount uses…\n");
+                $this->stdout("Updating discount uses…");
                 $this->_migrateDiscountUses();
-                $this->stdout("\nDone.\n\n");
+                $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Updating shipping zones…");
+                $this->_migrateShippingZones();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Updating tax zones…");
+                $this->_migrateTaxZones();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Migrating address data…");
+                $this->_migrateAddresses();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Updating order addresses…");
+                $this->_migrateOrderAddresses();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Updating user address books…");
+                $this->_migrateUserAddressBook();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
         }
 
-        $this->stdout("Cleaning up…\n");
+        $this->stdout("Cleaning up tables…");
         foreach ($this->_v3tables as $table) {
-            Db::dropAllForeignKeysToTable($table);
-            MigrationHelper::dropAllForeignKeysOnTable($table);
-            Craft::$app->getDb()->createCommand()->dropTableIfExists($table)->execute();
+            Db::dropAllForeignKeysToTable($table, $this->db);
+            $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
         foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
-            if ($db->columnExists($table, $column)) {
-                Db::dropForeignKeyIfExists($table, $column);
-                Db::dropIndexIfExists($table, $column);
-                Craft::$app->getDb()->createCommand()->dropColumn($table, $column)->execute();
+            if ($this->db->columnExists($table, $column)) {
+                Db::dropForeignKeyIfExists($table, $column, $this->db);
+                Db::dropIndexIfExists($table, $column, db: $this->db);
+                $this->db->createCommand()->dropColumn($table, $column)->execute();
             }
         }
-        $this->stdout("\nDone.\n\n");
+
+        $endTime = DateTimeHelper::currentUTCDateTime();
+        $totalTime = $endTime->diff($startTime);
+        $this->stdout("Done. Completed in {$totalTime->format('%H:%I:%S')}");
 
         return 0;
     }
@@ -331,7 +355,7 @@ EOL
 
             foreach ($this->neededCustomAddressFields as $oldAttribute => $label) {
                 $field = $this->_customField($oldAttribute, $label, 'address');
-                $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = $field->handle;
+                $this->_oldAddressFieldToNewCustomFieldHandle[$oldAttribute] = ElementHelper::fieldColumnFromField($field);
                 if ($this->_allowAdminChanges && !$this->_addressFieldLayout->getFieldByHandle($field->handle)) {
                     $layoutElements[] = new CustomField($field);
                 }
@@ -360,7 +384,7 @@ EOL
             $this->_allowAdminChanges &&
             !$this->confirm("Do you have a custom field for storing $label values?")
         ) {
-            $this->stdout("Let’s create one then.\n");
+            $this->stdout("Let’s create one then.");
 
             $field = new PlainText();
             $field->groupId = ArrayHelper::firstValue(Craft::$app->getFields()->getAllGroups())->id;
@@ -372,11 +396,11 @@ EOL
                         return false;
                     }
                     if (in_array($handle, ['ancestors', 'archived', 'attributeLabel', 'attributes', 'behavior', 'behaviors', 'canSetProperties', 'children', 'contentTable', 'dateCreated', 'dateUpdated', 'descendants', 'enabled', 'enabledForSite', 'error', 'errors', 'errorSummary', 'fieldValue', 'fieldValues', 'hasMethods', 'id', 'language', 'level', 'localized', 'lft', 'link', 'localized', 'name', 'next', 'nextSibling', 'owner', 'parent', 'parents', 'postDate', 'prev', 'prevSibling', 'ref', 'rgt', 'root', 'scenario', 'searchScore', 'siblings', 'site', 'slug', 'sortOrder', 'status', 'title', 'uid', 'uri', 'url', 'username'])) {
-                        $this->stdout("“{$handle}” is a reserved word.\n");
+                        $this->stdout("“{$handle}” is a reserved word.");
                         return false;
                     }
                     if ($fieldsService->getFieldByHandle($handle) !== null) {
-                        $this->stdout("A field with the handle “{$handle}” already exists.\n");
+                        $this->stdout("A field with the handle “{$handle}” already exists.");
                         return false;
                     }
                     return true;
@@ -399,16 +423,16 @@ EOL
             'required' => true,
             'validator' => function($handle) use ($handlePattern, $fieldsService) {
                 if (!preg_match($handlePattern, $handle)) {
-                    $this->stdout("Invalid field handle.\n");
+                    $this->stdout("Invalid field handle.");
                     return false;
                 }
                 $field = $fieldsService->getFieldByHandle($handle);
                 if (!$field) {
-                    $this->stdout("No field exists with that handle.\n");
+                    $this->stdout("No field exists with that handle.");
                     return false;
                 }
                 if (!$this->_allowAdminChanges && $this->_addressFieldLayout->getFieldByHandle($handle) === null) {
-                    $this->stdout("$field->name isn’t included in the address field layout, and admin changes aren't allowed on this environment.\n");
+                    $this->stdout("$field->name isn’t included in the address field layout, and admin changes aren't allowed on this environment.");
                     return false;
                 }
                 return true;
@@ -488,7 +512,7 @@ EOL
             }
             Console::updateProgress($done++, count($shippingZones));
         }
-        Console::endProgress(count($shippingZones) . ' shipping zones migrated.');
+        Console::endProgress(count($shippingZones) . ' shipping zones migrated.\n');
     }
 
     /**
@@ -561,7 +585,7 @@ EOL
             }
             Console::updateProgress($done++, count($taxZones));
         }
-        Console::endProgress(count($taxZones) . ' tax zones migrated.');
+        Console::endProgress(count($taxZones) . ' tax zones migrated.\n');
     }
 
     /**
@@ -571,7 +595,7 @@ EOL
     {
         $discountUses = '{{%commerce_customer_discountuses}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all discount uses with their correct user
         if ($isPsql) {
@@ -589,7 +613,7 @@ inner join $customersTable [[cu]] on
 set [[du.customerId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -599,7 +623,7 @@ SQL;
     {
         $orderHistoriesTable = '{{%commerce_orderhistories}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all address elements with their correct customer owner ID
         if ($isPsql) {
@@ -617,7 +641,7 @@ inner join $customersTable [[cu]] on
 set [[oh.userId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -630,7 +654,7 @@ SQL;
         $previousAddressTable = '{{%commerce_addresses}}';
         $customerAddressTable = '{{%commerce_customers_addresses}}';
         $customersTable = '{{%commerce_customers}}';
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Make all address elements with their correct customer owner ID
         if ($isPsql) {
@@ -654,7 +678,7 @@ inner join $customersTable [[cu]] on
 set [[a.ownerId]] = [[cu.customerId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Migrates the primary billing address ID
         if ($isPsql) {
@@ -672,7 +696,7 @@ inner join $previousAddressTable [[pa]] on
 set [[c.primaryBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Migrates the primary shipping ID
         if ($isPsql) {
@@ -690,7 +714,7 @@ inner join $previousAddressTable [[pa]] on
 set [[c.primaryShippingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -702,7 +726,7 @@ SQL;
         $addressTable = CraftTable::ADDRESSES;
         $previousAddressTable = '{{%commerce_addresses}}';
         $ordersTable = Table::ORDERS;
-        $isPsql = Craft::$app->getDb()->getIsPgsql();
+        $isPsql = $this->db->getIsPgsql();
 
         // Order Shipping address
         if ($isPsql) {
@@ -720,7 +744,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.shippingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Billing address
         if ($isPsql) {
@@ -738,7 +762,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.billingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Estimated shipping address
         if ($isPsql) {
@@ -756,7 +780,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Order Estimated billing address
         if ($isPsql) {
@@ -774,7 +798,7 @@ inner join $previousAddressTable [[pa]] on
 set [[o.estimatedBillingAddressId]] = [[pa.v4addressId]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order shipping address elements have the owner ID of the order
         if ($isPsql) {
@@ -792,7 +816,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order billing address elements have the owner ID of the order
         if ($isPsql) {
@@ -810,7 +834,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order estimated billing address elements have the owner ID of the order
         if ($isPsql) {
@@ -828,7 +852,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
 
         // Make all order estimated shipping address elements have the owner ID of the order
         if ($isPsql) {
@@ -846,7 +870,7 @@ inner join $ordersTable [[o]] on
 set [[a.ownerId]] = [[o.id]]
 SQL;
         }
-        Craft::$app->getDb()->createCommand($sql)->execute();
+        $this->db->createCommand($sql)->execute();
     }
 
     /**
@@ -854,76 +878,178 @@ SQL;
      */
     private function _migrateAddresses()
     {
+        $addressesTable = '{{%commerce_addresses}}';
+        $ordersTable = '{{%commerce_orders}}';
+        $customersAddressesTable = '{{%commerce_customers_addresses}}';
+
+        $sql = <<<SQL
+SELECT a.id
+FROM $addressesTable AS a
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o1
+  WHERE [[o1.v3billingAddressId]] = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE [[o2.v3shippingAddressId]] = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE [[o2.v3estimatedBillingAddressId]] = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE [[o2.v3shippingAddressId]] = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $ordersTable AS o2
+  WHERE [[o2.v3estimatedShippingAddressId]] = a.id
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM $customersAddressesTable AS ca
+  WHERE [[ca.addressId]] = a.id
+);
+SQL;
+
+        $deletableAddressesIds = $this->db->createCommand($sql)->queryColumn();
+        $deleted = (bool)Db::delete($addressesTable, ['id' => $deletableAddressesIds], db: $this->db);
+
+        if ($deleted) {
+            $this->stdout("Deleted $deleted addresses that were not used in orders or customer addresses.");
+        }
+
         $addresses = (new Query())
             ->select('*')
             ->from(['a' => '{{%commerce_addresses}}'])
+            ->where(['[[isStoreLocation]]' => false])
             ->limit(null);
 
         $totalAddresses = $addresses->count();
         $done = 0;
         Console::startProgress($done, $totalAddresses);
-        foreach ($addresses->each() as $address) {
-            $addressElement = $this->_createAddress($address);
-            // Save the old ID for later
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}',
-                ['v4addressId' => $addressElement->id],
-                ['id' => $address['id']]
-            )->execute();
-            Console::updateProgress($done++, $totalAddresses);
+        foreach ($addresses->batch(500) as $addressRows) {
+            $updateAddressParams = [];
+            $addressIds = [];
+
+            foreach ($addressRows as $address) {
+                $addressElementId = $this->_createAddress($address);
+                Console::updateProgress($done++, $totalAddresses);
+                $addressIds[] = $address['id'];
+                $updateAddressParams['v4addressId'][$address['id']] = $addressElementId;
+            }
+
+            $data = $this->_getBatchUpdateQueryWithParams(
+                tableName: '{{%commerce_addresses}}',
+                byField: 'id',
+                fieldValues: $addressIds,
+                params: $updateAddressParams
+            );
+
+            Craft::$app->db->createCommand($data['sql'], $data['params'])->execute();
         }
 
-        Console::endProgress($totalAddresses . ' addresses migrated.');
+        Console::endProgress($totalAddresses . ' addresses migrated.\n');
     }
 
     /**
      * Creates an Address element from previous address data and returns the ID
      */
-    private function _createAddress($data): Address
+    private function _createAddress($data): int
     {
-        $address = new Address();
-        $address->title = $data['label'] ?: 'Address';
-        $address->addressLine1 = $data['address1'];
-        $address->addressLine2 = $data['address2'];
-        $address->countryCode = $this->_allCountriesByV3CountryId[$data['countryId']]['iso'] ?? 'US';
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
+        $dateCreated = Db::prepareDateForDb($data['dateCreated']);
+        $dateUpdated = Db::prepareDateForDb($data['dateUpdated']);
+
+        // Insert into elements table
+        Db::insert(CraftTable::ELEMENTS, [
+            'fieldLayoutId' => $this->_addressFieldLayout->id,
+            'type' => Address::class,
+            'enabled' => true,
+            'archived' => false,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ], $this->db);
+        /** @var int $addressElementId */
+        $addressElementId = $this->db->getLastInsertID();
+
+        // Insert into element sites table
+        Db::insert(CraftTable::ELEMENTS_SITES, [
+            'elementId' => $addressElementId,
+            'siteId' => $primarySite->id,
+            'enabled' => true,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ], $this->db);
+
+        $addressContent = [
+            'elementId' => $addressElementId,
+            'title' => $data['label'] ?: 'Address',
+            'siteId' => $primarySite->id,
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+            'uid' => StringHelper::UUID(),
+        ];
+        $address = [
+            'id' => $addressElementId,
+            'addressLine1' => $data['address1'],
+            'addressLine2' => $data['address2'],
+            'countryCode' => $this->_allCountriesByV3CountryId[$data['countryId']]['iso'] ?? 'US',
+            'dateCreated' => $dateCreated,
+            'dateUpdated' => $dateUpdated,
+        ];
 
         // Was a stateId supplied, if so look it up in the mapping and
         if ($data['stateId']) {
-            $address->administrativeArea = $this->_allStatesByV3StateId[$data['stateId']]['abbreviation'] ?? null;
+            $address['administrativeArea'] = $this->_allStatesByV3StateId[$data['stateId']]['abbreviation'] ?? null;
         } else {
-            $address->administrativeArea = $data['stateName'] ?? null;
+            $address['administrativeArea'] = $data['stateName'] ?? null;
         }
 
-        $address->postalCode = $data['zipCode'];
-        $address->locality = $data['city'];
-        $address->dependentLocality = '';
+        $address['postalCode'] = $data['zipCode'];
+        $address['locality'] = $data['city'];
+        $address['dependentLocality'] = '';
 
-        if ($data['firstName'] || $data['lastName']) {
+        if ($data['fullName'] || $data['firstName'] || $data['lastName']) {
             $this->_ensureAddressField(new FullNameField());
-            $address->fullName = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            if ($data['fullName']) {
+                $address['fullName'] = $data['fullName'];
+            } else {
+                $address['fullName'] = implode(' ', array_filter([$data['firstName'], $data['lastName']]));
+            }
         }
 
         if ($data['businessName']) {
             $this->_ensureAddressField(new OrganizationField());
-            $address->organization = $data['businessName'];
+            $address['organization'] = $data['businessName'];
         }
 
         if ($data['businessTaxId']) {
             $this->_ensureAddressField(new OrganizationTaxIdField());
-            $address->organizationTaxId = $data['businessTaxId'];
+            $address['organizationTaxId'] = $data['businessTaxId'];
         }
 
         // Set fields that were created and mapped from old data
-        foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $customFieldHandle) {
+        foreach ($this->_oldAddressFieldToNewCustomFieldHandle as $oldAttribute => $dbCustomFieldHandle) {
             if ($data[$oldAttribute]) {
-                $address->setFieldValue($customFieldHandle, $data[$oldAttribute]);
+                $addressContent[$dbCustomFieldHandle] = $data[$oldAttribute];
             }
         }
 
-        $address->dateCreated = DateTimeHelper::toDateTime($data['dateCreated']);
-        $address->dateUpdated = DateTimeHelper::toDateTime($data['dateUpdated']);
-        Craft::$app->getElements()->saveElement($address, false, false, false);
+        // insert into content table
+        Db::insert(CraftTable::CONTENT, $addressContent, $this->db);
 
-        return $address;
+        // insert into address table
+        Db::insert(CraftTable::ADDRESSES, $address, $this->db);
+
+        return $addressElementId;
     }
 
     private function _ensureAddressField(BaseField $layoutElement): void
@@ -934,7 +1060,7 @@ SQL;
         }
 
         if (!$this->_allowAdminChanges) {
-            $this->stdout("The address field layout doesn't include the `$attribute` field. Admin changes aren't allowed on this environment, so it can't be added automatically.\n");
+            $this->stdout("The address field layout doesn't include the `$attribute` field. Admin changes aren't allowed on this environment, so it can't be added automatically.");
             return;
         }
 
@@ -946,94 +1072,220 @@ SQL;
     }
 
     /**
+     * Migrates all guest customers to users. Prepares and cleans up before and after this process.
+     *
+     *
      * @return void
      */
     public function _migrateCustomers(): void
     {
-        // Skip this if it has already run (the customerId column would not be empty)
-        $exists = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['[[orders.customerId]]'])
-            ->where(['[[orders.customerId]]' => null])
-            ->andWhere(['not', ['[[orders.email]]' => null]])
-            ->andWhere(['not', ['[[orders.email]]' => '']])
-            ->exists();
+        $ordersTable = '{{%commerce_orders}}';
+        $orderHistoriesTable = '{{%commerce_orderhistories}}';
+        $customersTable = '{{%commerce_customers}}';
+        $customersAddressesTable = '{{%commerce_customers_addresses}}';
+        $customersDiscountUsesTable = '{{%commerce_customer_discountuses}}';
+        $usersTable = '{{%users}}';
+        $isPsql = $this->db->getIsPgsql();
 
-        if (!$exists) {
-            return;
-        }
+        // Find where we have more than one user ID for a customer
+        $this->stdout('  Making sure there are no duplicate user IDs in the customer table.');
 
-        $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
-        // Delete all customers that don't have any orders
-        foreach (collect($orphanedCustomerIds)->chunk(10000) as $chunk) {
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
-                ->execute();
-        }
+        $duplicateUserIdInCustomersTable = (new Query())
+            ->select(['[[cu.v3userId]]'])
+            ->from(['cu' => $customersTable])
+            ->groupBy(['cu.v3userId'])
+            ->andWhere(['not', ['cu.v3userId' => null]])
+            ->having(['>', 'count(*)', 1]);
 
-        // Remove guest customer's primary address IDs if the customer is not related to a user
-        // Guest users no longer have an address book anyway.
-        Craft::$app->getDb()->createCommand()->update(Table::CUSTOMERS,
-            ['v3primaryShippingAddressId' => null, 'v3primaryBillingAddressId' => null],
-            ['v3userId' => null] // guest customer has no userId
-        )->execute();
+        $duplicates = (new Query())
+            ->select(['[[id]]', '[[v3userId]]'])
+            ->from(['cu' => $customersTable])
+            ->where(['cu.v3userId' => $duplicateUserIdInCustomersTable])
+            ->orderBy(['cu.v3userId' => SORT_ASC, 'cu.id' => SORT_ASC])
+            ->all();
 
-        // This gets us a unique list of order emails
-        $allEmails = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['lower([[orders.email]]) AS email'])
-            ->distinct()
-            ->where(['not', ['[[orders.email]]' => null]])
-            ->andWhere(['not', ['[[orders.email]]' => '']]);
+        $keyedByv3UserId = collect($duplicates)->groupBy('v3userId')->all();
 
-        $totalEmails = $allEmails->count();
-        $done = 0;
-        Console::startProgress($done, $totalEmails);
-        foreach ($allEmails->each() as $email) {
-            $email = $email['email'];
-            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
-
-            // Get the original customer for this user
-            $customerId = (new Query())->from('{{%commerce_customers}} customers')
-                ->select(['[[customers.id]]'])
-                ->where(['[[customers.v3userId]]' => $user->id])
-                ->scalar();
-
-            // No customer for this user? They could have been a guest customer so let's create them a new customer record
-            if (!$customerId) {
-                $customer = new Customer();
-                $customer->customerId = $user->id;
-                $customer->save(false);
-                $customerId = $customer->id;
+        foreach ($keyedByv3UserId as $v3userId => $customers) {
+            $customerId = null;
+            $customerIdsToDelete = [];
+            foreach ($customers as $customer) {
+                if ($customerId === null) {
+                    $customerId = $customer['id'];
+                } else {
+                    $customerIdsToDelete[] = $customer['id'];
+                }
             }
 
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::CUSTOMERS,
-                    ['customerId' => $user->id],
-                    ['id' => $customerId]
-                )->execute();
+            if (empty($customerIdsToDelete)) {
+                continue;
+            }
 
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::ORDERS,
-                    ['customerId' => $user->id, 'v3customerId' => $customerId],
-                    ['email' => $email]
-                )->execute();
+            $totalUsesForCustomerByDiscountId = (new Query())
+                ->select([
+                    new Expression('SUM(uses) as [[uses]]'),
+                    '[[du.discountId]] as [[discountId]]',
+                    new Expression($customerId . ' as [[v3customerId]]'),
+                ])
+                ->from(['du' => $customersDiscountUsesTable])
+                ->where(['du.v3customerId' => $customerIdsToDelete])
+                ->orWhere(['du.v3customerId' => $customerId])
+                ->groupBy(['du.discountId'])
+                ->all();
 
-            Console::updateProgress($done++, $totalEmails);
+
+            foreach ($totalUsesForCustomerByDiscountId as $usesByDiscountId) {
+                $discountUse = (new Query())->select('id')
+                    ->from($customersDiscountUsesTable)
+                    ->where(['discountId' => $usesByDiscountId['discountId'], 'v3customerId' => $customerId])
+                    ->one();
+
+                if ($discountUse) {
+                    Db::update($customersDiscountUsesTable, [
+                        'uses' => $usesByDiscountId['uses'],
+                    ], ['id' => $discountUse['id']], db: $this->db);
+                } else {
+                    Db::insert($customersDiscountUsesTable, $usesByDiscountId, $this->db);
+                }
+            }
+
+            Db::update(
+                $customersAddressesTable,
+                ['customerId' => $customerId],
+                ['customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
+
+            Db::update(
+                $ordersTable,
+                ['v3customerId' => $customerId],
+                ['v3customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
+
+            Db::update(
+                $orderHistoriesTable,
+                ['v3customerId' => $customerId],
+                ['v3customerId' => $customerIdsToDelete],
+                db: $this->db,
+            );
+
+            Db::delete(
+                $customersTable,
+                ['id' => $customerIdsToDelete],
+                db: $this->db,
+            );
         }
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
 
-        $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
+        $this->stdout('  Purging orphaned customers.');
+        $this->_purgeOrphanedCustomers();
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
 
-        foreach (collect($orphanedCustomerIds)->chunk(10000) as $chunk) {
-            // Clear out orphaned customers again now that we have consolidated them to emails
-            Craft::$app->getDb()->createCommand()
-                ->delete('{{%commerce_customers_addresses}}', ['customerId' => $chunk->all()])
-                ->execute();
-            // Delete all customers that don't have any orders
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $chunk->all()])
-                ->execute();
+
+        $this->stdout('  Removing primary address settings for guest customers.');
+        Db::update(Table::CUSTOMERS, [
+            'v3primaryShippingAddressId' => null,
+            'v3primaryBillingAddressId' => null,
+        ], ['v3userId' => null], db: $this->db);
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
+
+
+        $this->stdout('  Updating all orders with the email of its real user.');
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $ordersTable [[o1]]
+    set [[email]] = [[u.email]]
+    from $customersTable [[cu]], $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.v3customerId]] = [[cu.id]]
+    and [[cu.v3userId]] = [[u.id]]
+SQL;
+        } else {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+inner join $customersTable [[cu]] on
+    [[cu.id]] = [[o.v3customerId]]
+inner join $usersTable [[u]] on
+    [[u.id]] = [[cu.v3userId]]
+set [[o.email]] = [[u.email]]
+SQL;
         }
+        $this->db->createCommand($sql)->execute();
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
 
-        Console::endProgress($totalEmails . ' customers migrated.');
+
+        $this->stdout('  Getting all guest email addresses (no user account with that email address found).');
+        /** @var array{string: string} $guestEmails */
+        $guestEmails = (new Query())
+            ->select(['[[o.email]]'])
+            ->from(['o' => $ordersTable])
+            ->leftJoin(['u' => $usersTable], 'o.email = u.email')
+            ->where(['u.email' => null])
+            ->andWhere(['not', ['o.email' => null]])
+            ->andWhere(['not', ['o.email' => '']])
+            ->groupBy(['[[o.email]]'])
+            ->column();
+        $this->stdoutlast('  Done. Found ' . count($guestEmails) . ' guest emails.', Console::FG_GREEN);
+
+        // We know we have to make a user for every guest email address
+        // We don't use Craft::$app->getUsers()->ensureUserByEmail() since we know it doesn’t exist in the users table already
+        $this->stdout('  Creating a inactive user for each guest email.');
+        $startTime = microtime(true);
+        $totalGuestEmails = count($guestEmails);
+        $doneTotalGuestEmails = 0;
+        Console::startProgress($doneTotalGuestEmails, $totalGuestEmails);
+        foreach ($guestEmails as $guestEmail) {
+            $user = new User();
+            $user->email = $guestEmail;
+            if (!Craft::$app->getElements()->saveElement($user, false, false, false, false)) {
+                throw new \yii\base\Exception('Unable to save user for email: ' . $guestEmail . ' : ' . implode(', ', $user->getFirstErrors()));
+            }
+
+            Console::updateProgress($doneTotalGuestEmails++, $totalGuestEmails);
+        }
+        $totalTime = microtime(true) - $startTime;
+        $this->stdout('  Updating all customers with their correct user ID.');
+        Console::endProgress('Created' . $totalGuestEmails . ' inactive users in ' . $totalTime / 1000 . ' seconds' . PHP_EOL);
+
+        $this->stdout('  Updating all customers with their correct user ID.');
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $customersTable [[cu]]
+    set [[customerId]] = [[cu.v3userId]]
+    where [[cu.v3userId]] is not null
+SQL;
+        } else {
+            $sql = <<<SQL
+update $customersTable [[cu]]
+set [[cu.customerId]] = [[cu.v3userId]]
+where [[cu.v3userId]] is not null
+SQL;
+        }
+        $this->db->createCommand($sql)->execute();
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
+
+        $this->stdout('  Updating all orders with their correct user ID.');
+        if ($isPsql) {
+            $sql = <<<SQL
+    update $ordersTable [[o1]]
+    set [[customerId]] = [[u.id]]
+    from $usersTable [[u]], $ordersTable [[o2]]
+    where [[o2.email]] = [[u.email]]
+SQL;
+        } else {
+            $sql = <<<SQL
+update $ordersTable [[o]]
+inner join $usersTable [[u]] on
+    [[o.email]] = [[u.email]]
+set [[o.customerId]] = [[u.id]]
+SQL;
+        }
+        $this->db->createCommand($sql)->execute();
+        $this->stdoutlast('  Done.', Console::FG_GREEN);
+
+        // drop all customers without a customerId
+        $this->stdout('  Confirming all customers are now related to a user.');
+        Db::delete($customersTable, ['customerId' => null], db: $this->db);
     }
 
     /**
@@ -1041,10 +1293,10 @@ SQL;
      */
     private function _migrateStore(): void
     {
-        $storeLocationQuery = (new Query())
+        $storeLocation = (new Query())
             ->select('*')
             ->from(['{{%commerce_addresses}}'])
-            ->where(['isStoreLocation' => true])
+            ->where(['[[isStoreLocation]]' => true])
             ->one();
 
         $store = Store::find()->one();
@@ -1055,8 +1307,8 @@ SQL;
 
         $storeModel = Plugin::getInstance()->getStore()->getStore();
 
-        if ($storeLocationQuery) {
-            $storeModel->locationAddressId = $this->_createAddress($storeLocationQuery)->id;
+        if ($storeLocation) {
+            $storeModel->locationAddressId = $this->_createAddress($storeLocation);
         }
 
         $storeModel->countries = (new Query())
@@ -1071,5 +1323,83 @@ SQL;
         $storeModel->setMarketAddressCondition($condition);
 
         Plugin::getInstance()->getStore()->saveStore($storeModel);
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function _purgeOrphanedCustomers(): void
+    {
+        $orphanedCustomerIds = $this->_getOrphanedCustomerIds();
+        // Delete all customers that don't have any orders
+        foreach (collect($orphanedCustomerIds)->chunk(999) as $chunk) {
+            Db::delete(Table::CUSTOMERS, [
+                'id' => $chunk->all(),
+            ], db: $this->db);
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function stdout($string)
+    {
+        $args = func_get_args();
+
+        return parent::stdout($string . PHP_EOL, ...array_slice($args, 1));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function stdoutlast($string)
+    {
+        $args = func_get_args();
+
+        return parent::stdout($string . PHP_EOL . PHP_EOL, ...array_slice($args, 1));
+    }
+
+
+    /**
+     * @param $tableName
+     * @param $byField
+     * @param $fieldValues
+     * @param $params
+     * @return array
+     * @throws \yii\base\NotSupportedException
+     */
+    private function _getBatchUpdateQueryWithParams($tableName, $byField, $fieldValues, $params)
+    {
+        $str = 'UPDATE ' . $this->db->quoteTableName($this->db->getSchema()->getRawTableName($tableName)) . ' SET ';
+        $row = [];
+        $bind = [];
+
+        foreach (array_keys($params) as $param) {
+            $rowStr = $this->db->quoteColumnName($param) . ' = (CASE ' . $this->db->quoteColumnName($byField) . ' ';
+            $cel = [];
+            foreach ($fieldValues as $fieldValue) {
+                if (array_key_exists($fieldValue, $params[$param])) {
+                    $idValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+                    $paramValue = ':' . $param . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+                    $bind[$paramValue] = $params[$param][$fieldValue];
+                    $cel[] = 'WHEN ' . $idValue . ' THEN ' . $paramValue;
+                }
+            }
+            $rowStr .= implode(' ', $cel);
+            $rowStr .= ' ELSE ' . $this->db->quoteColumnName($param) . ' END)';
+            $row[] = $rowStr;
+        }
+
+        $whereIn = [];
+        foreach ($fieldValues as $fieldValue) {
+            $paramValue = ':' . $byField . '_' . preg_replace("#[[:punct:]]#", "", $fieldValue);
+            $bind[$paramValue] = $fieldValue;
+            $whereIn[] = is_string($fieldValue) ? $this->db->quoteValue($fieldValue) : $fieldValue;
+        }
+
+        $str .= implode(', ', $row);
+        $str .= ' WHERE ' . $this->db->quoteColumnName($byField) . ' IN (' . implode(', ', $whereIn) . ')';
+        return ['sql' => $str, 'params' => $bind];
     }
 }

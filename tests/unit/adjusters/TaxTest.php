@@ -35,11 +35,6 @@ class TaxTest extends Unit
     public ?Plugin $pluginInstance;
 
     /**
-     * @var string
-     */
-    public string $originalEdition;
-
-    /**
      * @inheritdoc
      */
     protected function _before(): void
@@ -49,8 +44,6 @@ class TaxTest extends Unit
         // start with fresh cache
         Craft::$app->getCache()->flush();
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = $this->pluginInstance->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
     }
 
     /**
@@ -59,8 +52,6 @@ class TaxTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
     }
 
     /**

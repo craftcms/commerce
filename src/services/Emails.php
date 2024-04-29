@@ -691,9 +691,18 @@ class Emails extends Component
 
                 file_put_contents($tempPath, $renderedPdf);
 
-                $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                $fileName = '';
+                $defaultFileName = $pdf->handle . '-' . $order->number;
+                if ($pdf->fileNameFormat) {
+                    try {
+                        $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                    } catch (\Throwable $e) {
+                        $fileName = $defaultFileName;
+                    }
+                }
+
                 if (!$fileName) {
-                    $fileName = $pdf->handle . '-' . $order->number;
+                    $fileName = $defaultFileName;
                 }
 
                 // Attachment information

@@ -27,7 +27,6 @@ use yii\db\ActiveQueryInterface;
  * @property int $taxCategoryId
  * @property TaxZone $taxZone
  * @property bool $isEverywhere
- * @property bool $isLite
  * @property int $taxZoneId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
