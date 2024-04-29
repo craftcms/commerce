@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\Field;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGatewayInterface;
 use craft\commerce\elements\Subscription;
@@ -35,6 +34,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\UserException;
 
 /**
  * Subscriptions service.
@@ -405,7 +405,10 @@ class Subscriptions extends Component
 
         // If there are any subscriptions, make sure that this is not allowed.
         if ($this->doesUserHaveSubscriptions($user->id)) {
-            $event->isValid = false;
+            // TODO revise this stop-gap measure when Craft CMS gets a way to hook into the user delete process.
+            throw new UserException(Craft::t('commerce', 'Unable to delete user {user}: the user has a Craft Commerce subscription.', [
+                'user' => $user->id,
+            ]));
         }
     }
 

@@ -1,8 +1,10 @@
 {% extends "_layouts/elementindex" %}
 
+{% set showSiteMenu = true %}
 {% set title = "Orders"|t('commerce') %}
 {% set elementType = 'craft\\commerce\\elements\\Order' %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
+
 
 {% do craft.app.view.registerTranslations('commerce', [
     "Apply",
@@ -24,7 +26,8 @@
         elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
         context: '{{ context }}',
         storageKey: 'elementindex.{{ elementType|e("js") }}',
-        toolbarSelector: '#toolbar'
+        toolbarSelector: '#toolbar',
+        store: {{ store|json_encode|raw }},
     });
 {% endblock %}
 

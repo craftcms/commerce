@@ -7,9 +7,19 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
-use craft\commerce\errors\CurrencyException;
+use Craft;
+use craft\base\conditions\ConditionInterface;
+use craft\base\ElementInterface;
+use craft\base\FieldInterface;
+use craft\commerce\base\HasStoreInterface;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\Plugin;
-use yii\base\InvalidConfigException;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\fields\conditions\MoneyFieldConditionRule;
+use craft\fields\Money;
+use craft\models\Site;
+use Money\Currency;
+use yii\db\QueryInterface;
 
 /**
  * Order Number Attribute Condition Rule
@@ -17,33 +27,93 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.2.0
  *
+ * @method ElementConditionInterface|HasStoreInterface getCondition()
  * @property-read float|int $orderAttributeValue
  */
-abstract class OrderCurrencyValuesAttributeConditionRule extends OrderValuesAttributeConditionRule
+abstract class OrderCurrencyValuesAttributeConditionRule extends MoneyFieldConditionRule
 {
     /**
-     * @inheritdoc
+     * @var string
      */
-    protected function inputOptions(): array
+    public string $orderAttribute = '';
+
+    /**
+     * @var Currency|null
+     */
+    public ?Currency $currency = null;
+
+    /**
+     * @var int|null
+     */
+    public ?int $subUnit = null;
+
+    public function __construct($config = [])
     {
-        return array_merge(parent::inputOptions(), [
-            'step' => $this->inputStep(),
-        ]);
+        $this->setFieldUid('not-applicable');
+        parent::__construct($config);
     }
 
     /**
-     * @return string
-     * @throws CurrencyException
-     * @throws InvalidConfigException
-     * @since 4.2.0
+     * @inheritdoc
      */
-    protected function inputStep(): string
+    public function setCondition(ConditionInterface $condition): void
     {
-        $minorUnit = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency()->getMinorUnit();
-        if ($minorUnit === 0) {
-            return '1';
+        parent::setCondition($condition);
+
+        if ($this->getCondition() instanceof HasStoreInterface) {
+            $this->currency = $this->getCondition()->getStore()->getCurrency();
+        } else {
+            /** @var Site|StoreBehavior|null $currentSite */
+            $currentSite = Craft::$app->getSites()->getCurrentSite();
+            $this->currency = $currentSite?->getStore()->getCurrency();
         }
 
-        return '0.' . str_pad('1', $minorUnit,  '0', STR_PAD_LEFT);
+        if ($this->currency) {
+            $this->subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($this->currency);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function field(): FieldInterface
+    {
+        // Mock a Money field
+        $field = new Money();
+        $field->currency = $this->currency?->getCode();
+
+        return $field;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getExclusiveQueryParams(): array
+    {
+        return [$this->orderAttribute];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLabel(): string
+    {
+        return 'Label not implemented';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function matchElement(ElementInterface $element): bool
+    {
+        return $this->matchValue($element->{$this->orderAttribute});
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function modifyQuery(QueryInterface $query): void
+    {
+        $query->{$this->orderAttribute}($this->paramValue());
     }
 }

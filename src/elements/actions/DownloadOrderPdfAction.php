@@ -56,6 +56,12 @@ class DownloadOrderPdfAction extends ElementAction
     public string $downloadType = 'pdfCollated';
 
     /**
+     * @var int|null
+     * @since 5.0.0
+     */
+    public ?int $storeId = null;
+
+    /**
      * @inheritdoc
      */
     public function getTriggerLabel(): string
@@ -68,7 +74,11 @@ class DownloadOrderPdfAction extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        if ($this->storeId === null) {
+            return '';
+        }
+
+        $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs($this->storeId);
 
         $pdfs = [];
         foreach ($allPdfs as $pdf) {
@@ -104,6 +114,10 @@ JS;
      */
     public function performAction(ElementQueryInterface $query): bool
     {
+        if ($this->storeId === null) {
+            throw new InvalidConfigException('Invalid store ID');
+        }
+
         $pdfsService = Plugin::getInstance()->getPdfs();
 
         $pdfId = $this->pdfId;
@@ -111,7 +125,7 @@ JS;
             throw new InvalidConfigException("Invalid PDF ID");
         }
 
-        $pdf = $pdfsService->getPdfById($pdfId);
+        $pdf = $pdfsService->getPdfById($pdfId, $this->storeId);
 
         if (!$pdf) {
             throw new InvalidConfigException("Invalid PDF ID: '" . $pdfId . "'");

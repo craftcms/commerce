@@ -11,7 +11,15 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
+use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\services\Emails;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
+use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\Pdfs;
+use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Stores;
 use craft\db\Query;
 use craft\helpers\Json;
 
@@ -30,9 +38,11 @@ class ProjectConfigData
     {
         $output = [];
 
-        $output['emails'] = self::_getEmailData();
-        $output['pdfs'] = self::_getPdfData();
-        $output['gateways'] = self::_rebuildGatewayProjectConfig();
+        $output[self::_getProjectConfigKey(Emails::CONFIG_EMAILS_KEY)] = self::_getEmailData();
+        $output[self::_getProjectConfigKey(Pdfs::CONFIG_PDFS_KEY)] = self::_getPdfData();
+        $output[self::_getProjectConfigKey(Gateways::CONFIG_GATEWAY_KEY)] = self::_rebuildGatewayProjectConfig();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_STORES_KEY)] = self::_getStoresData();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_SITESTORES_KEY)] = self::_getSiteStoresData();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
@@ -44,9 +54,9 @@ class ProjectConfigData
             ];
         }
 
-        $output['orderStatuses'] = self::_getStatusData();
-        $output['lineItemStatuses'] = self::_getLineItemStatusData();
-        $output['productTypes'] = self::_getProductTypeData();
+        $output[self::_getProjectConfigKey(OrderStatuses::CONFIG_STATUSES_KEY)] = self::_getStatusData();
+        $output[self::_getProjectConfigKey(LineItemStatuses::CONFIG_STATUSES_KEY)] = self::_getLineItemStatusData();
+        $output[self::_getProjectConfigKey(ProductTypes::CONFIG_PRODUCTTYPES_KEY)] = self::_getProductTypeData();
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
@@ -59,6 +69,17 @@ class ProjectConfigData
         }
 
         return array_filter($output);
+    }
+
+    /**
+     * @param string $key
+     * @return string
+     * @since 5.0.0
+     */
+    private static function _getProjectConfigKey(string $key): string
+    {
+        $configKeyPrefix = 'commerce.';
+        return substr($key, strlen($configKeyPrefix));
     }
 
     /**
@@ -92,6 +113,27 @@ class ProjectConfigData
     }
 
     /**
+     * Return stores data config array.
+     */
+    private static function _getStoresData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
+            $data[$store->uid] = $store->getConfig();
+        }
+        return $data;
+    }
+
+    private static function _getSiteStoresData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getStores()->getAllSiteStores() as $siteStore) {
+            $data[$siteStore->uid] = $siteStore->getConfig();
+        }
+        return $data;
+    }
+
+    /**
      * Return product type data config array.
      */
     private static function _getProductTypeData(): array
@@ -103,7 +145,7 @@ class ProjectConfigData
                 'handle',
                 'hasDimensions',
                 'hasProductTitleField',
-                'hasVariants',
+                'maxVariants',
                 'hasVariantTitleField',
                 'name',
                 'productTitleFormat',
@@ -142,7 +184,6 @@ class ProjectConfigData
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
             $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
-            $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
             $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
             $productTypeRow['hasProductTitleField'] = (bool)$productTypeRow['hasProductTitleField'];
 
@@ -182,9 +223,11 @@ class ProjectConfigData
     private static function _getEmailData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getEmails()->getAllEmails() as $email) {
-            $data[$email->uid] = $email->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getEmails()->getAllEmails($store->id) as $email) {
+                $data[$email->uid] = $email->getConfig();
+            }
+        });
         return $data;
     }
 
@@ -194,9 +237,11 @@ class ProjectConfigData
     private static function _getPdfData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getPdfs()->getAllPdfs() as $pdf) {
-            $data[$pdf->uid] = $pdf->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getPdfs()->getAllPdfs($store->id) as $pdf) {
+                $data[$pdf->uid] = $pdf->getConfig();
+            }
+        });
         return $data;
     }
 
@@ -206,9 +251,11 @@ class ProjectConfigData
     private static function _getLineItemStatusData(): array
     {
         $data = [];
-        foreach (Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses() as $status) {
-            $data[$status->uid] = $status->getConfig();
-        }
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses($store->id) as $status) {
+                $data[$status->uid] = $status->getConfig();
+            }
+        });
         return $data;
     }
 

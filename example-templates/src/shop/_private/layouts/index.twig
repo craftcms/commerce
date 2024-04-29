@@ -20,7 +20,7 @@ Common, top-level layout template.
   {% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-<div id="body" [[hx-boost]]>
+<div id="body">
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
@@ -28,28 +28,22 @@ Common, top-level layout template.
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
 
-<header>
-  <div class="bg-gray-900">
-    <div class="container mx-auto p-6 md:flex justify-content-between align-content-center">
-      <h1 class="text-3xl">
-        <a href="{{ siteUrl('/[[folderName]]') }}" class="text-white">
-          {{- siteName ~ ' Shop' -}}
-        </a>
-      </h1>
-      {% if craft.app.sites.getAllSites()|length > 1 %}
-        <div class="ml-auto">
-          <select name="site" id="js-site-selector">
-            {% for site in craft.app.sites.getAllSites() %}
-              <option value="{{ siteUrl(craft.app.request.absoluteUrl|replace(currentSite.getBaseUrl(), ''), null, null, site.id) }}" {% if site.handle == currentSite.handle %}selected{% endif %}>{{ site.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-      {% endif %}
-    </div>
-  </div>
+{% macro docs(text, link) %}
+    <small class="">
+        {{ tag('a', {
+            text: 'ℹ︎ ' ~ text,
+            href: link,
+            class: '[[classes.docs]]',
+            target: '_blank',
+        }) }}
+    </small>
+{% endmacro %}
 
+<header>
+  {{ include('[[folderName]]/_private/layouts/includes/header') }}
   {{ include('[[folderName]]/_private/layouts/includes/nav-main') }}
   {{ include('[[folderName]]/_private/layouts/includes/nav-checkout') }}
+  {{ include('[[folderName]]/_private/layouts/includes/nav-customer') }}
 </header>
 
 <div id="main">
@@ -128,10 +122,10 @@ Common, top-level layout template.
 </body>
 </html>
 {% js at head %}
-let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode()|json_encode|raw }};
+let states = {{ craft.commerce.getStores().getCurrentStore().settings.getAdministrativeAreasListByCountryCode()|json_encode|raw }};
 {% set usedFields = {} %}
 {% for countryCode in craft.app.addresses.getCountryRepository().getAll()|keys %}
-	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getAddressFormatRepository().get(countryCode).getUsedFields()|merge([
+	{% set usedFields = usedFields|merge({ (countryCode): craft.app.addresses.getUsedFields(countryCode)|merge([
       'fullName',
       'latLong',
       'organizationTaxId',
@@ -140,7 +134,6 @@ let states = {{ craft.commerce.store.getStore().getAdministrativeAreasListByCoun
     ]) }) %}
 {% endfor %}
 let usedAddressFieldsByCountryCode = {{ usedFields|json_encode|raw }};
-
 function hideAddressFields(selectorTemplate) {
   const fields = document.querySelectorAll('.' + selectorTemplate.replace('placeHolder', 'js-address-field'));
   if (!fields.length) {

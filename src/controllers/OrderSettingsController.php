@@ -73,8 +73,7 @@ class OrderSettingsController extends BaseAdminController
                 ],
             ]);
 
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order fields.'));
-            return null;
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t save order fields.'));
         }
 
         if ($currentOrderFieldLayout = Craft::$app->getProjectConfig()->get(Orders::CONFIG_FIELDLAYOUT_KEY)) {
@@ -86,8 +85,6 @@ class OrderSettingsController extends BaseAdminController
         $configData = [$uid => $fieldLayout->getConfig()];
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Order fields saved.'));
-
-        return $this->redirectToPostedUrl();
+        return $this->asSuccess(Craft::t('commerce', 'Order fields saved.'));
     }
 }

@@ -11,8 +11,8 @@ use Craft;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use Illuminate\Support\Collection;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -38,7 +38,6 @@ class ShippingMethod extends BaseShippingMethod
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
                 'handle' => AttributeTypecastBehavior::TYPE_STRING,
                 'enabled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN,
             ],
         ];
 
@@ -80,8 +79,12 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function getShippingRules(): array
+    public function getShippingRules(): Collection
     {
+        if ($this->id === null) {
+            return collect();
+        }
+
         return Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($this->id);
     }
 
@@ -98,7 +101,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/shipping/shippingmethods/' . $this->id);
+        return $this->getStore()->getStoreSettingsUrl('shippingmethods/' . $this->id);
     }
 
     /**
@@ -106,11 +109,16 @@ class ShippingMethod extends BaseShippingMethod
      */
     protected function defineRules(): array
     {
-        return [
-            [['name', 'handle'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
-            [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+        $rules = parent::defineRules();
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
+        $rules[] = [['handle'], UniqueValidator::class,
+            'targetClass' => ShippingMethodRecord::class,
+            'targetAttribute' => ['handle', 'storeId'],
+            'message' => '{attribute} "{value}" has already been taken.',
         ];
+
+        return $rules;
     }
 
     /**

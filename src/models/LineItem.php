@@ -20,6 +20,7 @@ use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
@@ -31,8 +32,9 @@ use yii\base\InvalidConfigException;
  *
  * @property array|OrderAdjustment[] $adjustments
  * @property float $discount
- * @property bool $onSale
+ * @property bool $onPromotion
  * @property array $options
+ * @property array $snapshot
  * @property Order $order
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
@@ -43,7 +45,6 @@ use yii\base\InvalidConfigException;
  * @property int $taxIncluded
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
- * @property-read float $saleAmount
  * @property float $salePrice
  * @property float $price
  * @property-read string $priceAsCurrency
@@ -55,6 +56,13 @@ use yii\base\InvalidConfigException;
  * @property-read string $shippingCostAsCurrency
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
+ * @property-read bool $isShippable
+ * @property string $sku
+ * @property LineItemStatus|null $lineItemStatus
+ * @property string $description
+ * @property-read bool $isTaxable
+ * @property float|int $promotionalPrice
+ * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -77,9 +85,15 @@ class LineItem extends Model
     private float $_price = 0;
 
     /**
-     * @var float Sale price is the price of the line item. Sale price is price + saleAmount
+     * @var float|null
+     * @since 5.0.0
      */
-    private float $_salePrice = 0;
+    private ?float $_promotionalPrice = null;
+
+    /**
+     * @var float|null Sale price is the price the line item will be sold for.
+     */
+    private ?float $_salePrice = null;
 
     /**
      * @var float Weight
@@ -107,9 +121,9 @@ class LineItem extends Model
     public int $qty;
 
     /**
-     * @var mixed Snapshot
+     * @var array|null Snapshot
      */
-    public mixed $snapshot = null;
+    private ?array $_snapshot = null;
 
     /**
      * @var string SKU
@@ -240,7 +254,7 @@ class LineItem extends Model
     {
         if (!isset($this->_lineItemStatus) && isset($this->lineItemStatusId)) {
             $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
-            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
+            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId, $this->getOrder()?->getStore()->id);
         }
 
         return $this->_lineItemStatus;
@@ -303,12 +317,41 @@ class LineItem extends Model
     }
 
     /**
+     * Returns the snapshot for the line item.
+     *
+     * @return array
+     * @since 5.0.0
+     */
+    public function getSnapshot(): array
+    {
+        return $this->_snapshot ?? [];
+    }
+
+    /**
+     * Set the snapshot array on the line item.
+     *
+     * @param array|string $snapshot
+     * @return void
+     * @since 5.0.0
+     */
+    public function setSnapshot(array|string $snapshot): void
+    {
+        $snapshot = Json::decodeIfJson($snapshot);
+
+        if (!is_array($snapshot)) {
+            $snapshot = [];
+        }
+
+        $this->_snapshot = $snapshot;
+    }
+
+    /**
      * @return string
      */
     public function getDescription(): string
     {
         if (!$this->_description) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $snapshot = $this->getSnapshot();
             $this->_description = $snapshot['description'] ?? '';
         }
 
@@ -316,27 +359,34 @@ class LineItem extends Model
     }
 
     /**
-     * @param string $description
+     * @param ?string $description
      * @return void
      */
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
-        $this->_description = $description;
+        $this->_description = (string)$description;
     }
 
+    /**
+     * @return string
+     */
     public function getSku(): string
     {
         if (!$this->_sku) {
-            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $snapshot = $this->getSnapshot();
             $this->_sku = $snapshot['sku'] ?? '';
         }
 
         return $this->_sku;
     }
 
-    public function setSku(string $sku): void
+    /**
+     * @param ?string $sku
+     * @return void
+     */
+    public function setSku(?string $sku): void
     {
-        $this->_sku = $sku;
+        $this->_sku = (string)$sku;
     }
 
     /**
@@ -344,7 +394,9 @@ class LineItem extends Model
      */
     public function getOptionsSignature(): string
     {
-        return LineItemHelper::generateOptionsSignature($this->_options);
+        $orderId = $this->getOrder()?->isCompleted ? $this->id : null;
+
+        return LineItemHelper::generateOptionsSignature($this->_options, $orderId);
     }
 
     /**
@@ -361,6 +413,33 @@ class LineItem extends Model
     public function setPrice(float|int $price): void
     {
         $this->_price = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
+    }
+
+    /**
+     * @return float|null
+     * @since 5.0.0
+     */
+    public function getPromotionalPrice(): ?float
+    {
+        if ($this->_promotionalPrice === null) {
+            return null;
+        }
+
+        return CurrencyHelper::round($this->_promotionalPrice);
+    }
+
+    /**
+     * @param float|int|null $price
+     * @return void
+     * @since 5.0.0
+     */
+    public function setPromotionalPrice(float|int|null $price): void
+    {
+        $this->_promotionalPrice = $price;
+        // clear sale price cache
+        $this->_salePrice = null;
     }
 
     /**
@@ -368,23 +447,34 @@ class LineItem extends Model
      */
     public function getSalePrice(): float
     {
-        return CurrencyHelper::round($this->_salePrice);
+        if ($this->_salePrice === null) {
+            $this->_salePrice = $this->getOnPromotion() ? $this->getPromotionalPrice() : $this->getPrice();
+        }
+
+        return $this->_salePrice;
     }
 
     /**
-     * @since 3.1.1
-     */
-    public function setSalePrice(float|int $salePrice): void
-    {
-        $this->_salePrice = $salePrice;
-    }
-
-    /**
-     * @since 3.1.1
+     * @return float
+     * @deprecated in 5.0.0. Use `getPromotionalAmount()` instead.)
      */
     public function getSaleAmount(): float
     {
-        return Currency::round($this->price - $this->salePrice);
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `getSaleAmount()` method has been deprecated. Use `getPromotionalAmount()` instead.');
+        return $this->getPromotionalAmount();
+    }
+
+    /**
+     * @return float
+     * @since 5.0.0
+     */
+    public function getPromotionalAmount(): float
+    {
+        if ($this->getPromotionalPrice() === null) {
+            return 0;
+        }
+
+        return Currency::round($this->getPrice() - $this->getPromotionalPrice());
     }
 
     /**
@@ -397,8 +487,7 @@ class LineItem extends Model
                 [
                     'optionsSignature',
                     'price',
-                    'salePrice',
-                    'saleAmount',
+                    'promotionalAmount',
                     'weight',
                     'length',
                     'height',
@@ -411,12 +500,14 @@ class LineItem extends Model
             ],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
-            [['price', 'salePrice'], 'number'],
+            [['price'], 'number'],
+            [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
         ];
 
         if ($this->purchasableId) {
+            $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
                     $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
@@ -424,7 +515,23 @@ class LineItem extends Model
             }
         }
 
+        // TODO: If order is complete, qty can not be less that total fulfilled across locations
+
         return $rules;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFulfilledTotalQuantity(): int
+    {
+        if ($order = $this->getOrder()) {
+            return Plugin::getInstance()->getInventory()->getInventoryFulfillmentLevels($order)
+                ->filter(fn($fulfillment) => $fulfillment->getLineItem()->id === $this->id)
+                ->sum('fulfilledQuantity');
+        }
+
+        return 0;
     }
 
     /**
@@ -438,7 +545,7 @@ class LineItem extends Model
     {
         if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];
-            $method->bindTo($purchasable);
+            $method = $method->bindTo($purchasable);
             $rule[1] = static function($attribute, $params, $validator, $current) use ($method) {
                 $method($attribute, $params, $validator, $current);
             };
@@ -459,12 +566,13 @@ class LineItem extends Model
         $names[] = 'description';
         $names[] = 'options';
         $names[] = 'optionsSignature';
-        $names[] = 'onSale';
+        $names[] = 'onPromotion';
         $names[] = 'price';
-        $names[] = 'saleAmount';
+        $names[] = 'promotionalPrice';
         $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
+        $names[] = 'fulfilledTotalQuantity';
 
         return $names;
     }
@@ -502,7 +610,8 @@ class LineItem extends Model
     {
         $attributes = [];
         $attributes[] = 'price';
-        $attributes[] = 'saleAmount';
+        $attributes[] = 'promotionalPrice';
+        $attributes[] = 'promotionalAmount';
         $attributes[] = 'salePrice';
         $attributes[] = 'subtotal';
         $attributes[] = 'total';
@@ -572,8 +681,9 @@ class LineItem extends Model
     public function getPurchasable(): ?PurchasableInterface
     {
         if (!isset($this->_purchasable) && isset($this->purchasableId)) {
+            $order = $this->getOrder();
             /** @var PurchasableInterface|null $purchasable */
-            $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
+            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($this->purchasableId, $order?->orderSiteId, $order?->getCustomer()?->id);
             $this->_purchasable = $purchasable;
         }
 
@@ -591,27 +701,27 @@ class LineItem extends Model
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
-        $this->price = $purchasable->getPrice();
-        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
-        $this->taxCategoryId = $purchasable->getTaxCategoryId();
-        $this->shippingCategoryId = $purchasable->getShippingCategoryId();
+        $this->setPrice($purchasable->getPrice());
+        $this->setPromotionalPrice($purchasable->getPromotionalPrice());
+        $this->taxCategoryId = $purchasable->getTaxCategory()->id;
+        $this->shippingCategoryId = $purchasable->getShippingCategory()->id;
         $this->setSku($purchasable->getSku());
         $this->setDescription($purchasable->getDescription());
 
         // Check to see if there is a discount applied that ignores Sales for this line item
-        $ignoreSales = false;
+        $ignorePromotions = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
-                $ignoreSales = $discount->ignoreSales;
-                if ($ignoreSales) {
+                $ignorePromotions = $discount->ignorePromotions;
+                if ($ignorePromotions) {
                     break;
                 }
             }
         }
 
-        // One of the matching discounts has ignored sales, so we don't want the salePrice to be the original price.
-        if ($ignoreSales) {
-            $this->salePrice = $this->price;
+        // One of the matching discounts has ignored promotions, so we want to remove any promotional price.
+        if ($ignorePromotions) {
+            $this->setPromotionalPrice(null);
         }
 
         $snapshot = [
@@ -621,12 +731,13 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
+            // Only add sales information to the snapshot if we are not ignoring promotions and they are still using the sales system.
+            'sales' => $ignorePromotions || Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules() ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
         $purchasableSnapshot = $purchasable->getSnapshot();
-        $this->snapshot = array_merge($purchasableSnapshot, $snapshot);
+        $this->setSnapshot(array_merge($purchasableSnapshot, $snapshot));
 
         $purchasable->populateLineItem($this);
 
@@ -640,9 +751,23 @@ class LineItem extends Model
         }
     }
 
+    /**
+     * @return bool
+     * @since 5.0.0
+     */
+    public function getOnPromotion(): bool
+    {
+        return $this->getPromotionalAmount() > 0;
+    }
+
+    /**
+     * @return bool
+     * @throws DeprecationException
+     */
     public function getOnSale(): bool
     {
-        return $this->getSaleAmount() > 0;
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItem `' . __METHOD__ . '()` method has been deprecated. Use `getOnPromotion()` instead.');
+        return $this->getOnPromotion();
     }
 
     /**
@@ -650,7 +775,9 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories(true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->taxCategoryId);
     }
 
     /**
@@ -662,7 +789,9 @@ class LineItem extends Model
             throw new InvalidConfigException('Line Item is missing its shipping category ID');
         }
 
-        return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+        // Category may have been archived
+        $categories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(withTrashed: true);
+        return ArrayHelper::firstWhere($categories, 'id', $this->shippingCategoryId);
     }
 
     /**

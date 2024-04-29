@@ -73,7 +73,9 @@ export default {
         'int',
         lineItem.shippingCategoryId
       );
-      _lineItem.salePrice = this.parseInputValue('float', lineItem.salePrice);
+      _lineItem.promotionalPrice =
+        lineItem.promotionalPrice === '' ? null : lineItem.promotionalPrice;
+      _lineItem.price = lineItem.price;
       _lineItem.qty = this.parseInputValue('int', lineItem.qty);
       _lineItem.note = lineItem.note;
       _lineItem.privateNote = lineItem.privateNote;

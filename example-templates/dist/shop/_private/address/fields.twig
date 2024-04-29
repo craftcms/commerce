@@ -2,7 +2,8 @@
 {#
 Outputs address form fields for editing an address.
 #}
-{% set addressFieldLayout = craft.app.getAddresses().getLayout() %}
+{% set showPrimaryCheckboxes = showPrimaryCheckboxes is defined ? showPrimaryCheckboxes : false %}
+{% set addressFieldLayout = craft.app.getAddresses().getFieldLayout() %}
 {% set addressCustomFields = addressFieldLayout.getCustomFields()|filter(f => className(f) == 'craft\\fields\\PlainText') %}
 {# @var address \craft\elements\Address #}
 {% set addressName = addressName is defined ? addressName : '' %}
@@ -27,7 +28,7 @@ Outputs address form fields for editing an address.
     }) }}
     {{ _self.displayErrors(address, 'title') }}
   </div>
-  {% set countries = craft.commerce.store.store.getCountriesList() %}
+  {% set countries = cart.store.settings.getCountriesList() %}
   {% set countryCode = address.countryCode ?? null %}
 
   <div class="my-2">
@@ -107,7 +108,7 @@ Outputs address form fields for editing an address.
         {{- 'State'|t -}}
       </label>
 
-      {% set administrativeAreas = craft.commerce.store.getStore().getAdministrativeAreasListByCountryCode() %}
+      {% set administrativeAreas = cart.store.settings.getAdministrativeAreasListByCountryCode() %}
 
       {% tag 'select' with {
         id: 'administrativeArea',
@@ -191,6 +192,18 @@ Outputs address form fields for editing an address.
           {{ _self.displayErrors(address, customField.handle) }}
         </div>
       {% endfor %}
+    </div>
+  {% endif %}
+
+  {% if showPrimaryCheckboxes %}
+    <hr class="my-2">
+    <div class="my-2">
+      {{ hiddenInput('isPrimaryBilling', 0) }}
+      <label>{{ input('checkbox', 'isPrimaryBilling', 1, { checked: address.isPrimaryBilling }) }} {{ 'Use as the primary billing address'|t('commerce') }}</label>
+    </div>
+    <div class="my-2">
+      {{ hiddenInput('isPrimaryShipping', 0) }}
+      <label>{{ input('checkbox', 'isPrimaryShipping', 1, { checked: address.isPrimaryShipping }) }} {{ 'Use as the primary shipping address'|t('commerce') }}</label>
     </div>
   {% endif %}
 </div>

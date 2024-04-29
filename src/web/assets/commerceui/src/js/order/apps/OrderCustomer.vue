@@ -420,9 +420,11 @@
 
     .customer-select-wrapper {
         width: 50%;
+        padding-right: 14px;
 
         @media only screen and (max-width: 767px) {
             width: 100%;
+            padding-right: 0;
         }
     }
 </style>

@@ -21,29 +21,6 @@
     {% endif %}
 
     <div id="product-type-settings">
-        {% macro hasVariantsField(productType) %}
-            {% from "_includes/forms" import checkboxField %}
-
-            {% set hasVariantsInstructions %}
-                {%- apply spaceless %}
-                    {% if productType.id and productType.hasVariants %}
-                        <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
-                    {% endif %}
-                {% endapply -%}
-            {% endset %}
-
-            {{ checkboxField({
-                label: "Products of this type have multiple variants"|t('commerce'),
-                instructions: hasVariantsInstructions,
-                id: 'hasVariants',
-                name: 'hasVariants',
-                checked: productType.hasVariants,
-                toggle: '#variant-settings',
-                reverseToggle: '.fld-variants-field-icon',
-            }) }}
-        {% endmacro %}
-
-
         {% macro templateField(productType) %}
             {% from "_includes/forms" import textField %}
 
@@ -59,17 +36,17 @@
         {% endmacro %}
 
         {% macro productTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+            {% import '_includes/forms' as forms %}
 
-                {{ checkboxField({
+                {{ forms.lightswitchField({
                     label: "Show the Title field for products"|t('commerce'),
                     name: 'hasProductTitleField',
                     reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
-                    checked: productType.hasProductTitleField
+                    on: productType.hasProductTitleField
                 }) }}
 
                 <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Product Title Format"|t('commerce'),
                         instructions: "What the auto-generated product titles should look like. You can include tags that output product properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myProductsCustomField}</code>' }),
                         id: 'productTitleFormat',
@@ -82,19 +59,19 @@
         {% endmacro %}
 
         {% macro variantTitleFormatField(productType) %}
-            {% from "_includes/forms" import textField, checkboxField %}
+            {% import '_includes/forms' as forms %}
 
-            <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
+            <div id="variant-settings">
 
-                {{ checkboxField({
+                {{ forms.lightswitchField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
                     reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
-                    checked: productType.hasVariantTitleField
+                    on: productType.hasVariantTitleField
                 }) }}
 
                 <div id="variantTitleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
-                    {{ textField({
+                    {{ forms.textField({
                         label: "Variant Title Format"|t('commerce'),
                         instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
                         id: 'variantTitleFormat',
@@ -108,7 +85,7 @@
             </div>
         {% endmacro %}
 
-        {% from _self import hasVariantsField, variantTitleFormatField, productTitleFormatField, uriFormatText %}
+        {% from _self import variantTitleFormatField, productTitleFormatField, uriFormatText %}
 
 
         {{ forms.textField({
@@ -134,6 +111,13 @@
             required: true
         }) }}
 
+        {{ forms.lightswitchField({
+            label: 'Enable versioning for products of this type'|t('app'),
+            id: 'enableVersioning',
+            name: 'enableVersioning',
+            on: productType.enableVersioning
+        }) }}
+
         {{ productTitleFormatField(productType) }}
 
         {{ forms.textField({
@@ -156,18 +140,26 @@
             errors: productType.getErrors('descriptionFormat')
         }) }}
 
+        {{ forms.textField({
+            label: 'Max Variants'|t('commerce'),
+            id: 'maxVariants',
+            name: 'maxVariants',
+            value: productType.maxVariants,
+            errors: productType.getErrors('maxVariants'),
+            size: 2,
+        }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
             id: 'hasDimensions',
             name: 'hasDimensions',
-            checked: productType.hasDimensions,
+            on: productType.hasDimensions,
         }) }}
 
         <hr>
-        {{ hasVariantsField(productType) }}
 
         {{ variantTitleFormatField(productType) }}
+
         <hr>
 
         {% set siteRows = [] %}
@@ -230,19 +222,16 @@
 
     <div id="tax-and-shipping" class="hidden">
         <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
+
         {% for cat in productType.getShippingCategories() %}
             {% if loop.first %}<ul class="bullets">{% endif %}
             {% if currentUser.can('commerce-manageShipping') %}
-                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }} ({{ cat.store.name }})</a></li>
             {% else %}
-                <li>{{ cat.name }}</li>
+                <li>{{ cat.name }} ({{ cat.store.name }})</li>
             {% endif %}
             {% if loop.last %}</ul>{% endif %}
         {% endfor %}
-        <br>
-        {% if currentUser.can('commerce-manageShipping') %}<a
-            href="{{ url('commerce/shipping/shippingcategories') }}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
-        <hr>
 
         <h3>{{ 'Available Tax Categories'|t('commerce') }} </h3>
         {% for cat in productType.getTaxCategories() %}
@@ -254,9 +243,6 @@
             {% endif %}
             {% if loop.last %}</ul>{% endif %}
         {% endfor %}
-        <br>
-        {% if currentUser.can('commerce-manageTax') %}<a
-            href="{{ url('commerce/tax/taxcategories') }}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
     </div>
     <div id="product-fields" class="hidden">
 
@@ -271,7 +257,6 @@
         {% namespace "variant-layout" %}
             {{ forms.fieldLayoutDesignerField({
                 fieldLayout: productType.getVariantFieldLayout(),
-                customizableTabs: false
             }) }}
         {% endnamespace %}
 
@@ -288,10 +273,3 @@
         {% endfor %}
     {% endjs %}
 {% endif %}
-
-{% js %}
-    $('#hasVariants').on('change', function() {
-        $("#tab-variantFields").toggleClass('hidden');
-        Craft.cp.tabManager.updateMenuBtn();
-    });
-{% endjs %}

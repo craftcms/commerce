@@ -8,10 +8,13 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use Money\Currency;
+use yii\base\InvalidConfigException;
 
 /**
  * Currency model.
@@ -34,24 +37,19 @@ class PaymentCurrency extends Model
     public ?int $id = null;
 
     /**
+     * @var int|null Store ID
+     */
+    public ?int $storeId = null;
+
+    /**
      * @var string|null ISO code
      */
     public ?string $iso = null;
 
     /**
-     * @var bool Is primary currency
-     */
-    public bool $primary = false;
-
-    /**
      * @var float Exchange rate vs primary currency
      */
     public float $rate = 1;
-
-    /**
-     * @var Currency
-     */
-    private Currency $_currency;
 
     /**
      * @var DateTime|null
@@ -70,9 +68,30 @@ class PaymentCurrency extends Model
         return (string)$this->iso;
     }
 
+    /**
+     * @return Currency
+     */
+    public function getCurrency(): Currency
+    {
+        return new Currency($this->iso);
+    }
+
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     */
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/store-settings/paymentcurrencies/' . $this->id);
+        if ($this->storeId === null) {
+            return '';
+        }
+
+        $store = Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+        if ($store === null) {
+            throw new InvalidConfigException('Invalid store ID: ' . $this->storeId);
+        }
+
+        return UrlHelper::cpUrl(sprintf('commerce/store-management/%s/payment-currencies/%s', $store->handle, $this->id));
     }
 
     /**
@@ -89,40 +108,46 @@ class PaymentCurrency extends Model
         return $names;
     }
 
+    /**
+     * @return string|null
+     */
     public function getAlphabeticCode(): ?string
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->alphabeticCode;
-        }
-
-        return null;
+        return $this->iso;
     }
 
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     */
     public function getNumericCode(): ?int
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->numericCode;
-        }
-
-        return null;
+        return Plugin::getInstance()->getCurrencies()->numericCodeFor($this->iso);
     }
 
     public function getEntity(): ?string
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->entity;
-        }
-
-        return null;
+        // TODO: Implement getEntity() method on \craft\commerce\services\Currencies::$_isoCurrencies
+        return '';
     }
 
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     * @deprecated Use getSubUnit() instead.
+     */
     public function getMinorUnit(): ?int
     {
-        if (isset($this->_currency)) {
-            return $this->_currency->minorUnit;
-        }
+        return $this->getSubUnit();
+    }
 
-        return null;
+    /**
+     * @return int|null
+     * @throws InvalidConfigException
+     */
+    public function getSubUnit(): ?int
+    {
+        return Plugin::getInstance()->getCurrencies()->getSubunitFor($this->iso);
     }
 
     /**
@@ -130,24 +155,33 @@ class PaymentCurrency extends Model
      */
     public function getName(): ?string
     {
-        return $this->getCurrency();
-    }
-
-    public function getCurrency(): ?string
-    {
-        if (isset($this->_currency)) {
-            return $this->_currency->currency;
-        }
-
-        return null;
+        return $this->iso;
     }
 
     /**
-     * Sets the Currency Model data on the Payment Currency
+     * @return Store
+     * @throws InvalidConfigException
      */
-    public function setCurrency(Currency $currency): void
+    public function getStore()
     {
-        $this->_currency = $currency;
+        return Plugin::getInstance()->getStores()->getStoreById($this->storeId);
+    }
+
+    /**
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function getPrimary(): bool
+    {
+        return $this->getCode() === $this->getStore()->getCurrency()->getCode();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCode()
+    {
+        return $this->iso;
     }
 
     /**
@@ -158,7 +192,8 @@ class PaymentCurrency extends Model
         return [
             [['iso'], 'required'],
             [['rate'], 'required'],
-            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso', 'storeId'], 'message' => '{attribute} "{value}" has already been taken.'],
+            [['storeId'], 'safe'],
         ];
     }
 }

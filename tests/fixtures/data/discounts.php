@@ -7,6 +7,7 @@
 
 return [
     'discount_with_coupon' => [
+        'storeId' => 1, // Primary
         'name' => 'Discount 1',
         'perUserLimit' => '1',
         'totalDiscountUseLimit' => '2',

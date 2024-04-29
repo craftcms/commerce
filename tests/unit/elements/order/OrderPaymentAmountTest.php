@@ -36,11 +36,6 @@ class OrderPaymentAmountTest extends Unit
     protected Order $order;
 
     /**
-     * @var string
-     */
-    protected string $originalEdition;
-
-    /**
      * @var Plugin|null
      */
     protected ?Plugin $pluginInstance;
@@ -66,7 +61,7 @@ class OrderPaymentAmountTest extends Unit
         $this->order->id = 1000;
 
         $lineItem = new LineItem();
-        $lineItem->salePrice = 10;
+        $lineItem->price = 10;
         $lineItem->qty = 2;
         $this->order->setLineItems([$lineItem]);
 
@@ -138,11 +133,11 @@ class OrderPaymentAmountTest extends Unit
         $lineItems = [
             'first' => [
                 'qty' => 1,
-                'salePrice' => 10,
+                'price' => 10,
             ],
             'second' => [
                 'qty' => 1,
-                'salePrice' => 20,
+                'price' => 20,
             ],
         ];
 
@@ -154,7 +149,7 @@ class OrderPaymentAmountTest extends Unit
                 true,
             ],
             'full-payment-specified' => [
-                array_merge($lineItems, ['second' => ['salePrice' => 7.75, 'qty' => 1]]),
+                array_merge($lineItems, ['second' => ['price' => 7.75, 'qty' => 1]]),
                 23.08,
                 'AUD',
                 false,
@@ -176,8 +171,6 @@ class OrderPaymentAmountTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = $this->pluginInstance->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
 
         $this->order = new Order();
     }
@@ -188,7 +181,5 @@ class OrderPaymentAmountTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
     }
 }

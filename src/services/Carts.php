@@ -14,16 +14,16 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\Cookie;
-use function count;
 
 /**
  * Cart service. This manages the cart currently in the session, this service should mainly be used by web controller actions.
@@ -59,7 +59,7 @@ class Carts extends Component
     /**
      * @var string|null The current cart number
      */
-    private ?string $_cartNumber = null;
+    private string|false|null $_cartNumber = null;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.
@@ -88,13 +88,9 @@ class Carts extends Component
             $this->cartCookie = Craft::cookieConfig($this->cartCookie);
 
             $session = Craft::$app->getSession();
-            $requestCookies = $request->getCookies();
 
-            // If we have a cart cookie, assign it to the cart number.
             // Also check pre Commerce 4.0 for a cart number in the session just in case.
-            if ($requestCookies->has($this->cartCookie['name'])) {
-                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
-            } elseif (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
+            if (($session->getHasSessionId() || $session->getIsActive()) && $session->has('commerce_cart')) {
                 $this->setSessionCartNumber($session->get('commerce_cart'));
                 $session->remove('commerce_cart');
             }
@@ -111,20 +107,43 @@ class Carts extends Component
      */
     public function getCart(bool $forceSave = false): Order
     {
+        $this->loadCookie(); // TODO: need to see if this should be added to other runtime methods too
+
         $this->_getCartCount++; //useful when debugging
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
-            $this->_cart = new Order();
-            $this->_cart->number = $this->getSessionCartNumber();
+            $cartAttributes = [
+                'number' => $this->getSessionCartNumber(),
+                'orderSiteId' => Craft::$app->getSites()->getCurrentSite()->id,
+                'storeId' => Plugin::getInstance()->getStores()->getCurrentStore()->id,
+            ];
+
             if ($currentUser) {
-                $this->_cart->setCustomer($currentUser); // Will ensure the email is also set
+                $cartAttributes['customer'] = $currentUser; // Will ensure the email is also set
             }
+
+            $this->_cart = Craft::createObject([
+                'class' => Order::class,
+                'attributes' => $cartAttributes,
+            ]);
+        } elseif ($this->_cart->orderSiteId != Craft::$app->getSites()->getCurrentSite()->id) {
+            $this->_cart->orderSiteId = Craft::$app->getSites()->getCurrentSite()->id;
+            $forceSave = true;
+        }
+        if ($this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
+            $forceSave = true;
         }
 
-        if ($this->_cart->autoSetAddresses() || $this->_cart->autoSetShippingMethod() || $this->_cart->autoSetPaymentSource()) {
-            // If we are auto setting address on the cart, save the cart so addresses have an ID to belong to.
+        $autoSetAddresses = false;
+        // We only want to call autoSetAddresses() if we have a authed cart customer
+        if ($currentUser && $currentUser->id == $this->_cart->customerId) {
+            $autoSetAddresses = $this->_cart->autoSetAddresses();
+        }
+        $autoSetShippingMethod = $this->_cart->autoSetShippingMethod();
+        $autoSetPaymentSource = $this->_cart->autoSetPaymentSource();
+        if ($autoSetAddresses || $autoSetShippingMethod || $autoSetPaymentSource) {
             $forceSave = true;
         }
 
@@ -145,10 +164,9 @@ class Carts extends Component
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
-        if ($currentUser) {
-            if ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->email)) {
-                $this->_cart->setEmail($currentUser->email); // Will ensure the customer is also set
-            }
+        // Switch the cart customer if needed
+        if ($currentUser && ($this->_cart->getCustomer() === null || ($currentUser->email && $currentUser->email !== $this->_cart->getEmail()))) {
+            $this->_cart->setCustomer($currentUser);
         }
 
         $hasIpChanged = $originalIp != $this->_cart->lastIp;
@@ -178,6 +196,7 @@ class Carts extends Component
             ->withLineItems()
             ->withAdjustments()
             ->number($number)
+            ->storeId(Plugin::getInstance()->getStores()->getCurrentStore()->id)
             ->trashed(null)
             ->status(null)
             ->one();
@@ -197,9 +216,14 @@ class Carts extends Component
     public function forgetCart(): void
     {
         $this->_cart = null;
-        $this->_cartNumber = null;
+        // Force a new cart number to be generated when next requested.
+        $this->_cartNumber = false;
         if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            Craft::$app->getResponse()->getCookies()->remove($this->cartCookie['name'], true);
+            $cookie = Craft::createObject(array_merge($this->cartCookie, [
+                'class' => Cookie::class,
+            ]));
+
+            Craft::$app->getResponse()->getCookies()->remove($cookie, true);
         }
     }
 
@@ -245,17 +269,44 @@ class Carts extends Component
      */
     public function getHasSessionCartNumber(): bool
     {
-        return ($this->_cartNumber !== null);
+        if ($this->_cartNumber === false) {
+            return false;
+        }
+
+        if ($this->_cartNumber === null) {
+            $request = Craft::$app->getRequest();
+            $requestCookies = $request->getCookies();
+
+            return $requestCookies->getValue($this->cartCookie['name'], false) !== false;
+        }
+
+        return true;
     }
 
     /**
      * Get the session cart number or generates one if none exists.
      *
      */
-    private function getSessionCartNumber(): string
+    protected function getSessionCartNumber(): string
     {
-        if ($this->_cartNumber === null) {
+        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
+            $request = Craft::$app->getRequest();
+            $requestCookies = $request->getCookies();
+
+            // Only try to retrieve the cart number from the cookie if `_cartNumber` is `null`.
+            if ($this->_cartNumber === null && $cookieNumber = $requestCookies->getValue($this->cartCookie['name'])) {
+                $this->_cartNumber = $cookieNumber;
+            }
+        }
+
+        // A `null` or `false` value means we need to generate a new cart number.
+        if ($this->_cartNumber === null || $this->_cartNumber === false) {
             $this->_cartNumber = $this->generateCartNumber();
+        }
+
+        /// Just in case the current cart is not the one in session, clear the cached cart.
+        if ($this->_cart && $this->_cart->number !== $this->_cartNumber) {
+            $this->_cart = null;
         }
 
         return $this->_cartNumber;
@@ -289,24 +340,32 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
-        $cart = $this->getCart();
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        /** @var Order|null $previousCart */
-        $previousCart = Order::find()
+        /** @var Order|null $previousCartsWithLineItems */
+        $previousCartsWithLineItems = Order::find()
             ->customer($currentUser)
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
             ->one();
 
+        /** @var Order|null $anyPreviousCart */
+        $anyPreviousCart = Order::find()
+            ->customer($currentUser)
+            ->isCompleted(false)
+            ->trashed(false)
+            ->one();
+
         if ($currentUser &&
-            $cart->getIsEmpty() &&
-            $previousCart
+            $previousCartsWithLineItems
         ) {
-            $this->_cart = $previousCart;
-            $this->setSessionCartNumber($previousCart->number);
+            $this->_cart = $previousCartsWithLineItems;
+            $this->setSessionCartNumber($previousCartsWithLineItems->number);
+        } elseif ($currentUser && $anyPreviousCart) {
+            $this->_cart = $anyPreviousCart;
+            $this->setSessionCartNumber($anyPreviousCart->number);
         }
     }
 
@@ -328,40 +387,67 @@ class Carts extends Component
         $interval = DateTimeHelper::secondsToInterval($configInterval);
         $edge->sub($interval);
 
-        $cartIds = (new Query())
+        $cartIdsQuery = (new Query())
             ->select(['orders.id'])
             ->where(['not', ['isCompleted' => true]])
             ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
-            ->from(['orders' => Table::ORDERS])
-            ->column();
+            ->from(['orders' => Table::ORDERS]);
 
         // Taken from craft\services\Elements::deleteElement(); Using the method directly
         // takes too many resources since it retrieves the order before deleting it.
         // Delete the elements table rows, which will cascade across all other InnoDB tables
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%elements}}', ['id' => $cartIds])
+            ->delete('{{%elements}}', ['id' => $cartIdsQuery])
             ->execute();
 
         // The searchindex table is probably MyISAM, though
         Craft::$app->getDb()->createCommand()
-            ->delete('{{%searchindex}}', ['elementId' => $cartIds])
+            ->delete('{{%searchindex}}', ['elementId' => $cartIdsQuery])
             ->execute();
 
-        return count($cartIds);
+        return $cartIdsQuery->count();
+    }
+
+    /**
+     * @return void
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     */
+    protected function loadCookie(): void
+    {
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
+        // Complete the cart cookie config
+        if (!isset($this->cartCookie['name'])) {
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
+        }
+
+        $request = Craft::$app->getRequest();
+        if (!$request->getIsConsoleRequest()) {
+            $this->cartCookie = Craft::cookieConfig($this->cartCookie);
+
+            $requestCookies = $request->getCookies();
+
+            // If we have a cart cookie, assign it to the cart number.
+            if ($requestCookies->has($this->cartCookie['name'])) {
+                $this->setSessionCartNumber($requestCookies->getValue($this->cartCookie['name']));
+            }
+        }
     }
 
     /**
      * Gets the current payment currency ISO code
+     * @TODO: Fix this for 5.0
      */
     private function _getCartPaymentCurrencyIso(): string
     {
         if ($this->_cart) {
             // Is the payment currency locked to the constant
             if (defined('COMMERCE_PAYMENT_CURRENCY')) {
-                $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
-                if (in_array($currency, $allCurrencies, false)) {
-                    return $currency;
+                $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies()->getAllPaymentCurrencies($this->_cart->storeId);
+                // if not in array
+                if (!$paymentCurrencies->contains('iso', '==', COMMERCE_PAYMENT_CURRENCY)) {
+                    throw new InvalidConfigException('The COMMERCE_PAYMENT_CURRENCY constant is not set to a valid payment currency.');
                 }
             }
 

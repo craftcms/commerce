@@ -12,9 +12,9 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="id" value="{{ gateway.id }}">
-    <input type="hidden" name="action" value="commerce/gateways/save">
-    {{ redirectInput('commerce/settings/gateways') }}
+    {{ hiddenInput('id', gateway.id) }}
+    {{ actionInput('commerce/gateways/save') }}
+    {{ redirectInput("commerce/settings/gateways") }}
 
     {{ forms.textField({
         label: 'Name'|t('commerce'),
@@ -91,11 +91,11 @@
     <hr>
 
     {{ forms.booleanMenuField({
-      label: "Enabled for customers to select during checkout?"|t('commerce'),
+        label: "Enabled for customers to select during checkout?"|t('commerce'),
         id: 'isFrontendEnabled',
         name: 'isFrontendEnabled',
         includeEnvVars: true,
-        value: gateway.isFrontendEnabled,
+        value: gateway.isFrontendEnabled(false),
         errors: gateway.getErrors('isFrontendEnabled'),
     }) }}
 

@@ -13,10 +13,15 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
+use craft\errors\DeprecationException;
+use craft\helpers\Cp;
+use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function is_array;
@@ -27,23 +32,41 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseStoreSettingsController
+class PlansController extends BaseCpController
 {
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/store-settings/subscription-plans', ['plans' => $plans]);
+
+        return $this->asCpScreen()
+            ->title(Craft::t('commerce', 'Subscription plans'))
+            ->redirectUrl('commerce/subscription-plans')
+            ->selectedSubnavItem('subscription-plans')
+            ->additionalButtonsHtml(Html::a(
+                Craft::t('commerce', 'New subscription plan'),
+                'commerce/subscription-plans/new',
+                ['class' => 'submit btn add icon']
+            ))
+            ->contentTemplate('commerce/subscriptions/plans/index.twig', compact('plans'));
     }
 
     /**
      * @param int|null $planId
      * @param Plan|null $plan
+     * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws DeprecationException
+     * @throws ForbiddenHttpException
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
         $this->requirePermission('commerce-manageSubscriptions');
-        
+
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;
@@ -83,7 +106,36 @@ class PlansController extends BaseStoreSettingsController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        return $this->renderTemplate('commerce/store-settings/subscription-plans/_edit', $variables);
+        $sidebar = Html::beginTag('div', ['class' => 'meta']) .
+                Cp::lightswitchFieldHtml([
+                    'label' => Craft::t('commerce', 'Enabled for customers to select?'),
+                    'name' => 'enabled',
+                    'on' => $variables['plan']?->enabled ?? false,
+                    'errors' => $variables['plan']?->getErrors('enabled') ?? null,
+                ]) .
+            Html::endTag('div');
+
+        if ($variables['plan']?->id) {
+            $sidebar .= Html::beginTag('div', ['class' => 'meta readonly']) .
+                Html::beginTag('div', ['class' => 'data']) .
+                    Html::tag('h5', Craft::t('app', 'Created at'), ['class' => 'heading']) .
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateCreated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-created-value']) .
+                Html::endTag('div') .
+                Html::beginTag('div', ['class' => 'data']) .
+                    Html::tag('h5', Craft::t('app', 'Updated at'), ['class' => 'heading']) .
+                    Html::tag('div', Craft::$app->getFormatter()->asDate($variables['plan']->dateUpdated, Locale::LENGTH_SHORT), ['class' => 'value', 'id' => 'date-updated-value']) .
+                Html::endTag('div');
+        }
+
+        return $this->asCpScreen()
+            ->title($variables['title'])
+            ->selectedSubnavItem('subscription-plans')
+            ->addCrumb(Craft::t('commerce', 'Plans'), 'commerce/subscription-plans')
+            ->contentTemplate('commerce/subscriptions/plans/_edit.twig', $variables)
+            ->action('commerce/plans/save-plan')
+            ->redirectUrl('commerce/subscription-plans')
+            ->metaSidebarHtml($sidebar)
+            ;
     }
 
     /**
@@ -118,7 +170,7 @@ class PlansController extends BaseStoreSettingsController
         if ($planId) {
             $plan = $planService->getPlanById($planId);
         }
-        
+
         if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }

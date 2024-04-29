@@ -7,11 +7,16 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\commerce\base\Model as BaseModel;
+use craft\commerce\elements\conditions\orders\ShippingMethodOrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
+use craft\helpers\Json;
 use DateTime;
+use Illuminate\Support\Collection;
+use JsonSchema\Exception\InvalidConfigException;
 
 /**
  * Base ShippingMethod
@@ -24,8 +29,10 @@ use DateTime;
  * @property-read bool $isEnabled
  * @property-read string $type
  */
-abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
+abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface, HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -47,6 +54,12 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     public bool $enabled = true;
 
     /**
+     * @var ShippingMethodOrderCondition|null
+     * @since 5.0.0
+     */
+    private ?ShippingMethodOrderCondition $_orderCondition = null;
+
+    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -57,12 +70,6 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
-
-    /**
-     * @var bool Is this the shipping method for the lite edition.
-     */
-    public bool $isLite = false;
-
 
     /**
      * @inheritdoc
@@ -107,9 +114,9 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @inheritdoc
      */
-    public function getShippingRules(): array
+    public function getShippingRules(): Collection
     {
-        return [];
+        return collect();
     }
 
     /**
@@ -123,10 +130,71 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @inheritdoc
      */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [[
+            'id',
+            'name',
+            'handle',
+            'storeId',
+            'orderCondition',
+            'enabled',
+            'dateCreated',
+            'dateUpdated',
+        ], 'safe'];
+
+        return $rules;
+    }
+
+    /**
+     * @param ShippingMethodOrderCondition|string|array|null $condition
+     * @return void
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    public function setOrderCondition(ShippingMethodOrderCondition|string|array|null $condition): void
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition);
+        }
+
+        if (!$condition instanceof ShippingMethodOrderCondition) {
+            $condition['class'] = ShippingMethodOrderCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+            /** @var ShippingMethodOrderCondition $condition */
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_orderCondition = $condition;
+    }
+
+    /**
+     * @return ShippingMethodOrderCondition
+     * @since 5.0.0
+     */
+    public function getOrderCondition(): ShippingMethodOrderCondition
+    {
+        $condition = $this->_orderCondition ?? new ShippingMethodOrderCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'orderCondition';
+        $condition->storeId = $this->storeId;
+
+        return $condition;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function matchOrder(Order $order): bool
     {
+        // Match the method's order condition first to see if we need to even check the rules.
+        if (!$this->getOrderCondition()->matchElement($order)) {
+            return false;
+        }
+
         /** @var ShippingRuleInterface $rule */
-        foreach ($this->getShippingRules() as $rule) {
+        foreach ($this->getShippingRules()->all() as $rule) {
             if ($rule->matchOrder($order)) {
                 return true;
             }
@@ -163,7 +231,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -176,7 +244,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         $amount = $shippingRule->getBaseRate();
 
         foreach ($order->getLineItems() as $item) {
-            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable())) {
+            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable(), $order)) {
                 $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
                 $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
                 $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);

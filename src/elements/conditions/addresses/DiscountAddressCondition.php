@@ -17,9 +17,9 @@ class DiscountAddressCondition extends ElementAddressCondition
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(),
+        return array_merge(parent::selectableConditionRules(),
             [
                 PostalCodeFormulaConditionRule::class,
             ]);

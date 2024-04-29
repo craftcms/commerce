@@ -29,15 +29,50 @@ class Product extends ElementArguments
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), self::getContentArguments(), [
+            'promotable' => [
+                'name' => 'promotable',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that are promotable.',
+            ],
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),
                 'description' => 'Whether to only return products that are available to purchase.',
             ],
+            'freeShipping' => [
+                'name' => 'freeShipping',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that have free shipping.',
+            ],
+            'defaultSku' => [
+                'name' => 'defaultSku',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the default SKU on the product.',
+            ],
             'defaultPrice' => [
                 'name' => 'defaultPrice',
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the default price on the product.',
+            ],
+            'defaultHeight' => [
+                'name' => 'defaultHeight',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the default height on the product.',
+            ],
+            'defaultLength' => [
+                'name' => 'defaultLength',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the default length on the product.',
+            ],
+            'defaultWidth' => [
+                'name' => 'defaultWidth',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the default width on the product.',
+            ],
+            'defaultWeight' => [
+                'name' => 'defaultWeight',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the default weight on the product.',
             ],
             'editable' => [
                 'name' => 'editable',

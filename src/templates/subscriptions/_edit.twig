@@ -208,11 +208,6 @@
 
 <div class="data">
     <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
-    <div class="value">{{ subscription.nextPaymentDate|datetime }}</div>
-</div>
-
-<div class="data">
-    <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
     <div class="value">{{ subscription.dateExpired ? subscription.dateExpired|datetime : '' }}</div>
 </div>
 

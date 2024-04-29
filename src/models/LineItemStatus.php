@@ -7,9 +7,14 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
+use craft\commerce\base\StoreTrait;
+use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
+use craft\validators\UniqueValidator;
 use DateTime;
 
 /**
@@ -22,8 +27,10 @@ use DateTime;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItemStatus extends Model
+class LineItemStatus extends Model implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @var int|null ID
      */
@@ -81,6 +88,30 @@ class LineItemStatus extends Model
     {
         return [
             [['name', 'handle'], 'required'],
+            [['handle'],
+                UniqueValidator::class,
+                'targetClass' => LineItemStatusRecord::class,
+                'targetAttribute' => ['handle', 'storeId'],
+                'filter' => ['isArchived' => false],
+                'message' => '{attribute} "{value}" has already been taken.',
+            ],
+            [
+                ['handle'],
+                HandleValidator::class,
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
+            ],
+            [[
+                'id',
+                'storeId',
+                'name',
+                'handle',
+                'color',
+                'sortOrder',
+                'default',
+                'isArchived',
+                'dateArchived',
+                'uid',
+            ], 'safe'],
         ];
     }
 
@@ -97,12 +128,12 @@ class LineItemStatus extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->id);
+        return UrlHelper::cpUrl('commerce/settings/lineitemstatuses/' . $this->getStore()->handle . '/' . $this->id);
     }
 
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
+        return sprintf('<span class="commerceStatusLabel nowrap"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->name));
     }
 
     /**
@@ -113,6 +144,7 @@ class LineItemStatus extends Model
     public function getConfig(): array
     {
         return [
+            'store' => $this->getStore()->uid,
             'name' => $this->name,
             'handle' => $this->handle,
             'color' => $this->color,

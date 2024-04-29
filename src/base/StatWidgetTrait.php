@@ -18,6 +18,8 @@ use craft\gql\types\DateTime;
  */
 trait StatWidgetTrait
 {
+    use StoreTrait;
+
     /**
      * @var int|DateTime|null
      */
@@ -45,11 +47,11 @@ trait StatWidgetTrait
     {
         $orderStatuses = [];
 
-        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
+        foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($this->storeId) as $orderStatus) {
             $orderStatuses[$orderStatus->uid] = [
                 'label' => $orderStatus->name,
                 'value' => $orderStatus->uid,
-                'data' => ['data' => ['color' => $orderStatus->color]],
+                'data' => ['data' => ['status' => $orderStatus->color]],
             ];
         }
 

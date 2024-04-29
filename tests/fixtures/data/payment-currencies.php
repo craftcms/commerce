@@ -4,11 +4,11 @@ return [
     'Euro' => [
         'iso' => 'EUR',
         'rate' => .5,
-        'primary' => false,
+        'storeId' => 1, // Primary
     ],
     'Aussie' => [
         'iso' => 'AUD',
         'rate' => 1.3,
-        'primary' => false,
+        'storeId' => 1, // Primary
     ],
 ];

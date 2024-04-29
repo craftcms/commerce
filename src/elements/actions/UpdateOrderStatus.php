@@ -52,7 +52,7 @@ class UpdateOrderStatus extends ElementAction
      */
     public function getTriggerHtml(): ?string
     {
-        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
+        $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()->all()));
         $type = Json::encode(static::class);
 
         $js = <<<EOT
@@ -109,16 +109,16 @@ EOT;
         }
 
         if ($failureCount > 0) {
-            $message = Craft::t('commerce', 'Failed updating order status on {num, plural, =1{order}, other{orders}}.', ['num' => $failureCount]);
+            $message = Craft::t('commerce', 'Failed updating order status on {num, plural, =1{order} other{orders}}.', ['num' => $failureCount]);
             if ($orderCount === $failureCount) {
-                $message = Craft::t('commerce', 'Failed to update {num, plural, =1{order status}, other{order statuses}}.', ['num' => $failureCount]);
+                $message = Craft::t('commerce', 'Failed to update {num, plural, =1{order status} other{order statuses}}.', ['num' => $failureCount]);
             }
 
             $this->setMessage($message);
             return false;
         }
 
-        $this->setMessage(Craft::t('commerce', '{num, plural, =1{order}, other{orders}} updated.', ['num' => $orderCount]));
+        $this->setMessage(Craft::t('commerce', '{num, plural, =1{Order} other{Orders}} updated.', ['num' => $orderCount]));
 
         return true;
     }

@@ -22,7 +22,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseStoreSettingsController
+class DonationsController extends BaseCpController
 {
     public function actionEdit(): Response
     {
@@ -30,12 +30,18 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
-            $donation->sku = 'DONATION-CC3';
+            $donation->sku = 'DONATION-CC5';
             $donation->availableForPurchase = true;
             $donation->enabled = true;
         }
 
-        return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+        return $this->asCpScreen()
+            ->title('Donation Settings')
+            ->selectedSubnavItem('donations')
+            ->action('commerce/donations/save')
+            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->redirectUrl('commerce/donations')
+            ->contentTemplate('commerce/donation/_edit.twig', compact('donation'));
     }
 
     /**
@@ -55,6 +61,7 @@ class DonationsController extends BaseStoreSettingsController
 
         if ($donation === null) {
             $donation = new Donation();
+            $donation->siteId = Craft::$app->getSites()->getPrimarySite()->id;
         }
 
         $donation->sku = $this->request->getBodyParam('sku');
@@ -62,7 +69,7 @@ class DonationsController extends BaseStoreSettingsController
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
-            return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
+            return $this->renderTemplate('commerce/donation/_edit', compact('donation'));
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));

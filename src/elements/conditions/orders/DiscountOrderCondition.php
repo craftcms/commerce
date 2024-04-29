@@ -2,6 +2,8 @@
 
 namespace craft\commerce\elements\conditions\orders;
 
+use craft\commerce\base\HasStoreInterface;
+use craft\commerce\base\StoreTrait;
 use craft\elements\db\ElementQueryInterface;
 use yii\base\NotSupportedException;
 
@@ -11,14 +13,16 @@ use yii\base\NotSupportedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0.0
  */
-class DiscountOrderCondition extends OrderCondition
+class DiscountOrderCondition extends OrderCondition implements HasStoreInterface
 {
+    use StoreTrait;
+
     /**
      * @inheritdoc
      */
-    protected function conditionRuleTypes(): array
+    protected function selectableConditionRules(): array
     {
-        return array_merge(parent::conditionRuleTypes(), []);
+        return array_merge(parent::selectableConditionRules(), []);
     }
 
     /**

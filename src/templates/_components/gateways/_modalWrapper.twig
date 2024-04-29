@@ -93,7 +93,6 @@
                 'orderId' : orderId
             },
             success: function(data){
-                console.log(data);
                 form.find(".baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
                 form.find(".response-message").html(data.message);
                 window.dispatchEvent(new Event('resize'));
@@ -101,6 +100,18 @@
             }
         });
     }
+
+    $("input.paymentAmount").inputmask({
+          alias: 'currency',
+          autoGroup: false,
+          clearMaskOnLostFocus: false,
+          digits: window.orderEdit.currencyConfig.decimals,
+          digitsOptional: false,
+          groupSeparator: window.orderEdit.currencyConfig.groupSeparator,
+          placeholder: '0',
+          prefix: '',
+          radixPoint: window.orderEdit.currencyConfig.decimalSeparator,
+    });
 
     $("input.paymentAmount").bind('keyup mouseup', debounce(function(){
         var $input = $(this);
@@ -116,7 +127,6 @@
     $("select.paymentCurrency").each(function( index ) {
         var $form = $(this.form);
         $(this).on('change', function() {
-            console.log('change');
             updatePrice($form);
         });
     });

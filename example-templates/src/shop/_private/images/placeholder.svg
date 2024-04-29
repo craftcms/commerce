@@ -34,3 +34,5 @@ Outputs an SVG to be used as an image placeholder, optionally including target d
     {% endif -%}
   </text>
 </svg>
+
+

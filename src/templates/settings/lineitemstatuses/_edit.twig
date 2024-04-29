@@ -13,11 +13,12 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-    <input type="hidden" name="action" value="commerce/line-item-statuses/save">
+    {{ actionInput('commerce/line-item-statuses/save') }}
     {{ redirectInput('commerce/settings/lineitemstatuses') }}
+    {{ hiddenInput('storeId', lineItemStatus.storeId) }}
     {% if lineItemStatus.id %}
-        <input type="hidden" name="sortOrder" value="{{ lineItemStatus.sortOrder }}">
-        <input type="hidden" name="id" value="{{ lineItemStatus.id }}">
+        {{ hiddenInput("sortOrder", lineItemStatus.sortOrder) }}
+        {{ hiddenInput("id", lineItemStatus.id) }}
     {% endif %}
 
     {{ forms.textField({
@@ -42,22 +43,23 @@
         required: true
     }) }}
 
+    {% set statusColor = not lineItemStatus.id and nextAvailableColor is defined and nextAvailableColor and not lineItemStatus.hasErrors() ? nextAvailableColor : lineItemStatus.color %}
     {{ forms.hidden({
         id: 'color',
         name: 'color',
-        value: lineItemStatus.color
+        value: statusColor
     }) }}
 
     {% set colorField %}
         <div>
             <a id="color-menu-btn" class="btn menubtn" href="#">
-                <span class="status {{ lineItemStatus.color }}"></span>{{ lineItemStatus.color|t('commerce')|title }}
+                <span class="status {{ statusColor }}"></span>{{ statusColor|t('commerce')|title }}
             </a>
             <div class="menu">
                 <ul class="padded">
                     {% for color in ['green','orange', 'red', 'blue', 'yellow', 'pink', 'purple', 'turquoise', 'light', 'grey', 'black'] %}
                         <li>
-                            <a data-val="{{ color }}" {% if lineItemStatus.color == color %}class="sel"{% endif %} href="#">
+                            <a data-val="{{ color }}" {% if statusColor == color %}class="sel"{% endif %} href="#">
                                 <span class="status {{ color }}"></span>{{ color|t('commerce')|title }}
                             </a>
                         </li>
@@ -72,11 +74,11 @@
         instructions: 'Choose a color to represent the order’s status'|t
     },colorField) }}
 
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
         label: "New line items get this status by default when the order is completed"|t('commerce'),
         name: 'default',
         value: 1,
-        checked: lineItemStatus.default,
+        on: lineItemStatus.default,
         errors: lineItemStatus.getErrors('default')
     }) }}
 {% endblock %}

@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
@@ -21,7 +20,7 @@ use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
-use craft\commerce\models\Settings;
+use craft\commerce\models\Store;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -237,13 +236,14 @@ class Payments extends Component
      * @param BasePaymentForm $form the payment form.
      * @param string|null &$redirect a string parameter by reference that will contain the redirect URL, if any
      * @param Transaction|null &$transaction the transaction
+     * @param array|null &$redirectData the additional data the gateway might need to redirect the user to the payment page. This is useful for ajax payment responses.
      * @return void
      * @throws InvalidConfigException
      * @throws PaymentException if the payment was unsuccessful
      * @throws TransactionException
      * @throws CurrencyException
      */
-    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction, ?array &$redirectData = []): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));
@@ -257,8 +257,8 @@ class Payments extends Component
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        $paymentStrategy = Plugin::getInstance()->getSettings()->freeOrderPaymentStrategy;
-        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
+        $paymentStrategy = $order->getStore()->getFreeOrderPaymentStrategy();
+        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Store::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
             $order->updateOrderPaidInformation();
 
             if ($order->isCompleted) {
@@ -266,8 +266,10 @@ class Payments extends Component
             }
         }
 
-        /** @var Gateway $gateway */
         $gateway = $order->getGateway();
+        if (!$gateway) {
+            throw new InvalidConfigException(Craft::t('commerce', 'Missing Gateway'));
+        }
 
         //choosing default action
         $defaultAction = $gateway->paymentType;
@@ -298,11 +300,11 @@ class Payments extends Component
 
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
-                $this->_handleRedirect($response, $redirect);
+                $this->_handleRedirect($response, $redirect, $redirectData);
                 return;
             }
 
-            if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
+            if (!in_array($transaction->status, [TransactionRecord::STATUS_SUCCESS, TransactionRecord::STATUS_PROCESSING])) {
                 throw new PaymentException($transaction->message);
             }
 
@@ -455,9 +457,10 @@ class Payments extends Component
             ]));
         }
 
+        $redirectData = [];
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $mutex->release($transactionLockName);
-            $this->_handleRedirect($response, $redirect);
+            $this->_handleRedirect($response, $redirect, $redirectData);
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
         }
@@ -476,17 +479,19 @@ class Payments extends Component
      *
      * @param RequestResponseInterface $response
      * @param string|null $redirect
+     * @param array|null $redirectData
      * @throws ExitException
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      * @throws \yii\base\Exception
      */
-    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect): void
+    private function _handleRedirect(RequestResponseInterface $response, ?string &$redirect, ?array &$redirectData): void
     {
         // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
             $redirect = $response->getRedirectUrl();
+            $redirectData = $response->getRedirectData();
         } else {
             $gatewayPostRedirectTemplate = Plugin::getInstance()->getSettings()->gatewayPostRedirectTemplate;
 
@@ -572,13 +577,12 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
-            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($child->currency);
 
             // If amount is not supplied refund the full amount
-            $child->paymentAmount = Currency::round($amount, $currency) ?: $parent->getRefundableAmount();
+            $child->paymentAmount = Currency::round($amount, $child->currency) ?: $parent->getRefundableAmount();
 
             // Calculate amount in the primary currency
-            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $currency);
+            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $child->currency);
             $child->note = $note;
 
             $gateway = $parent->getGateway();

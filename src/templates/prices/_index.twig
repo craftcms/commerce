@@ -1,0 +1,55 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Price',
+    'Promotional Price',
+    'Source',
+    'Store Rule',
+    'price',
+    'prices',
+]) %}
+
+{% set title = 'Prices'|t('commerce') %}
+
+{% set toolbar %}
+  {% set showStatusMenu = false %}
+  {# Changing the context forces the status menu not to show #}
+  {% set context = 'pricing' %}
+  {% include '_elements/toolbar' with { showSitesMenu: 'auto', elementType: 'craft\\commerce\\elements\\Variant'} %}
+{% endset %}
+
+{% block content %}
+  <div id="commerce-catalog-prices">
+    {% include 'commerce/prices/_table' with { catalogPrices: catalogPrices } %}
+  </div>
+  <div id="commerce-catalog-prices-loading" class="update-spinner spinner spinner-absolute hidden"></div>
+  <div id="footer" class="flex">
+    <div id="count-container" class="light flex-grow">
+      {% include '_includes/pagination' with {
+        'pageInfo' : pageInfo,
+        'itemLabel' : 'price'|t('app'),
+        'itemsLabel': 'prices'|t('app')
+      } %}
+    </div>
+    {% include 'commerce/prices/_status' %}
+  </div>
+{% endblock %}
+
+{% js at endBody %}
+(() => {
+  const CatalogPricingFilterHud = new Craft.Commerce.CatalogPricing(
+    $('#main'),
+    $('#commerce-catalog-prices'),
+    {
+      siteId: {{ craft.app.sites.currentSite.id }},
+      condition: {{ condition.getConfig()|json_encode|raw }},
+      filterBtnActive: {{ condition.getConditionRules()|length ? 'true' : 'false' }},
+      itemLabel: "{{ 'price'|t('commerce') }}",
+      itemsLabel: "{{ 'prices'|t('commerce') }}",
+      pageInfo: {{ pageInfo|json_encode|raw }},
+    }
+  );
+})();
+{% endjs %}

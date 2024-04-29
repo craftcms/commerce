@@ -10,9 +10,9 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
+use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
-use craft\helpers\UrlHelper;
 use DateTime;
 
 /**
@@ -154,7 +154,9 @@ class Sale extends Model
 
     public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
+        // Sales cannot exist with multiple stores so we can just use the primary store
+        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
+        return $store->getStoreSettingsUrl('sales/' . $this->id);
     }
 
     /**
@@ -205,7 +207,7 @@ class Sale extends Model
             $purchasableIds = [];
             if ($this->id) {
                 $purchasableIds = (new Query())->select(
-                    'sp.purchasableId')
+                    '[[sp.purchasableId]]')
                     ->from(Table::SALES . ' sales')
                     ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
                     ->where(['sales.id' => $this->id])

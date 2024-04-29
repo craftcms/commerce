@@ -1,24 +1,24 @@
 <?php
 
 return [
-    [
+    'hoodies' => [
         'id' => '2000',
         'name' => 'Hoodies',
         'handle' => 'hoodies',
         'hasDimensions' => false,
-        'hasVariants' => false,
+        'maxVariants' => 1,
         'descriptionFormat' => '{product.title}',
         'variantTitleFormat' => '{product.title}',
         'productTitleFormat' => '',
         'hasProductTitleField' => true,
         'hasVariantTitleField' => false,
     ],
-    [
+    'tees' => [
         'id' => '2001',
         'name' => 'T-Shirts',
         'handle' => 'tShirts',
         'hasDimensions' => false,
-        'hasVariants' => true,
+        'maxVariants' => null,
         'descriptionFormat' => '{product.title} - {title}',
         'variantTitleFormat' => '{product.title}',
         'productTitleFormat' => '',

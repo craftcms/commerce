@@ -3,11 +3,11 @@
 <div class="my-6">
   <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {% for product in products %}
-      <div class="relative bg-gray-50 rounded">
+      <div class="relative bg-gray-50 rounded hover:shadow-md">
         <div>
           <a class="block" href="{{ product.url }}">
             {% include "[[folderName]]/_private/images/placeholder.svg" with {
-              class: 'w-full h-auto rounded rounded-b-none opacity-75 hover:opacity-100',
+              class: 'w-full h-auto rounded rounded-b-none',
               width: 320,
               height: 140
             } %}
@@ -33,40 +33,26 @@
             {{ successMessageInput('{product} added to cart.'|t({
               product: product.title
             })) }}
-            {# {{ hiddenInput('clearNotices', true) }} #}
-            <div class="inline-block relative w-full">
-              {% tag 'select' with {
-                name: 'purchasableId',
-                class: [
-                  'js-purchasableId',
-                  'block',
-                  'appearance-none',
-                  'w-full',
-                  'border',
-                  'border-gray-200',
-                  'hover:border-gray-500',
-                  'px-4',
-                  'py-2',
-                  'pr-8',
-                  'rounded',
-                  'leading-tight',
-                  'focus:outline-none',
-                  'focus:ring'
-                ]
-              } %}
-                {% for variant in product.getVariants() %}
-                  {# @var variant \craft\commerce\elements\Variant #}
-                  {{ tag('option', {
+
+            <div class="text-right text-xs text-gray-400">
+              {% set totalVariants = product.getVariants()|length %}
+              {{ '{total} variant(s)'|t({ total: totalVariants }) }}
+            </div>
+
+            <div style="overflow-y: scroll; max-height: 6rem;">
+              {% for variant in product.getVariants() %}
+                {# @var variant \craft\commerce\elements\Variant #}
+                <label class="flex w-full items-center">
+                  {{ tag('input', {
+                    name: 'purchasableId',
+                    type: 'radio',
                     value: variant.id,
-                    text: variant.sku ~ ' ' ~ variant.salePrice|currency(cart.currency)
-                  }) }}
-                {% endfor %}
-              {% endtag %}
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                </svg>
-              </div>
+                    checked: loop.first,
+                    class: not variant.getIsAvailable() ? 'opacity-10' : '',
+                    disabled: not variant.availableForPurchase,
+                  }) }}<span class="pl-1">{{ variant.sku }} ({{ variant.stock ? variant.stock ~ ' available' : 'out of stock'}})</span><span class="ml-auto">{% if variant.onPromotion %} <del class="text-gray-400 text-xs">{{ variant.price|currency(cart.currency) }}</del>{% endif %} {{ variant.salePrice|currency(cart.currency) }}</span>
+                </label>
+              {% endfor %}
             </div>
             <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
               {{ input('number', 'qty', 1, {
@@ -75,19 +61,11 @@
                 min: 1,
                 placeholder: 'Quantity'|t
               }) }}
-              {% if product.availableForPurchase %}
-                {{ tag('button', {
-                  type: 'submit',
-                  class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.mainColor]]'],
-                  text: 'Add to cart'|t
-                }) }}
-              {% else %}
-                {{ tag('button', {
-                  type: 'submit',
-                  class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.grayColor]]'],
-                  text: 'Unavailable'|t
-                }) }}
-              {% endif %}
+              {{ tag('button', {
+                type: 'submit',
+                class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.mainColor]]'],
+                text: 'Add to cart'|t
+              }) }}
             </div>
             <div class="mt-1">
               <label>

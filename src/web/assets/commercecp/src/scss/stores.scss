@@ -1,0 +1,16 @@
+@charset "UTF-8";
+
+.store-selector {
+  position: relative;
+
+  &::after {
+    pointer-events: none;
+  }
+
+  > select {
+    appearance: none;
+    background: transparent;
+    margin: -7px -26px -7px -14px;
+    padding: 7px 24px 7px 14px;
+  }
+}

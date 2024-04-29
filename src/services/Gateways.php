@@ -15,18 +15,17 @@ use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\DeprecationException;
 use craft\errors\MissingComponentException;
 use craft\events\ConfigEvent;
 use craft\events\RegisterComponentTypesEvent;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Component as ComponentHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use yii\base\Component;
 use yii\base\ErrorException;
@@ -54,9 +53,9 @@ class Gateways extends Component
     private ?array $_overrides = null;
 
     /**
-     * @var array|null All gateways
+     * @var Collection<Gateway>|null All gateways
      */
-    private ?array $_allGateways = null;
+    private ?Collection $_allGateways = null;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.
@@ -105,37 +104,37 @@ class Gateways extends Component
     /**
      * Returns all customer enabled gateways.
      *
-     * @return GatewayInterface[] All gateways that are enabled for frontend
+     * @return Collection All gateways that are enabled for frontend
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function getAllCustomerEnabledGateways(): array
+    public function getAllCustomerEnabledGateways(): Collection
     {
-        return ArrayHelper::where($this->getAllGateways(), function($gateway) {
-            return $gateway->getIsFrontendEnabled();
-        });
+        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway->getIsFrontendEnabled());
     }
 
     /**
      * Returns all subscription gateways.
      *
+     * @return Collection<GatewayInterface> All Subscription gateways
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function getAllSubscriptionGateways(): array
+    public function getAllSubscriptionGateways(): Collection
     {
-        return ArrayHelper::where($this->_getAllGateways(), function($gateway) {
-            return $gateway instanceof SubscriptionGateway && !$gateway->isArchived;
-        });
+        return $this->getAllGateways()->where(fn(GatewayInterface $gateway) => $gateway instanceof SubscriptionGateway);
     }
 
     /**
      * Returns all gateways
      *
-     * @return GatewayInterface[] All gateways
+     * @return Collection All gateways
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    public function getAllGateways(): array
+    public function getAllGateways(): Collection
     {
-        return ArrayHelper::where($this->_getAllGateways(), 'isArchived', false);
+        return $this->_getAllGateways()->where('isArchived', false);
     }
 
     /**
@@ -160,10 +159,13 @@ class Gateways extends Component
             return false;
         }
 
-        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id);
-        $paymentSourceIds = ArrayHelper::getColumn($paymentSources, 'id');
+        // remove all payment sources for this gateway
+        // this will also remove them as the payment source for a cart
+        Craft::$app->getDb()->createCommand()
+            ->delete(Table::PAYMENTSOURCES, ['gatewayId' => $id])
+            ->execute();
 
-        // Clear this gateway from all active carts since it has been now been archived
+        // Clear this as the selected gateway from all active carts and orders
         Craft::$app->getDb()->createCommand()
             ->update(Table::ORDERS,
                 [
@@ -171,9 +173,7 @@ class Gateways extends Component
                     'paymentSourceId' => null,
                 ],
                 [
-                    'and',
-                    ['isCompleted' => false],
-                    ['or', ['gatewayId' => $id], ['paymentSourceId' => $paymentSourceIds]],
+                    'gatewayId' => $id,
                 ], [], false)
             ->execute();
 
@@ -184,23 +184,27 @@ class Gateways extends Component
     /**
      * Returns a gateway by its ID.
      *
+     * @param int $id
      * @return Gateway|null The gateway or null if not found.
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
     public function getGatewayById(int $id): ?Gateway
     {
-        return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
+        return $this->_getAllGateways()->firstWhere('id', $id);
     }
 
     /**
      * Returns a gateway by its handle.
      *
+     * @param string $handle
      * @return Gateway|null The gateway or null if not found.
+     * @throws DeprecationException
      * @throws InvalidConfigException
      */
     public function getGatewayByHandle(string $handle): ?Gateway
     {
-        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
+        return $this->getAllGateways()->firstWhere('handle', $handle);
     }
 
     /**
@@ -462,23 +466,26 @@ class Gateways extends Component
     }
 
     /**
-     * @return array
+     * @return Collection<Gateway>
      * @throws DeprecationException
      * @throws InvalidConfigException
      */
-    private function _getAllGateways(): array
+    private function _getAllGateways(): Collection
     {
         if ($this->_allGateways === null) {
-            $gateways = $this->_createGatewayQuery()
+            $results = $this->_createGatewayQuery()
                 ->all();
 
-            $this->_allGateways = [];
-
-            if (!empty($gateways)) {
-                foreach ($gateways as $gateway) {
-                    $this->_allGateways[$gateway['id']] = $this->createGateway($gateway);
-                }
+            if ($this->_allGateways === null) {
+                $this->_allGateways = collect();
             }
+
+            $gateways = [];
+            foreach ($results as $result) {
+                $gateways[] = $this->createGateway($result);
+            }
+
+            $this->_allGateways = collect($gateways)->keyBy('id');
         }
 
         return $this->_allGateways;

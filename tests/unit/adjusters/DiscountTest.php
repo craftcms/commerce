@@ -15,7 +15,6 @@ use craft\commerce\models\Discount as DiscountModel;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
-use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Discounts;
 use craft\helpers\ArrayHelper;
 
@@ -45,8 +44,6 @@ class DiscountTest extends Unit
         parent::_before();
 
         $this->pluginInstance = Plugin::getInstance();
-        $this->originalEdition = $this->pluginInstance->edition;
-        $this->pluginInstance->edition = Plugin::EDITION_PRO;
     }
 
     /**
@@ -55,8 +52,6 @@ class DiscountTest extends Unit
     protected function _after(): void
     {
         parent::_after();
-
-        $this->pluginInstance->edition = $this->originalEdition;
     }
 
     /**
@@ -87,7 +82,7 @@ class DiscountTest extends Unit
         foreach ($lineItemData as $item) {
             $lineItem = $this->make(LineItem::class, [
                 'qty' => $item['qty'],
-                'salePrice' => $item['salePrice'],
+                'price' => $item['price'],
                 'getPurchasable' => function() use ($item) {
                     return $item['purchasable'];
                 },
@@ -128,11 +123,10 @@ class DiscountTest extends Unit
             'allCategories' => true,
             'stopProcessing' => false,
             'baseDiscount' => -10,
-            'baseDiscountType' => DiscountRecord::BASE_DISCOUNT_TYPE_VALUE,
         ];
 
         $lineItemPromotable = [
-            'salePrice' => 100,
+            'price' => 100,
             'qty' => 1,
             'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float
@@ -153,7 +147,7 @@ class DiscountTest extends Unit
         ];
 
         $lineItemNonPromotable = [
-            'salePrice' => 100,
+            'price' => 100,
             'qty' => 1,
             'purchasable' => new class() extends Purchasable {
                 public function getPrice(): float

@@ -1,0 +1,117 @@
+{% extends "commerce/_layouts/store-management" %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Couldn’t reorder discounts.',
+    'Delete',
+    'Disabled',
+    'Discounts reordered.',
+    'Duration',
+    'Enabled',
+    'Has Coupons?',
+    'Ignore Promtoions?',
+    'Name',
+    'No discounts exist yet.',
+    'No',
+    'Set status',
+    'Stops Processing?',
+    'Times Used',
+    'Yes',
+]) %}
+
+{% block actionButton %}
+    {% if currentUser.can('commerce-createDiscounts') %}
+        <a href="{{ url("commerce/store-management/#{storeHandle}/discounts/new") }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <div id="discounts-vue-admin-table"></div>
+
+    {% hook "cp.commerce.discounts.index" %}
+{% endblock %}
+
+{% js %}
+    var actions = [
+    {% if currentUser.can('commerce-editDiscounts') %}
+        {
+            label: Craft.t('commerce', 'Set status'),
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Enabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('commerce', 'Disabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        },
+    {% endif %}
+    {% if currentUser.can('commerce-deleteDiscounts') %}
+        {
+            label: Craft.t('commerce', 'Delete'),
+            action: 'commerce/discounts/delete',
+            error: true,
+        }
+    {% endif %}
+    ];
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'hasCoupons', title: Craft.t('commerce', 'Has Coupons?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'duration', title: Craft.t('commerce', 'Duration') },
+        { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
+        { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Promotions?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        fullPane: false,
+        container: '#discounts-vue-admin-table',
+        allowMultipleDeletions: true,
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts') ? '"commerce/discounts/delete"' : 'null' }},
+        emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
+        padded: true,
+        paginatedReorderAction: 'commerce/discounts/reorder',
+        moveToPageAction: 'commerce/discounts/move-to-page',
+        reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
+        tableDataEndpoint: '{{ tableDataEndpoint|raw }}',
+        search: true,
+        perPage: 100,
+  });
+{% endjs %}

@@ -1,12 +1,16 @@
 <template>
-    <div v-if="customerId">
-        <a
+    <div
+        class="order-edit-address-select menu-item"
+        data-icon="list"
+        v-if="customerId"
+    >
+        <button
             :class="{disabled: !canSelectAddress}"
             :disabled="!canSelectAddress"
             @click.prevent="open"
-            >{{ $options.filters.t('Select address', 'commerce') }}</a
         >
-
+            {{ $options.filters.t('Select address', 'commerce') }}
+        </button>
         <div class="hidden">
             <div
                 ref="addressselectmodal"
@@ -30,6 +34,23 @@
                             />
                             <ul v-html="address.html"></ul>
                         </label>
+                    </div>
+
+                    <div
+                        class="order-edit-modal-load-more"
+                        v-if="isLoadMoreVisible"
+                    >
+                        <div>
+                            <btn-link button-class="btn" @click="loadMore">
+                                {{
+                                    $options.filters.t('Load more', 'commerce')
+                                }}
+                            </btn-link>
+                            <div
+                                class="spinner"
+                                :class="{hidden: !isLoadingMore}"
+                            ></div>
+                        </div>
                     </div>
                 </div>
                 <div class="footer">
@@ -57,8 +78,9 @@
 
 <script>
     /* global Garnish, Craft */
-    import {mapGetters} from 'vuex';
+    import {mapGetters, mapState} from 'vuex';
     import _find from 'lodash.find';
+    import customer from './Customer.vue';
 
     export default {
         props: {
@@ -76,14 +98,24 @@
             return {
                 addresses: [],
                 isVisible: false,
+                isLoadingMore: false,
                 modal: null,
+                perPage: 15,
+                page: 1,
                 save: false,
                 selectedAddress: null,
             };
         },
 
         computed: {
+            customer() {
+                return customer;
+            },
             ...mapGetters([]),
+
+            ...mapState({
+                draft: (state) => state.draft,
+            }),
 
             isDoneDisabled() {
                 if (this.selectedAddress) {
@@ -94,12 +126,27 @@
             },
 
             canSelectAddress() {
-                if (!this.$store.state.draft.order.customer) {
+                if (!this.draft.order.customer) {
                     return false;
                 }
 
                 if (
-                    this.$store.state.draft.order.customer.totalAddresses == 0
+                    this.draft.order &&
+                    this.draft.order.customer &&
+                    this.draft.order.customer.totalAddresses == 0
+                ) {
+                    return false;
+                }
+
+                return true;
+            },
+
+            isLoadMoreVisible() {
+                if (
+                    this.draft.order &&
+                    this.draft.order.customer &&
+                    this.draft.order.customer.totalAddresses ==
+                        this.addresses.length
                 ) {
                     return false;
                 }
@@ -133,6 +180,8 @@
 
                 const data = {
                     id: this.customerId,
+                    page: this.page,
+                    per_page: this.perPage,
                 };
 
                 Craft.sendActionRequest(
@@ -141,13 +190,24 @@
                     {data}
                 )
                     .then((response) => {
-                        this.addresses = response.data.addresses;
+                        this.addresses = [
+                            ...this.addresses,
+                            ...response.data.addresses,
+                        ];
                     })
                     .finally(() => {
                         if (this.modal) {
                             this.modal.updateSizeAndPosition();
                         }
+                        this.isLoadingMore = false;
                     });
+            },
+
+            loadMore() {
+                this.isLoadingMore = true;
+                this.page++;
+
+                this.getAddresses();
             },
 
             open() {
@@ -168,6 +228,7 @@
 
                 if (this.isVisible) {
                     this.modal.hide();
+                    this.modal = null;
                 }
             },
 
@@ -180,7 +241,11 @@
         watch: {
             customerId(newId, oldId) {
                 if (newId !== oldId) {
-                    this.getAddresses();
+                    this.addresses = [];
+
+                    if (newId) {
+                        this.getAddresses();
+                    }
                 }
             },
         },
@@ -191,7 +256,19 @@
     };
 </script>
 
-<style land="scss">
+<style lang="scss">
+    @import 'craftcms-sass/mixins';
+
+    .order-edit-address-select {
+        &::before {
+            @include margin-right(9px);
+        }
+
+        button {
+            cursor: default;
+        }
+    }
+
     .order-edit-modal--address-select {
         label {
             border-radius: 0.375rem;
@@ -213,6 +290,23 @@
 
         .address-card-header-actions {
             display: none;
+        }
+    }
+
+    .order-edit-modal-load-more {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        div {
+            position: relative;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            right: -34px;
+            transform: translateY(-50%);
         }
     }
 </style>

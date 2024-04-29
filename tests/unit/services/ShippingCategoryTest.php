@@ -8,10 +8,12 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\services\ShippingCategories;
+use craft\helpers\Db;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 
@@ -50,7 +52,8 @@ class ShippingCategoryTest extends Unit
     {
         $product = Product::find()->where(['slug' => 'rad-hoodie'])->one();
 
-        $shippingCategoryId = $product->getShippingCategory()->id;
+        $variant = $product->getVariants()->first();
+        $shippingCategoryId = $variant->getShippingCategory()->id;
 
         $result = $this->shippingCategories->deleteShippingCategoryById($shippingCategoryId);
 
@@ -63,5 +66,8 @@ class ShippingCategoryTest extends Unit
         $shippingCategory = ShippingCategory::findTrashed()->where(['id' => $shippingCategoryId])->one();
 
         $this->assertInstanceOf(ShippingCategory::class, $shippingCategory);
+
+        // Return shipping category to normal
+        Db::update(Table::SHIPPINGCATEGORIES, ['dateDeleted' => null], ['id' => $shippingCategoryId]);
     }
 }

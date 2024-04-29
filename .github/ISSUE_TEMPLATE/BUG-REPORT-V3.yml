@@ -2,8 +2,9 @@ name: Bug Report – Commerce 3
 description: Report an issue or unexpected behavior pertaining to Commerce 3
 title: '[3.x]: '
 labels:
-  - 🐞 bug
   - commerce3
+  - Craft Commerce # Linear
+  - bug # Linear
 body:
   - type: markdown
     attributes:

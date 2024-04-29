@@ -46,6 +46,7 @@
         {{ include('shop/_private/address/fields', {
             address: address,
             showLabelField: true,
+            showPrimaryCheckboxes: true,
         }) }}
         {{ hiddenInput('ownerId', currentUser.id) }}
 

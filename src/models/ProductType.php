@@ -60,14 +60,20 @@ class ProductType extends Model
     public ?string $handle = null;
 
     /**
+     * @var bool Whether versioning should be enabled for this product type.
+     * @since 5.0.0
+     */
+    public bool $enableVersioning = false;
+
+    /**
      * @var bool Has dimension
      */
     public bool $hasDimensions = false;
 
     /**
-     * @var bool Has variants
+     * @var int|null Maximum number of variants
      */
-    public bool $hasVariants = false;
+    public ?int $maxVariants = null;
 
     /**
      * @var bool Has variant title field
@@ -155,7 +161,7 @@ class ProductType extends Model
                 'required',
                 'when' => static function($model) {
                     /** @var static $model */
-                    return !$model->hasVariantTitleField && $model->hasVariants;
+                    return !$model->hasVariantTitleField;
                 },
             ],
             [
@@ -169,6 +175,7 @@ class ProductType extends Model
             [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
             [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
             [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            [['maxVariants'], 'integer', 'min' => 1],
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
         ];
@@ -303,21 +310,20 @@ class ProductType extends Model
         $fieldLayout = $behavior->getFieldLayout();
 
         // If this product type has variants, make sure the Variants field is in the layout somewhere
-        if ($this->hasVariants && !$fieldLayout->isFieldIncluded('variants')) {
+        if (!$fieldLayout->isFieldIncluded('variants')) {
             $layoutTabs = $fieldLayout->getTabs();
             $variantTabName = Craft::t('commerce', 'Variants');
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $contentTab = new FieldLayoutTab([
-                'name' => $variantTabName,
-                'elements' => [
-                    [
-                        'type' => VariantsField::class,
-                    ],
-                ],
-            ]);
+
+            $contentTab = new FieldLayoutTab();
             $contentTab->setLayout($fieldLayout);
+            $contentTab->name = $variantTabName;
+            $contentTab->setElements([
+                ['type' => VariantsField::class],
+            ]);
+
             $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
@@ -355,10 +361,22 @@ class ProductType extends Model
         $variantFieldLayout = $this->getVariantFieldLayout();
 
         $variantFieldLayout->reservedFieldHandles = [
+            'availableForPurchase',
             'description',
+            'freeShipping',
+            'hasUnlimitedStock',
+            'height',
+            'length',
+            'maxQty',
+            'minQty',
             'price',
             'product',
+            'promotable',
+            'promotionalPrice',
             'sku',
+            'stock',
+            'weight',
+            'width',
         ];
 
         if (!$variantFieldLayout->validate()) {
@@ -396,6 +414,16 @@ class ProductType extends Model
     {
         Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::titleFormat', 'Setting `ProductType::titleFormat` has been deprecate. Use `ProductType::variantTitleFormat` instead.');
         $this->variantTitleFormat = $titleFormat;
+    }
+
+    /**
+     * @return bool
+     * @deprecated 5.0.0
+     */
+    public function getHasVariants(): bool
+    {
+        Craft::$app->getDeprecator()->log('craft\commerce\models\ProductType::hasVariants', 'Use `ProductType::maxVariants > 1` instead.');
+        return $this->maxVariants > 1;
     }
 
     /**
