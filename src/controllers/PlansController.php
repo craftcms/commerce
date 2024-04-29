@@ -15,7 +15,6 @@ use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\errors\DeprecationException;
 use craft\helpers\Cp;
-use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\i18n\Locale;
