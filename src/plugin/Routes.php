@@ -68,9 +68,6 @@ trait Routes
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
-            // Prices
-            $event->rules['commerce/prices'] = 'commerce/catalog-pricing/index';
-
             // Settings
 
             $event->rules['commerce/settings/stores'] = 'commerce/stores/stores-index';
@@ -165,9 +162,6 @@ trait Routes
             $event->rules['commerce/inventory-locations'] = 'commerce/inventory-locations/index';
             $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
             $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
-
-            $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
-            $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
 
             // Donations
             $event->rules['commerce/donations'] = 'commerce/donations/edit';
