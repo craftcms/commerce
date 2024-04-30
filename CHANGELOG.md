@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the footer delete action wasn’t deleting shipping methods. ([#3444](https://github.com/craftcms/commerce/issues/3444))
+
 ## 4.5.4 - 2024-04-24
 
 - Fixed a bug where date ranges weren’t displayed correctly on the Discounts index page. ([#3457](https://github.com/craftcms/commerce/issues/3457))
