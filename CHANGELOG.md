@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.0 - 2024-04-30
 
 - Craft Commerce now requires Craft CMS 4.9 or later.
 - Improved transaction query performance. ([#3464](https://github.com/craftcms/commerce/issues/3464))
