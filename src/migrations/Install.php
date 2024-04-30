@@ -922,6 +922,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
+        $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::VARIANTS, 'sku', false);
         $this->createIndex(null, Table::VARIANTS, 'productId', false);
     }
