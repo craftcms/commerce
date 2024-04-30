@@ -551,6 +551,8 @@ class Discounts extends Component
             return false;
         }
 
+        $siteId = $lineItem->order->orderSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+
         if ($lineItem->getOnPromotion() && $discount->excludeOnPromotion) {
             return false;
         }
@@ -573,8 +575,8 @@ class Discounts extends Component
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
 
-                $relatedEntries = Entry::find()->relatedTo($relatedTo)->ids();
-                $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+                $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
+                $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
 
                 $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
                 $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());

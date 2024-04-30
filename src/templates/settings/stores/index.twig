@@ -15,12 +15,12 @@
             <a href="{{ url('commerce/settings/stores/new') }}" class="btn submit add icon">{{ "New store"|t('app') }}</a>
         {% endset %}
 
-        {% if plugin('commerce').is('pro') and stores|length <  constant('craft\\commerce\\Plugin::EDITION_PRO_STORE_LIMIT') %}
+        {% if plugin('commerce').is('pro') and stores|length < constant('craft\\commerce\\Plugin::EDITION_PRO_STORE_LIMIT') and craft.commerce.catalogPricingRules.canUseCatalogPricingRules() %}
             {% set shownButton = true %}
             {{ addButton }}
         {% endif %}
 
-        {% if not shownButton and plugin('commerce').is('enterprise') %}
+        {% if not shownButton and plugin('commerce').is('enterprise') and craft.commerce.catalogPricingRules.canUseCatalogPricingRules() %}
             {% set shownButton = true %}
             {{ addButton }}
         {% endif %}

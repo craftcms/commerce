@@ -1,47 +1,7 @@
-{% extends "commerce/_layouts/cp" %}
-{% set title = brandNewPlan ? 'Create a new subscription plan'|t('commerce') : plan.name %}
-
-{% set crumbs = [
-    { label: "Store Settings"|t('commerce'), url: url('commerce/store-management') },
-    { label: "Subscription plans"|t('commerce'), url: url('commerce/store-management/subscription-plans') },
-] %}
-
-{% set selectedSubnavItem = 'store-management' %}
-
-{% set fullPageForm = gatewayOptions|length > 0 %}
-
 {% import "_includes/forms" as forms %}
-
-{% block details %}
-    <div class="meta">
-        {{ forms.lightswitchField({
-            label: "Enabled for customers to select?"|t('commerce'),
-            name: 'enabled',
-            on: plan ? plan.enabled,
-            errors: plan ? plan.getErrors('enabled') : [],
-        }) }}
-    </div>
-
-    {% if plan and plan.id %}
-        <div class="meta read-only">
-            <div class="data">
-                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
-                <div id="date-created-value" class="value">{{ plan.dateCreated|datetime('short') }}</div>
-            </div>
-            <div class="data">
-                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
-                <div id="date-updated-value" class="value">{{ plan.dateUpdated|datetime('short') }}</div>
-            </div>
-        </div>
-    {% endif %}
-{% endblock %}
 
 {% block content %}
     {% if gatewayOptions|length > 0 or plan is not null %}
-
-        <input type="hidden" name="action" value="commerce/plans/save-plan">
-        {{ redirectInput('commerce/store-management/'~storeHandle~'/subscription-plans') }}
-
         {% if plan is not null and plan.id %}
             <input type="hidden" name="planId" value="{{ plan.id }}">
         {% endif %}
@@ -95,14 +55,12 @@
             {% for gateway in supportedGateways %}
                 {% set isCurrent = plan and (gateway.id == plan.gatewayId) %}
 
-                <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden"{% endif %}">
+                <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden{% endif %}">
                 {% namespace 'gateway['~gateway.id~']' %}
                     {{ gateway.getPlanSettingsHtml({'plan': plan, 'gateway': gateway})|raw }}
                 {% endnamespace %}
                 </div>
             {% endfor %}
-
-
         </div>
     {% else %}
         <p class="error">{{ 'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.'|t('commerce', {'link': url('commerce/settings/gateways')})|raw }}</p>
@@ -116,5 +74,4 @@
         $('.gateway-settings').addClass('hidden');
         $('#gateway-settings-' + ev.currentTarget.value).removeClass('hidden');
     });
-
 {% endjs %}

@@ -159,7 +159,7 @@ class InventoryController extends Controller
         $search = Craft::$app->getRequest()->getQueryParam('search');
 
         $currentLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationByHandle($inventoryLocationHandle);
-        $selectedItem = 'levels-' . $currentLocation->handle;
+        $selectedItem = 'manage-' . $currentLocation->handle;
         $title = $currentLocation->name . ' ' . Craft::t('commerce', 'Inventory');
 
         return $this->asCpScreen()

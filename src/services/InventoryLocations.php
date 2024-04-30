@@ -56,9 +56,9 @@ class InventoryLocations extends Component
      * @param bool $withTrashed
      * @return InventoryLocation|null The inventory location or null if not found.
      */
-    public function getInventoryLocationById(int $id, $withTrashed = false): ?InventoryLocation
+    public function getInventoryLocationById(int $id, bool $withTrashed = false): ?InventoryLocation
     {
-        return $this->_getAllInventoryLocations()->firstWhere('id', $id);
+        return $this->_getAllInventoryLocations($withTrashed)->firstWhere('id', $id);
     }
 
     /**

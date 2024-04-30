@@ -131,31 +131,6 @@ class BaseStoreManagementController extends BaseCpController
             }
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
-            $this->storeSettingsNav['subscriptions'] = [
-                'heading' => Craft::t('commerce', 'Subscriptions'),
-            ];
-
-            $this->storeSettingsNav['subscription-plans'] = [
-                'label' => Craft::t('commerce', 'Plans'),
-                'path' => 'subscription-plans',
-            ];
-        }
-
-        $this->storeSettingsNav['subscriptions'] = [
-            'heading' => Craft::t('commerce', 'Subscriptions'),
-        ];
-
-        $this->storeSettingsNav['donation-heading'] = [
-            'heading' => Craft::t('commerce', 'Donation'),
-        ];
-
-        $this->storeSettingsNav['donation'] = [
-            'label' => Craft::t('commerce', 'Donation'),
-            'path' => 'donation',
-        ];
-
-
         return $this->storeSettingsNav;
     }
 }

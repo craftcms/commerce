@@ -8,12 +8,14 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\models\StoreSettings;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\Cp;
+use craft\models\Site;
 use craft\web\twig\TemplateLoaderException;
 use Throwable;
 use yii\base\InvalidConfigException;
@@ -50,7 +52,10 @@ class StoreManagementController extends BaseStoreManagementController
 
                 $variables['storeSettings'] = $variables['store']->getSettings();
             } else {
-                return $this->redirect(Plugin::getInstance()->getStores()->getPrimaryStore()->getStoreSettingsUrl());
+                // Attempt to redirect the user to the correct store settings for the site they were working on
+                /** @var Site|StoreBehavior $site */
+                $site = Cp::requestedSite();
+                return $this->redirect($site->getStore()->getStoreSettingsUrl());
             }
         }
 
