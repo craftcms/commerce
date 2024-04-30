@@ -27,10 +27,12 @@ use craft\commerce\models\InventoryTransaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\helpers\Db;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 use yii\db\Expression;
 
 /**
@@ -112,11 +114,13 @@ class Inventory extends Component
      * Returns an inventory level model which is the sum of all inventory movements types for an item in a location.
      *
      * @param InventoryItem $inventoryItem
+     * @param InventoryLocation $inventoryLocation
+     * @param bool $withTrashed
      * @return ?InventoryLevel
      */
-    public function getInventoryLevel(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): ?InventoryLevel
+    public function getInventoryLevel(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation, bool $withTrashed = false): ?InventoryLevel
     {
-        $result = $this->getInventoryLevelQuery()
+        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere([
                 'inventoryLocationId' => $inventoryLocation->id,
                 'inventoryItemId' => $inventoryItem->id,
@@ -192,12 +196,14 @@ class Inventory extends Component
     }
 
     /**
-     * @param $inventoryLocation
+     * @param InventoryLocation $inventoryLocation
+     * @param bool $withTrashed
      * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation): Collection
+    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        $levels = $this->getInventoryLevelQuery()
+        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
             ->collect();
 
@@ -216,9 +222,10 @@ class Inventory extends Component
      *
      * @param int|null $limit
      * @param int|null $offset
+     * @param bool $withTrashed
      * @return Query
      */
-    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null): Query
+    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Query
     {
         $inventoryTotals = (new Query())
             ->select([
@@ -253,6 +260,11 @@ class Inventory extends Component
             ->limit($limit)
             ->offset($offset);
 
+        if (!$withTrashed) {
+            $query->leftJoin(['elements' => CraftTable::ELEMENTS], '[[ii.purchasableId]] = [[elements.id]]');
+            $query->andWhere(['elements.dateDeleted' => null]);
+        }
+
         return $query;
     }
 
@@ -274,6 +286,8 @@ class Inventory extends Component
 
     /**
      * @param UpdateInventoryLevelCollection $updateInventoryLevels
+     * @return bool
+     * @throws Exception
      */
     public function executeUpdateInventoryLevels(UpdateInventoryLevelCollection $updateInventoryLevels): bool
     {
@@ -460,6 +474,8 @@ class Inventory extends Component
     }
 
     /**
+     * @param InventoryItem $inventoryItem
+     * @param InventoryLocation $inventoryLocation
      * @return array
      */
     public function getUnfulfilledOrders(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): array
