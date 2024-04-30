@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Improved the performance when querying transactions. ([#3464](https://github.com/craftcms/commerce/issues/3464))
-- Fixed a bug where the footer delete action wasn’t deleting shipping methods. ([#3444](https://github.com/craftcms/commerce/issues/3444))
+- Craft Commerce now requires Craft CMS 4.9 or later.
+- Improved transaction query performance. ([#3464](https://github.com/craftcms/commerce/issues/3464))
+- Fixed a bug where the bulk Delete action on the Shipping Methods index wasn’t working. ([#3444](https://github.com/craftcms/commerce/issues/3444))
 
 ## 4.5.4 - 2024-04-24
 
