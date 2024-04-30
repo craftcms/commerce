@@ -259,4 +259,5 @@
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
 
 ### System
+- Craft Commerce now requires Craft CMS 5.1 or later.
 - Craft Commerce now strictly requires Craft CMS Pro edition.
