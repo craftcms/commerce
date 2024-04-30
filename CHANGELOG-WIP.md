@@ -3,8 +3,9 @@
 ## 5.0.0 - Unreleased
 
 ### Store Management
-- It’s now possible to manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
-- It’s now possible to manage multiple inventory locations per store. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
+- It’s now possible to manage multiple stores (up to five). ([#2283](https://github.com/craftcms/commerce/discussions/2283))
+- It’s now possible to manage multiple inventory locations (up to five). ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
+- Added support for catalog pricing of purchasables, improving scalability and pricing flexibility for high-volume stores.
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants are now managed via nested element indexes rather than inline-editable blocks.
 - Product variants’ field layouts now support multiple tabs.
@@ -13,6 +14,7 @@
 - The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods and shipping rules now support flexible order matching, based on an order condition.
+- Users’ orders, carts, and subscriptions are now managed on a dedicated “Commerce” screen within Edit User sections.
 
 ### Administration
 - Added a new “Manage inventory stock levels” permission.
