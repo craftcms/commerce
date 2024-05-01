@@ -1137,6 +1137,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
+        $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
         $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
         $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
