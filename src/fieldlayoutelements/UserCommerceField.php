@@ -18,7 +18,8 @@ use yii\base\InvalidArgumentException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @internal
- * @todo remove in favor of a dedicated user management screen
+ * @deprecated in 5.0.1.
+ * @TODO remove in 5.1.0 and run migration to remove from field layouts.
  */
 class UserCommerceField extends BaseField
 {
@@ -35,7 +36,7 @@ class UserCommerceField extends BaseField
      */
     public function mandatory(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -77,8 +78,7 @@ class UserCommerceField extends BaseField
             return null;
         }
 
-        return Craft::$app->getView()->renderTemplate('commerce/_includes/users/_customerTables', [
-            'user' => $element,
-        ]);
+        // @TODO remove `commerce/_includes/users/_customerTables` template in 5.1.0
+        return null;
     }
 }
