@@ -9,6 +9,7 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
+use craft\test\DbFixtureTrait;
 
 /**
  * Shipping Rules Fixture
@@ -87,5 +88,13 @@ class ShippingFixture extends BaseModelFixture
 
         Plugin::getInstance()->edition = $originalEdition;
         Plugin::getInstance()->getShippingCategories()->clearCaches();
+    }
+
+    use DbFixtureTrait;
+    public function unload(): void
+    {
+        $this->checkIntegrity(true);
+        parent::unload();
+        $this->checkIntegrity(false);
     }
 }

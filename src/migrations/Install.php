@@ -214,7 +214,9 @@ class Install extends Migration
             'hasFreeShippingForMatchingItems' => $this->boolean()->notNull()->defaultValue(false),
             'hasFreeShippingForOrder' => $this->boolean()->notNull()->defaultValue(false),
             'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'purchasableIds' => $this->text(),
             'allCategories' => $this->boolean()->notNull()->defaultValue(false),
+            'categoryIds' => $this->text(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
             'orderConditionFormula' => $this->text(),
@@ -502,7 +504,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::ORDERSTATUS_EMAILS);
@@ -590,7 +592,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::PRODUCTTYPES);
@@ -745,7 +747,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGCATEGORIES);
         $this->createTable(Table::SHIPPINGCATEGORIES, [
             'id' => $this->primaryKey(),
-            'storeId' => $this->integer(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
@@ -759,7 +761,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGMETHODS);
         $this->createTable(Table::SHIPPINGMETHODS, [
             'id' => $this->primaryKey(),
-            'storeId' => $this->integer(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'orderCondition' => $this->text(),
@@ -824,7 +826,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(siteId)',
+            'PRIMARY KEY([[siteId]])',
         ]);
 
         $this->archiveTableIfExists(Table::STORES);
@@ -863,7 +865,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
@@ -963,7 +965,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::TRANSFERS);
         $this->createTable(Table::TRANSFERS, [
             'id' => $this->primaryKey(),
-            'transferStatus' => $this->enum('status', [
+            'transferStatus' => $this->enum('transferStatus', [
                 'draft',
                 'pending',
                 'partial',
@@ -995,7 +997,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
     }
 
@@ -1136,6 +1138,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
+        $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
         $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
         $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
@@ -1173,7 +1176,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', '{{%addresses}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', CraftTable::ELEMENTS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
@@ -1234,12 +1237,14 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id']);
-        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id']);
+        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::STORESETTINGS, ['locationAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::STORESETTINGS, ['id'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');

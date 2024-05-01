@@ -72,13 +72,13 @@ class LineItem extends Model
 {
     /**
      * @var string
-     * @since 5.0.0
+     * @since 5.1.0
      */
     public const TYPE_PURCHASABLE = 'purchasable';
 
     /**
      * @var string
-     * @since 5.0.0
+     * @since 5.1.0
      */
     public const TYPE_CUSTOM = 'custom';
 

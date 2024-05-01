@@ -34,6 +34,7 @@ use craft\validators\UniqueValidator;
 
 use Illuminate\Support\Collection;
 use Money\Money;
+use Money\Teller;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -321,11 +322,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency());
+    }
+
+    /**
      * @inheritdoc
      */
     public function getStore(): Store
     {
-        if ($this->_store === null) {
+        if ($this->_store === null || !in_array($this->siteId, $this->_store->getSites()->pluck('id')->all())) {
             if ($this->siteId === null) {
                 throw new InvalidConfigException('Purchasable::siteId cannot be null');
             }
@@ -485,12 +496,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         $price = $this->_price ?? $this->basePrice;
 
-        $price = MoneyHelper::toMoney([
-            'value' => $price,
-            'currency' => $this->getStore()->getCurrency(),
-        ]);
-
-        return (float)MoneyHelper::toDecimal($price);
+        return (float)$this->_getTeller()->convertToString($price);
     }
 
     /**
@@ -510,7 +516,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $promotionalPrice = $this->_promotionalPrice ?? $this->basePromotionalPrice;
         }
 
-        return ($promotionalPrice !== null && $promotionalPrice < $price) ? $promotionalPrice : null;
+        if ($promotionalPrice === null) {
+            return null;
+        }
+
+        $promotionalPrice = (float)$this->_getTeller()->convertToString($promotionalPrice);
+        return $this->_getTeller()->lessThan($promotionalPrice, $price) ? $promotionalPrice : null;
     }
 
     /**
@@ -724,7 +735,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
                     }
 
-                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                    if (!$purchasable->getIsAvailable()) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 },
@@ -901,9 +912,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterSave(bool $isNew): void
     {
+        $purchasableId = $this->getCanonicalId();
         if (!$this->propagating) {
-            $purchasableId = $this->getCanonicalId();
-
             $purchasable = PurchasableRecord::findOne($purchasableId);
 
             if (!$purchasable) {
@@ -926,42 +936,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $purchasable->save(false);
 
             if ($purchasableId) {
-
-                // Set Purchasables stores data
-                $purchasableStoreRecord = PurchasableStore::findOne([
-                    'purchasableId' => $purchasableId,
-                    'storeId' => $this->getStoreId(),
-                ]);
-                if (!$purchasableStoreRecord) {
-                    $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
-                    $purchasableStoreRecord->storeId = $this->getStore()->id;
-                }
-
-                $purchasableStoreRecord->basePrice = $this->basePrice;
-                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
-                $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
-                $purchasableStoreRecord->inventoryTracked = $this->inventoryTracked;
-                $purchasableStoreRecord->minQty = $this->minQty;
-                $purchasableStoreRecord->maxQty = $this->maxQty;
-                $purchasableStoreRecord->promotable = $this->promotable;
-                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
-                $purchasableStoreRecord->freeShipping = $this->freeShipping;
-                $purchasableStoreRecord->purchasableId = $purchasableId;
-                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
-
-                $purchasableStoreRecord->save(false);
-
-                // Only update the description for the primary site until we have a concept
-                // of an order having a site ID
-                if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
-                    $purchasable->description = $this->getDescription();
-                }
-
-                Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-                    'purchasableIds' => [$purchasableId],
-                    'storeId' => $this->getStoreId(),
-                ]);
-
                 // Set the inventory item data
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
                 if (!$inventoryItem) {
@@ -976,7 +950,60 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
         }
 
+        if ($purchasableId) {
+            // Set Purchasables stores data
+            $purchasableStoreRecord = PurchasableStore::findOne([
+                'purchasableId' => $purchasableId,
+                'storeId' => $this->getStoreId(),
+            ]);
+            if (!$purchasableStoreRecord) {
+                $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
+                $purchasableStoreRecord->storeId = $this->getStore()->id;
+
+                if ($this->propagating) {
+                    $purchasableStoreRecord->basePrice = 0;
+                    $purchasableStoreRecord->basePromotionalPrice = null;
+                    $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
+                    $purchasableStoreRecord->inventoryTracked = false;
+                    $purchasableStoreRecord->minQty = null;
+                    $purchasableStoreRecord->maxQty = null;
+                    $purchasableStoreRecord->promotable = false;
+                    $purchasableStoreRecord->availableForPurchase = false;
+                    $purchasableStoreRecord->freeShipping = false;
+                    $purchasableStoreRecord->purchasableId = $purchasableId;
+                    $purchasableStoreRecord->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStore()->id)->id;
+                }
+            }
+
+            if (!$this->propagating) {
+                $purchasableStoreRecord->basePrice = $this->basePrice;
+                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
+                $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
+                $purchasableStoreRecord->inventoryTracked = $this->inventoryTracked;
+                $purchasableStoreRecord->minQty = $this->minQty;
+                $purchasableStoreRecord->maxQty = $this->maxQty;
+                $purchasableStoreRecord->promotable = $this->promotable;
+                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
+                $purchasableStoreRecord->freeShipping = $this->freeShipping;
+                $purchasableStoreRecord->purchasableId = $purchasableId;
+                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+            }
+
+            $purchasableStoreRecord->save(false);
+        }
+
         parent::afterSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterPropagate(bool $isNew): void
+    {
+        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            'purchasableIds' => [$this->getCanonicalId()],
+            'storeId' => $this->getStoreId(),
+        ]);
     }
 
     /**

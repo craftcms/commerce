@@ -73,7 +73,7 @@ class PurchasableStockField extends BaseNativeField
         $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
         $view->registerJsWithVars(fn($id, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
-    e.preventDefault();
+  e.preventDefault();
   const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
 });
 JS, [
@@ -92,6 +92,7 @@ JS, [
                 'params' => [
                     'inventoryLocationId' => $inventoryLevel->getInventoryLocation()->id,
                     'ids[]' => [$element->inventoryItemId],
+                    'type' => 'available',
                 ],
             ];
 
@@ -128,6 +129,7 @@ JS, [
                 Html::endTag('div') .
                 Html::endTag('td') .
                 Html::beginTag('td') .
+                (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
                 Html::a(
                     Craft::t('commerce', 'Manage'),
                     UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
@@ -140,7 +142,7 @@ JS, [
                         'aria-label' => Craft::t('app', 'Open in a new tab'),
                         'data-icon' => 'external',
                     ]
-                ) .
+                ) : '') .
                 Html::endTag('td') .
                 Html::endTag('tr');
         }

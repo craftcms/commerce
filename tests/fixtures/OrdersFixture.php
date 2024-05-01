@@ -177,19 +177,19 @@ class OrdersFixture extends BaseElementFixture
             ? [$element->billingAddressId, $element->estimatedBillingAddressId, $element->shippingAddressId, $element->estimatedShippingAddressId]
             : [];
 
-        $result = parent::deleteElement($element);
-
+        // Delete addresses first
         $addressIds = array_filter($addressIds);
         if (!empty($addressIds)) {
             foreach ($addressIds as $addressId) {
                 Craft::$app->getElements()->deleteElementById(elementId: $addressId, hardDelete: true);
             }
         }
+
         //
         // if ($customerId = $element->getCustomerId()) {
         //     Craft::$app->getElements()->deleteElementById(elementId: $customerId, hardDelete: true);
         // }
 
-        return $result;
+        return parent::deleteElement($element);
     }
 }

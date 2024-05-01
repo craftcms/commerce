@@ -13,6 +13,13 @@ use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\services\Emails;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
+use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\Pdfs;
+use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Stores;
 use craft\db\Query;
 use craft\helpers\Json;
 
@@ -31,11 +38,11 @@ class ProjectConfigData
     {
         $output = [];
 
-        $output['emails'] = self::_getEmailData();
-        $output['pdfs'] = self::_getPdfData();
-        $output['gateways'] = self::_rebuildGatewayProjectConfig();
-        $output['stores'] = self::_getStoresData();
-        $output['siteStores'] = self::_getSiteStoresData();
+        $output[self::_getProjectConfigKey(Emails::CONFIG_EMAILS_KEY)] = self::_getEmailData();
+        $output[self::_getProjectConfigKey(Pdfs::CONFIG_PDFS_KEY)] = self::_getPdfData();
+        $output[self::_getProjectConfigKey(Gateways::CONFIG_GATEWAY_KEY)] = self::_rebuildGatewayProjectConfig();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_STORES_KEY)] = self::_getStoresData();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_SITESTORES_KEY)] = self::_getSiteStoresData();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
@@ -47,9 +54,9 @@ class ProjectConfigData
             ];
         }
 
-        $output['orderStatuses'] = self::_getStatusData();
-        $output['lineItemStatuses'] = self::_getLineItemStatusData();
-        $output['productTypes'] = self::_getProductTypeData();
+        $output[self::_getProjectConfigKey(OrderStatuses::CONFIG_STATUSES_KEY)] = self::_getStatusData();
+        $output[self::_getProjectConfigKey(LineItemStatuses::CONFIG_STATUSES_KEY)] = self::_getLineItemStatusData();
+        $output[self::_getProjectConfigKey(ProductTypes::CONFIG_PRODUCTTYPES_KEY)] = self::_getProductTypeData();
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
@@ -62,6 +69,17 @@ class ProjectConfigData
         }
 
         return array_filter($output);
+    }
+
+    /**
+     * @param string $key
+     * @return string
+     * @since 5.0.0
+     */
+    private static function _getProjectConfigKey(string $key): string
+    {
+        $configKeyPrefix = 'commerce.';
+        return substr($key, strlen($configKeyPrefix));
     }
 
     /**

@@ -3,6 +3,7 @@
 return [
     'primary' => [
         '_load' => false,
+        '_sites' => [1000],
         'settings' => [
             '_storeLocationAddress' => [
                 'countryCode' => 'US',
@@ -18,6 +19,7 @@ return [
         ],
     ],
     'ukStore' => [
+        '_sites' => [1002],
         'name' => 'UK Store',
         'handle' => 'ukStore',
         'primary' => false,
@@ -32,6 +34,23 @@ return [
             'countries' => [
                 'GB',
                 'FR',
+            ],
+        ],
+    ],
+    'euStore' => [
+        '_sites' => [1001],
+        'name' => 'EU Store',
+        'handle' => 'euStore',
+        'primary' => false,
+        'settings' => [
+            '_storeLocationAddress' => [
+                'countryCode' => 'NL',
+                'locality' => 'Amsterdam',
+                'addressLine1' => '123 Dam Street',
+                'postalCode' => 'AM1 1DM',
+            ],
+            'countries' => [
+                'NL',
             ],
         ],
     ],

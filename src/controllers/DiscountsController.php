@@ -149,11 +149,12 @@ class DiscountsController extends BaseStoreManagementController
         $result = $sqlQuery->all();
 
         $tableData = [];
-        $dateFormat = Craft::$app->getFormattingLocale()->getDateTimeFormat('short');
+        $dateFormat = Craft::$app->getFormattingLocale()->getDateTimeFormat('short', Locale::FORMAT_PHP);
         foreach ($result as $item) {
             $dateFrom = $item['dateFrom'] ? DateTimeHelper::toDateTime($item['dateFrom']) : null;
             $dateTo = $item['dateTo'] ? DateTimeHelper::toDateTime($item['dateTo']) : null;
-            $dateRange = ($dateFrom ? $dateFrom->format($dateFormat) : '∞') . ' - ' > ($dateTo ? $dateTo->format($dateFormat) : '∞');
+            $dateRange = ($dateFrom ? $dateFrom->format($dateFormat) : '∞') . ' - ' . ($dateTo ? $dateTo->format($dateFormat) : '∞');
+
             $dateRange = !$dateFrom && !$dateTo ? '∞' : $dateRange;
 
             $tableData[] = [
@@ -356,8 +357,11 @@ class DiscountsController extends BaseStoreManagementController
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
 
             // Set back to original input value of the text field to prevent negative value.
-            $discount->baseDiscount = $this->request->getBodyParam('baseDiscount');
-            $discount->perItemDiscount = $this->request->getBodyParam('perItemDiscount');
+            $baseDiscountParam = Json::decodeIfJson($this->request->getBodyParam('baseDiscount'));
+            $perItemDiscountParam = Json::decodeIfJson($this->request->getBodyParam('perItemDiscount'));
+
+            $discount->baseDiscount = $baseDiscountParam['value'];
+            $discount->perItemDiscount = $perItemDiscountParam['value'];
         }
 
         // Send the model back to the template

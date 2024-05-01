@@ -64,6 +64,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Money\Teller;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
@@ -1489,6 +1490,16 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
+    }
+
+    /**
      * @inheritdoc
      */
     protected function defineRules(): array
@@ -2451,7 +2462,7 @@ class Order extends Element implements HasStoreInterface
 
         // Only convert if we have differing currencies
         if ($this->currency !== $this->getPaymentCurrency()) {
-            $teller = Plugin::getInstance()->getCurrencies()->getTeller($this->currency);
+            $teller = $this->_getTeller();
             $tellerTo = Plugin::getInstance()->getCurrencies()->getTeller($this->getPaymentCurrency());
             $outstandingBalanceAmount = $teller->convertToMoney($this->getOutstandingBalance());
             $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertAmount($outstandingBalanceAmount, $this->getPaymentCurrency(), $this->getStore()->id);
@@ -2498,7 +2509,12 @@ class Order extends Element implements HasStoreInterface
      */
     public function getPaidStatus(): string
     {
-        if ($this->getIsPaid() && $this->getTotalPrice() > 0 && $this->getTotalPaid() > $this->getTotalPrice()) {
+        $teller = $this->_getTeller();
+
+        if ($this->getIsPaid() &&
+            $teller->greaterThan($this->getTotalPrice(), 0) &&
+            $teller->greaterThan($this->getTotalPaid(), $this->getTotalPrice())
+        ) {
             return self::PAID_STATUS_OVERPAID;
         }
 
@@ -2611,16 +2627,16 @@ class Order extends Element implements HasStoreInterface
     /**
      * Returns the difference between the order amount and amount paid.
      *
-     *
+     * @return float The outstanding balance.
      */
     public function getOutstandingBalance(): float
     {
-        $totalPaid = Currency::round($this->getTotalPaid());
-        $totalPrice = $this->getTotalPrice(); // Already rounded
-
-        return $totalPrice - $totalPaid;
+        return (float)$this->_getTeller()->subtract($this->getTotalPrice(), $this->getTotalPaid());
     }
 
+    /**
+     * @return bool Whether the order has an outstanding balance.
+     */
     public function hasOutstandingBalance(): bool
     {
         return $this->getOutstandingBalance() > 0;
@@ -2628,6 +2644,8 @@ class Order extends Element implements HasStoreInterface
 
     /**
      * Returns the total `purchase` and `captured` transactions belonging to this order.
+     *
+     * @return float The total amount paid.
      */
     public function getTotalPaid(): float
     {
@@ -2639,18 +2657,19 @@ class Order extends Element implements HasStoreInterface
             $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
         }
 
-        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
-        });
+        $transactions = collect($this->_transactions);
 
-        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
-            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
-        });
+        $paid = $transactions->filter(function($transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS
+                && in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]);
+        })->sum('amount');
 
-        $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
-        $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
+        $refunded = $transactions->filter(function($transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS
+                && $transaction->type == TransactionRecord::TYPE_REFUND;
+        })->sum('amount');
 
-        return $paid - $refunded;
+        return (float)$this->_getTeller()->subtract($paid, $refunded);
     }
 
     /**
@@ -2688,7 +2707,7 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        return $authorized - $captured;
+        return (float)$this->_getTeller()->subtract($authorized, $captured);
     }
 
     /**
@@ -3497,6 +3516,12 @@ class Order extends Element implements HasStoreInterface
                 $previousAdjustment->delete();
             }
         }
+
+        // Make sure all other adjustments have been cleaned up.
+        Db::delete(
+            Table::ORDERADJUSTMENTS,
+            ['and', ['orderId' => $this->id], ['not', ['id' => $newAdjustmentIds]]]
+        );
     }
 
 

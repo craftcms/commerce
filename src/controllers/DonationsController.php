@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
-use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;
@@ -23,7 +22,7 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseStoreManagementController
+class DonationsController extends BaseCpController
 {
     public function actionEdit(): Response
     {
@@ -36,9 +35,13 @@ class DonationsController extends BaseStoreManagementController
             $donation->enabled = true;
         }
 
-        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-
-        return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation', 'store'));
+        return $this->asCpScreen()
+            ->title('Donation Settings')
+            ->selectedSubnavItem('donations')
+            ->action('commerce/donations/save')
+            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->redirectUrl('commerce/donations')
+            ->contentTemplate('commerce/donation/_edit.twig', compact('donation'));
     }
 
     /**
@@ -66,7 +69,7 @@ class DonationsController extends BaseStoreManagementController
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
-            return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation'));
+            return $this->renderTemplate('commerce/donation/_edit', compact('donation'));
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));

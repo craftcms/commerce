@@ -21,6 +21,7 @@ use craft\commerce\records\SiteStore as SiteStoreRecord;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\Address;
 use craft\errors\BusyResourceException;
 use craft\errors\SiteNotFoundException;
 use craft\errors\StaleResourceException;
@@ -40,6 +41,7 @@ use yii\base\Exception as YiiBaseException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
 use yii\db\Exception as YiiDbException;
+use yii\db\Expression;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -216,6 +218,10 @@ class Stores extends Component
         }
 
         $allStores = $this->getAllStores();
+        if (!Craft::$app->getIsMultiSite()) {
+            return $allStores;
+        }
+
         return $allStores->filter(function(Store $store) use ($user) {
             $siteUids = $store->getSites()->map(fn(Site $site) => $site->uid);
 
@@ -388,6 +394,7 @@ class Stores extends Component
             $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
             $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
             $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
+            $storeRecord->orderReferenceFormat = $data['orderReferenceFormat'];
             $storeRecord->currency = $data['currency'];
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
@@ -465,9 +472,16 @@ class Stores extends Component
         $transaction = Craft::$app->getDb()->beginTransaction();
 
         try {
+            $locationAddressId = $store->getSettings()->getLocationAddressId();
+
             Craft::$app->getDb()->createCommand()
                 ->delete(Table::STORES, ['id' => $storeRecord->id])
                 ->execute();
+
+            // Delete store address
+            if ($locationAddressId) {
+                Craft::$app->getElements()->deleteElementById($locationAddressId, Address::class, hardDelete: true);
+            }
 
             $transaction->commit();
         } catch (Throwable $e) {
@@ -566,31 +580,49 @@ class Stores extends Component
      */
     private function _createStoreQuery(): Query
     {
-        return (new Query())
-            ->select([
+        $selectColumns = [
+            'handle',
+            'id',
+            'name',
+            'primary',
+            'uid',
+        ];
+
+        // Added to avoid migration issues, as settings were moved after stores table creation
+        // @TODO remove at next breaking change release
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+            $selectColumns = array_merge($selectColumns, [
                 'allowCheckoutWithoutPayment',
                 'allowEmptyCartOnCheckout',
                 'allowPartialPaymentOnCheckout',
                 'autoSetCartShippingMethodOption',
                 'autoSetNewCartAddresses',
                 'autoSetPaymentSource',
-                'freeOrderPaymentStrategy',
-                'handle',
-                'id',
-                'minimumTotalPriceStrategy',
                 'currency',
-                'name',
-                'primary',
+                'freeOrderPaymentStrategy',
+                'minimumTotalPriceStrategy',
+                'orderReferenceFormat',
                 'requireBillingAddressAtCheckout',
                 'requireShippingAddressAtCheckout',
                 'requireShippingMethodSelectionAtCheckout',
                 'sortOrder',
-                'uid',
                 'useBillingAddressForTax',
                 'validateOrganizationTaxIdAsVatId',
-            ])
-            ->from([Table::STORES])
-            ->orderBy(['sortOrder' => SORT_ASC]);
+            ]);
+        }
+
+        $query = (new Query())
+            ->select($selectColumns)
+            ->from([Table::STORES]);
+
+        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+            $query->orderBy(['sortOrder' => SORT_ASC]);
+        }
+
+        return $query;
     }
 
     /**
@@ -635,7 +667,7 @@ class Stores extends Component
             ->select('storeId')
             ->from(Table::SITESTORES)
             ->groupBy('storeId')
-            ->having(['>', 'COUNT(storeId)', 1]);
+            ->having(['>', new Expression('COUNT([[storeId]])'), 1]);
 
         return (new Query())
             ->select('siteId')

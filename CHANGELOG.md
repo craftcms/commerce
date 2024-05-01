@@ -1,15 +1,17 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.1 - 2024-05-01
 
-- Fixed a bug where it wasn’t possible to change the primary store. ([#3398](https://github.com/craftcms/commerce/issues/3398))
-- Fixed a bug where the `hasUnlimitedStock` variant query param did not work. ([#3400](https://github.com/craftcms/commerce/issues/3400))
+- Fixed a bug where the “Commerce” Edit User screen wasn’t showing.
+- Added `craft\commerce\controllers\UsersController`.
+- Deprecated `craft\commerce\fields\UserCommerceField`.
 
-## 5.0.0-beta.1 - 2024-02-29
+## 5.0.0 - 2024-04-30
 
 ### Store Management
-- It’s now possible to manage multiple stores. ([#2283](https://github.com/craftcms/commerce/discussions/2283))
-- It’s now possible to manage multiple inventory locations per store. ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
+- It’s now possible to manage multiple stores (up to five). ([#2283](https://github.com/craftcms/commerce/discussions/2283))
+- It’s now possible to manage multiple inventory locations (up to five). ([#2286](https://github.com/craftcms/commerce/discussions/2286), [#2669](https://github.com/craftcms/commerce/discussions/2669))
+- Added support for catalog pricing of purchasables, improving scalability and pricing flexibility for high-volume stores.
 - Products now support drafts, autosaving, and versioning. ([#2358](https://github.com/craftcms/commerce/discussions/2358))
 - Product variants are now managed via nested element indexes rather than inline-editable blocks.
 - Product variants’ field layouts now support multiple tabs.
@@ -18,12 +20,18 @@
 - The Products index page now shows a primary “New product” button when a custom source is selected, if the source is configured to only show products of one type.
 - Order conditions can now have a “Total Weight” rule.
 - Shipping methods and shipping rules now support flexible order matching, based on an order condition.
+- Users’ orders, carts, and subscriptions are now managed on a dedicated “Commerce” screen within Edit User sections.
+
+### Administration
+- Added a new “Manage inventory stock levels” permission.
+- Added a new “Manage inventory locations” permission.
 
 ### Development
 - Added the `currentStore` Twig variable.
 - Added `commerce/pricing-catalog/generate` command.
 - Deprecated the `hasUnlimitedStock` variant query param. `inventoryTracked` should be used instead.
 - Removed the `shippingCategory`, `shippingCategoryId`, `taxCategory`, and `taxCategoryId` product query params. The corresponding variant query params can be used instead.
+- Removed the `showEditUserCommerceTab` config setting.
 
 ### Extensibility
 - Added `craft\commerce\base\CatalogPricingConditionRuleInterface`.
@@ -171,6 +179,10 @@
 - Removed `craft\commerce\controllers\ProductsController::actionDuplicateProduct()`.
 - Removed `craft\commerce\controllers\ProductsController::actionVariantIndex()`.
 - Removed `craft\commerce\controllers\ProductsPreviewController`.
+- Removed `craft\commerce\elements\Product::$availableForPurchase`. `craft\commerce\base\Purchasable::$availableForPurchase` can be used instead.
+- Removed `craft\commerce\elements\Product::$promotable`. `craft\commerce\base\Purchasable::$promotable` can be used instead.
+- Removed `craft\commerce\elements\Product::$shippingCategoryId`. `craft\commerce\base\Purchasable::$shippingCategoryId` can be used instead.
+- Removed `craft\commerce\elements\Product::$taxCategoryId`. `craft\commerce\base\Purchasable::$taxCategoryId` can be used instead.
 - Removed `craft\commerce\elements\Variant::$stock`. `craft\commerce\base\Purchasable::getStock()` can be used instead.
 - Removed `craft\commerce\helpers\Product`.
 - Removed `craft\commerce\helpers\VariantMatrix`.
@@ -221,6 +233,8 @@
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS`.
 - Removed `craft\commerce\records\ShippingRule::TYPE_MIN_MAX_TOTAL_SALEPRICE`.
 - Removed `craft\commerce\records\ShippingRule::getShippingZone()`.
+- Removed `craft\commerce\services\Customers::addEditUserCommerceTab()`.
+- Removed `craft\commerce\services\Customers::addEditUserCommerceTabContent()`.
 - Removed `craft\commerce\services\PaymentSources::getAllGatewayPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\PaymentSources::getAllPaymentSourcesByUserId()`.
 - Removed `craft\commerce\services\TaxRates::getTaxRatesForZone()`.
@@ -249,3 +263,7 @@
 - Renamed `craft\commerce\elements\Subscription::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\Variant::tableAttributeHtml()` to `attributeHtml()`.
 - Renamed `craft\commerce\elements\traits\OrderElementTrait::tableAttributeHtml()` to `attributeHtml()`.
+
+### System
+- Craft Commerce now requires Craft CMS 5.1 or later.
+- Craft Commerce now strictly requires Craft CMS Pro edition.

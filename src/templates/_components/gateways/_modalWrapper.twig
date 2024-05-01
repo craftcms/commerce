@@ -101,6 +101,18 @@
         });
     }
 
+    $("input.paymentAmount").inputmask({
+          alias: 'currency',
+          autoGroup: false,
+          clearMaskOnLostFocus: false,
+          digits: window.orderEdit.currencyConfig.decimals,
+          digitsOptional: false,
+          groupSeparator: window.orderEdit.currencyConfig.groupSeparator,
+          placeholder: '0',
+          prefix: '',
+          radixPoint: window.orderEdit.currencyConfig.decimalSeparator,
+    });
+
     $("input.paymentAmount").bind('keyup mouseup', debounce(function(){
         var $input = $(this);
         var $form = $input.closest('form')

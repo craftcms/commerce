@@ -56,8 +56,10 @@ use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\MoneyHelper;
+use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\models\Site;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -136,10 +138,6 @@ class OrdersController extends Controller
         ];
 
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
-
-        // @TODO store permissions
-        $stores = Plugin::getInstance()->getStores()->getAllStores()->all();
-
 
         return $this->renderTemplate('commerce/orders/_index', compact('orderStatusHandle', 'store'));
     }
@@ -617,6 +615,8 @@ JS, []);
         $billingAddress = $order->getBillingAddress();
         $shippingAddress = $order->getShippingAddress();
 
+        $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($order->currency);
+
         $orderArray = $order->toArray($orderFields, $extraFields);
 
         if ($orderArray['customer'] && $orderArray['customer']['id'] && $customer = Craft::$app->getUsers()->getUserById($orderArray['customer']['id'])) {
@@ -633,6 +633,9 @@ JS, []);
 
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
+                $lineItem['price'] = $lineItem['price'] !== null ? Craft::$app->getFormatter()->asDecimal($lineItem['price'], $subUnit) : null;
+                $lineItem['promotionalPrice'] = $lineItem['promotionalPrice'] !== null ? Craft::$app->getFormatter()->asDecimal($lineItem['promotionalPrice'], $subUnit) : null;
+
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
                 $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
@@ -663,8 +666,8 @@ JS, []);
             throw new InvalidArgumentException('siteId is required');
         }
 
-        $storeId = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
-        if (!$storeId) {
+        $store = Plugin::getInstance()->getStores()->getStoreBySiteId($siteId);
+        if (!$store) {
             throw new InvalidArgumentException('Store not found');
         }
 
@@ -680,7 +683,7 @@ JS, []);
             ])
             ->innerJoin(Table::PURCHASABLES_STORES . ' pstores', '[[purchasables.id]] = [[pstores.purchasableId]]')
             ->where(['elements.enabled' => true])
-            ->andWhere(['pstores.storeId' => $storeId])
+            ->andWhere(['pstores.storeId' => $store->id])
             ->from(['purchasables' => Table::PURCHASABLES]);
 
         // Are they searching for a SKU or purchasable description?
@@ -988,7 +991,11 @@ JS, []);
     {
         $this->requireAcceptsJson();
 
-        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
+        /** @var Site|StoreBehavior|null $site */
+        $site = Cp::requestedSite();
+        $storeId = $site?->getStore()->id ?? null;
+
+        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus($storeId);
 
         $total = array_reduce($counts, static function($sum, $thing) {
             return $sum + (int)$thing['orderCount'];
@@ -1146,7 +1153,9 @@ JS, []);
         $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
 
         $amount = $this->request->getParam('amount');
-        $amount = Localization::normalizeNumber($amount);
+        $amount = MoneyHelper::toMoney(array_merge($amount,['currency' => $transaction->paymentCurrency]));
+        $amount = MoneyHelper::toDecimal($amount);
+
         $note = $this->request->getRequiredBodyParam('note');
 
         if (!$transaction) {
@@ -1180,7 +1189,7 @@ JS, []);
 
                 $message = $child->message ? ' (' . $child->message . ')' : '';
 
-                if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                if ($child->status == TransactionRecord::STATUS_SUCCESS || $child->status == TransactionRecord::STATUS_PROCESSING) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message,
@@ -1379,6 +1388,19 @@ JS, []);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $order->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
+
+        // Pad the decimal mask with `#` to match the number of decimal places in the currency
+        $subUnit = Plugin::getInstance()->getCurrencies()->getSubunitFor($order->currency);
+        $formattingLocale = Craft::$app->getFormattingLocale();
+
+        $currencyConfig = [
+            'currency' => $order->currency,
+            'decimals' => $subUnit,
+            'decimalSeparator' => $formattingLocale->getNumberSymbol($formattingLocale::SYMBOL_DECIMAL_SEPARATOR),
+            'groupSeparator' => $formattingLocale->getNumberSymbol($formattingLocale::SYMBOL_GROUPING_SEPARATOR),
+        ];
+
+        Craft::$app->getView()->registerJs('window.orderEdit.currencyConfig = ' . Json::encode($currencyConfig) , View::POS_BEGIN);
 
         $customer = $order->customerId ? $order->getCustomer() : null;
         if ($customer) {
@@ -1595,8 +1617,11 @@ JS, []);
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE || $lineItem->type === LineItemModel::TYPE_CUSTOM) {
-                $lineItem->setPromotionalPrice($lineItemData['promotionalPrice']);
-                $lineItem->setPrice($lineItemData['price']);
+                $promotionalPrice = $lineItemData['promotionalPrice'] ? Localization::normalizeNumber($lineItemData['promotionalPrice']) : null;
+                $price = $lineItemData['price'] ? Localization::normalizeNumber($lineItemData['price']) : null;
+
+                $lineItem->setPromotionalPrice($promotionalPrice);
+                $lineItem->setPrice($price);
             }
 
             if ($qty !== null && $qty > 0) {

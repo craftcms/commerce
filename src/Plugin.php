@@ -16,6 +16,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\controllers\UsersController as CommerceUsersController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -37,6 +38,7 @@ use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
+use craft\commerce\fieldlayoutelements\UserCommerceField;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
@@ -112,11 +114,14 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\controllers\UsersController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
+use craft\enums\CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
+use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\RebuildConfigEvent;
@@ -241,7 +246,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.69';
+    public string $schemaVersion = '5.0.72';
 
     /**
      * @inheritdoc
@@ -257,6 +262,11 @@ class Plugin extends BasePlugin
      * @inheritdoc
      */
     public string $minVersionRequired = '3.4.11';
+
+    /**
+     * @inheritdoc
+     */
+    public CmsEdition $minCmsEdition = CmsEdition::Pro;
 
     use CommerceServices;
     use Variables;
@@ -294,7 +304,6 @@ class Plugin extends BasePlugin
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
-            $this->_registerTemplateHooks();
             $this->_registerRedactorLinkOptions();
             $this->_registerCKEditorLinkOptions();
         } else {
@@ -339,7 +348,9 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
 
-        $ret['label'] = Craft::t('commerce', 'Commerce');
+        if (Craft::$app->getUser()->checkPermission('accessPlugin-commerce')) {
+            $ret['label'] = Craft::t('commerce', 'Commerce');
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
@@ -356,17 +367,19 @@ class Plugin extends BasePlugin
             ];
         }
 
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels')) {
+            $ret['subnav']['inventory'] = [
+                'label' => Craft::t('commerce', 'Inventory'),
+                'url' => 'commerce/inventory',
+            ];
+        }
 
-        $ret['subnav']['inventory'] = [
-            'label' => Craft::t('commerce', 'Inventory'),
-            'url' => 'commerce/inventory',
-        ];
-
-        // @TODO add permissions check for pricing
-        // $ret['subnav']['prices'] = [
-        //     'label' => Craft::t('commerce', 'Prices'),
-        //     'url' => 'commerce/prices',
-        // ];
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryLocations')) {
+            $ret['subnav']['inventory-locations'] = [
+                'label' => Craft::t('commerce', 'Inventory Locations'),
+                'url' => 'commerce/inventory-locations',
+            ];
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
@@ -374,6 +387,19 @@ class Plugin extends BasePlugin
                 'url' => 'commerce/subscriptions',
             ];
         }
+
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
+            // @TODO: change "Plans" to "Subscription Plans" in 5.1.0
+            $ret['subnav']['subscription-plans'] = [
+                'label' => Craft::t('commerce', 'Plans'),
+                'url' => 'commerce/subscription-plans',
+            ];
+        }
+
+        $ret['subnav']['donations'] = [
+            'label' => Craft::t('commerce', 'Donations'),
+            'url' => 'commerce/donations',
+        ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
@@ -529,6 +555,8 @@ class Plugin extends BasePlugin
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                         'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
                         'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
+                        'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
                         'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
                     ],
@@ -690,6 +718,11 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        // Add Commerce info to user edit screen
+        Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {
+            $event->screens[CommerceUsersController::SCREEN_COMMERCE] = ['label' => Craft::t('commerce', 'Commerce')];
+        });
 
         // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
         $sites = Craft::$app->getSites()->getAllSites(true);
@@ -1002,6 +1035,13 @@ class Plugin extends BasePlugin
                 case Address::class:
                     $e->fields[] = UserAddressSettings::class;
                     break;
+                case UserElement::class:
+                    // todo: remove in favor of a dedicated user management screen
+                    $currentUser = Craft::$app->getUser()->getIdentity();
+                    if ($currentUser?->can('commerce-manageOrders') || $currentUser?->can('commerce-manageSubscriptions')) {
+                        $e->fields[] = UserCommerceField::class;
+                    }
+                    break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsLayoutElement::class;
@@ -1072,18 +1112,5 @@ class Plugin extends BasePlugin
                 'helpSummary' => 'Re-saves Commerce carts.',
             ];
         });
-    }
-
-    /**
-     * Registers templates hooks for inserting Commerce information in the control panel
-     *
-     * @since 2.2
-     */
-    private function _registerTemplateHooks(): void
-    {
-        if ($this->getSettings()->showEditUserCommerceTab) {
-            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCommerceTab']);
-            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCommerceTabContent']);
-        }
     }
 }

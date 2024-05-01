@@ -87,10 +87,8 @@ export default {
         lineItem.taxCategoryId
       );
       _lineItem.promotionalPrice =
-        lineItem.promotionalPrice === ''
-          ? null
-          : this.parseInputValue('float', lineItem.promotionalPrice);
-      _lineItem.price = this.parseInputValue('float', lineItem.price);
+        lineItem.promotionalPrice === '' ? null : lineItem.promotionalPrice;
+      _lineItem.price = lineItem.price;
       _lineItem.qty = this.parseInputValue('int', lineItem.qty);
       _lineItem.note = lineItem.note;
       _lineItem.privateNote = lineItem.privateNote;

@@ -8,12 +8,15 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Store;
 use craft\commerce\models\StoreSettings as StoreSettingsModel;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
 use craft\commerce\services\StoreSettings;
+use craft\db\Query;
 use craft\elements\Address;
+use craft\test\DbFixtureTrait;
 
 /**
  * Class StoreFixture
@@ -22,6 +25,7 @@ use craft\elements\Address;
  */
 class StoreFixture extends BaseModelFixture
 {
+    use DbFixtureTrait;
     /**
      * @inheritdoc
      */
@@ -55,7 +59,17 @@ class StoreFixture extends BaseModelFixture
     /**
      * @var array
      */
-    private $_storeSettings = [];
+    private array $_storeSettings = [];
+
+    /**
+     * @var array
+     */
+    private array $_storeSites = [];
+
+    /**
+     * @inheritdoc
+     */
+    public $depends = [SitesFixture::class];
 
     public function init(): void
     {
@@ -75,6 +89,11 @@ class StoreFixture extends BaseModelFixture
         foreach ($data as $key => &$store) {
             $this->_storeSettings[$key] = $store['settings'];
             unset($store['settings']);
+
+            if (isset($store['_sites'])) {
+                $this->_storeSites[$key] = $store['_sites'];
+                unset($store['_sites']);
+            }
 
             if (isset($store['_load']) && $store['_load'] === false) {
                 unset($data[$key]);
@@ -109,6 +128,30 @@ class StoreFixture extends BaseModelFixture
             $storeSettings->setCountries($settings['countries'] ?? []);
             $this->_settingsService->saveStoreSettings($storeSettings);
         }
+
+        foreach ($this->_storeSites as $key => $siteIds) {
+            foreach ($siteIds as $siteId) {
+                $uid = (new Query())
+                    ->select('uid')
+                    ->from(Table::SITESTORES)
+                    ->where(['siteId' => $siteId])
+                    ->limit(1)
+                    ->scalar();
+
+                if (!$uid) {
+                    $siteStore = new \craft\commerce\models\SiteStore();
+                } else {
+                    $siteStore = $this->service->getAllSiteStores()->firstWhere('uid', $uid);
+                }
+
+                $siteStore->siteId = $siteId;
+                $siteStore->storeId = $this->data[$key]['id'];
+                $this->service->saveSiteStore($siteStore);
+            }
+        }
+
+        // Because the Stores() class memoizes on initialization we need to set() a new stores class
+        Plugin::getInstance()->set('stores', new Stores());
     }
 
     /**
@@ -116,14 +159,9 @@ class StoreFixture extends BaseModelFixture
      */
     public function unload(): void
     {
+        $this->checkIntegrity(true);
         unset($this->data['primary']);
         parent::unload();
-
-        // Delete store location addresses
-        foreach ($this->_storeSettings as $key => $settings) {
-            if (!empty($settings['_storeLocationAddressId'])) {
-                Craft::$app->getElements()->deleteElementById($settings['_storeLocationAddressId'], hardDelete: true);
-            }
-        }
+        $this->checkIntegrity(false);
     }
 }

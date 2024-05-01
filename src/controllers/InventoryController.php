@@ -19,6 +19,7 @@ use craft\commerce\models\InventoryItem;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\enums\MenuItemType;
+use craft\errors\DeprecationException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
@@ -26,6 +27,9 @@ use craft\helpers\Html;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\Controller;
 use craft\web\CpScreenResponseBehavior;
+use yii\base\InvalidConfigException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -33,6 +37,7 @@ use yii\web\Response;
 /**
  * Inventory controller
  *
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 5.0.0
  */
 class InventoryController extends Controller
@@ -41,8 +46,17 @@ class InventoryController extends Controller
 
     protected array|int|bool $allowAnonymous = self::ALLOW_ANONYMOUS_NEVER;
 
+    /**
+     * @param int|null $inventoryItemId
+     * @param InventoryItem|null $inventoryItem
+     * @return Response
+     * @throws NotFoundHttpException
+     * @throws InvalidConfigException
+     */
     public function actionItemEdit(?int $inventoryItemId = null, ?InventoryItem $inventoryItem = null): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(HtmxAsset::class);
 
@@ -86,8 +100,16 @@ class InventoryController extends Controller
             );
     }
 
+    /**
+     * @return Response
+     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
+     */
     public function actionItemSave(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $inventoryItemId = Craft::$app->getRequest()->getRequiredParam('inventoryItemId');
 
         if ($inventoryItemId) {
@@ -111,9 +133,15 @@ class InventoryController extends Controller
 
     /**
      * commerce/inventory action
+     *
+     * @param string|null $inventoryLocationHandle
+     * @return Response
+     * @throws InvalidConfigException
+     * @throws DeprecationException
      */
     public function actionEditLocationLevels(?string $inventoryLocationHandle = null): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
         $view = Craft::$app->getView();
         $view->registerAssetBundle(InventoryAsset::class);
 
@@ -131,7 +159,7 @@ class InventoryController extends Controller
         $search = Craft::$app->getRequest()->getQueryParam('search');
 
         $currentLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationByHandle($inventoryLocationHandle);
-        $selectedItem = 'levels-' . $currentLocation->handle;
+        $selectedItem = 'manage-' . $currentLocation->handle;
         $title = $currentLocation->name . ' ' . Craft::t('commerce', 'Inventory');
 
         return $this->asCpScreen()
@@ -154,8 +182,16 @@ class InventoryController extends Controller
             ));
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws \Throwable
+     */
     public function actionInventoryLevelsTableData(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $currentUser = Craft::$app->getUser()->getIdentity();
         $inventoryLevelsManagerContainerId = $this->request->getRequiredParam('containerId');
         $inventoryItemId = $this->request->getParam('inventoryItemId'); // Used for quick link to manage stock
@@ -172,8 +208,9 @@ class InventoryController extends Controller
             $inventoryQuery->andWhere(['inventoryItemId' => $inventoryItemId]);
         }
 
-        $inventoryQuery->addSelect(['purchasables.description', 'purchasables.sku']);
+        $inventoryQuery->addSelect(['[[purchasables.description]]', '[[purchasables.sku]]']);
         $inventoryQuery->leftJoin(['purchasables' => Table::PURCHASABLES], '[[ii.purchasableId]] = [[purchasables.id]]');
+        $inventoryQuery->addGroupBy(['[[purchasables.description]]', '[[purchasables.sku]]']);
 
         if ($search) {
             $inventoryQuery->andWhere(['or', ['like', 'purchasables.description', $search], ['like', 'purchasables.sku', $search]]);
@@ -415,18 +452,20 @@ JS, [
 
     /**
      * @return Response
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
     public function actionUpdateLevels(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $updateAction = InventoryUpdateQuantityType::from(Craft::$app->getRequest()->getRequiredParam('updateAction'));
         $quantity = (int)Craft::$app->getRequest()->getRequiredParam('quantity');
         $note = Craft::$app->getRequest()->getRequiredParam('note');
         $inventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryLocationId');
         $inventoryItemIds = Craft::$app->getRequest()->getRequiredParam('ids');
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
-        $type = Craft::$app->getRequest()->getParam('type', 'onHand');
+        $type = Craft::$app->getRequest()->getRequiredParam('type');
 
         // We don't add zero amounts as transactions movements
         if ($updateAction === InventoryUpdateQuantityType::ADJUST && $quantity == 0) {
@@ -473,15 +512,20 @@ JS, [
 
     /**
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws DeprecationException
+     * @throws InvalidConfigException
      */
     public function actionEditUpdateLevelsModal(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $inventoryLocationId = (int)$this->request->getParam('inventoryLocationId');
         $note = $this->request->getParam('note', '');
         $inventoryItemIds = (array)$this->request->getParam('ids', []); // param needs to be 'ids' to be compatible with admin table
         $updateAction = $this->request->getParam('updateAction', 'adjust');
         $quantity = (int)$this->request->getParam('quantity', 0);
-        $type = $this->request->getParam('type', 'onHand');
+        $type = $this->request->getRequiredParam('type');
 
         $inventoryLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($inventoryLocationId);
 
@@ -510,8 +554,16 @@ JS, [
             ->contentTemplate('commerce/inventory/levels/_updateInventoryLevelModal', $params);
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws Exception
+     */
     public function actionSaveInventoryMovement(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.toInventoryLocationId');
         $note = Craft::$app->getRequest()->getRequiredParam('inventoryMovement.note');
@@ -549,9 +601,13 @@ JS, [
 
     /**
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      */
     public function actionEditMovementModal(): Response
     {
+        $this->requirePermission('commerce-manageInventoryStockLevels');
+
         $fromInventoryLocationId = (int)Craft::$app->getRequest()->getRequiredParam('inventoryMovement.fromInventoryLocationId');
         $toInventoryLocationId = (int)Craft::$app->getRequest()->getParam('inventoryMovement.toInventoryLocationId', $fromInventoryLocationId);
         $note = Craft::$app->getRequest()->getParam('inventoryMovement.note', '');
@@ -599,6 +655,10 @@ JS, [
             ->contentTemplate('commerce/inventory/levels/_inventoryMovementModal', $params);
     }
 
+    /**
+     * @return Response
+     * @throws InvalidConfigException
+     */
     public function actionUnfulfilledOrders(): Response
     {
         $view = Craft::$app->getView();
