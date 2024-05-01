@@ -35,9 +35,7 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     this.initAdminTable();
   },
 
-  initAdminTable: function (container) {
-    self = this;
-
+  initAdminTable: function () {
     this.columns = [
       {
         name: 'purchasable',
@@ -105,19 +103,20 @@ Craft.Commerce.InventoryLevelsManager = Garnish.Base.extend({
     ];
 
     this.adminTable = new Craft.VueAdminTable({
-      columns: self.columns,
-      container: '#' + self.adminTableId,
+      columns: this.columns,
+      container: '#' + this.adminTableId,
       checkboxes: false,
       allowMultipleSelections: true,
       fullPane: false,
       perPage: 25,
       tableDataEndpoint: 'commerce/inventory/inventory-levels-table-data',
-      onQueryParams: function (params) {
-        params.inventoryLocationId = self.settings.inventoryLocationId;
-        if (self.settings.inventoryItemId) {
-          params.inventoryItemId = self.settings.inventoryItemId;
+      onQueryParams: (params) => {
+        // Arrow function to maintain 'this' context
+        params.inventoryLocationId = this.settings.inventoryLocationId;
+        if (this.settings.inventoryItemId) {
+          params.inventoryItemId = this.settings.inventoryItemId;
         }
-        params.containerId = self.containerId;
+        params.containerId = this.containerId;
         return params;
       },
       search: true,
