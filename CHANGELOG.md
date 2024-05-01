@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where both the `UserCommerceField` and the “Commerce” screen were shown on the Edit User page.
+- Fixed a bug where the “Commerce” Edit User screen wasn’t showing.
 - Added `craft\commerce\controllers\UsersController`.
 - Deprecated `craft\commerce\fields\UserCommerceField`.
 
