@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the “Commerce” Edit User screen wasn’t showing.
+- Added `craft\commerce\controllers\UsersController`.
+- Deprecated `craft\commerce\fields\UserCommerceField`.
+
 ## 5.0.0 - 2024-04-30
 
 ### Store Management

@@ -91,6 +91,11 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       }
     }
 
+    if (this.siteId) {
+      // Automatically set `storeId` criteria based on the selected site
+      params.criteria.storeId = Craft.Commerce.sitesStores[this.siteId];
+    }
+
     return params;
   },
 

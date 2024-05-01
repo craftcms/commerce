@@ -16,6 +16,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CustomerAddressBehavior;
 use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\behaviors\StoreBehavior;
+use craft\commerce\controllers\UsersController as CommerceUsersController;
 use craft\commerce\db\Table;
 use craft\commerce\debug\CommercePanel;
 use craft\commerce\elements\Donation;
@@ -113,12 +114,14 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
+use craft\controllers\UsersController;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
+use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\RebuildConfigEvent;
@@ -715,6 +718,11 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        // Add Commerce info to user edit screen
+        Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {
+            $event->screens[CommerceUsersController::SCREEN_COMMERCE] = ['label' => Craft::t('commerce', 'Commerce')];
+        });
 
         // Site models are instantiated early meaning we have to manually attach the behavior alongside using the event
         $sites = Craft::$app->getSites()->getAllSites(true);
