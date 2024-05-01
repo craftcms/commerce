@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where setting a default tax zone would unset the default zone for all other stores. ([#3473](https://github.com/craftcms/commerce/issues/3473))
+- Fixed a bug where SendEmail queue jobs did not complete. ([#3476](https://github.com/craftcms/commerce/issues/3476))
 
 ## 5.0.1 - 2024-05-01
 
