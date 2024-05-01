@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.1 - 2024-05-01
 
 - Fixed a bug where the “Commerce” Edit User screen wasn’t showing.
 - Added `craft\commerce\controllers\UsersController`.
