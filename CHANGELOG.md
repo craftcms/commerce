@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.2 - 2024-05-01
 
 - Fixed a bug where setting a default tax zone would unset the default zone for all other stores. ([#3473](https://github.com/craftcms/commerce/issues/3473))
 - Fixed a bug where email queue jobs weren’t completing. ([#3476](https://github.com/craftcms/commerce/issues/3476))
