@@ -55,7 +55,7 @@ class SendEmail extends BaseJob implements RetryableJobInterface
             throw new InvalidConfigException('Invalid order ID: ' . $this->orderId);
         }
 
-        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId, $this->_getOrder()->id);
+        $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId, $this->_getOrder()->getStore()->id);
         if (!$email) {
             throw new InvalidConfigException('Invalid email ID: ' . $this->commerceEmailId);
         }

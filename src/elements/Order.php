@@ -1225,8 +1225,8 @@ class Order extends Element implements HasStoreInterface
         }
 
         // Better default for carts if the base currency changes (usually only happens in development)
-        if (!$this->isCompleted && $this->paymentCurrency && !Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->paymentCurrency)) {
-            $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        if (!$this->isCompleted && $this->paymentCurrency && !Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->paymentCurrency, $this->getStore()->id)) {
+            $this->paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso($this->getStore()->id);
         }
 
         if ($this->origin === null) {

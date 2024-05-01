@@ -125,7 +125,7 @@ class OrdersController extends Controller
     {
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
 
-        $site = Craft::$app->getSites()->getCurrentSite();
+        $site = Cp::requestedSite();
         /** @var StoreBehavior $site */
         $store = $site->getStore();
 
