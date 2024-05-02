@@ -32,6 +32,35 @@ use craft\helpers\Json;
 class ProjectConfigData
 {
     /**
+     * @var bool
+     */
+    private static $_processedStores = false;
+
+    /**
+     * Ensure all stores are processed.
+     *
+     * @param bool $force
+     * @since 5.0.3
+     */
+    public static function ensureAllStoresProcessed(bool $force = false): void
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        if (self::$_processedStores || (!$force && !$projectConfig->getIsApplyingExternalChanges())) {
+            return;
+        }
+
+        self::$_processedStores = true;
+
+        $allStores = $projectConfig->get(Stores::CONFIG_STORES_KEY, true) ?? [];
+
+        foreach ($allStores as $uid => $storeData) {
+            // Ensure store is processed
+            $projectConfig->processConfigChanges(Stores::CONFIG_STORES_KEY . '.' . $uid, $force);
+        }
+    }
+
+    /**
      * Return a rebuilt project config array
      */
     public static function rebuildProjectConfig(): array

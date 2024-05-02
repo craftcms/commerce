@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
+use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;
@@ -29,10 +30,15 @@ class DonationsController extends BaseCpController
         $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {
+            $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+            $primarySite = Craft::$app->getSites()->getPrimarySite();
             $donation = new Donation();
+            $donation->siteId = $primarySite->id;
             $donation->sku = 'DONATION-CC5';
-            $donation->availableForPurchase = true;
-            $donation->enabled = true;
+            $donation->availableForPurchase = false;
+            $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
+            Craft::$app->getElements()->saveElement($donation);
         }
 
         return $this->asCpScreen()

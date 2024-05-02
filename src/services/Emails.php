@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
@@ -324,6 +325,8 @@ class Emails extends Component
      */
     public function handleChangedEmail(ConfigEvent $event): void
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
