@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\events\DefaultLineItemStatusEvent;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\LineItemStatus;
 use craft\commerce\Plugin;
@@ -172,6 +173,8 @@ class LineItemStatuses extends Component
      */
     public function handleChangedLineItemStatus(ConfigEvent $event): void
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
