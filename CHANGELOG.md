@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where it wasn’t possible to download PDFs from the Orders index page. ([#3477](https://github.com/craftcms/commerce/issues/3477))
 - Fixed an error that could occur when installing Commerce with an existing project config. ([#3472](https://github.com/craftcms/commerce/issues/3472))
 - Added `craft\commerce\helpers\ProjectConfigData::ensureAllStoresProcessed()`.
 
