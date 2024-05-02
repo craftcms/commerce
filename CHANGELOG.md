@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed an error that could occur when installing Commerce with an existing project config. ([#3472](https://github.com/craftcms/commerce/issues/3472))
+- Added `craft\commerce\helpers\ProjectConfigData::ensureAllStoresProcessed()`.
 
 ## 5.0.2 - 2024-05-01
 
