@@ -11,11 +11,13 @@ use Craft;
 use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
+use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
@@ -178,5 +180,29 @@ class OrderStatus extends Model implements HasStoreInterface
         /** @var OrderQuery $orderQuery */
         $orderQuery = Order::find()->trashed(null);
         return !$orderQuery->orderStatus($this)->one() && !$this->default;
+    }
+
+    /**
+     * Returns the config for this status.
+     *
+     * @since 5.0.3
+     */
+    public function getConfig(?array $emailIds = []): array
+    {
+        if (!$emailIds) {
+            $emailIds = $this->getEmailIds();
+        }
+
+        $emails = !empty($emailIds) ? Db::uidsByIds(Table::EMAILS, $emailIds) : [];
+        return [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'color' => $this->color,
+            'description' => $this->description,
+            'sortOrder' => $this->sortOrder ?? 99,
+            'default' => $this->default,
+            'emails' => !empty($emails) ? array_combine($emails, $emails) : [],
+            'store' => $this->getStore()->uid,
+        ];
     }
 }

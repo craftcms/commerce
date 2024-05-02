@@ -289,17 +289,7 @@ class OrderStatuses extends Component
         if ($orderStatus->dateDeleted) {
             $configData = null;
         } else {
-            $emails = Db::uidsByIds(Table::EMAILS, $emailIds);
-            $configData = [
-                'name' => $orderStatus->name,
-                'handle' => $orderStatus->handle,
-                'color' => $orderStatus->color,
-                'description' => $orderStatus->description,
-                'sortOrder' => $orderStatus->sortOrder ?? 99,
-                'default' => $orderStatus->default,
-                'emails' => array_combine($emails, $emails),
-                'store' => $orderStatus->getStore()->uid,
-            ];
+            $configData = $orderStatus->getConfig($emailIds);
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;

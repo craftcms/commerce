@@ -3,8 +3,10 @@
 ## Unreleased
 
 - Added `craft\commerce\helpers\ProjectConfigData::ensureAllStoresProcessed()`.
+- Added `craft\commerce\models\OrderStatus::getConfig()`.
 - Fixed a bug where it wasn’t possible to download PDFs from the Orders index page. ([#3477](https://github.com/craftcms/commerce/issues/3477))
 - Fixed an error that could occur when installing Craft CMS + Craft Commerce with an existing project config. ([#3472](https://github.com/craftcms/commerce/issues/3472))
+- Fixed a bug where order status configs were missing their store assignments after rebuilding the project config. 
 
 ## 5.0.2 - 2024-05-01
 
