@@ -8,9 +8,14 @@
 namespace unit\elements\variant;
 
 use Codeception\Test\Unit;
+use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\elements\db\PurchasableQuery;
 use craft\commerce\elements\Donation;
+use craft\commerce\Plugin;
+use craft\db\Query;
+use craftcommercetests\fixtures\StoreFixture;
 use UnitTester;
 
 /**
@@ -25,6 +30,10 @@ class DonationQueryTest extends Unit
      * @var UnitTester
      */
     protected $tester;
+
+    public $depends = [
+        StoreFixture::class,
+    ];
 
     /**
      * @return void
@@ -42,14 +51,34 @@ class DonationQueryTest extends Unit
      */
     public function testAvailableForPurchase(bool $availableForPurchase): void
     {
+        // Make sure donation is installed
+        if ((int)(new Query())->from(Table::DONATIONS)->count() === 0) {
+            $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+            $primarySite = Craft::$app->getSites()->getPrimarySite();
+            $donation = new Donation();
+            $donation->siteId = $primarySite->id;
+            $donation->sku = 'DONATION-CC5';
+            $donation->availableForPurchase = false;
+            $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
+            Craft::$app->getElements()->saveElement($donation);
+        }
+
         $query = Donation::find();
 
         self::assertTrue(method_exists($query, 'availableForPurchase'));
         $query->availableForPurchase($availableForPurchase);
         $query->status(null);
+        $all = $query->all();
 
         // Donation on installation is not available for purchase
-        self::assertCount($availableForPurchase ? 0 : 1, $query->all());
+        self::assertCount($availableForPurchase ? 0 : 1, $all);
+
+        if (isset($donation) || count($all)) {
+            // Delete donation
+            $donation = isset($donation) ? $donation : $all[0];
+            Craft::$app->getElements()->deleteElement($donation, true);
+        }
     }
 
     /**
