@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\events\DeleteStoreEvent;
 use craft\commerce\events\StoreEvent;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
@@ -731,6 +732,7 @@ class Stores extends Component
     public function handleChangedSiteStore(ConfigEvent $event): void
     {
         ProjectConfigHelper::ensureAllSitesProcessed();
+        ProjectConfigData::ensureAllStoresProcessed();
 
         $siteStoreUid = $event->tokenMatches[0];
         $data = $event->newValue;

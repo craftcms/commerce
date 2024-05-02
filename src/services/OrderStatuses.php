@@ -14,6 +14,7 @@ use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -330,6 +331,8 @@ class OrderStatuses extends Component
      */
     public function handleChangedOrderStatus(ConfigEvent $event)
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
 

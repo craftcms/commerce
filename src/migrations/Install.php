@@ -9,7 +9,6 @@ namespace craft\commerce\migrations;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -1293,7 +1292,6 @@ class Install extends Migration
         // The following defaults are not stored in the project config.
         $this->_defaultTaxCategories();
         $this->_defaultInventoryLocation();
-        $this->_defaultDonationPurchasable();
     }
 
     /**
@@ -1335,22 +1333,6 @@ class Install extends Migration
                 'dateUpdated' => Db::prepareDateForDb(new \DateTime()),
             ]);
         }
-    }
-
-    /**
-     * Add the donation purchasable
-     */
-    public function _defaultDonationPurchasable(): void
-    {
-        $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
-        $primarySite = Craft::$app->getSites()->getPrimarySite();
-        $donation = new Donation();
-        $donation->siteId = $primarySite->id;
-        $donation->sku = 'DONATION-CC5';
-        $donation->availableForPurchase = false;
-        $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
-        Craft::$app->getElements()->saveElement($donation);
     }
 
     private function _insertPrimaryStore(): void
