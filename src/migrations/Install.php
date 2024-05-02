@@ -9,7 +9,6 @@ namespace craft\commerce\migrations;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
