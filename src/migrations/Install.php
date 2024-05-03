@@ -20,9 +20,12 @@ use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
 use ReflectionClass;
@@ -1281,12 +1284,25 @@ class Install extends Migration
     public function insertDefaultData(): void
     {
         // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
-        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $installed = ($projectConfig->get('plugins.commerce', true) !== null);
+        $configExists = ($projectConfig->get('commerce', true) !== null);
 
         if (!$installed && !$configExists) {
             $this->_insertPrimaryStore();
             $this->_defaultGateways();
+        } elseif ($installed) {
+            // Install a primary store if it isn't in the config
+            $stores = $projectConfig->get(Stores::CONFIG_STORES_KEY, true);
+            if (!$configExists || !$stores || !ArrayHelper::firstWhere($stores, 'primary', true)) {
+                $this->_insertPrimaryStore();
+            }
+
+            // Install the default gateways if they aren't in the config
+            $gateways = $projectConfig->get(Gateways::CONFIG_GATEWAY_KEY, true);
+            if (!$configExists || !$gateways) {
+                $this->_defaultGateways();
+            }
         }
 
         // The following defaults are not stored in the project config.
