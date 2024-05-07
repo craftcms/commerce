@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a SQL error that could occur on the Edit Store screen. ([#3482](https://github.com/craftcms/commerce/issues/3482))
+- Fixed a SQL error that could that occurred when using the `hasSales` Variant query param. ([#3483](https://github.com/craftcms/commerce/issues/3483))
 
 ## 5.0.3 - 2024-05-02
 
