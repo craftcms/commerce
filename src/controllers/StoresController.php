@@ -81,13 +81,13 @@ class StoresController extends BaseStoreManagementController
         ];
 
         $hasOrders = $storeModel->id && (new Query())
-            ->from(Table::ORDERS)
-            ->leftJoin(\craft\db\Table::ELEMENTS . ' el', '[[el.id]] = [[commerce_orders.id]]')
-            ->where([
-                'storeId' => $storeModel->id,
-                'el.dateDeleted' => null,
-            ])
-            ->exists();
+                ->from(['orders' => Table::ORDERS])
+                ->leftJoin(\craft\db\Table::ELEMENTS . ' el', '[[el.id]] = [[orders.id]]')
+                ->where([
+                    'storeId' => $storeModel->id,
+                    'el.dateDeleted' => null,
+                ])
+                ->exists();
 
         if (!$hasOrders) {
             $allowCurrencyChange = true;
