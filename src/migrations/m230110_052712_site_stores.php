@@ -24,7 +24,7 @@ class m230110_052712_site_stores extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(siteId)',
+            'PRIMARY KEY([[siteId]])',
         ]);
 
         // Get the primary store
