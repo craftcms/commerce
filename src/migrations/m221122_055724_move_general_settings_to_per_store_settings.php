@@ -5,6 +5,7 @@ namespace craft\commerce\migrations;
 use Craft;
 use craft\commerce\db\Table;
 use craft\db\Migration;
+use craft\helpers\ArrayHelper;
 
 /**
  * m221122_055724_move_general_settings_to_per_store_settings migration
@@ -35,10 +36,9 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
 
         $projectConfig = Craft::$app->getProjectConfig();
         $commerceConfig = $projectConfig->get('commerce.settings');
+        $commerceFileConfig = Craft::$app->getConfig()->getConfigFromFile('commerce');
 
-        if (empty($commerceConfig)) {
-            return true;
-        }
+        $commerceConfig = ArrayHelper::merge($commerceConfig, $commerceFileConfig);
 
         $data = [
             'autoSetNewCartAddresses' => $commerceConfig['autoSetNewCartAddresses'] ?? false,
