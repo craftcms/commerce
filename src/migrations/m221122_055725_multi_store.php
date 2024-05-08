@@ -32,7 +32,7 @@ class m221122_055725_multi_store extends Migration
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
-                'PRIMARY KEY(id)',
+                'PRIMARY KEY([[id]])',
             ]);
 
             $this->addForeignKey(null, Table::STORESETTINGS, ['id'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
@@ -80,7 +80,7 @@ class m221122_055725_multi_store extends Migration
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
         if (version_compare($schemaVersion, '5.0.6', '<')) {
-            $projectConfig->set(Stores::CONFIG_STORES_KEY . $storeUid,
+            $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid,
                 $config,
                 'Migration creating the initial primary store in the project config');
         }

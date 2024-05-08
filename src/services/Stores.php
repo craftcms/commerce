@@ -382,21 +382,22 @@ class Stores extends Component
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
-            $storeRecord->autoSetNewCartAddresses = $data['autoSetNewCartAddresses'];
-            $storeRecord->autoSetCartShippingMethodOption = $data['autoSetCartShippingMethodOption'];
-            $storeRecord->autoSetPaymentSource = $data['autoSetPaymentSource'];
-            $storeRecord->allowEmptyCartOnCheckout = $data['allowEmptyCartOnCheckout'];
-            $storeRecord->allowCheckoutWithoutPayment = $data['allowCheckoutWithoutPayment'];
-            $storeRecord->allowPartialPaymentOnCheckout = $data['allowPartialPaymentOnCheckout'];
-            $storeRecord->requireShippingAddressAtCheckout = $data['requireShippingAddressAtCheckout'];
-            $storeRecord->requireBillingAddressAtCheckout = $data['requireBillingAddressAtCheckout'];
-            $storeRecord->requireShippingMethodSelectionAtCheckout = $data['requireShippingMethodSelectionAtCheckout'];
-            $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
-            $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
-            $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
-            $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
-            $storeRecord->orderReferenceFormat = $data['orderReferenceFormat'];
-            $storeRecord->currency = $data['currency'];
+            // if $data['autoSetNewCartAddresses'] is not set, set it to false
+            $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
+            $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
+            $storeRecord->autoSetPaymentSource = ($data['autoSetPaymentSource'] ?? false);
+            $storeRecord->allowEmptyCartOnCheckout = ($data['allowEmptyCartOnCheckout'] ?? false);
+            $storeRecord->allowCheckoutWithoutPayment = ($data['allowCheckoutWithoutPayment'] ?? false);
+            $storeRecord->allowPartialPaymentOnCheckout = ($data['allowPartialPaymentOnCheckout'] ?? false);
+            $storeRecord->requireShippingAddressAtCheckout = ($data['requireShippingAddressAtCheckout'] ?? false);
+            $storeRecord->requireBillingAddressAtCheckout = ($data['requireBillingAddressAtCheckout'] ?? false);
+            $storeRecord->requireShippingMethodSelectionAtCheckout = ($data['requireShippingMethodSelectionAtCheckout'] ?? false);
+            $storeRecord->useBillingAddressForTax = ($data['useBillingAddressForTax'] ?? false);
+            $storeRecord->validateOrganizationTaxIdAsVatId = ($data['validateOrganizationTaxIdAsVatId'] ?? false);
+            $storeRecord->freeOrderPaymentStrategy = ($data['freeOrderPaymentStrategy'] ?? 'complete');
+            $storeRecord->minimumTotalPriceStrategy = ($data['minimumTotalPriceStrategy'] ?? 'default');
+            $storeRecord->orderReferenceFormat = ($data['orderReferenceFormat'] ?? '{{number[:7]}}');
+            $storeRecord->currency = ($data['currency'] ?? null);
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
