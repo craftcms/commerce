@@ -397,8 +397,14 @@ class Stores extends Component
             $storeRecord->freeOrderPaymentStrategy = ($data['freeOrderPaymentStrategy'] ?? 'complete');
             $storeRecord->minimumTotalPriceStrategy = ($data['minimumTotalPriceStrategy'] ?? 'default');
             $storeRecord->orderReferenceFormat = ($data['orderReferenceFormat'] ?? '{{number[:7]}}');
-            $storeRecord->currency = ($data['currency'] ?? null);
-            $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
+
+            $projectConfig = Craft::$app->getProjectConfig();
+            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+            if (version_compare($schemaVersion, '5.0.72', '>=')) {
+                $storeRecord->currency = ($data['currency'] ?? null);
+                $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
+            }
 
             $storeRecord->save(false);
 
