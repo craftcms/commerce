@@ -30,6 +30,8 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
         $this->addColumn(Table::STORES, 'useBillingAddressForTax', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'validateOrganizationTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'orderReferenceFormat', $this->string());
+        $this->addColumn(Table::STORES, 'freeOrderPaymentStrategy', $this->string()->defaultValue('complete'));
+        $this->addColumn(Table::STORES, 'minimumTotalPriceStrategy', $this->string()->defaultValue('default'));
 
         $projectConfig = Craft::$app->getProjectConfig();
         $commerceConfig = $projectConfig->get('commerce.settings');
@@ -51,6 +53,8 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
             'useBillingAddressForTax' => $commerceConfig['useBillingAddressForTax'] ?? false,
             'validateOrganizationTaxIdAsVatId' => $commerceConfig['validateOrganizationTaxIdAsVatId'] ?? $commerceConfig['validateBusinessTaxIdAsVatId'] ?? false,
             'orderReferenceFormat' => $commerceConfig['orderReferenceFormat'] ?? '{{number[:7]}}',
+            'freeOrderPaymentStrategy' => $commerceConfig['freeOrderPaymentStrategy'] ?? 'complete',
+            'minimumTotalPriceStrategy' => $commerceConfig['minimumTotalPriceStrategy'] ?? 'default',
         ];
 
         // set on all rows is safe since we only have one store
