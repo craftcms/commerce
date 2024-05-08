@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a SQL error that could occur on the Edit Store screen. ([#3482](https://github.com/craftcms/commerce/issues/3482))
+- Fixed a SQL error that could occur during installation. ([#3486](https://github.com/craftcms/commerce/issues/3486))
 
 ## 5.0.3 - 2024-05-02
 
