@@ -421,7 +421,7 @@ class Stores extends Component
             Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
-        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? null, $storeRecord->id);
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
         if (!$paymentCurrency) {
             $data = [
                 'iso' => $data['currency'] ?? 'USD',
