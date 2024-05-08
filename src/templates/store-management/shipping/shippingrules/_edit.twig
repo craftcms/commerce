@@ -136,7 +136,6 @@
                 instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping rule should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
                     url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
                 }),
-                warning: 'Blah',
                 errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
                 } %}
                 {% block input %}
