@@ -28,7 +28,7 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
         $this->addColumn(Table::STORES, 'requireBillingAddressAtCheckout', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'requireShippingMethodSelectionAtCheckout', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'useBillingAddressForTax', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'validateBusinessTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
+        $this->addColumn(Table::STORES, 'validateOrganizationTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'orderReferenceFormat', $this->string());
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -49,7 +49,7 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
             'requireBillingAddressAtCheckout' => $commerceConfig['requireBillingAddressAtCheckout'] ?? false,
             'requireShippingMethodSelectionAtCheckout' => $commerceConfig['requireShippingMethodSelectionAtCheckout'] ?? false,
             'useBillingAddressForTax' => $commerceConfig['useBillingAddressForTax'] ?? false,
-            'validateBusinessTaxIdAsVatId' => $commerceConfig['validateBusinessTaxIdAsVatId'] ?? false,
+            'validateOrganizationTaxIdAsVatId' => $commerceConfig['validateOrganizationTaxIdAsVatId'] ?? $commerceConfig['validateBusinessTaxIdAsVatId'] ?? false,
             'orderReferenceFormat' => $commerceConfig['orderReferenceFormat'] ?? '{{number[:7]}}',
         ];
 
