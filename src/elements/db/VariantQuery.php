@@ -484,7 +484,6 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->hasSales)) {
-
             if (!Plugin::getInstance()->getSales()->canUseSales()) {
                 Craft::$app->getDeprecator()->log('VariantQuery::hasSales', 'The `hasSales` parameter and Sales have been deprecated, use Pricing Rules instead.');
                 return false;
