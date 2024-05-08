@@ -382,7 +382,7 @@ class Stores extends Component
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
-            // if $data['autoSetNewCartAddresses'] is not set, set it to false
+
             $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
             $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
             $storeRecord->autoSetPaymentSource = ($data['autoSetPaymentSource'] ?? false);
