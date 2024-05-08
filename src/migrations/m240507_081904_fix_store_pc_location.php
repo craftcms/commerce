@@ -31,8 +31,8 @@ class m240507_081904_fix_store_pc_location extends Migration
         // Bad config key on purpose
         $badCommerceConfig = $projectConfig->get(Stores::CONFIG_STORES_KEY . $storeUid);
 
-        if($badCommerceConfig) {
-            $projectConfig->set(Stores::CONFIG_STORES_KEY . '.'. $storeUid, $badCommerceConfig);
+        if ($badCommerceConfig) {
+            $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid, $badCommerceConfig);
         }
 
         return true;

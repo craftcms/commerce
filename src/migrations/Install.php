@@ -1297,12 +1297,12 @@ class Install extends Migration
             // TODO: Remove this in the next major release
             $commerce = $projectConfig->get('commerce', true);
 
-            foreach (array_keys($commerce) as $key){
+            foreach (array_keys($commerce) as $key) {
                 // Look for the bad store key
-                if(StringHelper::startsWith('stores',$key) && StringHelper::length($key) > 6){
+                if (StringHelper::startsWith('stores',$key) && StringHelper::length($key) > 6) {
                     $uid = substr($key, 7);
                     // Move the data to the correct location for stores
-                    $projectConfig->set(Stores::CONFIG_STORES_KEY . '.'. $uid, $commerce[$key]);
+                    $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $uid, $commerce[$key]);
                 }
             }
             // Finish fix for a bad commerce project config from the 5.0.0-beta.1
