@@ -401,6 +401,7 @@ class Stores extends Component
             $projectConfig = Craft::$app->getProjectConfig();
             $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
+            // Todo version compare in 6.0
             if (version_compare($schemaVersion, '5.0.72', '>=')) {
                 $storeRecord->currency = ($data['currency'] ?? null);
                 $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
@@ -420,10 +421,10 @@ class Stores extends Component
             Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
-        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'], $storeRecord->id);
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? null, $storeRecord->id);
         if (!$paymentCurrency) {
             $data = [
-                'iso' => $data['currency'],
+                'iso' => $data['currency'] ?? 'USD',
                 'storeId' => $storeRecord->id,
                 'rate' => 1,
             ];
