@@ -7,9 +7,11 @@ use craft\commerce\db\Table;
 use craft\db\Migration;
 
 /**
- * m230324_080923_move_general_settings_to_per_store_settings migration.
+ * m221122_055724_move_general_settings_to_per_store_settings migration
+ *
+ * This originally appeared as: m230324_080923_move_general_settings_to_per_store_settings migration, but had to be moved (renamed) to run before the multi-store migration.
  */
-class m230324_080923_move_general_settings_to_per_store_settings extends Migration
+class m221122_055724_move_general_settings_to_per_store_settings extends Migration
 {
     /**
      * @inheritdoc
@@ -29,7 +31,8 @@ class m230324_080923_move_general_settings_to_per_store_settings extends Migrati
         $this->addColumn(Table::STORES, 'validateBusinessTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
         $this->addColumn(Table::STORES, 'orderReferenceFormat', $this->string());
 
-        $commerceConfig = Craft::$app->getConfig()->getConfigFromFile('commerce');
+        $projectConfig = Craft::$app->getProjectConfig();
+        $commerceConfig = $projectConfig->get('commerce.settings');
 
         if (empty($commerceConfig)) {
             return true;
@@ -49,22 +52,12 @@ class m230324_080923_move_general_settings_to_per_store_settings extends Migrati
             'validateBusinessTaxIdAsVatId' => $commerceConfig['validateBusinessTaxIdAsVatId'] ?? false,
             'orderReferenceFormat' => $commerceConfig['orderReferenceFormat'] ?? '{{number[:7]}}',
         ];
+
+        // set on all rows is safe since we only have one store
         $this->update(Table::STORES, $data);
 
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-
-        if (version_compare($schemaVersion, '5.0.34', '<')) {
-            $stores = $projectConfig->get('commerce.stores') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
-
-            foreach ($stores as $uid => $store) {
-                $projectConfig->set("commerce.stores.$uid", array_merge($store, $data));
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
-        }
+        // No need to update the project config as we only have one store at this stage and the multi-store migration
+        // will handle this.
 
         return true;
     }
