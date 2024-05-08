@@ -33,7 +33,7 @@ class m240507_081904_fix_store_pc_location extends Migration
 
         if ($badCommerceConfig) {
             $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid, $badCommerceConfig);
-        }else{
+        } else {
             $currentState = $projectConfig->get(Stores::CONFIG_STORES_KEY . '.' . $storeUid);
             $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid, $currentState, 'Ensuring stored config is applied.', false, true);
         }

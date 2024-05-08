@@ -31,20 +31,17 @@ class m230308_084340_add_store_id_to_order_statuses extends Migration
         $this->createIndex(null, Table::ORDERSTATUSES, ['storeId'], false);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.27', '<')) {
-            $orderStatuses = $projectConfig->get('commerce.orderStatuses') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $orderStatuses = $projectConfig->get('commerce.orderStatuses') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($orderStatuses as $statusUid => $orderStatus) {
-                $orderStatus['store'] = $primaryStore['uid'];
-                $projectConfig->set("commerce.orderStatuses.$statusUid", $orderStatus);
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($orderStatuses as $statusUid => $orderStatus) {
+            $orderStatus['store'] = $primaryStore['uid'];
+            $projectConfig->set("commerce.orderStatuses.$statusUid", $orderStatus);
         }
+
+        $projectConfig->muteEvents = $muteEvents;
 
         return true;
     }

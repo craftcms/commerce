@@ -77,18 +77,15 @@ class m221122_055725_multi_store extends Migration
 
         // Make project config updates
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.6', '<')) {
-            $originalValue = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $originalValue = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid,
-                $config,
-                'Migration creating the initial primary store in the project config');
+        $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid,
+            $config,
+            'Migration creating the initial primary store in the project config');
 
-            $projectConfig->muteEvents = $originalValue;
-        }
+        $projectConfig->muteEvents = $originalValue;
 
         return true;
     }

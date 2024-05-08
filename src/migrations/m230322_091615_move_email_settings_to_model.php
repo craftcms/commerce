@@ -34,22 +34,18 @@ class m230322_091615_move_email_settings_to_model extends Migration
         ]);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.33', '<')) {
-            $emails = $projectConfig->get('commerce.emails') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $emails = $projectConfig->get('commerce.emails') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($emails as $uid => $email) {
-                $email['senderAddress'] = $senderAddress;
-                $email['senderName'] = $senderName;
-                $projectConfig->set("commerce.emails.$uid", $email);
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($emails as $uid => $email) {
+            $email['senderAddress'] = $senderAddress;
+            $email['senderName'] = $senderName;
+            $projectConfig->set("commerce.emails.$uid", $email);
         }
 
+        $projectConfig->muteEvents = $muteEvents;
 
         return true;
     }
