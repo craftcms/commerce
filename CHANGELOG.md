@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed an error that occurred when deleting or duplicating a shipping rule in the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
+
 ## 5.0.4 - 2024-05-09
 
 - Fixed a SQL error that could occur during installation. ([#3492](https://github.com/craftcms/commerce/issues/3492), [#3488](https://github.com/craftcms/commerce/issues/3488))
