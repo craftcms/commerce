@@ -19,20 +19,65 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
      */
     public function safeUp(): bool
     {
-        $this->addColumn(Table::STORES, 'autoSetNewCartAddresses', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'autoSetCartShippingMethodOption', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'autoSetPaymentSource', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'allowEmptyCartOnCheckout', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'allowCheckoutWithoutPayment', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'allowPartialPaymentOnCheckout', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'requireShippingAddressAtCheckout', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'requireBillingAddressAtCheckout', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'requireShippingMethodSelectionAtCheckout', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'useBillingAddressForTax', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'validateOrganizationTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
-        $this->addColumn(Table::STORES, 'orderReferenceFormat', $this->string());
-        $this->addColumn(Table::STORES, 'freeOrderPaymentStrategy', $this->string()->defaultValue('complete'));
-        $this->addColumn(Table::STORES, 'minimumTotalPriceStrategy', $this->string()->defaultValue('default'));
+        if (!$this->db->columnExists(Table::STORES, 'autoSetNewCartAddresses')) {
+            $this->addColumn(Table::STORES, 'autoSetNewCartAddresses', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'autoSetCartShippingMethodOption')) {
+            $this->addColumn(Table::STORES, 'autoSetCartShippingMethodOption', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'autoSetPaymentSource')) {
+            $this->addColumn(Table::STORES, 'autoSetPaymentSource', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'allowEmptyCartOnCheckout')) {
+            $this->addColumn(Table::STORES, 'autoSetPaymentSource', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'allowEmptyCartOnCheckout')) {
+            $this->addColumn(Table::STORES, 'allowEmptyCartOnCheckout', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'allowCheckoutWithoutPayment')) {
+            $this->addColumn(Table::STORES, 'allowCheckoutWithoutPayment', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'allowPartialPaymentOnCheckout')) {
+            $this->addColumn(Table::STORES, 'allowPartialPaymentOnCheckout', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'requireShippingAddressAtCheckout')) {
+            $this->addColumn(Table::STORES, 'requireShippingAddressAtCheckout', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'requireBillingAddressAtCheckout')) {
+            $this->addColumn(Table::STORES, 'requireBillingAddressAtCheckout', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'requireShippingMethodSelectionAtCheckout')) {
+            $this->addColumn(Table::STORES, 'requireShippingMethodSelectionAtCheckout', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'useBillingAddressForTax')) {
+            $this->addColumn(Table::STORES, 'useBillingAddressForTax', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'validateOrganizationTaxIdAsVatId')) {
+            $this->addColumn(Table::STORES, 'validateOrganizationTaxIdAsVatId', $this->boolean()->notNull()->defaultValue(false));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'orderReferenceFormat')) {
+            $this->addColumn(Table::STORES, 'orderReferenceFormat', $this->string());
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'freeOrderPaymentStrategy')) {
+            $this->addColumn(Table::STORES, 'freeOrderPaymentStrategy', $this->string()->defaultValue('complete'));
+        }
+
+        if (!$this->db->columnExists(Table::STORES, 'minimumTotalPriceStrategy')) {
+            $this->addColumn(Table::STORES, 'minimumTotalPriceStrategy', $this->string()->defaultValue('default'));
+        }
 
         $projectConfig = Craft::$app->getProjectConfig();
         $commerceConfig = $projectConfig->get('plugins.commerce.settings', true);
