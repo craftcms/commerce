@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 5.0.4 - 2024-05-09
+
+- Fixed a SQL error that could occur during installation. ([#3492](https://github.com/craftcms/commerce/issues/3492), [#3488](https://github.com/craftcms/commerce/issues/3488))
+
 ## 5.0.4 - 2024-05-08
 
 - Fixed a SQL error that could occur on the Edit Store screen. ([#3482](https://github.com/craftcms/commerce/issues/3482))
