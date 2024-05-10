@@ -32,7 +32,7 @@ class m221122_055724_move_general_settings_to_per_store_settings extends Migrati
         }
 
         if (!$this->db->columnExists(Table::STORES, 'allowEmptyCartOnCheckout')) {
-            $this->addColumn(Table::STORES, 'autoSetPaymentSource', $this->boolean()->notNull()->defaultValue(false));
+            $this->addColumn(Table::STORES, 'allowEmptyCartOnCheckout', $this->boolean()->notNull()->defaultValue(false));
         }
 
         if (!$this->db->columnExists(Table::STORES, 'allowEmptyCartOnCheckout')) {
