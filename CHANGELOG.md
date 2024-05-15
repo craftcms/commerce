@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed an error that occurred when deleting or duplicating a shipping rule in the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
+- Fixed an error that occurred when deleting or duplicating a shipping rule on the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
 - Fixed a bug where dimension fields did not respect their product type visibility settings. ([#3493](https://github.com/craftcms/commerce/issues/3493))
 - Fixed a SQL error that occurred during upgrade. ([#3495](https://github.com/craftcms/commerce/pull/3495))
 
