@@ -1724,7 +1724,7 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
-                    ->andWhere(['lineitems.purchasableId' => $purchasableIds]),
+                    ->andWhere(['[[lineitems.purchasableId]]' => $purchasableIds]),
             ]);
         }
 

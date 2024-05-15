@@ -5,6 +5,12 @@
  * @license https://craftcms.github.io/license/
  */
 
+$shippingCategoryId = (new \craft\db\Query())
+    ->select('id')
+    ->from(\craft\commerce\db\Table::SHIPPINGCATEGORIES)
+    ->where(['handle' => 'anotherShippingCategory'])
+    ->scalar();
+
 return [
     'rad-hoodie' => [
         'typeId' => '2000',
@@ -17,7 +23,7 @@ return [
             'new_0' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'Rad Hoodie',
                 'slug' => 'rad-hoodie',
@@ -29,8 +35,7 @@ return [
                 'height' => null,
                 'length' => null,
                 'weight' => null,
-                'stock' => null,
-                'hasUnlimitedStock' => 1,
+                'inventoryTracked' => 0,
                 'minQty' => null,
                 'maxQty' => null,
             ],
@@ -47,7 +52,7 @@ return [
             'new1' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'White',
                 'slug' => 'white',
@@ -59,15 +64,14 @@ return [
                 'height' => null,
                 'length' => null,
                 'weight' => null,
-                'stock' => null,
-                'hasUnlimitedStock' => 1,
+                'inventoryTracked' => 0,
                 'minQty' => null,
                 'maxQty' => null,
             ],
             'new_2' => [
                 'availableForPurchase' => 1,
                 'promotable' => 1,
-                'shippingCategoryId' => 101,
+                'shippingCategoryId' => $shippingCategoryId,
                 'taxCategoryId' => 101,
                 'title' => 'Blue',
                 'slug' => 'blue',
@@ -79,8 +83,7 @@ return [
                 'height' => null,
                 'length' => null,
                 'weight' => null,
-                'stock' => null,
-                'hasUnlimitedStock' => 1,
+                'inventoryTracked' => 0,
                 'minQty' => null,
                 'maxQty' => null,
             ],

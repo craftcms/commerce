@@ -16,7 +16,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\UpdatePrimaryPaymentSourceEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\Address;
 use craft\elements\User;
@@ -123,35 +122,6 @@ class Customers extends Component
         }
 
         Plugin::getInstance()->getCarts()->restorePreviousCartForCurrentUser();
-    }
-
-    /**
-     * Add customer info tab to the Edit User page in the control panel.
-     */
-    public function addEditUserCommerceTab(array &$context): void
-    {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
-            $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Commerce'),
-                'url' => '#commerce',
-            ];
-        }
-    }
-
-    /**
-     * Add customer info to the Edit User page in the control panel.
-     */
-    public function addEditUserCommerceTabContent(array $context): string
-    {
-        if (!$context['user'] || $context['isNewUser']) {
-            return '';
-        }
-
-        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/_includes/users/_editUserTab', [
-            'user' => $context['user'],
-        ]);
     }
 
     /**

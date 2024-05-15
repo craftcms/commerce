@@ -23,22 +23,31 @@ use yii\web\Response;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class DonationsController extends BaseStoreManagementController
+class DonationsController extends BaseCpController
 {
     public function actionEdit(): Response
     {
         $donation = Donation::find()->status(null)->one();
 
         if ($donation === null) {
+            $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
+            $primarySite = Craft::$app->getSites()->getPrimarySite();
             $donation = new Donation();
+            $donation->siteId = $primarySite->id;
             $donation->sku = 'DONATION-CC5';
-            $donation->availableForPurchase = true;
-            $donation->enabled = true;
+            $donation->availableForPurchase = false;
+            $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+            $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
+            Craft::$app->getElements()->saveElement($donation);
         }
 
-        $store = Plugin::getInstance()->getStores()->getPrimaryStore();
-
-        return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation', 'store'));
+        return $this->asCpScreen()
+            ->title('Donation Settings')
+            ->selectedSubnavItem('donations')
+            ->action('commerce/donations/save')
+            ->submitButtonLabel(Craft::t('app', 'Save'))
+            ->redirectUrl('commerce/donations')
+            ->contentTemplate('commerce/donation/_edit.twig', compact('donation'));
     }
 
     /**
@@ -66,7 +75,7 @@ class DonationsController extends BaseStoreManagementController
         $donation->enabled = (bool)$this->request->getBodyParam('enabled');
 
         if (!Craft::$app->getElements()->saveElement($donation)) {
-            return $this->renderTemplate('commerce/store-management/donation/_edit', compact('donation'));
+            return $this->renderTemplate('commerce/donation/_edit', compact('donation'));
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Donation settings saved.'));

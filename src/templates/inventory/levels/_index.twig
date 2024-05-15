@@ -14,6 +14,7 @@
 {% js %}
 
 new Craft.Commerce.InventoryLevelsManager('#inventory-levels',{
-  inventoryLocationId: '{{ currentLocation.id }}'
+  inventoryLocationId: '{{ currentLocation.id }}',
+  inventoryItemId: {{ inventoryItemId ? inventoryItemId : 'null'}},
 });
 {% endjs %}

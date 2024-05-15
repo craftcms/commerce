@@ -43,7 +43,8 @@ enum InventoryTransactionType: string
             self::SAFETY => Craft::t('commerce', 'Safety'),
             self::QUALITY_CONTROL => Craft::t('commerce', 'Quality Control'),
             self::COMMITTED => Craft::t('commerce', 'Committed'),
-            self::INCOMING => Craft::t('commerce', 'Incoming')
+            self::INCOMING => Craft::t('commerce', 'Incoming'),
+            self::FULFILLED => Craft::t('commerce', 'Fulfilled')
         };
     }
 

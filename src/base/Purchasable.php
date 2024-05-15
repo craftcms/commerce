@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\InventoryItem;
@@ -35,6 +34,7 @@ use craft\validators\UniqueValidator;
 
 use Illuminate\Support\Collection;
 use Money\Money;
+use Money\Teller;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -322,11 +322,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * @return Teller
+     * @throws InvalidConfigException
+     * @since 5.0.0
+     */
+    private function _getTeller(): Teller
+    {
+        return Plugin::getInstance()->getCurrencies()->getTeller($this->getStore()->getCurrency());
+    }
+
+    /**
      * @inheritdoc
      */
     public function getStore(): Store
     {
-        if ($this->_store === null) {
+        if ($this->_store === null || !in_array($this->siteId, $this->_store->getSites()->pluck('id')->all())) {
             if ($this->siteId === null) {
                 throw new InvalidConfigException('Purchasable::siteId cannot be null');
             }
@@ -353,6 +363,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @inheritdoc
      * @throws InvalidConfigException
+     * @since 5.0.0
      */
     public function getIsAvailable(): bool
     {
@@ -367,7 +378,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         }
 
         // Is the inventory tracked and is there stock?
-        if ($this->inventoryTracked && $this->getSaleableTotalStock() < 1) {
+        if ($this->inventoryTracked && $this->getStock() < 1) {
             return false;
         }
 
@@ -475,6 +486,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @return float|null
      * @throws InvalidConfigException
      * @throws \Throwable
+     * @since 5.0.0
      */
     public function getPrice(): ?float
     {
@@ -484,12 +496,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
         $price = $this->_price ?? $this->basePrice;
 
-        $price = MoneyHelper::toMoney([
-            'value' => $price,
-            'currency' => $this->getStore()->getCurrency(),
-        ]);
-
-        return (float)MoneyHelper::toDecimal($price);
+        return (float)$this->_getTeller()->convertToString($price);
     }
 
     /**
@@ -509,7 +516,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $promotionalPrice = $this->_promotionalPrice ?? $this->basePromotionalPrice;
         }
 
-        return ($promotionalPrice !== null && $promotionalPrice < $price) ? $promotionalPrice : null;
+        if ($promotionalPrice === null) {
+            return null;
+        }
+
+        $promotionalPrice = (float)$this->_getTeller()->convertToString($promotionalPrice);
+        return $this->_getTeller()->lessThan($promotionalPrice, $price) ? $promotionalPrice : null;
     }
 
     /**
@@ -565,24 +577,11 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * Returns the cached total available stock across all inventory locations for this store.
-     * @return int
-     */
-    public function getStock(): int
-    {
-        if ($this->_stock === null) {
-            $this->_stock = $this->getSaleableTotalStock();
-        }
-
-        return $this->_stock;
-    }
-
-    /**
      * Returns whether this variant has stock.
      */
     public function hasStock(): bool
     {
-        return !$this->inventoryTracked || $this->getSaleableTotalStock() > 0;
+        return !$this->inventoryTracked || $this->getStock() > 0;
     }
 
     /**
@@ -681,8 +680,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
-            if ($this->inventoryTracked && ($lineItem->qty > $this->getSaleableTotalStock())) {
-                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getSaleableTotalStock()]);
+            if ($this->inventoryTracked && ($lineItem->qty > $this->getStock())) {
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->getStock()]);
                 /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
@@ -693,7 +692,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     ],
                 ]);
                 $order->addNotice($notice);
-                $lineItem->qty = $this->getSaleableTotalStock();
+                $lineItem->qty = $this->getStock();
             }
         }
 
@@ -736,7 +735,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No purchasable available.'));
                     }
 
-                    if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
+                    if (!$purchasable->getIsAvailable()) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 },
@@ -751,8 +750,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
                     $lineItemQty = $lineItem->id !== null ? $lineItemQuantitiesById[$lineItem->id] : $lineItemQuantitiesByPurchasableId[$lineItem->purchasableId];
 
-                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getSaleableTotalStock()) {
-                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getSaleableTotalStock(), 'description' => $lineItem->purchasable->getDescription()]);
+                    if ($this->hasStock() && $this->inventoryTracked && $lineItemQty > $this->getStock()) {
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->getStock(), 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
@@ -855,22 +854,17 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
-     * @param InventoryTransactionType $inventoryTransactionType
-     * @return int
+     * @deprecated in 5.0.0 use [[Purchasable::$inventoryTracked]] instead.
      */
-    private function _getTotalStockByType(InventoryTransactionType $inventoryTransactionType): int
+    public function setHasUnlimitedStock($value): bool
     {
-        if (!$this->inventoryTracked) {
-            return 0;
-        }
-
-        return $this->getInventoryLevels()->sum($inventoryTransactionType->value . 'Total');
+        return $this->inventoryTracked = !$value;
     }
 
     /**
      * @return int
      */
-    public function getSaleableTotalStock(): int
+    private function _getStock(): int
     {
         $saleableAmount = 0;
         foreach ($this->getInventoryLevels() as $inventoryLevel) {
@@ -883,8 +877,25 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     }
 
     /**
+     * Returns the cached total available stock across all inventory locations for this store.
+     *
+     * @return int
+     * @since 5.0.0
+     */
+    public function getStock(): int
+    {
+        if ($this->_stock === null) {
+            $this->_stock = $this->_getStock();
+        }
+
+        return $this->_stock;
+    }
+
+
+    /**
      * Returns the total stock across all locations this purchasable is tracked in.
      * @return Collection<InventoryLevel>
+     * @since 5.0.0
      */
     public function getInventoryLevels(): Collection
     {
@@ -901,9 +912,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     public function afterSave(bool $isNew): void
     {
+        $purchasableId = $this->getCanonicalId();
         if (!$this->propagating) {
-            $purchasableId = $this->getCanonicalId();
-
             $purchasable = PurchasableRecord::findOne($purchasableId);
 
             if (!$purchasable) {
@@ -926,42 +936,6 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             $purchasable->save(false);
 
             if ($purchasableId) {
-
-                // Set Purchasables stores data
-                $purchasableStoreRecord = PurchasableStore::findOne([
-                    'purchasableId' => $purchasableId,
-                    'storeId' => $this->getStoreId(),
-                ]);
-                if (!$purchasableStoreRecord) {
-                    $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
-                    $purchasableStoreRecord->storeId = $this->getStore()->id;
-                }
-
-                $purchasableStoreRecord->basePrice = $this->basePrice;
-                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
-                $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
-                $purchasableStoreRecord->inventoryTracked = $this->inventoryTracked;
-                $purchasableStoreRecord->minQty = $this->minQty;
-                $purchasableStoreRecord->maxQty = $this->maxQty;
-                $purchasableStoreRecord->promotable = $this->promotable;
-                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
-                $purchasableStoreRecord->freeShipping = $this->freeShipping;
-                $purchasableStoreRecord->purchasableId = $purchasableId;
-                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
-
-                $purchasableStoreRecord->save(false);
-
-                // Only update the description for the primary site until we have a concept
-                // of an order having a site ID
-                if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
-                    $purchasable->description = $this->getDescription();
-                }
-
-                Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
-                    'purchasableIds' => [$purchasableId],
-                    'storeId' => $this->getStoreId(),
-                ]);
-
                 // Set the inventory item data
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
                 if (!$inventoryItem) {
@@ -976,7 +950,60 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             }
         }
 
+        if ($purchasableId) {
+            // Set Purchasables stores data
+            $purchasableStoreRecord = PurchasableStore::findOne([
+                'purchasableId' => $purchasableId,
+                'storeId' => $this->getStoreId(),
+            ]);
+            if (!$purchasableStoreRecord) {
+                $purchasableStoreRecord = Craft::createObject(PurchasableStore::class);
+                $purchasableStoreRecord->storeId = $this->getStore()->id;
+
+                if ($this->propagating) {
+                    $purchasableStoreRecord->basePrice = 0;
+                    $purchasableStoreRecord->basePromotionalPrice = null;
+                    $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
+                    $purchasableStoreRecord->inventoryTracked = false;
+                    $purchasableStoreRecord->minQty = null;
+                    $purchasableStoreRecord->maxQty = null;
+                    $purchasableStoreRecord->promotable = false;
+                    $purchasableStoreRecord->availableForPurchase = false;
+                    $purchasableStoreRecord->freeShipping = false;
+                    $purchasableStoreRecord->purchasableId = $purchasableId;
+                    $purchasableStoreRecord->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStore()->id)->id;
+                }
+            }
+
+            if (!$this->propagating) {
+                $purchasableStoreRecord->basePrice = $this->basePrice;
+                $purchasableStoreRecord->basePromotionalPrice = $this->basePromotionalPrice;
+                $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
+                $purchasableStoreRecord->inventoryTracked = $this->inventoryTracked;
+                $purchasableStoreRecord->minQty = $this->minQty;
+                $purchasableStoreRecord->maxQty = $this->maxQty;
+                $purchasableStoreRecord->promotable = $this->promotable;
+                $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
+                $purchasableStoreRecord->freeShipping = $this->freeShipping;
+                $purchasableStoreRecord->purchasableId = $purchasableId;
+                $purchasableStoreRecord->shippingCategoryId = $this->getShippingCategoryId();
+            }
+
+            $purchasableStoreRecord->save(false);
+        }
+
         parent::afterSave($isNew);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function afterPropagate(bool $isNew): void
+    {
+        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            'purchasableIds' => [$this->getCanonicalId()],
+            'storeId' => $this->getStoreId(),
+        ]);
     }
 
     /**
@@ -1064,7 +1091,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
             if (!$this->inventoryTracked) {
                 $stock = '∞';
             } else {
-                $stock = $this->getSaleableTotalStock();
+                $stock = $this->getStock();
             }
         }
 

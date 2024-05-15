@@ -1,6 +1,11 @@
 {% extends 'commerce/_layouts/settings' %}
 {% set title = "Sites"|t('app') %}
 {% set fullPageForm = true %}
+
+{% do craft.app.view.registerTranslations('commerce', [
+  "{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.",
+]) %}
+
 {% block content %}
     {{ actionInput('commerce/stores/save-site-stores') }}
     {{ redirectInput('commerce/settings/sites') }}
@@ -15,22 +20,71 @@
             </tr>
             </thead>
             <tbody>
-            {% for siteStore in sitesStores %}
-                <td>
-                    {{ siteStore.site.name|t('site') }}
-                </td>
-                <td>
-                    {{ forms.selectField({
-                        id: 'siteStores-'~siteStore.siteId,
-                        name: 'siteStores['~siteStore.siteId~'][storeId]',
-                        options: stores|map((store) => ({ label: store.name, value: store.id })),
-                        value: siteStore.storeId ?? primaryStoreId,
-                        errors: siteStore.getErrors('storeId'),
-                    }) }}
-                </td>
+            {% for site in sites %}
+                {% set siteStore = sitesStores.count() > 0 ? sitesStores.firstWhere('siteId', site.id) : null %}
+                <tr>
+                    <td>
+                        {{ site.name|t('site') }}
+                    </td>
+                    <td>
+                        {{ forms.selectField({
+                            id: 'siteStores-' ~ site.id,
+                            name: 'siteStores[' ~ site.id ~ '][storeId]',
+                          class: ['siteStores'],
+                            options: stores|map((store) => ({ label: store.name, value: store.id })),
+                            value: siteStore.storeId ?? primaryStoreId,
+                            errors: siteStore.getErrors('storeId'),
+                        }) }}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
+    <div id="commerce-site-stores-errors" style="margin-top: 1rem;" class="hidden" aria-hidden="true">
+      <p class="error">Blah</p>
+    </div>
 {% endblock %}
+
+{% js %}
+  const commerceStores = {{ stores.all()|json_encode|raw }};
+  const $commerceSiteStoresErrorContainer = document.querySelector('#commerce-site-stores-errors');
+  const $siteStores = document.querySelectorAll('.siteStores.select select');
+  let assignedStores = [];
+  let unassignedStores = [];
+
+  $siteStores.forEach(function(ss) {
+    ss.addEventListener('change', function(ev) {
+      assignedStores = [];
+      unassignedStores = [];
+
+      $siteStores.forEach(function(_ss) {
+        if (_ss.value) {
+          assignedStores.push(parseInt(_ss.value));
+        }
+      });
+
+      commerceStores.forEach(function(store) {
+        if (!assignedStores.includes(store.id)) {
+          unassignedStores.push(store);
+        }
+      });
+
+      if (unassignedStores.length === 0) {
+        $commerceSiteStoresErrorContainer.classList.add('hidden');
+        $commerceSiteStoresErrorContainer.setAttribute('aria-hidden', 'true');
+      } else {
+        $commerceSiteStoresErrorContainer.classList.remove('hidden');
+        $commerceSiteStoresErrorContainer.setAttribute('aria-hidden', 'false');
+        $commerceSiteStoresErrorContainer.querySelector('p').textContent = Craft.t('commerce', '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.', {
+          storeNames: unassignedStores.map(function(store) {
+            return store.name;
+          }).join(', '),
+          num: unassignedStores.length,
+        });
+      }
+    });
+  });
+
+  $siteStores[0].dispatchEvent(new Event('change'));
+{% endjs %}

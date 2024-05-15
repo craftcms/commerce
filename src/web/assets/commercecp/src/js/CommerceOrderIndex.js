@@ -91,6 +91,11 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
       }
     }
 
+    if (this.siteId) {
+      // Automatically set `storeId` criteria based on the selected site
+      params.criteria.storeId = Craft.Commerce.sitesStores[this.siteId];
+    }
+
     return params;
   },
 
@@ -104,10 +109,25 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
           var $sidebar = this.$sidebar;
           $.each(data.counts, function (key, row) {
             var $item = $sidebar.find(
-              'nav a[data-key="orderStatus:' + row.handle + '"]'
+              'nav a[data-key="*/orderStatus:' + row.handle + '"]'
             );
+
             if ($item) {
-              $item.find('.badge').text(row.orderCount);
+              let $badge = $item.find('.badge');
+
+              if (row.orderCount === 0) {
+                if ($badge.length) {
+                  $badge.remove();
+                }
+
+                return;
+              }
+
+              if (!$badge.length) {
+                $badge = $('<span class="badge"/>').appendTo($item);
+              }
+
+              $badge.text(row.orderCount);
             }
           });
         }
@@ -115,7 +135,25 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         if (data.total) {
           var $total = this.$sidebar.find('nav a[data-key="*"]');
           if ($total) {
-            $total.find('.badge').text(data.total);
+            let $totalBadge = $total.find('.badge');
+
+            if (!$totalBadge.length) {
+              $totalBadge = $('<span class="badge"/>').appendTo($total);
+            }
+
+            if (data.total === 0) {
+              if ($totalBadge.length) {
+                $totalBadge.remove();
+              }
+
+              return;
+            }
+
+            if (!$totalBadge.length) {
+              $totalBadge = $('<span class="badge"/>').appendTo($total);
+            }
+
+            $totalBadge.text(data.total);
           }
         }
       }.bind(this), // Use .bind(this) to maintain the context of `this` within the success function

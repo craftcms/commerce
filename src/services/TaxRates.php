@@ -145,7 +145,7 @@ class TaxRates extends Component
         $record->isEverywhere = $model->getIsEverywhere();
 
         if (!$record->isEverywhere && $record->taxZoneId && empty($record->getErrors('taxZoneId'))) {
-            $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId);
+            $taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($record->taxZoneId, $record->storeId);
 
             if (!$taxZone) {
                 throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”', ['id' => $record->taxZoneId]));

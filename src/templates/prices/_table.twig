@@ -49,7 +49,7 @@
             <span class="extralight">{{ price.isPromotionalPrice ? 'Base Promotional Price'|t('commerce') : 'Base Price'|t('commerce') }}</span>
           {% endif %}
         </td>
-        <td class="{{ price.isPromotionalPrice ? 'commerce-promotional-price' : '' }}" style="text-align: right;">{{ price.price }}</td>
+        <td class="{{ price.isPromotionalPrice ? 'commerce-promotional-price' : '' }}" style="text-align: right;">{{ price.priceAsCurrency }}</td>
       </tr>
       {% set lastPurchasable = price.purchasable.id %}
     {% endfor %}

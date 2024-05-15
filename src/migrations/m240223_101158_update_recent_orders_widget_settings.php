@@ -7,6 +7,7 @@ use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 
 /**
  * m240223_101158_update_recent_orders_widget_settings migration.
@@ -33,7 +34,7 @@ class m240223_101158_update_recent_orders_widget_settings extends Migration
 
         // Update the widget settings to move from `orderStatusId` to `orderStatuses`
         foreach ($widgets as $widget) {
-            $settings = json_decode($widget['settings'], true);
+            $settings = Json::decodeIfJson($widget['settings']);
             $orderStatusId = $settings['orderStatusId'] ?? null;
             $settings['orderStatuses'] = [];
             unset($settings['orderStatusId']);
@@ -45,7 +46,7 @@ class m240223_101158_update_recent_orders_widget_settings extends Migration
                 }
             }
 
-            $this->update(Table::WIDGETS, ['settings' => $settings], ['id' => $widget['id']]);
+            $this->update(Table::WIDGETS, ['settings' => Json::encode($settings)], ['id' => $widget['id']]);
         }
 
         return true;

@@ -25,6 +25,7 @@ use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\models\FieldLayout;
+use craft\models\Site;
 use Exception;
 use yii\base\InvalidConfigException;
 
@@ -53,7 +54,7 @@ trait OrderElementTrait
     protected function htmlAttributes(string $context): array
     {
         $attributes = parent::htmlAttributes($context);
-        $attributes['data-number'] = $this->number;
+        $attributes['data'] = ['number' => $this->number];
         return $attributes;
     }
 
@@ -300,9 +301,8 @@ trait OrderElementTrait
             '*' => [
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All Orders'),
-                'criteria' => ['isCompleted' => true],
+                'criteria' => ['isCompleted' => true, 'storeId' => $store->id],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => 0,
                 'data' => [
                     'date-attr' => 'dateOrdered',
                 ],
@@ -332,7 +332,6 @@ trait OrderElementTrait
                 'label' => Craft::t('site', $orderStatus->name),
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => 0,
                 'data' => [
                     'handle' => $orderStatus->handle,
                     'date-attr' => 'dateOrdered',
@@ -384,13 +383,14 @@ trait OrderElementTrait
         $actions = parent::defineActions($source);
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
-            $elementService = Craft::$app->getElements();
+            /** @var StoreBehavior|Site $site */
+            $site = Cp::requestedSite();
+            $store = $site->getStore();
+            // Remove nested "all" prefix if it exists at the start of the string
+            $source = strpos($source, '*/') === 0 ? substr($source, 2) : $source;
 
-            $sourceParts = explode(':', $source);
-            $store = null;
-            if (in_array($sourceParts[0], ['carts', 'orderStatus']) && isset($sourceParts[2])) {
-                $store = Plugin::getInstance()->getStores()->getStoreByHandle($sourceParts[2]);
-            }
+
+            $elementService = Craft::$app->getElements();
 
             if ($store && Plugin::getInstance()->getPdfs()->getHasEnabledPdf($store->id)) {
                 $actions[] = $elementService->createAction([

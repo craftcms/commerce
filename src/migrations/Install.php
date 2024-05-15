@@ -9,7 +9,6 @@ namespace craft\commerce\migrations;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -21,11 +20,15 @@ use craft\commerce\records\CatalogPricingRule;
 use craft\commerce\records\InventoryLocation;
 use craft\commerce\records\TaxCategory;
 use craft\commerce\services\Coupons;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
+use craft\helpers\StringHelper;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
@@ -37,11 +40,6 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-    /**
-     * @var int|null
-     */
-    private ?int $_primaryStoreId = null;
-
     /**
      * @inheritdoc
      */
@@ -219,7 +217,9 @@ class Install extends Migration
             'hasFreeShippingForMatchingItems' => $this->boolean()->notNull()->defaultValue(false),
             'hasFreeShippingForOrder' => $this->boolean()->notNull()->defaultValue(false),
             'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'purchasableIds' => $this->text(),
             'allCategories' => $this->boolean()->notNull()->defaultValue(false),
+            'categoryIds' => $this->text(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
             'orderConditionFormula' => $this->text(),
@@ -506,7 +506,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::ORDERSTATUS_EMAILS);
@@ -594,7 +594,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::PRODUCTTYPES);
@@ -749,7 +749,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGCATEGORIES);
         $this->createTable(Table::SHIPPINGCATEGORIES, [
             'id' => $this->primaryKey(),
-            'storeId' => $this->integer(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
@@ -763,7 +763,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::SHIPPINGMETHODS);
         $this->createTable(Table::SHIPPINGMETHODS, [
             'id' => $this->primaryKey(),
-            'storeId' => $this->integer(),
+            'storeId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'orderCondition' => $this->text(),
@@ -828,7 +828,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(siteId)',
+            'PRIMARY KEY([[siteId]])',
         ]);
 
         $this->archiveTableIfExists(Table::STORES);
@@ -867,7 +867,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
 
         $this->archiveTableIfExists(Table::SUBSCRIPTIONS);
@@ -967,7 +967,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::TRANSFERS);
         $this->createTable(Table::TRANSFERS, [
             'id' => $this->primaryKey(),
-            'transferStatus' => $this->enum('status', [
+            'transferStatus' => $this->enum('transferStatus', [
                 'draft',
                 'pending',
                 'partial',
@@ -999,7 +999,7 @@ class Install extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(id)',
+            'PRIMARY KEY([[id]])',
         ]);
     }
 
@@ -1140,6 +1140,7 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
+        $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
         $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
         $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
@@ -1177,7 +1178,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::EMAILS, ['storeId'], Table::STORES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::INVENTORYITEMS, 'purchasableId', Table::PURCHASABLES, 'id', 'CASCADE', null);
-        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', '{{%addresses}}', 'id', 'CASCADE', null);
+        $this->addForeignKey(null, Table::INVENTORYLOCATIONS, 'addressId', CraftTable::ELEMENTS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'inventoryLocationId', Table::INVENTORYLOCATIONS, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYLOCATIONS_STORES, 'storeId', Table::STORES, 'id', 'CASCADE', null);
         $this->addForeignKey(null, Table::INVENTORYTRANSACTIONS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'CASCADE', null);
@@ -1238,12 +1239,14 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SALE_PURCHASABLES, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['saleId'], Table::SALES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SALE_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id']);
-        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id']);
+        $this->addForeignKey(null, Table::SHIPPINGCATEGORIES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::SHIPPINGMETHODS, ['storeId'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONES, ['storeId'], Table::STORES, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::STORESETTINGS, ['locationAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::STORESETTINGS, ['id'], Table::STORES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
@@ -1281,18 +1284,45 @@ class Install extends Migration
     public function insertDefaultData(): void
     {
         // Don't make the same config changes twice
-        $installed = (Craft::$app->projectConfig->get('plugins.commerce', true) !== null);
-        $configExists = (Craft::$app->projectConfig->get('commerce', true) !== null);
+        $projectConfig = Craft::$app->getProjectConfig();
+        $installedInProjectConfig = ($projectConfig->get('plugins.commerce', true) !== null);
+        $configExists = ($projectConfig->get('commerce', true) !== null);
 
-        if (!$installed && !$configExists) {
+        if (!$installedInProjectConfig && !$configExists) {
             $this->_insertPrimaryStore();
             $this->_defaultGateways();
+        } elseif ($installedInProjectConfig) {
+
+            // Start fix for a bad commerce project config from the 5.0.0-beta.1
+            // TODO: Remove this in the next major release
+            $commerce = $projectConfig->get('commerce', true);
+
+            foreach (array_keys($commerce) as $key) {
+                // Look for the bad store key
+                if (StringHelper::startsWith('stores',$key) && StringHelper::length($key) > 6) {
+                    $uid = substr($key, 7);
+                    // Move the data to the correct location for stores
+                    $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $uid, $commerce[$key]);
+                }
+            }
+            // Finish fix for a bad commerce project config from the 5.0.0-beta.1
+
+            // Install a primary store if it isn't in the config
+            $stores = $projectConfig->get(Stores::CONFIG_STORES_KEY, true);
+            if (!$configExists || !$stores || !ArrayHelper::firstWhere($stores, 'primary', true)) {
+                $this->_insertPrimaryStore();
+            }
+
+            // Install the default gateways if they aren't in the config
+            $gateways = $projectConfig->get(Gateways::CONFIG_GATEWAY_KEY, true);
+            if (!$configExists || !$gateways) {
+                $this->_defaultGateways();
+            }
         }
 
         // The following defaults are not stored in the project config.
         $this->_defaultTaxCategories();
         $this->_defaultInventoryLocation();
-        $this->_defaultDonationPurchasable();
     }
 
     /**
@@ -1336,22 +1366,6 @@ class Install extends Migration
         }
     }
 
-    /**
-     * Add the donation purchasable
-     */
-    public function _defaultDonationPurchasable(): void
-    {
-        $primaryStore = Plugin::getInstance()->getStores()->getPrimaryStore();
-        $primarySite = Craft::$app->getSites()->getPrimarySite();
-        $donation = new Donation();
-        $donation->siteId = $primarySite->id;
-        $donation->sku = 'DONATION-CC5';
-        $donation->availableForPurchase = false;
-        $donation->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-        $donation->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($primaryStore->id)->id;
-        Craft::$app->getElements()->saveElement($donation);
-    }
-
     private function _insertPrimaryStore(): void
     {
         $store = Craft::createObject([
@@ -1384,7 +1398,6 @@ class Install extends Migration
             'handle' => 'dummy',
             'isFrontendEnabled' => true,
             'isArchived' => false,
-            'storeId' => $this->_getPrimaryStoreId(),
         ];
         $gateway = new Dummy($data);
         Plugin::getInstance()->getGateways()->saveGateway($gateway);
@@ -1427,17 +1440,5 @@ class Install extends Migration
     {
         $class = new ReflectionClass(Table::class);
         return $class->getConstants();
-    }
-
-    /**
-     * @return int|null
-     */
-    private function _getPrimaryStoreId(): ?int
-    {
-        if ($this->_primaryStoreId === null) {
-            $this->_primaryStoreId = (new Query())->from(Table::STORES)->select(['id'])->scalar();
-        }
-
-        return $this->_primaryStoreId;
     }
 }

@@ -32,7 +32,7 @@
                 <a class="formsubmit"
                    data-action="commerce/shipping-rules/duplicate"
                    data-confirm="{{ 'Are you sure you want to save this as a new shipping rule?'|t('commerce') }}"
-                   data-redirect="{{ 'commerce/shipping/shippingmethods/{methodId}#rules'|hash }}">
+                   data-redirect="{{ "commerce/store-management/#{storeHandle}/shippingmethods/{methodId}#rules"|hash }}">
                     {{ "Save as a new rule"|t('commerce') }}
                 </a>
             </li>
@@ -44,7 +44,7 @@
                 <a class="formsubmit error"
                    data-action="commerce/shipping-rules/delete"
                    data-confirm="{{ 'Are you sure you want to delete this shipping rule?'|t('commerce') }}"
-                   data-redirect="{{ 'commerce/shipping/shippingmethods/{methodId}#rules'|hash }}">
+                   data-redirect="{{ "commerce/store-management/#{storeHandle}/shippingmethods/{methodId}#rules"|hash }}">
                     {{ 'Delete'|t('commerce') }}
                 </a>
             </li>
@@ -136,7 +136,6 @@
                 instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping rule should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
                     url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
                 }),
-                warning: 'Blah',
                 errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
                 } %}
                 {% block input %}

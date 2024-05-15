@@ -16,6 +16,7 @@ use craft\commerce\web\assets\inventory\InventoryAsset;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -61,7 +62,7 @@ class PurchasableStockField extends BaseNativeField
 
         $view = Craft::$app->getView();
 
-        $totalStock = $element->getSaleableTotalStock();
+        $totalStock = $element->getStock();
         $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($element);
 
         $availableStockLabel = Craft::t('commerce', '{total} saleable across {locationCount} location(s)', [
@@ -72,7 +73,7 @@ class PurchasableStockField extends BaseNativeField
         $editInventoryItemId = sprintf('action-edit-inventory-item-%s', mt_rand());
         $view->registerJsWithVars(fn($id, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
-    e.preventDefault();
+  e.preventDefault();
   const slideout = new Craft.CpScreenSlideout('commerce/inventory/item-edit', $settings);
 });
 JS, [
@@ -91,6 +92,7 @@ JS, [
                 'params' => [
                     'inventoryLocationId' => $inventoryLevel->getInventoryLocation()->id,
                     'ids[]' => [$element->inventoryItemId],
+                    'type' => 'available',
                 ],
             ];
 
@@ -99,7 +101,9 @@ $('#' + $id).on('click', (e) => {
     e.preventDefault();
   const slideout = new Craft.Commerce.UpdateInventoryLevelModal($settings);
   slideout.on('submit', (e) => {
-    console.log(e.response.data);
+    if(e.response.data.updatedItems.length > 0 && e.response.data.updatedItems[0].availableTotal !== undefined) {
+      $('#' + $updatedValueId).html(e.response.data.updatedItems[0].availableTotal);
+    }
   });
 });
 JS, [
@@ -125,9 +129,12 @@ JS, [
                 Html::endTag('div') .
                 Html::endTag('td') .
                 Html::beginTag('td') .
+                (Craft::$app->getUser()->checkPermission('commerce-manageInventoryStockLevels') ?
                 Html::a(
                     Craft::t('commerce', 'Manage'),
-                    'commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle,
+                    UrlHelper::cpUrl('commerce/inventory/levels/' . $inventoryLevel->getInventoryLocation()->handle, [
+                        'inventoryItemId' => $inventoryLevel->getInventoryItem()->id,
+                    ]),
                     [
                         'target' => '_blank',
                         'class' => 'btn small',
@@ -135,7 +142,7 @@ JS, [
                         'aria-label' => Craft::t('app', 'Open in a new tab'),
                         'data-icon' => 'external',
                     ]
-                ) .
+                ) : '') .
                 Html::endTag('td') .
                 Html::endTag('tr');
         }

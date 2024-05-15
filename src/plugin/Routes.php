@@ -37,6 +37,11 @@ trait Routes
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
 
+            // User edit screen
+            $event->rules['myaccount/commerce'] = 'commerce/users/index';
+            $event->rules['users/<userId:\d+>/commerce'] = 'commerce/users/index';
+
+            // Products / Variants
             $event->rules['commerce/products'] = 'commerce/products/product-index';
             $event->rules['commerce/variants'] = 'commerce/variants/index';
             $event->rules['commerce/products/<productTypeHandle:{handle}>'] = 'commerce/products/product-index';
@@ -49,19 +54,23 @@ trait Routes
             $event->rules['commerce/subscriptions/<plan:{handle}>'] = 'commerce/subscriptions/index';
             $event->rules['commerce/subscriptions/<subscriptionId:\d+>'] = 'commerce/subscriptions/edit';
 
+            // Subscription plans
+            $event->rules['commerce/subscription-plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/subscription-plans/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/subscription-plans/new'] = 'commerce/plans/edit-plan';
+
+            // Product Types
             $event->rules['commerce/settings/producttypes'] = 'commerce/product-types/product-type-index';
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
+            // Orders
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
 
             $event->rules['commerce/orders/<storeHandle:{handle}>/create'] = 'commerce/orders/create';
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
-
-            // Prices
-            $event->rules['commerce/prices'] = 'commerce/catalog-pricing/index';
 
             // Settings
 
@@ -105,11 +114,6 @@ trait Routes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/new'] = 'commerce/payment-currencies/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies/<id:\d+>'] = 'commerce/payment-currencies/edit';
 
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/donation'] = 'commerce/donations/edit';
-
-            // Inventory
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/inventory-locations'] = 'commerce/inventory-locations-stores/index';
-
             // Shipping
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones'] = 'commerce/shipping-zones/index';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingzones/new'] = 'commerce/shipping-zones/edit';
@@ -125,11 +129,6 @@ trait Routes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
-            // Subscription plans
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
-
             // Taxes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories'] = 'commerce/tax-categories/index';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxcategories/new'] = 'commerce/tax-categories/edit';
@@ -142,13 +141,20 @@ trait Routes
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
+            // Sales
             $event->rules['commerce/store-management/<storeHandle:{handle}>/sales'] = 'commerce/sales/index';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/sales/<id:\d+>'] = 'commerce/sales/edit';
 
+            // Discounts
             $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/store-management/<storeHandle:{handle}>/discounts/<id:\d+>'] = 'commerce/discounts/edit';
+
+            // Pricing
+            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules'] = 'commerce/catalog-pricing-rules/index';
+            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
+            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
 
             // Inventory
             $event->rules['commerce/inventory'] = 'commerce/inventory/edit-location-levels'; // redirect to the first location
@@ -157,16 +163,12 @@ trait Routes
             $event->rules['commerce/inventory/item/<inventoryItemId:\d+>'] = 'commerce/inventory/item-edit';
             $event->rules['commerce/inventory/levels/<inventoryLocationHandle:{handle}>'] = 'commerce/inventory/edit-location-levels';
 
-            $event->rules['commerce/inventory/locations'] = 'commerce/inventory-locations/index';
-            $event->rules['commerce/inventory/locations/new'] = 'commerce/inventory-locations/edit';
-            $event->rules['commerce/inventory/locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
+            $event->rules['commerce/inventory-locations'] = 'commerce/inventory-locations/index';
+            $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
+            $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
 
-            $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
-            $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
-
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules'] = 'commerce/catalog-pricing-rules/index';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/new'] = 'commerce/catalog-pricing-rules/edit';
-            $event->rules['commerce/store-management/<storeHandle:{handle}>/pricing-rules/<id:\d+>'] = 'commerce/catalog-pricing-rules/edit';
+            // Donations
+            $event->rules['commerce/donations'] = 'commerce/donations/edit';
         });
     }
 }

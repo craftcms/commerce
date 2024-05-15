@@ -48,15 +48,19 @@
                 value: null,
                 options: availableSiteOptions,
             }) }}
-
-            {{ forms.selectField({
-                label: "Currency"|t('commerce'),
-                id: 'currency',
-                name: 'currency',
-                value: store.currency,
-                options: currencyOptions
-            }) }}
         {% endif %}
+
+        {{ forms.selectField({
+            label: "Currency"|t('commerce'),
+            id: 'currency',
+            name: 'currency',
+            value: store.currency,
+            options: currencyOptions,
+            errors: store.getErrors('currency'),
+            disabled: not allowCurrencyChange,
+            required: true,
+            tip: not allowCurrencyChange ? 'The primary currency cannot be changed after orders are placed.'|t('commerce') : null,
+        }) }}
 
         {% if not store.primary %}
             {{ forms.lightswitchField({

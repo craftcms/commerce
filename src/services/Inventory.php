@@ -27,10 +27,13 @@ use craft\commerce\models\InventoryTransaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryItem as InventoryItemRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\helpers\Db;
 use Illuminate\Support\Collection;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
+use yii\db\Expression;
 
 /**
  * Inventory service.
@@ -111,11 +114,13 @@ class Inventory extends Component
      * Returns an inventory level model which is the sum of all inventory movements types for an item in a location.
      *
      * @param InventoryItem $inventoryItem
+     * @param InventoryLocation $inventoryLocation
+     * @param bool $withTrashed
      * @return ?InventoryLevel
      */
-    public function getInventoryLevel(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): ?InventoryLevel
+    public function getInventoryLevel(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation, bool $withTrashed = false): ?InventoryLevel
     {
-        $result = $this->getInventoryLevelQuery()
+        $result = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere([
                 'inventoryLocationId' => $inventoryLocation->id,
                 'inventoryItemId' => $inventoryItem->id,
@@ -191,12 +196,14 @@ class Inventory extends Component
     }
 
     /**
-     * @param $inventoryLocation
+     * @param InventoryLocation $inventoryLocation
+     * @param bool $withTrashed
      * @return Collection
+     * @throws InvalidConfigException
      */
-    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation): Collection
+    public function getInventoryLocationLevels(InventoryLocation $inventoryLocation, bool $withTrashed = false): Collection
     {
-        $levels = $this->getInventoryLevelQuery()
+        $levels = $this->getInventoryLevelQuery(withTrashed: $withTrashed)
             ->andWhere(['inventoryLocationId' => $inventoryLocation->id])
             ->collect();
 
@@ -215,42 +222,48 @@ class Inventory extends Component
      *
      * @param int|null $limit
      * @param int|null $offset
+     * @param bool $withTrashed
      * @return Query
      */
-    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null): Query
+    public function getInventoryLevelQuery(?int $limit = null, ?int $offset = null, bool $withTrashed = false): Query
     {
         $inventoryTotals = (new Query())
             ->select([
-                'il.id as inventoryLocationId',
-                'ii.id as inventoryItemId',
-                'im.type',
-                'COALESCE(SUM(im.quantity), 0) as quantity',
+                'inventoryLocationId' => '[[il.id]]',
+                'inventoryItemId' => '[[ii.id]]',
+                'type' => '[[it.type]]',
+                'quantity' => (new Expression('COALESCE(SUM([[it.quantity]]), 0)')),
             ])
             ->from(['il' => Table::INVENTORYLOCATIONS]) // we want a record for every location and...
-            ->join('JOIN', ['ii' => Table::INVENTORYITEMS]) //  we want a record for every location and item
-            ->leftJoin(['im' => Table::INVENTORYTRANSACTIONS], "im.inventoryLocationId = il.id and ii.id = im.inventoryItemId")
-            ->groupBy(['il.id', 'ii.id', 'im.type']);
+            ->join('CROSS JOIN', ['ii' => Table::INVENTORYITEMS]) // ...every inventory item
+            ->leftJoin(['it' => Table::INVENTORYTRANSACTIONS], "[[il.id]] = [[it.inventoryLocationId]] AND [[ii.id]] = [[it.inventoryItemId]]")
+            ->groupBy(['[[il.id]]', '[[ii.id]]', '[[it.type]]']);
 
         $query = (new Query())
             ->select([
-                'ii.id as inventoryItemId',
-                'ii.purchasableId as purchasableId',
-                'it.inventoryLocationId as inventoryLocationId',
-                'SUM(CASE WHEN [[it.type]] = "available" THEN [[it.quantity]] ELSE 0 END) as availableTotal',
-                'SUM(CASE WHEN [[it.type]] = "committed" THEN [[it.quantity]] ELSE 0 END) as committedTotal',
-                'SUM(CASE WHEN [[it.type]] = "reserved" THEN [[it.quantity]] ELSE 0 END) as reservedTotal',
-                'SUM(CASE WHEN [[it.type]] = "damaged" THEN [[it.quantity]] ELSE 0 END) as damagedTotal',
-                'SUM(CASE WHEN [[it.type]] = "safety" THEN [[it.quantity]] ELSE 0 END) as safetyTotal',
-                'SUM(CASE WHEN [[it.type]] = "qualityControl" THEN [[it.quantity]] ELSE 0 END) as qualityControlTotal',
-                'SUM(CASE WHEN [[it.type]] = "incoming" THEN [[it.quantity]] ELSE 0 END) as incomingTotal',
-                'SUM(CASE WHEN [[it.type]] IN ("qualityControl","safety","damaged","reserved") THEN [[it.quantity]] ELSE 0 END) as unavailableTotal',
-                'SUM(CASE WHEN [[it.type]] IN ("qualityControl","safety","damaged","reserved", "available", "committed") THEN [[it.quantity]] ELSE 0 END) as onHandTotal',
+                '[[ii.id]] as inventoryItemId',
+                '[[ii.purchasableId]] as purchasableId',
+                '[[it.inventoryLocationId]] as inventoryLocationId',
+                'SUM(CASE WHEN [[it.type]] = \'available\' THEN [[it.quantity]] ELSE 0 END) as availableTotal',
+                'SUM(CASE WHEN [[it.type]] = \'committed\' THEN [[it.quantity]] ELSE 0 END) as committedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'reserved\' THEN [[it.quantity]] ELSE 0 END) as reservedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'damaged\' THEN [[it.quantity]] ELSE 0 END) as damagedTotal',
+                'SUM(CASE WHEN [[it.type]] = \'safety\' THEN [[it.quantity]] ELSE 0 END) as safetyTotal',
+                'SUM(CASE WHEN [[it.type]] = \'qualityControl\' THEN [[it.quantity]] ELSE 0 END) as qualityControlTotal',
+                'SUM(CASE WHEN [[it.type]] = \'incoming\' THEN [[it.quantity]] ELSE 0 END) as incomingTotal',
+                'SUM(CASE WHEN [[it.type]] IN (\'qualityControl\',\'safety\',\'damaged\',\'reserved\') THEN [[it.quantity]] ELSE 0 END) as unavailableTotal',
+                'SUM(CASE WHEN [[it.type]] IN (\'qualityControl\',\'safety\',\'damaged\',\'reserved\', \'available\', \'committed\') THEN [[it.quantity]] ELSE 0 END) as onHandTotal',
             ])
             ->from(['ii' => Table::INVENTORYITEMS])
             ->leftJoin(['it' => $inventoryTotals], '[[it.inventoryItemId]] = [[ii.id]]')
-            ->groupBy(['ii.id', 'it.inventoryLocationId'])
+            ->groupBy(["[[ii.id]]", "[[ii.purchasableId]]", "[[it.inventoryLocationId]]"])
             ->limit($limit)
             ->offset($offset);
+
+        if (!$withTrashed) {
+            $query->leftJoin(['elements' => CraftTable::ELEMENTS], '[[ii.purchasableId]] = [[elements.id]]');
+            $query->andWhere(['elements.dateDeleted' => null]);
+        }
 
         return $query;
     }
@@ -273,6 +286,8 @@ class Inventory extends Component
 
     /**
      * @param UpdateInventoryLevelCollection $updateInventoryLevels
+     * @return bool
+     * @throws Exception
      */
     public function executeUpdateInventoryLevels(UpdateInventoryLevelCollection $updateInventoryLevels): bool
     {
@@ -459,6 +474,8 @@ class Inventory extends Component
     }
 
     /**
+     * @param InventoryItem $inventoryItem
+     * @param InventoryLocation $inventoryLocation
      * @return array
      */
     public function getUnfulfilledOrders(InventoryItem $inventoryItem, InventoryLocation $inventoryLocation): array
@@ -547,10 +564,10 @@ class Inventory extends Component
                     '[[it.inventoryItemId]]',
                     '[[it.inventoryLocationId]]',
 
-                    'SUM(CASE WHEN (([[type]] = :committedType AND quantity > 0) OR ([[type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
+                    'SUM(CASE WHEN (([[it.type]] = :committedType AND quantity > 0) OR ([[it.type]] = :fulfilledType AND quantity < 0)) THEN [[quantity]] ELSE 0 END) AS committedQuantity',
 
-                    'SUM(CASE WHEN [[type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
-                    'SUM(CASE WHEN [[type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
+                    'SUM(CASE WHEN [[it.type]] = :committedType THEN [[quantity]] ELSE 0 END) AS outstandingCommittedQuantity',
+                    'SUM(CASE WHEN [[it.type]] = :fulfilledType THEN [[quantity]] ELSE 0 END) AS fulfilledQuantity',
                 ])
                 ->from(['it' => Table::INVENTORYTRANSACTIONS])
                 ->andWhere([
@@ -558,8 +575,8 @@ class Inventory extends Component
                     '[[it.inventoryLocationId]]' => $location->id,
                 ])
                 ->andWhere(['or',
-                    ['type' => InventoryTransactionType::COMMITTED->value],
-                    ['type' => InventoryTransactionType::FULFILLED->value],
+                    ['it.type' => InventoryTransactionType::COMMITTED->value],
+                    ['it.type' => InventoryTransactionType::FULFILLED->value],
                 ])
                 ->groupBy([
                     '[[it.lineItemId]]',
@@ -606,7 +623,7 @@ class Inventory extends Component
         $selectedInventoryLevelForItem = [];
         /**
          * @var  int $purchasableId
-         * @var  InventoryLevel $inventoryLevel
+         * @var  InventoryLevel $inventoryLevels
          */
         foreach ($allInventoryLevels as $purchasableId => $inventoryLevels) {
             foreach ($inventoryLevels as $level) {
@@ -628,11 +645,26 @@ class Inventory extends Component
 
         $movements = InventoryMovementCollection::make();
 
+        $reserveAmountByPurchasableId = [];
+        $availableTotalByPurchasableIdAndLocationId = [];
+
+        // Loop through line items and create committed movements for the selected inventory location
         foreach ($order->getLineItems() as $lineItem) {
             if (isset($selectedInventoryLevelForItem[$lineItem->purchasableId])) {
                 $level = $selectedInventoryLevelForItem[$lineItem->purchasableId];
 
-                $splitableReserved = $qtyLineItem[$lineItem->purchasableId] - $level->availableTotal;
+                if (!isset($reserveAmountByPurchasableId[$lineItem->purchasableId])) {
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = $level->availableTotal;
+                    $reserveAmountByPurchasableId[$lineItem->purchasableId] = [];
+                }
+
+                if ($lineItem->qty > $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId]) {
+                    $totalToReserveForLineItem = $lineItem->qty - $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId];
+                    $reserveAmountByPurchasableId[$lineItem->purchasableId][$lineItem->id] = $totalToReserveForLineItem;
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] = 0;
+                } else {
+                    $availableTotalByPurchasableIdAndLocationId[$lineItem->purchasableId . '-' . $level->inventoryLocationId] -= $lineItem->qty;
+                }
 
                 $movements->push(new InventoryCommittedMovement([
                     'inventoryItem' => $level->getInventoryItem(),
@@ -643,32 +675,47 @@ class Inventory extends Component
                     'quantity' => $lineItem->qty,
                     'lineItemId' => $lineItem->id,
                 ]));
+            }
+        }
 
-                if ($splitableReserved > 0) {
-                    foreach ($allInventoryLevels[$lineItem->purchasableId] as $inventoryLevel) {
-                        if ($level !== $inventoryLevel) {
-                            $availableInThisLocation = $inventoryLevel->availableTotal - $splitableReserved;
-                            $reserveAmount = $availableInThisLocation < 0 ? $inventoryLevel->availableTotal : $splitableReserved;
-                            if ($reserveAmount > 0) {
-                                $movements->push(new InventoryManualMovement([
-                                    'inventoryItem' => $inventoryLevel->getInventoryItem(),
-                                    'fromInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                                    'toInventoryLocation' => $inventoryLevel->getInventoryLocation(),
-                                    'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
-                                    'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
-                                    'quantity' => $reserveAmount,
-                                    'lineItemId' => $lineItem->id,
-                                    'note' => 'Reserved for transfer from ' . $inventoryLevel->getInventoryLocation()->name . ' to ' . $level->getInventoryLocation()->name . ' for order ' . $order->getShortNumber(),
-                                ]));
+        // Loop through reserve amounts to reserve the remaining stock in the other inventory locations
+        foreach ($reserveAmountByPurchasableId as $purchasableId => $r) {
+            foreach ($r as $lineItemId => $qty) {
+                foreach ($allInventoryLevels[$purchasableId] as $level) {
+                    if ($level === $selectedInventoryLevelForItem[$purchasableId]) {
+                        continue;
+                    }
 
-                                $splitableReserved -= $reserveAmount;
-                            }
-                        }
+                    if (!isset($availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId])) {
+                        $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId] = $level->availableTotal;
+                    }
+
+                    $canReserveFullQty = $qty <= $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId];
+                    $qtyToReserve = $canReserveFullQty ? $qty : $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId];
+
+                    if ($qtyToReserve < 1) {
+                        break;
+                    }
+
+                    $availableTotalByPurchasableIdAndLocationId[$purchasableId . '-' . $level->inventoryLocationId] -= $qtyToReserve;
+
+                    $movements->push(new InventoryManualMovement([
+                        'inventoryItem' => $level->getInventoryItem(),
+                        'fromInventoryLocation' => $level->getInventoryLocation(),
+                        'toInventoryLocation' => $level->getInventoryLocation(),
+                        'fromInventoryTransactionType' => InventoryTransactionType::AVAILABLE,
+                        'toInventoryTransactionType' => InventoryTransactionType::RESERVED,
+                        'quantity' => $qtyToReserve,
+                        'lineItemId' => $lineItemId,
+                    ]));
+
+                    $qty -= $qtyToReserve;
+                    if ($qty <= 0) {
+                        break;
                     }
                 }
             }
         }
-
 
         $this->executeInventoryMovements($movements);
 

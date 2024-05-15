@@ -14,6 +14,7 @@ use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -223,7 +224,7 @@ class OrderStatuses extends Component
      */
     public function getOrderCountByStatus(?int $storeId = null): array
     {
-        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getPrimaryStore()->id;
+        $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
@@ -288,17 +289,7 @@ class OrderStatuses extends Component
         if ($orderStatus->dateDeleted) {
             $configData = null;
         } else {
-            $emails = Db::uidsByIds(Table::EMAILS, $emailIds);
-            $configData = [
-                'name' => $orderStatus->name,
-                'handle' => $orderStatus->handle,
-                'color' => $orderStatus->color,
-                'description' => $orderStatus->description,
-                'sortOrder' => $orderStatus->sortOrder ?? 99,
-                'default' => $orderStatus->default,
-                'emails' => array_combine($emails, $emails),
-                'store' => $orderStatus->getStore()->uid,
-            ];
+            $configData = $orderStatus->getConfig($emailIds);
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
@@ -330,6 +321,8 @@ class OrderStatuses extends Component
      */
     public function handleChangedOrderStatus(ConfigEvent $event)
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
 

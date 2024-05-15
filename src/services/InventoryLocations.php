@@ -10,9 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Transfer;
 use craft\commerce\enums\InventoryTransactionType;
-use craft\commerce\enums\TransferStatusType;
 use craft\commerce\models\inventory\DeactivateInventoryLocation;
 use craft\commerce\models\inventory\InventoryLocationDeactivatedMovement;
 use craft\commerce\models\InventoryLevel;
@@ -58,9 +56,9 @@ class InventoryLocations extends Component
      * @param bool $withTrashed
      * @return InventoryLocation|null The inventory location or null if not found.
      */
-    public function getInventoryLocationById(int $id, $withTrashed = false): ?InventoryLocation
+    public function getInventoryLocationById(int $id, bool $withTrashed = false): ?InventoryLocation
     {
-        return $this->_getAllInventoryLocations()->firstWhere('id', $id);
+        return $this->_getAllInventoryLocations($withTrashed)->firstWhere('id', $id);
     }
 
     /**
@@ -143,17 +141,17 @@ class InventoryLocations extends Component
             $inventoryLocationRecord = InventoryLocationRecord::findOne($deactivateInventoryLocation->inventoryLocation->id);
 
             // Get draft transfers that are destinations for the deactivated inventory location
-            /** @var Transfer $draftTransfers */
-            $draftTransfers = Transfer::find()
-                ->transferStatus(TransferStatusType::DRAFT)
-                ->destinationLocation($deactivateInventoryLocation->inventoryLocation)
-                ->all();
+//            /** @var Transfer $draftTransfers */
+//            $draftTransfers = Transfer::find()
+//                ->transferStatus(TransferStatusType::DRAFT)
+//                ->destinationLocation($deactivateInventoryLocation->inventoryLocation)
+//                ->all();
 
             // Switch the draft transfer to the new destination location
-            foreach ($draftTransfers as $draftTransfer) {
-                $draftTransfer->destinationLocationId = $deactivateInventoryLocation->destinationInventoryLocation->id;
-                Craft::$app->getElements()->saveElement($draftTransfer, false);
-            }
+//            foreach ($draftTransfers as $draftTransfer) {
+//                $draftTransfer->destinationLocationId = $deactivateInventoryLocation->destinationInventoryLocation->id;
+//                Craft::$app->getElements()->saveElement($draftTransfer, false);
+//            }
 
             // TODO: Add draft purchase order swapping
 

@@ -1,0 +1,19 @@
+{% set storeSettingsNav = storeSettingsNav is defined ? storeSettingsNav : [] %}
+{% set store = store is defined ? store : null %}
+{% set selectedItem = selectedItem is defined ? selectedItem : null %}
+
+{% if store and  storeSettingsNav|length %}
+  <nav>
+    <ul>
+      {% for handle, item in storeSettingsNav %}
+        {% if item.heading is defined %}
+          <li class="heading"><span>{{ item.heading }}</span></li>
+        {% else %}
+          <li>
+            <a href="{{ store.getStoreSettingsUrl(item.path) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.label }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </nav>
+{% endif %}

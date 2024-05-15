@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -16,6 +17,7 @@ use craft\errors\BusyResourceException;
 use craft\errors\StaleResourceException;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use Illuminate\Support\Collection;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -44,6 +46,7 @@ class StoresController extends BaseStoreManagementController
         $storesService = Plugin::getInstance()->getStores();
 
         $brandNewStore = false;
+        $allowCurrencyChange = false;
 
         if ($storeId !== null) {
             if ($storeModel === null) {
@@ -59,6 +62,7 @@ class StoresController extends BaseStoreManagementController
             if ($storeModel === null) {
                 $storeModel = new Store();
                 $brandNewStore = true;
+                $allowCurrencyChange = true;
             }
 
             $title = Craft::t('app', 'Create a new Store');
@@ -76,6 +80,19 @@ class StoresController extends BaseStoreManagementController
             ],
         ];
 
+        $hasOrders = $storeModel->id && (new Query())
+                ->from(['orders' => Table::ORDERS])
+                ->leftJoin(\craft\db\Table::ELEMENTS . ' el', '[[el.id]] = [[orders.id]]')
+                ->where([
+                    'storeId' => $storeModel->id,
+                    'el.dateDeleted' => null,
+                ])
+                ->exists();
+
+        if (!$hasOrders) {
+            $allowCurrencyChange = true;
+        }
+
         // map sites into select box options array
         $availableSiteOptions = collect(Craft::$app->getSites()->getAllSites())->map(function($site) {
             $availableForAssignmentToNewStores = Plugin::getInstance()->getStores()->getSiteIdsAvailableForAssignmentToNewStores();
@@ -90,6 +107,7 @@ class StoresController extends BaseStoreManagementController
 
         return $this->renderTemplate('commerce/settings/stores/_edit', [
             'brandNewStore' => $brandNewStore,
+            'allowCurrencyChange' => $allowCurrencyChange,
             'title' => $title,
             'crumbs' => $crumbs,
             'store' => $storeModel,
@@ -142,9 +160,10 @@ class StoresController extends BaseStoreManagementController
         $store->setRequireShippingMethodSelectionAtCheckout($this->request->getBodyParam('requireShippingMethodSelectionAtCheckout'));
         $store->setUseBillingAddressForTax($this->request->getBodyParam('useBillingAddressForTax'));
         $store->setValidateOrganizationTaxIdAsVatId($this->request->getBodyParam('validateOrganizationTaxIdAsVatId'));
-        $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat', ''));
+        $store->setOrderReferenceFormat($this->request->getBodyParam('orderReferenceFormat'));
         $store->setFreeOrderPaymentStrategy($this->request->getBodyParam('freeOrderPaymentStrategy'));
         $store->setMinimumTotalPriceStrategy($this->request->getBodyParam('minimumTotalPriceStrategy'));
+        $store->primary = (bool)$this->request->getBodyParam('primary', $store->primary);
 
         if ($currency = $this->request->getBodyParam('currency')) {
             $store->setCurrency($currency);
@@ -247,11 +266,11 @@ class StoresController extends BaseStoreManagementController
     }
 
     /**
-     * @param array|null $siteStores
+     * @param Collection|null $sitesStores
      * @return Response
      * @throws InvalidConfigException
      */
-    public function actionEditSiteStores(array $siteStores = null): Response
+    public function actionEditSiteStores(Collection $sitesStores = null): Response
     {
         // Breadcrumbs
         $crumbs = [
@@ -264,7 +283,8 @@ class StoresController extends BaseStoreManagementController
         return $this->renderTemplate('commerce/settings/stores/_siteStore', [
             'crumbs' => $crumbs,
             'stores' => Plugin::getInstance()->getStores()->getAllStores(),
-            'sitesStores' => $siteStores ?? Plugin::getInstance()->getStores()->getAllSiteStores(),
+            'sites' => Craft::$app->getSites()->getAllSites(),
+            'sitesStores' => $sitesStores ?? Plugin::getInstance()->getStores()->getAllSiteStores(),
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
         ]);
     }
@@ -277,10 +297,10 @@ class StoresController extends BaseStoreManagementController
     public function actionSaveSiteStores(): ?Response
     {
         $siteStoresData = $this->request->getBodyParam('siteStores', []);
-        $siteStores = Plugin::getInstance()->getStores()->getAllSiteStores();
+        $sitesStores = Plugin::getInstance()->getStores()->getAllSiteStores();
         $stores = Plugin::getInstance()->getStores()->getAllStores();
 
-        foreach ($siteStores as $siteStore) {
+        foreach ($sitesStores as $siteStore) {
             if (isset($siteStoresData[$siteStore->siteId])) {
                 $siteStore->storeId = $siteStoresData[$siteStore->siteId]['storeId'];
             }
@@ -289,7 +309,7 @@ class StoresController extends BaseStoreManagementController
         $unassignedStores = [];
         foreach ($stores as $store) {
             $storeAssigned = false;
-            foreach ($siteStores as $siteStore) {
+            foreach ($sitesStores as $siteStore) {
                 if ($siteStore->storeId == $store->id) {
                     $storeAssigned = true;
                 }
@@ -300,14 +320,15 @@ class StoresController extends BaseStoreManagementController
         }
         if ($unassignedStores) {
             return $this->asFailure(
-                Craft::t('commerce', '{storeNames} have not been assigned to a site.', [
+                Craft::t('commerce', '{storeNames} {num, plural, =1{has} other{have}} not been assigned to a site.', [
                     'storeNames' => implode(', ', $unassignedStores),
+                    'num' => count($unassignedStores),
                 ]),
-                routeParams: ['siteStores' => $siteStores]
+                routeParams: ['sitesStores' => collect($sitesStores)]
             );
         }
 
-        foreach ($siteStores as $siteStore) {
+        foreach ($sitesStores as $siteStore) {
             Plugin::getInstance()->getStores()->saveSiteStore($siteStore);
         }
 

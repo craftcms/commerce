@@ -286,7 +286,7 @@ class CatalogPricingRulesController extends BaseStoreManagementController
 
 
         if (empty($ids)) {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated catalog pricing rules status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update catalog pricing rule statuses.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();

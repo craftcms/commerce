@@ -1,16 +1,6 @@
-{% extends "commerce/_layouts/store-management" %}
-{% set hasStoreSelector = false %}
-{% set selectedTab = 'donation' %}
 {% import "_includes/forms" as forms %}
 
 {% block content %}
-<h2>{{ "Donation Settings"|t('commerce') }}</h2>
-
-<form method="post" accept-charset="UTF-8" data-saveshortcut>
-    <input type="hidden" name="action" value="commerce/donations/save">
-    {{ redirectInput("commerce/store-management/#{store.handle}/donation") }}
-    {{ csrfInput() }}
-
     {% tag 'div' with {
         id: 'donation-available-sku',
         class: not donation.enabled ? 'hidden' : '',
@@ -49,9 +39,4 @@
         errors: donation.getErrors('enabled'),
         toggle: 'donation-available-sku',
     }) }}
-
-    <div class="buttons">
-        <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
-    </div>
-</form>
 {% endblock %}

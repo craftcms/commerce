@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\elements\VariantCollection;
+use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -399,7 +400,7 @@ class VariantQuery extends PurchasableQuery
      */
     public function collect(?Connection $db = null): VariantCollection
     {
-        /** @phpstan-ignore-next-line  */
+        /** @phpstan-ignore-next-line */
         return VariantCollection::make(parent::collect($db));
     }
 
@@ -483,22 +484,10 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->hasSales)) {
-            // We can't just clone the query as it may be modifying the select statement etc (i.e in the product query‘s hasVariant param)
-            // But we want to use the same conditions so that we improve performance over searching all variants
-            $query = Variant::find();
-            foreach ($this->criteriaAttributes() as $attribute) {
-                $query->$attribute = $this->$attribute;
+            if (!Plugin::getInstance()->getSales()->canUseSales()) {
+                Craft::$app->getDeprecator()->log('VariantQuery::hasSales', 'The `hasSales` parameter and Sales have been deprecated, use Pricing Rules instead.');
+                return false;
             }
-
-            $query->andWhere(['commerce_products.promotable' => true]);
-            unset($query->hasSales);
-            $query->limit = null;
-            $variantIds = $query->ids();
-
-            $productIds = Product::find()
-                ->andWhere(['promotable' => true])
-                ->limit(null)
-                ->ids();
 
             $now = new DateTime();
             $activeSales = (new Query())->select([
@@ -693,6 +682,7 @@ class VariantQuery extends PurchasableQuery
             }
 
             if ($this->hasSales) {
+                $this->subQuery->andWhere(['purchasables_stores.promotable' => true]);
                 $this->subQuery->andWhere($hasSalesCondition);
             } else {
                 $this->subQuery->andWhere(['not', $hasSalesCondition]);
@@ -738,8 +728,8 @@ class VariantQuery extends PurchasableQuery
         if ($this->hasProduct instanceof ProductQuery) {
             $productQuery = $this->hasProduct;
         } elseif (is_array($this->hasProduct)) {
-            $query = Product::find();
-            $productQuery = Craft::configure($query, $this->hasProduct);
+            $productQuery = Product::find();
+            $productQuery = Craft::configure($productQuery, $this->hasProduct);
         } else {
             return;
         }

@@ -35,7 +35,7 @@ use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
+use craft\helpers\Json;
 use DateTime;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -405,7 +405,7 @@ class Discounts extends Component
             $matchPurchasableSubQuery = (new Query())
                 ->from(['subdp' => Table::DISCOUNT_PURCHASABLES])
                 ->where(new Expression('[[subdp.discountId]] = [[discounts.id]]'))
-                ->andWhere(['subdp.purchasableId' => $purchasableIds]);
+                ->andWhere(['[[subdp.purchasableId]]' => $purchasableIds]);
 
             $discountQuery->andWhere(
                 [
@@ -551,6 +551,8 @@ class Discounts extends Component
             return false;
         }
 
+        $siteId = $lineItem->order->orderSiteId ?? Craft::$app->getSites()->getCurrentSite()->id;
+
         if ($lineItem->getOnPromotion() && $discount->excludeOnPromotion) {
             return false;
         }
@@ -573,8 +575,8 @@ class Discounts extends Component
             if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
                 $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
 
-                $relatedEntries = Entry::find()->relatedTo($relatedTo)->ids();
-                $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+                $relatedEntries = Entry::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
+                $relatedCategories = Category::find()->siteId($siteId)->relatedTo($relatedTo)->ids();
 
                 $relatedCategoriesOrEntries = array_merge($relatedEntries, $relatedCategories);
                 $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategoriesOrEntries, $discount->getCategoryIds());
@@ -769,6 +771,8 @@ class Discounts extends Component
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignorePromotions = $model->ignorePromotions;
         $record->appliedTo = $model->appliedTo;
+        $record->purchasableIds = $model->getPurchasableIds();
+        $record->categoryIds = $model->getCategoryIds();
 
         // If the discount is new, set the sort order to be at the top of the list.
         // We will ensure the sort orders are sequential when we save the discount.
@@ -780,9 +784,11 @@ class Discounts extends Component
         $record->categoryRelationshipType = $model->categoryRelationshipType;
         if ($record->allCategories = $model->allCategories) {
             $model->setCategoryIds([]);
+            $record->categoryIds = null;
         }
         if ($record->allPurchasables = $model->allPurchasables) {
             $model->setPurchasableIds([]);
+            $record->purchasableIds = null;
         }
 
         $db = Craft::$app->getDb();
@@ -1268,9 +1274,10 @@ SQL;
     {
         foreach ($discounts as &$discount) {
             // @TODO remove this when we can widen the accepted params on the setters
-            $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? StringHelper::split($discount['purchasableIds']) : [];
+
+            $discount['purchasableIds'] = !empty($discount['purchasableIds']) ? Json::decodeIfJson($discount['purchasableIds'], true) : [];
             // IDs can be either category ID or entry ID due to the entryfication
-            $discount['categoryIds'] = !empty($discount['categoryIds']) ? StringHelper::split($discount['categoryIds']) : [];
+            $discount['categoryIds'] = !empty($discount['categoryIds']) ? Json::decodeIfJson($discount['categoryIds'], true) : [];
             $discount['orderCondition'] = $discount['orderCondition'] ?? '';
             $discount['customerCondition'] = $discount['customerCondition'] ?? '';
             $discount['billingAddressCondition'] = $discount['billingAddressCondition'] ?? '';
@@ -1328,24 +1335,14 @@ SQL;
                 '[[discounts.customerCondition]]',
                 '[[discounts.shippingAddressCondition]]',
                 '[[discounts.billingAddressCondition]]',
+                '[[discounts.purchasableIds]]',
+                '[[discounts.categoryIds]]',
             ])
             ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
             ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
             ->groupBy(['discounts.id']);
-
-        if (Craft::$app->getDb()->getIsPgsql()) {
-            $query->addSelect([
-                'purchasableIds' => new Expression("STRING_AGG([[dp.purchasableId]]::text, ',')"),
-                'categoryIds' => new Expression("STRING_AGG([[dpt.categoryId]]::text, ',')"),
-            ]);
-        } else {
-            $query->addSelect([
-                'purchasableIds' => new Expression('GROUP_CONCAT([[dp.purchasableId]])'),
-                'categoryIds' => new Expression('GROUP_CONCAT([[dpt.categoryId]])'),
-            ]);
-        }
 
         return $query;
     }

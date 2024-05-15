@@ -13,27 +13,13 @@ use craft\helpers\Console;
 use yii\console\ExitCode;
 
 /**
- * Console command to generate catalog pricing.
+ * Manage the pricing catalog.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0
+ * @since 5.0.0
  */
-class CatalogPricingController extends Controller
+class PricingCatalogController extends Controller
 {
-    /**
-     * @inheritdoc
-     */
-    public $defaultAction = 'generate';
-
-    /**
-     * @inheritdoc
-     */
-    public function options($actionID): array
-    {
-        $options = parent::options($actionID);
-        return $options;
-    }
-
     /**
      * Generates catalog pricing.
      */

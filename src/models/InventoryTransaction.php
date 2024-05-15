@@ -123,17 +123,17 @@ class InventoryTransaction extends Model
     /**
      * @return ?Transfer
      */
-    public function getTransfer(): ?Transfer
-    {
-        if (!$this->transferId) {
-            return null;
-        }
-
-        /** @var ?Transfer $transfer */
-        $transfer = Transfer::find()->id($this->transferId)->status(null)->one();
-
-        return $transfer;
-    }
+//    public function getTransfer(): ?Transfer
+//    {
+//        if (!$this->transferId) {
+//            return null;
+//        }
+//
+//        /** @var ?Transfer $transfer */
+//        $transfer = Transfer::find()->id($this->transferId)->status(null)->one();
+//
+//        return $transfer;
+//    }
 
     /**
      * @return ?User

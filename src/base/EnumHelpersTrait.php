@@ -7,6 +7,11 @@
 
 namespace craft\commerce\base;
 
+/**
+ * Trait EnumHelpersTrait
+ *
+ * @since 5.0.0
+ */
 trait EnumHelpersTrait
 {
     public static function names(): array

@@ -13,6 +13,13 @@ use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
+use craft\commerce\services\Emails;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\LineItemStatuses;
+use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\Pdfs;
+use craft\commerce\services\ProductTypes;
+use craft\commerce\services\Stores;
 use craft\db\Query;
 use craft\helpers\Json;
 
@@ -25,17 +32,46 @@ use craft\helpers\Json;
 class ProjectConfigData
 {
     /**
+     * @var bool
+     */
+    private static $_processedStores = false;
+
+    /**
+     * Ensure all stores are processed.
+     *
+     * @param bool $force
+     * @since 5.0.3
+     */
+    public static function ensureAllStoresProcessed(bool $force = false): void
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        if (self::$_processedStores || (!$force && !$projectConfig->getIsApplyingExternalChanges())) {
+            return;
+        }
+
+        self::$_processedStores = true;
+
+        $allStores = $projectConfig->get(Stores::CONFIG_STORES_KEY, true) ?? [];
+
+        foreach ($allStores as $uid => $storeData) {
+            // Ensure store is processed
+            $projectConfig->processConfigChanges(Stores::CONFIG_STORES_KEY . '.' . $uid, $force);
+        }
+    }
+
+    /**
      * Return a rebuilt project config array
      */
     public static function rebuildProjectConfig(): array
     {
         $output = [];
 
-        $output['emails'] = self::_getEmailData();
-        $output['pdfs'] = self::_getPdfData();
-        $output['gateways'] = self::_rebuildGatewayProjectConfig();
-        $output['stores'] = self::_getStoresData();
-        $output['siteStores'] = self::_getSiteStoresData();
+        $output[self::_getProjectConfigKey(Emails::CONFIG_EMAILS_KEY)] = self::_getEmailData();
+        $output[self::_getProjectConfigKey(Pdfs::CONFIG_PDFS_KEY)] = self::_getPdfData();
+        $output[self::_getProjectConfigKey(Gateways::CONFIG_GATEWAY_KEY)] = self::_rebuildGatewayProjectConfig();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_STORES_KEY)] = self::_getStoresData();
+        $output[self::_getProjectConfigKey(Stores::CONFIG_SITESTORES_KEY)] = self::_getSiteStoresData();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
@@ -47,9 +83,9 @@ class ProjectConfigData
             ];
         }
 
-        $output['orderStatuses'] = self::_getStatusData();
-        $output['lineItemStatuses'] = self::_getLineItemStatusData();
-        $output['productTypes'] = self::_getProductTypeData();
+        $output[self::_getProjectConfigKey(OrderStatuses::CONFIG_STATUSES_KEY)] = self::_getStatusData();
+        $output[self::_getProjectConfigKey(LineItemStatuses::CONFIG_STATUSES_KEY)] = self::_getLineItemStatusData();
+        $output[self::_getProjectConfigKey(ProductTypes::CONFIG_PRODUCTTYPES_KEY)] = self::_getProductTypeData();
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
@@ -62,6 +98,17 @@ class ProjectConfigData
         }
 
         return array_filter($output);
+    }
+
+    /**
+     * @param string $key
+     * @return string
+     * @since 5.0.0
+     */
+    private static function _getProjectConfigKey(string $key): string
+    {
+        $configKeyPrefix = 'commerce.';
+        return substr($key, strlen($configKeyPrefix));
     }
 
     /**
@@ -246,52 +293,13 @@ class ProjectConfigData
      */
     private static function _getStatusData(): array
     {
-        $statusData = [];
+        $data = [];
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id) as $status) {
+                $data[$status->uid] = $status->getConfig();
+            }
+        });
 
-        $statusRows = (new Query())
-            ->select([
-                'color',
-                'default',
-                'description',
-                'handle',
-                'id',
-                'name',
-                'sortOrder',
-                'uid',
-            ])
-            ->indexBy('id')
-            ->orderBy('sortOrder')
-            ->from([Table::ORDERSTATUSES])
-            ->all();
-
-        foreach ($statusRows as &$statusRow) {
-            unset($statusRow['id']);
-            $statusRow['emails'] = [];
-        }
-
-        $relationRows = (new Query())
-            ->select([
-                'emailUid' => 'emails.uid',
-                'statusId' => 'relations.orderStatusId',
-            ])
-            ->from([Table::ORDERSTATUS_EMAILS . ' relations'])
-            ->leftJoin(Table::EMAILS . ' emails', '[[emails.id]] = [[relations.emailId]]')
-            ->all();
-
-        foreach ($relationRows as $relationRow) {
-            $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
-        }
-
-        foreach ($statusRows as &$statusRow) {
-            $statusUid = $statusRow['uid'];
-            unset($statusRow['uid']);
-
-            $statusRow['default'] = (bool)$statusRow['default'];
-            $statusRow['sortOrder'] = (int)$statusRow['sortOrder'];
-
-            $statusData[$statusUid] = $statusRow;
-        }
-
-        return $statusData;
+        return $data;
     }
 }

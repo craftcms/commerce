@@ -31,20 +31,17 @@ class m230310_102639_add_store_id_to_line_item_statuses extends Migration
         $this->createIndex(null, Table::LINEITEMSTATUSES, ['storeId'], false);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.30', '<')) {
-            $lineItemStatuses = $projectConfig->get('commerce.lineItemStatuses') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $lineItemStatuses = $projectConfig->get('commerce.lineItemStatuses') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($lineItemStatuses as $statusUid => $lineItemStatus) {
-                $lineItemStatus['store'] = $primaryStore['uid'];
-                $projectConfig->set("commerce.lineItemStatuses.$statusUid", $lineItemStatus);
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($lineItemStatuses as $statusUid => $lineItemStatus) {
+            $lineItemStatus['store'] = $primaryStore['uid'];
+            $projectConfig->set("commerce.lineItemStatuses.$statusUid", $lineItemStatus);
         }
+
+        $projectConfig->muteEvents = $muteEvents;
 
         return true;
     }

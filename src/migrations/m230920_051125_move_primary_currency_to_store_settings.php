@@ -38,7 +38,6 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
 
         // Make project config updates
         $projectConfig = \Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
         $storeUid = (new Query())
             ->select(['uid'])
@@ -52,14 +51,12 @@ class m230920_051125_move_primary_currency_to_store_settings extends Migration
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', false);
 
         // get store config
-        $config = $projectConfig->get(Stores::CONFIG_STORES_KEY . $storeUid);
+        $config = $projectConfig->get(Stores::CONFIG_STORES_KEY . '.' . $storeUid);
 
-        if (version_compare($schemaVersion, '5.0.40', '<')) {
-            $config['currency'] = $primaryCurrencyIso;
-            $projectConfig->set(Stores::CONFIG_STORES_KEY . $storeUid,
-                $config,
-                'Moving the primary currency to the store in the project config');
-        }
+        $config['currency'] = $primaryCurrencyIso;
+        $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $storeUid,
+            $config,
+            'Moving the primary currency to the store in the project config');
 
         return true;
     }

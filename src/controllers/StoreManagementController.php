@@ -8,13 +8,18 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use craft\commerce\helpers\Cp as CommerceCp;
 use craft\commerce\models\StoreSettings;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\helpers\Cp;
+use craft\models\Site;
 use craft\web\twig\TemplateLoaderException;
+use Throwable;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\Response as YiiResponse;
@@ -47,7 +52,10 @@ class StoreManagementController extends BaseStoreManagementController
 
                 $variables['storeSettings'] = $variables['store']->getSettings();
             } else {
-                return $this->redirect(Plugin::getInstance()->getStores()->getPrimaryStore()->getStoreSettingsUrl());
+                // Attempt to redirect the user to the correct store settings for the site they were working on
+                /** @var Site|StoreBehavior $site */
+                $site = Cp::requestedSite();
+                return $this->redirect($site->getStore()->getStoreSettingsUrl());
             }
         }
 
@@ -83,10 +91,50 @@ class StoreManagementController extends BaseStoreManagementController
             'allowEmptyOption' => true,
         ]);
 
+
+        // Inventory locations field HTML
+        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($variables['store']->id);
+        $allInventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $locationsCount = count($allInventoryLocations);
+        $userCanCreate = $currentUser->can('commerce-manageInventoryLocations');
+        $inventoryLocationsField = '';
+
+        if ($userCanCreate) {
+            $canCreate = false;
+
+            $limit = Plugin::EDITION_PRO_STORE_LIMIT;
+            if ($locationsCount < $limit) {
+                $canCreate = true;
+            }
+
+            if (Plugin::getInstance()->is(Plugin::EDITION_ENTERPRISE, '=')) {
+                $limit = null;
+                $canCreate = true;
+            }
+
+            $config = [
+                'label' => Craft::t('commerce', 'Inventory Locations'),
+                'instructions' => Craft::t('commerce', 'The inventory locations this store uses.'),
+                'id' => 'inventoryLocations',
+                'name' => 'inventoryLocations[]',
+                'values' => $inventoryLocations,
+                'create' => $canCreate,
+            ];
+
+            if ($limit !== null) {
+                $config['limit'] = $limit;
+            }
+
+            $inventoryLocationsField = CommerceCp::inventoryLocationFieldHtml($config);
+        }
+
         // Variables
         $variables['marketAddressConditionField'] = $marketAddressConditionFieldHtml;
         $variables['countriesField'] = $countriesField;
         $variables['locationField'] = $locationFieldHtml;
+        $variables['inventoryLocationsField'] = $inventoryLocationsField;
         $variables['storeSettingsNav'] = $this->getStoreSettingsNav();
 
         return $this->renderTemplate('commerce/store-management/general/_edit', $variables);
@@ -95,11 +143,16 @@ class StoreManagementController extends BaseStoreManagementController
     /**
      * @return YiiResponse|null
      * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws Exception
      */
     public function actionSave(): ?YiiResponse
     {
         $storeId = Craft::$app->getRequest()->getBodyParam('id');
+        $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
         $storeSettings = Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($storeId);
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
         if ($locationAddressId = $this->request->getBodyParam('locationAddressId')) {
             /** @var Address|null $locationAddress */
             $locationAddress = Address::find()->id($locationAddressId)->one();
@@ -111,6 +164,24 @@ class StoreManagementController extends BaseStoreManagementController
         $storeSettings->setMarketAddressCondition($marketAddressCondition);
         $countries = $this->request->getBodyParam('countries') ?: [];
         $storeSettings->setCountries($countries);
+
+        // Save inventory locations
+        if ($currentUser->can('commerce-manageInventoryLocations')) {
+            $inventoryLocations = Craft::$app->getRequest()->getParam('inventoryLocations');
+
+            if (!$inventoryLocations) {
+                return $this->asFailure(
+                    Craft::t('commerce', 'Missing a default inventory location.'),
+
+                );
+            }
+
+            if (!Plugin::getInstance()->getInventoryLocations()->saveStoreInventoryLocations($store, $inventoryLocations)) {
+                return $this->asFailure(
+                    Craft::t('commerce', 'Inventory locations not saved.')
+                );
+            }
+        }
 
         if (!$storeSettings->validate() || !Plugin::getInstance()->getStoreSettings()->saveStoreSettings($storeSettings)) {
             return $this->asModelFailure(

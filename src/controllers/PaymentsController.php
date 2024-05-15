@@ -13,6 +13,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceCreatedLaterException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\Localization;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\Plugin;
@@ -80,6 +81,32 @@ class PaymentsController extends BaseFrontEndController
         $userSession = Craft::$app->getUser();
 
         $number = $this->request->getParam('number');
+
+        $useMutex = $number || (!$isCpRequest && $plugin->getCarts()->getHasSessionCartNumber());
+
+        if ($useMutex) {
+            $lockOrderNumber = null;
+            if ($number) {
+                $lockOrderNumber = $number;
+            } elseif (!$isCpRequest) {
+                $request = Craft::$app->getRequest();
+                $requestCookies = $request->getCookies();
+                $cookieNumber = $requestCookies->getValue($plugin->getCarts()->cartCookie['name']);
+
+                if ($cookieNumber) {
+                    $lockOrderNumber = $cookieNumber;
+                }
+            }
+
+            if ($lockOrderNumber) {
+                $lockName = "order:$lockOrderNumber";
+                $mutex = Craft::$app->getMutex();
+                if (!$mutex->acquire($lockName, 5)) {
+                    throw new Exception('Unable to acquire a lock for saving of Order: ' . $lockOrderNumber);
+                }
+            }
+        }
+
 
         if ($number !== null) {
             $order = $plugin->getOrders()->getOrderByNumber($number);
@@ -375,6 +402,10 @@ class PaymentsController extends BaseFrontEndController
 
                 $error = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
+                if ($useMutex && isset($mutex, $lockName)) {
+                    $mutex->release($lockName);
+                }
+
                 return $this->asModelFailure(
                     $paymentForm,
                     $error,
@@ -388,6 +419,10 @@ class PaymentsController extends BaseFrontEndController
                     ]
                 );
             }
+        }
+
+        if ($useMutex && isset($mutex, $lockName)) {
+            $mutex->release($lockName);
         }
 
         $redirect = '';
@@ -405,7 +440,11 @@ class PaymentsController extends BaseFrontEndController
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
+                // Payment amount in the CP accepts number based in the user's formatting locale
+                $cpPaymentAmount = $this->request->getBodyParam('paymentAmount');
+                $cpPaymentAmount = Localization::normalizeNumber($cpPaymentAmount);
+
+                $order->setPaymentAmount($cpPaymentAmount);
             } elseif ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = (float)$this->request->getValidatedBodyParam('paymentAmount');
                 $order->setPaymentAmount($paymentAmount);

@@ -11,6 +11,7 @@ use craft\commerce\base\HasStoreInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\base\StoreTrait;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\Plugin;
 use craft\errors\SiteNotFoundException;
 use yii\base\InvalidConfigException;
@@ -100,6 +101,31 @@ class CatalogPricing extends Model implements HasStoreInterface
         ], 'safe'];
 
         return $rules;
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'currencyAttributes' => $this->currencyAttributes(),
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+        ];
     }
 
     /**

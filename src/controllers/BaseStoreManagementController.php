@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\web\Response as YiiResponse;
 
 /**
@@ -22,6 +23,18 @@ class BaseStoreManagementController extends BaseCpController
     public array $storeSettingsNav = [];
 
     /**
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $this->requirePermission('commerce-manageStoreSettings');
+    }
+
+    /**
      * @inheritDoc
      */
     public function renderTemplate(string $template, array $variables = [], ?string $templateMode = null): YiiResponse
@@ -32,6 +45,7 @@ class BaseStoreManagementController extends BaseCpController
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     protected function getStoreSettingsNav(): array
     {
@@ -44,16 +58,6 @@ class BaseStoreManagementController extends BaseCpController
             'label' => Craft::t('commerce', 'Payment Currencies'),
             'path' => 'payment-currencies',
         ];
-
-        $this->storeSettingsNav['inventory-heading'] = [
-            'heading' => Craft::t('commerce', 'Inventory'),
-        ];
-
-        $this->storeSettingsNav['inventory-locations'] = [
-            'label' => Craft::t('commerce', "Locations"),
-            'path' => 'inventory-locations',
-        ];
-
 
         // TODO: Split into separate permissions
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
@@ -105,42 +109,27 @@ class BaseStoreManagementController extends BaseCpController
         ];
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
-            $this->storeSettingsNav['taxrates'] = [
-                'label' => Craft::t('commerce', 'Tax Rates'),
-                'path' => 'taxrates',
-            ];
-            $this->storeSettingsNav['taxzones'] = [
-                'label' => Craft::t('commerce', 'Tax Zones'),
-                'path' => 'taxzones',
-            ];
-            $this->storeSettingsNav['taxcategories'] = [
-                'label' => Craft::t('commerce', 'Tax Categories'),
-                'path' => 'taxcategories',
-            ];
+            if (Plugin::getInstance()->getTaxes()->viewTaxRates()) {
+                $this->storeSettingsNav['taxrates'] = [
+                    'label' => Craft::t('commerce', 'Tax Rates'),
+                    'path' => 'taxrates',
+                ];
+            }
+
+            if (Plugin::getInstance()->getTaxes()->viewTaxZones()) {
+                $this->storeSettingsNav['taxzones'] = [
+                    'label' => Craft::t('commerce', 'Tax Zones'),
+                    'path' => 'taxzones',
+                ];
+            }
+
+            if (Plugin::getInstance()->getTaxes()->viewTaxCategories()) {
+                $this->storeSettingsNav['taxcategories'] = [
+                    'label' => Craft::t('commerce', 'Tax Categories'),
+                    'path' => 'taxcategories',
+                ];
+            }
         }
-
-        $this->storeSettingsNav['subscriptions'] = [
-             'heading' => Craft::t('commerce', 'Subscriptions'),
-         ];
-
-        $this->storeSettingsNav['subscription-plans'] = [
-             'label' => Craft::t('commerce', 'Plans'),
-             'path' => 'subscription-plans',
-         ];
-
-        $this->storeSettingsNav['subscriptions'] = [
-            'heading' => Craft::t('commerce', 'Subscriptions'),
-        ];
-
-        $this->storeSettingsNav['donation-heading'] = [
-            'heading' => Craft::t('commerce', 'Donation'),
-        ];
-
-        $this->storeSettingsNav['donation'] = [
-             'label' => Craft::t('commerce', 'Donation'),
-             'path' => 'donation',
-         ];
-
 
         return $this->storeSettingsNav;
     }

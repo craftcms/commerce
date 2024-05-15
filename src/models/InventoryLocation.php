@@ -1,9 +1,16 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Actionable;
 use craft\base\Chippable;
+use craft\base\CpEditable;
 use craft\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
@@ -11,14 +18,14 @@ use craft\elements\Address;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Inventory Location model
  *
- * @since 5.0
+ * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @since 5.0.0
  */
-class InventoryLocation extends Model implements Chippable
+class InventoryLocation extends Model implements Chippable, CpEditable, Actionable
 {
     /**
      * @var ?int
@@ -56,7 +63,7 @@ class InventoryLocation extends Model implements Chippable
     private ?Address $_address = null;
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public static function get(int|string $id): ?static
     {
@@ -64,8 +71,8 @@ class InventoryLocation extends Model implements Chippable
         return Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($id);
     }
 
-    /*
-     * @inheritDoc
+    /**
+     * @inheritdoc
      */
     public function getUiLabel(): string
     {
@@ -94,13 +101,9 @@ class InventoryLocation extends Model implements Chippable
     /**
      * @param Address $address
      * @return void
-     * @throws InvalidConfigException
      */
-    public function setAddress(Address $address)
+    public function setAddress(Address $address): void
     {
-        if (!$address->id) {
-            throw new InvalidConfigException('Address must be saved before it can be set on an inventory location.');
-        }
         $this->setAddressId($address->id);
         $this->_address = $address;
     }
@@ -133,18 +136,19 @@ class InventoryLocation extends Model implements Chippable
     /**
      * @return string
      */
-    public function cpEditUrl(): string
+    public function getCpEditUrl(): string
     {
-        return UrlHelper::cpUrl('commerce/inventory/locations/' . $this->id);
+        return UrlHelper::cpUrl('commerce/inventory-locations/' . $this->id);
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function defineRules(): array
     {
         $rules = parent::defineRules();
 
+        $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [
             ['name'],
             UniqueValidator::class,
@@ -165,10 +169,24 @@ class InventoryLocation extends Model implements Chippable
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getId(): string|int|null
     {
         return $this->id;
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public function getActionMenuItems(): array
+    {
+        return [
+            [
+                'label' => Craft::t('commerce', 'Edit'),
+                'url' => $this->getCpEditUrl(),
+                'icon' => 'edit',
+            ],
+        ];
     }
 }

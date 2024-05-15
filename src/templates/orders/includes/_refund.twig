@@ -2,11 +2,18 @@
   <form method="post">
     {{ csrfInput() }}
     {% import "_includes/forms" as forms %}
-    {{ forms.text({
-      id: 'amount',
-      size: 10,
+    {{ forms.money({
+      id: 'refund-amount',
       name: 'amount',
-      placeholder: transaction.paymentCurrency~' '~transaction.refundableAmount
+      showCurrency: true,
+      currencyLabel: transaction.paymentCurrency,
+      decimals: craft.commerce.currencies.getSubunitFor(transaction.paymentCurrency),
+      inputAttributes: {
+        size: 10,
+      },
+      jsSettings: {
+        placeholder: '0'
+      },
     }) }}
     {{ forms.text({
       id: 'note',

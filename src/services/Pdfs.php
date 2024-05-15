@@ -14,6 +14,7 @@ use craft\commerce\events\PdfEvent;
 use craft\commerce\events\PdfRenderEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\helpers\Locale;
+use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
@@ -337,6 +338,8 @@ class Pdfs extends Component
      */
     public function handleChangedPdf(ConfigEvent $event): void
     {
+        ProjectConfigData::ensureAllStoresProcessed();
+
         $pdfUid = $event->tokenMatches[0];
         $data = $event->newValue;
 

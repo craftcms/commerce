@@ -24,7 +24,7 @@ class m230110_052712_site_stores extends Migration
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
-            'PRIMARY KEY(siteId)',
+            'PRIMARY KEY([[siteId]])',
         ]);
 
         // Get the primary store
@@ -48,26 +48,16 @@ class m230110_052712_site_stores extends Migration
                 'storeId' => $primaryStore['id'],
                 'uid' => $site['uid'],
             ]);
-        }
 
-        $projectConfig = \Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+            $projectConfig = \Craft::$app->getProjectConfig();
 
-        if (version_compare($schemaVersion, '5.0.40', '<')) {
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
-
-            foreach ($sites as $site) {
-                $configPath = Stores::CONFIG_SITESTORES_KEY . "." . $site['uid'];
-                $projectConfig->set(
-                    $configPath,
-                    // Mirror what the site store model `getConfig()` method returns
-                    ['store' => $primaryStore['uid']],
-                    "Save the “{$site['handle']}” commerce site store mapping"
-                );
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+            $configPath = Stores::CONFIG_SITESTORES_KEY . "." . $site['uid'];
+            $projectConfig->set(
+                $configPath,
+                // Mirror what the site store model `getConfig()` method returns
+                ['store' => $primaryStore['uid']],
+                "Save the “{$site['handle']}” commerce site store mapping"
+            );
         }
 
         return true;

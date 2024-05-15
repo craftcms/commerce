@@ -485,7 +485,7 @@ class Gateways extends Component
                 $gateways[] = $this->createGateway($result);
             }
 
-            $this->_allGateways = collect($gateways);
+            $this->_allGateways = collect($gateways)->keyBy('id');
         }
 
         return $this->_allGateways;
