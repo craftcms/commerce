@@ -49,7 +49,7 @@ class Dummy extends SubscriptionGateway
             $paymentFormModel->firstName = 'Jenny';
             $paymentFormModel->lastName = 'Andrews';
             $paymentFormModel->number = '4242424242424242';
-            $paymentFormModel->expiry = '01/2028';
+            $paymentFormModel->expiry = '01/' . date('Y', strtotime('+1 year'));
             $paymentFormModel->cvv = '123';
         }
 
