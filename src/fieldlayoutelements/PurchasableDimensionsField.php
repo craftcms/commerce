@@ -53,7 +53,7 @@ class PurchasableDimensionsField extends BaseNativeField
      */
     public function showInForm(?ElementInterface $element = null): bool
     {
-        if($element instanceof Variant && !$element->getOwner()->getType()->hasDimensions){
+        if ($element instanceof Variant && !$element->getOwner()->getType()->hasDimensions) {
             return false;
         }
 
