@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.6 - 2024-05-15
 
 - Fixed an error that occurred when deleting or duplicating a shipping rule on the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
 - Fixed a bug where dimension fields did not respect their product type visibility settings. ([#3493](https://github.com/craftcms/commerce/issues/3493))
