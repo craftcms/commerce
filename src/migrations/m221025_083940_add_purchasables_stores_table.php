@@ -65,16 +65,28 @@ class m221025_083940_add_purchasables_stores_table extends Migration
             ->from(Table::PURCHASABLES)
             ->where(['not', ['id' => (new Query())
                 ->select(['id'])
-                ->from(Table::VARIANTS), ],
+                ->from(Table::VARIANTS),],
             ])
             ->all());
 
-        $this->addColumn(Table::PURCHASABLES, 'width', $this->decimal(14, 4));
-        $this->addColumn(Table::PURCHASABLES, 'height', $this->decimal(14, 4));
-        $this->addColumn(Table::PURCHASABLES, 'length', $this->decimal(14, 4));
-        $this->addColumn(Table::PURCHASABLES, 'weight', $this->decimal(14, 4));
-        $this->addColumn(Table::PURCHASABLES, 'taxCategoryId', $this->integer());
-        $this->addColumn(Table::PURCHASABLES, 'shippingCategoryId', $this->integer());
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'width')) {
+            $this->addColumn(Table::PURCHASABLES, 'width', $this->decimal(14, 4));
+        }
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'height')) {
+            $this->addColumn(Table::PURCHASABLES, 'height', $this->decimal(14, 4));
+        }
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'length')) {
+            $this->addColumn(Table::PURCHASABLES, 'length', $this->decimal(14, 4));
+        }
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'weight')) {
+            $this->addColumn(Table::PURCHASABLES, 'weight', $this->decimal(14, 4));
+        }
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'taxCategoryId')) {
+            $this->addColumn(Table::PURCHASABLES, 'taxCategoryId', $this->integer());
+        }
+        if (!$this->db->columnExists(Table::PURCHASABLES, 'shippingCategoryId')) {
+            $this->addColumn(Table::PURCHASABLES, 'shippingCategoryId', $this->integer());
+        }
 
         $this->addForeignKey(null, Table::PURCHASABLES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id']);
         $this->addForeignKey(null, Table::PURCHASABLES, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id']);
