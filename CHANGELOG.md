@@ -6,6 +6,7 @@
 - Added a new “Manage donation settings” permission.
 - Added a new “Manage store general setting” permission.
 - Added a new “Manage payment currencies” permission.
+- Fixed a bug where the store management menu was not listing all items on the Stores index page.
 
 ## 5.0.6 - 2024-05-15
 
