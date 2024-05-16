@@ -240,6 +240,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $names[] = 'isPromotable';
         $names[] = 'price';
         $names[] = 'promotionalPrice';
+        $names[] = 'basePrice';
+        $names[] = 'basePromotionalPrice';
         $names[] = 'onPromotion';
         $names[] = 'salePrice';
         $names[] = 'sku';
