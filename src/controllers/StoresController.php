@@ -217,11 +217,71 @@ class StoresController extends BaseStoreManagementController
             ],
         ];
 
+        $menuItems = [];
+        $stores->each(function(Store $s) use (&$menuItems) {
+            $m = [];
+            $m[] =  [
+                'label' => Craft::t('commerce', 'Payment Currencies'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/payment-currencies'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Discounts'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/discounts'),
+            ];
+
+            if (Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules()) {
+                $m[] = [
+                    'label' => Craft::t('commerce', 'Pricing Rules'),
+                    'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/pricing-rules'),
+                ];
+            } else {
+                $m[] = [
+                    'label' => Craft::t('commerce', 'Sales'),
+                    'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/sales'),
+                ];
+            }
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Shipping Methods'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingmethods'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Shipping Zones'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingzones'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Shipping Categories'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/shippingcategories'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Tax Rates'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxrates'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Tax Zones'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxzones'),
+            ];
+
+            $m[] = [
+                'label' => Craft::t('commerce', 'Tax Categories'),
+                'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/taxcategories'),
+            ];
+
+            $menuItems[$s->handle] = $m;
+        });
+
+
         return $this->renderTemplate('commerce/settings/stores/index', [
             'stores' => $stores,
             'crumbs' => $crumbs,
             'sitesStores' => Plugin::getInstance()->getStores()->getAllSiteStores(),
             'primaryStoreId' => Plugin::getInstance()->getStores()->getPrimaryStore()->id,
+            'menuItems' => $menuItems,
         ]);
     }
 
