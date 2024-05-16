@@ -107,7 +107,7 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<storeHandle:{handle}>/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-management'] = 'commerce/store-management/edit'; // Redirects to the first store
+            $event->rules['commerce/store-management'] = 'commerce/store-management/index'; // Redirects to the first store
             $event->rules['commerce/store-management/<storeHandle:{handle}>'] = 'commerce/store-management/edit';
 
             $event->rules['commerce/store-management/<storeHandle:{handle}>/payment-currencies'] = 'commerce/payment-currencies/index';

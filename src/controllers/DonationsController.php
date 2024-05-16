@@ -25,6 +25,17 @@ use yii\web\Response;
  */
 class DonationsController extends BaseCpController
 {
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $this->requirePermission('commerce-manageDonationSettings');
+    }
+
+
     public function actionEdit(): Response
     {
         $donation = Donation::find()->status(null)->one();

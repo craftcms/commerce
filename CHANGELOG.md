@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Added a new “Manage subscription plans” permission.
+- Added a new “Manage donation settings” permission.
+- Added a new “Manage store general setting” permission.
+- Added a new “Manage payment currencies” permission.
+
 ## 5.0.6 - 2024-05-15
 
 - Fixed an error that occurred when deleting or duplicating a shipping rule on the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))

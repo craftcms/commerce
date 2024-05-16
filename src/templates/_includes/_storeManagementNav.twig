@@ -9,9 +9,15 @@
         {% if item.heading is defined %}
           <li class="heading"><span>{{ item.heading }}</span></li>
         {% else %}
-          <li>
-            <a href="{{ store.getStoreSettingsUrl(item.path) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.label }}</a>
-          </li>
+          {% if item.disabled is defined and item.disabled == true %}
+              <li>
+                  <a class="disabled">{{ item.label }}</a>
+              </li>
+          {% else %}
+              <li>
+                  <a href="{{ store.getStoreSettingsUrl(item.path) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.label }}</a>
+              </li>
+          {% endif %}
         {% endif %}
       {% endfor %}
     </ul>
