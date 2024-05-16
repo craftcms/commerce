@@ -220,7 +220,7 @@ class StoresController extends BaseStoreManagementController
         $menuItems = [];
         $stores->each(function(Store $s) use (&$menuItems) {
             $m = [];
-            $m[] =  [
+            $m[] = [
                 'label' => Craft::t('commerce', 'Payment Currencies'),
                 'url' => UrlHelper::cpUrl('commerce/store-management/' . $s->handle . '/payment-currencies'),
             ];
