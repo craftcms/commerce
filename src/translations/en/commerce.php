@@ -1046,6 +1046,7 @@ return [
     'Subscription plan saved.' => 'Subscription plan saved.',
     'Subscription plan' => 'Subscription plan',
     'Subscription plans' => 'Subscription plans',
+    'Subscription Plans' => 'Subscription Plans',
     'Subscription reactivated.' => 'Subscription reactivated.',
     'Subscription reference' => 'Subscription reference',
     'Subscription started.' => 'Subscription started.',
