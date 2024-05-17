@@ -89,12 +89,12 @@ values. Int can represent values between -(2^31) and 2^31 - 1 Or `false`';
     }
 
     /**
-     * @param Node $valueNode
+     * @param $valueNode
      * @param array|null $variables
      * @return false|int|mixed
      * @throws Error
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    public function parseLiteral($valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof BooleanValueNode) {
             $val = $valueNode->value;
