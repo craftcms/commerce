@@ -3,6 +3,9 @@
 ## Unreleased
 
 - Fixed a bug where the store management menu was not listing all items on the Stores index page.
+- Fixed an error that could occur when querying products via GraphQL.
+- Fixed an error that could occur when querying variants via GraphQL.
+- Added `craft\commerce\gql\types\input\IntFalse`.
 
 ## 5.0.6 - 2024-05-15
 
