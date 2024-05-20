@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the store management menu was not listing all items on the Stores index page.
+- Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
 
 ## 5.0.6 - 2024-05-15
 
