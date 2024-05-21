@@ -555,9 +555,13 @@ class Plugin extends BasePlugin
                         ],
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                         'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
-                        'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
+                        'commerce-manageInventoryStockLevels' => [
+                            'label' => Craft::t('commerce', 'Manage inventory stock levels'),
+                            'nested' => [
+                                'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfer')],
+                            ]
+                        ],
                         'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
-                        'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
                             'nested' => [
                                 'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
