@@ -57,7 +57,7 @@ class Variant extends ElementResolver
             return [];
         }
 
-        $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.productId]]');
+        $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.primaryOwnerId]]');
         $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
 
         return $query;

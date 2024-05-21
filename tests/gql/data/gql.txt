@@ -1,0 +1,37 @@
+1000
+-----TOKEN DELIMITER-----
+{products (type: "hoodies") {title slug}}
+-----RESPONSE DELIMITER-----
+{"data":{"products":[{"title":"Rad Hoodie","slug":"rad-hoodie"}]}}
+
+-----TEST DELIMITER-----
+
+1000
+-----TOKEN DELIMITER-----
+{products (type: "tShirts") {title slug}}
+-----RESPONSE DELIMITER-----
+{"data":{"products":[{"title":"Hypercolor T-Shirt","slug":"hypercolor-tshirt"}]}}
+
+-----TEST DELIMITER-----
+
+1000
+-----TOKEN DELIMITER-----
+{variants {title sku}}
+-----RESPONSE DELIMITER-----
+{"data":{"variants":[{"title":"Rad Hoodie","sku":"rad-hood"},{"title":"Hypercolor T-Shirt","sku":"hct-white"},{"title":"Hypercolor T-Shirt","sku":"hct-blue"}]}}
+
+-----TEST DELIMITER-----
+
+1000
+-----TOKEN DELIMITER-----
+{variants {sku promotable availableForPurchase}}
+-----RESPONSE DELIMITER-----
+{"data":{"variants":[{"sku":"rad-hood","promotable":true,"availableForPurchase":true},{"sku":"hct-white","promotable":true,"availableForPurchase":true},{"sku":"hct-blue","promotable":true,"availableForPurchase":true}]}}
+
+-----TEST DELIMITER-----
+
+1000
+-----TOKEN DELIMITER-----
+{entries (sectionId: 1000) {title slug}}
+-----RESPONSE DELIMITER-----
+{"errors":[{"message":"Cannot query field \"entries\" on type \"Query\"
