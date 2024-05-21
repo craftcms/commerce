@@ -559,7 +559,7 @@ class Plugin extends BasePlugin
                             'label' => Craft::t('commerce', 'Manage inventory stock levels'),
                             'nested' => [
                                 'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfer')],
-                            ]
+                            ],
                         ],
                         'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
                         'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
