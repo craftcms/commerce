@@ -10,7 +10,6 @@ namespace craft\commerce\gql\types\input;
 use craft\gql\GqlEntityRegistry;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ScalarType;
 
