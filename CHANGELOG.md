@@ -2,11 +2,16 @@
 
 ## Unreleased
 
+- Fixed a bug where the store management menu was not listing all items on the Stores index page.
+- Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
+
+## 5.0.6 - 2024-05-15
+
 - Fixed an error that occurred when deleting or duplicating a shipping rule on the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
 - Fixed a bug where dimension fields did not respect their product type visibility settings. ([#3493](https://github.com/craftcms/commerce/issues/3493))
-- Fixed a SQL error that occurred during upgrade. ([#3495](https://github.com/craftcms/commerce/pull/3495))
+- Fixed a SQL error that occurred when updating. ([#3495](https://github.com/craftcms/commerce/pull/3495),[#3496](https://github.com/craftcms/commerce/issues/3496))
 
-## 5.0.4 - 2024-05-09
+## 5.0.5 - 2024-05-09
 
 - Fixed a SQL error that could occur during installation. ([#3492](https://github.com/craftcms/commerce/issues/3492), [#3488](https://github.com/craftcms/commerce/issues/3488))
 

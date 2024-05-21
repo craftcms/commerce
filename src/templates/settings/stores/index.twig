@@ -34,30 +34,6 @@
 
 {% set tableData = [] %}
 {% for store in stores %}
-
-    {% set menuItems = [
-        {
-            label: 'Payment Currencies'|t('commerce'),
-            url: url('commerce/store-management/' ~ store.handle ~ '/payment-currencies'),
-        },
-        {
-            label: 'Discounts'|t('commerce'),
-            url: url('commerce/store-management/' ~ store.handle ~ '/discounts'),
-        },
-        {
-            label: 'Pricing Rules'|t('commerce'),
-            url: url('commerce/store-management/' ~ store.handle ~ '/pricing-rules'),
-        },
-        {
-            label: 'Shipping Methods'|t('commerce'),
-            url: url('commerce/store-management/' ~ store.handle ~ '/shippingmethods'),
-        },
-        {
-            label: 'Tax Rates'|t('commerce'),
-            url: url('commerce/store-management/' ~ store.handle ~ '/taxrates'),
-        }
-    ] %}
-
     {% set tableData = tableData|merge([{
         id: store.id,
         name: store.name|t('site'),
@@ -73,7 +49,7 @@
             menuBtnTitle: ''|t('app'),
             label: 'Store Management    '|t('commerce'),
             url: url('commerce/store-management/' ~ store.handle),
-            items: menuItems,
+            items: menuItems[store.handle],
         },
         _showDelete : store.primary ? false : true
     }]) %}
