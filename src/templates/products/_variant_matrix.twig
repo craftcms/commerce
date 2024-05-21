@@ -11,7 +11,7 @@
             {% endif %}
             {% set namespace = name~'['~variantId~']' %}
 
-            <div class="variant-matrixblock matrixblock{% if not variant.enabled %} disabled{% endif %}"
+            <div class="variant-matrixblock matrixblock{% if not variant.enabled %} disabled-entry{% endif %}"
                  data-id="{{ variantId }}" {#% if variant.collapsed %} data-collapsed{% endif %#}>
                 <input type="hidden" name="{{ namespace }}[enabled]"
                        value="{% if variant.enabled %}1{% endif %}">
