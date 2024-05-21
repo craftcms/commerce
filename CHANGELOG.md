@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a new “Manage subscription plans” permission.
+- Added a new “Manage donation settings” permission.
+- Added a new “Manage store general setting” permission.
+- Added a new “Manage payment currencies” permission.
 - Fixed a bug where the store management menu was not listing all items on the Stores index page.
 - Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
 

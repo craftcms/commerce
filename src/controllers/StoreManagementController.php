@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\HasStoreInterface;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
 use craft\commerce\helpers\Cp as CommerceCp;
@@ -32,6 +33,35 @@ use yii\web\Response as YiiResponse;
  */
 class StoreManagementController extends BaseStoreManagementController
 {
+    public function actionIndex(): Response
+    {
+        $user = Craft::$app->getUser();
+        /** @var Site|HasStoreInterface $site */
+        $site = Cp::requestedSite();
+        
+        if ($user->checkPermission('commerce-manageGeneralStoreSettings')) {
+            return $this->redirect($site->getStore()->getStoreSettingsUrl());
+        }
+
+        if ($user->checkPermission('commerce-managePaymentCurrencies')) {
+            return $this->redirect($site->getStore()->getStoreSettingsUrl('payment-currencies'));
+        }
+
+        if ($user->checkPermission('commerce-managePromotions')) {
+            return $this->redirect($site->getStore()->getStoreSettingsUrl('discounts'));
+        }
+
+        if ($user->checkPermission('commerce-manageShipping')) {
+            return $this->redirect($site->getStore()->getStoreSettingsUrl('shipping'));
+        }
+
+        if ($user->checkPermission('commerce-manageTaxes')) {
+            return $this->redirect($site->getStore()->getStoreSettingsUrl('taxrates'));
+        }
+
+        return $this->renderTemplate('commerce/store-management/index');
+    }
+
     /**
      * @return YiiResponse
      * @throws TemplateLoaderException
@@ -39,6 +69,8 @@ class StoreManagementController extends BaseStoreManagementController
      */
     public function actionEdit(StoreSettings $storeSettings = null, ?string $storeHandle = null): Response
     {
+        $this->requirePermission('commerce-manageGeneralStoreSettings');
+
         $variables = compact('storeSettings', 'storeHandle');
 
         if (!$variables['storeSettings']) {
@@ -148,6 +180,8 @@ class StoreManagementController extends BaseStoreManagementController
      */
     public function actionSave(): ?YiiResponse
     {
+        $this->requirePermission('commerce-manageGeneralStoreSettings');
+
         $storeId = Craft::$app->getRequest()->getBodyParam('id');
         $store = Plugin::getInstance()->getStores()->getStoreById($storeId);
         $storeSettings = Plugin::getInstance()->getStoreSettings()->getStoreSettingsById($storeId);
