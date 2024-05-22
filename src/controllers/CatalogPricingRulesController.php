@@ -274,7 +274,6 @@ class CatalogPricingRulesController extends BaseStoreManagementController
      * @throws BadRequestHttpException
      * @throws \yii\db\Exception
      * @throws ForbiddenHttpException
-     * @since 3.0
      */
     public function actionUpdateStatus(): void
     {
@@ -293,13 +292,20 @@ class CatalogPricingRulesController extends BaseStoreManagementController
         $rules = CatalogPricingRuleRecord::find()
             ->where(['id' => $ids])
             ->all();
+        $storeId = null;
 
         /** @var CatalogPricingRuleRecord $rule */
         foreach ($rules as $rule) {
+            $storeId = $storeId ?? $rule->storeId;
             $rule->enabled = ($status == 'enabled');
             $rule->save();
         }
         $transaction->commit();
+
+        Plugin::getInstance()->getCatalogPricing()->createCatalogPricingJob([
+            'catalogPricingRuleIds' => $ids,
+            'storeId' => $storeId,
+        ]);
 
         $this->setSuccessFlash(Craft::t('commerce', 'Catalog pricing rules updated.'));
     }

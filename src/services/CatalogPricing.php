@@ -97,6 +97,11 @@ class CatalogPricing extends Component
                     continue;
                 }
 
+                // Skip rule if the rule is not enabled
+                if (!$catalogPricingRule->enabled) {
+                    continue;
+                }
+
                 // If `getPurchasableIds()` is `null` this means all purchasables
                 if ($catalogPricingRule->getPurchasableIds() === null) {
                     $applyPurchasableIds = $purchasableIds;
@@ -345,6 +350,7 @@ class CatalogPricing extends Component
      * @param int|array|null $purchasableId
      * @param int|array|null $storeId
      * @return void
+     * @throws Exception
      */
     public function markPricesAsUpdatePending(int|array|null $catalogPricingRuleId = null, int|array|null $purchasableId = null, int|array|null $storeId = null): void
     {
@@ -363,7 +369,8 @@ class CatalogPricing extends Component
         }
 
         Craft::$app->getDb()->createCommand()
-            ->update(Table::CATALOG_PRICING, ['hasUpdatePending' => true], $conditions);
+            ->update(Table::CATALOG_PRICING, ['hasUpdatePending' => true], $conditions)
+            ->execute();
     }
 
     /**
