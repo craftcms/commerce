@@ -246,7 +246,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.72';
+    public string $schemaVersion = '5.0.74';
 
     /**
      * @inheritdoc
@@ -324,12 +324,12 @@ class Plugin extends BasePlugin
     public function beforeInstall(): void
     {
         // Check version before installing
-        if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
-            throw new Exception('Craft Commerce 4 requires Craft CMS 4+ in order to run.');
+        if (version_compare(Craft::$app->getInfo()->version, '5.1.0', '<')) {
+            throw new Exception('Craft Commerce 5 requires Craft CMS 5.1+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 80000) {
-            Craft::error('Craft Commerce requires PHP 8.0.2+ in order to run.');
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 82000) {
+            Craft::error('Craft Commerce requires PHP 8.2.0+ in order to run.');
         }
     }
 
@@ -696,6 +696,12 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners(): void
     {
+        // Guard against the case where the Plugin class is loaded during Craft installation due to a project config existing but commerce is not installed.
+        // Also fixed in core but this is an extra guard: https://github.com/craftcms/cms/commit/369807d9b8da0ff0968e292591eee5f8924b57cc
+        if (!$this->isInstalled) {
+            return;
+        }
+
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);

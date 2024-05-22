@@ -31,20 +31,18 @@ class m230317_102521_add_store_id_to_pdfs extends Migration
         $this->createIndex(null, Table::PDFS, ['storeId'], false);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.32', '<')) {
-            $pdfs = $projectConfig->get('commerce.pdfs') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $pdfs = $projectConfig->get('commerce.pdfs') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($pdfs as $uid => $pdf) {
-                $pdf['store'] = $primaryStore['uid'];
-                $projectConfig->set("commerce.pdfs.$uid", $pdf);
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($pdfs as $uid => $pdf) {
+            $pdf['store'] = $primaryStore['uid'];
+            $projectConfig->set("commerce.pdfs.$uid", $pdf);
         }
+
+        $projectConfig->muteEvents = $muteEvents;
+
 
         return true;
     }

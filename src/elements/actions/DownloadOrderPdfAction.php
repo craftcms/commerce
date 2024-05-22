@@ -91,10 +91,12 @@ class DownloadOrderPdfAction extends ElementAction
             ['label' => Craft::t('commerce', 'Collated PDF'), 'value' => self::TYPE_PDF_COLLATED],
         ]);
 
+        $action = Json::encode(static::class);
+
         if (count($allPdfs) > 0) {
             $js = <<<JS
 (() => {
-    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions);
+    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'), $pdfOptions, $typeOptions, $action);
 })();
 JS;
             Craft::$app->getView()->registerJs($js);

@@ -89,6 +89,16 @@ class Variant extends Element
                 'type' => Type::string(),
                 'description' => 'The formatted price of the variant.',
             ],
+            'promotionalPrice' => [
+                'name' => 'promotionalPrice',
+                'type' => Type::float(),
+                'description' => 'The promotional price of the variant.',
+            ],
+            'promotionalPriceAsCurrency' => [
+                'name' => 'promotionalPriceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted promotional price of the variant.',
+            ],
             'salePrice' => [
                 'name' => 'salePrice',
                 'type' => Type::float(),
@@ -149,6 +159,26 @@ class Variant extends Element
                 'type' => Type::int(),
                 'description' => 'The maximum allowed quantity to be purchased.',
             ],
+            'promotable' => [
+                'name' => 'promotable',
+                'type' => Type::boolean(),
+                'description' => 'If the product is promotable.',
+            ],
+            'availableForPurchase' => [
+                'name' => 'availableForPurchase',
+                'type' => Type::boolean(),
+                'description' => 'If the product is available for purchase.',
+            ],
+            'freeShipping' => [
+                'name' => 'freeShipping',
+                'type' => Type::boolean(),
+                'description' => 'If the product has free shipping.',
+            ],
+            'shippingCategoryId' => [
+                'name' => 'shippingCategoryId',
+                'type' => Type::int(),
+                'description' => 'The ID of the variants’s shipping category.',
+            ],
             'productId' => [
                 'name' => 'productId',
                 'type' => Type::int(),
@@ -173,6 +203,11 @@ class Variant extends Element
                 'name' => 'sku',
                 'type' => Type::string(),
                 'description' => 'The SKU of the variant.',
+            ],
+            'storeId' => [
+                'name' => 'storeId',
+                'type' => Type::int(),
+                'description' => 'The ID of the variant’s store.',
             ],
         ]), self::getName());
     }

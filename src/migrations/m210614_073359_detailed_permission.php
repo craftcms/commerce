@@ -163,30 +163,27 @@ class m210614_073359_detailed_permission extends Migration
     {
         // Make project config updates
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '4.0', '<')) {
-            $groups = (new Query())
-                ->select(['id', 'name', 'uid'])
-                ->from(['groups' => Table::USERGROUPS])
-                ->all();
+        $groups = (new Query())
+            ->select(['id', 'name', 'uid'])
+            ->from(['groups' => Table::USERGROUPS])
+            ->all();
 
-            $setGroupPermissions = [];
+        $setGroupPermissions = [];
 
-            foreach ($groups as $group) {
-                $groupPermissions = (new Query())
-                    ->select(['up.name'])
-                    ->from(['up_ug' => Table::USERPERMISSIONS_USERGROUPS])
-                    ->where(['up_ug.groupId' => $group['id']])
-                    ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[up_ug.permissionId]]')
-                    ->column();
+        foreach ($groups as $group) {
+            $groupPermissions = (new Query())
+                ->select(['up.name'])
+                ->from(['up_ug' => Table::USERPERMISSIONS_USERGROUPS])
+                ->where(['up_ug.groupId' => $group['id']])
+                ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[up_ug.permissionId]]')
+                ->column();
 
-                $setGroupPermissions[$group['uid']] = $groupPermissions;
-            }
+            $setGroupPermissions[$group['uid']] = $groupPermissions;
+        }
 
-            foreach ($setGroupPermissions as $uid => $setGroupPermission) {
-                $projectConfig->set('users.groups.' . $uid . '.permissions', $setGroupPermission);
-            }
+        foreach ($setGroupPermissions as $uid => $setGroupPermission) {
+            $projectConfig->set('users.groups.' . $uid . '.permissions', $setGroupPermission);
         }
     }
 }

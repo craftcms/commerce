@@ -7,6 +7,7 @@
 
 namespace craft\commerce\gql\arguments\elements;
 
+use craft\commerce\gql\types\input\IntFalse;
 use craft\commerce\gql\types\input\Product;
 use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
@@ -27,6 +28,21 @@ class Variant extends ElementArguments
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), self::getContentArguments(), [
+            'promotable' => [
+                'name' => 'promotable',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that are promotable.',
+            ],
+            'availableForPurchase' => [
+                'name' => 'availableForPurchase',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that are available to purchase.',
+            ],
+            'freeShipping' => [
+                'name' => 'freeShipping',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that have free shipping.',
+            ],
             'hasProduct' => [
                 'name' => 'hasProduct',
                 'type' => Product::getType(),
@@ -60,7 +76,17 @@ class Variant extends ElementArguments
             'price' => [
                 'name' => 'price',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on variant price.',
+                'description' => 'Narrows the query results based on the variant’s price.',
+            ],
+            'promotionalPrice' => [
+                'name' => 'promotionalPrice',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the variant’s promotional price.',
+            ],
+            'forCustomer' => [
+                'name' => 'forCustomer',
+                'type' => IntFalse::getType(),
+                'description' => 'Narrows the pricing query results to only prices related for the specified customer.',
             ],
             'productId' => [
                 'name' => 'productId',

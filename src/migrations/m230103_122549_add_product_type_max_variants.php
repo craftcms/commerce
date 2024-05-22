@@ -36,12 +36,6 @@ class m230103_122549_add_product_type_max_variants extends Migration
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        // Don't make the same config changes twice
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '5.0.2', '>=')) {
-            return;
-        }
-
         $projectConfig->muteEvents = true;
 
         $maxVariantProductTypes = (new Query())

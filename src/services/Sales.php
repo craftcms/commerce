@@ -173,7 +173,9 @@ class Sales extends Component
      */
     public function canUseSales(): bool
     {
-        return Plugin::getInstance()->getStores()->getAllStores()->count() === 1 && Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules()->isEmpty();
+        $singleStore = Plugin::getInstance()->getStores()->getAllStores()->count() === 1;
+        $noCatalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->getAllCatalogPricingRules()->isEmpty();
+        return $singleStore && $noCatalogPricingRules;
     }
 
     /**

@@ -293,52 +293,13 @@ class ProjectConfigData
      */
     private static function _getStatusData(): array
     {
-        $statusData = [];
+        $data = [];
+        Plugin::getInstance()->getStores()->getAllStores()->each(function(Store $store) use (&$data) {
+            foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses($store->id) as $status) {
+                $data[$status->uid] = $status->getConfig();
+            }
+        });
 
-        $statusRows = (new Query())
-            ->select([
-                'color',
-                'default',
-                'description',
-                'handle',
-                'id',
-                'name',
-                'sortOrder',
-                'uid',
-            ])
-            ->indexBy('id')
-            ->orderBy('sortOrder')
-            ->from([Table::ORDERSTATUSES])
-            ->all();
-
-        foreach ($statusRows as &$statusRow) {
-            unset($statusRow['id']);
-            $statusRow['emails'] = [];
-        }
-
-        $relationRows = (new Query())
-            ->select([
-                'emailUid' => 'emails.uid',
-                'statusId' => 'relations.orderStatusId',
-            ])
-            ->from([Table::ORDERSTATUS_EMAILS . ' relations'])
-            ->leftJoin(Table::EMAILS . ' emails', '[[emails.id]] = [[relations.emailId]]')
-            ->all();
-
-        foreach ($relationRows as $relationRow) {
-            $statusRows[$relationRow['statusId']]['emails'][$relationRow['emailUid']] = $relationRow['emailUid'];
-        }
-
-        foreach ($statusRows as &$statusRow) {
-            $statusUid = $statusRow['uid'];
-            unset($statusRow['uid']);
-
-            $statusRow['default'] = (bool)$statusRow['default'];
-            $statusRow['sortOrder'] = (int)$statusRow['sortOrder'];
-
-            $statusData[$statusUid] = $statusRow;
-        }
-
-        return $statusData;
+        return $data;
     }
 }

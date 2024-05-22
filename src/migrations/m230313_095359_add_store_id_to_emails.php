@@ -31,20 +31,17 @@ class m230313_095359_add_store_id_to_emails extends Migration
         $this->createIndex(null, Table::EMAILS, ['storeId'], false);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.31', '<')) {
-            $emails = $projectConfig->get('commerce.emails') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $emails = $projectConfig->get('commerce.emails') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($emails as $emailUid => $email) {
-                $email['store'] = $primaryStore['uid'];
-                $projectConfig->set("commerce.emails.$emailUid", $email);
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($emails as $emailUid => $email) {
+            $email['store'] = $primaryStore['uid'];
+            $projectConfig->set("commerce.emails.$emailUid", $email);
         }
+
+        $projectConfig->muteEvents = $muteEvents;
 
 
         return true;
