@@ -340,6 +340,7 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
@@ -349,6 +350,7 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $anyPreviousCart */
@@ -356,6 +358,7 @@ class Carts extends Component
             ->customer($currentUser)
             ->isCompleted(false)
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $currentCartInSession */
@@ -364,6 +367,7 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         if ($currentUser &&
