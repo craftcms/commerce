@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur when saving a new order. 
+
 ## 4.6.0 - 2024-04-30
 
 - Craft Commerce now requires Craft CMS 4.9 or later.
