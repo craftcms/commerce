@@ -6,6 +6,7 @@
 - Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
 - Fixed an error that could occur when querying products via GraphQL.
 - Fixed an error that could occur when querying variants via GraphQL.
+- Fixed a bug where untracked stock items did not show correctly on the example templates. ([#3510](https://github.com/craftcms/commerce/issues/3510))
 - Added `craft\commerce\gql\types\input\IntFalse`.
 
 ## 5.0.6 - 2024-05-15
