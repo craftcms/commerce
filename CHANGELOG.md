@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
 - Fixed a bug where the store management menu was not listing all items on the Stores index page.
 - Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
 - Fixed an error that could occur when querying products via GraphQL.
