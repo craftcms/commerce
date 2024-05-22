@@ -54,7 +54,7 @@ class Extension extends AbstractExtension implements GlobalsInterface
 
         /** @var Site|StoreBehavior $currentSite */
         $currentSite = Craft::$app->getSites()->getCurrentSite();
-        if($currentSite->getBehavior('commerce:store') !== null) {
+        if ($currentSite->getBehavior('commerce:store') !== null) {
             $currentStore = $currentSite->getStore();
         }
 
