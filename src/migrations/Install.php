@@ -28,6 +28,7 @@ use craft\db\Table as CraftTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
+use craft\helpers\StringHelper;
 use ReflectionClass;
 use yii\base\NotSupportedException;
 
@@ -1285,13 +1286,28 @@ class Install extends Migration
     {
         // Don't make the same config changes twice
         $projectConfig = Craft::$app->getProjectConfig();
-        $installed = ($projectConfig->get('plugins.commerce', true) !== null);
+        $installedInProjectConfig = ($projectConfig->get('plugins.commerce', true) !== null);
         $configExists = ($projectConfig->get('commerce', true) !== null);
 
-        if (!$installed && !$configExists) {
+        if (!$installedInProjectConfig && !$configExists) {
             $this->_insertPrimaryStore();
             $this->_defaultGateways();
-        } elseif ($installed) {
+        } elseif ($installedInProjectConfig) {
+
+            // Start fix for a bad commerce project config from the 5.0.0-beta.1
+            // TODO: Remove this in the next major release
+            $commerce = $projectConfig->get('commerce', true);
+
+            foreach (array_keys($commerce) as $key) {
+                // Look for the bad store key
+                if (StringHelper::startsWith('stores',$key) && StringHelper::length($key) > 6) {
+                    $uid = substr($key, 7);
+                    // Move the data to the correct location for stores
+                    $projectConfig->set(Stores::CONFIG_STORES_KEY . '.' . $uid, $commerce[$key]);
+                }
+            }
+            // Finish fix for a bad commerce project config from the 5.0.0-beta.1
+
             // Install a primary store if it isn't in the config
             $stores = $projectConfig->get(Stores::CONFIG_STORES_KEY, true);
             if (!$configExists || !$stores || !ArrayHelper::firstWhere($stores, 'primary', true)) {

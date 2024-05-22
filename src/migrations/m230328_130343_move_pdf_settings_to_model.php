@@ -33,19 +33,16 @@ class m230328_130343_move_pdf_settings_to_model extends Migration
         $this->update(Table::PDFS, $data);
 
         $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
-        if (version_compare($schemaVersion, '5.0.37', '<')) {
-            $pdfs = $projectConfig->get('commerce.pdfs') ?? [];
-            $muteEvents = $projectConfig->muteEvents;
-            $projectConfig->muteEvents = true;
+        $pdfs = $projectConfig->get('commerce.pdfs') ?? [];
+        $muteEvents = $projectConfig->muteEvents;
+        $projectConfig->muteEvents = true;
 
-            foreach ($pdfs as $uid => $pdf) {
-                $projectConfig->set("commerce.pdfs.$uid", array_merge($pdf, $data));
-            }
-
-            $projectConfig->muteEvents = $muteEvents;
+        foreach ($pdfs as $uid => $pdf) {
+            $projectConfig->set("commerce.pdfs.$uid", array_merge($pdf, $data));
         }
+
+        $projectConfig->muteEvents = $muteEvents;
 
         return true;
     }

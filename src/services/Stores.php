@@ -382,21 +382,22 @@ class Stores extends Component
             $storeRecord->name = $data['name'];
             $storeRecord->handle = $data['handle'];
             $storeRecord->primary = $data['primary'];
-            $storeRecord->autoSetNewCartAddresses = $data['autoSetNewCartAddresses'];
-            $storeRecord->autoSetCartShippingMethodOption = $data['autoSetCartShippingMethodOption'];
-            $storeRecord->autoSetPaymentSource = $data['autoSetPaymentSource'];
-            $storeRecord->allowEmptyCartOnCheckout = $data['allowEmptyCartOnCheckout'];
-            $storeRecord->allowCheckoutWithoutPayment = $data['allowCheckoutWithoutPayment'];
-            $storeRecord->allowPartialPaymentOnCheckout = $data['allowPartialPaymentOnCheckout'];
-            $storeRecord->requireShippingAddressAtCheckout = $data['requireShippingAddressAtCheckout'];
-            $storeRecord->requireBillingAddressAtCheckout = $data['requireBillingAddressAtCheckout'];
-            $storeRecord->requireShippingMethodSelectionAtCheckout = $data['requireShippingMethodSelectionAtCheckout'];
-            $storeRecord->useBillingAddressForTax = $data['useBillingAddressForTax'];
-            $storeRecord->validateOrganizationTaxIdAsVatId = $data['validateOrganizationTaxIdAsVatId'];
-            $storeRecord->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'];
-            $storeRecord->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'];
-            $storeRecord->orderReferenceFormat = $data['orderReferenceFormat'];
-            $storeRecord->currency = $data['currency'];
+
+            $storeRecord->autoSetNewCartAddresses = ($data['autoSetNewCartAddresses'] ?? false);
+            $storeRecord->autoSetCartShippingMethodOption = ($data['autoSetCartShippingMethodOption'] ?? false);
+            $storeRecord->autoSetPaymentSource = ($data['autoSetPaymentSource'] ?? false);
+            $storeRecord->allowEmptyCartOnCheckout = ($data['allowEmptyCartOnCheckout'] ?? false);
+            $storeRecord->allowCheckoutWithoutPayment = ($data['allowCheckoutWithoutPayment'] ?? false);
+            $storeRecord->allowPartialPaymentOnCheckout = ($data['allowPartialPaymentOnCheckout'] ?? false);
+            $storeRecord->requireShippingAddressAtCheckout = ($data['requireShippingAddressAtCheckout'] ?? false);
+            $storeRecord->requireBillingAddressAtCheckout = ($data['requireBillingAddressAtCheckout'] ?? false);
+            $storeRecord->requireShippingMethodSelectionAtCheckout = ($data['requireShippingMethodSelectionAtCheckout'] ?? false);
+            $storeRecord->useBillingAddressForTax = ($data['useBillingAddressForTax'] ?? false);
+            $storeRecord->validateOrganizationTaxIdAsVatId = ($data['validateOrganizationTaxIdAsVatId'] ?? false);
+            $storeRecord->freeOrderPaymentStrategy = ($data['freeOrderPaymentStrategy'] ?? 'complete');
+            $storeRecord->minimumTotalPriceStrategy = ($data['minimumTotalPriceStrategy'] ?? 'default');
+            $storeRecord->orderReferenceFormat = ($data['orderReferenceFormat'] ?? '{{number[:7]}}');
+            $storeRecord->currency = ($data['currency'] ?? null);
             $storeRecord->sortOrder = ($data['sortOrder'] ?? 99);
 
             $storeRecord->save(false);
@@ -413,10 +414,10 @@ class Stores extends Component
             Db::update(Table::STORES, ['primary' => true], ['id' => $storeRecord->id]);
         }
 
-        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'], $storeRecord->id);
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($data['currency'] ?? '', $storeRecord->id);
         if (!$paymentCurrency) {
             $data = [
-                'iso' => $data['currency'],
+                'iso' => $data['currency'] ?? 'USD',
                 'storeId' => $storeRecord->id,
                 'rate' => 1,
             ];
@@ -591,10 +592,9 @@ class Stores extends Component
 
         // Added to avoid migration issues, as settings were moved after stores table creation
         // @TODO remove at next breaking change release
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
-        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+        if ($commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=')) {
             $selectColumns = array_merge($selectColumns, [
                 'allowCheckoutWithoutPayment',
                 'allowEmptyCartOnCheckout',
@@ -619,7 +619,7 @@ class Stores extends Component
             ->select($selectColumns)
             ->from([Table::STORES]);
 
-        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+        if ($commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=')) {
             $query->orderBy(['sortOrder' => SORT_ASC]);
         }
 

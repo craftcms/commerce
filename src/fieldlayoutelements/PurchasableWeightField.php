@@ -42,6 +42,26 @@ class PurchasableWeightField extends BaseNativeField
     /**
      * @inheritdoc
      */
+    protected function showLabel(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function showInForm(?ElementInterface $element = null): bool
+    {
+        if ($element instanceof Variant && !$element->getOwner()->getType()->hasDimensions) {
+            return false;
+        }
+
+        return parent::showInForm($element);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Purchasable) {

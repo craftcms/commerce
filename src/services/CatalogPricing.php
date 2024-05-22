@@ -97,6 +97,11 @@ class CatalogPricing extends Component
                     continue;
                 }
 
+                // Skip rule if the rule is not enabled
+                if (!$catalogPricingRule->enabled) {
+                    continue;
+                }
+
                 // If `getPurchasableIds()` is `null` this means all purchasables
                 if ($catalogPricingRule->getPurchasableIds() === null) {
                     $applyPurchasableIds = $purchasableIds;
@@ -178,16 +183,24 @@ class CatalogPricing extends Component
 
                 $uuidFunction = Craft::$app->getDb()->getIsPgsql() ? 'gen_random_uuid()' : 'UUID()';
 
-                Craft::$app->getDb()->createCommand()->setSql('
-    INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[commerce_purchasables_stores]]
+                $schema = Craft::$app->getDb()->getSchema();
+                $catalogPricingTable = $schema->getRawTableName(Table::CATALOG_PRICING);
+                $commercePurchasablesStoresTable = $schema->getRawTableName(Table::PURCHASABLES_STORES);
+
+                $insert = Craft::$app->getDb()->createCommand()->setSql('
+    INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
+    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
     WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-                ')->execute();
-                Craft::$app->getDb()->createCommand()->setSql('
-    INSERT INTO [[commerce_catalogpricing]] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], true, ' . $uuidFunction . ', NOW(), NOW() FROM [[commerce_purchasables_stores]]
+                ');
+                $insert->execute();
+
+                $insert = Craft::$app->getDb()->createCommand()->setSql('
+    INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[isPromotionalPrice]], [[uid]], [[dateCreated]], [[dateUpdated]])
+    SELECT [[basePromotionalPrice]], [[purchasableId]], [[storeId]], true, ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
     WHERE (NOT ([[basePromotionalPrice]] is null)) AND [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
-                ')->execute();
+                ');
+                $insert->execute();
+
                 if ($showConsoleOutput) {
                     Console::stdout('done!');
                 }
@@ -345,6 +358,7 @@ class CatalogPricing extends Component
      * @param int|array|null $purchasableId
      * @param int|array|null $storeId
      * @return void
+     * @throws Exception
      */
     public function markPricesAsUpdatePending(int|array|null $catalogPricingRuleId = null, int|array|null $purchasableId = null, int|array|null $storeId = null): void
     {
@@ -363,7 +377,8 @@ class CatalogPricing extends Component
         }
 
         Craft::$app->getDb()->createCommand()
-            ->update(Table::CATALOG_PRICING, ['hasUpdatePending' => true], $conditions);
+            ->update(Table::CATALOG_PRICING, ['hasUpdatePending' => true], $conditions)
+            ->execute();
     }
 
     /**

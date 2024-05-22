@@ -1,5 +1,33 @@
 # Release Notes for Craft Commerce
 
+## 5.0.7 - 2024-05-22
+
+- Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
+- Added `craft\commerce\gql\types\input\IntFalse`.
+- Fixed a bug where disclosure menus on the Stores index page weren’t listing all their items.
+- Fixed an SQL error that occurred when querying for purchasables with the `hasStock` param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
+- Fixed an error that could occur when querying for products or variants via GraphQL.
+- Fixed a SQL error that could occur when generating the pricing catalog. ([#3513](https://github.com/craftcms/commerce/issues/3513))
+- Fixed a bug where untracked stock items weren’t displaying correctly in the example templates. ([#3510](https://github.com/craftcms/commerce/issues/3510))
+- Fixed a bug where the pricing catalog wasn’t getting updated after a pricing rule was disabled. ([#3515](https://github.com/craftcms/commerce/issues/3515))
+- Fixed an SQL error that could occur when switching stores. ([#3501](https://github.com/craftcms/commerce/issues/3501))
+
+## 5.0.6 - 2024-05-15
+
+- Fixed an error that occurred when deleting or duplicating a shipping rule on the Edit Shipping Rule screen. ([#3490](https://github.com/craftcms/commerce/issues/3490))
+- Fixed a bug where dimension fields did not respect their product type visibility settings. ([#3493](https://github.com/craftcms/commerce/issues/3493))
+- Fixed a SQL error that occurred when updating. ([#3495](https://github.com/craftcms/commerce/pull/3495),[#3496](https://github.com/craftcms/commerce/issues/3496))
+
+## 5.0.5 - 2024-05-09
+
+- Fixed a SQL error that could occur during installation. ([#3492](https://github.com/craftcms/commerce/issues/3492), [#3488](https://github.com/craftcms/commerce/issues/3488))
+
+## 5.0.4 - 2024-05-08
+
+- Fixed a SQL error that could occur on the Edit Store screen. ([#3482](https://github.com/craftcms/commerce/issues/3482))
+- Fixed a SQL error that could that occurred when using the `hasSales` variant query param. ([#3483](https://github.com/craftcms/commerce/issues/3483))
+- Fixed SQL errors that could occur during installation. ([#3486](https://github.com/craftcms/commerce/issues/3486), [#3488](https://github.com/craftcms/commerce/issues/3488))
+
 ## 5.0.3 - 2024-05-02
 
 - Added `craft\commerce\helpers\ProjectConfigData::ensureAllStoresProcessed()`.
