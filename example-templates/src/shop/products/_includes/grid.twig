@@ -50,7 +50,7 @@
                     checked: loop.first,
                     class: not variant.getIsAvailable() ? 'opacity-10' : '',
                     disabled: not variant.availableForPurchase,
-                  }) }}<span class="pl-1">{{ variant.sku }} ({{ variant.stock ? variant.stock ~ ' available' : 'out of stock'}})</span><span class="ml-auto">{% if variant.onPromotion %} <del class="text-gray-400 text-xs">{{ variant.price|currency(cart.currency) }}</del>{% endif %} {{ variant.salePrice|currency(cart.currency) }}</span>
+                  }) }}<span class="pl-1">{{ variant.sku }} {% if variant.inventoryTracked %}({{ variant.stock ? variant.stock ~ ' available' : 'out of stock'}}){% endif %}</span><span class="ml-auto">{% if variant.onPromotion %} <del class="text-gray-400 text-xs">{{ variant.price|currency(cart.currency) }}</del>{% endif %} {{ variant.salePrice|currency(cart.currency) }}</span>
                 </label>
               {% endfor %}
             </div>
