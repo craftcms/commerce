@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 4.6.0 - 2024-05-22
+## 4.6.1 - 2024-05-22
 
 - Fixed a bug where carts weren’t getting restored correctly after login. ([#3512](https://github.com/craftcms/commerce/issues/3512))
 - Fixed a bug where it wasn’t possible to interact with disabled variant blocks. ([#3507](https://github.com/craftcms/commerce/pull/3507))
