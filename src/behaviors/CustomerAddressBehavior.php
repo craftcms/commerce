@@ -12,6 +12,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\events\DefineRulesEvent;
 use yii\base\Behavior;
+use yii\base\InvalidConfigException;
 
 /**
  * Customer address behavior.
@@ -40,9 +41,14 @@ class CustomerAddressBehavior extends Behavior
 
     /**
      * @param DefineRulesEvent $event
+     * @throws InvalidConfigException
      */
     public function defineRules(DefineRulesEvent $event): void
     {
+        if (!$this->owner->getOwner() instanceof User) {
+            return;
+        }
+
         $event->rules[] = [['isPrimaryBilling', 'isPrimaryShipping'], 'boolean'];
     }
 
