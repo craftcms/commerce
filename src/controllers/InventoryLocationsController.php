@@ -258,7 +258,7 @@ JS, [
                 'handle' => $inventoryLocation->handle,
                 'address' => $inventoryLocation->getAddressLine(),
                 'url' => $inventoryLocation->getCpEditUrl(),
-                'delete' => $deleteButton,
+                'delete' => $inventoryLocations->count() > 1 ? $deleteButton : '',
             ];
         }
 
@@ -288,6 +288,11 @@ JS, [
         $destinationInventoryLocationsOptions = $destinationInventoryLocations
             ->map(fn($location) => ['value' => $location->id, 'label' => $location->name])->all();
 
+        if (empty($destinationInventoryLocationsOptions)) {
+            // throw exception not allowed to delete
+            throw new \Exception('Can not delete last inventory location.');
+        }
+
         $deactivateInventoryLocation = new DeactivateInventoryLocation([
             'inventoryLocation' => $inventoryLocation,
             'destinationInventoryLocation' => $destinationInventoryLocations->first(),
@@ -296,7 +301,7 @@ JS, [
         return $this->asCpModal()
             ->action('commerce/inventory-locations/deactivate')
             ->submitButtonLabel(Craft::t('commerce', 'Delete'))
-            ->errorSummary('errors man')
+            ->errorSummary('Can not delete inventory location.')
             ->contentTemplate('commerce/inventory-locations/_deleteModal', [
                 'deactivateInventoryLocation' => $deactivateInventoryLocation,
                 'inventoryLocationOptions' => $destinationInventoryLocationsOptions,
