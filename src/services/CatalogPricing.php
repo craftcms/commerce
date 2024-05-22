@@ -189,7 +189,7 @@ class CatalogPricing extends Component
 
                 $insert = Craft::$app->getDb()->createCommand()->setSql('
     INSERT INTO [[' . $catalogPricingTable . ']] ([[price]], [[purchasableId]], [[storeId]], [[uid]], [[dateCreated]], [[dateUpdated]])
-    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [['. $commercePurchasablesStoresTable .']]
+    SELECT [[basePrice]], [[purchasableId]], [[storeId]], ' . $uuidFunction . ', NOW(), NOW() FROM [[' . $commercePurchasablesStoresTable . ']]
     WHERE [[purchasableId]] IN (' . implode(',', $purchasableIdsChunk) . ')
                 ');
                 $insert->execute();
