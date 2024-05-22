@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.7 - 2024-05-22
 
 - Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
 - Added `craft\commerce\gql\types\input\IntFalse`.
