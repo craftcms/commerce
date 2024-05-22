@@ -3,15 +3,14 @@
 ## Unreleased
 
 - Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
-- Fixed a bug where the store management menu was not listing all items on the Stores index page.
-- Fixed an SQL error that occurred when using the `hasStock` Purchasable query param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
-- Fixed an error that could occur when querying products via GraphQL.
-- Fixed an error that could occur when querying variants via GraphQL.
-- Fixed a SQL error that could occur when generating the pricing catalog. ([#3513](https://github.com/craftcms/commerce/issues/3513))
-- Fixed a bug where untracked stock items did not show correctly on the example templates. ([#3510](https://github.com/craftcms/commerce/issues/3510))
-- Fixed a bug where disabling a pricing rule wouldn’t update catalog prices. ([#3515](https://github.com/craftcms/commerce/issues/3515))
-- Fixed an SQL error that could occur when switching stores. ([#3501](https://github.com/craftcms/commerce/issues/3501))
 - Added `craft\commerce\gql\types\input\IntFalse`.
+- Fixed a bug where disclosure menus on the Stores index page weren’t listing all their items.
+- Fixed an SQL error that occurred when querying for purchasables with the `hasStock` param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
+- Fixed an error that could occur when querying for products or variants via GraphQL.
+- Fixed a SQL error that could occur when generating the pricing catalog. ([#3513](https://github.com/craftcms/commerce/issues/3513))
+- Fixed a bug where untracked stock items weren’t displaying correctly in the example templates. ([#3510](https://github.com/craftcms/commerce/issues/3510))
+- Fixed a bug where the pricing catalog wasn’t getting updated after a pricing rule was disabled. ([#3515](https://github.com/craftcms/commerce/issues/3515))
+- Fixed an SQL error that could occur when switching stores. ([#3501](https://github.com/craftcms/commerce/issues/3501))
 
 ## 5.0.6 - 2024-05-15
 
