@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-- Fixed a PHP error that could occur when saving a new order. 
+- Fixed a bug where it wasn’t possible to interact with disabled Variant blocks. ([#3507](https://github.com/craftcms/commerce/pull/3507))
+- Fixed a PHP error that could occur when saving a new order.
 
 ## 4.6.0 - 2024-04-30
 
