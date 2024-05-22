@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where carts weren’t getting restored correctly after login. ([#3512](https://github.com/craftcms/commerce/issues/3512))
 - Fixed a bug where it wasn’t possible to interact with disabled Variant blocks. ([#3507](https://github.com/craftcms/commerce/pull/3507))
 - Fixed a PHP error that could occur when saving a new order.
 
