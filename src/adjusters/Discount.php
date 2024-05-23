@@ -10,6 +10,7 @@ namespace craft\commerce\adjusters;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\events\DiscountAdjustmentsEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\Discount as DiscountModel;
@@ -164,7 +165,7 @@ class Discount extends Component implements AdjusterInterface
 
             // Remove non-promotable line items
             $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, function(LineItem $lineItem) {
-                if ($lineItem->type === LineItem::TYPE_CUSTOM) {
+                if ($lineItem->type === LineItemType::Custom->value) {
                     return true;
                 }
 

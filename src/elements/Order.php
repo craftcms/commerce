@@ -24,6 +24,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
@@ -1933,15 +1934,10 @@ class Order extends Element implements HasStoreInterface
 
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
-                if ($item->type === LineItem::TYPE_CUSTOM) {
-                    // @TODO figure out if we need to have a population/refresh here
-                    $item->populate();
-                    continue;
-                }
-
                 $originalSalePrice = $item->getSalePrice();
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
-                if ($item->refreshFromPurchasable()) {
+
+                if ($item->refresh()) {
                     if ($originalSalePrice > $item->salePrice) {
                         $message = Craft::t('commerce', 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */

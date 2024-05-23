@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
@@ -354,7 +355,7 @@ class LineItems extends Component
                 throw new InvalidArgumentException('Invalid purchasable ID');
             }
         } else {
-            $lineItem->type = LineItem::TYPE_CUSTOM;
+            $lineItem->type = LineItemType::Custom->value;
             // @TODO add event to hook into custom line item population
 
             // Temp snapshot for custom line items
@@ -371,9 +372,7 @@ class LineItems extends Component
             ]));
         }
 
-        if ($lineItem->type === LineItem::TYPE_PURCHASABLE) {
-            $lineItem->refreshFromPurchasable();
-        }
+        $lineItem->refresh();
 
         return $lineItem;
     }

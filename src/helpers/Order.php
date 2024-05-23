@@ -8,6 +8,7 @@
 namespace craft\commerce\helpers;
 
 use craft\commerce\elements\Order as OrderElement;
+use craft\commerce\enums\LineItemType;
 
 /**
  * Order helper
@@ -27,10 +28,10 @@ class Order
 
         foreach ($lineItems as $lineItem) {
             // Generate a key depending on line item type
-            if ($lineItem->type === $lineItem::TYPE_PURCHASABLE) {
-                $key = $lineItem->orderId . '-' . $lineItem::TYPE_PURCHASABLE . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
+            if ($lineItem->type === LineItemType::Purchasable->value) {
+                $key = $lineItem->orderId . '-' . LineItemType::Purchasable->value . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
             } else {
-                $key = $lineItem->orderId . '-' . $lineItem::TYPE_CUSTOM . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
+                $key = $lineItem->orderId . '-' . LineItemType::Custom->value . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();
             }
 
             if (!isset($lineItemsByKey[$key])) {
