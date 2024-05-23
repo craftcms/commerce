@@ -584,7 +584,7 @@
       // }
 
       this.$container.children('input[name$="[enabled]"]:first').val('');
-      this.$container.addClass('disabled');
+      this.$container.addClass('disabled-entry');
 
       setTimeout(
         $.proxy(function () {
@@ -607,7 +607,7 @@
 
     enable: function () {
       this.$container.children('input[name$="[enabled]"]:first').val('1');
-      this.$container.removeClass('disabled');
+      this.$container.removeClass('disabled-entry');
 
       setTimeout(
         $.proxy(function () {
@@ -645,7 +645,7 @@
       this.$actionMenu
         .find('a[data-action=disable]:first')
         .parent()
-        .removeClass('disabled');
+        .removeClass('disabled-entry');
     },
 
     isDefault: function () {

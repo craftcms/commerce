@@ -50,17 +50,12 @@ class Extension extends AbstractExtension implements GlobalsInterface
      */
     public function getGlobals(): array
     {
-        $app = Craft::$app;
-        $plugins = $app->getPlugins();
-        $updates = $app->getUpdates();
-        $isInstalled = $app->getIsInstalled() && $plugins->isPluginInstalled('commerce') && $plugins->isPluginEnabled('commerce');
+        $currentStore = null;
 
-        if ($isInstalled && !$updates->getIsCraftUpdatePending()) {
-            /** @var Site|StoreBehavior $currentSite */
-            $currentSite = $app->getSites()->getCurrentSite();
+        /** @var Site|StoreBehavior $currentSite */
+        $currentSite = Craft::$app->getSites()->getCurrentSite();
+        if ($currentSite->getBehavior('commerce:store') !== null) {
             $currentStore = $currentSite->getStore();
-        } else {
-            $currentStore = null;
         }
 
         return [

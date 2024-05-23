@@ -340,6 +340,11 @@ class Carts extends Component
     public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
+        $currentStoreId = Plugin::getInstance()->getStores()->getCurrentStore()->id;
+
+        if (!$currentUser) {
+            return;
+        }
 
         // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
@@ -349,6 +354,7 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $anyPreviousCart */
@@ -356,6 +362,7 @@ class Carts extends Component
             ->customer($currentUser)
             ->isCompleted(false)
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
         /** @var Order|null $currentCartInSession */
@@ -364,19 +371,24 @@ class Carts extends Component
             ->isCompleted(false)
             ->hasLineItems()
             ->trashed(false)
+            ->storeId($currentStoreId)
             ->one();
 
-        if ($currentUser &&
-            $previousCartsWithLineItems
-        ) {
-            // Restore previous cart that has line items
-            $this->_cart = $previousCartsWithLineItems;
-            $this->setSessionCartNumber($previousCartsWithLineItems->number);
-        } elseif ($currentUser && $currentCartInSession) {
+        /**
+         * Cart restoring preference order:
+         * 1. Give the cart in session to the current customer if they are logging in and there are items in the cart
+         * 2. Restore a previous cart belonging to the customer that has line items
+         * 3. Restore any other previous cart for the customer
+         */
+        if ($currentCartInSession) {
             // Give the cart to the current customer if they are logging in and there are items in the cart
             // Call get cart as this will switch the user and save it if needed
             $this->getCart();
-        } elseif ($currentUser && $anyPreviousCart) {
+        } elseif ($previousCartsWithLineItems) {
+            // Restore previous cart that has line items
+            $this->_cart = $previousCartsWithLineItems;
+            $this->setSessionCartNumber($previousCartsWithLineItems->number);
+        } elseif ($anyPreviousCart) {
             // Finally try to restore any other previous cart for the customer
             $this->_cart = $anyPreviousCart;
             $this->setSessionCartNumber($anyPreviousCart->number);

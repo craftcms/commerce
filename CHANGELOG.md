@@ -1,12 +1,16 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.7 - 2024-05-22
 
-- Added a new “Manage subscription plans” permission.
-- Added a new “Manage donation settings” permission.
-- Added a new “Manage store general setting” permission.
-- Added a new “Manage payment currencies” permission.
-- Fixed a bug where the store management menu was not listing all items on the Stores index page.
+- Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
+- Added `craft\commerce\gql\types\input\IntFalse`.
+- Fixed a bug where disclosure menus on the Stores index page weren’t listing all their items.
+- Fixed an SQL error that occurred when querying for purchasables with the `hasStock` param. ([#3505](https://github.com/craftcms/commerce/issues/3505))
+- Fixed an error that could occur when querying for products or variants via GraphQL.
+- Fixed a SQL error that could occur when generating the pricing catalog. ([#3513](https://github.com/craftcms/commerce/issues/3513))
+- Fixed a bug where untracked stock items weren’t displaying correctly in the example templates. ([#3510](https://github.com/craftcms/commerce/issues/3510))
+- Fixed a bug where the pricing catalog wasn’t getting updated after a pricing rule was disabled. ([#3515](https://github.com/craftcms/commerce/issues/3515))
+- Fixed an SQL error that could occur when switching stores. ([#3501](https://github.com/craftcms/commerce/issues/3501))
 
 ## 5.0.6 - 2024-05-15
 

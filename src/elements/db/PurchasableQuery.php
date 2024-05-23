@@ -798,26 +798,6 @@ abstract class PurchasableQuery extends ElementQuery
             }
         }
 
-        if (isset($this->hasStock)) {
-            if ($this->hasStock) {
-                $this->subQuery->andWhere([
-                    'or',
-                    ['purchasables_stores.hasUnlimitedStock' => true],
-                    [
-                        'and',
-                        ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
-                        ['>', 'purchasables_stores.stock', 0],
-                    ],
-                ]);
-            } else {
-                $this->subQuery->andWhere([
-                    'and',
-                    ['not', ['purchasables_stores.hasUnlimitedStock' => true]],
-                    ['<', 'purchasables_stores.stock', 1],
-                ]);
-            }
-        }
-
         return parent::beforePrepare();
     }
 
