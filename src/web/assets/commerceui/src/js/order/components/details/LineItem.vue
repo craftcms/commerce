@@ -15,7 +15,8 @@
                         v-if="
                             editing &&
                             editMode &&
-                            lineItem.type === lineItemTypes.custom
+                            lineItem.type &&
+                            lineItem.type.value === lineItemTypes.Custom.value
                         "
                     >
                         <field
@@ -57,14 +58,18 @@
                             'mt-s':
                                 editing &&
                                 editMode &&
-                                lineItem.type === lineItemTypes.custom,
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value,
                         }"
                     >
                         <template
                             v-if="
                                 editing &&
                                 editMode &&
-                                lineItem.type === lineItemTypes.custom
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value
                             "
                         >
                             <field
@@ -136,7 +141,8 @@
                                             editing &&
                                             editMode &&
                                             (recalculationMode === 'none' ||
-                                                lineItem.type === 'custom')
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
                                         "
                                     >
                                         <field
@@ -178,7 +184,8 @@
                                             editing &&
                                             editMode &&
                                             (recalculationMode === 'none' ||
-                                                lineItem.type === 'custom')
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
                                         "
                                     >
                                         <div>

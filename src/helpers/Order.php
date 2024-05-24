@@ -28,7 +28,7 @@ class Order
 
         foreach ($lineItems as $lineItem) {
             // Generate a key depending on line item type
-            if ($lineItem->type === LineItemType::Purchasable->value) {
+            if ($lineItem->type === LineItemType::Purchasable) {
                 $key = $lineItem->orderId . '-' . LineItemType::Purchasable->value . '-' . $lineItem->purchasableId . '-' . $lineItem->getOptionsSignature();
             } else {
                 $key = $lineItem->orderId . '-' . LineItemType::Custom->value . '-' . $lineItem->getSku() . '-' . $lineItem->getOptionsSignature();

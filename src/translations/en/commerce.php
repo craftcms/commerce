@@ -18,6 +18,7 @@ return [
     'Active' => 'Active',
     'Add Address' => 'Add Address',
     'Add a coupon' => 'Add a coupon',
+    'Add a custom line item' => 'Add a custom line item',
     'Add a line item' => 'Add a line item',
     'Add a product' => 'Add a product',
     'Add a variant' => 'Add a variant',

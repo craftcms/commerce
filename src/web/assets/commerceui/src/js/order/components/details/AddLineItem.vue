@@ -253,6 +253,7 @@
                         if (purchasable && purchasable.isAvailable) {
                             lineItems.push({
                                 id: null,
+                                type: this.lineItemTypes.Purchasable,
                                 lineItemStatusId: null,
                                 price: purchasable.price,
                                 promotionalPrice: purchasable.promotionalPrice,
@@ -321,9 +322,9 @@
                         promotionalPrice: null,
                         purchasableId: null,
                         qty: 1,
-                        sku: Math.random().toString(36).substring(2, 6), // Random SKU
+                        sku: Math.random().toString(36).substring(2, 8), // Random SKU
                         shippingCategoryId: this.defaultShippingCategoryId,
-                        type: this.lineItemTypes.custom,
+                        type: this.lineItemTypes.Custom,
                         taxCategoryId: this.defaultTaxCategoryId,
                         uid: UUID,
                     };

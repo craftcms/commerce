@@ -67,10 +67,10 @@ export default {
       _lineItem.id = this.parseInputValue('int', lineItem.id);
       _lineItem.type = lineItem.type;
 
-      if (lineItem.type === 'custom' && lineItem.description) {
+      if (lineItem.type.value === 'custom' && lineItem.description) {
         _lineItem.description = lineItem.description;
       }
-      if (lineItem.type === 'custom' && lineItem.sku) {
+      if (lineItem.type.value === 'custom' && lineItem.sku) {
         _lineItem.sku = lineItem.sku;
       }
 

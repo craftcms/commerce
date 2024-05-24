@@ -24,7 +24,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
-use craft\commerce\enums\LineItemType;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;

@@ -231,7 +231,7 @@ class LineItems extends Component
             return false;
         }
 
-        $lineItemRecord->type = $lineItem->type;
+        $lineItemRecord->type = $lineItem->type->value;
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
@@ -355,11 +355,7 @@ class LineItems extends Component
                 throw new InvalidArgumentException('Invalid purchasable ID');
             }
         } else {
-            $lineItem->type = LineItemType::Custom->value;
-            // @TODO add event to hook into custom line item population
-
-            // Temp snapshot for custom line items
-            $lineItem->setSnapshot(['foo' => 'bar a custom line item']);
+            $lineItem->type = LineItemType::Custom;
         }
 
         $lineItem->populate($populateData);

@@ -29,10 +29,7 @@ enum LineItemType: string
      */
     public static function types(): array
     {
-        return [
-            self::Custom->value => Craft::t('commerce', 'Custom'),
-            self::Purchasable->value => Craft::t('commerce', 'Purchasable'),
-        ];
+        return array_combine(self::names(), self::cases());
     }
 
     /**
