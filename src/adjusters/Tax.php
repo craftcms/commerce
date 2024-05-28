@@ -18,8 +18,9 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\elements\Address;
-use DvK\Vat\Validator;
 use Exception;
+use Ibericode\Vat\Countries;
+use Ibericode\Vat\Validator;
 use function in_array;
 
 /**
@@ -123,7 +124,7 @@ class Tax extends Component implements AdjusterInterface
         $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
         if ($zoneMatches && $taxRate->isVat) {
-            $hasValidEuVatId = $this->organizationTaxId();
+            $hasValidEuVatId = $this->_hasValidVatOrganizationTaxId();
         }
 
         $removeIncluded = (!$zoneMatches && $taxRate->removeIncluded);
@@ -323,11 +324,12 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return bool
      */
-    private function organizationTaxId(): bool
+    private function _hasValidVatOrganizationTaxId(): bool
     {
         if (!$this->_address) {
             return false;
         }
+
         if (!$this->_address->organizationTaxId) {
             return false;
         }
@@ -336,20 +338,23 @@ class Tax extends Component implements AdjusterInterface
             return false;
         }
 
-        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
-
-        // If we do not have a valid VAT ID in cache, see if we can get one from the API
-        if (!$validOrganizationTaxId) {
-            $validOrganizationTaxId = $this->validateVatNumber($this->_address->organizationTaxId);
+        if (!$this->_getVatValidator()->validateCountryCode($this->_address->getCountryCode())) {
+            return false;
         }
 
-        if ($validOrganizationTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, '1');
-            return true;
+        if (!(new Countries)->isCountryCodeInEU($this->_address->getCountryCode())) {
+            return false;
         }
 
-        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->organizationTaxId);
-        return false;
+        $validOrganizationTaxIdExistsInCache = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
+
+        // If we do not have a VAT ID in cache, set it from the API
+        if (!$validOrganizationTaxIdExistsInCache) {
+            $valid = $this->validateVatNumber($this->_address->organizationTaxId) ? '1' : '0';
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, $valid);
+        }
+
+        return Craft::$app->getCache()->get('commerce:validVatId:' . $this->_address->organizationTaxId) === '1';
     }
 
     /**
@@ -359,7 +364,7 @@ class Tax extends Component implements AdjusterInterface
     protected function validateVatNumber(string $businessVatId): bool
     {
         try {
-            return $this->_getVatValidator()->validate($businessVatId);
+            return $this->_getVatValidator()->validateVatNumber($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 

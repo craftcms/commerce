@@ -6,8 +6,8 @@ use Craft;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\events\DefineRulesEvent;
-use DvK\Vat\Validator;
 use Exception;
+use Ibericode\Vat\Validator;
 use RuntimeException;
 use yii\base\Behavior;
 
@@ -64,22 +64,18 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
         }
 
         // Do we have a valid VAT ID in our cache?
-        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->owner->organizationTaxId);
+        $validOrganizationTaxIdExistsInCache = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->owner->organizationTaxId);
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
-        if (!$validOrganizationTaxId) {
-            $validOrganizationTaxId = $this->_validateVatNumber($this->owner->organizationTaxId);
+        if (!$validOrganizationTaxIdExistsInCache) {
+            $isValid = $this->_validateVatNumber($this->owner->organizationTaxId) ? '1' : '0';
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->owner->organizationTaxId, $isValid);
         }
 
-        if ($validOrganizationTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $this->owner->organizationTaxId, '1');
-        }
-
-        // Clean up if the API returned false and the item was still in cache
-        if (!$validOrganizationTaxId) {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->owner->organizationTaxId);
+        if (Craft::$app->getCache()->get('commerce:validVatId:' . $this->owner->organizationTaxId) === '0') {
             $this->owner->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
-        }
+        };
+
     }
 
     /**
@@ -89,7 +85,7 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
     private function _validateVatNumber(string $businessVatId): bool
     {
         try {
-            return $this->_getVatValidator()->validate($businessVatId);
+            return $this->_getVatValidator()->validateVatNumber($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
