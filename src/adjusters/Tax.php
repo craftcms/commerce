@@ -338,7 +338,7 @@ class Tax extends Component implements AdjusterInterface
             return false;
         }
 
-        if (!$this->_getVatValidator()->validateCountryCode($this->_address->getCountryCode())) {
+        if (!$this->getVatValidator()->validateCountryCode($this->_address->getCountryCode())) {
             return false;
         }
 
@@ -350,6 +350,7 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a VAT ID in cache, set it from the API
         if (!$validOrganizationTaxIdExistsInCache) {
+
             $valid = $this->validateVatNumber($this->_address->organizationTaxId) ? '1' : '0';
             Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, $valid);
         }
@@ -360,11 +361,12 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @param string $businessVatId
      * @return bool
+     * @deprecated in 4.6.2 Use the `$this->_getVatValidator()->validateVatNumber()` method instead.
      */
     protected function validateVatNumber(string $businessVatId): bool
     {
         try {
-            return $this->_getVatValidator()->validateVatNumber($businessVatId);
+            return $this->getVatValidator()->validateVatNumber($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
@@ -372,13 +374,25 @@ class Tax extends Component implements AdjusterInterface
         }
     }
 
-    private function _getVatValidator(): Validator
+    /**
+     * @return Validator
+     */
+    protected function getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
             $this->_vatValidator = new Validator();
         }
 
         return $this->_vatValidator;
+    }
+
+    /**
+     * @return Validator
+     * @deprecated in 4.6.2 Use the `$this->getVatValidator()` method instead.
+     */
+    protected function _getVatValidator(): Validator
+    {
+        return $this->getVatValidator();
     }
 
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
