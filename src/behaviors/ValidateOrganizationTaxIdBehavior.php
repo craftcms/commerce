@@ -75,7 +75,6 @@ class ValidateOrganizationTaxIdBehavior extends Behavior
         if (Craft::$app->getCache()->get('commerce:validVatId:' . $this->owner->organizationTaxId) === '0') {
             $this->owner->addError('organizationTaxId', Craft::t('commerce', 'Invalid VAT ID.'));
         };
-
     }
 
     /**

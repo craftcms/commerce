@@ -342,7 +342,7 @@ class Tax extends Component implements AdjusterInterface
             return false;
         }
 
-        if (!(new Countries)->isCountryCodeInEU($this->_address->getCountryCode())) {
+        if (!(new Countries())->isCountryCodeInEU($this->_address->getCountryCode())) {
             return false;
         }
 
@@ -350,7 +350,6 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a VAT ID in cache, set it from the API
         if (!$validOrganizationTaxIdExistsInCache) {
-
             $valid = $this->validateVatNumber($this->_address->organizationTaxId) ? '1' : '0';
             Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, $valid);
         }
