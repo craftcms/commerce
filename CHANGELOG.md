@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed missing validation for Inventory Location handles. ([#3511](https://github.com/craftcms/commerce/issues/3511))
+
 ## 5.0.7 - 2024-05-22
 
 - Improved store query performance. ([#3481](https://github.com/craftcms/commerce/issues/3481))
