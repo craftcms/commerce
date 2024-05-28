@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where an Order’s shipping method name could be cleared when saving a completed order with a shipping method provided by a plugin. ([#3519](https://github.com/craftcms/commerce/issues/3519))
+
 ## 4.6.1 - 2024-05-22
 
 - Fixed a bug where carts weren’t getting restored correctly after login. ([#3512](https://github.com/craftcms/commerce/issues/3512))
