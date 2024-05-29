@@ -81,7 +81,6 @@ class PurchasablePriceField extends BaseNativeField
         $id = $view->namespaceInputId('commerce-purchasable-price-field');
         $priceNamespace = $view->namespaceInputName('basePrice');
         $promotionalPriceNamespace = $view->namespaceInputName('basePromotionalPrice');
-        $name = Craft::t('commerce', '{name} catalog price', ['name' => Json::encode($element->title)]);
 
         /** @var CatalogPricingCondition $catalogPricingCondition */
         $catalogPricingCondition = Craft::$app->getConditions()->createCondition([
@@ -101,7 +100,6 @@ class PurchasablePriceField extends BaseNativeField
         $js = <<<JS
 (() => {
     new Craft.Commerce.PurchasablePriceField('$id', {
-        catalogPricingRuleTempName: '$name',
         siteId: $element->siteId,
         conditionBuilderConfig: $conditionBuilderConfig,
         fieldNames: {
@@ -111,7 +109,7 @@ class PurchasablePriceField extends BaseNativeField
     });
 })();
 JS;
-        $view->registerJs($js);
+        $view->registerJs($js, $view::POS_END);
 
         $canUseCatalogPricingRules = Plugin::getInstance()->getCatalogPricingRules()->canUseCatalogPricingRules();
         $toggleTitle = Craft::t('commerce', 'Show related sales');
@@ -130,6 +128,7 @@ JS;
                     'data-store-id' => $element->storeId,
                     'data-store-handle' => $element->getStore()->handle,
                     'data-purchasable-id' => $element->id,
+                    'data-asdsa' => $element->firstSave,
                 ]) .
                 Cp::renderTemplate('commerce/prices/_status', [
                     'areCatalogPricingJobsRunning' => Plugin::getInstance()->getCatalogPricing()->areCatalogPricingJobsRunning(),
@@ -181,7 +180,9 @@ JS;
                     ]) : '') .
 
             Html::endTag('div') .
-            ($toggleContent ? Html::beginTag('div') .
+
+            // Hide the prices table if the element is a draft
+            ($toggleContent ? Html::beginTag('div', ['class' => $element->getIsDraft() ? 'hidden' : '' ]) .
                 Html::tag('div',
                     Html::tag('a', $toggleTitle, ['class' => 'fieldtoggle', 'data-target' => 'purchasable-toggle']) .
                     Html::beginTag('div', $toggleAttributes) .

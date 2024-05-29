@@ -278,7 +278,7 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
-        
+
         Craft::$app->onInit(function() {
             $request = Craft::$app->getRequest();
             $this->_addTwigExtensions();

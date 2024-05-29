@@ -16,7 +16,6 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
   id: null,
 
   defaults: {
-    catalogPricingRuleTempName: null,
     siteId: null,
     conditionBuilderConfig: null,
     fieldNames: {
@@ -126,7 +125,6 @@ Craft.Commerce.PurchasablePriceField = Garnish.Base.extend({
         params.id = _this.data('catalog-pricing-rule-id');
       } else {
         params.purchasableId = _this.data('purchasable-id');
-        params.name = instance.settings.catalogPricingRuleTempName;
       }
 
       const slideout = new Craft.CpScreenSlideout(

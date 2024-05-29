@@ -7,6 +7,7 @@
 
 namespace craft\commerce\web\assets\purchasablepricefield;
 
+use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 use craft\web\View;
@@ -28,6 +29,7 @@ class PurchasablePriceFieldAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
+            CommerceCpAsset::class,
         ];
 
         $this->js[] = 'purchasablepricefield.js';
