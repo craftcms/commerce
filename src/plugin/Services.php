@@ -49,6 +49,7 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Transfers;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Vat;
 use craft\commerce\services\Webhooks;
@@ -565,10 +566,10 @@ trait Services
      * @return Transfers The transfers service
      * @throws InvalidConfigException
      */
-//    public function getTransfers(): Transfers
-//    {
-//        return $this->get('transfers');
-//    }
+    public function getTransfers(): Transfers
+    {
+        return $this->get('transfers');
+    }
 
     /**
      * Returns the variants service
