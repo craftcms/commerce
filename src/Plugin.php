@@ -246,7 +246,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.0.74';
+    public string $schemaVersion = '5.0.76';
 
     /**
      * @inheritdoc
@@ -388,18 +388,19 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
-            // @TODO: change "Plans" to "Subscription Plans" in 5.1.0
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans')) {
             $ret['subnav']['subscription-plans'] = [
-                'label' => Craft::t('commerce', 'Plans'),
+                'label' => Craft::t('commerce', 'Subscription Plans'),
                 'url' => 'commerce/subscription-plans',
             ];
         }
 
-        $ret['subnav']['donations'] = [
-            'label' => Craft::t('commerce', 'Donations'),
-            'url' => 'commerce/donations',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
+            $ret['subnav']['donations'] = [
+                'label' => Craft::t('commerce', 'Donations'),
+                'url' => 'commerce/donations',
+            ];
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
@@ -551,14 +552,21 @@ class Plugin extends BasePlugin
 
                             ],
                         ],
-                        'commerce-managePromotions' => $this->_registerPromotionPermission(),
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
                         'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
                         'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
                         'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
-                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
+                            'nested' => [
+                                'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
+                                'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
+                                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                                'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                            ],
+                        ],
+                        'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
                     ],
             ];
         });
