@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where an Order’s shipping method name could be cleared when saving a completed order with a shipping method provided by a plugin. ([#3519](https://github.com/craftcms/commerce/issues/3519))
+- Fixed a PHP error that could occur when initializing Craft Commerce.
 
 ## 4.6.1 - 2024-05-22
 
