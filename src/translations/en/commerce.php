@@ -569,6 +569,7 @@ return [
     'Invoice amount' => 'Invoice amount',
     'Invoice date' => 'Invoice date',
     'Is EU VAT?' => 'Is EU VAT?',
+    'Is Promotable' => 'Is Promotable',
     'Is Promotional Price?' => 'Is Promotional Price?',
     'Is subscription active?' => 'Is subscription active?',
     'Item Rates' => 'Item Rates',

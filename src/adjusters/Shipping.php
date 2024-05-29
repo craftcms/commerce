@@ -67,7 +67,7 @@ class Shipping extends Component implements AdjusterInterface
         $nonShippableItems = [];
 
         foreach ($lineItems as $item) {
-            if ($item->getIsShippable()) {
+            if (!$item->getIsShippable()) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }

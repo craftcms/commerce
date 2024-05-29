@@ -514,6 +514,7 @@ class LineItem extends Model
     protected function defineRules(): array
     {
         $rules = [
+            [['type'], 'safe'],
             [
                 [
                     'optionsSignature',
@@ -598,6 +599,7 @@ class LineItem extends Model
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
 
+        $names[] = 'type';
         $names[] = 'adjustments';
         $names[] = 'description';
         $names[] = 'hasFreeShipping';
@@ -771,11 +773,6 @@ class LineItem extends Model
      */
     public function setHasFreeShipping(?bool $hasFreeShipping): void
     {
-        if ($this->type === LineItemType::Purchasable) {
-            $this->_hasFreeShipping = null;
-            return;
-        }
-
         $this->_hasFreeShipping = $hasFreeShipping;
     }
 
@@ -877,6 +874,7 @@ class LineItem extends Model
         }
 
         // Set all things from the purchasable interface that are applicable to the line item.
+        $this->purchasableId = $purchasable->getId();
         $this->setPrice($purchasable->getPrice());
         $this->setPromotionalPrice($purchasable->getPromotionalPrice());
         $this->taxCategoryId = $purchasable->getTaxCategory()->id;
@@ -934,11 +932,6 @@ class LineItem extends Model
      */
     public function setIsPromotable(?bool $isPromotable): void
     {
-        if ($this->type === LineItemType::Purchasable) {
-            $this->_isPromotable = null;
-            return;
-        }
-
         $this->_isPromotable = $isPromotable;
     }
 

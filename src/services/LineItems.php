@@ -232,6 +232,9 @@ class LineItems extends Component
         }
 
         $lineItemRecord->type = $lineItem->type->value;
+        $lineItemRecord->hasFreeShipping = $lineItem->type === LineItemType::Custom ? $lineItem->getHasFreeShipping() : null;
+        $lineItemRecord->isPromotable = $lineItem->type === LineItemType::Custom ? $lineItem->getIsPromotable() : null;
+
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
@@ -449,8 +452,10 @@ class LineItems extends Component
                 'dateCreated',
                 'dateUpdated',
                 'description',
+                'hasFreeShipping',
                 'height',
                 'id',
+                'isPromotable',
                 'length',
                 'lineItemStatusId',
                 'note',

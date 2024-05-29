@@ -74,6 +74,20 @@ export default {
         _lineItem.sku = lineItem.sku;
       }
 
+      if (
+        lineItem.type.value === 'custom' &&
+        lineItem.hasFreeShipping !== undefined
+      ) {
+        _lineItem.hasFreeShipping = lineItem.hasFreeShipping;
+      }
+
+      if (
+        lineItem.type.value === 'custom' &&
+        lineItem.isPromotable !== undefined
+      ) {
+        _lineItem.isPromotable = lineItem.isPromotable;
+      }
+
       _lineItem.purchasableId = this.parseInputValue(
         'int',
         lineItem.purchasableId

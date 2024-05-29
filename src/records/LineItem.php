@@ -45,6 +45,8 @@ use yii\db\ActiveQueryInterface;
  * @property-read ActiveQueryInterface $lineItemStatus
  * @property float $width
  * @property string $type
+ * @property bool|null $hasFreeShipping
+ * @property bool|null $isPromotable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

@@ -274,6 +274,52 @@
                     </div>
 
                     <div>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'hasFreeShipping'"
+                                :label="
+                                    $options.filters.t(
+                                        'Has Free Shipping',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isPromotable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Promotable',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
                         <line-item-adjustments
                             :order-id="orderId"
                             :line-item="lineItem"
@@ -376,6 +422,7 @@
     import LineItemOptions from './LineItemOptions';
     import LineItemNotes from './LineItemNotes';
     import LineItemAdjustments from './LineItemAdjustments';
+    import LineItemProperty from './LineItemProperty.vue';
     import Snapshot from './Snapshot';
 
     export default {
@@ -385,6 +432,7 @@
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
+            LineItemProperty,
             Snapshot,
         },
 
