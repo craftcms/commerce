@@ -18,8 +18,9 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\elements\Address;
-use DvK\Vat\Validator;
 use Exception;
+use Ibericode\Vat\Countries;
+use Ibericode\Vat\Validator;
 use function in_array;
 
 /**
@@ -123,7 +124,7 @@ class Tax extends Component implements AdjusterInterface
         $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
         if ($zoneMatches && $taxRate->isVat) {
-            $hasValidEuVatId = $this->organizationTaxId();
+            $hasValidEuVatId = $this->_hasValidVatOrganizationTaxId();
         }
 
         $removeIncluded = (!$zoneMatches && $taxRate->removeIncluded);
@@ -323,11 +324,12 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return bool
      */
-    private function organizationTaxId(): bool
+    private function _hasValidVatOrganizationTaxId(): bool
     {
         if (!$this->_address) {
             return false;
         }
+
         if (!$this->_address->organizationTaxId) {
             return false;
         }
@@ -336,30 +338,34 @@ class Tax extends Component implements AdjusterInterface
             return false;
         }
 
-        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
-
-        // If we do not have a valid VAT ID in cache, see if we can get one from the API
-        if (!$validOrganizationTaxId) {
-            $validOrganizationTaxId = $this->validateVatNumber($this->_address->organizationTaxId);
+        if (!$this->getVatValidator()->validateCountryCode($this->_address->getCountryCode())) {
+            return false;
         }
 
-        if ($validOrganizationTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, '1');
-            return true;
+        if (!(new Countries())->isCountryCodeInEU($this->_address->getCountryCode())) {
+            return false;
         }
 
-        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->organizationTaxId);
-        return false;
+        $validOrganizationTaxIdExistsInCache = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
+
+        // If we do not have a VAT ID in cache, set it from the API
+        if (!$validOrganizationTaxIdExistsInCache) {
+            $valid = $this->validateVatNumber($this->_address->organizationTaxId) ? '1' : '0';
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, $valid);
+        }
+
+        return Craft::$app->getCache()->get('commerce:validVatId:' . $this->_address->organizationTaxId) === '1';
     }
 
     /**
      * @param string $businessVatId
      * @return bool
+     * @deprecated in 4.6.2 Use the `$this->_getVatValidator()->validateVatNumber()` method instead.
      */
     protected function validateVatNumber(string $businessVatId): bool
     {
         try {
-            return $this->_getVatValidator()->validate($businessVatId);
+            return $this->getVatValidator()->validateVatNumber($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
@@ -367,13 +373,25 @@ class Tax extends Component implements AdjusterInterface
         }
     }
 
-    private function _getVatValidator(): Validator
+    /**
+     * @return Validator
+     */
+    protected function getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
             $this->_vatValidator = new Validator();
         }
 
         return $this->_vatValidator;
+    }
+
+    /**
+     * @return Validator
+     * @deprecated in 4.6.2 Use the `$this->getVatValidator()` method instead.
+     */
+    protected function _getVatValidator(): Validator
+    {
+        return $this->getVatValidator();
     }
 
     private function _createAdjustment(TaxRate $rate): OrderAdjustment
