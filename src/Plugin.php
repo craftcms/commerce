@@ -1049,13 +1049,6 @@ class Plugin extends BasePlugin
                 case Address::class:
                     $e->fields[] = UserAddressSettings::class;
                     break;
-                case UserElement::class:
-                    // todo: remove in favor of a dedicated user management screen
-                    $currentUser = Craft::$app->getUser()->getIdentity();
-                    if ($currentUser?->can('commerce-manageOrders') || $currentUser?->can('commerce-manageSubscriptions')) {
-                        $e->fields[] = UserCommerceField::class;
-                    }
-                    break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
                     $e->fields[] = VariantsLayoutElement::class;
