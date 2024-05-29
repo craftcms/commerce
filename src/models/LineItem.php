@@ -848,6 +848,7 @@ class LineItem extends Model
      * @param PurchasableInterface $purchasable
      * @return void
      * @throws InvalidConfigException
+     * @deprecated in 5.0.0. Use `populate()` instead.
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {

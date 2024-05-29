@@ -183,7 +183,7 @@ class LineItemTest extends Unit
     {
         $variant = Variant::find()->sku('hct-blue')->one();
         $lineItem = new LineItem();
-        $lineItem->populateFromPurchasable($variant);
+        $lineItem->populate($variant);
 
         // Manually set the property the make sure it doesn't do anything when it is a purchasable line item
         $lineItem->setHasFreeShipping(true);
