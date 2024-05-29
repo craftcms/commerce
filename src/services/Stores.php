@@ -592,10 +592,9 @@ class Stores extends Component
 
         // Added to avoid migration issues, as settings were moved after stores table creation
         // @TODO remove at next breaking change release
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
-        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+        if ($commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=')) {
             $selectColumns = array_merge($selectColumns, [
                 'allowCheckoutWithoutPayment',
                 'allowEmptyCartOnCheckout',
@@ -620,7 +619,7 @@ class Stores extends Component
             ->select($selectColumns)
             ->from([Table::STORES]);
 
-        if (version_compare($schemaVersion, '5.0.72', '>=')) {
+        if ($commerce && version_compare($commerce['schemaVersion'], '5.0.72', '>=')) {
             $query->orderBy(['sortOrder' => SORT_ASC]);
         }
 
