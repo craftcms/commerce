@@ -167,6 +167,9 @@ trait Routes
             $event->rules['commerce/inventory-locations/new'] = 'commerce/inventory-locations/edit';
             $event->rules['commerce/inventory-locations/<inventoryLocationId:\d+>'] = 'commerce/inventory-locations/edit';
 
+            $event->rules['commerce/inventory/transfers'] = 'commerce/transfers/index';
+            $event->rules['commerce/inventory/transfers/<elementId:\\d+>'] = 'elements/edit';
+
             // Donations
             $event->rules['commerce/donations'] = 'commerce/donations/edit';
         });
