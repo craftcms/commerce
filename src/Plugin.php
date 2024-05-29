@@ -38,7 +38,6 @@ use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\UserCommerceField;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
