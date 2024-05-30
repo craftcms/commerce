@@ -278,37 +278,39 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
-        $request = Craft::$app->getRequest();
 
-        $this->_addTwigExtensions();
-        $this->_registerFieldTypes();
-        $this->_registerPermissions();
-        $this->_registerCraftEventListeners();
-        $this->_registerProjectConfigEventListeners();
-        $this->_registerVariables();
-        $this->_registerForeignKeysRestore();
-        $this->_registerPoweredByHeader();
-        $this->_registerElementTypes();
-        $this->_registerGqlInterfaces();
-        $this->_registerGqlQueries();
-        $this->_registerGqlComponents();
-        $this->_registerGqlEagerLoadableFields();
-        $this->_registerCacheTypes();
-        $this->_registerGarbageCollection();
-        $this->_registerDebugPanels();
+        Craft::$app->onInit(function() {
+            $request = Craft::$app->getRequest();
+            $this->_addTwigExtensions();
+            $this->_registerFieldTypes();
+            $this->_registerPermissions();
+            $this->_registerCraftEventListeners();
+            $this->_registerProjectConfigEventListeners();
+            $this->_registerVariables();
+            $this->_registerForeignKeysRestore();
+            $this->_registerPoweredByHeader();
+            $this->_registerElementTypes();
+            $this->_registerGqlInterfaces();
+            $this->_registerGqlQueries();
+            $this->_registerGqlComponents();
+            $this->_registerGqlEagerLoadableFields();
+            $this->_registerCacheTypes();
+            $this->_registerGarbageCollection();
+            $this->_registerDebugPanels();
 
-        if ($request->getIsConsoleRequest()) {
-            $this->_defineResaveCommand();
-        } elseif ($request->getIsCpRequest()) {
-            $this->_registerCpRoutes();
-            $this->_registerWidgets();
-            $this->_registerElementExports();
-            $this->_defineFieldLayoutElements();
-            $this->_registerRedactorLinkOptions();
-            $this->_registerCKEditorLinkOptions();
-        } else {
-            $this->_registerSiteRoutes();
-        }
+            if ($request->getIsConsoleRequest()) {
+                $this->_defineResaveCommand();
+            } elseif ($request->getIsCpRequest()) {
+                $this->_registerCpRoutes();
+                $this->_registerWidgets();
+                $this->_registerElementExports();
+                $this->_defineFieldLayoutElements();
+                $this->_registerRedactorLinkOptions();
+                $this->_registerCKEditorLinkOptions();
+            } else {
+                $this->_registerSiteRoutes();
+            }
+        });
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
 
@@ -388,18 +390,19 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
-            // @TODO: change "Plans" to "Subscription Plans" in 5.1.0
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptionPlans')) {
             $ret['subnav']['subscription-plans'] = [
-                'label' => Craft::t('commerce', 'Plans'),
+                'label' => Craft::t('commerce', 'Subscription Plans'),
                 'url' => 'commerce/subscription-plans',
             ];
         }
 
-        $ret['subnav']['donations'] = [
-            'label' => Craft::t('commerce', 'Donations'),
-            'url' => 'commerce/donations',
-        ];
+        if (Craft::$app->getUser()->checkPermission('commerce-manageDonationSettings')) {
+            $ret['subnav']['donations'] = [
+                'label' => Craft::t('commerce', 'Donations'),
+                'url' => 'commerce/donations',
+            ];
+        }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-management'] = [
@@ -551,14 +554,21 @@ class Plugin extends BasePlugin
 
                             ],
                         ],
-                        'commerce-managePromotions' => $this->_registerPromotionPermission(),
                         'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                        'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
-                        'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                        'commerce-manageSubscriptionPlans' => ['label' => Craft::t('commerce', 'Manage subscription plans')],
                         'commerce-manageInventoryStockLevels' => ['label' => Craft::t('commerce', 'Manage inventory stock levels')],
                         'commerce-manageInventoryLocations' => ['label' => Craft::t('commerce', 'Manage inventory locations')],
                         'commerce-manageTransfers' => ['label' => Craft::t('commerce', 'Manage transfers')],
-                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+                        'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings'),
+                            'nested' => [
+                                'commerce-manageGeneralStoreSettings' => ['label' => Craft::t('commerce', 'Manage general store settings')],
+                                'commerce-managePaymentCurrencies' => ['label' => Craft::t('commerce', 'Manage payment currencies')],
+                                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping')],
+                                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes')],
+                                'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                            ],
+                        ],
+                        'commerce-manageDonationSettings' => ['label' => Craft::t('commerce', 'Manage donation settings')],
                     ],
             ];
         });

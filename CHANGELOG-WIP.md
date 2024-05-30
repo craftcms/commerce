@@ -5,6 +5,10 @@
 ### Store Management
 
 - It’s now possible to create custom line items.
+- Added a new “Manage subscription plans” permission.
+- Added a new “Manage donation settings” permission.
+- Added a new “Manage store general setting” permission.
+- Added a new “Manage payment currencies” permission.
 
 ### Administration
 

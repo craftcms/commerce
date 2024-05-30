@@ -99,11 +99,17 @@ class CatalogPricingRulesController extends BaseStoreManagementController
                 $catalogPricingRule = Craft::createObject([
                     'class' => CatalogPricingRule::class,
                     'storeId' => $store->id,
-                    'name' => Craft::$app->getRequest()->getParam('name'),
                 ]);
 
                 $purchasableId = Craft::$app->getRequest()->getParam('purchasableId');
                 if ($purchasableId && $purchasableType = Craft::$app->getElements()->getElementTypeById($purchasableId)) {
+                    $purchasable = Craft::$app->getElements()->getElementById($purchasableId, $purchasableType);
+
+                    // Create a "first pass" name for the rule
+                    if ($purchasable && $purchasable->title) {
+                        $catalogPricingRule->name = Craft::t('commerce', '{name} catalog price', ['name' => $purchasable->title]);
+                    }
+
                     $rule = Craft::$app->getConditions()->createConditionRule([
                         'class' => PurchasableConditionRule::class,
                         'elementIds' => [$purchasableType => [$purchasableId]],

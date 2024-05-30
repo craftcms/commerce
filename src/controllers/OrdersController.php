@@ -1511,7 +1511,9 @@ JS, []);
         }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
-        $order->shippingMethodName = $shippingMethod->name ?? null;
+        if ($shippingMethod) {
+            $order->shippingMethodName = $shippingMethod->name ?? null;
+        }
 
         $order->clearNotices();
 
