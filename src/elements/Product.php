@@ -22,7 +22,6 @@ use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
-use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
 use craft\elements\actions\Delete;
@@ -48,7 +47,6 @@ use Illuminate\Support\Collection;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
-use yii\web\Response;
 
 /**
  * Product model.
@@ -181,16 +179,6 @@ class Product extends Element
     public static function find(): ElementQueryInterface
     {
         return new ProductQuery(static::class);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function prepareEditScreen(Response $response, string $containerId): void
-    {
-        // Make sure the Commerce CP asset bundle is loaded when editing a product.
-        Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        parent::prepareEditScreen($response, $containerId);
     }
 
     /**

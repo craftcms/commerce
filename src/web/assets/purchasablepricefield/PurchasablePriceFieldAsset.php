@@ -29,7 +29,6 @@ class PurchasablePriceFieldAsset extends AssetBundle
 
         $this->depends = [
             CpAsset::class,
-            CommerceCpAsset::class,
         ];
 
         $this->js[] = 'purchasablepricefield.js';
