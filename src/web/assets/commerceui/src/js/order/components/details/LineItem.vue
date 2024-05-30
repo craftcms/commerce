@@ -307,12 +307,55 @@
                             <line-item-property
                                 :editing="editing && editMode"
                                 :line-item="lineItem"
+                                :attribute="'isShippable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Shippable',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
                                 :attribute="'isPromotable'"
                                 :label="
                                     $options.filters.t(
                                         'Is Promotable',
                                         'commerce'
                                     )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isTaxable'"
+                                :label="
+                                    $options.filters.t('Is Taxable', 'commerce')
                                 "
                                 :classes="{'order-flex': true}"
                                 @updateLineItem="

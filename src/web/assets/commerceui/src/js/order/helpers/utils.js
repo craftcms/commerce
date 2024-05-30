@@ -67,25 +67,31 @@ export default {
       _lineItem.id = this.parseInputValue('int', lineItem.id);
       _lineItem.type = lineItem.type;
 
-      if (lineItem.type.value === 'custom' && lineItem.description) {
-        _lineItem.description = lineItem.description;
-      }
-      if (lineItem.type.value === 'custom' && lineItem.sku) {
-        _lineItem.sku = lineItem.sku;
-      }
+      // Set line item properties for custom line items
+      if (lineItem.type.value === 'custom') {
+        if (lineItem.description) {
+          _lineItem.description = lineItem.description;
+        }
 
-      if (
-        lineItem.type.value === 'custom' &&
-        lineItem.hasFreeShipping !== undefined
-      ) {
-        _lineItem.hasFreeShipping = lineItem.hasFreeShipping;
-      }
+        if (lineItem.sku) {
+          _lineItem.sku = lineItem.sku;
+        }
 
-      if (
-        lineItem.type.value === 'custom' &&
-        lineItem.isPromotable !== undefined
-      ) {
-        _lineItem.isPromotable = lineItem.isPromotable;
+        if (lineItem.hasFreeShipping !== undefined) {
+          _lineItem.hasFreeShipping = lineItem.hasFreeShipping;
+        }
+
+        if (lineItem.isPromotable !== undefined) {
+          _lineItem.isPromotable = lineItem.isPromotable;
+        }
+
+        if (lineItem.isShippable !== undefined) {
+          _lineItem.isShippable = lineItem.isShippable;
+        }
+
+        if (lineItem.isTaxable !== undefined) {
+          _lineItem.isTaxable = lineItem.isTaxable;
+        }
       }
 
       _lineItem.purchasableId = this.parseInputValue(

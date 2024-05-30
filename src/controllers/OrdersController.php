@@ -1579,6 +1579,8 @@ JS, []);
             $taxCategoryId = $lineItemData['taxCategoryId'] ?? null;
             $hasFreeShipping = $lineItemData['hasFreeShipping'] ?? null;
             $isPromotable = $lineItemData['isPromotable'] ?? null;
+            $isShippable = $lineItemData['isShippable'] ?? null;
+            $isTaxable = $lineItemData['isTaxable'] ?? null;
             $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             if ($lineItemId) {
@@ -1627,6 +1629,14 @@ JS, []);
 
                 if ($isPromotable !== null) {
                     $lineItem->setIsPromotable($isPromotable);
+                }
+
+                if ($isShippable !== null) {
+                    $lineItem->setIsShippable($isShippable);
+                }
+
+                if ($isTaxable !== null) {
+                    $lineItem->setIsTaxable($isTaxable);
                 }
             }
 

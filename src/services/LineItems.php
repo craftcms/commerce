@@ -232,8 +232,19 @@ class LineItems extends Component
         }
 
         $lineItemRecord->type = $lineItem->type->value;
-        $lineItemRecord->hasFreeShipping = $lineItem->type === LineItemType::Custom ? $lineItem->getHasFreeShipping() : null;
-        $lineItemRecord->isPromotable = $lineItem->type === LineItemType::Custom ? $lineItem->getIsPromotable() : null;
+
+        // Set the default for type dependent properties
+        $lineItemRecord->hasFreeShipping = null;
+        $lineItemRecord->isPromotable = null;
+        $lineItemRecord->isShippable = null;
+        $lineItemRecord->isTaxable = null;
+
+        if ($lineItem->type === LineItemType::Custom) {
+            $lineItemRecord->hasFreeShipping = $lineItem->getHasFreeShipping();
+            $lineItemRecord->isPromotable = $lineItem->getIsPromotable();
+            $lineItemRecord->isShippable = $lineItem->getIsShippable();
+            $lineItemRecord->isTaxable = $lineItem->getIsTaxable();
+        }
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
         $lineItemRecord->orderId = $lineItem->orderId;
@@ -456,6 +467,8 @@ class LineItems extends Component
                 'height',
                 'id',
                 'isPromotable',
+                'isShippable',
+                'isTaxable',
                 'length',
                 'lineItemStatusId',
                 'note',

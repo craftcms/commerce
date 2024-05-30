@@ -19,6 +19,10 @@ class m240528_124101_add_extra_lineitem_columns extends Migration
 
         $this->addColumn(Table::LINEITEMS, 'isPromotable', $this->boolean());
 
+        $this->addColumn(Table::LINEITEMS, 'isShippable', $this->boolean());
+
+        $this->addColumn(Table::LINEITEMS, 'isTaxable', $this->boolean());
+
         return true;
     }
 
