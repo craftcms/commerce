@@ -60,11 +60,11 @@ use yii\base\InvalidConfigException;
  * @property-read string $shippingCostAsCurrency
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
- * @property-read bool $isShippable
+ * @property bool $isShippable
  * @property string $sku
  * @property LineItemStatus|null $lineItemStatus
  * @property string $description
- * @property-read bool $isTaxable
+ * @property bool $isTaxable
  * @property float|int $promotionalPrice
  * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
@@ -227,6 +227,22 @@ class LineItem extends Model
      * @since 5.1.0
      */
     private ?bool $_hasFreeShipping = null;
+
+    /**
+     * @var bool|null
+     * @see setIsTaxable()
+     * @see getIsTaxable()
+     * @since 5.1.0
+     */
+    private ?bool $_isTaxable = null;
+
+    /**
+     * @var bool|null
+     * @see setIsShippable()
+     * @see getIsShippable()
+     * @since 5.1.0
+     */
+    private ?bool $_isShippable = null;
 
     /**
      * @inheritDoc
@@ -535,7 +551,7 @@ class LineItem extends Model
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
             [['price'], 'number'],
             [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
-            [['hasFreeShipping', 'isPromotable'], 'safe'],
+            [['hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable'], 'safe'],
         ];
 
         if ($this->type === LineItemType::Purchasable && $this->purchasableId) {
@@ -604,6 +620,8 @@ class LineItem extends Model
         $names[] = 'description';
         $names[] = 'hasFreeShipping';
         $names[] = 'isPromotable';
+        $names[] = 'isShippable';
+        $names[] = 'isTaxable';
         $names[] = 'options';
         $names[] = 'optionsSignature';
         $names[] = 'onPromotion';
@@ -1049,12 +1067,22 @@ class LineItem extends Model
     }
 
     /**
+     * @param bool|null $isTaxable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsTaxable(?bool $isTaxable): void
+    {
+        $this->_isTaxable = $isTaxable;
+    }
+
+    /**
      * @since 3.3.4
      */
     public function getIsTaxable(): bool
     {
         if ($this->type === LineItemType::Custom) {
-            return true;
+            return $this->_isTaxable ?? false;
         }
 
         if (!$this->getPurchasable()) {
@@ -1065,12 +1093,22 @@ class LineItem extends Model
     }
 
     /**
+     * @param bool|null $isShippable
+     * @return void
+     * @since 5.1.0
+     */
+    public function setIsShippable(?bool $isShippable): void
+    {
+        $this->_isShippable = $isShippable;
+    }
+
+    /**
      * @since 3.4
      */
     public function getIsShippable(): bool
     {
         if ($this->type === LineItemType::Custom) {
-            return true;
+            return $this->_isShippable ?? false;
         }
 
         if (!$this->getPurchasable()) {
