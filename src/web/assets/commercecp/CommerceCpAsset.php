@@ -91,9 +91,17 @@ class CommerceCpAsset extends AssetBundle
         }
 
         // Define the Craft.Commerce object
-        $commerceJson = Json::encode($this->_commerceData());
+        $commerceData = $this->_commerceData();
+        $editableProductTypes = Json::encode($commerceData['editableProductTypes']);
+        $sitesStores = Json::encode($commerceData['sitesStores']);
+
         $js = <<<JS
-window.Craft.Commerce = $commerceJson;
+if (typeof window.Craft.Commerce === typeof undefined) {
+    window.Craft.Commerce = {};
+}
+
+window.Craft.Commerce.editableProductTypes = $editableProductTypes;
+window.Craft.Commerce.sitesStores = $sitesStores;
 JS;
         $view->registerJs($js, View::POS_HEAD);
     }
