@@ -1587,7 +1587,6 @@ JS, []);
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
             } else {
                 try {
-
                     $params = compact('options', 'qty', 'note', 'uid');
                     if ($type === LineItemType::Purchasable) {
                         $params['purchasableId'] = $purchasableId;
