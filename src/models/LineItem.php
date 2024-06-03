@@ -749,7 +749,6 @@ class LineItem extends Model
         Craft::$app->getDeprecator()->log(__METHOD__, '`LineItem::refreshFromPurchasable()` has been deprecated. Use `LineItem::refresh()` instead.');
 
         if ($this->type === LineItemType::Custom) {
-            // @TODO: Throw exception at next breaking change release
             Craft::warning('Cannot refresh a custom line item from a purchasable', 'commerce');
             return true;
         }
