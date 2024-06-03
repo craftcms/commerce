@@ -837,12 +837,9 @@ class LineItem extends Model
      */
     public function setPurchasable(PurchasableInterface $purchasable): void
     {
-        if ($this->type === LineItemType::Custom) {
-            throw new InvalidConfigException('Cannot set a purchasable for a custom line item');
-        }
-
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
+        $this->type = LineItemType::Purchasable;
     }
 
     /**

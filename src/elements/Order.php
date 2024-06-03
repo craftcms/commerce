@@ -28,6 +28,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\events\OrderLineItemsRefreshEvent;
 use craft\commerce\events\OrderNoticeEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
@@ -438,6 +439,52 @@ class Order extends Element implements HasStoreInterface
      * @since 4.1.0
      */
     public const EVENT_BEFORE_APPLY_ADD_NOTICE = 'beforeApplyAddNoticeToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered before line items are refreshed during recalculation of an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\OrderLineItemsRefreshEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED,
+     *     function(OrderLineItemsRefreshEvent $event) {
+     *         $event->lineItems = [];
+     *         $event->recalculate = true;
+     *         // ...
+     *     }
+     * );
+     * ```
+     *
+     * @since 5.1.0
+     */
+    public const EVENT_BEFORE_LINE_ITEMS_REFRESHED = 'beforeLineItemsRefreshed';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after line items are refreshed during recalculation of an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\OrderLineItemsRefreshEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_LINE_ITEMS_REFRESHED,
+     *     function(OrderLineItemsRefreshEvent $event) {
+     *         $event->lineItems = [];
+     *         $event->recalculate = true;
+     *         // ...
+     *     }
+     * );
+     * ```
+     *
+     * @since 5.1.0
+     */
+    public const EVENT_AFTER_LINE_ITEMS_REFRESHED = 'afterLineItemsRefreshed';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -1931,7 +1978,18 @@ class Order extends Element implements HasStoreInterface
                 }
             }
 
-            $lineItemRemoved = false;
+            $recalculateOrder = false;
+            if ($this->hasEventHandlers(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED)) {
+                $event = new OrderLineItemsRefreshEvent([
+                    'lineItems' => $this->getLineItems(),
+                    'recalculate' => $recalculateOrder,
+                ]);
+                $this->trigger(self::EVENT_BEFORE_LINE_ITEMS_REFRESHED, $event);
+
+                $this->setLineItems($event->lineItems);
+                $recalculateOrder = $event->recalculate;
+            }
+
             foreach ($this->getLineItems() as $item) {
                 $originalSalePrice = $item->getSalePrice();
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
@@ -1977,17 +2035,28 @@ class Order extends Element implements HasStoreInterface
                     ]);
                     $this->addNotice($notice);
                     $this->removeLineItem($item);
-                    $lineItemRemoved = true;
+                    $recalculateOrder = true;
                 }
             }
 
             // This is run in a validation, but need to run again incase the options
             // data was changed on population of the line item by a plugin.
             if (OrderHelper::mergeDuplicateLineItems($this)) {
-                $lineItemRemoved = true;
+                $recalculateOrder = true;
             }
 
-            if ($lineItemRemoved) {
+            if ($this->hasEventHandlers(self::EVENT_AFTER_LINE_ITEMS_REFRESHED)) {
+                $event = new OrderLineItemsRefreshEvent([
+                    'lineItems' => $this->getLineItems(),
+                    'recalculate' => $recalculateOrder,
+                ]);
+                $this->trigger(self::EVENT_AFTER_LINE_ITEMS_REFRESHED, $event);
+
+                $this->setLineItems($event->lineItems);
+                $recalculateOrder = $event->recalculate;
+            }
+
+            if ($recalculateOrder) {
                 $this->recalculate();
                 return;
             }
@@ -2005,7 +2074,8 @@ class Order extends Element implements HasStoreInterface
             }
         }
 
-        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+            // Since shipping adjusters run on the original price, pre discount, let's recalculate
             // if the currently selected shipping method is now not available after adjustments have run.
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
             if ($this->shippingMethodHandle && !isset($availableMethodOptions[$this->shippingMethodHandle])) {

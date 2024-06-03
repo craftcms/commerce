@@ -24,5 +24,9 @@
 - Added `craft\commerce\models\LineItem::setHasFreeShipping()`.
 - Added `craft\commerce\models\LineItem::getIsPromotable()`.
 - Added `craft\commerce\models\LineItem::setIsPromotable()`.
+- Added `craft\commerce\models\Order::EVENT_AFTER_LINE_ITEMS_REFRESHED`.
+- Added `craft\commerce\models\Order::EVENT_BEFORE_LINE_ITEMS_REFRESHED`.
+- Added `craft\commerce\services\LineItems::create()`.
 - Deprecated `craft\commerce\models\LineItem::populateFromPurchasable()`. Use `populate()` instead.
 - Deprecated `craft\commerce\models\LineItem::refreshFromPurchasable()`. Use `refresh()` instead.
+- Deprecated `craft\commerce\services\LineItems::createLineItem()`. Use `create()` instead.

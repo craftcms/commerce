@@ -10,6 +10,7 @@ namespace craftcommercetests\fixtures;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\BaseElementFixture;
@@ -153,7 +154,12 @@ class OrdersFixture extends BaseElementFixture
 
         $orderLineItems = [];
         foreach ($lineItems as $lineItem) {
-            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem['purchasableId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
+            $orderLineItems[] = Plugin::getInstance()->getLineItems()->create($order, LineItemType::Purchasable, [
+                'purchasableId' => $lineItem['purchasableId'],
+                'options' => $lineItem['options'],
+                'qty' => $lineItem['qty'],
+                'note' => $lineItem['note'],
+            ]);
         }
 
         $order->setLineItems($orderLineItems);

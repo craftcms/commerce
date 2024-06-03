@@ -1587,7 +1587,13 @@ JS, []);
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
             } else {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
+
+                    $params = compact('options', 'qty', 'note', 'uid');
+                    if ($type === LineItemType::Purchasable) {
+                        $params['purchasableId'] = $purchasableId;
+                    }
+
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($order, $type, $params);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;

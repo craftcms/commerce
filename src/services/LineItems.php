@@ -18,6 +18,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -27,6 +28,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Line item service.
@@ -190,7 +192,7 @@ class LineItems extends Component
         if ($result) {
             $lineItem = new LineItem($result);
         } else {
-            $lineItem = $this->createLineItem($order, $purchasableId, $options);
+            $lineItem = $this->create($order, LineItemType::Purchasable, compact('purchasableId', 'options'));
         }
 
         return $lineItem;
@@ -347,9 +349,11 @@ class LineItems extends Component
      * @param string $note The note on the line item
      * @param string|null $uid
      * @throws \Exception
+     * @deprecated in 5.1.0. Use [[create()]] instead.
      */
-    public function createLineItem(Order $order, ?int $purchasableId = null, array $options = [], int $qty = 1, string $note = '', string $uid = null): LineItem
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItems::createLineItem() has been deprecated. Use LineItems::create() instead.');
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
@@ -357,22 +361,68 @@ class LineItems extends Component
         $lineItem->uid = $uid ?: StringHelper::UUID();
         $lineItem->setOrder($order);
 
-        $populateData = null;
-        if ($purchasableId) {
-            $forCustomer = $order->customerId ?? false;
-            $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
+        $forCustomer = $order->customerId ?? false;
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 
-            if ($purchasable instanceof PurchasableInterface) {
+        if ($purchasable) {
+            $lineItem->setPurchasable($purchasable);
+            $lineItem->populate($purchasable);
+        } else {
+            throw new InvalidArgumentException('Invalid purchasable ID');
+        }
+
+        // Raise a 'createLineItem' event
+        if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => true,
+            ]));
+        }
+
+        $lineItem->refresh();
+
+        return $lineItem;
+    }
+
+    /**
+     * @param Order $order
+     * @param LineItemType $type
+     * @param array $params
+     * @return LineItem
+     * @throws Exception
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function create(Order $order, LineItemType $type, array $params = []): LineItem
+    {
+        $params = array_merge([
+            'options' => [],
+            'note' => '',
+            'uid' => StringHelper::UUID(),
+        ], $params);
+
+        $params['order'] = $order;
+        $params['type'] = $type;
+
+        if ($type === LineItemType::Purchasable && empty($params['purchasableId']) && empty($params['purchasable'])) {
+            throw new InvalidArgumentException('Purchasable ID or Purchasable must be set');
+        }
+
+        $lineItem = Craft::createObject(LineItem::class, $params);
+
+        if ($lineItem->type === LineItemType::Purchasable) {
+            $purchasable = $lineItem->getPurchasable();
+
+            if ($purchasable) {
                 $lineItem->setPurchasable($purchasable);
-                $populateData = $purchasable;
+                $lineItem->populate($purchasable);
             } else {
                 throw new InvalidArgumentException('Invalid purchasable ID');
             }
         } else {
-            $lineItem->type = LineItemType::Custom;
+            $lineItem->populate();
         }
-
-        $lineItem->populate($populateData);
 
         // Raise a 'createLineItem' event
         if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
