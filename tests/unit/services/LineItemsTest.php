@@ -163,7 +163,12 @@ class LineItemsTest extends Unit
         $lineItem = $order->getLineItems()[0];
         $qty = 4;
         $note = 'My note';
-        $lineItem = $this->service->createLineItem($order, $lineItem->purchasableId, $lineItem->options, $qty, $note);
+        $lineItem = $this->service->create($order, [
+            'purchasableId' => $lineItem->purchasableId,
+            'options' => $lineItem->options,
+            'qty' => $qty,
+            'note' => $note
+        ]);
 
         self::assertInstanceOf(LineItem::class, $lineItem);
         self::assertEquals($this->fixtureData->getElement('completed-new')->id, $lineItem->orderId);

@@ -76,7 +76,11 @@ class UserEmailTest extends Unit
         // Create order
         $order = new Order();
         $order->setCustomer($this->_user);
-        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
+        $lineItem = Plugin::getInstance()->getLineItems()->create($order, [
+            'purchasableId' => $lineItem->purchasableId,
+            'qty' => $qty,
+            'note' => $note,
+        ]);
         $order->setLineItems([$lineItem]);
         $order->markAsComplete();
         $this->_deleteElementIds[] = $order->id;
@@ -84,7 +88,12 @@ class UserEmailTest extends Unit
         // Create cart
         $cart = new Order();
         $cart->setCustomer($this->_user);
-        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($cart, $lineItem->purchasableId, [], $qty, $note);
+        $lineItem = Plugin::getInstance()->getLineItems()->create($cart, [
+            'purchasableId' => $lineItem->purchasableId,
+            'options' => [],
+            'qty' => $qty,
+            'note' => $note
+        ]);
         $cart->setLineItems([$lineItem]);
         \Craft::$app->getElements()->saveElement($cart, false, false, false);
         $this->_deleteElementIds[] = $cart->id;

@@ -191,7 +191,7 @@ class LineItems extends Component
         if ($result) {
             $lineItem = new LineItem($result);
         } else {
-            $lineItem = $this->create($order, LineItemType::Purchasable, compact('purchasableId', 'options'));
+            $lineItem = $this->create($order, compact('purchasableId', 'options'));
         }
 
         return $lineItem;
@@ -385,15 +385,15 @@ class LineItems extends Component
 
     /**
      * @param Order $order
-     * @param LineItemType $type
      * @param array $params
+     * @param LineItemType $type
      * @return LineItem
      * @throws Exception
      * @throws SiteNotFoundException
      * @throws InvalidConfigException
      * @since 5.1.0
      */
-    public function create(Order $order, LineItemType $type, array $params = []): LineItem
+    public function create(Order $order, array $params = [], LineItemType $type = LineItemType::Purchasable): LineItem
     {
         $params = array_merge([
             'options' => [],

@@ -503,7 +503,12 @@ class CustomersTest extends Unit
         $lineItem = $completedOrder->getLineItems()[0];
         $qty = 4;
         $note = 'My note';
-        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem->purchasableId, [], $qty, $note);
+        $lineItem = Plugin::getInstance()->getLineItems()->create($order, [
+            'purchasableId' => $lineItem->purchasableId,
+            'options' => [],
+            'qty' => $qty,
+            'note' => $note,
+        ]);
         $order->setLineItems([$lineItem]);
 
         return $order;

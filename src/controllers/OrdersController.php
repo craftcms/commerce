@@ -1592,7 +1592,7 @@ JS, []);
                         $params['purchasableId'] = $purchasableId;
                     }
 
-                    $lineItem = Plugin::getInstance()->getLineItems()->create($order, $type, $params);
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($order, $params, $type);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;

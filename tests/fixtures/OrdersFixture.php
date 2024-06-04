@@ -154,7 +154,7 @@ class OrdersFixture extends BaseElementFixture
 
         $orderLineItems = [];
         foreach ($lineItems as $lineItem) {
-            $orderLineItems[] = Plugin::getInstance()->getLineItems()->create($order, LineItemType::Purchasable, [
+            $orderLineItems[] = Plugin::getInstance()->getLineItems()->create($order, [
                 'purchasableId' => $lineItem['purchasableId'],
                 'options' => $lineItem['options'],
                 'qty' => $lineItem['qty'],
