@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Updated the ibericode/vat package to support the latest VAT ID patterns. ([#3497](https://github.com/craftcms/commerce/issues/3497))
+
 ## 4.6.2 - 2024-05-29
 
 - Fixed a bug where orders’ `shippingMethodName` values could be cleared out when saving a completed order with a plugin-provided shipping method. ([#3519](https://github.com/craftcms/commerce/issues/3519))
