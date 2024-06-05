@@ -396,6 +396,7 @@ class LineItems extends Component
     public function create(Order $order, array $params = [], LineItemType $type = LineItemType::Purchasable): LineItem
     {
         $params = array_merge([
+            'qty' => 1,
             'options' => [],
             'note' => '',
             'uid' => StringHelper::UUID(),
