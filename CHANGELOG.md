@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a PHP error that occurred when saving Donation settings with multiple stores configured. ([#3521](https://github.com/craftcms/commerce/issues/3521))
+- Fixed a bug where a hidden product title field would be visible if there was an error.
 
 ## 5.0.8 - 2024-05-29
 
