@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that occurred when saving Donation settings with multiple stores configured. ([#3521](https://github.com/craftcms/commerce/issues/3521))
+
 ## 5.0.8 - 2024-05-29
 
 - Fixed a bug where orders’ `shippingMethodName` values could be cleared out when saving a completed order with a plugin-provided shipping method. ([#3519](https://github.com/craftcms/commerce/issues/3519))
