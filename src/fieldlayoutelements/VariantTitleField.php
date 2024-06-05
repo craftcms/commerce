@@ -10,7 +10,6 @@ namespace craft\commerce\fieldlayoutelements;
 use craft\base\ElementInterface;
 use craft\base\Field;
 use craft\commerce\elements\Variant;
-use craft\elements\Entry;
 use craft\fieldlayoutelements\TitleField;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
