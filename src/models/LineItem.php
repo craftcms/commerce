@@ -551,7 +551,7 @@ class LineItem extends Model
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
             [['price'], 'number'],
             [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
-            [['hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable'], 'safe'],
+            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable'], 'safe'],
         ];
 
         if ($this->type === LineItemType::Purchasable && $this->purchasableId) {
