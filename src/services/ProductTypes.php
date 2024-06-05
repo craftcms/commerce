@@ -390,10 +390,14 @@ class ProductTypes extends Component
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'variantTitleFormat' => $productType->variantTitleFormat,
+            'variantTitleTranslationMethod' => $productType->variantTitleTranslationMethod,
+            'variantTitleTranslationKeyFormat' => $productType->variantTitleTranslationKeyFormat,
 
             // Prouduct title field
             'hasProductTitleField' => $productType->hasProductTitleField,
             'productTitleFormat' => $productType->productTitleFormat,
+            'productTitleTranslationMethod' => $productType->productTitleTranslationMethod,
+            'productTitleTranslationKeyFormat' => $productType->productTitleTranslationKeyFormat,
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
@@ -480,6 +484,11 @@ class ProductTypes extends Component
             $productTypeRecord->handle = $data['handle'];
             $productTypeRecord->enableVersioning = $data['enableVersioning'] ?? false;
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
+
+            $productTypeRecord->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
+            $productTypeRecord->variantTitleTranslationMethod = $data['variantTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->variantTitleTranslationKeyFormat = $data['variantTitleTranslationKeyFormat'] ?? '';
 
             // Variant title fields
             $hasVariantTitleField = $data['hasVariantTitleField'];
@@ -974,6 +983,22 @@ class ProductTypes extends Component
 
         if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
             $query->addSelect('productTypes.enableVersioning');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationMethod')) {
+            $query->addSelect('productTypes.productTitleTranslationMethod');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.productTitleTranslationKeyFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationMethod')) {
+            $query->addSelect('productTypes.variantTitleTranslationMethod');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.variantTitleTranslationKeyFormat');
         }
 
         return $query;

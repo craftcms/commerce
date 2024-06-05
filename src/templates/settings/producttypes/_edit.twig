@@ -41,9 +41,53 @@
                 {{ forms.lightswitchField({
                     label: "Show the Title field for products"|t('commerce'),
                     name: 'hasProductTitleField',
+                    toggle: '#productTitle-container',
                     reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
                     on: productType.hasProductTitleField
                 }) }}
+
+            {% if craft.app.getIsMultiSite() %}
+                <div id="productTitle-container"{% if not productType.hasProductTitleField %} class="hidden"{% endif %}>
+                    {{ forms.selectField({
+                        label: '{name} Translation Method'|t('app', {
+                            name: 'Title'|t('app'),
+                        }),
+                        instructions: 'How should {name} values be translated?'|t('app', {
+                            name: 'Title'|t('app'),
+                        }),
+                        id: 'product-translation-method',
+                        name: 'productTitleTranslationMethod',
+                        options: [
+                            { value: 'none', label: 'Not translatable'|t('app') },
+                            { value: 'site', label: 'Translate for each site'|t('app') },
+                            { value: 'siteGroup', label: 'Translate for each site group'|t('app') },
+                            { value: 'language', label: 'Translate for each language'|t('app') },
+                            { value: 'custom', label: 'Custom…'|t('app') },
+                        ]|filter,
+                        value: productType.productTitleTranslationMethod,
+                        toggle: true,
+                        targetPrefix: 'product-translation-method-'
+                    }) }}
+
+                    <div id="product-translation-method-custom" {% if productType.productTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
+                        {{ forms.textField({
+                            label: '{name} Translation Key Format'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            instructions: 'Template that defines the {name} field’s custom “translation key” format. Values will be copied to all sites that produce the same key.'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            id: 'product-translation-key-format',
+                            name: 'productTitleTranslationKeyFormat',
+                            value: productType.productTitleTranslationKeyFormat,
+                            errors: productType.getErrors('productTitleTranslationKeyFormat'),
+                            data: {
+                                'error-key': 'productTitleTranslationKeyFormat',
+                            },
+                        }) }}
+                    </div>
+                </div>
+            {% endif %}
 
                 <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
                     {{ forms.textField({
@@ -62,13 +106,56 @@
             {% import '_includes/forms' as forms %}
 
             <div id="variant-settings">
-
                 {{ forms.lightswitchField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
+                    toggle: '#variantTitle-container',
                     reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
                     on: productType.hasVariantTitleField
                 }) }}
+
+                {% if craft.app.getIsMultiSite() %}
+                    <div id="variantTitle-container"{% if not productType.hasVariantTitleField %} class="hidden"{% endif %}>
+                        {{ forms.selectField({
+                            label: '{name} Translation Method'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            instructions: 'How should {name} values be translated?'|t('app', {
+                                name: 'Title'|t('app'),
+                            }),
+                            id: 'variant-translation-method',
+                            name: 'variantTitleTranslationMethod',
+                            options: [
+                                { value: 'none', label: 'Not translatable'|t('app') },
+                                { value: 'site', label: 'Translate for each site'|t('app') },
+                                { value: 'siteGroup', label: 'Translate for each site group'|t('app') },
+                                { value: 'language', label: 'Translate for each language'|t('app') },
+                                { value: 'custom', label: 'Custom…'|t('app') },
+                            ]|filter,
+                            value: productType.variantTitleTranslationMethod,
+                            toggle: true,
+                            targetPrefix: 'variant-translation-method-'
+                        }) }}
+
+                        <div id="variant-translation-method-custom" {% if productType.variantTitleTranslationMethod != 'custom' %}class="hidden"{% endif %}>
+                            {{ forms.textField({
+                                label: '{name} Translation Key Format'|t('app', {
+                                    name: 'Title'|t('app'),
+                                }),
+                                instructions: 'Template that defines the {name} field’s custom “translation key” format. Values will be copied to all sites that produce the same key.'|t('app', {
+                                    name: 'Title'|t('app'),
+                                }),
+                                id: 'variant-translation-key-format',
+                                name: 'variantTitleTranslationKeyFormat',
+                                value: productType.variantTitleTranslationKeyFormat,
+                                errors: productType.getErrors('variantTitleTranslationKeyFormat'),
+                                data: {
+                                    'error-key': 'variantTitleTranslationKeyFormat',
+                                },
+                            }) }}
+                        </div>
+                    </div>
+                {% endif %}
 
                 <div id="variantTitleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ forms.textField({

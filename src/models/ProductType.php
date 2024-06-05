@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Field;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
@@ -86,6 +87,19 @@ class ProductType extends Model
     public string $variantTitleFormat = '{product.title}';
 
     /**
+     * @var string Variant title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $variantTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Variant title translation key format
+     * @since 5.1
+     */
+    public ?string $variantTitleTranslationKeyFormat = null;
+
+    /**
      * @var bool Has product title field?
      */
     public bool $hasProductTitleField = true;
@@ -94,6 +108,19 @@ class ProductType extends Model
      * @var string Product title format
      */
     public string $productTitleFormat = '';
+
+    /**
+     * @var string Product title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $productTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Product title translation key format
+     * @since 5.1
+     */
+    public ?string $productTitleTranslationKeyFormat = null;
 
     /**
      * @var string|null SKU format
