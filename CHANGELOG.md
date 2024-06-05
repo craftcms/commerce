@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.9 - 2024-06-05
 
 - Product Title fields are no longer shown when “Show the Title field” is disabled and there’s a validation error on the `title` attribute. ([craftcms/cms#13876](https://github.com/craftcms/cms/issues/13876))
 - Fixed a PHP error that occurred when saving donation settings on multi-store installs. ([#3521](https://github.com/craftcms/commerce/issues/3521))
