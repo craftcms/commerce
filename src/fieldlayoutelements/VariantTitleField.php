@@ -42,7 +42,7 @@ class VariantTitleField extends TitleField
             throw new InvalidArgumentException('VariantTitleField can only be used in variant field layouts.');
         }
 
-        if (!$element->getOwner()->getType()->hasVariantTitleField && !$element->hasErrors('title')) {
+        if (!$element->getOwner()->getType()->hasVariantTitleField) {
             return null;
         }
 
