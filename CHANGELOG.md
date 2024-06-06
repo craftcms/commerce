@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 5.0.9 - 2024-06-05
+
+- Product Title fields are no longer shown when “Show the Title field” is disabled and there’s a validation error on the `title` attribute. ([craftcms/cms#13876](https://github.com/craftcms/cms/issues/13876))
+- Fixed a PHP error that occurred when saving donation settings on multi-store installs. ([#3521](https://github.com/craftcms/commerce/issues/3521))
+
 ## 5.0.8 - 2024-05-29
 
 - Fixed a bug where orders’ `shippingMethodName` values could be cleared out when saving a completed order with a plugin-provided shipping method. ([#3519](https://github.com/craftcms/commerce/issues/3519))
