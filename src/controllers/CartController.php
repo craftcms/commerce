@@ -237,8 +237,33 @@ class CartController extends BaseFrontEndController
         // Update multiple line items in the cart
         if ($lineItems = $this->request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
-                $lineItem = $this->_getCartLineItemById($key);
-                if ($lineItem) {
+                $lineItemPostData = $lineItem;
+                $lineItemType = $lineItemPostData['type'] ?? LineItemType::Purchasable->value;
+
+                $lineItem = is_int($key) ? $this->_getCartLineItemById($key) : null;
+                if ($lineItem || $lineItemType === LineItemType::Custom->value) {
+                    if ($lineItem === null && $lineItemType === LineItemType::Custom->value) {
+                        $lineItem = new LineItem();
+                        $lineItem->type = LineItemType::Custom;
+                        $lineItem->qty = 1;
+                        $lineItem->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
+                        $lineItem->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->_cart->getStore()->id)->id;
+
+                        // Set price for custom line item if it is provided as a validated body param
+                        $customLineItemPrice = $this->request->getValidatedBodyParam("lineItems.$key.price") ?? 0;
+                        $lineItem->setPrice($customLineItemPrice);
+
+                        $description = $this->request->getValidatedBodyParam("lineItems.$key.description");
+                        $sku = $this->request->getValidatedBodyParam("lineItems.$key.sku");
+                        if ($description === null || $sku === null) {
+                            $this->_cart->addError('lineItems', Craft::t('commerce', 'Unable to add line item.'));
+                            continue;
+                        }
+
+                        $lineItem->setDescription($description);
+                        $lineItem->setSku($sku);
+                    }
+
                     $lineItem->qty = (int)$this->request->getParam("lineItems.$key.qty", $lineItem->qty);
                     $lineItem->note = $this->request->getParam("lineItems.$key.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.$key.options", $lineItem->getOptions()));

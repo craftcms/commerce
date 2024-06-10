@@ -13,6 +13,7 @@ use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
@@ -466,5 +467,48 @@ class CartTest extends Unit
                 false, // save both
             ],
         ];
+    }
+
+    public function testAddCustomLineItems(): void
+    {
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+        $sec = Craft::$app->getSecurity();
+
+        $bodyParams = [
+            'lineItems' => [
+                'custom1' => [
+                    'description' => $sec->hashData('First custom line item'),
+                    'sku' => $sec->hashData('custom1'),
+                    'qty' => 1,
+                    'note' => 'First custom line item',
+                    'options' => [],
+                    'type' => LineItemType::Custom->value,
+                    'price' => $sec->hashData(123.99),
+                ],
+                'custom2' => [
+                    'description' => $sec->hashData('Second custom line item'),
+                    'sku' => $sec->hashData('custom2'),
+                    'qty' => 2,
+                    'note' => 'Second custom line item',
+                    'options' => [],
+                    'type' => LineItemType::Custom->value,
+                    'price' => $sec->hashData(10.00),
+                ]
+            ]
+        ];
+
+        $this->request->setBodyParams($bodyParams);
+        $this->cartController->runAction('update-cart');
+
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        self::assertEmpty($cart->getErrors());
+        self::assertCount(2, $cart->getLineItems());
+        self::assertEquals(143.99, $cart->getTotal());
+        self::assertEquals(3, $cart->getTotalQty());
+
+        Plugin::getInstance()->getCarts()->forgetCart();
+
+        Craft::$app->getElements()->deleteElement($cart, true);
     }
 }

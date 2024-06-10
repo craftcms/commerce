@@ -1187,6 +1187,7 @@ return [
     'Type not in allowed options.' => 'Type not in allowed options.',
     'Type' => 'Type',
     'URI' => 'URI',
+    'Unable to add line item.' => 'Unable to add line item.',
     'Unable to cancel subscription at this time.' => 'Unable to cancel subscription at this time.',
     'Unable to delete user {user}: the user has a Craft Commerce order.' => 'Unable to delete user {user}: the user has a Craft Commerce order.',
     'Unable to delete user {user}: the user has a Craft Commerce subscription.' => 'Unable to delete user {user}: the user has a Craft Commerce subscription.',
