@@ -773,8 +773,8 @@ class Plugin extends BasePlugin
             $sender = $event->sender;
             if (Craft::$app->getDb()->getIsPgsql()) {
                 $sender->query->addSelect([
-                    'isPrimaryBilling' => new Expression('CASE WHEN [[commerce_customers.primaryBillingAddressId]] = [[addresses.id]] THEN true ELSE false'),
-                    'isPrimaryShipping' => new Expression('CASE WHEN [[commerce_customers.primaryShippingAddressId]] = [[addresses.id]] THEN true ELSE false'),
+                    'isPrimaryBilling' => new Expression('CASE WHEN [[commerce_customers.primaryBillingAddressId]] = [[addresses.id]] THEN true ELSE false END'),
+                    'isPrimaryShipping' => new Expression('CASE WHEN [[commerce_customers.primaryShippingAddressId]] = [[addresses.id]] THEN true ELSE false END'),
                 ]);
             } else {
                 $sender->query->addSelect([
