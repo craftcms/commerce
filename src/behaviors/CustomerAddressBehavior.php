@@ -10,6 +10,7 @@ namespace craft\commerce\behaviors;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\events\DefineFieldsEvent;
 use craft\events\DefineRulesEvent;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
@@ -25,7 +26,18 @@ use yii\base\InvalidConfigException;
  */
 class CustomerAddressBehavior extends Behavior
 {
+    /**
+     * @var bool
+     * @see getIsPrimaryBilling()
+     * @see setIsPrimaryBilling()
+     */
     private bool $_isPrimaryBilling;
+
+    /**
+     * @var bool
+     * @see getIsPrimaryShipping()
+     * @see setIsPrimaryShipping()
+     */
     private bool $_isPrimaryShipping;
 
     /**
@@ -36,7 +48,23 @@ class CustomerAddressBehavior extends Behavior
         return [
             Address::EVENT_DEFINE_RULES => 'defineRules',
             Address::EVENT_AFTER_PROPAGATE => 'afterPropagate',
+            Address::EVENT_DEFINE_FIELDS => 'defineFields',
         ];
+    }
+
+    /**
+     * @param DefineFieldsEvent $event
+     * @return void
+     * @since 5.0.10
+     */
+    public function defineFields(DefineFieldsEvent $event): void
+    {
+        if (!$this->owner->getOwner() instanceof User) {
+            return;
+        }
+
+        $event->fields['isPrimaryBilling'] = 'isPrimaryBilling';
+        $event->fields['isPrimaryShipping'] = 'isPrimaryShipping';
     }
 
     /**

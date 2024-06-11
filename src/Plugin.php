@@ -127,6 +127,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
+use craft\events\PopulateElementEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -160,6 +161,7 @@ use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use yii\base\Event;
+use yii\db\Expression;
 use yii\web\User;
 
 /**
@@ -733,7 +735,10 @@ class Plugin extends BasePlugin
         Event::on(UserQuery::class, UserQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
             /** @var UserQuery $sender */
             $sender = $event->sender;
-            $sender->query->addSelect(['commerce_customers.primaryBillingAddressId']);
+            $sender->query->addSelect([
+                'commerce_customers.primaryBillingAddressId',
+                'commerce_customers.primaryShippingAddressId',
+            ]);
             $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[users.id]]');
         });
 
@@ -762,6 +767,30 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
             }
         });
+
+        Event::on(AddressQuery::class, AddressQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
+            /** @var UserQuery $sender */
+            $sender = $event->sender;
+            $sender->query->addSelect([
+                'isPrimaryBilling' => new Expression('IF([[commerce_customers.primaryBillingAddressId]] = [[addresses.id]], 1, 0)'),
+                'isPrimaryShipping' => new Expression('IF([[commerce_customers.primaryShippingAddressId]] = [[addresses.id]], 1, 0)'),
+
+                // Use this information to determine if the address is owned by a user
+                'commerceCustomerId' => '[[commerce_customers.customerId]]',
+            ]);
+            $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[addresses.primaryOwnerId]]');
+        });
+
+        Event::on(AddressQuery::class, AddressQuery::EVENT_BEFORE_POPULATE_ELEMENT, function(PopulateElementEvent $event) {
+            // Prevent properties from setting if the address model is not owned by a user
+            if (!$event->row['commerceCustomerId']) {
+                unset($event->row['isPrimaryBilling']);
+                unset($event->row['isPrimaryShipping']);
+            }
+
+            unset($event->row['commerceCustomerId']);
+        });
+
 
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
         Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricing(), 'afterSavePurchasableHandler']);
