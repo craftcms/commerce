@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+# Unreleased
+
+- Fixed a PHP error that could occur when saving a discount. ([#3538](https://github.com/craftcms/commerce/issues/3538)) 
+
 ## 5.0.9 - 2024-06-05
 
 - Product Title fields are no longer shown when “Show the Title field” is disabled and there’s a validation error on the `title` attribute. ([craftcms/cms#13876](https://github.com/craftcms/cms/issues/13876))
