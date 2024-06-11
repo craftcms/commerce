@@ -771,11 +771,20 @@ class Plugin extends BasePlugin
         Event::on(AddressQuery::class, AddressQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
             /** @var UserQuery $sender */
             $sender = $event->sender;
-            $sender->query->addSelect([
-                'isPrimaryBilling' => new Expression('IF([[commerce_customers.primaryBillingAddressId]] = [[addresses.id]], 1, 0)'),
-                'isPrimaryShipping' => new Expression('IF([[commerce_customers.primaryShippingAddressId]] = [[addresses.id]], 1, 0)'),
+            if (Craft::$app->getDb()->getIsPgsql()) {
+                $sender->query->addSelect([
+                    'isPrimaryBilling' => new Expression('CASE WHEN [[commerce_customers.primaryBillingAddressId]] = [[addresses.id]] THEN true ELSE false'),
+                    'isPrimaryShipping' => new Expression('CASE WHEN [[commerce_customers.primaryShippingAddressId]] = [[addresses.id]] THEN true ELSE false'),
+                ]);
+            } else {
+                $sender->query->addSelect([
+                    'isPrimaryBilling' => new Expression('IF([[commerce_customers.primaryBillingAddressId]] = [[addresses.id]], 1, 0)'),
+                    'isPrimaryShipping' => new Expression('IF([[commerce_customers.primaryShippingAddressId]] = [[addresses.id]], 1, 0)'),
+                ]);
+            }
 
-                // Use this information to determine if the address is owned by a user
+            // Use this information to determine if the address is owned by a user
+            $sender->query->addSelect([
                 'commerceCustomerId' => '[[commerce_customers.customerId]]',
             ]);
             $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[addresses.primaryOwnerId]]');
