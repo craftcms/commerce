@@ -3,6 +3,8 @@
 # Unreleased
 
 - Fixed a PHP error that could occur when saving a discount. ([#3538](https://github.com/craftcms/commerce/issues/3538))
+- `craft\elements\User::toArray()` now includes `primaryBillingAddressId` and `primaryShippingAddressId` keys in its response array.
+- `craft\elements\Address::toArray()` now includes `isPrimaryBilling` and `isPrimaryShipping` keys in its response array for User addresses.
 - Added `craft\commerce\behaviors\CustomerAddressBehavior::defineFields()`.
 - Added `craft\commerce\behaviors\CustomerBehavior::defineFields()`.
 
