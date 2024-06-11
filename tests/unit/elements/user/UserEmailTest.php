@@ -92,7 +92,7 @@ class UserEmailTest extends Unit
             'purchasableId' => $lineItem->purchasableId,
             'options' => [],
             'qty' => $qty,
-            'note' => $note
+            'note' => $note,
         ]);
         $cart->setLineItems([$lineItem]);
         \Craft::$app->getElements()->saveElement($cart, false, false, false);

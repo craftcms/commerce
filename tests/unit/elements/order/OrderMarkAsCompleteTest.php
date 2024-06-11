@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\elements\order;
 
 use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\LineItemType;
 use craft\commerce\Plugin;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;

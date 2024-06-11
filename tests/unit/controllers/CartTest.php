@@ -13,7 +13,6 @@ use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\enums\LineItemType;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -488,8 +487,8 @@ class CartTest extends Unit
                     'qty' => 2,
                     'note' => 'Second custom line item',
                     'options' => [],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $this->request->setBodyParams($bodyParams);

@@ -167,7 +167,7 @@ class LineItemsTest extends Unit
             'purchasableId' => $lineItem->purchasableId,
             'options' => $lineItem->options,
             'qty' => $qty,
-            'note' => $note
+            'note' => $note,
         ]);
 
         self::assertInstanceOf(LineItem::class, $lineItem);

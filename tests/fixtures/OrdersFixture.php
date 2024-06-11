@@ -10,7 +10,6 @@ namespace craftcommercetests\fixtures;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\LineItemType;
 use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\BaseElementFixture;

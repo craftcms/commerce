@@ -12,7 +12,6 @@ use Composer\Semver\VersionParser;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
-use craft\commerce\enums\LineItemType;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -243,7 +242,7 @@ class CartController extends BaseFrontEndController
                 }
 
                 $customLineItemData = Json::decodeIfJson($customLineItemData);
-                if (!is_array($customLineItemData) ||  !isset($customLineItemData['description'], $customLineItemData['price'], $customLineItemData['sku'])) {
+                if (!is_array($customLineItemData) || !isset($customLineItemData['description'], $customLineItemData['price'], $customLineItemData['sku'])) {
                     continue;
                 }
 
