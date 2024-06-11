@@ -117,6 +117,7 @@ use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
 use craft\debug\Module;
 use craft\elements\Address;
+use craft\elements\db\AddressQuery;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
