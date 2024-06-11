@@ -117,8 +117,11 @@ use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
 use craft\debug\Module;
 use craft\elements\Address;
+use craft\elements\db\AddressQuery;
+use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
+use craft\events\CancelableEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
@@ -726,6 +729,13 @@ class Plugin extends BasePlugin
                 $event->behaviors['commerce:customer'] = CustomerBehavior::class;
             }
         );
+
+        Event::on(UserQuery::class, UserQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
+            /** @var UserQuery $sender */
+            $sender = $event->sender;
+            $sender->query->addSelect(['commerce_customers.primaryBillingAddressId']);
+            $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[users.id]]');
+        });
 
         // Add Commerce info to user edit screen
         Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {

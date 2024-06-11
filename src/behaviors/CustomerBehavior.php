@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use RuntimeException;
@@ -88,7 +89,17 @@ class CustomerBehavior extends Behavior
     {
         return [
             User::EVENT_AFTER_SAVE => 'afterSaveUserHandler',
+            User::EVENT_DEFINE_RULES => 'defineRules',
         ];
+    }
+
+    /**
+     * @param DefineRulesEvent $event
+     * @throws InvalidConfigException
+     */
+    public function defineRules(DefineRulesEvent $event): void
+    {
+        $event->rules[] = [['primaryBillingAddressId', 'primaryShippingAddressId'], 'safe'];
     }
 
     /**
