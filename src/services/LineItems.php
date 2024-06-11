@@ -198,6 +198,41 @@ class LineItems extends Component
     }
 
     /**
+     * @param Order $order
+     * @param string $sku
+     * @param array $options
+     * @return LineItem
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function resolveCustomLineItem(Order $order, string $sku, array $options = []): LineItem
+    {
+        $signature = LineItemHelper::generateOptionsSignature($options);
+
+        $result = $order->id ? $this->_createLineItemQuery()
+            ->where([
+                'orderId' => $order->id,
+                'sku' => $sku,
+                'optionsSignature' => $signature,
+                'type' => LineItemType::Custom->value,
+            ])
+            ->one() : null;
+
+        if ($result) {
+            $lineItem = new LineItem($result);
+        } else {
+            $lineItem = $this->create($order, [
+                'sku' => $sku,
+                'options' => $options,
+            ], LineItemType::Custom);
+        }
+
+        return $lineItem;
+    }
+
+    /**
      * Save a line item.
      *
      * @param LineItem $lineItem The line item to save.
@@ -409,7 +444,8 @@ class LineItems extends Component
             throw new InvalidArgumentException('Purchasable ID or Purchasable must be set');
         }
 
-        $lineItem = Craft::createObject(LineItem::class, $params);
+        $params['class'] = LineItem::class;
+        $lineItem = Craft::createObject($params);
 
         if ($lineItem->type === LineItemType::Purchasable) {
             $purchasable = $lineItem->getPurchasable();

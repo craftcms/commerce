@@ -68,6 +68,8 @@ use yii\base\InvalidConfigException;
  * @property float|int $promotionalPrice
  * @property-read float $promotionalAmount
  * @property-read string $adjustmentsTotalAsCurrency
+ * @property bool $hasFreeShipping
+ * @property bool $isPromotable
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -530,7 +532,6 @@ class LineItem extends Model
     protected function defineRules(): array
     {
         $rules = [
-            [['type'], 'safe'],
             [
                 [
                     'optionsSignature',
@@ -551,7 +552,7 @@ class LineItem extends Model
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
             [['price'], 'number'],
             [['promotionalPrice'], 'number', 'skipOnEmpty' => true],
-            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable'], 'safe'],
+            [['orderId', 'purchasableId', 'hasFreeShipping', 'isPromotable', 'isShippable', 'isTaxable', 'type'], 'safe'],
         ];
 
         if ($this->type === LineItemType::Purchasable && $this->purchasableId) {

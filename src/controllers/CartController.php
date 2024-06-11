@@ -20,6 +20,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -234,36 +235,51 @@ class CartController extends BaseFrontEndController
             }
         }
 
+        if ($customLineItems = $this->request->getParam('customLineItems')) {
+            foreach ($customLineItems as $key => $customLineItem) {
+                $customLineItemData = $this->request->getValidatedBodyParam("customLineItems.$key.lineItem");
+                if (!$customLineItemData) {
+                    continue;
+                }
+
+                $customLineItemData = Json::decodeIfJson($customLineItemData);
+                if (!is_array($customLineItemData) ||  !isset($customLineItemData['description'], $customLineItemData['price'], $customLineItemData['sku'])) {
+                    continue;
+                }
+
+                $qty = (int)$this->request->getParam("customLineItems.$key.qty", 1);
+                if ($qty === 0) {
+                    continue;
+                }
+
+                $note = $this->request->getParam("customLineItems.$key.note", '');
+                $options = $this->request->getParam("customLineItems.$key.options", []);
+
+                // Resolve custom line item
+                $customLineItem = Plugin::getInstance()->getLineItems()->resolveCustomLineItem($this->_cart, $customLineItemData['sku'], $options);
+
+                $customLineItem->description = $customLineItemData['description'];
+                $customLineItem->price = $customLineItemData['price'];
+                $customLineItem->sku = $customLineItemData['sku'];
+                $customLineItem->taxCategoryId = $customLineItemData['taxCategoryId'];
+                $customLineItem->shippingCategoryId = $customLineItemData['shippingCategoryId'];
+                $customLineItem->setHasFreeShipping($customLineItemData['hasFreeShipping']);
+                $customLineItem->setIsPromotable($customLineItemData['isPromotable']);
+                $customLineItem->setIsShippable($customLineItemData['isShippable']);
+                $customLineItem->setIsTaxable($customLineItemData['isTaxable']);
+                $customLineItem->qty = $qty;
+                $customLineItem->note = $note;
+                $customLineItem->setOptions($options);
+
+                $this->_cart->addLineItem($customLineItem);
+            }
+        }
+
         // Update multiple line items in the cart
         if ($lineItems = $this->request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
-                $lineItemPostData = $lineItem;
-                $lineItemType = $lineItemPostData['type'] ?? LineItemType::Purchasable->value;
-
-                $lineItem = is_int($key) ? $this->_getCartLineItemById($key) : null;
-                if ($lineItem || $lineItemType === LineItemType::Custom->value) {
-                    if ($lineItem === null && $lineItemType === LineItemType::Custom->value) {
-                        $lineItem = new LineItem();
-                        $lineItem->type = LineItemType::Custom;
-                        $lineItem->qty = 1;
-                        $lineItem->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
-                        $lineItem->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->_cart->getStore()->id)->id;
-
-                        // Set price for custom line item if it is provided as a validated body param
-                        $customLineItemPrice = $this->request->getValidatedBodyParam("lineItems.$key.price") ?? 0;
-                        $lineItem->setPrice($customLineItemPrice);
-
-                        $description = $this->request->getValidatedBodyParam("lineItems.$key.description");
-                        $sku = $this->request->getValidatedBodyParam("lineItems.$key.sku");
-                        if ($description === null || $sku === null) {
-                            $this->_cart->addError('lineItems', Craft::t('commerce', 'Unable to add line item.'));
-                            continue;
-                        }
-
-                        $lineItem->setDescription($description);
-                        $lineItem->setSku($sku);
-                    }
-
+                $lineItem = $this->_getCartLineItemById($key);
+                if ($lineItem) {
                     $lineItem->qty = (int)$this->request->getParam("lineItems.$key.qty", $lineItem->qty);
                     $lineItem->note = $this->request->getParam("lineItems.$key.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.$key.options", $lineItem->getOptions()));

@@ -14,6 +14,7 @@ use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\enums\LineItemType;
+use craft\commerce\helpers\LineItem;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
@@ -475,24 +476,18 @@ class CartTest extends Unit
         $sec = Craft::$app->getSecurity();
 
         $bodyParams = [
-            'lineItems' => [
+            'customLineItems' => [
                 'custom1' => [
-                    'description' => $sec->hashData('First custom line item'),
-                    'sku' => $sec->hashData('custom1'),
+                    'lineItem' => LineItem::generateCustomLineItemHash('First custom line item', 'custom1', 123.99),
                     'qty' => 1,
                     'note' => 'First custom line item',
                     'options' => [],
-                    'type' => LineItemType::Custom->value,
-                    'price' => $sec->hashData(123.99),
                 ],
                 'custom2' => [
-                    'description' => $sec->hashData('Second custom line item'),
-                    'sku' => $sec->hashData('custom2'),
+                    'lineItem' => LineItem::generateCustomLineItemHash('Second custom line item', 'custom2', 10.00),
                     'qty' => 2,
                     'note' => 'Second custom line item',
                     'options' => [],
-                    'type' => LineItemType::Custom->value,
-                    'price' => $sec->hashData(10.00),
                 ]
             ]
         ];
