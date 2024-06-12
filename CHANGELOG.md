@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-# Unreleased
+## 5.0.10 - 2024-06-13 
 
 - `craft\elements\User::toArray()` now includes `primaryBillingAddressId` and `primaryShippingAddressId` values in response arrays.
 - `craft\elements\Address::toArray()` now includes `isPrimaryBilling` and `isPrimaryShipping` values in response arrays for user addresses.
