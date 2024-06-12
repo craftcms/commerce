@@ -93,6 +93,10 @@ class CustomerAddressBehavior extends Behavior
             return;
         }
 
+        if ($this->owner->duplicateOf) {
+            return;
+        }
+
         $customersService = Plugin::getInstance()->getCustomers();
 
         $customer = $customersService->ensureCustomer($user);
