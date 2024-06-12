@@ -188,6 +188,11 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
      */
     public function getActionMenuItems(): array
     {
+        $canManage = Craft::$app->getUser()->getIdentity()?->can('commerce-manageInventoryLocations') ?? false;
+        if (!$canManage) {
+            return [];
+        }
+
         return [
             [
                 'label' => Craft::t('commerce', 'Edit'),

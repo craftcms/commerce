@@ -740,7 +740,10 @@ class Plugin extends BasePlugin
         Event::on(UserQuery::class, UserQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
             /** @var UserQuery $sender */
             $sender = $event->sender;
-            $sender->query->addSelect(['commerce_customers.primaryBillingAddressId']);
+            $sender->query->addSelect([
+                'commerce_customers.primaryBillingAddressId',
+                'commerce_customers.primaryShippingAddressId',
+            ]);
             $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[users.id]]');
         });
 
