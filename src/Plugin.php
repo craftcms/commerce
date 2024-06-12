@@ -768,39 +768,6 @@ class Plugin extends BasePlugin
             }
         });
 
-        Event::on(AddressQuery::class, AddressQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
-            /** @var UserQuery $sender */
-            $sender = $event->sender;
-            if (Craft::$app->getDb()->getIsPgsql()) {
-                $sender->query->addSelect([
-                    'isPrimaryBilling' => new Expression('CASE WHEN [[commerce_customers.primaryBillingAddressId]] = [[addresses.id]] THEN true ELSE false END'),
-                    'isPrimaryShipping' => new Expression('CASE WHEN [[commerce_customers.primaryShippingAddressId]] = [[addresses.id]] THEN true ELSE false END'),
-                ]);
-            } else {
-                $sender->query->addSelect([
-                    'isPrimaryBilling' => new Expression('IF([[commerce_customers.primaryBillingAddressId]] = [[addresses.id]], 1, 0)'),
-                    'isPrimaryShipping' => new Expression('IF([[commerce_customers.primaryShippingAddressId]] = [[addresses.id]], 1, 0)'),
-                ]);
-            }
-
-            // Use this information to determine if the address is owned by a user
-            $sender->query->addSelect([
-                'commerceCustomerId' => '[[commerce_customers.customerId]]',
-            ]);
-            $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[addresses.primaryOwnerId]]');
-        });
-
-        Event::on(AddressQuery::class, AddressQuery::EVENT_BEFORE_POPULATE_ELEMENT, function(PopulateElementEvent $event) {
-            // Prevent properties from setting if the address model is not owned by a user
-            if (!$event->row['commerceCustomerId']) {
-                unset($event->row['isPrimaryBilling']);
-                unset($event->row['isPrimaryShipping']);
-            }
-
-            unset($event->row['commerceCustomerId']);
-        });
-
-
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
         Event::on(Purchasable::class, Purchasable::EVENT_AFTER_SAVE, [$this->getCatalogPricing(), 'afterSavePurchasableHandler']);
 
