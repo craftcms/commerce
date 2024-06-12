@@ -2,7 +2,8 @@
 
 # Unreleased
 
-- Fixed a PHP error that could occur when saving a discount. ([#3538](https://github.com/craftcms/commerce/issues/3538)) 
+- Fixed a PHP error that could occur when saving a discount. ([#3538](https://github.com/craftcms/commerce/issues/3538))
+- Fixed a bug where the “Edit” action could incorrectly show when managing inventory locations. 
 
 ## 5.0.9 - 2024-06-05
 
