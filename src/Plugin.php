@@ -117,7 +117,6 @@ use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
 use craft\debug\Module;
 use craft\elements\Address;
-use craft\elements\db\AddressQuery;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
@@ -127,7 +126,6 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
-use craft\events\PopulateElementEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -161,7 +159,6 @@ use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use Exception;
 use yii\base\Event;
-use yii\db\Expression;
 use yii\web\User;
 
 /**
