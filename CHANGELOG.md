@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.10.1 - 2024-06-14
 
 - Fixed a bug where duplicate Store location addresses were being created.
 - Fixed a bug where a customers’ primary address selections weren’t being saved. 
