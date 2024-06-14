@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where duplicate store location addresses were being created.
-- Fixed a bug where a customers’ primary address selections were not being saved. 
+- Fixed a bug where duplicate Store location addresses were being created.
+- Fixed a bug where a customers’ primary address selections weren’t being saved. 
 
 ## 5.0.10 - 2024-06-13 
 
