@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where the Edit Order page showed Edit buttons for users that didn’t have permission to edit the order. ([#3534](https://github.com/craftcms/commerce/issues/3534)) 
+- Fixed an error that occurred when installing Craft CMS 4.10+ and Craft Commerce with existing project config YAML files. ([#3542](https://github.com/craftcms/commerce/issues/3542)) 
 - Updated the ibericode/vat package to support the latest VAT ID patterns. ([#3497](https://github.com/craftcms/commerce/issues/3497))
 
 ## 4.6.2 - 2024-05-29
