@@ -433,6 +433,7 @@ class Product extends Element
     {
         return [
             'title' => ['label' => Craft::t('commerce', 'Product')],
+            'status' => ['label' => Craft::t('commerce', 'Status')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -464,6 +465,7 @@ class Product extends Element
             $attributes[] = 'type';
         }
 
+        $attributes[] = 'status';
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
         $attributes[] = 'defaultPrice';
@@ -1427,7 +1429,7 @@ class Product extends Element
                     return '';
                 }
 
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                return Html::tag('code', PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku));
             }
             case 'defaultPrice':
             {
