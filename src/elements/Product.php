@@ -1134,6 +1134,10 @@ class Product extends Element
             $record->defaultVariantId = $defaultVariant->id ?? null;
             $record->defaultSku = $defaultVariant->skuAsText ?? '';
             $record->defaultPrice = $defaultVariant->price ?? 0.0;
+            $record->defaultHeight = $defaultVariant->height ?? 0.0;
+            $record->defaultLength = $defaultVariant->length ?? 0.0;
+            $record->defaultWidth = $defaultVariant->width ?? 0.0;
+            $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
