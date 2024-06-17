@@ -4,6 +4,7 @@
 
 - Fixed a bug where `Product::$defaultPrice` could return an incorrect value.
 - Fixed a bug where default variant attributes weren’t being saved on the product.
+- Fixed a bug where search wasn’t working on Users index page. 
 - Added `craft\commerce\elements\Product::getDefaultPrice()`.
 - Added `craft\commerce\elements\Product::setDefaultPrice()`.
 
