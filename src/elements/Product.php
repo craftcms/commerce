@@ -554,8 +554,10 @@ class Product extends Element
 
     /**
      * @var float|null Default price
+     * @see getDefaultPrice()
+     * @see setDefaultPrice()
      */
-    public ?float $defaultPrice = null;
+    private ?float $_defaultPrice = null;
 
     /**
      * @var float|null Default height
@@ -613,6 +615,26 @@ class Product extends Element
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * @param float|null $defaultPrice
+     * @return void
+     * @since 5.0.11
+     */
+    public function setDefaultPrice(?float $defaultPrice): void
+    {
+        $this->_defaultPrice = $defaultPrice;
+    }
+
+    /**
+     * @return float|null
+     * @throws InvalidConfigException
+     * @since 5.0.11
+     */
+    public function getDefaultPrice(): ?float
+    {
+        return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
     }
 
     /**
@@ -1216,6 +1238,7 @@ class Product extends Element
         return array_merge(parent::defineRules(), [
             [['typeId'], 'number', 'integerOnly' => true],
             [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [['defaultPrice'], 'safe'],
             [
                 ['variants'],
                 function() {

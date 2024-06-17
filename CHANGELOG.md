@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where `Product::$defaultPrice` could return an incorrect value.
+- Added `craft\commerce\elements\Product::getDefaultPrice()`.
+- Added `craft\commerce\elements\Product::setDefaultPrice()`.
+
 ## 5.0.10.1 - 2024-06-14
 
 - Fixed a bug where duplicate Store location addresses were being created.
