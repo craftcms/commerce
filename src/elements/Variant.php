@@ -859,6 +859,37 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $record->save(false);
 
+            $defaultSet = false;
+            if ($this->isDefault) {
+                Db::update(Table::VARIANTS, ['isDefault' => false], ['and', ['not', ['id' => $this->id]], ['primaryOwnerId' => $this->getPrimaryOwnerId()]]);
+                $defaultSet = true;
+            } else {
+                $anyDefault = (new Query())
+                    ->select('id')
+                    ->from(Table::VARIANTS)
+                    ->where(['isDefault' => true, 'primaryOwnerId' => $this->getPrimaryOwnerId()])
+                    ->scalar();
+                if (!$anyDefault) {
+                    Db::update(Table::VARIANTS, ['isDefault' => true], ['id' => $this->id]);
+                    $defaultSet = true;
+                }
+            }
+
+            if ($defaultSet) {
+                DB::update(Table::PRODUCTS,
+                    [
+                        'defaultVariantId' => $this->id,
+                        'defaultSku' => $this->sku,
+                        'defaultPrice' => $this->price,
+                        'defaultHeight' => $this->height,
+                        'defaultLength' => $this->length,
+                        'defaultWidth' => $this->width,
+                        'defaultWeight' => $this->weight,
+                    ],
+                    ['id' => $this->getPrimaryOwnerId()]
+                );
+            }
+
             $ownerId = $this->getOwnerId();
             if ($ownerId && $this->saveOwnership) {
                 if (!isset($this->sortOrder) && !$isNew) {
