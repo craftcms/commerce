@@ -624,6 +624,12 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners(): void
     {
+        // Guard against the case where the Plugin class is loaded during Craft installation due to a project config existing but commerce is not installed.
+        // Also fixed in core but this is an extra guard: https://github.com/craftcms/cms/commit/369807d9b8da0ff0968e292591eee5f8924b57cc
+        if (!$this->isInstalled) {
+            return;
+        }
+
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
