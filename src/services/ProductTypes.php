@@ -920,10 +920,9 @@ class ProductTypes extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        $projectConfig = Craft::$app->getProjectConfig();
-
-        if ($event->isNew) {
+        if ($event->isNew && isset($event->oldPrimarySiteId)) {
             $oldPrimarySiteUid = Db::uidById(CraftTable::SITES, $event->oldPrimarySiteId);
+            $projectConfig = Craft::$app->getProjectConfig();
             $existingProductTypeSettings = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
 
             if (!$projectConfig->getIsApplyingExternalChanges() && is_array($existingProductTypeSettings)) {
@@ -935,7 +934,6 @@ class ProductTypes extends Component
             }
         }
     }
-
 
     /**
      * Memoize a product type

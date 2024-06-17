@@ -8,7 +8,9 @@
                 <h3 class="m-0">
                     {{ $options.filters.t('Customer', 'commerce') }}
                 </h3>
-                <template v-if="hasCustomer && (!editing || !editMode)">
+                <template
+                    v-if="hasCustomer && canEdit && (!editing || !editMode)"
+                >
                     <btn-link @click="enableEditMode()">{{
                         $options.filters.t('Edit', 'commerce')
                     }}</btn-link>
@@ -162,6 +164,7 @@
         computed: {
             ...mapGetters([
                 'autoSetNewCartAddresses',
+                'canEdit',
                 'hasCustomer',
                 'hasAddresses',
                 'hasAnAddress',

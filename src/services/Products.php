@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\Plugin;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\ResaveElements;
@@ -39,21 +40,18 @@ class Products extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        if ($event->isNew) {
-            $oldPrimarySiteId = $event->oldPrimarySiteId;
-            $elementTypes = [
-                Product::class,
-            ];
-
-            foreach ($elementTypes as $elementType) {
-                Queue::push(new ResaveElements([
-                    'elementType' => $elementType,
-                    'criteria' => [
-                        'siteId' => $oldPrimarySiteId,
-                        'status' => null,
-                    ],
-                ]));
-            }
+        if (
+            $event->isNew &&
+            isset($event->oldPrimarySiteId) &&
+            Craft::$app->getPlugins()->isPluginInstalled(Plugin::getInstance()->id)
+        ) {
+            Queue::push(new ResaveElements([
+                'elementType' => Product::class,
+                'criteria' => [
+                    'siteId' => $event->oldPrimarySiteId,
+                    'status' => null,
+                ],
+            ]));
         }
     }
 }

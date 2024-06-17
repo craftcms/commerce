@@ -3,7 +3,7 @@
         <div class="w-1/4">
             <btn-link
                 @click="enableEditMode()"
-                v-if="!editMode && draft.order.isCompleted"
+                v-if="canEdit && !editMode && draft.order.isCompleted"
                 >{{ 'Edit adjustments' | t('commerce') }}</btn-link
             >
         </div>
@@ -50,7 +50,7 @@
         },
 
         computed: {
-            ...mapGetters(['orderId', 'currentUserId']),
+            ...mapGetters(['canEdit', 'currentUserId', 'orderId']),
 
             ...mapState({
                 draft: (state) => state.draft,

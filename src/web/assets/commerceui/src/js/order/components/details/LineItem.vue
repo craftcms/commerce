@@ -37,7 +37,7 @@
                     </div>
 
                     <!-- Edit-->
-                    <div>
+                    <div v-if="canEdit">
                         <btn-link v-if="!editMode" @click="enableEditMode()">{{
                             'Edit' | t('commerce')
                         }}</btn-link>
@@ -50,7 +50,7 @@
                         }}</btn-link>
                     </div>
                     <!-- Edit-->
-                    <div>
+                    <div v-if="canEdit">
                         <btn-link
                             button-class="btn-link btn-link--danger"
                             @click="removeLineItem"
@@ -291,11 +291,12 @@
             }),
 
             ...mapGetters([
-                'hasLineItemErrors',
+                'canEdit',
                 'getErrors',
+                'hasLineItemErrors',
+                'orderId',
                 'shippingCategories',
                 'taxCategories',
-                'orderId',
             ]),
 
             salePrice: {
