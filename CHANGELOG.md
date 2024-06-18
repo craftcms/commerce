@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.3 - 2024-06-18
 
 - Fixed a bug where Edit Order pages showed Edit buttons for users that didn’t have permission to edit the order. ([#3534](https://github.com/craftcms/commerce/issues/3534))
 - Fixed an error that occurred when installing Craft CMS 4.10+ and Craft Commerce with existing project config YAML files. ([#3542](https://github.com/craftcms/commerce/issues/3542))
