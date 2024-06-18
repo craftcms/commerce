@@ -52,9 +52,9 @@
                     <!-- Edit-->
                     <div
                         v-if="
-                        canEdit &&
+                            canEdit &&
                             (totalCommittedStock === 0 ||
-                            lineItem.fulfilledTotalQuantity < 1)
+                                lineItem.fulfilledTotalQuantity < 1)
                         "
                     >
                         <btn-link
