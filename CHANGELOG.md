@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.11 - 2024-06-18
 
 - Added `craft\commerce\elements\Product::getDefaultPrice()`.
 - Added `craft\commerce\elements\Product::setDefaultPrice()`.
