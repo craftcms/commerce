@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\Plugin;
 use craft\events\SiteEvent;
 use craft\helpers\Queue;
 use craft\queue\jobs\PropagateElements;
@@ -39,7 +40,11 @@ class Products extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event): void
     {
-        if ($event->isNew) {
+        if (
+            $event->isNew &&
+            isset($event->oldPrimarySiteId) &&
+            Craft::$app->getPlugins()->isPluginInstalled(Plugin::getInstance()->id)
+        ) {
             Queue::push(new PropagateElements([
                 'elementType' => Product::class,
                 'criteria' => [
