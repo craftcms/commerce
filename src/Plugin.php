@@ -115,17 +115,18 @@ use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
+use craft\db\Query;
 use craft\debug\Module;
 use craft\elements\Address;
 use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
-use craft\events\CancelableEvent;
 use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
+use craft\events\PopulateElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -137,6 +138,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
@@ -737,14 +739,34 @@ class Plugin extends BasePlugin
             }
         );
 
-        Event::on(UserQuery::class, UserQuery::EVENT_AFTER_PREPARE, function(CancelableEvent $event) {
-            /** @var UserQuery $sender */
-            $sender = $event->sender;
-            $sender->query->addSelect([
-                'commerce_customers.primaryBillingAddressId',
-                'commerce_customers.primaryShippingAddressId',
-            ]);
-            $sender->query->leftJoin(Table::CUSTOMERS . ' commerce_customers', '[[commerce_customers.customerId]] = [[users.id]]');
+        Event::on(UserQuery::class, UserQuery::EVENT_AFTER_POPULATE_ELEMENTS, function(PopulateElementsEvent $event) {
+            $users = $event->elements;
+            $customerIds = ArrayHelper::getColumn($users, 'id');
+
+            if (empty($customerIds)) {
+                return;
+            }
+
+            $customers = (new Query())
+                ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
+                ->from([Table::CUSTOMERS])
+                ->where(['customerId' => $customerIds])
+                ->all();
+
+            if (empty($customers)) {
+                return;
+            }
+
+            foreach ($customers as $customer) {
+                /** @var User|CustomerBehavior|null $user */
+                $user = ArrayHelper::firstWhere($users, 'id', $customer['customerId']);
+                if (!$user) {
+                    continue;
+                }
+
+                $user->setPrimaryBillingAddressId($customer['primaryBillingAddressId']);
+                $user->setPrimaryShippingAddressId($customer['primaryShippingAddressId']);
+            }
         });
 
         // Add Commerce info to user edit screen

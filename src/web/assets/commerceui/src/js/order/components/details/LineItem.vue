@@ -105,7 +105,7 @@
                     </div>
 
                     <!-- Edit-->
-                    <div>
+                    <div v-if="canEdit">
                         <btn-link v-if="!editMode" @click="enableEditMode()">{{
                             'Edit' | t('commerce')
                         }}</btn-link>
@@ -120,8 +120,9 @@
                     <!-- Edit-->
                     <div
                         v-if="
-                            totalCommittedStock === 0 ||
-                            lineItem.fulfilledTotalQuantity < 1
+                            canEdit &&
+                            (totalCommittedStock === 0 ||
+                                lineItem.fulfilledTotalQuantity < 1)
                         "
                     >
                         <btn-link
@@ -528,6 +529,7 @@
 
             ...mapGetters([
                 'currencyConfig',
+                'canEdit',
                 'getErrors',
                 'hasLineItemErrors',
                 'lineItemTypes',

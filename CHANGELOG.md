@@ -1,13 +1,24 @@
 # Release Notes for Craft Commerce
 
-# Unreleased
+## 5.0.11 - 2024-06-18
 
-- `craft\elements\User::toArray()` now includes `primaryBillingAddressId` and `primaryShippingAddressId` keys in its response array.
-- `craft\elements\Address::toArray()` now includes `isPrimaryBilling` and `isPrimaryShipping` keys in its response array for User addresses.
+- Added `craft\commerce\elements\Product::getDefaultPrice()`.
+- Added `craft\commerce\elements\Product::setDefaultPrice()`.
+- Fixed a bug where `craft\commerce\elements\Product::$defaultPrice` could return an incorrect value.
+- Fixed a bug where default variant attributes weren’t being saved on products.
+- Fixed a bug where search wasn’t working on user indexes.
+
+## 5.0.10.1 - 2024-06-14
+
+- Fixed a bug where duplicate Store location addresses were being created.
+- Fixed a bug where a customers’ primary address selections weren’t being saved. 
+
+## 5.0.10 - 2024-06-13 
+
+- `craft\elements\User::toArray()` now includes `primaryBillingAddressId` and `primaryShippingAddressId` values in response arrays.
+- `craft\elements\Address::toArray()` now includes `isPrimaryBilling` and `isPrimaryShipping` values in response arrays for user addresses.
 - Fixed a PHP error that could occur when saving a discount. ([#3538](https://github.com/craftcms/commerce/issues/3538))
-- Fixed a bug where the “Edit” action could incorrectly show when managing inventory locations. 
-- Added `craft\commerce\behaviors\CustomerAddressBehavior::defineFields()`.
-- Added `craft\commerce\behaviors\CustomerBehavior::defineFields()`.
+- Fixed a bug where the “Edit” action could be incorrectly shown when managing inventory locations.
 
 ## 5.0.9 - 2024-06-05
 
