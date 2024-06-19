@@ -7,9 +7,6 @@
 
 namespace craft\commerce\elements\conditions\variants;
 
-use craft\commerce\elements\Variant;
-use craft\helpers\ArrayHelper;
-
 /**
  * Catalog Pricing Rule Variant query condition.
  *
