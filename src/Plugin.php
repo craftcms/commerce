@@ -234,40 +234,43 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
-        
-        Craft::$app->onInit(function() {
-            $request = Craft::$app->getRequest();
-    
-            $this->_addTwigExtensions();
-            $this->_registerFieldTypes();
-            $this->_registerPermissions();
-            $this->_registerCraftEventListeners();
-            $this->_registerProjectConfigEventListeners();
-            $this->_registerVariables();
-            $this->_registerForeignKeysRestore();
-            $this->_registerPoweredByHeader();
-            $this->_registerElementTypes();
-            $this->_registerGqlInterfaces();
-            $this->_registerGqlQueries();
-            $this->_registerGqlComponents();
-            $this->_registerGqlEagerLoadableFields();
-            $this->_registerCacheTypes();
-            $this->_registerGarbageCollection();
+        $request = Craft::$app->getRequest();
+
+        $this->_addTwigExtensions();
+        $this->_registerFieldTypes();
+        $this->_registerPermissions();
+        $this->_registerCraftEventListeners();
+        $this->_registerProjectConfigEventListeners();
+        $this->_registerVariables();
+        $this->_registerForeignKeysRestore();
+        $this->_registerPoweredByHeader();
+        $this->_registerElementTypes();
+        $this->_registerGqlInterfaces();
+        $this->_registerGqlQueries();
+        $this->_registerGqlComponents();
+        $this->_registerGqlEagerLoadableFields();
+        $this->_registerCacheTypes();
+        $this->_registerGarbageCollection();
+
+        if ($request->getIsConsoleRequest()) {
+            $this->_defineResaveCommand();
+        } elseif ($request->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+            $this->_registerWidgets();
+            $this->_registerElementExports();
+            $this->_defineFieldLayoutElements();
+            $this->_registerTemplateHooks();
+            $this->_registerRedactorLinkOptions();
+            $this->_registerCKEditorLinkOptions();
+        } else {
+            $this->_registerSiteRoutes();
+        }
+
+        Craft::$app->onInit(function() use ($request) {
             $this->_registerDebugPanels();
-    
-            if ($request->getIsConsoleRequest()) {
-                $this->_defineResaveCommand();
-            } elseif ($request->getIsCpRequest()) {
-                $this->_registerCpRoutes();
+
+            if ($request->getIsCpRequest()) {
                 $this->_registerStoreAddressAuthHandlers();
-                $this->_registerWidgets();
-                $this->_registerElementExports();
-                $this->_defineFieldLayoutElements();
-                $this->_registerTemplateHooks();
-                $this->_registerRedactorLinkOptions();
-                $this->_registerCKEditorLinkOptions();
-            } else {
-                $this->_registerSiteRoutes();
             }
         });
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
@@ -654,9 +657,12 @@ class Plugin extends BasePlugin
         Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
             /** @var Address $address */
             $address = $event->sender;
-            $owner = $address->getOwner();
-            if ($owner instanceof UserElement) {
-                $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+
+            if ($address->ownerId) {
+                $owner = $address->getOwner();
+                if ($owner instanceof UserElement) {
+                    $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+                }
             }
 
             if (self::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
