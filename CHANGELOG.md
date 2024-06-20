@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a PHP error that could occur on app initialization.
+
 ## 5.0.11 - 2024-06-18
 
 - Added `craft\commerce\elements\Product::getDefaultPrice()`.
