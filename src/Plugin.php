@@ -313,7 +313,7 @@ class Plugin extends BasePlugin
             $this->_registerSiteRoutes();
         }
 
-        Craft::$app->onInit(function() use ($request) {
+        Craft::$app->onInit(function() {
             $this->_registerDebugPanels();
         });
 
