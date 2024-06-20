@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## 4.6.3.1 - 2024-06-20
+
+- Fixed a PHP error that could occur on app initialization. ([#3546](https://github.com/craftcms/commerce/issues/3546))
+
 ## 4.6.3 - 2024-06-18
 
 - Fixed a bug where Edit Order pages showed Edit buttons for users that didn’t have permission to edit the order. ([#3534](https://github.com/craftcms/commerce/issues/3534))
