@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.11.1 - 2024-06-20
 
 - Fixed a PHP error that could occur on app initialization.
 
