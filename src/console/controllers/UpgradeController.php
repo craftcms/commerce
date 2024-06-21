@@ -96,7 +96,7 @@ class UpgradeController extends Controller
      *
      * @var array<array{table: string, column: string}>
      */
-    private array $_v3droppableColumns = [
+    public static array $_v3droppableColumns = [
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_shippingzones}}', 'column' => 'v3isCountryBased'],
         ['table' => '{{%commerce_taxzones}}', 'column' => 'v3zipCodeConditionFormula'],
@@ -318,7 +318,7 @@ class UpgradeController extends Controller
             $this->db->createCommand()->dropTableIfExists($table)->execute();
         }
 
-        foreach ($this->_v3droppableColumns as ['table' => $table, 'column' => $column]) {
+        foreach (static::$_v3droppableColumns as ['table' => $table, 'column' => $column]) {
             if ($this->db->columnExists($table, $column)) {
                 Db::dropForeignKeyIfExists($table, $column, $this->db);
                 Db::dropIndexIfExists($table, $column, db: $this->db);

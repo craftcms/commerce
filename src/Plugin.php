@@ -116,6 +116,7 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\Console;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -270,10 +271,32 @@ class Plugin extends BasePlugin
             $this->_registerDebugPanels();
 
             if ($request->getIsCpRequest()) {
+                $this->_checkUpgradeCommandHasFinished();
                 $this->_registerStoreAddressAuthHandlers();
             }
         });
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+    }
+
+    private function _checkUpgradeCommandHasFinished()
+    {
+        $v3Columns = \craft\commerce\console\controllers\UpgradeController::$_v3droppableColumns;
+        // do any of the columns exist:
+        $columnsExist = false;
+        foreach ($v3Columns as $column) {
+            if (Craft::$app->getDb()->columnExists($column['table'], $column['column'])) {
+                $columnsExist = true;
+                break;
+            }
+        }
+
+        if ($columnsExist) {
+            Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
+                $event->alerts[] = [
+                    'content' => Craft::t('commerce', '<strong>Commerce 4 upgrade incomplete.</strong> Please ensure the <a href="https://craftcms.com/docs/commerce/4.x/upgrading.html#performing-the-upgrade" target="_blank" rel="noopener noreferrer">Commerce 4 upgrade command</a> has finished running.'),
+                ];
+            });
+        }
     }
 
     /**
