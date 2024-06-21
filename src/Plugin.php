@@ -268,7 +268,6 @@ class Plugin extends BasePlugin
         }
 
         Craft::$app->onInit(function() use ($request) {
-
             $this->_registerDebugPanels();
 
             if ($request->getIsCpRequest()) {
