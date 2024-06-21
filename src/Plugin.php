@@ -116,6 +116,7 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\Console;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
@@ -267,13 +268,36 @@ class Plugin extends BasePlugin
         }
 
         Craft::$app->onInit(function() use ($request) {
+
             $this->_registerDebugPanels();
 
             if ($request->getIsCpRequest()) {
+                $this->_checkUpgradeCommandHasFinished();
                 $this->_registerStoreAddressAuthHandlers();
             }
         });
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
+    }
+
+    private function _checkUpgradeCommandHasFinished()
+    {
+        $v3Columns = \craft\commerce\console\controllers\UpgradeController::$_v3droppableColumns;
+        // do any of the columns exist:
+        $columnsExist = false;
+        foreach ($v3Columns as $column) {
+            if (Craft::$app->getDb()->columnExists($column['table'], $column['column'])) {
+                $columnsExist = true;
+                break;
+            }
+        }
+
+        if ($columnsExist) {
+            Event::on(Cp::class, Cp::EVENT_REGISTER_ALERTS, static function($event) {
+                $event->alerts[] = [
+                    'content' => Craft::t('commerce', '<b>Commerce 4 Upgrade Incomplete</b>. Please ensure the Commerce 4 upgrade command has finished running. Contact a developer if you are unsure.'),
+                ];
+            });
+        }
     }
 
     /**
