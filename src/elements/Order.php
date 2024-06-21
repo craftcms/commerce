@@ -3137,6 +3137,7 @@ class Order extends Element
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
 
         $this->estimatedBillingAddressId = $address->id;
