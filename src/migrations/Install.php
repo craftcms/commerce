@@ -611,10 +611,14 @@ class Install extends Migration
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'variantTitleFormat' => $this->string()->notNull(),
+            'variantTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'variantTitleTranslationKeyFormat' => $this->string(),
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'productTitleFormat' => $this->string(),
+            'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'productTitleTranslationKeyFormat' => $this->string(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
