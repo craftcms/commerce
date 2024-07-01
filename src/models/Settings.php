@@ -66,7 +66,7 @@ class Settings extends Model
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft5:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @since 2.2
@@ -177,7 +177,7 @@ class Settings extends Model
     /**
      * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft5:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @defaultAlt 90 days
