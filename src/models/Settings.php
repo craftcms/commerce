@@ -141,7 +141,7 @@ class Settings extends Model
     /**
      * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
-     * If `null` (default), Craft’s default [`siteUrl`](config4:siteUrl) will be used.
+     * If `null` (default), Craft’s default [`siteUrl`](config5:siteUrl) will be used.
      *
      * @group Cart
      * @since 3.1
