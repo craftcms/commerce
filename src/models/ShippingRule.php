@@ -131,9 +131,11 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
         $orderShippingCategories = [];
         foreach ($order->getLineItems() as $lineItem) {
             // Don't look at the shipping category of non-shippable products.
-            if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
-                $orderShippingCategories[] = $lineItem->shippingCategoryId;
+            if (!$lineItem->getIsShippable()) {
+                continue;
             }
+
+            $orderShippingCategories[] = $lineItem->shippingCategoryId;
         }
 
         return array_unique($orderShippingCategories);
@@ -283,10 +285,11 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
 
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
-            $purchasable = $item->getPurchasable();
-            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
-                $nonShippableItems[$item->id] = $item->id;
+            if ($item->getIsShippable()) {
+                continue;
             }
+
+            $nonShippableItems[$item->id] = $item->id;
         }
 
         $wholeOrderNonShippable = count($nonShippableItems) > 0 && count($lineItems) == count($nonShippableItems);

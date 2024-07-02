@@ -9,12 +9,17 @@ namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\models\LineItem;
+use craft\commerce\Plugin;
 use craft\commerce\test\mockclasses\Purchasable;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\Json;
 use craftcommercetests\fixtures\ProductFixture;
 use craftcommercetests\fixtures\SalesFixture;
+use yii\base\InvalidConfigException;
 
 /**
  * LineItemTest
@@ -68,7 +73,7 @@ class LineItemTest extends Unit
         self::assertSame(25.10, $lineItem->salePrice);
         self::assertSame(0.0, $lineItem->getPromotionalAmount());
         self::assertSame('commerce_testing_unique_sku', $lineItem->sku);
-        self::assertFalse($lineItem->getOnSale());
+        self::assertFalse($lineItem->getOnPromotion());
     }
 
     /**
@@ -83,7 +88,7 @@ class LineItemTest extends Unit
         self::assertSame(123.99, round($lineItem->price, 2));
         self::assertSame(111.59, round($lineItem->salePrice, 2));
         self::assertSame(12.40, round($lineItem->getPromotionalAmount(), 2));
-        self::assertTrue($lineItem->getOnSale());
+        self::assertTrue($lineItem->getOnPromotion());
     }
 
     /**
@@ -148,5 +153,64 @@ class LineItemTest extends Unit
         $lineItem->setOptions(['foo' => 2]);
 
         self::assertNotSame($signature, $lineItem->getOptionsSignature());
+    }
+
+    /**
+     * @return void
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function testIsPromotableProperty(): void
+    {
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $lineItem = new LineItem();
+        $lineItem->populateFromPurchasable($variant);
+
+        // Manually set the property the make sure it doesn't do anything when it is a purchasable line item
+        $lineItem->setIsPromotable(false);
+
+        self::assertTrue($lineItem->getIsPromotable());
+    }
+
+    /**
+     * @return void
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function testHasFreeShippingProperty(): void
+    {
+        $variant = Variant::find()->sku('hct-blue')->one();
+        $lineItem = new LineItem();
+        $lineItem->populate($variant);
+
+        // Manually set the property the make sure it doesn't do anything when it is a purchasable line item
+        $lineItem->setHasFreeShipping(true);
+
+        self::assertFalse($lineItem->getHasFreeShipping());
+    }
+
+    /**
+     * @return void
+     * @since 5.1.0
+     */
+    public function testCustomLineItem(): void
+    {
+        $lineItem = new LineItem();
+        $lineItem->type = LineItemType::Custom;
+        $lineItem->description = 'Custom';
+        $lineItem->setSku('custom-sku');
+        $lineItem->setPrice(10.00);
+        $lineItem->qty = 2;
+        $lineItem->setIsPromotable(false);
+        $lineItem->setHasFreeShipping(true);
+
+        $order = new Order();
+        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
+
+        $order->setLineItems([$lineItem]);
+
+        self::assertEquals(20.00, $order->getTotal());
     }
 }

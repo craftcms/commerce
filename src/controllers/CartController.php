@@ -19,6 +19,7 @@ use craft\elements\Address;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use Illuminate\Support\Collection;
 use Throwable;
@@ -160,7 +161,7 @@ class CartController extends BaseFrontEndController
             if ($qty > 0) {
                 // We only want a new line item if they cleared the cart
                 if ($clearLineItems) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasableId, $options);
+                    $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, compact('purchasableId', 'options'));
                 } else {
                     $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
                 }
@@ -212,7 +213,10 @@ class CartController extends BaseFrontEndController
 
                     // We only want a new line item if they cleared the cart
                     if ($clearLineItems) {
-                        $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
+                        $lineItem = Plugin::getInstance()->getLineItems()->create($this->_cart, [
+                            'purchasableId' => $purchasable['id'],
+                            'options' => $purchasable['options'],
+                        ]);
                     } else {
                         $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
                     }
@@ -227,6 +231,46 @@ class CartController extends BaseFrontEndController
                     $lineItem->note = $purchasable['note'];
                     $this->_cart->addLineItem($lineItem);
                 }
+            }
+        }
+
+        if ($customLineItems = $this->request->getParam('customLineItems')) {
+            foreach ($customLineItems as $key => $customLineItem) {
+                $customLineItemData = $this->request->getValidatedBodyParam("customLineItems.$key.lineItem");
+                if (!$customLineItemData) {
+                    continue;
+                }
+
+                $customLineItemData = Json::decodeIfJson($customLineItemData);
+                if (!is_array($customLineItemData) || !isset($customLineItemData['description'], $customLineItemData['price'], $customLineItemData['sku'])) {
+                    continue;
+                }
+
+                $qty = (int)$this->request->getParam("customLineItems.$key.qty", 1);
+                if ($qty === 0) {
+                    continue;
+                }
+
+                $note = $this->request->getParam("customLineItems.$key.note", '');
+                $options = $this->request->getParam("customLineItems.$key.options", []);
+
+                // Resolve custom line item
+                $customLineItem = Plugin::getInstance()->getLineItems()->resolveCustomLineItem($this->_cart, $customLineItemData['sku'], $options);
+
+                $customLineItem->description = $customLineItemData['description'];
+                $customLineItem->price = $customLineItemData['price'];
+                $customLineItem->sku = $customLineItemData['sku'];
+                $customLineItem->taxCategoryId = $customLineItemData['taxCategoryId'];
+                $customLineItem->shippingCategoryId = $customLineItemData['shippingCategoryId'];
+                $customLineItem->setHasFreeShipping($customLineItemData['hasFreeShipping']);
+                $customLineItem->setIsPromotable($customLineItemData['isPromotable']);
+                $customLineItem->setIsShippable($customLineItemData['isShippable']);
+                $customLineItem->setIsTaxable($customLineItemData['isTaxable']);
+                $customLineItem->qty = $qty;
+                $customLineItem->note = $note;
+                $customLineItem->setOptions($options);
+
+                $this->_cart->addLineItem($customLineItem);
             }
         }
 

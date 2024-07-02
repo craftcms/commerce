@@ -235,17 +235,17 @@ class TopProducts extends Stat
         return (new Query())
             ->select([
                 '[[v.primaryOwnerId]]',
-                'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0)'),
-                'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0)'),
-                'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0)'),
-                'tax_included' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0)'),
+                'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN [[oa.type]]=\'discount\' THEN amount END), 0)'),
+                'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN [[oa.type]]=\'shipping\' THEN amount END), 0)'),
+                'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN [[oa.type]]=\'tax\' AND included=false THEN amount END), 0)'),
+                'tax_included' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN [[oa.type]]=\'tax\' AND included=true THEN amount END), 0)'),
             ])
-            ->from(Table::ORDERADJUSTMENTS)
+            ->from(Table::ORDERADJUSTMENTS . ' oa')
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.id]] = [[lineItemId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[li.purchasableId]]')
             ->where(['not', ['lineItemId' => null]])
             ->andWhere(['not', ['[[v.primaryOwnerId]]' => null]])
-            ->andWhere(['type' => $types])
+            ->andWhere(['[[oa.type]]' => $types])
             ->groupBy('[[v.primaryOwnerId]]');
     }
 

@@ -8,15 +8,16 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\errors\SiteNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
@@ -26,6 +27,7 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Line item service.
@@ -189,7 +191,42 @@ class LineItems extends Component
         if ($result) {
             $lineItem = new LineItem($result);
         } else {
-            $lineItem = $this->createLineItem($order, $purchasableId, $options);
+            $lineItem = $this->create($order, compact('purchasableId', 'options'));
+        }
+
+        return $lineItem;
+    }
+
+    /**
+     * @param Order $order
+     * @param string $sku
+     * @param array $options
+     * @return LineItem
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws SiteNotFoundException
+     * @since 5.1.0
+     */
+    public function resolveCustomLineItem(Order $order, string $sku, array $options = []): LineItem
+    {
+        $signature = LineItemHelper::generateOptionsSignature($options);
+
+        $result = $order->id ? $this->_createLineItemQuery()
+            ->where([
+                'orderId' => $order->id,
+                'sku' => $sku,
+                'optionsSignature' => $signature,
+                'type' => LineItemType::Custom->value,
+            ])
+            ->one() : null;
+
+        if ($result) {
+            $lineItem = new LineItem($result);
+        } else {
+            $lineItem = $this->create($order, [
+                'sku' => $sku,
+                'options' => $options,
+            ], LineItemType::Custom);
         }
 
         return $lineItem;
@@ -228,6 +265,21 @@ class LineItems extends Component
         if ($runValidation && !$lineItem->validate()) {
             Craft::info('Line item not saved due to validation error.', __METHOD__);
             return false;
+        }
+
+        $lineItemRecord->type = $lineItem->type->value;
+
+        // Set the default for type dependent properties
+        $lineItemRecord->hasFreeShipping = null;
+        $lineItemRecord->isPromotable = null;
+        $lineItemRecord->isShippable = null;
+        $lineItemRecord->isTaxable = null;
+
+        if ($lineItem->type === LineItemType::Custom) {
+            $lineItemRecord->hasFreeShipping = $lineItem->getHasFreeShipping();
+            $lineItemRecord->isPromotable = $lineItem->getIsPromotable();
+            $lineItemRecord->isShippable = $lineItem->getIsShippable();
+            $lineItemRecord->isTaxable = $lineItem->getIsTaxable();
         }
 
         $lineItemRecord->purchasableId = $lineItem->purchasableId;
@@ -331,9 +383,11 @@ class LineItems extends Component
      * @param string $note The note on the line item
      * @param string|null $uid
      * @throws \Exception
+     * @deprecated in 5.1.0. Use [[create()]] instead.
      */
     public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'LineItems::createLineItem() has been deprecated. Use LineItems::create() instead.');
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
@@ -344,9 +398,9 @@ class LineItems extends Component
         $forCustomer = $order->customerId ?? false;
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($purchasableId, $order->orderSiteId, $forCustomer);
 
-        if ($purchasable instanceof PurchasableInterface) {
+        if ($purchasable) {
             $lineItem->setPurchasable($purchasable);
-            $lineItem->populateFromPurchasable($purchasable);
+            $lineItem->populate($purchasable);
         } else {
             throw new InvalidArgumentException('Invalid purchasable ID');
         }
@@ -359,7 +413,62 @@ class LineItems extends Component
             ]));
         }
 
-        $lineItem->refreshFromPurchasable();
+        $lineItem->refresh();
+
+        return $lineItem;
+    }
+
+    /**
+     * @param Order $order
+     * @param array $params
+     * @param LineItemType $type
+     * @return LineItem
+     * @throws Exception
+     * @throws SiteNotFoundException
+     * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function create(Order $order, array $params = [], LineItemType $type = LineItemType::Purchasable): LineItem
+    {
+        $params = array_merge([
+            'qty' => 1,
+            'options' => [],
+            'note' => '',
+            'uid' => StringHelper::UUID(),
+        ], $params);
+
+        $params['order'] = $order;
+        $params['type'] = $type;
+
+        if ($type === LineItemType::Purchasable && empty($params['purchasableId']) && empty($params['purchasable'])) {
+            throw new InvalidArgumentException('Purchasable ID or Purchasable must be set');
+        }
+
+        $params['class'] = LineItem::class;
+        $lineItem = Craft::createObject($params);
+
+        if ($lineItem->type === LineItemType::Purchasable) {
+            $purchasable = $lineItem->getPurchasable();
+
+            if ($purchasable) {
+                $lineItem->setPurchasable($purchasable);
+                $lineItem->populate($purchasable);
+            } else {
+                throw new InvalidArgumentException('Invalid purchasable ID');
+            }
+        } else {
+            $lineItem->populate();
+        }
+
+        // Raise a 'createLineItem' event
+        if ($this->hasEventHandlers(self::EVENT_CREATE_LINE_ITEM)) {
+            $this->trigger(self::EVENT_CREATE_LINE_ITEM, new LineItemEvent([
+                'lineItem' => $lineItem,
+                'isNew' => true,
+            ]));
+        }
+
+        $lineItem->refresh();
 
         return $lineItem;
     }
@@ -440,8 +549,12 @@ class LineItems extends Component
                 'dateCreated',
                 'dateUpdated',
                 'description',
+                'hasFreeShipping',
                 'height',
                 'id',
+                'isPromotable',
+                'isShippable',
+                'isTaxable',
                 'length',
                 'lineItemStatusId',
                 'note',
@@ -456,6 +569,7 @@ class LineItems extends Component
                 'sku',
                 'snapshot',
                 'taxCategoryId',
+                'type',
                 'uid',
                 'weight',
                 'width',

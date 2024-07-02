@@ -482,7 +482,11 @@ class DiscountsTest extends Unit
                 $lineItems = [];
                 foreach ($attributes['_lineItems'] as $sku => $qty) {
                     $variant = Variant::find()->sku($sku)->one();
-                    $lineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order, $variant->id, [], $qty);
+                    $lineItems[] = Plugin::getInstance()->getLineItems()->create($order, [
+                        'purchasableId' => $variant->id,
+                        'options' => [],
+                        'qty' => $qty,
+                    ]);
                 }
                 $order->setLineItems($lineItems);
             }
