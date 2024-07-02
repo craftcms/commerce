@@ -492,7 +492,7 @@ class Store extends Model
     }
 
     /**
-     * Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
+     * Whether [partial payment](https://craftcms.com/docs/commerce/5.x/system/development/making-payments.html#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
      *
      * The `false` default does not allow partial payments on the front end.
      *
@@ -624,7 +624,7 @@ class Store extends Model
     /**
      * Human-friendly reference number format for orders. Result must be unique.
      *
-     * See [Order Numbers](orders-carts.md#order-numbers).
+     * See [Order Numbers](https://craftcms.com/docs/commerce/5.x/system/orders-carts.html#order-numbers).
      *
      * @param bool $parse
      * @return string
