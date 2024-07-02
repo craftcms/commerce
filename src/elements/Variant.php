@@ -1122,27 +1122,27 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    public function getAvailableShippingCategories(): array
+    protected function availableShippingCategories(): array
     {
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
         if ($productTypeId) {
             return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
         }
 
-        return parent::getAvailableShippingCategories();
+        return parent::availableShippingCategories();
     }
 
     /**
      * @inheritdoc
      */
-    public function getAvailableTaxCategories(): array
+    protected function availableTaxCategories(): array
     {
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
         if ($productTypeId) {
             return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
         }
 
-        return parent::getAvailableTaxCategories();
+        return parent::availableTaxCategories();
     }
 
     /**

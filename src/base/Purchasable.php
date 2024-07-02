@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\InventoryItem;
@@ -1075,9 +1076,10 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     /**
      * @return ShippingCategory[]
      * @throws InvalidConfigException
+     * @throws StoreNotFoundException
      * @since 5.0.12
      */
-    public function getAvailableShippingCategories(): array
+    protected function availableShippingCategories(): array
     {
         return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->all();
     }
@@ -1090,7 +1092,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function shippingCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->getAvailableShippingCategories(), 'id', 'name');
+        $options = ArrayHelper::map($this->availableShippingCategories(), 'id', 'name');
 
         return Cp::selectFieldHtml([
             'id' => 'shipping-category',
@@ -1106,7 +1108,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @throws InvalidConfigException
      * @since 5.0.12
      */
-    public function getAvailableTaxCategories(): array
+    protected function availableTaxCategories(): array
     {
         return Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
     }
@@ -1119,7 +1121,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function taxCategoryFieldHtml(bool $static): string
     {
-        $options = ArrayHelper::map($this->getAvailableTaxCategories(), 'id', 'name');
+        $options = ArrayHelper::map($this->availableTaxCategories(), 'id', 'name');
 
         return Cp::selectFieldHtml([
             'id' => 'tax-category',
