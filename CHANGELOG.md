@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+- Added `craft\commerce\base\Purchasable::getShippingCategoryFieldHtml()`.
+- Added `craft\commerce\base\Purchasable::getTaxCategoryFieldHtml()`.
+- Added `craft\commerce\elements\Variant::getShippingCategoryFieldHtml()`.
+- Added `craft\commerce\elements\Variant::getTaxCategoryFieldHtml()`.
 - Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
+- Fixed a bug where it was possible to select shipping and tax categories not associated to the current product type. ([#3557](https://github.com/craftcms/commerce/issues/3557))
 
 ## 5.0.11.1 - 2024-06-20
 

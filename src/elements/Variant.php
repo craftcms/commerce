@@ -25,6 +25,7 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -33,6 +34,7 @@ use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
@@ -1115,6 +1117,51 @@ class Variant extends Purchasable implements NestedElementInterface
             [['maxQty'], 'validateMaxQtyRange', 'skipOnEmpty' => true],
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getShippingCategoryFieldHtml(bool $static): string
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            $options = ArrayHelper::map(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId),'id', 'name');
+        } else {
+            $options = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()->id);
+        }
+
+        return Cp::selectFieldHtml([
+            'id' => 'shipping-category',
+            'name' => 'shippingCategoryId',
+            'label' => Craft::t('commerce', 'Shipping Category'),
+            'options' => $options,
+            'value' => $this->shippingCategoryId,
+        ]);
+    }
+
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function getTaxCategoryFieldHtml(bool $static): string
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            $options = ArrayHelper::map(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId),'id', 'name');
+        } else {
+            $options = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
+        }
+
+        return Cp::selectFieldHtml([
+            'id' => 'tax-category',
+            'name' => 'taxCategoryId',
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'options' => $options,
+            'value' => $this->taxCategoryId,
         ]);
     }
 

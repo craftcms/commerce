@@ -1064,23 +1064,45 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $html = parent::metaFieldsHtml($static);
 
-        $html .= Cp::selectFieldHtml([
-            'id' => 'tax-category',
-            'name' => 'taxCategoryId',
-            'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
-            'value' => $this->taxCategoryId,
-        ]);
+        $html .= $this->getTaxCategoryFieldHtml($static);
 
-        $html .= Cp::selectFieldHtml([
+        $html .= $this->getShippingCategoryFieldHtml($static);
+
+        return $html;
+    }
+
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function getShippingCategoryFieldHtml(bool $static): string
+    {
+        return Cp::selectFieldHtml([
             'id' => 'shipping-category',
             'name' => 'shippingCategoryId',
             'label' => Craft::t('commerce', 'Shipping Category'),
             'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()->id),
             'value' => $this->shippingCategoryId,
         ]);
+    }
 
-        return $html;
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function getTaxCategoryFieldHtml(bool $static): string
+    {
+        return Cp::selectFieldHtml([
+            'id' => 'tax-category',
+            'name' => 'taxCategoryId',
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
+            'value' => $this->taxCategoryId,
+        ]);
     }
 
     /**
