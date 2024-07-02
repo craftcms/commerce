@@ -139,7 +139,7 @@ class Settings extends Model
     public string $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](https://craftcms.com/docs/commerce/5.x/system/orders-carts.html#loading-a-cart).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config5:siteUrl) will be used.
      *
@@ -151,7 +151,7 @@ class Settings extends Model
     /**
      * @var array|null ISO codes for supported payment currencies.
      *
-     * See [Payment Currencies](payment-currencies.md).
+     * See [Payment Currencies](https://craftcms.com/docs/commerce/5.x/system/payment-currencies.html).
      *
      * @group Payments
      */
