@@ -1123,46 +1123,27 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
-    protected function getShippingCategoryFieldHtml(bool $static): string
+    public function getAvailableShippingCategories(): array
     {
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
         if ($productTypeId) {
-            $options = ArrayHelper::map(Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId),'id', 'name');
-        } else {
-            $options = Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()->id);
+            return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
         }
 
-        return Cp::selectFieldHtml([
-            'id' => 'shipping-category',
-            'name' => 'shippingCategoryId',
-            'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => $options,
-            'value' => $this->shippingCategoryId,
-        ]);
+        return parent::getAvailableShippingCategories();
     }
 
     /**
-     * @param bool $static
-     * @return string
-     * @throws InvalidConfigException
-     * @since 5.0.12
+     * @inheritdoc
      */
-    protected function getTaxCategoryFieldHtml(bool $static): string
+    public function getAvailableTaxCategories(): array
     {
         $productTypeId = $this->getPrimaryOwner()?->getType()->id;
         if ($productTypeId) {
-            $options = ArrayHelper::map(Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId),'id', 'name');
-        } else {
-            $options = Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList();
+            return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
         }
 
-        return Cp::selectFieldHtml([
-            'id' => 'tax-category',
-            'name' => 'taxCategoryId',
-            'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => $options,
-            'value' => $this->taxCategoryId,
-        ]);
+        return parent::getAvailableTaxCategories();
     }
 
     /**

@@ -27,6 +27,7 @@ use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\MoneyHelper;
@@ -1064,28 +1065,21 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $html = parent::metaFieldsHtml($static);
 
-        $html .= $this->getTaxCategoryFieldHtml($static);
+        $html .= $this->taxCategoryFieldHtml($static);
 
-        $html .= $this->getShippingCategoryFieldHtml($static);
+        $html .= $this->shippingCategoryFieldHtml($static);
 
         return $html;
     }
 
     /**
-     * @param bool $static
-     * @return string
+     * @return ShippingCategory[]
      * @throws InvalidConfigException
      * @since 5.0.12
      */
-    protected function getShippingCategoryFieldHtml(bool $static): string
+    public function getAvailableShippingCategories(): array
     {
-        return Cp::selectFieldHtml([
-            'id' => 'shipping-category',
-            'name' => 'shippingCategoryId',
-            'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()->id),
-            'value' => $this->shippingCategoryId,
-        ]);
+        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->all();
     }
 
     /**
@@ -1094,13 +1088,44 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      * @throws InvalidConfigException
      * @since 5.0.12
      */
-    protected function getTaxCategoryFieldHtml(bool $static): string
+    protected function shippingCategoryFieldHtml(bool $static): string
     {
+        $options = ArrayHelper::map($this->getAvailableShippingCategories(), 'id', 'name');
+
+        return Cp::selectFieldHtml([
+            'id' => 'shipping-category',
+            'name' => 'shippingCategoryId',
+            'label' => Craft::t('commerce', 'Shipping Category'),
+            'options' => $options,
+            'value' => $this->shippingCategoryId,
+        ]);
+    }
+
+    /**
+     * @return TaxCategory[]
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    public function getAvailableTaxCategories(): array
+    {
+        return Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+    }
+
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function taxCategoryFieldHtml(bool $static): string
+    {
+        $options = ArrayHelper::map($this->getAvailableTaxCategories(), 'id', 'name');
+
         return Cp::selectFieldHtml([
             'id' => 'tax-category',
             'name' => 'taxCategoryId',
             'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
+            'options' => $options,
             'value' => $this->taxCategoryId,
         ]);
     }
