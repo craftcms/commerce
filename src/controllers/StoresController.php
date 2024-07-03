@@ -26,7 +26,6 @@ use yii\web\BadRequestHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
-use craft\db\Table as CraftTable;
 
 /**
  * Class Stores Controller

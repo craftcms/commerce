@@ -867,7 +867,7 @@ class Variant extends Purchasable implements NestedElementInterface
                     condition: [
                         'and',
                         ['not', ['id' => $this->id]],
-                        ['primaryOwnerId' => $this->getPrimaryOwnerId()]
+                        ['primaryOwnerId' => $this->getPrimaryOwnerId()],
                     ]
                 );
                 $defaultSet = true;
