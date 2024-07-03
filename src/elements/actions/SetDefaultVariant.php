@@ -67,7 +67,7 @@ EOT;
             return false;
         }
 
-        $product = $variant->getOwner();
+        $product = $variant->getPrimaryOwner();
         if (!$product) {
             $this->setMessage(Craft::t('commerce', 'Variant has no product.'));
             return false;
