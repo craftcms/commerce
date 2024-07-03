@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where non-promotable variants could be returned when querying using `hasSales()`. ([#3553](https://github.com/craftcms/commerce/issues/3553))
+
 ## 3.4.23.1 - 2024-04-15
 
 - Fixed an error that could occur when rendering a PDF. ([#2633](https://github.com/craftcms/commerce/issues/2633))
