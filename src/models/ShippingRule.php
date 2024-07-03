@@ -155,6 +155,13 @@ class ShippingRule extends Model implements ShippingRuleInterface
     private ?array $_shippingRuleCategories = null;
 
     /**
+     * Holds the order serialized as an array used to pass to a twig condition formula.
+     *
+     * @var array
+     */
+    private static array $_orderConditionParamsByMethodAndOrderNumber = [];
+
+    /**
      * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
@@ -273,11 +280,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $lineItems = $order->getLineItems();
 
         if ($this->orderConditionFormula) {
-            $fieldsAsArray = $order->getSerializedFieldValues();
-            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
-            $orderConditionParams = [
-                'order' => array_merge($orderAsArray, $fieldsAsArray),
-            ];
+            $orderConditionParams = $this->_orderConditionParams($order);
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
             }
@@ -386,6 +389,25 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         // all rules match
         return true;
+    }
+
+    private function _orderConditionParams($order): array
+    {
+        if (isset(static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)])) {
+            return static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
+        }
+        $fieldsAsArray = $order->getSerializedFieldValues();
+        $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+        static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)] = [
+            'order' => array_merge($orderAsArray, $fieldsAsArray),
+        ];
+
+        return static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
+    }
+
+    public function _getOrderConditionParamsCacheKey($order): string
+    {
+        return $this->methodId . '-' . $order->number;
     }
 
     /**
