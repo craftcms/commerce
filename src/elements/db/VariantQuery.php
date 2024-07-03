@@ -871,6 +871,27 @@ class VariantQuery extends ElementQuery
 
                         $categoryRestrictedVariantIds = array_merge($sourceVariantIds, $targetVariantIds);
                         $categoryRestrictedProductIds = array_merge($sourceProductIds, $targetProductIds);
+
+                        // Remove non-promotable products
+                        $categoryRestrictedProductIds = (new Query())
+                            ->select('id')
+                            ->from(Table::PRODUCTS)
+                            ->where([
+                                'id' => $categoryRestrictedProductIds,
+                                'promotable' => true,
+                            ])
+                            ->column();
+
+                        // Remove variants that are related to non-promotable products
+                        $categoryRestrictedVariantIds = (new Query())
+                            ->select('v.id')
+                            ->from(Table::VARIANTS . ' v')
+                            ->leftJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[v.productId]]')
+                            ->where([
+                                'id' => $categoryRestrictedVariantIds,
+                                'p.promotable' => true,
+                            ])
+                            ->column();
                     }
 
                     $variantIds = array_unique(array_merge($purchasableRestrictedIds, $categoryRestrictedVariantIds));
