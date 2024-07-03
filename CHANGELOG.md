@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
 - Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
 
 ## 5.0.11.1 - 2024-06-20
