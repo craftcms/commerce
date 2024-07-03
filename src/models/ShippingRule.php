@@ -393,16 +393,16 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     private function _orderConditionParams($order): array
     {
-        if (isset(static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)])) {
-            return static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
+        if (isset(self::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)])) {
+            return self::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
         }
         $fieldsAsArray = $order->getSerializedFieldValues();
         $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
-        static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)] = [
+        self::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)] = [
             'order' => array_merge($orderAsArray, $fieldsAsArray),
         ];
 
-        return static::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
+        return self::$_orderConditionParamsByMethodAndOrderNumber[$this->_getOrderConditionParamsCacheKey($order)];
     }
 
     public function _getOrderConditionParamsCacheKey($order): string
