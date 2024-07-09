@@ -15,6 +15,10 @@ use craft\elements\Address;
 use craft\errors\DeprecationException;
 use craft\errors\ElementNotFoundException;
 use craft\fieldlayoutelements\addresses\AddressField;
+use craft\fieldlayoutelements\addresses\LabelField;
+use craft\fieldlayoutelements\TextField;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\web\Controller;
 use Throwable;
@@ -115,6 +119,68 @@ class InventoryLocationsController extends Controller
             }
         }
 
+        Craft::$app->getView()->setNamespace('inventoryLocationAddress');
+
+        $address = $inventoryLocation->getAddress();
+        $fieldLayout = $address->getFieldLayout();
+
+        $form = $fieldLayout->createForm($address);
+        $form->tabIdPrefix = 'inventoryLocationAddress';
+        $tabs = $form->getTabMenu();
+        // Reset the `tabIdPrefix` so that the namespaces are correct for the inventory location fields
+        $form->tabIdPrefix = null;
+
+        // Remove the title/label field from the address field layout
+        foreach ($form->tabs as &$tab) {
+            $tab->elements = array_filter($tab->elements, function($element) {
+                if (isset($element[0]) && $element[0] instanceof LabelField && $element[0]->attribute === 'title') {
+                    return false;
+                }
+
+                return true;
+            });
+        }
+
+        ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
+            null,
+            false,
+            Html::tag('hr')
+        ], true);
+        ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
+            null,
+            false,
+            Html::hiddenInput('id', $address->id),
+        ], true);
+        ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
+            null,
+            false,
+            Cp::textFieldHtml([
+                'name' => 'handle',
+                'id' => 'handle',
+                'value' => $inventoryLocation->handle,
+                'required' => true,
+                'label' => Craft::t('commerce', 'Handle'),
+                'errors' => $inventoryLocation->getErrors('handle'),
+            ])
+        ], true);
+        ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
+            null,
+            false,
+            Cp::textFieldHtml([
+                'name' => 'name',
+                'id' => 'name',
+                'value' => $inventoryLocation->name,
+                'required' => true,
+                'label' => Craft::t('commerce', 'Name'),
+                'errors' => $inventoryLocation->getErrors('name'),
+            ])
+        ], true);
+        ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
+            null,
+            false,
+            Html::hiddenInput('inventoryLocationId', $inventoryLocationId)
+        ], true);
+
         $variables = [
             'inventoryLocationId' => $inventoryLocationId,
             'inventoryLocation' => $inventoryLocation,
@@ -122,11 +188,13 @@ class InventoryLocationsController extends Controller
             'lowerTypeName' => Craft::t('commerce', 'inventory location'),
             'locationFieldHtml' => '',
             'addressField' => new AddressField(),
+            'form' => $form,
             'countries' => Craft::$app->getAddresses()->getCountryRepository()->getList(Craft::$app->language),
         ];
 
         return $this->asCpScreen()
             ->title($title)
+            ->tabs($tabs)
             ->addCrumb(Craft::t('app', 'Inventory Locations'), 'commerce/inventory-locations')
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
@@ -148,7 +216,7 @@ class InventoryLocationsController extends Controller
         $this->requirePostRequest();
 
         // find the inventory location or make a new one
-        $inventoryLocationId = Craft::$app->getRequest()->getBodyParam('inventoryLocationId');
+        $inventoryLocationId = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress[inventoryLocationId]');
         $inventoryLocation = null;
 
         if ($inventoryLocationId) {
@@ -159,14 +227,17 @@ class InventoryLocationsController extends Controller
             $inventoryLocation = new InventoryLocation();
         }
 
-        $inventoryLocation->name = Craft::$app->getRequest()->getBodyParam('name');
-        $inventoryLocation->handle = Craft::$app->getRequest()->getBodyParam('handle');
+        $inventoryLocation->name = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress[name]');
+        $inventoryLocation->handle = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress[handle]');
 
         // Pre-validate the inventory location so that we don't save the address if the rest isn't valid
         // This is to avoid orphaned addresses
         $isValid = $inventoryLocation->validate();
 
         if ($inventoryLocationAddress = Craft::$app->getRequest()->getBodyParam('inventoryLocationAddress')) {
+            // Remove the non-address fields from the post data
+            unset($inventoryLocationAddress['name'], $inventoryLocationAddress['handle'], $inventoryLocationAddress['inventoryLocationId']);
+
             $inventoryLocationAddress['title'] = $inventoryLocation->name;
             if ($isValid) {
                 $addressId = $inventoryLocationAddress['id'] ?: null;
@@ -178,6 +249,10 @@ class InventoryLocationsController extends Controller
             }
 
             $address->setAttributes($inventoryLocationAddress, false);
+
+            if (isset($inventoryLocationAddress['fields'])) {
+                $address->setFieldValues($inventoryLocationAddress['fields']);
+            }
 
             // Only try and save if the inventory location is valid
             $hasAddressErrors = false;
