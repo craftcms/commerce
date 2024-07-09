@@ -16,7 +16,6 @@ use craft\errors\DeprecationException;
 use craft\errors\ElementNotFoundException;
 use craft\fieldlayoutelements\addresses\AddressField;
 use craft\fieldlayoutelements\addresses\LabelField;
-use craft\fieldlayoutelements\TextField;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
@@ -144,7 +143,7 @@ class InventoryLocationsController extends Controller
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
-            Html::tag('hr')
+            Html::tag('hr'),
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
@@ -161,7 +160,7 @@ class InventoryLocationsController extends Controller
                 'required' => true,
                 'label' => Craft::t('commerce', 'Handle'),
                 'errors' => $inventoryLocation->getErrors('handle'),
-            ])
+            ]),
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
@@ -173,12 +172,12 @@ class InventoryLocationsController extends Controller
                 'required' => true,
                 'label' => Craft::t('commerce', 'Name'),
                 'errors' => $inventoryLocation->getErrors('name'),
-            ])
+            ]),
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
-            Html::hiddenInput('inventoryLocationId', $inventoryLocationId)
+            Html::hiddenInput('inventoryLocationId', $inventoryLocationId),
         ], true);
 
         $variables = [
