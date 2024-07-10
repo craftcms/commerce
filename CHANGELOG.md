@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where Commerce was showing the incorrect version number
+
 ## 3.4.24 - 2024-07-03
 
 - Fixed a bug where non-promotable variants could be returned when querying using `hasSales()`. ([#3553](https://github.com/craftcms/commerce/issues/3553))
