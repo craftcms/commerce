@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.25 - 2024-07-10
 
 - Fixed a bug where Commerce was showing the incorrect version number
 
