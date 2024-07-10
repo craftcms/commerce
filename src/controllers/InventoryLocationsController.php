@@ -148,7 +148,7 @@ class InventoryLocationsController extends Controller
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
-            Html::hiddenInput('id', $address->id),
+            Html::hiddenInput('id', (string)$address->id),
         ], true);
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
@@ -177,7 +177,7 @@ class InventoryLocationsController extends Controller
         ArrayHelper::prependOrAppend($form->tabs[0]->elements, [
             null,
             false,
-            Html::hiddenInput('inventoryLocationId', $inventoryLocationId),
+            Html::hiddenInput('inventoryLocationId', (string)$inventoryLocationId),
         ], true);
 
         $variables = [
