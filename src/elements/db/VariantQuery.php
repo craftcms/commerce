@@ -24,6 +24,7 @@ use DateTime;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
@@ -426,7 +427,7 @@ class VariantQuery extends PurchasableQuery
         $this->query->select([
             'commerce_variants.id',
             'commerce_variants.primaryOwnerId',
-            'commerce_variants.isDefault',
+            'isDefault' => new Expression('CASE WHEN [[commerce_variants]].[[id]] = [[commerce_products]].[[defaultVariantId]] THEN TRUE ELSE FALSE END'),
             'commerce_products_elements_sites.slug as productSlug',
             'commerce_producttypes.handle as productTypeHandle',
         ]);

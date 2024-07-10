@@ -859,35 +859,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
             $record->save(false);
 
-            $defaultSet = false;
             if ($this->isDefault) {
-                Db::update(
-                    table:Table::VARIANTS,
-                    columns: ['isDefault' => false],
-                    condition: [
-                        'and',
-                        ['not', ['id' => $this->id]],
-                        ['primaryOwnerId' => $this->getPrimaryOwnerId()],
-                    ]
-                );
-                $defaultSet = true;
-            } else {
-                $anyDefault = (new Query())
-                    ->select('id')
-                    ->from(Table::VARIANTS)
-                    ->where(['isDefault' => true, 'primaryOwnerId' => $this->getPrimaryOwnerId()])
-                    ->exists();
-                if (!$anyDefault) {
-                    Db::update(
-                        table:Table::VARIANTS,
-                        columns: ['isDefault' => false],
-                        condition:  ['id' => $this->id]
-                    );
-                    $defaultSet = true;
-                }
-            }
-
-            if ($defaultSet) {
                 DB::update(Table::PRODUCTS,
                     [
                         'defaultVariantId' => $this->id,
@@ -898,7 +870,7 @@ class Variant extends Purchasable implements NestedElementInterface
                         'defaultWidth' => $this->width,
                         'defaultWeight' => $this->weight,
                     ],
-                    ['id' => $this->getPrimaryOwnerId()]
+                    ['id' => $this->getOwnerId()]
                 );
             }
 

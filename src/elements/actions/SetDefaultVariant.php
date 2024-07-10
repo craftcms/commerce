@@ -67,7 +67,7 @@ EOT;
             return false;
         }
 
-        $product = $variant->getPrimaryOwner();
+        $product = $variant->getOwner();
         if (!$product) {
             $this->setMessage(Craft::t('commerce', 'Variant has no product.'));
             return false;
@@ -76,22 +76,16 @@ EOT;
         // Update product row
         Craft::$app->getDb()->createCommand()->update(
             Table::PRODUCTS,
-            ['defaultVariantId' => $variant->id],
+            [
+                'defaultVariantId' => $variant->id,
+                'defaultSku' => $variant->sku,
+                'defaultPrice' => $variant->price,
+                'defaultHeight' => $variant->height,
+                'defaultLength' => $variant->length,
+                'defaultWidth' => $variant->width,
+                'defaultWeight' => $variant->weight,
+            ],
             ['id' => $product->id]
-        )->execute();
-
-        // Remove previous default
-        Craft::$app->getDb()->createCommand()->update(
-            Table::VARIANTS,
-            ['isDefault' => false],
-            ['primaryOwnerId' => $product->id]
-        )->execute();
-
-        // Add new default
-        Craft::$app->getDb()->createCommand()->update(
-            Table::VARIANTS,
-            ['isDefault' => true],
-            ['id' => $variant->id]
         )->execute();
 
         $this->setMessage(Craft::t('commerce', 'Default variant updated.'));
