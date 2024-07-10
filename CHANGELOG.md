@@ -2,11 +2,19 @@
 
 ## Unreleased
 
-- Fixed a bug where payment currencies weren’t deletable. ([#3548](https://github.com/craftcms/commerce/issues/3548))
-- Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
-- Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
-- Fixed a bug where address custom fields weren’t showing on the Edit Inventory Location page. ([#3569](https://github.com/craftcms/commerce/issues/3569))
+- Added `craft\commerce\base\Purchasable::shippingCategoryFieldHtml()`.
+- Added `craft\commerce\base\Purchasable::taxCategoryFieldHtml()`.
+- Added `craft\commerce\base\Purchasable::availableShippingCategories()`.
+- Added `craft\commerce\base\Purchasable::availableTaxCategories()`.
+- Added `craft\commerce\elements\Variant::availableShippingCategories()`.
+- Added `craft\commerce\elements\Variant::availableTaxCategories()`.
 - Added `craft\commerce\events\PdfRenderEvent::$sourcePdf`. ([#3543](https://github.com/craftcms/commerce/issues/3543))
+- Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
+- Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
+- Fixed a bug where it was possible to select shipping and tax categories not associated to the current product type. ([#3557](https://github.com/craftcms/commerce/issues/3557))
+- Fixed a bug where payment currencies weren’t deletable. ([#3548](https://github.com/craftcms/commerce/issues/3548))
+- Fixed a bug where variant field layouts could show incorrectly. ([#3570](https://github.com/craftcms/commerce/issues/3570))
+- Fixed a bug where address custom fields weren’t showing on the Edit Inventory Location page. ([#3569](https://github.com/craftcms/commerce/issues/3569))
 
 ## 5.0.11.1 - 2024-06-20
 
