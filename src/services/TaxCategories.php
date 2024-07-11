@@ -19,6 +19,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
+use yii2tech\ar\softdelete\SoftDeleteBehavior;
 
 /**
  * Tax category service.
@@ -224,6 +225,7 @@ class TaxCategories extends Component
      */
     public function deleteTaxCategoryById(int $id): bool
     {
+        /** @var TaxCategoryRecord|SoftDeleteBehavior|null $taxCategory */
         $taxCategory = TaxCategoryRecord::findOne($id);
 
         if ($taxCategory === null || $taxCategory->default) {

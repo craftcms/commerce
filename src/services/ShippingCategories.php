@@ -23,6 +23,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
+use yii2tech\ar\softdelete\SoftDeleteBehavior;
 
 /**
  * Shipping category service.
@@ -252,6 +253,7 @@ class ShippingCategories extends Component
      */
     public function deleteShippingCategoryById(int $id): bool
     {
+        /** @var ShippingCategoryRecord|SoftDeleteBehavior|null $shippingCategory */
         $shippingCategory = ShippingCategoryRecord::findOne($id);
 
         if ($shippingCategory === null || $shippingCategory->default) {
