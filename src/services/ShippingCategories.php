@@ -252,31 +252,16 @@ class ShippingCategories extends Component
      */
     public function deleteShippingCategoryById(int $id): bool
     {
-        $all = $this->getAllShippingCategories();
-        if (count($all) === 0) {
+        $shippingCategory = ShippingCategoryRecord::findOne($id);
+
+        if ($shippingCategory === null || $shippingCategory->default) {
             return false;
         }
 
-        // Find the shipping category and check it isn't the default
-        /** @var ShippingCategory $shippingCategory */
-        $shippingCategory = ArrayHelper::firstWhere($all, function(ShippingCategory $s) use ($id) {
-            return $s->id == $id;
-        });
-
-        if ($shippingCategory->default) {
-            return false;
-        }
-
-        $affectedRows = Craft::$app->getDb()->createCommand()
-            ->softDelete(\craft\commerce\db\Table::SHIPPINGCATEGORIES, ['id' => $id])
-            ->execute();
-
-        if ($affectedRows > 0) {
+        if ($shippingCategory->softDelete()) {
+            $this->_allShippingCategories = null;
             return true;
         }
-
-        // Clear cache
-        $this->_allShippingCategories = null;
 
         return false;
     }
