@@ -1168,6 +1168,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
             'isDefault' => Craft::t('commerce', 'Default'),
+            'promotable' => Craft::t('commerce', 'Promotable'),
         ]);
     }
 
