@@ -11,7 +11,7 @@ return [
         'name' => 'Another Tax Category',
         'handle' => 'anotherTaxCategory',
         'description' => 'this is another tax category',
-        'default' => '1',
+        'default' => '0',
         'uid' => 'tax--category-1001---------------uid',
     ],
 ];
