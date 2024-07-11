@@ -16,6 +16,7 @@
 - Fixed a bug where shipping categories and tax categories weren’t deletable.
 - Fixed a bug where variant field layouts could show incorrectly. ([#3570](https://github.com/craftcms/commerce/issues/3570))
 - Fixed a bug where address custom fields weren’t showing on the Edit Inventory Location page. ([#3569](https://github.com/craftcms/commerce/issues/3569))
+- Fixed a SQL error that could occur when fixing foreign keys.
 
 ## 5.0.11.1 - 2024-06-20
 
