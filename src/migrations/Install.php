@@ -685,7 +685,7 @@ class Install extends Migration
             'tracked' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
-            'shippingCategoryId' => $this->integer()->notNull(),
+            'shippingCategoryId' => $this->integer()->null(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
