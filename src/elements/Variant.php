@@ -851,7 +851,10 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
-            $record->isDefault = $this->isDefault;
+
+            if ($this->getOwner()->getIsCanonical()) {
+                $record->isDefault = $this->isDefault;
+            }
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -864,13 +867,13 @@ class Variant extends Purchasable implements NestedElementInterface
                     [
                         'defaultVariantId' => $this->id,
                         'defaultSku' => $this->sku,
-                        'defaultPrice' => $this->price,
+                        'defaultPrice' => $this->getBasePrice(),
                         'defaultHeight' => $this->height,
                         'defaultLength' => $this->length,
                         'defaultWidth' => $this->width,
                         'defaultWeight' => $this->weight,
                     ],
-                    ['id' => $this->getOwnerId()]
+                    ['defaultVariantId' => $this->id] //update all products that use this default variant
                 );
             }
 

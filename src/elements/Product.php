@@ -894,7 +894,7 @@ class Product extends Element
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('isDefault', true);
+        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
 
         return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
     }

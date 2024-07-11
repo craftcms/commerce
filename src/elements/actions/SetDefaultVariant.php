@@ -79,7 +79,7 @@ EOT;
             [
                 'defaultVariantId' => $variant->id,
                 'defaultSku' => $variant->sku,
-                'defaultPrice' => $variant->price,
+                'defaultPrice' => $variant->getBasePrice(),
                 'defaultHeight' => $variant->height,
                 'defaultLength' => $variant->length,
                 'defaultWidth' => $variant->width,
@@ -87,6 +87,22 @@ EOT;
             ],
             ['id' => $product->id]
         )->execute();
+
+        if ($product->getIsCanonical()) {
+            // Remove previous default
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => false],
+                ['primaryOwnerId' => $product->id]
+            )->execute();
+
+            // Add new default
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => true],
+                ['id' => $variant->id]
+            )->execute();
+        }
 
         $this->setMessage(Craft::t('commerce', 'Default variant updated.'));
         return true;
