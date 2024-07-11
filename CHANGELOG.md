@@ -9,6 +9,7 @@
 - Added `craft\commerce\elements\Variant::availableShippingCategories()`.
 - Added `craft\commerce\elements\Variant::availableTaxCategories()`.
 - Added `craft\commerce\events\PdfRenderEvent::$sourcePdf`. ([#3543](https://github.com/craftcms/commerce/issues/3543))
+- It’s now possible to show the "Promotable" property on varaint element indexes. ([#3571](https://github.com/craftcms/commerce/issues/3571))
 - Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
 - Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
 - Fixed a bug where it was possible to select shipping and tax categories not associated to the current product type. ([#3557](https://github.com/craftcms/commerce/issues/3557))
