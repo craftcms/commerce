@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.12 - 2024-07-11
 
 - Variant index tables can now have a “Promotable” column. ([#3571](https://github.com/craftcms/commerce/issues/3571))
 - Added `craft\commerce\base\Purchasable::availableShippingCategories()`.
