@@ -15,8 +15,8 @@ class m240711_092240_fix_fks extends Migration
      */
     public function safeUp(): bool
     {
-        $this->dropIndexIfExists('{{%commerce_catalogpricingrules}}', 'purchasableId');
         $this->dropForeignKeyIfExists('{{%commerce_catalogpricingrules}}', 'purchasableId');
+        $this->dropIndexIfExists('{{%commerce_catalogpricingrules}}', 'purchasableId');
 
         if ($this->db->columnExists('{{%commerce_catalogpricingrules}}', 'purchasableId')) {
             $this->dropColumn('{{%commerce_catalogpricingrules}}', 'purchasableId');
