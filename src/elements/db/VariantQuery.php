@@ -349,7 +349,7 @@ class VariantQuery extends PurchasableQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function hasProduct(mixed $value): VariantQuery
+    public function hasProduct(mixed $value = []): VariantQuery
     {
         $this->hasProduct = $value;
         return $this;
@@ -467,7 +467,7 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->isDefault)) {
-            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_variants.isDefault', $this->isDefault, false));
+            $this->subQuery->andWhere(Db::parseBooleanParam('isDefault', $this->isDefault, false));
         }
 
         if (isset($this->minQty)) {
