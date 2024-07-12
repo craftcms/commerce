@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.12.1
 
 - Fixed a SQL error that occurred when updating.
 
