@@ -200,7 +200,7 @@ class ShippingRule extends Model implements ShippingRuleInterface, HasStoreInter
                     }
                 },
             ],
-            [['id', 'orderCondition', 'storeId'], 'safe'],
+            [['id', 'orderCondition', 'description', 'storeId'], 'safe'],
         ];
     }
 
