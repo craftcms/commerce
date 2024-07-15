@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
+
 ## 5.0.12.2 - 2024-07-12
 
 - Fixed a bug where shipping rule descriptions weren’t being saved. ([#3580](https://github.com/craftcms/commerce/issues/3580))

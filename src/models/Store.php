@@ -12,6 +12,7 @@ use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
 use craft\db\Query;
@@ -191,13 +192,9 @@ class Store extends Model
                     return;
                 }
 
-                $hasOrders = (new Query())
-                    ->from(Table::ORDERS)
-                    ->leftJoin(\craft\db\Table::ELEMENTS, '[[elements.id]] = [[commerce_orders.id]]')
-                    ->where([
-                        'storeId' => $this->id,
-                        'elements.dateDeleted' => null,
-                    ])
+                $hasOrders = Order::find()
+                    ->trashed(null)
+                    ->storeId($this->id)
                     ->exists();
 
                 if ($hasOrders) {
