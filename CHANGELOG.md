@@ -1,8 +1,9 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.12.2 - 2024-07-12
 
-- Fixed a bug where the shipping rule descriptions did not save correctly. ([#3580](https://github.com/craftcms/commerce/issues/3580))
+- Fixed a bug where shipping rule descriptions weren’t being saved. ([#3580](https://github.com/craftcms/commerce/issues/3580))
+- Fixed a SQL error that could occur when updating. ([#3581](https://github.com/craftcms/commerce/issues/3581))
 
 ## 5.0.12.1 - 2024-07-12
 
