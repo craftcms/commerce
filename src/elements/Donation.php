@@ -249,6 +249,7 @@ class Donation extends Purchasable
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $record->dateUpdated = $this->dateUpdated;
+        $record->availableForPurchase = $this->availableForPurchase;
         $record->dateCreated = $this->dateCreated;
 
         $record->save(false);
