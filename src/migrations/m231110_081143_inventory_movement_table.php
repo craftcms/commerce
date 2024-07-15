@@ -22,7 +22,7 @@ class m231110_081143_inventory_movement_table extends Migration
         $primaryStoreId = (new Query())
             ->select(['id'])
             ->from(Table::STORES)
-            ->where(['primary' => 1])
+            ->where(['primary' => true])
             ->scalar();
 
         // Gather the current purchasable stock counts
