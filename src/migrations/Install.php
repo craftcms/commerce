@@ -235,7 +235,6 @@ class Install extends Migration
         $this->createTable(Table::DONATIONS, [
             'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
-            'availableForPurchase' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
