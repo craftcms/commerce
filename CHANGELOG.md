@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a SQL error that could occur when updating on PostgreSQL. ([#3588](https://github.com/craftcms/commerce/pull/3588))
+- Fixed a SQL error that could occur when updating Commerce on PostgreSQL. ([#3588](https://github.com/craftcms/commerce/pull/3588))
 - Fixed a SQL error that could occur when saving a payment currency. ([#3563](https://github.com/craftcms/commerce/issues/3563))
 
 ## 5.0.12.2 - 2024-07-12
