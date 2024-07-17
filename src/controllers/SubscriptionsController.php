@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
@@ -494,4 +493,3 @@ class SubscriptionsController extends BaseController
         return ($isOwner === true && $isFrontEnd === true);
     }
 }
-
