@@ -10,11 +10,13 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\SubscriptionException;
 use craft\commerce\helpers\PaymentForm;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
+use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\commerce\stripe\gateways\PaymentIntents;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\App;
@@ -164,6 +166,9 @@ class SubscriptionsController extends BaseController
     {
         $this->requireLogin();
         $this->requirePostRequest();
+        $user = Craft::$app->getUser()->getIdentity();
+
+        $returnUrl = $this->request->getValidatedBodyParam('redirect');
 
         $plugin = Commerce::getInstance();
 
@@ -194,34 +199,35 @@ class SubscriptionsController extends BaseController
             }
 
             try {
-                // We provide backward compatibility for stripe plugin 3.0
                 $paymentFormData = $this->request->getBodyParam(PaymentForm::getPaymentFormParamName($gateway->handle)) ?? [];
 
-                $createPaymentSource = function($gateway, $paymentFormData) use ($plugin) {
-                    $paymentForm = $gateway->getPaymentFormModel();
-                    $paymentForm->setAttributes($paymentFormData, false);
+                if (!empty($paymentFormData)) {
+                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription create action now requires that a customer’s default payment source is set up before subscribing, or pass the payment source information to the subscribe form.');
 
-                    if ($paymentForm->validate()) {
-                        $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
-                    }
-                };
+                    $createPaymentSource = function($gateway, $paymentFormData) use ($plugin) {
+                        $paymentForm = $gateway->getPaymentFormModel();
+                        $paymentForm->setAttributes($paymentFormData, false);
 
-                $exists = class_exists(PaymentIntents::class);
-                /** @phpstan-ignore-next-line */
-                if ($exists && $plan->getGateway() instanceof PaymentIntents) {
-                    Craft::$app->getDeprecator()->log('SubscriptionController::create-newPaymentMethod', 'The subscription create action now requires that a customer’s default payment source is set up before subscribing with Stripe.');
-                    // Only be backward compatible with Stripe if they supply the payment method ID.
-                    if (isset($paymentFormData['paymentMethodId'])) {
+                        if ($paymentForm->validate()) {
+                            $plugin->getPaymentSources()->createPaymentSource(Craft::$app->getUser()->getId(), $gateway, $paymentForm);
+                        }
+                    };
+
+                    $exists = class_exists(PaymentIntents::class);
+                    /** @phpstan-ignore-next-line */
+                    if ($exists && $plan->getGateway() instanceof PaymentIntents) {
+                        if (isset($paymentFormData['paymentMethodId'])) {
+                            $createPaymentSource($gateway, $paymentFormData);
+                        }
+                    } else {
                         $createPaymentSource($gateway, $paymentFormData);
                     }
-                } else {
-                    $createPaymentSource($gateway, $paymentFormData);
                 }
 
                 $fieldsLocation = $this->request->getParam('fieldsLocation', 'fields');
                 $fieldValues = $this->request->getBodyParam($fieldsLocation, []);
 
-                $subscription = $plugin->getSubscriptions()->createSubscription(Craft::$app->getUser()->getIdentity(), $plan, $parameters, $fieldValues);
+                $subscription = $plugin->getSubscriptions()->createSubscription($user, $plan, $parameters, $fieldValues);
             } catch (\Exception $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
@@ -229,6 +235,14 @@ class SubscriptionsController extends BaseController
             }
         } catch (SubscriptionException $exception) {
             $error = $exception->getMessage();
+        }
+
+        if ($returnUrl) {
+            $returnUrl = $this->getView()->renderObjectTemplate($returnUrl, $subscription);
+            $subscriptionRecord = SubscriptionRecord::findOne($subscription->id);
+            $subscriptionRecord->returnUrl = $returnUrl;
+            $subscriptionRecord->save();
+            $subscription->returnUrl = $returnUrl;
         }
 
         if (!$error && $subscription && $subscription->isSuspended && !$subscription->hasStarted) {
@@ -249,7 +263,8 @@ class SubscriptionsController extends BaseController
             Craft::t('commerce', 'Subscription started.'),
             data: [
                 'subscription' => $subscription ?? null,
-            ]
+            ],
+            redirect: $returnUrl
         );
     }
 
@@ -424,6 +439,35 @@ class SubscriptionsController extends BaseController
         );
     }
 
+    public function actionCompleteSubscription(): ?Response
+    {
+        $subscriptionUid = $this->request->getRequiredQueryParam('subscription');
+        $subscription = Subscription::find()->status(null)->uid($subscriptionUid)->one();
+
+        if (!$subscription) {
+            throw new NotFoundHttpException('Subscription not found');
+        }
+
+        $gateway = $subscription->getGateway();
+        $transactionHash = $gateway->getTransactionHashFromWebhook();
+        $useMutex = (bool)$transactionHash;
+        $transactionLockName = 'commerceTransaction:' . $transactionHash;
+        $mutex = Craft::$app->getMutex();
+
+        if ($useMutex && !$mutex->acquire($transactionLockName, 15)) {
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+        }
+
+        $gateway->refreshPaymentHistory($subscription);
+
+        if ($useMutex) {
+            $mutex->release($transactionLockName);
+        }
+
+        return $this->asSuccess(redirect: $subscription->returnUrl);
+    }
+
+
     /**
      * @param Subscription $subscription
      * @throws ForbiddenHttpException
@@ -450,3 +494,4 @@ class SubscriptionsController extends BaseController
         return ($isOwner === true && $isFrontEnd === true);
     }
 }
+
