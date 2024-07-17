@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed PHP error that occurred when saving an estimated billing address. ([#3549](https://github.com/craftcms/commerce/pull/3549))
+- Fixed a bug where SCA payment sources prevented a subscription from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
+
 ## 4.6.3.1 - 2024-06-20
 
 - Fixed a PHP error that could occur on app initialization. ([#3546](https://github.com/craftcms/commerce/issues/3546))
