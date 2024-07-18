@@ -688,6 +688,7 @@ class Discount extends Model implements HasStoreInterface
                 'perUserLimit',
                 'percentDiscount',
                 'percentageOffSubject',
+                'ignorePromotions',
                 'purchasableIds',
                 'purchaseQty',
                 'purchaseTotal',
