@@ -25,6 +25,7 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -1122,6 +1123,32 @@ class Variant extends Purchasable implements NestedElementInterface
     /**
      * @inheritdoc
      */
+    protected function availableShippingCategories(): array
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
+        }
+
+        return parent::availableShippingCategories();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function availableTaxCategories(): array
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
+        }
+
+        return parent::availableTaxCategories();
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineSources(string $context = null): array
     {
         return Product::sources($context);
@@ -1142,6 +1169,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
             'isDefault' => Craft::t('commerce', 'Default'),
+            'promotable' => Craft::t('commerce', 'Promotable'),
         ]);
     }
 

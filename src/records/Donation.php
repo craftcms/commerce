@@ -17,6 +17,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property int $storeId
+ * @property bool $availableForPurchase
  * @property ActiveQueryInterface $element
  * @property string $sku
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

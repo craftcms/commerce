@@ -29,6 +29,10 @@ use yii\db\Expression;
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
  *
+ *
+ * @template TKey of array-key
+ * @template TElement of Variant
+ *
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
@@ -398,6 +402,7 @@ class VariantQuery extends PurchasableQuery
     /**
      * @param Connection|null $db
      * @return VariantCollection
+     * @phpstan-ignore-next-line
      */
     public function collect(?Connection $db = null): VariantCollection
     {
