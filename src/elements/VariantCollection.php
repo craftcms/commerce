@@ -7,7 +7,6 @@
 
 namespace craft\commerce\elements;
 
-use craft\base\ElementInterface;
 use craft\elements\ElementCollection;
 use Illuminate\Support\Collection;
 
