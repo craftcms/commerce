@@ -885,6 +885,7 @@ class Install extends Migration
             'isCanceled' => $this->boolean()->notNull()->defaultValue(false),
             'dateCanceled' => $this->dateTime(),
             'isExpired' => $this->boolean()->notNull()->defaultValue(false),
+            'returnUrl' => $this->text(),
             'dateExpired' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
