@@ -8,7 +8,7 @@
 - Fixed PHP error that occurred when saving an estimated billing address. ([#3549](https://github.com/craftcms/commerce/pull/3549))
 - Fixed a bug where variant indexes were including table columns for all custom fields added to variant field layouts, across all product types. ([#15373](https://github.com/craftcms/cms/issues/15373))
 - Fixed a bug where the “Ignore promotional prices” discount setting wasn’t getting saved correctly. ([#3573](https://github.com/craftcms/commerce/issues/3573))
-- Fixed a bug where setting a new default variant wouldn’t persist. ([#3565](https://github.com/craftcms/commerce/issues/3565)), ([#3564](https://github.com/craftcms/commerce/issues/3564)), ([#3589](https://github.com/craftcms/commerce/issues/3589))
+- Fixed a bug where setting a new default variant wouldn’t persist. ([#3565](https://github.com/craftcms/commerce/issues/3565), [#3564](https://github.com/craftcms/commerce/issues/3564), [#3589](https://github.com/craftcms/commerce/issues/3589))
 
 ## 5.0.12.2 - 2024-07-12
 
