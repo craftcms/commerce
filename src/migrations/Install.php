@@ -993,7 +993,6 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'primaryOwnerId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
-            'sortOrder' => $this->integer(),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
