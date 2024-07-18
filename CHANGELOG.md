@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.13 - 2024-07-18
 
 - Fixed a SQL error that could occur when updating Commerce on PostgreSQL. ([#3588](https://github.com/craftcms/commerce/pull/3588))
 - Fixed a SQL error that could occur when saving a payment currency. ([#3563](https://github.com/craftcms/commerce/issues/3563))
