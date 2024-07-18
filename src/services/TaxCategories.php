@@ -19,6 +19,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
+use yii2tech\ar\softdelete\SoftDeleteBehavior;
 
 /**
  * Tax category service.
@@ -224,17 +225,15 @@ class TaxCategories extends Component
      */
     public function deleteTaxCategoryById(int $id): bool
     {
-        $all = $this->getAllTaxCategories();
+        /** @var TaxCategoryRecord|SoftDeleteBehavior|null $taxCategory */
+        $taxCategory = TaxCategoryRecord::findOne($id);
 
-        if (count($all) === 0) {
+        if ($taxCategory === null || $taxCategory->default) {
             return false;
         }
 
-        $affectedRows = Craft::$app->getDb()->createCommand()
-            ->softDelete(\craft\commerce\db\Table::TAXCATEGORIES, ['id' => $id])
-            ->execute();
-
-        if ($affectedRows > 0) {
+        if ($taxCategory->softDelete()) {
+            $this->_allTaxCategories = null;
             return true;
         }
 

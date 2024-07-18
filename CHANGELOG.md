@@ -1,9 +1,42 @@
 # Release Notes for Craft Commerce
 
+
 ## Unreleased
 
-- Fixed a SQL error that could occur when saving a payment currency. ([3563](https://github.com/craftcms/commerce/issues/3563))
+- Craft Commerce now requires Craft CMS 5.2.8 or later.
+- Fixed a SQL error that could occur when updating Commerce on PostgreSQL. ([#3588](https://github.com/craftcms/commerce/pull/3588))
+- Fixed a SQL error that could occur when saving a payment currency. ([#3563](https://github.com/craftcms/commerce/issues/3563))
+- Fixed a bug where SCA payment sources prevented subscriptions from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
+- Fixed PHP error that occurred when saving an estimated billing address. ([#3549](https://github.com/craftcms/commerce/pull/3549))
+- Fixed a bug where variant element indexes were including table columns for all product types. ([#15373](https://github.com/craftcms/cms/issues/15373))
+- Fixed a bug where the "Ignore promotional prices" condition on discounts was not saving correctly. ([#3573](https://github.com/craftcms/commerce/issues/3573))
+
+## 5.0.12.2 - 2024-07-12
+
+- Fixed a bug where shipping rule descriptions weren’t being saved. ([#3580](https://github.com/craftcms/commerce/issues/3580))
+- Fixed a SQL error that could occur when updating. ([#3581](https://github.com/craftcms/commerce/issues/3581))
+
+## 5.0.12.1 - 2024-07-12
+
+- Fixed a SQL error that occurred when updating.
+
+## 5.0.12 - 2024-07-11
+
+- Variant index tables can now have a “Promotable” column. ([#3571](https://github.com/craftcms/commerce/issues/3571))
+- Added `craft\commerce\base\Purchasable::availableShippingCategories()`.
+- Added `craft\commerce\base\Purchasable::availableTaxCategories()`.
+- Added `craft\commerce\base\Purchasable::shippingCategoryFieldHtml()`.
+- Added `craft\commerce\base\Purchasable::taxCategoryFieldHtml()`.
+- Added `craft\commerce\elements\Variant::availableShippingCategories()`.
+- Added `craft\commerce\elements\Variant::availableTaxCategories()`.
+- Added `craft\commerce\events\PdfRenderEvent::$sourcePdf`. ([#3543](https://github.com/craftcms/commerce/issues/3543))
 - Fixed a SQL error that occurred when reordering order statuses on PostgreSQL. ([#3554](https://github.com/craftcms/commerce/issues/3554))
+- Fixed a SQL error that could occur when saving a payment currency. ([#3563](https://github.com/craftcms/commerce/issues/3563))
+- Fixed a bug where it was possible to select shipping and tax categories that weren’t allowed for the product type. ([#3557](https://github.com/craftcms/commerce/issues/3557))
+- Fixed a bug where payment currencies, shipping categories, and tax categories weren’t deletable. ([#3548](https://github.com/craftcms/commerce/issues/3548))
+- Fixed a bug where variant field layouts could render incorrectly. ([#3570](https://github.com/craftcms/commerce/issues/3570))
+- Fixed a bug where address custom fields weren’t visible on Edit Inventory Location pages. ([#3569](https://github.com/craftcms/commerce/issues/3569))
+- Fixed a SQL error that could occur when fixing foreign keys.
 
 ## 5.0.11.1 - 2024-06-20
 

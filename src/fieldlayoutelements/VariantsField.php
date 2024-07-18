@@ -63,6 +63,7 @@ class VariantsField extends BaseNativeField
             'canCreate' => true,
             'allowedViewModes' => [ElementIndexViewMode::Cards, ElementIndexViewMode::Table],
             'sortable' => true,
+            'fieldLayouts' => [$element->getType()->getVariantFieldLayout()],
         ]);
     }
 }
