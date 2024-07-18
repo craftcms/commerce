@@ -1,6 +1,5 @@
 # Release Notes for Craft Commerce
 
-
 ## Unreleased
 
 - Craft Commerce now requires Craft CMS 5.2.8 or later.
@@ -8,8 +7,8 @@
 - Fixed a SQL error that could occur when saving a payment currency. ([#3563](https://github.com/craftcms/commerce/issues/3563))
 - Fixed a bug where SCA payment sources prevented subscriptions from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
 - Fixed PHP error that occurred when saving an estimated billing address. ([#3549](https://github.com/craftcms/commerce/pull/3549))
-- Fixed a bug where variant element indexes were including table columns for all product types. ([#15373](https://github.com/craftcms/cms/issues/15373))
-- Fixed a bug where the "Ignore promotional prices" condition on discounts was not saving correctly. ([#3573](https://github.com/craftcms/commerce/issues/3573))
+- Fixed a bug where variant indexes were including table columns for all custom fields added to variant field layouts, across all product types. ([#15373](https://github.com/craftcms/cms/issues/15373))
+- Fixed a bug where the “Ignore promotional prices” discount setting wasn’t getting saved correctly. ([#3573](https://github.com/craftcms/commerce/issues/3573))
 - Fixed a bug where setting a new default variant wouldn’t persist. ([#3565](https://github.com/craftcms/commerce/issues/3565)), ([#3564](https://github.com/craftcms/commerce/issues/3564)), ([#3589](https://github.com/craftcms/commerce/issues/3589))
 
 ## 5.0.12.2 - 2024-07-12
