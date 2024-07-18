@@ -138,6 +138,11 @@ class Subscription extends Element
     public ?DateTime $dateSuspended = null;
 
     /**
+     * @var string|null The URL to return to after a subscription is created
+     */
+    public ?string $returnUrl = null;
+
+    /**
      * @var SubscriptionGatewayInterface|null
      */
     private ?SubscriptionGatewayInterface $_gateway = null;
@@ -594,6 +599,7 @@ class Subscription extends Element
         $subscriptionRecord->hasStarted = $this->hasStarted;
         $subscriptionRecord->isSuspended = $this->isSuspended;
         $subscriptionRecord->dateSuspended = $this->dateSuspended;
+        $subscriptionRecord->returnUrl = $this->returnUrl;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $subscriptionRecord->dateUpdated = $this->dateUpdated;

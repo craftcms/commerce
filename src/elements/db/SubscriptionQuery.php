@@ -733,6 +733,7 @@ class SubscriptionQuery extends ElementQuery
             'commerce_subscriptions.subscriptionData',
             'commerce_subscriptions.trialDays',
             'commerce_subscriptions.userId',
+            'commerce_subscriptions.returnUrl',
         ]);
 
         if (isset($this->userId)) {

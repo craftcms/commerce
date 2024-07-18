@@ -35,6 +35,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $trialDays
  * @property ActiveQueryInterface $user
  * @property int $userId
+ * @property string $returnUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
