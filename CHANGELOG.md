@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a SQL error that occurred when exporting order line items. ([#3592](https://github.com/craftcms/commerce/issues/3592))
+- Fixed a PHP error that could occur when generating catalog prices. ([#3591](https://github.com/craftcms/commerce/issues/3591))
 
 ## 5.0.13 - 2024-07-18
 
