@@ -1442,6 +1442,12 @@ JS, []);
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
+
+        // Set the order language based on the `orderSiteId`
+        if ($site = Craft::$app->getSites()->getSiteById($order->orderSiteId)) {
+            $order->orderLanguage = $site->language;
+        }
+
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
         $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
