@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where sending an email from the control panel could render the email with the incorrect locale. 
+
 ## 4.6.5 - 2024-07-18
 
 - Fixed a bug where SCA payment sources prevented subscriptions from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
