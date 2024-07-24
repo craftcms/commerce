@@ -77,7 +77,7 @@ class EmailPreviewControllerTest extends Unit
     public function testRenderRandomOrder(): void
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
-        Craft::$app->getRequest()->setQueryParams(['emailId' => $email['id']]);
+        Craft::$app->getRequest()->setQueryParams(['email' => $email['id'] . ':' . $email['storeId']]);
 
         $response = $this->controller->runAction('render');
         (new TemplateResponseFormatter())->format($response);
@@ -95,7 +95,7 @@ class EmailPreviewControllerTest extends Unit
         $order = $this->tester->grabFixture('orders')->getElement('completed-new');
 
         Craft::$app->getRequest()->setQueryParams([
-            'emailId' => $email['id'],
+            'email' => $email['id'] . ':' . $email['storeId'],
             'number' => $order->number,
         ]);
 
