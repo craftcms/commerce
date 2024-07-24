@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 4.6.6 - 2024-07-24
 
 - Fixed a bug where emails sent via the control panel could be rendered with the wrong language. 
 
