@@ -202,6 +202,38 @@ class Orders extends Component
     /**
      * @param ModelEvent $event
      * @return void
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function beforeSaveAddressHandler(ModelEvent $event): void
+    {
+        if (UpgradeController::isRunning()) {
+            return;
+        }
+
+        /** @var Address $address */
+        $address = $event->sender;
+        if ($address->getIsDraft()) {
+            return;
+        }
+
+        /** @var Address $address */
+        $address = $event->sender;
+        $owner = $address->getOwner();
+
+        // Make sure the address labels are fixed for order addresses.
+        if ($owner && $owner instanceof Order) {
+            if ($owner->billingAddressId && $owner->billingAddressId == $address->id) {
+                $address->title = Craft::t('commerce', 'Billing Address');
+            }
+            if ($owner->shippingAddressId && $owner->shippingAddressId == $address->id) {
+                $address->title = Craft::t('commerce', 'Shipping Address');
+            }
+        }
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
      * @throws Exception
      * @throws \Throwable
      * @throws ElementNotFoundException
