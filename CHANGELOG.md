@@ -2,11 +2,11 @@
 
 ## Unreleased
 
-- Fixed a bug where activation emails weren’t being sent for pending users on order complete. ([#3226](https://github.com/craftcms/commerce/issues/3226))
-- Fixed a bug where emails were unable to be previewed while multiple stores were set up. ([#3595](https://github.com/craftcms/commerce/issues/3595))
+- Fixed a bug where account activation emails weren’t being sent on order completion. ([#3226](https://github.com/craftcms/commerce/issues/3226))
+- Fixed a bug where email previewing wasn’t working on installs with multiple stores. ([#3595](https://github.com/craftcms/commerce/issues/3595))
+- Fixed a bug where emails sent via the control panel could be rendered with the wrong language.
 - Fixed a SQL error that occurred when exporting order line items. ([#3592](https://github.com/craftcms/commerce/issues/3592))
 - Fixed a PHP error that could occur when generating catalog prices. ([#3591](https://github.com/craftcms/commerce/issues/3591))
-- Fixed a bug where emails sent via the control panel could be rendered with the wrong language.
 
 ## 5.0.13 - 2024-07-18
 
