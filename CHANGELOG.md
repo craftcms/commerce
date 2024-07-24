@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where sending an email from the control panel could render the email with the incorrect locale. 
+- Fixed a bug where emails sent via the control panel could be rendered with the wrong language. 
 
 ## 4.6.5 - 2024-07-18
 
