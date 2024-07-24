@@ -343,7 +343,7 @@ class UpgradeController extends Controller
      */
     private function _relabelOrderAddresses(): void
     {
-        $elementSitesTable = CraftTable::ELEMENTS_SITES;
+        $contentTable = CraftTable::CONTENT;
 
         $billingAddressIds = (new Query())
             ->select(['billingAddressId'])
@@ -355,13 +355,13 @@ class UpgradeController extends Controller
             ->from(Table::ORDERS)
             ->where(['not', ['shippingAddressId' => null]]);
 
-        Db::update($elementSitesTable, [
+        Db::update($contentTable, [
             'title' => Craft::t('commerce', 'Billing Address'),
         ],
             ['elementId' => $billingAddressIds]
         );
 
-        Db::update($elementSitesTable, [
+        Db::update($contentTable, [
             'title' => Craft::t('commerce', 'Shipping Address'),
         ],
             ['elementId' => $shippingAddressIds]
