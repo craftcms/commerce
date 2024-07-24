@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.14 - 2024-07-24
 
 - Fixed a bug where account activation emails weren’t being sent on order completion. ([#3226](https://github.com/craftcms/commerce/issues/3226))
 - Fixed a bug where email previewing wasn’t working on installs with multiple stores. ([#3595](https://github.com/craftcms/commerce/issues/3595))
