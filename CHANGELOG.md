@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a SQL error that could occur when updating. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
+
 ## 5.0.14 - 2024-07-24
 
 - Fixed a bug where account activation emails weren’t being sent on order completion. ([#3226](https://github.com/craftcms/commerce/issues/3226))
