@@ -381,7 +381,7 @@ class Customers extends Component
     private function _activateUserFromOrder(Order $order): void
     {
         $user = $order->getCustomer();
-        if (!$user || $user->getIsCredentialed()) {
+        if (!$user || $user->active || $user->locked || $user->suspended) {
             return;
         }
 

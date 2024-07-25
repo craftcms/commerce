@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where account activation emails weren’t being sent on order completion. ([#3226](https://github.com/craftcms/commerce/issues/3226))
+
 ## 4.6.6 - 2024-07-24
 
 - Fixed a bug where emails sent via the control panel could be rendered with the wrong language. 
