@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a SQL error that could occur when updating. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
+- Fixed a bug where payment modals did not calculate additional payment currencies on Edit Order pages.
 
 ## 5.0.14 - 2024-07-24
 

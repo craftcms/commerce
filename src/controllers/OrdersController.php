@@ -1083,6 +1083,8 @@ JS, []);
             $formHtml .= $paymentFormHtml;
         }
 
+        $view->registerAssetBundle(InputmaskAsset::class);
+
         $modalHtml = $view->renderTemplate('commerce/orders/_paymentmodal', [
             'gateways' => $gateways,
             'order' => $order,
