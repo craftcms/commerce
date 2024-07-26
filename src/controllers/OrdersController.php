@@ -59,6 +59,7 @@ use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
+use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
