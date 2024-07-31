@@ -2,10 +2,10 @@
 
 ## Unreleased
 
-- Fixed a SQL error that could occur when updating Commerce on PostgreSQL. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
-- Fixed a bug where payment modals did not calculate additional payment currencies on Edit Order pages.
+- Fixed a SQL error that could occur when upgrading to Commerce 5 on PostgreSQL. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
+- Fixed a bug where payment modals weren’t calculating additional payment currencies on Edit Order pages.
 - Fixed a PHP error that occurred when retrieving an order that referenced a deleted payment currency.
-- Fixed a bug where extra shipping categories unrelated to the current store were showing up on Edit Variant pages. ([#3608](https://github.com/craftcms/commerce/issues/3608)) 
+- Fixed a bug where Edit Variant screens were showing shipping categories that were unrelated to the current store. ([#3608](https://github.com/craftcms/commerce/issues/3608)) 
 
 ## 5.0.14 - 2024-07-24
 
