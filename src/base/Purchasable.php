@@ -1081,7 +1081,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function availableShippingCategories(): array
     {
-        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->all();
+        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($this->storeId)->all();
     }
 
     /**
