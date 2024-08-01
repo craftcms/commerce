@@ -8,7 +8,7 @@
   {% set isJapanese =
     (order.billingAddress and order.billingAddress.countryCode == 'JP')
     or (order.shippingAddress and order.shippingAddress.countryCode == 'JP')
-    or order.orderLanguage[0:2] == 'ja'
+    or ()order.orderLanguage and order.orderLanguage[0:2] == 'ja')
   %}
   {% if isJapanese %}
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
