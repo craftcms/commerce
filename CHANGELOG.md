@@ -1,5 +1,7 @@
 # Release Notes for Craft Commerce
 
+- Fixed a bug where the “Create Sale” and “Create Discount” actions did not work on product indexes. ([#3611](https://github.com/craftcms/commerce/issues/3611))
+
 ## 5.0.15 - 2024-07-31
 
 - Fixed a SQL error that could occur when upgrading to Commerce 5 on PostgreSQL. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))

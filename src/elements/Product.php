@@ -370,7 +370,10 @@ class Product extends Element
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
-                $actions[] = CreateSale::class;
+                if (Plugin::getInstance()->getSales()->canUseSales()) {
+                    $actions[] = CreateSale::class;
+                }
+
                 $actions[] = CreateDiscount::class;
             }
         }

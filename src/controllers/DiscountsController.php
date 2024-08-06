@@ -683,6 +683,11 @@ class DiscountsController extends BaseStoreManagementController
                 } else {
                     $purchasableIds[] = $purchasableId;
                 }
+                if (!empty($purchasableIds)) {
+                    $variables['discount']->allPurchasables = false;
+                } else {
+                    $variables['discount']->allPurchasables = true;
+                }
             }
         } else {
             $purchasableIds = $variables['discount']->getPurchasableIds();
