@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Db;
 use Illuminate\Support\Collection;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
@@ -266,6 +267,10 @@ class PaymentCurrencies extends Component
         if (!$paymentCurrency) {
             return false;
         }
+
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency($paymentCurrency->storeId);
+
+        Db::update(Table::ORDERS, ['paymentCurrency' => $baseCurrency->iso], ['paymentCurrency' => $paymentCurrency->iso, 'storeId' => $paymentCurrency->storeId]);
 
         return $paymentCurrency->delete();
     }

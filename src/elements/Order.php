@@ -3240,6 +3240,7 @@ class Order extends Element implements HasStoreInterface
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
 
         $this->estimatedBillingAddressId = $address->id;

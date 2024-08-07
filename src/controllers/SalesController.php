@@ -535,6 +535,12 @@ class SalesController extends BaseStoreManagementController
                 } else {
                     $purchasableIds[] = $purchasableId;
                 }
+
+                if (!empty($purchasableIds)) {
+                    $variables['sale']->allPurchasables = false;
+                } else {
+                    $variables['sale']->allPurchasables = true;
+                }
             }
         } else {
             $purchasableIds = $sale->getPurchasableIds();

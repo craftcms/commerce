@@ -10,11 +10,10 @@ namespace craft\commerce\models;
 use Craft;
 use craft\behaviors\EnvAttributeParserBehavior;
 use craft\commerce\base\Model;
-use craft\commerce\db\Table;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store as StoreRecord;
-use craft\db\Query;
 use craft\errors\DeprecationException;
 use craft\helpers\App;
 use craft\helpers\UrlHelper;
@@ -191,13 +190,9 @@ class Store extends Model
                     return;
                 }
 
-                $hasOrders = (new Query())
-                    ->from(Table::ORDERS)
-                    ->leftJoin(\craft\db\Table::ELEMENTS, '[[elements.id]] = [[commerce_orders.id]]')
-                    ->where([
-                        'storeId' => $this->id,
-                        'elements.dateDeleted' => null,
-                    ])
+                $hasOrders = Order::find()
+                    ->trashed(null)
+                    ->storeId($this->id)
                     ->exists();
 
                 if ($hasOrders) {
@@ -492,7 +487,7 @@ class Store extends Model
     }
 
     /**
-     * Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
+     * Whether [partial payment](https://craftcms.com/docs/commerce/5.x/system/development/making-payments.html#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
      *
      * The `false` default does not allow partial payments on the front end.
      *
@@ -624,7 +619,7 @@ class Store extends Model
     /**
      * Human-friendly reference number format for orders. Result must be unique.
      *
-     * See [Order Numbers](orders-carts.md#order-numbers).
+     * See [Order Numbers](https://craftcms.com/docs/commerce/5.x/system/orders-carts.html#order-numbers).
      *
      * @param bool $parse
      * @return string

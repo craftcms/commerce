@@ -60,6 +60,10 @@ class PurchasableConditionRule extends BaseConditionRule implements ElementCondi
 
         $elementIds = [];
         foreach ($this->_elementIds as $ids) {
+            if (!is_array($ids) || empty($ids)) {
+                continue;
+            }
+
             $elementIds = array_merge($elementIds, $ids);
         }
 

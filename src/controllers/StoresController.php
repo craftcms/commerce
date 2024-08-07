@@ -80,13 +80,9 @@ class StoresController extends BaseStoreManagementController
             ],
         ];
 
-        $hasOrders = $storeModel->id && (new Query())
-                ->from(['orders' => Table::ORDERS])
-                ->leftJoin(\craft\db\Table::ELEMENTS . ' el', '[[el.id]] = [[orders.id]]')
-                ->where([
-                    'storeId' => $storeModel->id,
-                    'el.dateDeleted' => null,
-                ])
+        $hasOrders = $storeModel->id && Order::find()
+                ->trashed(null)
+                ->storeId($storeModel->id)
                 ->exists();
 
         if (!$hasOrders) {

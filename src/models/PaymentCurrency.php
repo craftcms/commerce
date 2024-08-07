@@ -108,6 +108,12 @@ class PaymentCurrency extends Model
         return $names;
     }
 
+    public function safeAttributes()
+    {
+        $names = parent::safeAttributes();
+        return array_unique(array_merge(['id', 'storeId', 'iso', 'rate'], $names));
+    }
+
     /**
      * @return string|null
      */
@@ -190,10 +196,8 @@ class PaymentCurrency extends Model
     protected function defineRules(): array
     {
         return [
-            [['iso'], 'required'],
-            [['rate'], 'required'],
+            [['iso', 'rate'], 'required'],
             [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso', 'storeId'], 'message' => '{attribute} "{value}" has already been taken.'],
-            [['storeId'], 'safe'],
         ];
     }
 }
