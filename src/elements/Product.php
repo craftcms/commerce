@@ -370,7 +370,10 @@ class Product extends Element
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
-                $actions[] = CreateSale::class;
+                if (Plugin::getInstance()->getSales()->canUseSales()) {
+                    $actions[] = CreateSale::class;
+                }
+
                 $actions[] = CreateDiscount::class;
             }
         }
@@ -894,7 +897,7 @@ class Product extends Element
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('isDefault', true);
+        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
 
         return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
     }

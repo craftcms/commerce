@@ -76,23 +76,33 @@ EOT;
         // Update product row
         Craft::$app->getDb()->createCommand()->update(
             Table::PRODUCTS,
-            ['defaultVariantId' => $variant->id],
+            [
+                'defaultVariantId' => $variant->id,
+                'defaultSku' => $variant->sku,
+                'defaultPrice' => $variant->getBasePrice(),
+                'defaultHeight' => $variant->height,
+                'defaultLength' => $variant->length,
+                'defaultWidth' => $variant->width,
+                'defaultWeight' => $variant->weight,
+            ],
             ['id' => $product->id]
         )->execute();
 
-        // Remove previous default
-        Craft::$app->getDb()->createCommand()->update(
-            Table::VARIANTS,
-            ['isDefault' => false],
-            ['primaryOwnerId' => $product->id]
-        )->execute();
+        if ($product->getIsCanonical()) {
+            // Remove previous default
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => false],
+                ['primaryOwnerId' => $product->id]
+            )->execute();
 
-        // Add new default
-        Craft::$app->getDb()->createCommand()->update(
-            Table::VARIANTS,
-            ['isDefault' => true],
-            ['id' => $variant->id]
-        )->execute();
+            // Add new default
+            Craft::$app->getDb()->createCommand()->update(
+                Table::VARIANTS,
+                ['isDefault' => true],
+                ['id' => $variant->id]
+            )->execute();
+        }
 
         $this->setMessage(Craft::t('commerce', 'Default variant updated.'));
         return true;

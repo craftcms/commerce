@@ -13,6 +13,7 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\web\Controller;
 use craft\web\View;
 use yii\base\Exception;
@@ -35,8 +36,10 @@ class EmailPreviewController extends Controller
     {
         $this->requireAdmin();
 
-        $emailId = $this->request->getParam('emailId');
-        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
+        $email = $this->request->getParam('email');
+        $emailId = (int)StringHelper::split($email, ':')[0];
+        $storeId = (int)StringHelper::split($email, ':')[1];
+        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId, $storeId);
 
         $orderNumber = $this->request->getParam('number');
 

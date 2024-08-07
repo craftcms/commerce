@@ -193,11 +193,10 @@ JS, [
         ];
 
         return Html::beginTag('div') .
-            Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
-            Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
-            $inventoryLevelsTable .
-            Html::endTag('div') .
-            Html::endTag('div') .
+                Cp::lightswitchHtml($storeInventoryTrackedLightswitchConfig) .
+                Html::beginTag('div', ['id' => $inventoryItemTrackedId, 'class' => 'hidden']) .
+                    $inventoryLevelsTable .
+                Html::endTag('div') .
             Html::endTag('div');
     }
 

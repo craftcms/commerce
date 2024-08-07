@@ -482,6 +482,7 @@ class Pdfs extends Component
             'option' => $option,
             'template' => $templatePath,
             'variables' => $variables,
+            'sourcePdf' => $pdf,
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
@@ -582,6 +583,7 @@ class Pdfs extends Component
             'template' => $event->template,
             'variables' => $variables,
             'pdf' => $dompdf->output(),
+            'sourcePdf' => $pdf,
         ]);
         $this->trigger(self::EVENT_AFTER_RENDER_PDF, $afterEvent);
 

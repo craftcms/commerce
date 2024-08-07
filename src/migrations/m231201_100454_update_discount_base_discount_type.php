@@ -16,7 +16,7 @@ class m231201_100454_update_discount_base_discount_type extends Migration
     public function safeUp(): bool
     {
         // Disable all the discounts that are using the incorrect `baseDiscountType`
-        $this->update(Table::DISCOUNTS, ['enabled' => false], ['baseDiscountType' => '!= value'], updateTimestamp: false);
+        $this->update(Table::DISCOUNTS, ['enabled' => false], ['not', ['baseDiscountType' => 'value']], updateTimestamp: false);
 
         // Remove `baseDiscountType` column
         $this->dropColumn(Table::DISCOUNTS, 'baseDiscountType');
