@@ -45,6 +45,13 @@ class CatalogPricing extends Component
      */
     private ?array $_allCatalogPrices = null;
 
+    private function setQueueProgress(Queue|QueueInterface|null $queue, float $progress, ?string $label = null): void
+    {
+        if ($queue instanceof QueueInterface) {
+            $queue->setProgress((int)$progress, $label);
+        }
+    }
+
     /**
      * @param array|null $purchasableIds
      * @param CatalogPricingRule[]|null $catalogPricingRules
@@ -57,7 +64,7 @@ class CatalogPricing extends Component
     public function generateCatalogPrices(?array $purchasableIds = null, ?array $catalogPricingRules = null, bool $showConsoleOutput = false, Queue|QueueInterface $queue = null): void
     {
         $chunkSize = 1000;
-        $queue?->setProgress(10, 'Retrieving purchasables');
+        $this->setQueueProgress(10, 'Retrieving purchasables');
 
         $isAllPurchasables = $purchasableIds === null;
         if ($isAllPurchasables) {
@@ -78,7 +85,7 @@ class CatalogPricing extends Component
             Console::stdout(PHP_EOL . 'Generating price data from catalog pricing rules... ');
         }
 
-        $queue?->setProgress(20, 'Generating catalog pricing data');
+        $this->setQueueProgress(20, 'Generating catalog pricing data');
         $catalogPricing = [];
         foreach (Plugin::getInstance()->getStores()->getAllStores() as $store) {
             $priceByPurchasableId = (new Query())
@@ -144,7 +151,7 @@ class CatalogPricing extends Component
             Console::stdout(PHP_EOL . 'Created ' . count($catalogPricing) . ' rule price data in ' . round($cprExecutionLength, 2) . ' seconds' . PHP_EOL);
         }
 
-        $queue?->setProgress(40, 'Clearing existing catalog prices');
+        $this->setQueueProgress(40, 'Clearing existing catalog prices');
         $transaction = Craft::$app->getDb()->beginTransaction();
         // Truncate the catalog pricing table
         if (!$isAllPurchasables || !empty($catalogPricingRules)) {
@@ -168,7 +175,7 @@ class CatalogPricing extends Component
 
         // If there are no specific catalog pricing rules passed in then copy the base prices into the catalog pricing table
         if (empty($catalogPricingRules)) {
-            $queue?->setProgress(60, 'Copying base prices to catalog pricing');
+            $this->setQueueProgress(60, 'Copying base prices to catalog pricing');
             $total = count($purchasableIds);
             $baseStateTime = microtime(true);
             $count = 1;
@@ -212,7 +219,7 @@ class CatalogPricing extends Component
             }
         }
 
-        $queue?->setProgress(80, 'Inserting catalog pricing');
+        $this->setQueueProgress(80, 'Inserting catalog pricing');
         // Batch through `$catalogPricing` and insert into the catalog pricing table
         if (!empty($catalogPricing)) {
             $count = 1;
@@ -247,7 +254,7 @@ class CatalogPricing extends Component
         }
 
         $transaction->commit();
-        $queue?->setProgress(100);
+        $this->setQueueProgress(100);
     }
 
     /**
