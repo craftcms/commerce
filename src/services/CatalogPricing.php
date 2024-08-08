@@ -23,7 +23,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\Queue as QueueHelper;
-use craft\queue\Queue;
 use craft\queue\QueueInterface;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -31,6 +30,7 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\db\Expression;
+use yii\queue\Queue;
 
 /**
  * Catalog Pricing service.
