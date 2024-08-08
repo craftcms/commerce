@@ -240,7 +240,7 @@ class Product extends Element
                 ],
                 'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
                 // Get site ids enabled for this product type
-                'sites' => array_keys($productType->getSiteSettings()),
+                'sites' => $productType->getSiteIds(),
             ];
         }
 

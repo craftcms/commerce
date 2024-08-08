@@ -235,6 +235,17 @@ class ProductType extends Model
     }
 
     /**
+     * Returns the site IDs that are enabled for the product type.
+     *
+     * @return int[]
+     * @since 5.1.0
+     */
+    public function getSiteIds(): array
+    {
+        return array_keys($this->getSiteSettings());
+    }
+
+    /**
      * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]

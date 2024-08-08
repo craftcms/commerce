@@ -10,3 +10,6 @@
 
 ### System
 - Craft Commerce now requires Craft CMS 5.2 or later.
+
+### Extensibility
+- Added `craft\commerce\models\ProductType::getSiteIds()`.
