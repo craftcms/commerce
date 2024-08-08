@@ -65,6 +65,11 @@ class Transfer extends Element
         return (string)$this->getOriginLocation()->name . ' to ' . $this->getDestinationLocation()->name;
     }
 
+    public static function hasDrafts(): bool
+    {
+        return false;
+    }
+
     protected function metadata(): array
     {
         $additionalMeta = [];
