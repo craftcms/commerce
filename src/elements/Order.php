@@ -3436,7 +3436,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getOrderStatus(): ?OrderStatus
     {
-        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId) : null;
+        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId, $this->storeId) : null;
     }
 
     /**
