@@ -493,6 +493,11 @@ class ProductTypes extends Component
 
             $productTypeRecord->propagationMethod = $data['propagationMethod'] ?? PropagationMethod::All->value;
 
+            // Resave products if propagation method has changed
+            if ($productTypeRecord->propagationMethod != $productTypeRecord->getOldAttribute('propagationMethod')) {
+                $shouldResaveProducts = true;
+            }
+
             $productTypeRecord->variantTitleTranslationMethod = $data['variantTitleTranslationMethod'] ?? 'site';
             $productTypeRecord->variantTitleTranslationKeyFormat = $data['variantTitleTranslationKeyFormat'] ?? '';
 
