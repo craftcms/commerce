@@ -37,6 +37,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $productTitleFormat
  * @property string $productTitleTranslationMethod
  * @property string $productTitleTranslationKeyFormat
+ * @property string $propagationMethod
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int|null $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

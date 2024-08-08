@@ -15,6 +15,7 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
+use craft\enums\PropagationMethod;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -126,6 +127,8 @@ class ProductTypesController extends BaseAdminController
         $productType->variantTitleTranslationKeyFormat = $this->request->getBodyParam('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
+        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '')
+            ?? PropagationMethod::All;
 
         // Site-specific settings
         $allSiteSettings = [];

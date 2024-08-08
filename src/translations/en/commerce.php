@@ -6,6 +6,14 @@
  */
 
 return [
+    'Of the enabled sites above, which sites should products in this product type be saved to?' => 'Of the enabled sites above, which sites should products in this product type be saved to?',
+    'Only save product to the site they were created in' => 'Only save product to the site they were created in',
+    'Save product to other sites in the same site group' => 'Save product to other sites in the same site group',
+    'Save product to other sites with the same language' => 'Save product to other sites with the same language',
+    'Save product to all sites enabled for this product type' => 'Save product to all sites enabled for this product type',
+    'Let each product choose which sites it should be saved to' => 'Let each product choose which sites it should be saved to',
+
+
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',
     '(off original price)' => '(off original price)',

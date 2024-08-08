@@ -16,6 +16,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
+use craft\enums\PropagationMethod;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -166,6 +167,21 @@ class ProductType extends Model
      * @var ProductTypeSite[]|null
      */
     private ?array $_siteSettings = null;
+
+    /**
+     * @var PropagationMethod Propagation method
+     *
+     * This will be set to one of the following:
+     *
+     *  - [[PropagationMethod::None]] – Only save products in the site they were created in
+     *  - [[PropagationMethod::SiteGroup]] – Save  products to other sites in the same site group
+     *  - [[PropagationMethod::Language]] – Save products to other sites with the same language
+     *  - [[PropagationMethod::Custom]] – Save products to other sites based on a custom [[$propagationKeyFormat|propagation key format]]
+     *  - [[PropagationMethod::All]] – Save products to all sites supported by the owner element
+     *
+     * @since 5.1.0
+     */
+    public PropagationMethod $propagationMethod = PropagationMethod::All;
 
     /**
      * @return null|string

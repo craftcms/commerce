@@ -21,6 +21,7 @@ use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
+use craft\enums\PropagationMethod;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
@@ -399,6 +400,8 @@ class ProductTypes extends Component
             'productTitleTranslationMethod' => $productType->productTitleTranslationMethod,
             'productTitleTranslationKeyFormat' => $productType->productTitleTranslationKeyFormat,
 
+            'propagationMethod' => $productType->propagationMethod->value,
+
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
             'siteSettings' => [],
@@ -487,6 +490,9 @@ class ProductTypes extends Component
 
             $productTypeRecord->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
             $productTypeRecord->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
+
+            $productTypeRecord->propagationMethod = $data['propagationMethod'] ?? PropagationMethod::All->value;
+
             $productTypeRecord->variantTitleTranslationMethod = $data['variantTitleTranslationMethod'] ?? 'site';
             $productTypeRecord->variantTitleTranslationKeyFormat = $data['variantTitleTranslationKeyFormat'] ?? '';
 
@@ -997,6 +1003,10 @@ class ProductTypes extends Component
 
         if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationKeyFormat')) {
             $query->addSelect('productTypes.variantTitleTranslationKeyFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
+            $query->addSelect('productTypes.propagationMethod');
         }
 
         return $query;

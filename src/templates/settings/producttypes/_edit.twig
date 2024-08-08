@@ -304,6 +304,26 @@
             errors: siteErrors|unique
         }) }}
 
+        {% if craft.app.getIsMultiSite() %}
+            <div class="field type-channel type-structure {% if productType.type == 'single' %}hidden{% endif %}">
+                {{ forms.selectField({
+                    label: 'Propagation Method'|t('app'),
+                    instructions: 'Of the enabled sites above, which sites should products in this product type be saved to?'|t('commerce'),
+                    warning: productType.id and productType.propagationMethod.value != 'none' and productType.siteSettings|length > 1 ? 'Changing this may result in data loss.'|t('app'),
+                    id: 'propagationMethod',
+                    name: 'propagationMethod',
+                    options: [
+                        { value: 'none', label: 'Only save product to the site they were created in'|t('commerce') },
+                        { value: 'siteGroup', label: 'Save product to other sites in the same site group'|t('commerce') },
+                        { value: 'language', label: 'Save product to other sites with the same language'|t('commerce') },
+                        { value: 'all', label: 'Save product to all sites enabled for this product type'|t('commerce') },
+                        { value: 'custom', label: 'Let each product choose which sites it should be saved to'|t('commerce') },
+                    ],
+                    value: productType.propagationMethod.value
+                }) }}
+            </div>
+        {% endif %}
+
 
     </div>
 
