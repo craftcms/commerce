@@ -8,6 +8,8 @@
 
 {% set selectedSubnavItem = 'settings' %}
 
+{% set headlessMode = craft.app.config.general.headlessMode %}
+
 {% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
@@ -249,6 +251,61 @@
 
         <hr>
 
+{#        {% set siteRows = [] %}#}
+{#        {% set siteErrors = productType.getErrors('siteSettings') %}#}
+
+{#        {% for site in craft.app.sites.getAllSites() %}#}
+{#            {% set siteSettings = productType.siteSettings[site.id] ?? null %}#}
+{#            {% if siteSettings %}#}
+{#                {% for attribute, errors in siteSettings.getErrors() %}#}
+{#                    {% set siteErrors = siteErrors|merge(errors) %}#}
+{#                {% endfor %}#}
+{#            {% endif %}#}
+{#            {% set siteRows = siteRows|merge({#}
+{#                (site.handle): {#}
+{#                    heading: site.name|t('site'),#}
+{#                    uriFormat: {#}
+{#                        value: siteSettings.uriFormat ?? null,#}
+{#                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false#}
+{#                    },#}
+{#                    template: {#}
+{#                        value: siteSettings.template ?? null,#}
+{#                        hasErrors: siteSettings.hasErrors('template') ?? false,#}
+{#                    }#}
+{#                }#}
+{#            }) %}#}
+{#        {% endfor %}#}
+
+{#        {{ forms.editableTableField({#}
+{#            label: "Site Settings"|t('app'),#}
+{#            instructions: "Configure the product types’s site-specific settings."|t('commerce'),#}
+{#            id: 'sites',#}
+{#            name: 'sites',#}
+{#            cols: {#}
+{#                heading: {#}
+{#                    type: 'heading',#}
+{#                    heading: "Site"|t('app'),#}
+{#                    class: 'thin'#}
+{#                },#}
+{#                uriFormat: {#}
+{#                    type: 'singleline',#}
+{#                    heading: "Product URI Format"|t('commerce'),#}
+{#                    info: "What product URIs should look like for the site."|t('commerce'),#}
+{#                    placeholder: "Leave blank if products don’t have URLs"|t('commerce'),#}
+{#                    code: true#}
+{#                },#}
+{#                template: {#}
+{#                    type: 'template',#}
+{#                    heading: "Template"|t('app'),#}
+{#                    info: "Which template should be loaded when a product’s URL is requested."|t('commerce'),#}
+{#                    code: true#}
+{#                },#}
+{#            },#}
+{#            rows: siteRows,#}
+{#            staticRows: true,#}
+{#            errors: siteErrors|unique#}
+{#        }) }}#}
+
         {% set siteRows = [] %}
         {% set siteErrors = productType.getErrors('siteSettings') %}
 
@@ -261,29 +318,41 @@
             {% endif %}
             {% set siteRows = siteRows|merge({
                 (site.handle): {
-                    heading: site.name|t('site'),
+                    heading: site.name|t('site')|e,
+                    enabled: include('_includes/forms/lightswitch.twig', {
+                        name: 'sites['~site.handle~'][enabled]',
+                        on: brandNewProductType or siteSettings,
+                        value: site.id,
+                        small: true
+                    }),
                     uriFormat: {
-                        value: siteSettings.uriFormat ?? null,
-                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
+                        value: siteSettings ? siteSettings.uriFormat,
+                        hasErrors: (siteSettings ? siteSettings.hasErrors('uriFormat'))
                     },
-                    template: {
-                        value: siteSettings.template ?? null,
-                        hasErrors: siteSettings.hasErrors('template') ?? false,
-                    }
-                }
+                    template: not headlessMode ? {
+                        value: siteSettings ? siteSettings.template,
+                        hasErrors: siteSettings ? siteSettings.hasErrors('template'),
+                    },
+                    enabledByDefault: siteSettings ? siteSettings.enabledByDefault : true,
+                }|filter
             }) %}
         {% endfor %}
 
         {{ forms.editableTableField({
             label: "Site Settings"|t('app'),
-            instructions: "Configure the product types’s site-specific settings."|t('commerce'),
+            instructions: "Choose which sites this product type should be available in, and configure the site-specific settings."|t('commerce'),
             id: 'sites',
             name: 'sites',
             cols: {
                 heading: {
                     type: 'heading',
                     heading: "Site"|t('app'),
-                    class: 'thin'
+                    thin: true
+                },
+                enabled: {
+                    type: 'heading',
+                    thin: true,
+                    class: not craft.app.getIsMultiSite() ? 'hidden'
                 },
                 uriFormat: {
                     type: 'singleline',
@@ -298,14 +367,23 @@
                     info: "Which template should be loaded when a product’s URL is requested."|t('commerce'),
                     code: true
                 },
-            },
+                enabledByDefault: {
+                    type: 'lightswitch',
+                    heading: "Default Status"|t('app'),
+                    thin: true,
+                    class: ['type-channel', 'type-structure']|filter
+                }
+            }|filter,
             rows: siteRows,
-            staticRows: true,
+            fullWidth: true,
+            allowAdd: false,
+            allowDelete: false,
+            allowReorder: false,
             errors: siteErrors|unique
         }) }}
 
         {% if craft.app.getIsMultiSite() %}
-            <div class="field type-channel type-structure {% if productType.type == 'single' %}hidden{% endif %}">
+            <div class="field type-channel type-structure">
                 {{ forms.selectField({
                     label: 'Propagation Method'|t('app'),
                     instructions: 'Of the enabled sites above, which sites should products in this product type be saved to?'|t('commerce'),

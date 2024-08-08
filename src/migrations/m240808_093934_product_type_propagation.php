@@ -18,6 +18,7 @@ class m240808_093934_product_type_propagation extends Migration
     {
         // add propagationMethod column to commerce_producttypes table
         $this->addColumn('{{%commerce_producttypes}}', 'propagationMethod', $this->string()->defaultValue(PropagationMethod::All->value)->after('productTitleTranslationKeyFormat'));
+        $this->addColumn('{{%commerce_producttypes_sites}}', 'enabledByDefault', $this->boolean()->defaultValue(true)->notNull());
 
         return true;
     }

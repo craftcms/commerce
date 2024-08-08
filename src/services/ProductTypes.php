@@ -313,8 +313,9 @@ class ProductTypes extends Component
      */
     public function getProductTypeSites(int $productTypeId): array
     {
+        $db = Craft::$app->getDb();
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
-            $rows = (new Query())
+            $query = (new Query())
                 ->select([
                     'hasUrls',
                     'id',
@@ -324,8 +325,13 @@ class ProductTypes extends Component
                     'uriFormat',
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
-                ->where(['productTypeId' => $productTypeId])
-                ->all();
+                ->where(['productTypeId' => $productTypeId]);
+
+            if ($db->columnExists(Table::PRODUCTTYPES_SITES, 'enabledByDefault')) {
+                $query->addSelect('enabledByDefault');
+            }
+
+            $rows = $query->all();
 
             $this->_siteSettingsByProductId[$productTypeId] = [];
 
@@ -430,17 +436,11 @@ class ProductTypes extends Component
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
 
-        // Make sure they're all there
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            if (!isset($allSiteSettings[$siteId])) {
-                throw new Exception('Tried to save a product type that is missing site settings');
-            }
-        }
-
         foreach ($allSiteSettings as $siteId => $settings) {
             $siteUid = Db::uidById(CraftTable::SITES, $siteId);
             $configData['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
+                'enabledByDefault' => $settings['enabledByDefault'],
                 'uriFormat' => $settings['uriFormat'],
                 'template' => $settings['template'],
             ];
@@ -591,6 +591,8 @@ class ProductTypes extends Component
                     $siteSettingsRecord->productTypeId = $productTypeRecord->id;
                     $siteSettingsRecord->siteId = $siteId;
                 }
+
+                $siteSettingsRecord->enabledByDefault = (bool)($siteSettings['enabledByDefault'] ?? true);
 
                 if ($siteSettingsRecord->hasUrls = $siteSettings['hasUrls']) {
                     $siteSettingsRecord->uriFormat = $siteSettings['uriFormat'];

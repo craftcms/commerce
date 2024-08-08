@@ -16,6 +16,7 @@ use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
 use craft\enums\PropagationMethod;
+use craft\web\assets\editsection\EditSectionAsset;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -90,6 +91,8 @@ class ProductTypesController extends BaseAdminController
         $variables['tabs'] = $tabs;
         $variables['selectedTab'] = 'productTypeSettings';
 
+        $this->getView()->registerAssetBundle(EditSectionAsset::class);
+
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
@@ -136,9 +139,16 @@ class ProductTypesController extends BaseAdminController
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $postedSettings = $this->request->getBodyParam('sites.' . $site->handle);
 
+            // Skip disabled sites if this is a multi-site install
+            if (Craft::$app->getIsMultiSite() && empty($postedSettings['enabled'])) {
+                continue;
+            }
+
             $siteSettings = new ProductTypeSite();
             $siteSettings->siteId = $site->id;
             $siteSettings->hasUrls = !empty($postedSettings['uriFormat']);
+
+            $siteSettings->enabledByDefault = (bool)$postedSettings['enabledByDefault'];
 
             if ($siteSettings->hasUrls) {
                 $siteSettings->uriFormat = $postedSettings['uriFormat'];
