@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\conditions\addresses\ZoneAddressCondition;
+use craft\commerce\records\StoreSettings as StoreSettingsRecord;
 use craft\elements\Address;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
@@ -129,8 +130,8 @@ class StoreSettings extends Model
                 $storeLocationAddress->title = 'Store';
                 $storeLocationAddress->countryCode = 'US';
                 if (Craft::$app->getElements()->saveElement($storeLocationAddress, false)) {
-                    $this->_locationAddress = $storeLocationAddress;
-                    $this->_locationAddressId = $storeLocationAddress->id;
+                    $this->setLocationAddress($storeLocationAddress);
+                    StoreSettingsRecord::updateAll(['locationAddressId' => $this->_locationAddressId], ['id' => $this->id]);
                 } else {
                     throw new \Exception('Could not save store location address');
                 }

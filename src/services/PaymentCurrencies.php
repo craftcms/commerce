@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\Db;
 use Illuminate\Support\Collection;
 use Money\Converter;
 use Money\Currencies\ISOCurrencies;
@@ -39,6 +40,11 @@ use yii\db\StaleObjectException;
  */
 class PaymentCurrencies extends Component
 {
+    /**
+     * @var null|Collection<PaymentCurrency>[]
+     */
+    private ?array $_allPaymentCurrencies = null;
+
     /**
      * Get payment currency by its ID.
      *
@@ -65,14 +71,31 @@ class PaymentCurrencies extends Component
     {
         $storeId = $storeId ?? Plugin::getInstance()->getStores()->getCurrentStore()->id;
 
-        $rows = $this->_createPaymentCurrencyQuery()
-            ->orderBy(['iso' => SORT_ASC])
-            ->where(['storeId' => $storeId])
-            ->all();
+        if ($this->_allPaymentCurrencies === null || !isset($this->_allPaymentCurrencies[$storeId])) {
+            $results = $this->_createPaymentCurrencyQuery()
+                ->orderBy(['iso' => SORT_ASC])
+                ->where(['storeId' => $storeId])
+                ->all();
 
-        return Collection::make($rows)->map(function($row) {
-            return new PaymentCurrency($row);
-        });
+            if ($this->_allPaymentCurrencies === null) {
+                $this->_allPaymentCurrencies = [];
+            }
+
+            foreach ($results as $result) {
+                $paymentCurrency = Craft::createObject([
+                    'class' => PaymentCurrency::class,
+                    'attributes' => $result,
+                ]);
+
+                if (!isset($this->_allPaymentCurrencies[$paymentCurrency->storeId])) {
+                    $this->_allPaymentCurrencies[$paymentCurrency->storeId] = collect();
+                }
+
+                $this->_allPaymentCurrencies[$paymentCurrency->storeId]->push($paymentCurrency);
+            }
+        }
+
+        return $this->_allPaymentCurrencies[$storeId] ?? collect();
     }
 
     /**
@@ -244,6 +267,10 @@ class PaymentCurrencies extends Component
         if (!$paymentCurrency) {
             return false;
         }
+
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency($paymentCurrency->storeId);
+
+        Db::update(Table::ORDERS, ['paymentCurrency' => $baseCurrency->iso], ['paymentCurrency' => $paymentCurrency->iso, 'storeId' => $paymentCurrency->storeId]);
 
         return $paymentCurrency->delete();
     }

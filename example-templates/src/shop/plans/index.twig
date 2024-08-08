@@ -17,13 +17,14 @@
   {# @var currentUser \craft\elements\User #}
   {% if currentUser %}
     <div class="mt-4">
-      {% set subscriptions = craft.subscriptions.userId(currentUser.id).all() %}
+      {% set subscriptions = craft.subscriptions.status(null).userId(currentUser.id).all() %}
 
       {% if subscriptions|length %}
         <table class="w-full">
           <thead>
             <tr class="bg-gray-300 text-left">
               <th class="p-2">{{ 'Plan'|t }}</th>
+              <th class="p-2">{{ 'Created'|t }}</th>
               <th class="p-2">{{ 'Next Payment'|t }}</th>
               <th class="p-2">&nbsp;</th>
             </tr>
@@ -61,6 +62,9 @@
                   {% endif %}
                 </td>
                 <td class="p-2">
+                  {{ subscription.dateCreated|date('Y-m-d') }}
+                </td>
+                <td class="p-2">
                   {{- subscription.isCanceled
                     ? 'Expires on {date}.'|t({ date: subscription.nextPaymentDate|date('Y-m-d') })
                     : ''
@@ -72,6 +76,15 @@
                   >
                     {{- 'Manage'|t -}}
                   </a>
+
+                  {% if subscription.isSuspended and subscription.hasBillingIssues %}
+                  <a href="{{ url('/[[folderName]]/plans/update-billing-details', { subscription: subscription.uid }) }}"
+                     class="[[classes.btn.base]] [[classes.btn.grayColor]]"
+                  >
+                    {{- 'Fix Billing'|t -}}
+                  </a>
+                  {% endif %}
+
                 </td>
               </tr>
             {% endfor %}

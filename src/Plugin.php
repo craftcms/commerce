@@ -115,8 +115,10 @@ use craft\console\Application as ConsoleApplication;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\controllers\UsersController;
+use craft\db\Query;
 use craft\debug\Module;
 use craft\elements\Address;
+use craft\elements\db\UserQuery;
 use craft\elements\User as UserElement;
 use craft\enums\CmsEdition;
 use craft\events\DefineBehaviorsEvent;
@@ -124,6 +126,7 @@ use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineEditUserScreensEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\DeleteSiteEvent;
+use craft\events\PopulateElementsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -135,6 +138,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\Db;
 use craft\helpers\FileHelper;
@@ -278,38 +282,39 @@ class Plugin extends BasePlugin
     public function init(): void
     {
         parent::init();
+        $request = Craft::$app->getRequest();
+
+        $this->_addTwigExtensions();
+        $this->_registerFieldTypes();
+        $this->_registerPermissions();
+        $this->_registerCraftEventListeners();
+        $this->_registerProjectConfigEventListeners();
+        $this->_registerVariables();
+        $this->_registerForeignKeysRestore();
+        $this->_registerPoweredByHeader();
+        $this->_registerElementTypes();
+        $this->_registerGqlInterfaces();
+        $this->_registerGqlQueries();
+        $this->_registerGqlComponents();
+        $this->_registerGqlEagerLoadableFields();
+        $this->_registerCacheTypes();
+        $this->_registerGarbageCollection();
+
+        if ($request->getIsConsoleRequest()) {
+            $this->_defineResaveCommand();
+        } elseif ($request->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+            $this->_registerWidgets();
+            $this->_registerElementExports();
+            $this->_defineFieldLayoutElements();
+            $this->_registerRedactorLinkOptions();
+            $this->_registerCKEditorLinkOptions();
+        } else {
+            $this->_registerSiteRoutes();
+        }
 
         Craft::$app->onInit(function() {
-            $request = Craft::$app->getRequest();
-            $this->_addTwigExtensions();
-            $this->_registerFieldTypes();
-            $this->_registerPermissions();
-            $this->_registerCraftEventListeners();
-            $this->_registerProjectConfigEventListeners();
-            $this->_registerVariables();
-            $this->_registerForeignKeysRestore();
-            $this->_registerPoweredByHeader();
-            $this->_registerElementTypes();
-            $this->_registerGqlInterfaces();
-            $this->_registerGqlQueries();
-            $this->_registerGqlComponents();
-            $this->_registerGqlEagerLoadableFields();
-            $this->_registerCacheTypes();
-            $this->_registerGarbageCollection();
             $this->_registerDebugPanels();
-
-            if ($request->getIsConsoleRequest()) {
-                $this->_defineResaveCommand();
-            } elseif ($request->getIsCpRequest()) {
-                $this->_registerCpRoutes();
-                $this->_registerWidgets();
-                $this->_registerElementExports();
-                $this->_defineFieldLayoutElements();
-                $this->_registerRedactorLinkOptions();
-                $this->_registerCKEditorLinkOptions();
-            } else {
-                $this->_registerSiteRoutes();
-            }
         });
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
@@ -735,6 +740,36 @@ class Plugin extends BasePlugin
             }
         );
 
+        Event::on(UserQuery::class, UserQuery::EVENT_AFTER_POPULATE_ELEMENTS, function(PopulateElementsEvent $event) {
+            $users = $event->elements;
+            $customerIds = ArrayHelper::getColumn($users, 'id');
+
+            if (empty($customerIds)) {
+                return;
+            }
+
+            $customers = (new Query())
+                ->select(['customerId', 'primaryBillingAddressId', 'primaryShippingAddressId'])
+                ->from([Table::CUSTOMERS])
+                ->where(['customerId' => $customerIds])
+                ->all();
+
+            if (empty($customers)) {
+                return;
+            }
+
+            foreach ($customers as $customer) {
+                /** @var User|CustomerBehavior|null $user */
+                $user = ArrayHelper::firstWhere($users, 'id', $customer['customerId']);
+                if (!$user) {
+                    continue;
+                }
+
+                $user->setPrimaryBillingAddressId($customer['primaryBillingAddressId']);
+                $user->setPrimaryShippingAddressId($customer['primaryShippingAddressId']);
+            }
+        });
+
         // Add Commerce info to user edit screen
         Event::on(UsersController::class, UsersController::EVENT_DEFINE_EDIT_SCREENS, function(DefineEditUserScreensEvent $event) {
             $event->screens[CommerceUsersController::SCREEN_COMMERCE] = ['label' => Craft::t('commerce', 'Commerce')];
@@ -755,9 +790,12 @@ class Plugin extends BasePlugin
         Event::on(Address::class, Address::EVENT_DEFINE_BEHAVIORS, function(DefineBehaviorsEvent $event) {
             /** @var Address $address */
             $address = $event->sender;
-            $owner = $address->getOwner();
-            if ($owner instanceof UserElement) {
-                $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+
+            if ($address->ownerId) {
+                $owner = $address->getOwner();
+                if ($owner instanceof UserElement) {
+                    $event->behaviors['commerce:address'] = CustomerAddressBehavior::class;
+                }
             }
         });
 

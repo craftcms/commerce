@@ -56,6 +56,7 @@ use craft\errors\InvalidElementException;
 use craft\errors\UnsupportedSiteException;
 use craft\fields\BaseRelationField;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
@@ -2540,10 +2541,14 @@ class Order extends Element implements HasStoreInterface
         return $html;
     }
 
+    /**
+     * @return string
+     * @throws InvalidConfigException
+     */
     public function getOrderStatusHtml(): string
     {
         if ($status = $this->getOrderStatus()) {
-            return '<span class="commerceStatusLabel nowrap"><span class="status ' . $status->color . '"></span>' . $status->name . '</span>';
+            return $status->getLabelHtml();
         }
 
         return '';
@@ -2555,10 +2560,10 @@ class Order extends Element implements HasStoreInterface
     public function getPaidStatusHtml(): string
     {
         return match ($this->getPaidStatus()) {
-            self::PAID_STATUS_OVERPAID => '<span class="commerceStatusLabel nowrap"><span class="status blue"></span>' . Craft::t('commerce', 'Overpaid') . '</span>',
-            self::PAID_STATUS_PAID => '<span class="commerceStatusLabel nowrap"><span class="status green"></span>' . Craft::t('commerce', 'Paid') . '</span>',
-            self::PAID_STATUS_PARTIAL => '<span class="commerceStatusLabel nowrap"><span class="status orange"></span>' . Craft::t('commerce', 'Partial') . '</span>',
-            self::PAID_STATUS_UNPAID => '<span class="commerceStatusLabel nowrap"><span class="status red"></span>' . Craft::t('commerce', 'Unpaid') . '</span>',
+            self::PAID_STATUS_OVERPAID => Cp::statusLabelHtml(['color' => 'blue', 'label' => Craft::t('commerce', 'Overpaid')]),
+            self::PAID_STATUS_PAID => Cp::statusLabelHtml(['color' => 'green', 'label' => Craft::t('commerce', 'Paid')]),
+            self::PAID_STATUS_PARTIAL => Cp::statusLabelHtml(['color' => 'orange', 'label' => Craft::t('commerce', 'Partial')]),
+            self::PAID_STATUS_UNPAID => Cp::statusLabelHtml(['color' => 'red', 'label' => Craft::t('commerce', 'Unpaid')]),
             default => '',
         };
     }
@@ -3235,6 +3240,7 @@ class Order extends Element implements HasStoreInterface
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
 
         $this->estimatedBillingAddressId = $address->id;

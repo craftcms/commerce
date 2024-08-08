@@ -7,7 +7,6 @@
 
 namespace craft\commerce\base;
 
-use craft\base\SavableComponentInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\errors\SubscriptionException;
@@ -23,7 +22,7 @@ use craft\elements\User;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-interface SubscriptionGatewayInterface extends SavableComponentInterface
+interface SubscriptionGatewayInterface extends GatewayInterface
 {
     /**
      * Cancels a subscription.

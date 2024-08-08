@@ -37,7 +37,7 @@ class Dummy implements RequestResponseInterface
         }
 
         $number = (string)$form->number;
-        $isValid = (substr($number, -1) % 2 === 0);
+        $isValid = ((int)substr($number, -1) % 2 === 0);
 
         if (!$isValid) {
             $this->_success = false;
