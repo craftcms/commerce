@@ -149,14 +149,33 @@ class TaxCategoriesController extends BaseTaxSettingsController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = $this->request->getRequiredBodyParam('id');
+        $id = $this->request->getBodyParam('id');
+        $ids = $this->request->getBodyParam('ids');
 
-        if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
+
+        if ($id) {
+            // If it is just the one id we know it has come from an ajax request on the table
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        $failedIds = [];
+        foreach ($ids as $id) {
+            if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
+                $failedIds[] = $id;
+            }
+        }
+
+        if (!empty($failedIds)) {
+            // @TODO: re-word this message at next translations update
             return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
         }
 
+        // @TODO: re-word add better message in next translation update
         return $this->asSuccess();
     }
 

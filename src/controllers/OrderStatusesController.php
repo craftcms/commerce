@@ -127,7 +127,10 @@ class OrderStatusesController extends BaseAdminController
         }
 
         if (!$id) {
-            $orderStatus->sortOrder = (new Query())->from(Table::ORDERSTATUSES)->where(['storeId' => $storeId])->max('sortOrder') + 1;
+            $orderStatus->sortOrder = (new Query())
+                    ->from(Table::ORDERSTATUSES)
+                    ->where(['storeId' => $storeId])
+                    ->max("[[sortOrder]]") + 1;
         }
 
         // Save it

@@ -62,6 +62,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
+ * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -369,7 +370,10 @@ class Product extends Element
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
-                $actions[] = CreateSale::class;
+                if (Plugin::getInstance()->getSales()->canUseSales()) {
+                    $actions[] = CreateSale::class;
+                }
+
                 $actions[] = CreateDiscount::class;
             }
         }
@@ -432,6 +436,7 @@ class Product extends Element
     {
         return [
             'title' => ['label' => Craft::t('commerce', 'Product')],
+            'status' => ['label' => Craft::t('commerce', 'Status')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -463,6 +468,7 @@ class Product extends Element
             $attributes[] = 'type';
         }
 
+        $attributes[] = 'status';
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
         $attributes[] = 'defaultPrice';
@@ -554,8 +560,10 @@ class Product extends Element
 
     /**
      * @var float|null Default price
+     * @see getDefaultPrice()
+     * @see setDefaultPrice()
      */
-    public ?float $defaultPrice = null;
+    private ?float $_defaultPrice = null;
 
     /**
      * @var float|null Default height
@@ -613,6 +621,26 @@ class Product extends Element
         ];
 
         return $behaviors;
+    }
+
+    /**
+     * @param float|null $defaultPrice
+     * @return void
+     * @since 5.0.11
+     */
+    public function setDefaultPrice(?float $defaultPrice): void
+    {
+        $this->_defaultPrice = $defaultPrice;
+    }
+
+    /**
+     * @return float|null
+     * @throws InvalidConfigException
+     * @since 5.0.11
+     */
+    public function getDefaultPrice(): ?float
+    {
+        return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
     }
 
     /**
@@ -869,7 +897,7 @@ class Product extends Element
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('isDefault', true);
+        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
 
         return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
     }
@@ -1134,6 +1162,10 @@ class Product extends Element
             $record->defaultVariantId = $defaultVariant->id ?? null;
             $record->defaultSku = $defaultVariant->skuAsText ?? '';
             $record->defaultPrice = $defaultVariant->price ?? 0.0;
+            $record->defaultHeight = $defaultVariant->height ?? 0.0;
+            $record->defaultLength = $defaultVariant->length ?? 0.0;
+            $record->defaultWidth = $defaultVariant->width ?? 0.0;
+            $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -1216,6 +1248,7 @@ class Product extends Element
         return array_merge(parent::defineRules(), [
             [['typeId'], 'number', 'integerOnly' => true],
             [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [['defaultPrice'], 'safe'],
             [
                 ['variants'],
                 function() {
@@ -1399,7 +1432,7 @@ class Product extends Element
                     return '';
                 }
 
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                return Html::tag('code', PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku));
             }
             case 'defaultPrice':
             {

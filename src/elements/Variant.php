@@ -25,6 +25,7 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -851,7 +852,10 @@ class Variant extends Purchasable implements NestedElementInterface
             }
 
             $record->primaryOwnerId = $this->getPrimaryOwnerId();
-            $record->isDefault = $this->isDefault;
+
+            if ($this->getOwner()->getIsCanonical()) {
+                $record->isDefault = $this->isDefault;
+            }
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -860,18 +864,51 @@ class Variant extends Purchasable implements NestedElementInterface
             $record->save(false);
 
             $ownerId = $this->getOwnerId();
+
+            if ($this->isDefault && $ownerId) {
+                $defaultData = [
+                    'defaultVariantId' => $this->id,
+                    'defaultSku' => $this->sku,
+                    'defaultPrice' => $this->getBasePrice(),
+                    'defaultHeight' => $this->height,
+                    'defaultLength' => $this->length,
+                    'defaultWidth' => $this->width,
+                    'defaultWeight' => $this->weight,
+                ];
+                DB::update(Table::PRODUCTS, $defaultData, [
+                    // Update the default variant data for the product and any other product that use this variant as their default
+                    'or',
+                    ['id' => $ownerId],
+                    ['defaultVariantId' => $this->id],
+                ]);
+            }
+
             if ($ownerId && $this->saveOwnership) {
-                if (!isset($this->sortOrder) && !$isNew) {
-                    // todo: update based on Entry::afterSave() if we add draft support
-                    // (see https://github.com/craftcms/cms/pull/14497)
-                    $this->sortOrder = (new Query())
-                        ->select('sortOrder')
-                        ->from(CraftTable::ELEMENTS_OWNERS)
-                        ->where([
-                            'elementId' => $this->id,
-                            'ownerId' => $ownerId,
-                        ])
-                        ->scalar() ?: null;
+                if (!isset($this->sortOrder) && (!$isNew || $this->duplicateOf)) {
+                    // figure out if we should proceed this way
+                    // if we're dealing with an element that's being duplicated, and it has a draftId
+                    // it means we're creating a draft of something
+                    // if we're duplicating element via duplicate action - draftId would be empty
+                    // Same as https://github.com/craftcms/cms/pull/14497/files
+                    $elementId = null;
+                    if ($this->duplicateOf) {
+                        if ($this->draftId) {
+                            $elementId = $this->duplicateOf->id;
+                        }
+                    } else {
+                        // if we're not duplicating - use element's id
+                        $elementId = $this->id;
+                    }
+                    if ($elementId) {
+                        $this->sortOrder = (new Query())
+                            ->select('sortOrder')
+                            ->from(CraftTable::ELEMENTS_OWNERS)
+                            ->where([
+                                'elementId' => $elementId,
+                                'ownerId' => $ownerId,
+                            ])
+                            ->scalar() ?: null;
+                    }
                 }
                 if (!isset($this->sortOrder)) {
                     $max = (new Query())
@@ -1078,7 +1115,6 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineRules(), [
             [['sku'], 'string', 'max' => 255],
             [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
-            [['price', 'weight', 'width', 'height', 'length', ], 'number'],
             [['price', 'weight', 'width', 'height', 'length'], 'number'],
             // maxQty must be greater than minQty and minQty must be less than maxQty
             [['minQty'], 'validateMinQtyRange', 'skipOnEmpty' => true],
@@ -1086,6 +1122,32 @@ class Variant extends Purchasable implements NestedElementInterface
             [['stock', 'fieldId', 'ownerId', 'primaryOwnerId'], 'number'],
             [['ownerId', 'primaryOwnerId', 'isDefault'], 'safe'],
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function availableShippingCategories(): array
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            return Plugin::getInstance()->getShippingCategories()->getShippingCategoriesByProductTypeId($productTypeId);
+        }
+
+        return parent::availableShippingCategories();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function availableTaxCategories(): array
+    {
+        $productTypeId = $this->getPrimaryOwner()?->getType()->id;
+        if ($productTypeId) {
+            return Plugin::getInstance()->getTaxCategories()->getTaxCategoriesByProductTypeId($productTypeId);
+        }
+
+        return parent::availableTaxCategories();
     }
 
     /**
@@ -1111,6 +1173,7 @@ class Variant extends Purchasable implements NestedElementInterface
         return array_merge(parent::defineTableAttributes(), [
             'product' => Craft::t('commerce', 'Product'),
             'isDefault' => Craft::t('commerce', 'Default'),
+            'promotable' => Craft::t('commerce', 'Promotable'),
         ]);
     }
 

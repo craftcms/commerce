@@ -56,7 +56,7 @@ class CatalogPricingRulePurchasableCategoryConditionRule extends BaseConditionRu
     {
         return array_merge(parent::getConfig(), [
             'elementIds' => $this->elementIds,
-            '$this->categoryRelationshipType' => $this->categoryRelationshipType,
+            'categoryRelationshipType' => $this->categoryRelationshipType,
         ]);
     }
 
