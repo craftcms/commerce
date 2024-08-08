@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
@@ -244,6 +245,7 @@ class InventoryController extends Controller
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
+            /** @var Purchasable $purchasable */
             $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId']);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
