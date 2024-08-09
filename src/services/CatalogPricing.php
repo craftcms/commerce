@@ -45,6 +45,12 @@ class CatalogPricing extends Component
      */
     private ?array $_allCatalogPrices = null;
 
+    /**
+     * @param Queue|QueueInterface|null $queue
+     * @param float $progress
+     * @param string|null $label
+     * @return void
+     */
     private function setQueueProgress(Queue|QueueInterface|null $queue, float $progress, ?string $label = null): void
     {
         if ($queue instanceof QueueInterface) {
