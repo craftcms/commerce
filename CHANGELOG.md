@@ -2,14 +2,15 @@
 
 - Fixed a bug where the “Create Sale” and “Create Discount” actions did not work on product indexes. ([#3611](https://github.com/craftcms/commerce/issues/3611))
 - Fixed a bug where an Order’s status would not be returned correctly. ([#3615](https://github.com/craftcms/commerce/issues/3615))
-- Fixed a bug where a draft variant could become orphaned when a product was deleted. 
+- Fixed a bug where a draft variant could become orphaned when a product was deleted.
+- Fixed a PHP error that occurred when using a non-Craft queue driver. ([#3619](https://github.com/craftcms/commerce/pull/3619))
 
 ## 5.0.15 - 2024-07-31
 
 - Fixed a SQL error that could occur when upgrading to Commerce 5 on PostgreSQL. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
 - Fixed a bug where payment modals weren’t calculating additional payment currencies on Edit Order pages.
 - Fixed a PHP error that occurred when retrieving an order that referenced a deleted payment currency.
-- Fixed a bug where Edit Variant screens were showing shipping categories that were unrelated to the current store. ([#3608](https://github.com/craftcms/commerce/issues/3608)) 
+- Fixed a bug where Edit Variant screens were showing shipping categories that were unrelated to the current store. ([#3608](https://github.com/craftcms/commerce/issues/3608))
 
 ## 5.0.14 - 2024-07-24
 
