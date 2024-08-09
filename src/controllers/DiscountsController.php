@@ -675,7 +675,6 @@ class DiscountsController extends BaseStoreManagementController
 
         if (empty($variables['id']) && $this->request->getParam('purchasableIds')) {
             $purchasableIdsFromUrl = explode('|', $this->request->getParam('purchasableIds'));
-            $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable instanceof Product) {
@@ -684,6 +683,7 @@ class DiscountsController extends BaseStoreManagementController
                     $purchasableIds[] = $purchasableId;
                 }
             }
+            $variables['discount']->allPurchasables = false;
         } else {
             $purchasableIds = $variables['discount']->getPurchasableIds();
         }

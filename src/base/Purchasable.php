@@ -939,6 +939,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
             $purchasable->save(false);
 
+            // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
+            // added to inventory before it is saved as a permanent variant.
             if ($purchasableId) {
                 // Set the inventory item data
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
@@ -1081,7 +1083,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
      */
     protected function availableShippingCategories(): array
     {
-        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories()->all();
+        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($this->storeId)->all();
     }
 
     /**
