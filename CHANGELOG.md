@@ -1,6 +1,8 @@
 # Release Notes for Craft Commerce
 
 - Fixed a bug where the “Create Sale” and “Create Discount” actions did not work on product indexes. ([#3611](https://github.com/craftcms/commerce/issues/3611))
+- Fixed a bug where an Order’s status would not be returned correctly. ([#3615](https://github.com/craftcms/commerce/issues/3615))
+- Fixed a bug where a draft variant could become orphaned when a product was deleted. 
 
 ## 5.0.15 - 2024-07-31
 
