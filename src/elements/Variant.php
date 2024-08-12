@@ -321,7 +321,11 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function canDuplicate(User $user): bool
     {
-        return true;
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        return $this->canSave($user);
     }
 
     /**
