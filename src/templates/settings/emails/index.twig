@@ -48,7 +48,7 @@
             to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
             bcc: email.bcc|e,
             template: email.templatePath,
-            preview: email.id,
+            preview: email.id ~ ':' ~ email.storeId,
         }]) %}
     {% endfor %}
 
@@ -70,7 +70,7 @@
             { name: 'preview', title: Craft.t('commerce', 'Preview'),
                         callback: function(value) {
                             if (value) {
-                                return '<a class="btn small" target="_blank" href="'+ Craft.getActionUrl('commerce/email-preview/render', { emailId: value })+'">Preview</a>';
+                                return '<a class="btn small" target="_blank" href="'+ Craft.getActionUrl('commerce/email-preview/render', { email: value })+'">Preview</a>';
                             }
 
                             return '';

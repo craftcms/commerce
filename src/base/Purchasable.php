@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\StoreNotFoundException;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\InventoryItem;
@@ -27,6 +28,7 @@ use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\PurchasableStore;
 use craft\errors\DeprecationException;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\MoneyHelper;
@@ -937,6 +939,8 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
 
             $purchasable->save(false);
 
+            // Always create the inventory item even if it's a temporary draft (in the slide) since we want to allow stock to be
+            // added to inventory before it is saved as a permanent variant.
             if ($purchasableId) {
                 // Set the inventory item data
                 $inventoryItem = InventoryItemRecord::find()->where(['purchasableId' => $purchasableId])->one();
@@ -1064,23 +1068,70 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $html = parent::metaFieldsHtml($static);
 
-        $html .= Cp::selectFieldHtml([
-            'id' => 'tax-category',
-            'name' => 'taxCategoryId',
-            'label' => Craft::t('commerce', 'Tax Category'),
-            'options' => Plugin::getInstance()->getTaxCategories()->getAllTaxCategoriesAsList(),
-            'value' => $this->taxCategoryId,
-        ]);
+        $html .= $this->taxCategoryFieldHtml($static);
 
-        $html .= Cp::selectFieldHtml([
+        $html .= $this->shippingCategoryFieldHtml($static);
+
+        return $html;
+    }
+
+    /**
+     * @return ShippingCategory[]
+     * @throws InvalidConfigException
+     * @throws StoreNotFoundException
+     * @since 5.0.12
+     */
+    protected function availableShippingCategories(): array
+    {
+        return Plugin::getInstance()->getShippingCategories()->getAllShippingCategories($this->storeId)->all();
+    }
+
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function shippingCategoryFieldHtml(bool $static): string
+    {
+        $options = ArrayHelper::map($this->availableShippingCategories(), 'id', 'name');
+
+        return Cp::selectFieldHtml([
             'id' => 'shipping-category',
             'name' => 'shippingCategoryId',
             'label' => Craft::t('commerce', 'Shipping Category'),
-            'options' => Plugin::getInstance()->getShippingCategories()->getAllShippingCategoriesAsList($this->getStore()->id),
+            'options' => $options,
             'value' => $this->shippingCategoryId,
         ]);
+    }
 
-        return $html;
+    /**
+     * @return TaxCategory[]
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function availableTaxCategories(): array
+    {
+        return Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
+    }
+
+    /**
+     * @param bool $static
+     * @return string
+     * @throws InvalidConfigException
+     * @since 5.0.12
+     */
+    protected function taxCategoryFieldHtml(bool $static): string
+    {
+        $options = ArrayHelper::map($this->availableTaxCategories(), 'id', 'name');
+
+        return Cp::selectFieldHtml([
+            'id' => 'tax-category',
+            'name' => 'taxCategoryId',
+            'label' => Craft::t('commerce', 'Tax Category'),
+            'options' => $options,
+            'value' => $this->taxCategoryId,
+        ]);
     }
 
     /**

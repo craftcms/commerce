@@ -131,7 +131,9 @@ class PaymentCurrenciesController extends BaseStoreManagementController
 
         $id = $this->request->getRequiredBodyParam('id');
 
-        Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
+        if (!Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id)) {
+            return $this->asFailure();
+        }
 
         return $this->asSuccess();
     }

@@ -1,50 +1,5 @@
-{% import "_includes/forms" as forms %}
-{% set address = inventoryLocation.getAddress() %}
-
-{{ forms.textField({
-    first: true,
-    label: "Name"|t('commerce'),
-    id: 'name',
-    name: 'name',
-    value: inventoryLocation.name,
-    errors: inventoryLocation.getErrors('name'),
-    autofocus: true,
-    required: true,
-}) }}
-
-{{ forms.textField({
-    label: "Handle"|t('commerce'),
-    id: 'handle',
-    name: 'handle',
-    value: inventoryLocation.handle,
-    errors: inventoryLocation.getErrors('handle'),
-    required: true,
-}) }}
-
-{{ forms.hidden({
-    name: 'inventoryLocationId',
-    value: inventoryLocation.id ?? ''
-}) }}
-
 {% namespace 'inventoryLocationAddress' %}
-  {% set addressFields = addressField.formHtml(address) %}
-
-  <hr>
-  <h2>{{ 'Address'|t('commerce') }}</h2>
-  {{ hiddenInput('id', address.id) }}
-
-  <div class="flex flex-nowrap">
-    {{ forms.selectizeField({
-      id: 'countryCode',
-      name: 'countryCode',
-      options: countries,
-      value: address.countryCode,
-      autocomplete: 'off',
-    }) }}
-    <div id="countryCode-spinner" class="spinner hidden"></div>
-  </div>
-
-  {{ addressFields|raw }}
+{{ form.render()|raw }}
 {% endnamespace %}
 
 {% hook "cp.commerce.inventoryLocation.edit" %}

@@ -4,7 +4,7 @@
 {% set subscriptionUid = craft.app.request.getParam('subscription') %}
 {# @var subscription \craft\commerce\elements\Subscription #}
 {% set subscription = craft.subscriptions()
-  .anyStatus()
+  .status(null)
   .uid(subscriptionUid)
   .one() %}
 
@@ -41,6 +41,7 @@
 
         <fieldset>
           <form>
+            {{ redirectInput('shop/plans') }}
             {{ subscription.getBillingIssueResolveFormHtml()|raw }}
           </form>
         </fieldset>

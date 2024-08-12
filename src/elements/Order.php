@@ -3311,6 +3311,7 @@ class Order extends Element implements HasStoreInterface
         if (!$address instanceof AddressElement) {
             $addressElement = new AddressElement();
             $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
 
         $this->estimatedBillingAddressId = $address->id;
@@ -3511,7 +3512,7 @@ class Order extends Element implements HasStoreInterface
      */
     public function getOrderStatus(): ?OrderStatus
     {
-        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId) : null;
+        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId, $this->storeId) : null;
     }
 
     /**
