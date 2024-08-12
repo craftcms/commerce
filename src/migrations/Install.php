@@ -993,7 +993,7 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::VARIANTS);
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
-            'primaryOwnerId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
+            'primaryOwnerId' => $this->integer(),
             'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -1261,7 +1261,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['inventoryItemId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['transferId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
+        $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'CASCADE');
     }
 
     /**
