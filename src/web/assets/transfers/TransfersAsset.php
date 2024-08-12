@@ -31,7 +31,6 @@ class TransfersAsset extends AssetBundle
         $this->depends = [
             CpAsset::class,
             HtmxAsset::class,
-            AdminTableAsset::class,
         ];
 
         $this->css[] = 'css/transfers.css';
