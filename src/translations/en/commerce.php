@@ -13,6 +13,9 @@ return [
     'Transfer Details' => 'Transfer Details',
     'Transfer Management' => 'Transfer Management',
     'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.' => 'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.',
+    'Transfer marked as pending.' => 'Transfer marked as pending.',
+    'Couldn’t mark transfer as pending.' => 'Couldn’t mark transfer as pending.',
+    'Remove item' => 'Remove item',
 
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',

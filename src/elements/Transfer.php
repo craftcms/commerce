@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transfer as TransferRecord;
 use craft\commerce\records\TransferDetail as TransferDetailRecord;
 use craft\commerce\web\assets\transfers\TransfersAsset;
+use craft\db\Query;
 use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
@@ -459,6 +460,26 @@ class Transfer extends Element
         return $previewTargets;
     }
 
+    protected function safeActionMenuItems(): array
+    {
+        $safeActions = parent::safeActionMenuItems();
+
+        if ($this->transferStatus == TransferStatusType::DRAFT) {
+            $safeActions['mark-as-pending'] = [
+                'action' => 'commerce/transfers/mark-as-pending',
+                'label' => Craft::t('commerce', 'Mark as Pending'),
+                'confirm' => Craft::t('commerce', 'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.'),
+                'params' => [
+                    'transferId' => $this->id,
+                ],
+                'redirect' => 'commerce/inventory/transfers/' . $this->id,
+            ];
+        }
+
+        return $safeActions;
+    }
+
+
     /**
      * @inheritDoc
      */
@@ -575,21 +596,6 @@ JS, [
                 'url' => UrlHelper::cpUrl('commerce/inventory/transfers'),
             ],
         ]);
-
-        if ($this->getIsDraft() && !$this->isProvisionalDraft) {
-            $response->title(Craft::t('commerce', 'Save draft'));
-        } else {
-            if ($this->transferStatus == TransferStatusType::DRAFT) {
-                $response->submitButtonLabel(Craft::t('commerce', 'Save draft'));
-
-                $response->additionalButtonsHtml(Html::button(Craft::t('commerce', 'Mark as Pending'), [
-                    'class' => 'btn',
-                    'data-action' => 'commerce/transfers/mark-as-pending',
-                    'data-confirm' => Craft::t('commerce', 'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.'),
-                    'data-redirect' => Craft::$app->getSecurity()->hashData('commerce/inventory/transfers/' . $this->id),
-                ]));
-            }
-        }
     }
 
     /**
@@ -604,6 +610,12 @@ JS, [
         return $this->_details;
     }
 
+    public function addDetails(TransferDetail $details): void
+    {
+        $this->_details = $this->getDetails();
+        $this->_details[] = $details;
+    }
+
     /**
      * @param TransferDetail[]|array $value
      *
@@ -616,7 +628,11 @@ JS, [
                 $value[$key] = new TransferDetail($detail);
             }
 
-            $detail->transferId = $this->id;
+            $value[$key]->transferId = $this->id;
+
+            if (!$value[$key]->inventoryItemId) {
+                unset($value[$key]);
+            }
         }
 
         $this->_details = $value;
@@ -662,24 +678,44 @@ JS, [
 
             $transferRecord->save(false);
 
-            foreach ($this->getDetails() as $detail) {
-                if ($detail->id) {
-                    $detailRecord = TransferDetailRecord::findOne($detail->id);
-                } else {
-                    $detailRecord = new TransferDetailRecord();
-                }
-                $detailRecord->transferId = $this->id;
-                $detailRecord->inventoryItemId = $detail->inventoryItemId;
-                $inventoryItem = $detail->inventoryItemId ? Plugin::getInstance()->getInventory()->getInventoryItemById($detail->inventoryItemId) : null;
-                $detailRecord->inventoryItemDescription = $inventoryItem?->sku ?? '';
-                $detailRecord->quantity = $detail->quantity;
-                $detailRecord->quantityAccepted = $detail->quantityAccepted;
-                $detailRecord->quantityRejected = $detail->quantityRejected;
+            if ($this->getTransferStatus() === TransferStatusType::DRAFT) {
+                $existingDetailIds = (new Query())
+                    ->select('id')
+                    ->from('{{%commerce_transferdetails}}')
+                    ->where(['transferId' => $this->id])
+                    ->column();
 
-                $detailRecord->save();
+                $currentDetailIds = [];
+
+                foreach ($this->getDetails() as $detail) {
+                    if ($detail->id) {
+                        $detailRecord = TransferDetailRecord::findOne($detail->id);
+                    } else {
+                        $detailRecord = new TransferDetailRecord();
+                    }
+                    $detailRecord->transferId = $this->id;
+                    $detailRecord->inventoryItemId = $detail->inventoryItemId;
+                    $inventoryItem = $detail->inventoryItemId ? Plugin::getInstance()->getInventory()->getInventoryItemById($detail->inventoryItemId) : null;
+                    $detailRecord->inventoryItemDescription = $inventoryItem?->sku ?? '';
+                    $detailRecord->quantity = $detail->quantity;
+                    $detailRecord->quantityAccepted = $detail->quantityAccepted;
+                    $detailRecord->quantityRejected = $detail->quantityRejected;
+
+                    $detailRecord->save();
+                    $detail->id = $detailRecord->id;
+
+                    $currentDetailIds[] = $detailRecord->id;
+                }
+
+                $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
+                if (!empty($deletedDetailIds)) {
+                    TransferDetailRecord::deleteAll(['id' => $deletedDetailIds]);
+                }
             }
         }
 
         parent::afterSave($isNew);
     }
+
+
 }

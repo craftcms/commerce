@@ -10,6 +10,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Transfer;
+use craft\commerce\enums\TransferStatusType;
+use craft\commerce\fieldlayoutelements\TransferManagementField;
+use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
 use craft\helpers\StringHelper;
@@ -69,6 +72,27 @@ class TransfersController extends BaseStoreManagementController
     public function actionIndex(): Response
     {
         return $this->renderTemplate('commerce/inventory/transfers/_index');
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\MethodNotAllowedHttpException
+     */
+    public function actionMarkAsPending(): Response
+    {
+        $this->requirePostRequest();
+
+        $transferId = $this->request->getRequiredBodyParam('transferId');
+        $transfer = Transfer::findOne($transferId);
+        $transfer->transferStatus = TransferStatusType::PENDING;
+
+        if (!Craft::$app->getElements()->saveElement($transfer)) {
+            return $this->asFailure(Craft::t('app', 'Couldn’t mark transfer as pending.'));
+        }
+
+        return $this->asSuccess(Craft::t('app', 'Transfer marked as pending.'));
     }
 
     /**
@@ -139,6 +163,11 @@ class TransfersController extends BaseStoreManagementController
         return $this->asSuccess(Craft::t('commerce', 'TODO'));
     }
 
+    public function actionItemsTable(): Response
+    {
+
+    }
+
     /**
      * @return Response
      */
@@ -150,5 +179,23 @@ class TransfersController extends BaseStoreManagementController
         return $this->asCpModal()
             ->action('commerce/transfers/receive-transfer')
             ->contentTemplate('commerce/transfers/_receiveTransferModal', $params);
+    }
+
+    public function actionRenderManagement(): string
+    {
+        $transferId = $this->request->getRequiredParam('transferId');
+        $transfer = Transfer::find()->id($transferId)->drafts()->one();
+
+        $details = $this->request->getRequiredParam('details');
+
+        $transfer->setDetails($details);
+
+        if($addRow = $this->request->getRequiredParam('addRow'))
+        {
+            $detail = new TransferDetail();
+            $transfer->addDetails($detail);
+        }
+
+        return TransferManagementField::renderFieldHtml($transfer);
     }
 }

@@ -9,13 +9,16 @@ namespace craft\commerce\fieldlayoutelements;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\TransferStatusType;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\transfers\TransfersAsset;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
+use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -47,45 +50,6 @@ class TransferManagementField extends BaseNativeField
     public string $attribute = 'transfer-management';
 
     /**
-     * @param ?TransferDetail $detail
-     * @return string
-     */
-    public function getDetailRow(?TransferDetail $detail = null, bool $disabled = false): string
-    {
-        $index = uniqid();
-        return Html::beginTag('tr') .
-            Html::beginTag('td') .
-            Cp::textFieldHtml([
-                'name' => "details[$index][inventoryItemId]",
-                'value' => $detail?->inventoryItemId,
-                'disabled' => $disabled,
-            ]) .
-            Html::endTag('td') .
-            Html::beginTag('td') .
-            Cp::textFieldHtml([
-                'type' => 'number',
-                'name' => "details[$index][quantity]",
-                'value' => $detail?->quantity,
-                'disabled' => $disabled,
-            ]) .
-            Html::endTag('td') .
-            Html::endTag('tr');
-    }
-
-
-    /**
-     * @inheritdoc
-     */
-    protected function selectorInnerHtml(): string
-    {
-        return
-            Html::tag('span', '', [
-                'class' => ['fld-product-title-field-icon', 'fld-field-hidden', 'hidden'],
-            ]) .
-            parent::selectorInnerHtml();
-    }
-
-    /**
      * @inheritdoc
      */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
@@ -94,14 +58,34 @@ class TransferManagementField extends BaseNativeField
             throw new InvalidArgumentException('TransferLocationsField can only be used in transfer field layouts.');
         }
 
-        $inventoryLocationOptions = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations(true)->mapWithKeys(function($location) {
-            return [
-                $location->id => [
-                    'label' => $location->name,
-                    'disabled' => false, // Look to disable an item they dont have access to.
-                ],
-            ];
-        })->toArray();
+        if ($static) {
+            return self::renderStaticFieldHtml($element);
+        } else {
+            return self::renderFieldHtml($element);
+        }
+    }
+
+    public static function renderStaticFieldHtml(Transfer $element, bool $static = false): string
+    {
+        return '';
+    }
+
+    public static function renderFieldHtml(Transfer $element): string
+    {
+        $view = Craft::$app->getView();
+        $inventoryLocationOptions = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocationsAsList(false);
+        $isHtmxRequest = Craft::$app->getRequest()->getHeaders()->has('HX-Request');
+
+        Craft::$app->getView()->registerAssetBundle(TransfersAsset::class);
+
+        $namespacedId = $view->namespaceInputId('transfer-management');
+
+        $html = Html::beginTag('div', [
+            'class' => ['transfer-management-main'],
+            'hx' => [
+                'ext' => 'craft-cp',
+            ],
+        ]);
 
         $originLocationSelectFieldConfig = [
             'label' => Craft::t('commerce', 'Origin'),
@@ -123,41 +107,68 @@ class TransferManagementField extends BaseNativeField
             ],
         ];
 
-        if ($element->transferStatus != TransferStatusType::DRAFT) {
-            $originLocationSelectFieldConfig['inputAttributes']['disabled'] = true;
-            $destinationLocationSelectFieldConfig['inputAttributes']['disabled'] = true;
-        }
-
         $destinationLocationSelectField = Cp::selectFieldHtml($destinationLocationSelectFieldConfig);
         $originLocationSelectField = Cp::selectFieldHtml($originLocationSelectFieldConfig);
 
-        $div = Html::tag('div', $originLocationSelectField . $destinationLocationSelectField, ['class' => 'flex']);
+        $html .= Html::tag('div', $originLocationSelectField . $destinationLocationSelectField, ['class' => 'flex']);
 
-        $detailRows = '';
+        $cols = self::getTransferDetailColumns($element);
+        $rows = collect($element->getDetails())->mapWithKeys(function (TransferDetail $detail) {
+            return [
+                $detail->id => [
+                    'id' => $detail->id,
+                    'inventoryItemId' => $detail->inventoryItemId,
+                    'quantity' => $detail->quantity,
+                ]
+            ];
+        })->all();
 
-        foreach ($element->getDetails() as $detail) {
-            $disabled = $element->getTransferStatus() !== TransferStatusType::DRAFT;
-            $detailRows .= $this->getDetailRow($detail, $disabled);
-        }
+        $detailsTable = Cp::editableTableFieldHtml([
+            'allowAdd' => false,
+            'allowReorder' => false,
+            'allowDelete' => $element->transferStatus == TransferStatusType::DRAFT,
+            'name' => 'details',
+            'cols' => $cols,
+            'rows' => $rows,
+        ]);
 
-        $detailRows .= $this->getDetailRow();
+        $button = Html::buttonInput(Craft::t('commerce', 'Add an item'), [
+            'class' => 'btn dashed add icon',
+            'hx-target' => '.transfer-management-main',
+            'hx-vals' => Json::encode([
+                'action' => 'commerce/transfers/render-management',
+                'addRow' => true,
+                'transferId' => $element->id,
+            ]),
+            'hx-post' => '',
+            'hx-trigger' => 'click',
+        ]);
 
-        $detailsTable = Html::beginTag('table', ['class' => 'data fullwidth', 'style' => 'margin-top:5px;']) .
-            Html::beginTag('thead') .
-            Html::beginTag('tr') .
-            Html::beginTag('th') .
-            Craft::t('commerce', 'Item') .
-            Html::endTag('th') .
-            Html::beginTag('th') .
-            Craft::t('commerce', 'Quantity') .
-            Html::endTag('th') .
-            Html::endTag('tr') .
-            Html::endTag('thead') .
-            Html::beginTag('tbody') .
-            $detailRows .
-            Html::endTag('tbody') .
-            Html::endTag('table');
+        $html .= Cp::fieldHtml($detailsTable , [
+            'label' => Craft::t('commerce', 'Transfer Items'),
+        ]);
 
-        return $div . $detailsTable;
+        $html .= $button;
+
+        return $html . Html::endTag('div');
+    }
+
+    public static function getTransferDetailColumns(Transfer $transfer): array
+    {
+        $cols = [];
+
+        $cols[] = [
+            'type' => 'singleline',
+            'label' => Craft::t('commerce', 'Item'),
+            'name' => 'inventoryItemId',
+            'static' => true,
+        ];
+        $cols[] = [
+            'type' => 'singleline',
+            'label' => Craft::t('commerce', 'Quantity'),
+            'name' => 'quantity',
+        ];
+
+        return $cols;
     }
 }
