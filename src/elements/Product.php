@@ -965,7 +965,7 @@ class Product extends Element
                 [
                     'attribute' => 'variants',
                     'propagationMethod' => PropagationMethod::All,
-                    'valueGetter' => fn() => $this->getVariants(true),
+                    'valueGetter' => fn(Product $product) => $product->getVariants(true),
                 ],
             );
         }
