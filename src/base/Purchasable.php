@@ -919,7 +919,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
         $purchasableId = $this->getCanonicalId();
         if (!$this->propagating) {
             if ($this->duplicateOf !== null) {
-                $this->sku = \craft\commerce\helpers\Purchasable::tempSku() . '-' .  $this->getSku();
+                $this->sku = \craft\commerce\helpers\Purchasable::tempSku() . '-' . $this->getSku();
                 // Nullify inventory item so a new one is created
                 $this->inventoryItemId = null;
             }
