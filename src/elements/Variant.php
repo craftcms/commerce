@@ -318,6 +318,14 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
      * @throws InvalidConfigException
      */
     public function getIsAvailable(): bool
