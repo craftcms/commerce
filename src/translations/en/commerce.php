@@ -6,6 +6,14 @@
  */
 
 return [
+    'Save draft' => 'Save draft',
+    'Mark as Pending' => 'Mark as Pending',
+    'Add an inventory item' => 'Add an inventory item',
+    'Select purchasables to transfer' => 'Select purchasables to transfer',
+    'Transfer Details' => 'Transfer Details',
+    'Transfer Management' => 'Transfer Management',
+    'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.' => 'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.',
+
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',
     '(off original price)' => '(off original price)',

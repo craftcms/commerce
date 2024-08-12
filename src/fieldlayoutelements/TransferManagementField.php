@@ -11,6 +11,7 @@ use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\TransferStatusType;
+use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
@@ -33,7 +34,7 @@ class TransferManagementField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public ?string $label = 'Locations';
+    public ?string $label = 'Transfer Management';
 
     /**
      * @inheritdoc
@@ -43,7 +44,33 @@ class TransferManagementField extends BaseNativeField
     /**
      * @inheritdoc
      */
-    public string $attribute = 'locations';
+    public string $attribute = 'transfer-management';
+
+    /**
+     * @param ?TransferDetail $detail
+     * @return string
+     */
+    public function getDetailRow(?TransferDetail $detail = null, bool $disabled = false): string
+    {
+        $index = uniqid();
+        return Html::beginTag('tr') .
+            Html::beginTag('td') .
+            Cp::textFieldHtml([
+                'name' => "details[$index][inventoryItemId]",
+                'value' => $detail?->inventoryItemId,
+                'disabled' => $disabled,
+            ]) .
+            Html::endTag('td') .
+            Html::beginTag('td') .
+            Cp::textFieldHtml([
+                'type' => 'number',
+                'name' => "details[$index][quantity]",
+                'value' => $detail?->quantity,
+                'disabled' => $disabled,
+            ]) .
+            Html::endTag('td') .
+            Html::endTag('tr');
+    }
 
 
     /**
@@ -67,8 +94,13 @@ class TransferManagementField extends BaseNativeField
             throw new InvalidArgumentException('TransferLocationsField can only be used in transfer field layouts.');
         }
 
-        $inventoryLocationOptions = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->mapWithKeys(function($location) {
-            return [$location->id => $location->name];
+        $inventoryLocationOptions = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations(true)->mapWithKeys(function($location) {
+            return [
+                $location->id => [
+                    'label' => $location->name,
+                    'disabled' => false, // Look to disable an item they dont have access to.
+                ],
+            ];
         })->toArray();
 
         $originLocationSelectFieldConfig = [
@@ -99,11 +131,33 @@ class TransferManagementField extends BaseNativeField
         $destinationLocationSelectField = Cp::selectFieldHtml($destinationLocationSelectFieldConfig);
         $originLocationSelectField = Cp::selectFieldHtml($originLocationSelectFieldConfig);
 
-
         $div = Html::tag('div', $originLocationSelectField . $destinationLocationSelectField, ['class' => 'flex']);
 
-        return \craft\helpers\Cp::fieldHtml($div, [
-            'instructions' => Craft::t('commerce','The locations between which the stock is being transferred.'),
-        ]);
+        $detailRows = '';
+
+        foreach ($element->getDetails() as $detail) {
+            $disabled = $element->getTransferStatus() !== TransferStatusType::DRAFT;
+            $detailRows .= $this->getDetailRow($detail, $disabled);
+        }
+
+        $detailRows .= $this->getDetailRow();
+
+        $detailsTable = Html::beginTag('table', ['class' => 'data fullwidth', 'style' => 'margin-top:5px;']) .
+            Html::beginTag('thead') .
+            Html::beginTag('tr') .
+            Html::beginTag('th') .
+            Craft::t('commerce', 'Item') .
+            Html::endTag('th') .
+            Html::beginTag('th') .
+            Craft::t('commerce', 'Quantity') .
+            Html::endTag('th') .
+            Html::endTag('tr') .
+            Html::endTag('thead') .
+            Html::beginTag('tbody') .
+            $detailRows .
+            Html::endTag('tbody') .
+            Html::endTag('table');
+
+        return $div . $detailsTable;
     }
 }

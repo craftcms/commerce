@@ -3,9 +3,12 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Transfer;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
+use craft\commerce\models\TransferDetail;
+use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
@@ -16,6 +19,8 @@ use yii\base\Component;
 
 /**
  * Transfers service
+ *
+ * @since 5.1.0
  */
 class Transfers extends Component
 {
@@ -62,16 +67,16 @@ class Transfers extends Component
     {
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Transfer::class);
 
-        if (!$fieldLayout->isFieldIncluded('locations')) {
+        if (!$fieldLayout->isFieldIncluded('transfer-management')) {
             $layoutTabs = $fieldLayout->getTabs();
-            $TransfersTabName = Craft::t('commerce', 'Locations');
-            if (ArrayHelper::contains($layoutTabs, 'name', $TransfersTabName)) {
-                $TransfersTabName .= ' ' . StringHelper::randomString(10);
+            $transfersTabName = Craft::t('commerce', 'Manage');
+            if (ArrayHelper::contains($layoutTabs, 'name', $transfersTabName)) {
+                $transfersTabName .= ' ' . StringHelper::randomString(10);
             }
 
             $contentTab = new FieldLayoutTab();
             $contentTab->setLayout($fieldLayout);
-            $contentTab->name = $TransfersTabName;
+            $contentTab->name = $transfersTabName;
             $contentTab->setElements([
                 ['type' => TransferManagementField::class],
             ]);
@@ -81,5 +86,42 @@ class Transfers extends Component
         }
 
         return $fieldLayout;
+    }
+
+    /**
+     * @param int $transferId
+     * @return array
+     */
+    public function getTransferDetailsByTransferId(int $transferId): array
+    {
+        $results = $this->_createTransferDetailsQuery()
+            ->where(['transferId' => $transferId])
+            ->all();
+
+        $transferDetails = [];
+
+        foreach ($results as $result) {
+            $transferDetails[] = new TransferDetail($result);
+        }
+
+        return $transferDetails;
+    }
+
+    /**
+     * @return Query
+     */
+    private function _createTransferDetailsQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'transferId',
+                'inventoryItemId',
+                'inventoryItemDescription',
+                'quantity',
+                'quantityAccepted',
+                'quantityRejected',
+            ])
+            ->from([Table::TRANSFERDETAILS]);
     }
 }

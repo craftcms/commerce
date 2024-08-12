@@ -82,7 +82,7 @@ class TransfersController extends BaseStoreManagementController
         $variables['fieldLayout'] = $fieldLayout;
         $variables['title'] = Craft::t('commerce', 'Transfer Settings');
 
-        return $this->renderTemplate('commerce/settings/transfers/_edit', $variables);
+        return $this->renderTemplate('commerce/settings/transfers/settings', $variables);
     }
 
     /**
@@ -129,5 +129,26 @@ class TransfersController extends BaseStoreManagementController
         }
 
         return $this->asSuccess(Craft::t('commerce', 'Transfer fields saved.'));
+    }
+
+    /**
+     * @return Response
+     */
+    public function actionReceiveTransfer(): Response
+    {
+        return $this->asSuccess(Craft::t('commerce', 'TODO'));
+    }
+
+    /**
+     * @return Response
+     */
+    public function actionReceiveTransferModal(): Response
+    {
+        $params = [
+        ];
+
+        return $this->asCpModal()
+            ->action('commerce/transfers/receive-transfer')
+            ->contentTemplate('commerce/transfers/_receiveTransferModal', $params);
     }
 }
