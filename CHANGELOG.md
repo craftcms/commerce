@@ -1,5 +1,6 @@
 # Release Notes for Craft Commerce
 
+- Fixed a bug where it wasn’t possible to remove the last email from an order status configuration. ([#3621](https://github.com/craftcms/commerce/issues/3621))
 - Fixed a bug where the “Create Sale” and “Create Discount” actions did not work on product indexes. ([#3611](https://github.com/craftcms/commerce/issues/3611))
 - Fixed a bug where an Order’s status would not be returned correctly. ([#3615](https://github.com/craftcms/commerce/issues/3615))
 - Fixed a bug where a draft variant could become orphaned when a product was deleted.
