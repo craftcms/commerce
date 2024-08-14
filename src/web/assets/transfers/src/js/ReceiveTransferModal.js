@@ -19,13 +19,7 @@ Craft.Commerce.ReceiveTransferModal = Craft.CpModal.extend({
     this.on('load', this.afterLoad.bind(this));
   },
   afterLoad: function () {
-    // const quantityId = Craft.namespaceId('quantity', this.namespace);
-    // this.$quantityInput = this.$container.find('#' + quantityId);
-    // this.addListener(this.$quantityInput, 'keyup', this.debouncedRefresh);
-    //
-    // const typeId = Craft.namespaceId('updateAction', this.namespace);
-    // this.$typeInput = this.$container.find('#' + typeId);
-    // this.addListener(this.$typeInput, 'change', this.refresh);
+
   },
   refresh: function () {
     let postData = Garnish.getPostData(this.$container);
