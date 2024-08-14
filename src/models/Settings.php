@@ -66,7 +66,7 @@ class Settings extends Model
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft5:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @since 2.2
@@ -139,9 +139,9 @@ class Settings extends Model
     public string $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](https://craftcms.com/docs/commerce/5.x/system/orders-carts.html#loading-a-cart).
      *
-     * If `null` (default), Craft’s default [`siteUrl`](config4:siteUrl) will be used.
+     * If `null` (default), Craft’s default [`siteUrl`](config5:siteUrl) will be used.
      *
      * @group Cart
      * @since 3.1
@@ -151,7 +151,7 @@ class Settings extends Model
     /**
      * @var array|null ISO codes for supported payment currencies.
      *
-     * See [Payment Currencies](payment-currencies.md).
+     * See [Payment Currencies](https://craftcms.com/docs/commerce/5.x/system/payment-currencies.html).
      *
      * @group Payments
      */
@@ -177,7 +177,7 @@ class Settings extends Model
     /**
      * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft4:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft5:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @defaultAlt 90 days
@@ -188,7 +188,7 @@ class Settings extends Model
      * @var string URL for a user to resolve billing issues with their subscription.
      *
      * ::: tip
-     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/main/example-templates/dist/shop/plans/update-billing-details.twig).
+     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/5.x/example-templates/dist/shop/plans/update-billing-details.twig).
      * :::
      *
      * @group Orders

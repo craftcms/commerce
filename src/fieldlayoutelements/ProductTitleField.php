@@ -8,8 +8,10 @@
 namespace craft\commerce\fieldlayoutelements;
 
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\fieldlayoutelements\TitleField;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
 
@@ -36,13 +38,37 @@ class ProductTitleField extends TitleField
     /**
      * @inheritdoc
      */
+    protected function translatable(?ElementInterface $element = null, bool $static = false): bool
+    {
+        if (!$element instanceof Product) {
+            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', __CLASS__));
+        }
+
+        return $element->getType()->productTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function translationDescription(?ElementInterface $element = null, bool $static = false): ?string
+    {
+        if (!$element instanceof Product) {
+            throw new \InvalidArgumentException(sprintf('%s can only be used in product field layouts.', __CLASS__));
+        }
+
+        return ElementHelper::translationDescription($element->getType()->productTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        if (!$element->getType()->hasProductTitleField && !$element->hasErrors('title')) {
+        if (!$element->getType()->hasProductTitleField) {
             return null;
         }
 

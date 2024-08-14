@@ -59,6 +59,7 @@ use craft\helpers\Number;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
+use craft\web\assets\inputmask\InputmaskAsset;
 use craft\web\Controller;
 use craft\web\View;
 use DateTime;
@@ -1083,6 +1084,8 @@ JS, []);
             $formHtml .= $paymentFormHtml;
         }
 
+        $view->registerAssetBundle(InputmaskAsset::class);
+
         $modalHtml = $view->renderTemplate('commerce/orders/_paymentmodal', [
             'gateways' => $gateways,
             'order' => $order,
@@ -1442,6 +1445,12 @@ JS, []);
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
+
+        // Set the order language based on the `orderSiteId`
+        if ($site = Craft::$app->getSites()->getSiteById($order->orderSiteId)) {
+            $order->orderLanguage = $site->language;
+        }
+
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
         $order->suppressEmails = $orderRequestData['order']['suppressEmails'] ?? false;
@@ -1493,7 +1502,9 @@ JS, []);
         }
 
         $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
-        $order->shippingMethodName = $shippingMethod->name ?? null;
+        if ($shippingMethod) {
+            $order->shippingMethodName = $shippingMethod->name ?? null;
+        }
 
         $order->clearNotices();
 
@@ -1707,7 +1718,7 @@ JS, []);
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
                         ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note)],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
-                        ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
+                        ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => $transaction->paymentAmountAsCurrency . ' <small class="light">(1 ' . $transaction->currency . ' = ' . $transaction->paymentRate . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
                     ],
                     'actions' => $refundCapture,

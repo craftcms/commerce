@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\base\Purchasable;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\db\Table;
@@ -243,13 +244,13 @@ class InventoryController extends Controller
         $view = Craft::$app->getView();
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
-            $inventoryItemModel = Plugin::getInstance()->getInventory()->getInventoryItemById($inventoryLevel['inventoryItemId']);
             $id = $inventoryLevel['inventoryItemId'];
-            $purchasable = $inventoryItemModel->getPurchasable();
+            /** @var Purchasable $purchasable */
+            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId']);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
-            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => $purchasable->canSave($currentUser)]);
-            $inventoryLevel['id'] = $inventoryLevel['inventoryItemId'];
-            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
+            $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
+            $inventoryLevel['id'] = $id;
+            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSkuAsText() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
 $('#' + $id).on('click', (e) => {

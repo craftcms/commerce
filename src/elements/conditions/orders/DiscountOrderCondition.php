@@ -20,6 +20,25 @@ class DiscountOrderCondition extends OrderCondition implements HasStoreInterface
     /**
      * @inheritdoc
      */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+        $rules[] = [['storeId'], 'safe'];
+
+        return $rules;
+    }
+
+    /**
+     * @return array
+     */
+    protected function config(): array
+    {
+        return array_merge(parent::config(), $this->toArray(['storeId']));
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function selectableConditionRules(): array
     {
         return array_merge(parent::selectableConditionRules(), []);

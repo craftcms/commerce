@@ -16,6 +16,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Customer;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\events\DefineFieldsEvent;
+use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use RuntimeException;
@@ -82,13 +84,35 @@ class CustomerBehavior extends Behavior
     }
 
     /**
+     * @param DefineFieldsEvent $event
+     * @return void
+     * @since 5.0.10
+     */
+    public function defineFields(DefineFieldsEvent $event): void
+    {
+        $event->fields['primaryBillingAddressId'] = 'primaryBillingAddressId';
+        $event->fields['primaryShippingAddressId'] = 'primaryShippingAddressId';
+    }
+
+    /**
      * @inheritdoc
      */
     public function events(): array
     {
         return [
             User::EVENT_AFTER_SAVE => 'afterSaveUserHandler',
+            User::EVENT_DEFINE_RULES => 'defineRules',
+            User::EVENT_DEFINE_FIELDS => 'defineFields',
         ];
+    }
+
+    /**
+     * @param DefineRulesEvent $event
+     * @throws InvalidConfigException
+     */
+    public function defineRules(DefineRulesEvent $event): void
+    {
+        $event->rules[] = [['primaryBillingAddressId', 'primaryShippingAddressId'], 'safe'];
     }
 
     /**

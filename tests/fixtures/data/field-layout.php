@@ -5,8 +5,7 @@ use craft\fields\PlainText;
 
 return [
     [
-        'uid' => 'field-layout-1000----------------uid',
-        'type' => 'commerce_categories_fieldlayout',
+        'type' => 'craft\elements\Category',
         'tabs' => [
             [
                 'name' => 'Tab 1', // Required

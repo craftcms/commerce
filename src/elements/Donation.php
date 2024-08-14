@@ -265,7 +265,7 @@ class Donation extends Purchasable
                     $purchasableStoreRecord = new PurchasableStore();
                     $purchasableStoreRecord->purchasableId = $this->id;
                     $purchasableStoreRecord->storeId = $store->id;
-                }
+                };
 
                 $purchasableStoreRecord->basePrice = 0;
                 $purchasableStoreRecord->basePromotionalPrice = null;
@@ -276,7 +276,7 @@ class Donation extends Purchasable
                 $purchasableStoreRecord->promotable = false;
                 $purchasableStoreRecord->availableForPurchase = $this->availableForPurchase;
                 $purchasableStoreRecord->freeShipping = true;
-                $purchasableStoreRecord->shippingCategoryId = null;
+                $purchasableStoreRecord->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($store->id)->id;
 
                 $purchasableStoreRecord->save(false);
             });

@@ -17,6 +17,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
@@ -169,7 +170,10 @@ class OrderStatus extends Model implements HasStoreInterface
 
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel nowrap"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
+        return Cp::statusLabelHtml([
+            'color' => $this->color,
+            'label' => Html::encode($this->getDisplayName()),
+        ]);
     }
 
     /**
@@ -187,9 +191,9 @@ class OrderStatus extends Model implements HasStoreInterface
      *
      * @since 5.0.3
      */
-    public function getConfig(?array $emailIds = []): array
+    public function getConfig(?array $emailIds = null): array
     {
-        if (!$emailIds) {
+        if ($emailIds === null) {
             $emailIds = $this->getEmailIds();
         }
 

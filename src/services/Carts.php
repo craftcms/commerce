@@ -78,9 +78,11 @@ class Carts extends Component
     {
         parent::init();
 
+        $currentStore = Plugin::getInstance()->getStores()->getCurrentStore();
+
         // Complete the cart cookie config
         if (!isset($this->cartCookie['name'])) {
-            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s', self::class, Craft::$app->id)) . '_commerce_cart';
+            $this->cartCookie['name'] = md5(sprintf('Craft.%s.%s.%s', self::class, Craft::$app->id, $currentStore->handle)) . '_commerce_cart';
         }
 
         $request = Craft::$app->getRequest();

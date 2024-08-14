@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\conditions\products\ProductCondition;
@@ -37,10 +38,12 @@ use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\Site;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use Illuminate\Support\Collection;
@@ -62,6 +65,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
  * @property-read string $defaultPriceAsCurrency
+ * @property float|null $defaultPrice
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -235,6 +239,8 @@ class Product extends Element
                     'editable' => $canEditProducts,
                 ],
                 'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
+                // Get site ids enabled for this product type
+                'sites' => $productType->getSiteIds(),
             ];
         }
 
@@ -369,7 +375,10 @@ class Product extends Element
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
-                $actions[] = CreateSale::class;
+                if (Plugin::getInstance()->getSales()->canUseSales()) {
+                    $actions[] = CreateSale::class;
+                }
+
                 $actions[] = CreateDiscount::class;
             }
         }
@@ -432,6 +441,7 @@ class Product extends Element
     {
         return [
             'title' => ['label' => Craft::t('commerce', 'Product')],
+            'status' => ['label' => Craft::t('commerce', 'Status')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -463,6 +473,7 @@ class Product extends Element
             $attributes[] = 'type';
         }
 
+        $attributes[] = 'status';
         $attributes[] = 'postDate';
         $attributes[] = 'expiryDate';
         $attributes[] = 'defaultPrice';
@@ -554,8 +565,10 @@ class Product extends Element
 
     /**
      * @var float|null Default price
+     * @see getDefaultPrice()
+     * @see setDefaultPrice()
      */
-    public ?float $defaultPrice = null;
+    private ?float $_defaultPrice = null;
 
     /**
      * @var float|null Default height
@@ -616,6 +629,26 @@ class Product extends Element
     }
 
     /**
+     * @param float|null $defaultPrice
+     * @return void
+     * @since 5.0.11
+     */
+    public function setDefaultPrice(?float $defaultPrice): void
+    {
+        $this->_defaultPrice = $defaultPrice;
+    }
+
+    /**
+     * @return float|null
+     * @throws InvalidConfigException
+     * @since 5.0.11
+     */
+    public function getDefaultPrice(): ?float
+    {
+        return $this->_defaultPrice ?? $this->getDefaultVariant()?->price;
+    }
+
+    /**
      * @return string
      * @throws InvalidConfigException
      */
@@ -652,6 +685,31 @@ class Product extends Element
     protected function cpRevisionsUrl(): ?string
     {
         return sprintf('%s/revisions', $this->cpEditUrl());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getIsTitleTranslatable(): bool
+    {
+        return ($this->getType()->productTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationDescription(): ?string
+    {
+        return ElementHelper::translationDescription($this->getType()->productTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getTitleTranslationKey(): string
+    {
+        $type = $this->getType();
+        return ElementHelper::translationKey($this, $type->productTitleTranslationMethod, $type->productTitleTranslationKeyFormat);
     }
 
     /**
@@ -869,7 +927,7 @@ class Product extends Element
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('isDefault', true);
+        $defaultVariant = $this->getVariants($includeDisabled)->firstWhere('id', $this->defaultVariantId);
 
         return $defaultVariant ?: $this->getVariants($includeDisabled)->first();
     }
@@ -906,6 +964,98 @@ class Product extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getSupportedSites(): array
+    {
+        if (!isset($this->typeId)) {
+            throw new InvalidConfigException('Require `typeId` must be set on the product.');
+        }
+
+        $productType = $this->getType();
+        /** @var Site[] $allSites */
+        $allSites = ArrayHelper::index(Craft::$app->getSites()->getAllSites(true), 'id');
+        $sites = [];
+
+        // If the product type is leaving it up to products to decide which sites to be propagated to,
+        // figure out which sites the product is currently saved in
+        if (
+            ($this->duplicateOf->id ?? $this->id) &&
+            $productType->propagationMethod === PropagationMethod::Custom
+        ) {
+            if ($this->id) {
+                $currentSites = self::find()
+                    ->status(null)
+                    ->id($this->id)
+                    ->site('*')
+                    ->select('elements_sites.siteId')
+                    ->drafts(null)
+                    ->provisionalDrafts(null)
+                    ->revisions($this->getIsRevision())
+                    ->column();
+            } else {
+                $currentSites = [];
+            }
+
+            // If this is being duplicated from another element (e.g. a draft), include any sites the source element is saved to as well
+            if (!empty($this->duplicateOf->id)) {
+                array_push($currentSites, ...self::find()
+                    ->status(null)
+                    ->id($this->duplicateOf->id)
+                    ->site('*')
+                    ->select('elements_sites.siteId')
+                    ->drafts(null)
+                    ->provisionalDrafts(null)
+                    ->revisions($this->duplicateOf->getIsRevision())
+                    ->column()
+                );
+            }
+
+            $currentSites = array_flip($currentSites);
+        }
+
+        foreach ($productType->getSiteSettings() as $siteSettings) {
+            switch ($productType->propagationMethod) {
+                case PropagationMethod::None:
+                    $include = $siteSettings->siteId == $this->siteId;
+                    $propagate = true;
+                    break;
+                case PropagationMethod::SiteGroup:
+                    $include = $allSites[$siteSettings->siteId]->groupId == $allSites[$this->siteId]->groupId;
+                    $propagate = true;
+                    break;
+                case PropagationMethod::Language:
+                    $include = $allSites[$siteSettings->siteId]->language == $allSites[$this->siteId]->language;
+                    $propagate = true;
+                    break;
+                case PropagationMethod::Custom:
+                    $include = true;
+                    // Only actually propagate to this site if it's the current site, or the product has been assigned
+                    // a status for this site, or the product already exists for this site
+                    $propagate = (
+                        $siteSettings->siteId == $this->siteId ||
+                        $this->getEnabledForSite($siteSettings->siteId) !== null ||
+                        isset($currentSites[$siteSettings->siteId])
+                    );
+                    break;
+                default:
+                    $include = $propagate = true;
+                    break;
+            }
+
+            if ($include) {
+                $sites[] = [
+                    'siteId' => $siteSettings->siteId,
+                    'propagate' => $propagate,
+                    'enabledByDefault' => $siteSettings->enabledByDefault,
+                ];
+            }
+        }
+
+        return $sites;
+    }
+
+    /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
      * @param VariantCollection|VariantQuery|array $variants
@@ -936,8 +1086,8 @@ class Product extends Element
                 fn(Product $product) => self::createVariantQuery($product),
                 [
                     'attribute' => 'variants',
-                    'propagationMethod' => PropagationMethod::All,
-                    'valueGetter' => fn() => $this->getVariants(true),
+                    'propagationMethod' => $this->getType()->propagationMethod,
+                    'valueGetter' => fn(Product $product) => $product->getVariants(true),
                 ],
             );
         }
@@ -1132,8 +1282,12 @@ class Product extends Element
 
             $defaultVariant = $this->getDefaultVariant();
             $record->defaultVariantId = $defaultVariant->id ?? null;
-            $record->defaultSku = $defaultVariant->skuAsText ?? '';
-            $record->defaultPrice = $defaultVariant->price ?? 0.0;
+            $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
+            $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
+            $record->defaultHeight = $defaultVariant->height ?? 0.0;
+            $record->defaultLength = $defaultVariant->length ?? 0.0;
+            $record->defaultWidth = $defaultVariant->width ?? 0.0;
+            $record->defaultWeight = $defaultVariant->weight ?? 0.0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -1216,6 +1370,7 @@ class Product extends Element
         return array_merge(parent::defineRules(), [
             [['typeId'], 'number', 'integerOnly' => true],
             [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [['defaultPrice'], 'safe'],
             [
                 ['variants'],
                 function() {
@@ -1399,7 +1554,7 @@ class Product extends Element
                     return '';
                 }
 
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
+                return Html::tag('code', PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku));
             }
             case 'defaultPrice':
             {

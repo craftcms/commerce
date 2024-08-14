@@ -63,10 +63,13 @@ class ProductTest extends Unit
 
         $variants = [];
         $count = 1;
-        foreach ($variantData as [$price, $default, $enabled]) {
+        $defaultVariantId = null;
+        foreach ($variantData as [$id, $price, $default, $enabled]) {
             $variant = new Variant();
+            $variant->id = $id;
             $variant->title = sprintf('Test Variant #%s', $count);
             $variant->isDefault = $default;
+            $defaultVariantId = $default ? $id : $defaultVariantId;
             $variant->enabled = $enabled;
             $variant->price = $price;
 
@@ -75,6 +78,9 @@ class ProductTest extends Unit
         }
 
         $product->setVariants($variants);
+        if ($defaultVariantId) {
+            $product->defaultVariantId = $defaultVariantId;
+        }
 
         self::assertCount($expected['variantCount'], $product->getVariants(true));
         self::assertCount($expected['enabledVariantCount'], $product->getVariants());
@@ -100,7 +106,7 @@ class ProductTest extends Unit
         return [
             'All Enabled' => [
                 2001,
-                [[123, true, true], [456, false, true], [789, false, true]],
+                [[1001, 123, true, true], [1002, 456, false, true], [1003, 789, false, true]],
                 [
                     'variantCount' => 3,
                     'enabledVariantCount' => 3,
@@ -112,7 +118,7 @@ class ProductTest extends Unit
             ],
             'One Disabled' => [
                 2001,
-                [[123, false, false], [456, false, true], [789, true, true]],
+                [[1001, 123, false, false], [1002, 456, false, true], [1003, 789, true, true]],
                 [
                     'variantCount' => 3,
                     'enabledVariantCount' => 2,
@@ -124,7 +130,7 @@ class ProductTest extends Unit
             ],
             'All Disabled' => [
                 2001,
-                [[123, false, false], [456, true, false], [99, false, false]],
+                [[1001, 123, false, false], [1002, 456, true, false], [1003, 99, false, false]],
                 [
                     'variantCount' => 3,
                     'enabledVariantCount' => 0,

@@ -24,9 +24,14 @@ use DateTime;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\db\Connection;
+use yii\db\Expression;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
+ *
+ *
+ * @template TKey of array-key
+ * @template TElement of Variant
  *
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
@@ -348,7 +353,7 @@ class VariantQuery extends PurchasableQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function hasProduct(mixed $value): VariantQuery
+    public function hasProduct(mixed $value = []): VariantQuery
     {
         $this->hasProduct = $value;
         return $this;
@@ -397,6 +402,7 @@ class VariantQuery extends PurchasableQuery
     /**
      * @param Connection|null $db
      * @return VariantCollection
+     * @phpstan-ignore-next-line
      */
     public function collect(?Connection $db = null): VariantCollection
     {
@@ -426,7 +432,7 @@ class VariantQuery extends PurchasableQuery
         $this->query->select([
             'commerce_variants.id',
             'commerce_variants.primaryOwnerId',
-            'commerce_variants.isDefault',
+            'isDefault' => new Expression('CASE WHEN [[commerce_variants]].[[id]] = [[commerce_products]].[[defaultVariantId]] THEN TRUE ELSE FALSE END'),
             'commerce_products_elements_sites.slug as productSlug',
             'commerce_producttypes.handle as productTypeHandle',
         ]);
@@ -466,7 +472,7 @@ class VariantQuery extends PurchasableQuery
         }
 
         if (isset($this->isDefault)) {
-            $this->subQuery->andWhere(Db::parseBooleanParam('commerce_variants.isDefault', $this->isDefault, false));
+            $this->subQuery->andWhere(Db::parseBooleanParam('isDefault', $this->isDefault, false));
         }
 
         if (isset($this->minQty)) {

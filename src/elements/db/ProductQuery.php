@@ -703,6 +703,28 @@ class ProductQuery extends ElementQuery
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
+    protected function afterPrepare(): bool
+    {
+        // Store dependent related joins to the sub query need to be done after the `elements_sites` is joined in the base `ElementQuery` class.
+        $customerId = Craft::$app->getUser()->getIdentity()?->id;
+
+        $catalogPricingQuery = Plugin::getInstance()
+            ->getCatalogPricing()
+            ->createCatalogPricingQuery(userId: $customerId)
+            ->addSelect(['cp.purchasableId', 'cp.storeId'])
+            ->leftJoin(['purvariants' => Table::VARIANTS], '[[purvariants.id]] = [[cp.purchasableId]]')
+            ->andWhere(['purvariants.isDefault' => true])
+        ;
+        $catalogPricesQuery = (clone $catalogPricingQuery)->andWhere(['isPromotionalPrice' => false]);
+
+        $this->subQuery->leftJoin(['sitestores' => Table::SITESTORES], '[[elements_sites.siteId]] = [[sitestores.siteId]]');
+        $this->subQuery->leftJoin(['catalogprices' => $catalogPricesQuery], '[[catalogprices.purchasableId]] = [[commerce_products.defaultVariantId]] AND [[catalogprices.storeId]] = [[sitestores.storeId]]');
+
+        return parent::afterPrepare();
+    }
 
     /**
      * @inheritdoc
@@ -724,7 +746,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.typeId',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
-            'commerce_products.defaultPrice',
+            'subquery.price as defaultPrice',
             'commerce_products.defaultVariantId',
             'commerce_products.defaultSku',
             'commerce_products.defaultWeight',
@@ -732,6 +754,8 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
         ]);
+
+        $this->subQuery->addSelect(['catalogprices.price']);
 
         if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
@@ -746,7 +770,7 @@ class ProductQuery extends ElementQuery
         }
 
         if (isset($this->defaultPrice)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultPrice', $this->defaultPrice));
+            $this->subQuery->andWhere(Db::parseParam('catalogprices.price', $this->defaultPrice));
         }
 
         if (isset($this->defaultHeight)) {

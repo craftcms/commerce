@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\InventoryLocation as InventoryLocationRecord;
 use craft\elements\Address;
 use craft\helpers\UrlHelper;
+use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
 
@@ -165,6 +166,12 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
             'message' => Craft::t('yii', '{attribute} "{value}" has already been taken.'),
         ];
 
+        $rules[] = [
+            ['handle'],
+            HandleValidator::class,
+            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create'],
+        ];
+
         return $rules;
     }
 
@@ -181,6 +188,11 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
      */
     public function getActionMenuItems(): array
     {
+        $canManage = Craft::$app->getUser()->getIdentity()?->can('commerce-manageInventoryLocations') ?? false;
+        if (!$canManage) {
+            return [];
+        }
+
         return [
             [
                 'label' => Craft::t('commerce', 'Edit'),

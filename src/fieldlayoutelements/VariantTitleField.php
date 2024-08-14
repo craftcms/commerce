@@ -8,8 +8,10 @@
 namespace craft\commerce\fieldlayoutelements;
 
 use craft\base\ElementInterface;
+use craft\base\Field;
 use craft\commerce\elements\Variant;
 use craft\fieldlayoutelements\TitleField;
+use craft\helpers\ElementHelper;
 use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
 
@@ -36,13 +38,37 @@ class VariantTitleField extends TitleField
     /**
      * @inheritdoc
      */
+    protected function translatable(?ElementInterface $element = null, bool $static = false): bool
+    {
+        if (!$element instanceof Variant) {
+            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', __CLASS__));
+        }
+
+        return $element->getOwner()->getType()->variantTitleTranslationMethod !== Field::TRANSLATION_METHOD_NONE;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function translationDescription(?ElementInterface $element = null, bool $static = false): ?string
+    {
+        if (!$element instanceof Variant) {
+            throw new \InvalidArgumentException(sprintf('%s can only be used in variant field layouts.', __CLASS__));
+        }
+
+        return ElementHelper::translationDescription($element->getOwner()->getType()->variantTitleTranslationMethod);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Variant) {
             throw new InvalidArgumentException('VariantTitleField can only be used in variant field layouts.');
         }
 
-        if (!$element->getOwner()->getType()->hasVariantTitleField && !$element->hasErrors('title')) {
+        if (!$element->getOwner()->getType()->hasVariantTitleField) {
             return null;
         }
 
