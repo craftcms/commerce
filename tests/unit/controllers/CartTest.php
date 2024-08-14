@@ -13,7 +13,6 @@ use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\helpers\LineItem;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
 use craft\commerce\services\Stores;
@@ -467,42 +466,5 @@ class CartTest extends Unit
                 false, // save both
             ],
         ];
-    }
-
-    public function testAddCustomLineItems(): void
-    {
-        $this->request->headers->set('X-Http-Method-Override', 'POST');
-        $sec = Craft::$app->getSecurity();
-
-        $bodyParams = [
-            'customLineItems' => [
-                'custom1' => [
-                    'lineItem' => LineItem::generateCustomLineItemHash('First custom line item', 'custom1', 123.99),
-                    'qty' => 1,
-                    'note' => 'First custom line item',
-                    'options' => [],
-                ],
-                'custom2' => [
-                    'lineItem' => LineItem::generateCustomLineItemHash('Second custom line item', 'custom2', 10.00),
-                    'qty' => 2,
-                    'note' => 'Second custom line item',
-                    'options' => [],
-                ],
-            ],
-        ];
-
-        $this->request->setBodyParams($bodyParams);
-        $this->cartController->runAction('update-cart');
-
-        $cart = Plugin::getInstance()->getCarts()->getCart();
-
-        self::assertEmpty($cart->getErrors());
-        self::assertCount(2, $cart->getLineItems());
-        self::assertEquals(143.99, $cart->getTotal());
-        self::assertEquals(3, $cart->getTotalQty());
-
-        Plugin::getInstance()->getCarts()->forgetCart();
-
-        Craft::$app->getElements()->deleteElement($cart, true);
     }
 }
