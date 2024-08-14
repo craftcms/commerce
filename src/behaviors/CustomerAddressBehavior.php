@@ -122,7 +122,7 @@ class CustomerAddressBehavior extends Behavior
             /** @var User|CustomerBehavior|null $user */
             $user = $this->owner->getPrimaryOwner();
 
-            if (!$this->owner->id || !$user) {
+            if (!$this->owner->id || !$user || !$user instanceof User) {
                 return false;
             }
 
@@ -154,7 +154,7 @@ class CustomerAddressBehavior extends Behavior
             /** @var User|CustomerBehavior|null $user */
             $user = $this->owner->getPrimaryOwner();
 
-            if (!$this->owner->id || !$user) {
+            if (!$this->owner->id || !$user || !$user instanceof User) {
                 return false;
             }
 
