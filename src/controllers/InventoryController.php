@@ -197,6 +197,8 @@ class InventoryController extends Controller
 
         return $this->asCpScreen()
             ->title($title)
+            ->site(Cp::requestedSite())
+            ->selectableSites(Craft::$app->getSites()->getEditableSites())
             ->action(null)
             ->crumbs($crumbs)
             ->contentTemplate('commerce/inventory/levels/_index', compact(
@@ -272,7 +274,7 @@ class InventoryController extends Controller
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
             /** @var ?Purchasable $purchasable */
-            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId']);
+            $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId'], siteId: Cp::requestedSite()->id);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
                 $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => $purchasable->getDescription(), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
