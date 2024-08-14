@@ -84,9 +84,9 @@ class TransferManagementField extends BaseNativeField
             $purchasable = $detail->getInventoryItem()?->getPurchasable();
             $tableRows .= Html::tag('tr',
                 Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
-                Html::tag('td', (string)$detail->quantityRejected) .
-                Html::tag('td', (string)$detail->quantityAccepted) .
-                Html::tag('td', $detail->getReceived() . '/' . $detail->quantity)
+                Html::tag('td', (string)$detail->quantityRejected, ['class'=>'rightalign']) .
+                Html::tag('td', (string)$detail->quantityAccepted, ['class'=>'rightalign']) .
+                Html::tag('td', $detail->getReceived() . '/' . $detail->quantity, ['class'=>'rightalign'])
             );
         };
 
@@ -94,16 +94,16 @@ class TransferManagementField extends BaseNativeField
             Html::tag('td') .
             Html::tag('td', '') .
             Html::tag('td', '') .
-            Html::tag('td', Craft::t('commerce', 'Total ') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity())
+            Html::tag('td', Craft::t('commerce', 'Total ') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity(), ['class'=>'rightalign'])
         );
 
         $table = Html::tag('table',
             Html::tag('thead',
                 Html::tag('tr',
                     Html::tag('th', Craft::t('commerce','Inventory Item')) .
-                    Html::tag('th', Craft::t('commerce','Rejected'), ['style' => "width: 20%;"]) .
-                    Html::tag('th', Craft::t('commerce','Accepted'), ['style' => "width: 20%;"]) .
-                    Html::tag('th', Craft::t('commerce','Total'), ['style' => "width: 20%;"])
+                    Html::tag('th', Craft::t('commerce','Rejected'), ['class'=>'rightalign', 'style' => "width: 20%;"]) .
+                    Html::tag('th', Craft::t('commerce','Accepted'), ['class'=>'rightalign', 'style' => "width: 20%;"]) .
+                    Html::tag('th', Craft::t('commerce','Total'), ['class'=>'rightalign', 'style' => "width: 20%;"])
                 )
             ) .
             Html::tag('tbody', $tableRows . $totalRow)
