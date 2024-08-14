@@ -48,6 +48,7 @@ use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\helpers\ProjectConfigData;
+use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
@@ -136,6 +137,7 @@ use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fields\Link;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
@@ -250,7 +252,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public string $schemaVersion = '5.1.11';
+    public string $schemaVersion = '5.1.0.0';
 
     /**
      * @inheritdoc
@@ -307,6 +309,7 @@ class Plugin extends BasePlugin
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
+            $this->_registerLinkTypes();
             $this->_registerRedactorLinkOptions();
             $this->_registerCKEditorLinkOptions();
         } else {
@@ -442,6 +445,20 @@ class Plugin extends BasePlugin
     private function _addTwigExtensions(): void
     {
         Craft::$app->view->registerTwigExtension(new Extension());
+    }
+
+    /**
+     * Register Link types
+     */
+    private function _registerLinkTypes(): void
+    {
+        if (!class_exists(Link::class)) {
+            return;
+        }
+
+        Event::on(Link::class, Link::EVENT_REGISTER_LINK_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = ProductLinkType::class;
+        });
     }
 
     /**
