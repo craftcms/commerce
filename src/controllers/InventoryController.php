@@ -164,9 +164,8 @@ class InventoryController extends Controller
         $selectedItem = 'manage-' . $currentLocation->handle;
         $title = $currentLocation->getUiLabel() . ' ' . Craft::t('commerce', 'Inventory');
 
-        $locationMenuItems = [
+        $locationMenuItems = [];
 
-        ];
         /** @var InventoryLocation $location */
         foreach ($inventoryLocations as $location) {
             $locationMenuItems[] = [
@@ -178,15 +177,23 @@ class InventoryController extends Controller
         $crumbs = [
             [
                 'label' => Craft::t('commerce', 'Inventory'),
-                'url' => 'inventory',
+                'url' => 'commerce/inventory',
             ],
-            [
+        ];
+
+        if (count($locationMenuItems) > 1) {
+            $crumbs[] = [
                 'menu' => [
                     'label' => Craft::t('app', 'Select section'),
                     'items' => $locationMenuItems,
                 ],
-            ],
-        ];
+            ];
+        } else {
+            $crumbs[] = [
+                'label' => $currentLocation->getUiLabel(),
+                'url' => $currentLocation->getCpManageInventoryUrl(),
+            ];
+        }
 
         return $this->asCpScreen()
             ->title($title)
