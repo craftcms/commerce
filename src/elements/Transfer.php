@@ -78,7 +78,7 @@ class Transfer extends Element
 
         return (string)Craft::t('commerce','{from} to {to}',[
             'from' => $this->getOriginLocation()->getUiLabel(),
-            'to' => $this->getDestinationLocation()->getUiLabel()
+            'to' => $this->getDestinationLocation()->getUiLabel(),
         ]);
     }
 

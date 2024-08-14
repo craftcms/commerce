@@ -194,7 +194,7 @@ class TransferManagementField extends BaseNativeField
                 Html::hiddenInput('details[' . $key . '][uid]', $detail->uid) .
                 Html::hiddenInput('details[' . $key . '][inventoryItemId]', (string)$detail->inventoryItemId) .
                 Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
-                Html::tag('td', Html::input('number', 'details[' . $key . '][quantity]', (string)$detail->quantity, ['class' => 'text fullwidth','hx-post'=>''])) .
+                Html::tag('td', Html::input('number', 'details[' . $key . '][quantity]', (string)$detail->quantity, ['class' => 'text fullwidth', 'hx-post' => ''])) .
                 Html::tag('td', Html::a('', '#', [
                     'hx' => [
                         'post' => '',
