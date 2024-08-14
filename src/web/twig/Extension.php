@@ -10,12 +10,14 @@ namespace craft\commerce\web\twig;
 use Craft;
 use craft\commerce\behaviors\StoreBehavior;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\PaymentForm;
 use craft\errors\SiteNotFoundException;
 use craft\models\Site;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 use yii\base\InvalidConfigException;
 
 /**
@@ -39,6 +41,16 @@ class Extension extends AbstractExtension implements GlobalsInterface
         return [
             new TwigFilter('commerceCurrency', [Currency::class, 'formatAsCurrency']),
             new TwigFilter('commercePaymentFormNamespace', [PaymentForm::class, 'getPaymentFormNamespace']),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getFunctions()
+    {
+        return [
+            new TwigFunction('commerceCustomLineItem', [LineItem::class, 'generateCustomLineItemHash']),
         ];
     }
 

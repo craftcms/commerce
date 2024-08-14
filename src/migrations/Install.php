@@ -368,6 +368,7 @@ class Install extends Migration
         $this->createTable(Table::LINEITEMS, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
+            'type' => $this->enum('type', ['purchasable', 'custom'])->defaultValue('purchasable')->notNull(),
             'purchasableId' => $this->integer(),
             'taxCategoryId' => $this->integer()->notNull(),
             'shippingCategoryId' => $this->integer()->notNull(),
@@ -388,6 +389,10 @@ class Install extends Migration
             'qty' => $this->integer()->notNull()->unsigned(),
             'note' => $this->text(),
             'privateNote' => $this->text(),
+            'hasFreeShipping' => $this->boolean(),
+            'isPromotable' => $this->boolean(),
+            'isShippable' => $this->boolean(),
+            'isTaxable' => $this->boolean(),
             'snapshot' => $this->longText(),
             'lineItemStatusId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
