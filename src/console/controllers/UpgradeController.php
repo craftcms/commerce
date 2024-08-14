@@ -307,6 +307,10 @@ class UpgradeController extends Controller
                 $this->stdout("Updating user address books…");
                 $this->_migrateUserAddressBook();
                 $this->stdoutlast('Done.', Console::FG_GREEN);
+
+                $this->stdout("Re-labeling order addresses…");
+                $this->_relabelOrderAddresses();
+                $this->stdoutlast('Done.', Console::FG_GREEN);
             });
         } catch (OperationAbortedException) {
             return ExitCode::UNSPECIFIED_ERROR;
@@ -331,6 +335,37 @@ class UpgradeController extends Controller
         $this->stdout("Done. Completed in {$totalTime->format('%H:%I:%S')}");
 
         return 0;
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    private function _relabelOrderAddresses(): void
+    {
+        $contentTable = CraftTable::CONTENT;
+
+        $billingAddressIds = (new Query())
+            ->select(['billingAddressId'])
+            ->from(Table::ORDERS)
+            ->where(['not', ['billingAddressId' => null]]);
+
+        $shippingAddressIds = (new Query())
+            ->select(['shippingAddressId'])
+            ->from(Table::ORDERS)
+            ->where(['not', ['shippingAddressId' => null]]);
+
+        Db::update($contentTable, [
+            'title' => Craft::t('commerce', 'Billing Address'),
+        ],
+            ['elementId' => $billingAddressIds]
+        );
+
+        Db::update($contentTable, [
+            'title' => Craft::t('commerce', 'Shipping Address'),
+        ],
+            ['elementId' => $shippingAddressIds]
+        );
     }
 
     /**
