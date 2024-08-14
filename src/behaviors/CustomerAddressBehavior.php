@@ -122,10 +122,11 @@ class CustomerAddressBehavior extends Behavior
             /** @var User|CustomerBehavior|null $user */
             $user = $this->owner->getPrimaryOwner();
 
-            if (!$this->owner->id || !$user) {
+            if (!$this->owner->id || !$user || !$user instanceof User) {
                 return false;
             }
 
+            /** @var User|CustomerBehavior|null $user */
             $this->_isPrimaryBilling = $this->owner->id === $user->getPrimaryBillingAddressId();
         }
 
@@ -154,10 +155,11 @@ class CustomerAddressBehavior extends Behavior
             /** @var User|CustomerBehavior|null $user */
             $user = $this->owner->getPrimaryOwner();
 
-            if (!$this->owner->id || !$user) {
+            if (!$this->owner->id || !$user || !$user instanceof User) {
                 return false;
             }
 
+            /** @var User|CustomerBehavior|null $user */
             $this->_isPrimaryShipping = $this->owner->id === $user->getPrimaryShippingAddressId();
         }
 

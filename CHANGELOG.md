@@ -1,15 +1,21 @@
 # Release Notes for Craft Commerce
 
+- It’s now possible to duplicate variants.
+- Fixed a bug where it wasn’t possible to remove the last email from an order status configuration. ([#3621](https://github.com/craftcms/commerce/issues/3621))
 - Fixed a bug where the “Create Sale” and “Create Discount” actions did not work on product indexes. ([#3611](https://github.com/craftcms/commerce/issues/3611))
 - Fixed a bug where an Order’s status would not be returned correctly. ([#3615](https://github.com/craftcms/commerce/issues/3615))
-- Fixed a bug where a draft variant could become orphaned when a product was deleted. 
+- Fixed a bug where a draft variant could become orphaned when a product was deleted.
+- Fixed a PHP error that occurred when using a non-Craft queue driver. ([#3619](https://github.com/craftcms/commerce/pull/3619))
+- Fixed a bug where the week start day could be incorrect for stat widgets. ([#3620](https://github.com/craftcms/commerce/pull/3620))
+- Fixed a bug where variants weren't being duplicated when duplicating a product. ([#924](https://github.com/craftcms/commerce/issues/924))
+- It’s now possible to search order by shipping and billing addresses. ([#3603](https://github.com/craftcms/commerce/pull/3603))
 
 ## 5.0.15 - 2024-07-31
 
 - Fixed a SQL error that could occur when upgrading to Commerce 5 on PostgreSQL. ([#3600](https://github.com/craftcms/commerce/pull/3600), [#3601](https://github.com/craftcms/commerce/pull/3601))
 - Fixed a bug where payment modals weren’t calculating additional payment currencies on Edit Order pages.
 - Fixed a PHP error that occurred when retrieving an order that referenced a deleted payment currency.
-- Fixed a bug where Edit Variant screens were showing shipping categories that were unrelated to the current store. ([#3608](https://github.com/craftcms/commerce/issues/3608)) 
+- Fixed a bug where Edit Variant screens were showing shipping categories that were unrelated to the current store. ([#3608](https://github.com/craftcms/commerce/issues/3608))
 
 ## 5.0.14 - 2024-07-24
 

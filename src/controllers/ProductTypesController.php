@@ -15,6 +15,8 @@ use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
+use craft\enums\PropagationMethod;
+use craft\web\assets\editsection\EditSectionAsset;
 use Throwable;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -89,6 +91,8 @@ class ProductTypesController extends BaseAdminController
         $variables['tabs'] = $tabs;
         $variables['selectedTab'] = 'productTypeSettings';
 
+        $this->getView()->registerAssetBundle(EditSectionAsset::class);
+
         return $this->renderTemplate('commerce/settings/producttypes/_edit', $variables);
     }
 
@@ -117,11 +121,17 @@ class ProductTypesController extends BaseAdminController
         $productType->hasDimensions = (bool)$this->request->getBodyParam('hasDimensions');
         $productType->hasProductTitleField = (bool)$this->request->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = $this->request->getBodyParam('productTitleFormat');
+        $productType->productTitleTranslationMethod = $this->request->getBodyParam('productTitleTranslationMethod', $productType->productTitleTranslationMethod);
+        $productType->productTitleTranslationKeyFormat = $this->request->getBodyParam('productTitleTranslationKeyFormat', $productType->productTitleTranslationKeyFormat);
         $productType->maxVariants = $this->request->getBodyParam('maxVariants') ?: null;
         $productType->hasVariantTitleField = $this->request->getBodyParam('hasVariantTitleField', false);
         $productType->variantTitleFormat = $this->request->getBodyParam('variantTitleFormat');
+        $productType->variantTitleTranslationMethod = $this->request->getBodyParam('variantTitleTranslationMethod', $productType->variantTitleTranslationMethod);
+        $productType->variantTitleTranslationKeyFormat = $this->request->getBodyParam('variantTitleTranslationKeyFormat', $productType->variantTitleTranslationKeyFormat);
         $productType->skuFormat = $this->request->getBodyParam('skuFormat');
         $productType->descriptionFormat = $this->request->getBodyParam('descriptionFormat');
+        $productType->propagationMethod = PropagationMethod::tryFrom($this->request->getBodyParam('propagationMethod') ?? '')
+            ?? PropagationMethod::All;
 
         // Site-specific settings
         $allSiteSettings = [];
@@ -129,9 +139,16 @@ class ProductTypesController extends BaseAdminController
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $postedSettings = $this->request->getBodyParam('sites.' . $site->handle);
 
+            // Skip disabled sites if this is a multi-site install
+            if (Craft::$app->getIsMultiSite() && empty($postedSettings['enabled'])) {
+                continue;
+            }
+
             $siteSettings = new ProductTypeSite();
             $siteSettings->siteId = $site->id;
             $siteSettings->hasUrls = !empty($postedSettings['uriFormat']);
+
+            $siteSettings->enabledByDefault = (bool)$postedSettings['enabledByDefault'];
 
             if ($siteSettings->hasUrls) {
                 $siteSettings->uriFormat = $postedSettings['uriFormat'];

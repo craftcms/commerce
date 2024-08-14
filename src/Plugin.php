@@ -38,7 +38,6 @@ use craft\commerce\fieldlayoutelements\PurchasableSkuField;
 use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\UserCommerceField;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
@@ -48,6 +47,7 @@ use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\helpers\ProjectConfigData;
+use craft\commerce\linktypes\Product as ProductLinkType;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
@@ -136,6 +136,7 @@ use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
+use craft\fields\Link;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\ArrayHelper;
@@ -307,6 +308,7 @@ class Plugin extends BasePlugin
             $this->_registerWidgets();
             $this->_registerElementExports();
             $this->_defineFieldLayoutElements();
+            $this->_registerLinkTypes();
             $this->_registerRedactorLinkOptions();
             $this->_registerCKEditorLinkOptions();
         } else {
@@ -442,6 +444,20 @@ class Plugin extends BasePlugin
     private function _addTwigExtensions(): void
     {
         Craft::$app->view->registerTwigExtension(new Extension());
+    }
+
+    /**
+     * Register Link types
+     */
+    private function _registerLinkTypes(): void
+    {
+        if (!class_exists(Link::class)) {
+            return;
+        }
+
+        Event::on(Link::class, Link::EVENT_REGISTER_LINK_TYPES, function(RegisterComponentTypesEvent $event) {
+            $event->types[] = ProductLinkType::class;
+        });
     }
 
     /**
@@ -1088,13 +1104,6 @@ class Plugin extends BasePlugin
             switch ($fieldLayout->type) {
                 case Address::class:
                     $e->fields[] = UserAddressSettings::class;
-                    break;
-                case UserElement::class:
-                    // todo: remove in favor of a dedicated user management screen
-                    $currentUser = Craft::$app->getUser()->getIdentity();
-                    if ($currentUser?->can('commerce-manageOrders') || $currentUser?->can('commerce-manageSubscriptions')) {
-                        $e->fields[] = UserCommerceField::class;
-                    }
                     break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
