@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-- Fixed a bug where the `commerce/upgrade` command wasn’t labelling order addresses correctly. ([#3081](https://github.com/craftcms/commerce/issues/3081))
-- It’s now possible to search order by shipping and billing addresses. ([#3603](https://github.com/craftcms/commerce/pull/3603))
+- It’s now possible to search for orders by shipping and billing address. ([#3603](https://github.com/craftcms/commerce/pull/3603))
+- Fixed a bug where the `commerce/upgrade` command wasn’t labeling order addresses correctly. ([#3081](https://github.com/craftcms/commerce/issues/3081))
 
 ## 4.6.7 - 2024-07-25
 
