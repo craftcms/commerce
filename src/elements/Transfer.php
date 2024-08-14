@@ -4,9 +4,15 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\collections\InventoryMovementCollection;
+use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\conditions\transfers\TransferCondition;
 use craft\commerce\elements\db\TransferQuery;
+use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\TransferStatusType;
+use craft\commerce\models\inventory\UpdateInventoryLevel;
+use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
@@ -332,7 +338,6 @@ class Transfer extends Element
 
             $rules[] = [['originLocationId'], 'validateLocations'];
             $rules[] = [['details'], 'validateDetails'];
-
         }
 
         return $rules;
@@ -604,18 +609,19 @@ JS, [
             ['params' => ['transferId' => $this->id]],
         ]);
 
+        if (!$this->isTransferDraft()) {
+            $response->additionalButtonsHtml(Html::a(
+                Craft::t('commerce', 'Receive Inventory'),
+                '#',
+                [
+                    'id' => $receiveInventoryButtonId,
+                    'class' => 'btn',
+                ]
+            ));
+        }
 
         /** @var Response|CpScreenResponseBehavior $response */
-        $response->
-            additionalButtonsHtml(Html::a(
-            Craft::t('commerce', 'Receive Inventory'),
-            '#',
-            [
-                'id' => $receiveInventoryButtonId,
-                'class' => 'btn'
-            ]
-        ))
-        ->crumbs([
+        $response->crumbs([
             [
                 'label' => Craft::t('commerce', 'Inventory'),
                 'url' => UrlHelper::cpUrl('commerce/inventory'),
@@ -732,12 +738,31 @@ JS, [
                 $transferRecord = new TransferRecord();
             }
 
+            $originalTransferStatus = $transferRecord->transferStatus;
+
             $transferRecord->id = $this->id;
             $transferRecord->originLocationId = $this->originLocationId;
             $transferRecord->destinationLocationId = $this->destinationLocationId;
             $transferRecord->transferStatus = $this->getTransferStatus()->value ?? TransferStatusType::DRAFT->value;
 
             $transferRecord->save(false);
+
+            if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus == TransferStatusType::DRAFT->value) {
+                $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
+                foreach ($this->getDetails() as $detail) {
+                    $inventoryUpdate = new UpdateInventoryLevelInTransfer([
+                        'type' => InventoryTransactionType::INCOMING->value,
+                        'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                        'inventoryItem' => $detail->getInventoryItem(),
+                        'inventoryLocation' => $this->getDestinationLocation(),
+                        'quantity' => $detail->quantity,
+                        'note' => Craft::t('commerce', 'Incoming transfer: ') . $this->id
+                    ]);
+                    $inventoryUpdateCollection->push($inventoryUpdate);
+                }
+
+                Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
+            }
 
             if ($this->getTransferStatus() === TransferStatusType::DRAFT) {
                 $existingDetailIds = (new Query())

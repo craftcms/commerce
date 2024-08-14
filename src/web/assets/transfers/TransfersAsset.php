@@ -8,7 +8,6 @@
 namespace craft\commerce\web\assets\transfers;
 
 use craft\web\AssetBundle;
-use craft\web\assets\admintable\AdminTableAsset;
 use craft\web\assets\cp\CpAsset;
 use craft\web\assets\htmx\HtmxAsset;
 use craft\web\View;

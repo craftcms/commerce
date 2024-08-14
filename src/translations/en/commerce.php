@@ -24,8 +24,9 @@ return [
     'Receive Transfer' => 'Receive Transfer',
     'Accept all unreceived' => 'Accept all unreceived',
     'Reject All Unreceived' => 'Reject All Unreceived',
-    'Update' => 'Update',
     'Failed to receive transfer: {error}' => 'Failed to receive transfer: {error}',
+    'Inventory Transfers' => 'Inventory Transfers',
+    'on hand' => 'on hand',
 
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',

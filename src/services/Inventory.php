@@ -19,6 +19,7 @@ use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
+use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
@@ -315,10 +316,10 @@ class Inventory extends Component
     }
 
     /**
-     * @param UpdateInventoryLevel $updateInventoryLevel
+     * @param UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel
      * @return bool
      */
-    private function _setInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
+    private function _setInventoryLevel(UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel): bool
     {
         $tableName = Table::INVENTORYTRANSACTIONS;
 
@@ -360,10 +361,10 @@ class Inventory extends Component
     }
 
     /**
-     * @param UpdateInventoryLevel $updateInventoryLevel
+     * @param UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel
      * @return bool
      */
-    private function _adjustInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
+    private function _adjustInventoryLevel(UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel): bool
     {
         $tableName = Table::INVENTORYTRANSACTIONS;
 

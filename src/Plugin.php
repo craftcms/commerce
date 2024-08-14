@@ -408,6 +408,13 @@ class Plugin extends BasePlugin
             ];
         }
 
+        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
+            $ret['subnav']['inventory-transfers'] = [
+                'label' => Craft::t('commerce', 'Inventory Transfers'),
+                'url' => 'commerce/inventory/transfers',
+            ];
+        }
+
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),

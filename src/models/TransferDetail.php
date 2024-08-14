@@ -3,13 +3,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\TransferStatusType;
 use craft\commerce\Plugin;
-use craft\helpers\Cp;
-use Craft;
-use craft\helpers\Html;
 
 class TransferDetail extends Model
 {
@@ -42,7 +38,7 @@ class TransferDetail extends Model
             $this->_transfer = Transfer::findOne($this->transferId);
         }
 
-        if($this->inventoryItemId) {
+        if ($this->inventoryItemId) {
             $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
             $this->inventoryItemDescription = $inventoryItem->getSku();
         }

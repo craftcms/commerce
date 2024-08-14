@@ -11,20 +11,16 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\TransferStatusType;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
-use craft\commerce\helpers\Cp;
-use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\InventoryTransferMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
-use craft\helpers\Db;
 use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
@@ -182,7 +178,6 @@ class TransfersController extends BaseStoreManagementController
         foreach ($details as $uid => $detail) {
             $transferDetails = $transfer->getDetails();
             foreach ($transferDetails as $transferDetail) {
-
                 if ($acceptedAmount = $details[$transferDetail->uid]['accept']) {
                     // Update the total accepted
                     $transferDetail->quantityAccepted += $acceptedAmount;
@@ -235,7 +230,7 @@ class TransfersController extends BaseStoreManagementController
     public function actionReceiveTransferModal(): Response
     {
         $transferId = $this->request->getRequiredParam('transferId');
-        /** @var Transfer $transfer */
+        /** @var ?Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->one();
 
         if (!$transfer) {
@@ -261,14 +256,14 @@ class TransfersController extends BaseStoreManagementController
         foreach ($transfer->getDetails() as $detail) {
             $key = $detail->uid;
             $purchasable = $detail->getInventoryItem()?->getPurchasable();
-            $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->getInventoryItem()->title;
+            $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
             $tableRows .= Html::beginTag('tr');
             $tableRows .= Html::tag('td', $label);
-            $tableRows .= Html::tag('td', $detail->quantityAccepted);
+            $tableRows .= Html::tag('td', (string)$detail->quantityAccepted);
             $tableRows .= Html::tag('td',
                 Html::input('number', 'details[' . $key . '][accept]', '', ['class' => 'text fullwidth'])
             );
-            $tableRows .= Html::tag('td', $detail->quantityRejected);
+            $tableRows .= Html::tag('td', (string)$detail->quantityRejected);
             $tableRows .= Html::tag('td',
                 Html::input('number', 'details[' . $key . '][reject]', '', ['class' => 'text fullwidth'])
             );
@@ -301,7 +296,6 @@ class TransfersController extends BaseStoreManagementController
      */
     public function actionReceiveTransferModalContent(): string
     {
-
         return Html::tag('div', 'fresh content');
     }
 
@@ -309,12 +303,11 @@ class TransfersController extends BaseStoreManagementController
     {
         $transferId = $this->request->getRequiredParam('transferId');
 
-        /** @var Transfer $transfer */
+        /** @var ?Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->drafts(null)->one();
 
         // We will only change the transfer if it is a draft.
         if ($transfer && $transfer->isTransferDraft()) {
-
             $allLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
             $defaultFirstLocationId = $allLocations->first()->id;
             $defaultSecondLocationId = $allLocations->skip(1)->first()->id;
