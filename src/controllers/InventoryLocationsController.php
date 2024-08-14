@@ -107,7 +107,7 @@ class InventoryLocationsController extends Controller
                 }
             }
 
-            $title = trim($inventoryLocation->name) ?: Craft::t('app', 'Edit Inventory Location');
+            $title = trim($inventoryLocation->getUiLabel()) ?: Craft::t('app', 'Edit Inventory Location');
         } else {
             if ($inventoryLocation === null) {
                 $inventoryLocation = new InventoryLocation();
@@ -198,8 +198,7 @@ class InventoryLocationsController extends Controller
             ->action('commerce/inventory-locations/save')
             ->redirectUrl('commerce/inventory-locations')
             ->selectedSubnavItem('inventory-locations')
-            ->contentTemplate('commerce/inventory-locations/_edit', $variables)
-            ->metaSidebarTemplate('commerce/inventory-locations/_sidebar', $variables);
+            ->contentTemplate('commerce/inventory-locations/_edit', $variables);
     }
 
     /**
@@ -328,7 +327,7 @@ JS, [
             /** @var InventoryLocation $inventoryLocation */
             $data[] = [
                 'id' => $inventoryLocation->id,
-                'title' => $inventoryLocation->name,
+                'title' => $inventoryLocation->getUiLabel(),
                 'handle' => $inventoryLocation->handle,
                 'address' => $inventoryLocation->getAddressLine(),
                 'url' => $inventoryLocation->getCpEditUrl(),
@@ -360,7 +359,7 @@ JS, [
             ->filter(fn($location) => $location->id != $inventoryLocation->id);
 
         $destinationInventoryLocationsOptions = $destinationInventoryLocations
-            ->map(fn($location) => ['value' => $location->id, 'label' => $location->name])->all();
+            ->map(fn($location) => ['value' => $location->id, 'label' => $location->getUiLabel()])->all();
 
         if (empty($destinationInventoryLocationsOptions)) {
             // throw exception not allowed to delete

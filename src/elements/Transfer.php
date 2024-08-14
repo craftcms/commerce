@@ -76,7 +76,10 @@ class Transfer extends Element
             return Craft::t('commerce', 'Transfer');
         }
 
-        return (string)$this->getOriginLocation()->name . ' to ' . $this->getDestinationLocation()->name;
+        return (string)Craft::t('commerce','{from} to {to}',[
+            'from' => $this->getOriginLocation()->getUiLabel(),
+            'to' => $this->getDestinationLocation()->getUiLabel()
+        ]);
     }
 
     public static function hasDrafts(): bool
@@ -331,6 +334,8 @@ class Transfer extends Element
         return [
             'id' => ['label' => Craft::t('app', 'ID')],
             'uid' => ['label' => Craft::t('app', 'UID')],
+            'originLocation' => ['label' => Craft::t('commerce', 'Origin')],
+            'destinationLocation' => ['label' => Craft::t('commerce', 'Destination')],
             'dateCreated' => ['label' => Craft::t('app', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('app', 'Date Updated')],
             'received' => ['label' => Craft::t('commerce', 'Received')],
@@ -343,6 +348,7 @@ class Transfer extends Element
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
+            'id',
             'dateCreated',
             'received',
         ];
@@ -354,6 +360,14 @@ class Transfer extends Element
     protected function attributeHtml(string $attribute): string
     {
         switch ($attribute) {
+            case 'originLocation':
+            {
+                return $this->getOriginLocation()?->getUiLabel() ?? '';
+            }
+            case 'destinationLocation':
+            {
+                return $this->getDestinationLocation()?->getUiLabel() ?? '';
+            }
             case 'received':
             {
                 return $this->getTotalReceived() . '/' . $this->getTotalQuantity();
@@ -442,30 +456,6 @@ class Transfer extends Element
                 'criteria' => [
                     'transferStatus' => $status->value,
                 ],
-                // Define a default sort attribute and direction:
-//                'defaultSort' => ['price', 'desc'],
-            ];
-        }
-
-        $inventoryLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
-
-        foreach ($inventoryLocations as $location) {
-            $incomingTransferSources[] = [
-                'key' => $location->id,
-                'label' => Craft::t('commerce', $location->name),
-                'badgeCount' => Transfer::find()->destinationLocation($location)->count(),
-                'criteria' => [
-                    'destinationLocationId' => $location->id,
-                ],
-            ];
-
-            $outgoingTransferSources[] = [
-                'key' => $location->id,
-                'label' => Craft::t('commerce', $location->name),
-                'badgeCount' => Transfer::find()->originLocation($location)->count(),
-                'criteria' => [
-                    'originLocationId' => $location->id,
-                ],
             ];
         }
 
@@ -476,20 +466,9 @@ class Transfer extends Element
                 'criteria' => [],
             ],
             [
-                // Optional: Divide your source list into groups!
                 'heading' => Craft::t('commerce', 'Transfer Status'),
             ],
             ...$transferStatusSources,
-            [
-                // Optional: Divide your source list into groups!
-                'heading' => Craft::t('commerce', 'Incoming Location'),
-            ],
-            ...$incomingTransferSources ?? [],
-            [
-                // Optional: Divide your source list into groups!
-                'heading' => Craft::t('commerce', 'Outgoing Location'),
-            ],
-            ...$outgoingTransferSources ?? [],
         ];
     }
 
@@ -516,7 +495,7 @@ class Transfer extends Element
     {
         $safeActions = parent::safeActionMenuItems();
 
-        if ($this->transferStatus == TransferStatusType::DRAFT) {
+        if ($this->isTransferDraft() && count($this->getDetails()) > 0) {
             $safeActions['mark-as-pending'] = [
                 'action' => 'commerce/transfers/mark-as-pending',
                 'label' => Craft::t('commerce', 'Mark as Pending'),
@@ -641,7 +620,7 @@ JS, [
         $view->registerJsWithVars(fn($id, $settings) => <<<JS
 $('#' + $id).on('click', (e) => {
 	e.preventDefault();
-	const modal = new Craft.Commerce.ReceiveTransferModal($settings);
+	const modal = new Craft.Commerce.ReceiveTransferScreen($settings);
 	modal.on('close', (e) => {
 	  console.log('closed');
 	});

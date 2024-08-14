@@ -6,21 +6,19 @@ if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
 
-Craft.Commerce.ReceiveTransferModal = Craft.CpModal.extend({
+Craft.Commerce.ReceiveTransferScreen = Craft.CpScreenSlideout.extend({
   $quantityInput: null,
   $typeInput: null,
 
   init: function (settings) {
-    this.base('commerce/transfers/receive-transfer-modal', settings);
+    this.base('commerce/transfers/receive-transfer-screen', settings);
 
     this.debouncedRefresh = this.debounce(this.refresh, 500);
 
     // after load event is triggered on this
     this.on('load', this.afterLoad.bind(this));
   },
-  afterLoad: function () {
-
-  },
+  afterLoad: function () {},
   refresh: function () {
     let postData = Garnish.getPostData(this.$container);
     let expandedData = Craft.expandPostArray(postData);

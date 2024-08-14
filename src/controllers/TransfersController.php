@@ -239,14 +239,14 @@ class TransfersController extends BaseStoreManagementController
     /**
      * @return Response
      */
-    public function actionReceiveTransferModal(): Response
+    public function actionReceiveTransferScreen(): Response
     {
         $transferId = $this->request->getRequiredParam('transferId');
         /** @var ?Transfer $transfer */
         $transfer = Transfer::find()->id($transferId)->one();
 
         if (!$transfer) {
-            return $this->asCpModal()
+            return $this->asCpScreen()
                 ->contentHtml('Cant find transfer');
         }
 
@@ -271,11 +271,11 @@ class TransfersController extends BaseStoreManagementController
             $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->inventoryItemDescription;
             $tableRows .= Html::beginTag('tr');
             $tableRows .= Html::tag('td', $label);
-            $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class'=>'rightalign']);
+            $tableRows .= Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
                 Html::input('number', 'details[' . $key . '][accept]', '', ['class' => 'text fullwidth'])
             );
-            $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class'=>'rightalign']);
+            $tableRows .= Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']);
             $tableRows .= Html::tag('td',
                 Html::input('number', 'details[' . $key . '][reject]', '', ['class' => 'text fullwidth'])
             );
@@ -285,9 +285,9 @@ class TransfersController extends BaseStoreManagementController
             Html::tag('thead',
                 Html::tag('tr',
                     Html::tag('th', Craft::t('commerce', 'Item')) .
-                    Html::tag('th', Craft::t('commerce', 'Accepted'), ['class'=>'rightalign']) .
+                    Html::tag('th', Craft::t('commerce', 'Accepted'), ['class' => 'rightalign']) .
                     Html::tag('th', Craft::t('commerce', 'Accept')) .
-                    Html::tag('th', Craft::t('commerce', 'Rejected'), ['class'=>'rightalign']) .
+                    Html::tag('th', Craft::t('commerce', 'Rejected'), ['class' => 'rightalign']) .
                     Html::tag('th', Craft::t('commerce', 'Reject'))
                 )
             ) .
@@ -296,19 +296,11 @@ class TransfersController extends BaseStoreManagementController
 
         $html .= Html::endTag('div');
 
-        return $this->asCpModal()
+        return $this->asCpScreen()
             ->action('commerce/transfers/receive-transfer')
-            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+            ->submitButtonLabel(Craft::t('commerce', 'Receive'))
 //            ->additionalButtonsHtml($acceptAllUnreceivedButton)
             ->contentHtml($html);
-    }
-
-    /**
-     * @return string
-     */
-    public function actionReceiveTransferModalContent(): string
-    {
-        return Html::tag('div', 'fresh content');
     }
 
     public function actionRenderManagement(): string

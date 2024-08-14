@@ -36,6 +36,8 @@ return [
     'Let each product choose which sites it should be saved to' => 'Let each product choose which sites it should be saved to',
 'Choose which sites this product type should be available in, and configure the site-specific settings.' => 'Choose which sites this product type should be available in, and configure the site-specific settings.',
     'At least one site must be enabled for the product type.' => 'At least one site must be enabled for the product type.',
+    '{from} to {to}' => '{from} to {to}',
+    'Destination' => 'Destination',
 
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',

@@ -74,7 +74,8 @@ class TransferManagementField extends BaseNativeField
         $html .= Html::tag('div',
             Html::tag('div',
                 Cp::elementCardHtml($origin->getAddress()), ['class' => 'flex-grow']) .
-            Html::tag('div', Cp::elementCardHtml($destination->getAddress()), ['class' => 'flex-grow'])
+            Html::tag('div',
+                Cp::elementCardHtml($destination->getAddress()), ['class' => 'flex-grow'])
             , ['class' => 'flex']);
 
 
@@ -84,9 +85,9 @@ class TransferManagementField extends BaseNativeField
             $purchasable = $detail->getInventoryItem()?->getPurchasable();
             $tableRows .= Html::tag('tr',
                 Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
-                Html::tag('td', (string)$detail->quantityRejected, ['class'=>'rightalign']) .
-                Html::tag('td', (string)$detail->quantityAccepted, ['class'=>'rightalign']) .
-                Html::tag('td', $detail->getReceived() . '/' . $detail->quantity, ['class'=>'rightalign'])
+                Html::tag('td', (string)$detail->quantityRejected, ['class' => 'rightalign']) .
+                Html::tag('td', (string)$detail->quantityAccepted, ['class' => 'rightalign']) .
+                Html::tag('td', $detail->getReceived() . '/' . $detail->quantity, ['class' => 'rightalign'])
             );
         };
 
@@ -94,22 +95,21 @@ class TransferManagementField extends BaseNativeField
             Html::tag('td') .
             Html::tag('td', '') .
             Html::tag('td', '') .
-            Html::tag('td', Craft::t('commerce', 'Total ') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity(), ['class'=>'rightalign'])
+            Html::tag('td', Craft::t('commerce', 'Total ') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity(), ['class' => 'rightalign'])
         );
 
         $table = Html::tag('table',
             Html::tag('thead',
                 Html::tag('tr',
-                    Html::tag('th', Craft::t('commerce','Inventory Item')) .
-                    Html::tag('th', Craft::t('commerce','Rejected'), ['class'=>'rightalign', 'style' => "width: 20%;"]) .
-                    Html::tag('th', Craft::t('commerce','Accepted'), ['class'=>'rightalign', 'style' => "width: 20%;"]) .
-                    Html::tag('th', Craft::t('commerce','Total'), ['class'=>'rightalign', 'style' => "width: 20%;"])
+                    Html::tag('th', Craft::t('commerce', 'Inventory Item')) .
+                    Html::tag('th', Craft::t('commerce', 'Rejected'), ['class' => 'rightalign', 'style' => "width: 20%;"]) .
+                    Html::tag('th', Craft::t('commerce', 'Accepted'), ['class' => 'rightalign', 'style' => "width: 20%;"]) .
+                    Html::tag('th', Craft::t('commerce', 'Total'), ['class' => 'rightalign', 'style' => "width: 20%;"])
                 )
             ) .
             Html::tag('tbody', $tableRows . $totalRow)
             , ['class' => 'data fullwidth']
         );
-
 
 
         $html .= Html::tag('hr') . $table;
@@ -120,7 +120,7 @@ class TransferManagementField extends BaseNativeField
     public static function renderFieldHtml(Transfer $element): string
     {
         // Only draft is editable
-        if (!$element->getIsDraft()) {
+        if (!$element->isTransferDraft()) {
             return self::renderStaticFieldHtml($element);
         }
 
@@ -194,7 +194,7 @@ class TransferManagementField extends BaseNativeField
                 Html::hiddenInput('details[' . $key . '][uid]', $detail->uid) .
                 Html::hiddenInput('details[' . $key . '][inventoryItemId]', (string)$detail->inventoryItemId) .
                 Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
-                Html::tag('td', Html::input('number', 'details[' . $key . '][quantity]', (string)$detail->quantity, ['class' => 'text fullwidth'])) .
+                Html::tag('td', Html::input('number', 'details[' . $key . '][quantity]', (string)$detail->quantity, ['class' => 'text fullwidth','hx-post'=>''])) .
                 Html::tag('td', Html::a('', '#', [
                     'hx' => [
                         'post' => '',
@@ -221,8 +221,8 @@ class TransferManagementField extends BaseNativeField
         $table = Html::tag('table',
             Html::tag('thead',
                 Html::tag('tr',
-                    Html::tag('th', Craft::t('commerce','Inventory Item')) .
-                    Html::tag('th', Craft::t('commerce','Quantity'), ['style' => "width: 20%;"]) .
+                    Html::tag('th', Craft::t('commerce', 'Inventory Item')) .
+                    Html::tag('th', Craft::t('commerce', 'Quantity'), ['style' => "width: 20%;"]) .
                     Html::tag('th', '')
                 )
             ) .
@@ -249,7 +249,7 @@ class TransferManagementField extends BaseNativeField
         /** @var InventoryLevel $level */
         foreach ($inventoryLevels as $level) {
             $inventoryItemOptions[] = [
-                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . Craft::t('commerce','on hand') : Craft::t('commerce', 'None on hand')) . ')',
+                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . Craft::t('commerce', 'on hand') : Craft::t('commerce', 'None on hand')) . ')',
                 'value' => $level->getInventoryItem()->id,
                 'disabled' => !($level->onHandTotal > 0),
             ];

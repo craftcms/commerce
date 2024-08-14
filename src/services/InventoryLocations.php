@@ -61,7 +61,7 @@ class InventoryLocations extends Component
     public function getAllInventoryLocationsAsList(bool $withTrashed = false): array
     {
         return $this->getAllInventoryLocations($withTrashed)->mapWithKeys(function(InventoryLocation $location) {
-            return [$location->id => $location->name];
+            return [$location->id => $location->getUiLabel()];
         })->toArray();
     }
 

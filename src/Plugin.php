@@ -410,7 +410,8 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
+        $multipleLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations()->count() > 1;
+        if ($multipleLocations && Craft::$app->getUser()->checkPermission('commerce-manageInventoryTransfers')) {
             $ret['subnav']['inventory-transfers'] = [
                 'label' => Craft::t('commerce', 'Inventory Transfers'),
                 'url' => 'commerce/inventory/transfers',
