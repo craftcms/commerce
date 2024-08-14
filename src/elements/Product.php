@@ -1160,8 +1160,8 @@ class Product extends Element
 
             $defaultVariant = $this->getDefaultVariant();
             $record->defaultVariantId = $defaultVariant->id ?? null;
-            $record->defaultSku = $defaultVariant->skuAsText ?? '';
-            $record->defaultPrice = $defaultVariant->price ?? 0.0;
+            $record->defaultSku = $defaultVariant?->getSkuAsText() ?? '';
+            $record->defaultPrice = $defaultVariant?->getBasePrice() ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0.0;
             $record->defaultLength = $defaultVariant->length ?? 0.0;
             $record->defaultWidth = $defaultVariant->width ?? 0.0;
