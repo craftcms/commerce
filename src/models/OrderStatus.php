@@ -187,9 +187,9 @@ class OrderStatus extends Model implements HasStoreInterface
      *
      * @since 5.0.3
      */
-    public function getConfig(?array $emailIds = []): array
+    public function getConfig(?array $emailIds = null): array
     {
-        if (!$emailIds) {
+        if ($emailIds === null) {
             $emailIds = $this->getEmailIds();
         }
 
