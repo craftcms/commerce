@@ -25,6 +25,7 @@ use craft\commerce\services\Stores;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\enums\PropagationMethod;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\MigrationHelper;
@@ -609,10 +610,16 @@ class Install extends Migration
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'variantTitleFormat' => $this->string()->notNull(),
+            'variantTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'variantTitleTranslationKeyFormat' => $this->string(),
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'productTitleFormat' => $this->string(),
+            'productTitleTranslationMethod' => $this->string()->defaultValue('site')->notNull(),
+            'productTitleTranslationKeyFormat' => $this->string(),
+
+            'propagationMethod' => $this->string()->defaultValue(PropagationMethod::All->value)->notNull(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),

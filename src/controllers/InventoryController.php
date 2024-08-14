@@ -250,7 +250,7 @@ class InventoryController extends Controller
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
             $inventoryLevel['id'] = $id;
-            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSku() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
+            $inventoryLevel['sku'] = Html::tag('span',Html::a($purchasable->getSkuAsText() , "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
 
             $view->registerJsWithVars(fn($id, $params, $inventoryLevelsManagerContainerId) => <<<JS
 $('#' + $id).on('click', (e) => {

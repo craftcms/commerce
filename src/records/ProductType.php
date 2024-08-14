@@ -31,8 +31,13 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $taxCategories
  * @property bool $hasVariantTitleField
  * @property string $variantTitleFormat
+ * @property string $variantTitleTranslationMethod
+ * @property string $variantTitleTranslationKeyFormat
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
+ * @property string $productTitleTranslationMethod
+ * @property string $productTitleTranslationKeyFormat
+ * @property string $propagationMethod
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int|null $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

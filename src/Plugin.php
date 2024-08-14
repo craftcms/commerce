@@ -41,7 +41,6 @@ use craft\commerce\fieldlayoutelements\PurchasableStockField;
 use craft\commerce\fieldlayoutelements\PurchasableWeightField;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
 use craft\commerce\fieldlayoutelements\UserAddressSettings;
-use craft\commerce\fieldlayoutelements\UserCommerceField;
 use craft\commerce\fieldlayoutelements\VariantsField as VariantsLayoutElement;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products as ProductsField;
@@ -1134,13 +1133,6 @@ class Plugin extends BasePlugin
             switch ($fieldLayout->type) {
                 case Address::class:
                     $e->fields[] = UserAddressSettings::class;
-                    break;
-                case UserElement::class:
-                    // todo: remove in favor of a dedicated user management screen
-                    $currentUser = Craft::$app->getUser()->getIdentity();
-                    if ($currentUser?->can('commerce-manageOrders') || $currentUser?->can('commerce-manageSubscriptions')) {
-                        $e->fields[] = UserCommerceField::class;
-                    }
                     break;
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
