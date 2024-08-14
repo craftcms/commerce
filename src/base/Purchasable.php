@@ -918,6 +918,12 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $purchasableId = $this->getCanonicalId();
         if (!$this->propagating) {
+            if ($this->duplicateOf !== null) {
+                $this->sku = \craft\commerce\helpers\Purchasable::tempSku() . '-' . $this->getSku();
+                // Nullify inventory item so a new one is created
+                $this->inventoryItemId = null;
+            }
+
             $purchasable = PurchasableRecord::findOne($purchasableId);
 
             if (!$purchasable) {
@@ -978,6 +984,27 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                     $purchasableStoreRecord->freeShipping = false;
                     $purchasableStoreRecord->purchasableId = $purchasableId;
                     $purchasableStoreRecord->shippingCategoryId = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory($this->getStore()->id)->id;
+
+                    if ($this->duplicateOf !== null) {
+                        // If this is a duplicate, copy the values from the original purchasable stores record
+                        $purchasableStoreRecordDuplicate = PurchasableStore::findOne([
+                            'purchasableId' => $this->duplicateOf->id,
+                            'storeId' => $this->getStoreId(),
+                        ]);
+
+                        if ($purchasableStoreRecordDuplicate) {
+                            $purchasableStoreRecord->basePrice = $purchasableStoreRecordDuplicate->basePrice;
+                            $purchasableStoreRecord->basePromotionalPrice = $purchasableStoreRecordDuplicate->basePromotionalPrice;
+                            $purchasableStoreRecord->stock = Plugin::getInstance()->getInventory()->getInventoryLevelsForPurchasable($this)->sum('availableTotal');
+                            $purchasableStoreRecord->inventoryTracked = $purchasableStoreRecordDuplicate->inventoryTracked;
+                            $purchasableStoreRecord->minQty = $purchasableStoreRecordDuplicate->minQty;
+                            $purchasableStoreRecord->maxQty = $purchasableStoreRecordDuplicate->maxQty;
+                            $purchasableStoreRecord->promotable = $purchasableStoreRecordDuplicate->promotable;
+                            $purchasableStoreRecord->availableForPurchase = $purchasableStoreRecordDuplicate->availableForPurchase;
+                            $purchasableStoreRecord->freeShipping = $purchasableStoreRecordDuplicate->freeShipping;
+                            $purchasableStoreRecord->shippingCategoryId = $purchasableStoreRecordDuplicate->shippingCategoryId;
+                        }
+                    }
                 }
             }
 
