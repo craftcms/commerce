@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Fixed a bug where the `commerce/upgrade` command wasn’t labelling order addresses correctly. ([#3599](https://github.com/craftcms/commerce/pull/3599))
+- Fixed a bug where the `commerce/upgrade` command wasn’t labelling order addresses correctly. ([#3081](https://github.com/craftcms/commerce/issues/3081))
 
 ## 4.6.7 - 2024-07-25
 
