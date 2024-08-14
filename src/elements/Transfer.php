@@ -330,8 +330,9 @@ class Transfer extends Element
                 [['originLocationId', 'destinationLocationId'], 'required'],
             ]);
 
-            $rules[] = [['originLocationId', 'destinationLocationId'], 'validateLocations'];
+            $rules[] = [['originLocationId'], 'validateLocations'];
             $rules[] = [['details'], 'validateDetails'];
+
         }
 
         return $rules;
@@ -345,6 +346,10 @@ class Transfer extends Element
      */
     public function validateDetails($attribute, $params, $validator)
     {
+        if ($this->sumDetailsQuanity() < 1) {
+            $this->addError($attribute, Craft::t('commerce', 'Transfer must have at least one item.'));
+        }
+
         foreach ($this->getDetails() as $detail) {
             $this->addModelErrors($detail, 'detail');
         }
@@ -584,9 +589,33 @@ JS, [
             [],
         ]);
 
+        $receiveInventoryButtonId = sprintf("receive-transfer-%s", mt_rand());
+
+        $view->registerJsWithVars(fn($id, $settings) => <<<JS
+$('#' + $id).on('click', (e) => {
+	e.preventDefault();
+	const modal = new Craft.Commerce.ReceiveTransferModal($settings);
+	modal.on('close', (e) => {
+	  console.log('closed');
+	});
+});
+JS, [
+            $receiveInventoryButtonId,
+            ['params' => ['transferId' => $this->id]],
+        ]);
+
 
         /** @var Response|CpScreenResponseBehavior $response */
-        $response->crumbs([
+        $response->
+            additionalButtonsHtml(Html::a(
+            Craft::t('commerce', 'Receive Inventory'),
+            '#',
+            [
+                'id' => $receiveInventoryButtonId,
+                'class' => 'btn'
+            ]
+        ))
+        ->crumbs([
             [
                 'label' => Craft::t('commerce', 'Inventory'),
                 'url' => UrlHelper::cpUrl('commerce/inventory'),
@@ -599,7 +628,7 @@ JS, [
     }
 
     /**
-     * @return array
+     * @return TransferDetail[]
      */
     public function getDetails(): array
     {
@@ -636,6 +665,38 @@ JS, [
         }
 
         $this->_details = $value;
+    }
+
+    /**
+     * @return int
+     */
+    public function sumDetailsQuanity(): int
+    {
+        $sum = 0;
+        foreach ($this->getDetails() as $detail) {
+            $sum += $detail->quantity;
+        }
+        return $sum;
+    }
+
+    /**
+     * @param TransferDetail $detail
+     * @return void
+     */
+    public function addDetail(TransferDetail $detail): void
+    {
+        if (!$this->_details) {
+            $this->_details = [];
+        }
+
+        foreach ($this->_details as $existingDetail) {
+            if ($existingDetail->inventoryItemId == $detail->inventoryItemId) {
+                $existingDetail->quantity += $detail->quantity;
+                return;
+            }
+        }
+
+        $this->_details[] = $detail;
     }
 
     /**
@@ -717,5 +778,79 @@ JS, [
         parent::afterSave($isNew);
     }
 
+    /**
+     * @return bool
+     */
+    public function isTransferDraft(): bool
+    {
+        return $this->getTransferStatus() === TransferStatusType::DRAFT;
+    }
 
+    /**
+     * @return bool
+     */
+    public function isTransferPending(): bool
+    {
+        return $this->getTransferStatus() === TransferStatusType::PENDING;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTransferPartial(): bool
+    {
+        return $this->getTransferStatus() === TransferStatusType::PARTIAL;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTransferReceived(): bool
+    {
+        return $this->getTransferStatus() === TransferStatusType::RECEIVED;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalRejected(): int
+    {
+        $totalRejected = 0;
+        foreach ($this->getDetails() as $detail) {
+            $totalRejected += $detail->quantityRejected;
+        }
+        return $totalRejected;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAccepted(): int
+    {
+        $totalAccepted = 0;
+        foreach ($this->getDetails() as $detail) {
+            $totalAccepted += $detail->quantityAccepted;
+        }
+        return $totalAccepted;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalReceived(): int
+    {
+        return $this->getTotalAccepted() + $this->getTotalRejected();
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalQuantity(): int
+    {
+        $totalQuantity = 0;
+        foreach ($this->getDetails() as $detail) {
+            $totalQuantity += $detail->quantity;
+        }
+        return $totalQuantity;
+    }
 }

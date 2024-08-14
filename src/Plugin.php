@@ -26,6 +26,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Transfer;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
@@ -51,6 +52,7 @@ use craft\commerce\gql\queries\Product as GqlProductQueries;
 use craft\commerce\gql\queries\Variant as GqlVariantQueries;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
+use craft\commerce\models\LineItem;
 use craft\commerce\models\Settings;
 use craft\commerce\plugin\Routes;
 use craft\commerce\plugin\Services as CommerceServices;
@@ -324,6 +326,23 @@ class Plugin extends BasePlugin
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Transfer::class;
         });
+
+        Event::on(
+            Order::class,
+            Order::EVENT_AFTER_ADD_LINE_ITEM,
+            function(LineItemEvent $event) {
+                $variantId = Variant::find()->one()->id;
+                $order = $event->lineItem->order;
+                $exists = collect($order->getLineItems())
+                    ->filter(fn(LineItem $lineItem) => $lineItem->purchasableId == $variantId)
+                    ->count();
+
+                if (!$exists) {
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $variantId, []);
+                    $order->addLineItem($lineItem);
+                }
+            }
+        );
     }
 
     /**

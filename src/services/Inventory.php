@@ -350,6 +350,7 @@ class Inventory extends Component
                 'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
                 'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
                 'note' => $updateInventoryLevel->note,
+                'transfer' => $updateInventoryLevel->transferId,
                 'movementHash' => $this->getMovementHash(),
                 'dateCreated' => Db::prepareDateForDb(new \DateTime()),
                 'userId' => Craft::$app->getUser()->getIdentity()?->id,

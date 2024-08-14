@@ -12,6 +12,7 @@ use craft\base\ElementInterface;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Transfer;
 use craft\commerce\enums\TransferStatusType;
+use craft\commerce\models\InventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\transfers\TransfersAsset;
@@ -19,6 +20,8 @@ use craft\fieldlayoutelements\BaseNativeField;
 use craft\helpers\Cp;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
+use craft\records\Tag;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -67,23 +70,88 @@ class TransferManagementField extends BaseNativeField
 
     public static function renderStaticFieldHtml(Transfer $element, bool $static = false): string
     {
-        return '';
+        $html = '';
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $origin = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($element->originLocationId);
+        $destination = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($element->destinationLocationId);
+
+        $html .= Html::tag('div',
+            Html::tag('div',
+                Cp::elementCardHtml($origin->getAddress()), ['class' => 'flex-grow']) .
+            Html::tag('div', Cp::elementCardHtml($destination->getAddress()), ['class' => 'flex-grow'])
+            , ['class' => 'flex']);
+
+
+        $tableRows = '';
+
+        foreach ($element->getDetails() as $detail) {
+            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $tableRows .= Html::tag('tr',
+                Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
+                Html::tag('td', $detail->quantityRejected) .
+                Html::tag('td', $detail->quantityAccepted) .
+                Html::tag('td', $detail->getReceived() . '/'. $detail->quantity)
+            );
+        };
+
+        $totalRow = Html::tag('tr',
+            Html::tag('td') .
+            Html::tag('td', '') .
+            Html::tag('td', '') .
+            Html::tag('td', Craft::t('commerce', 'Total ') . ' ' . $element->getTotalReceived() . '/' . $element->getTotalQuantity())
+        );
+
+        $table = Html::tag('table',
+            Html::tag('thead',
+                Html::tag('tr',
+                    Html::tag('th', 'Inventory Item') .
+                    Html::tag('th', 'Rejected', ['style' => "width: 20%;"]) .
+                    Html::tag('th', 'Accepted', ['style' => "width: 20%;"]) .
+                    Html::tag('th', 'Total', ['style' => "width: 20%;"])
+                )
+            ) .
+            Html::tag('tbody', $tableRows . $totalRow)
+            , ['class' => 'data fullwidth']
+        );
+
+
+
+        $html .= Html::tag('hr') . $table;
+
+        return $html;
     }
 
     public static function renderFieldHtml(Transfer $element): string
     {
+        // Only draft is editable
+        if (!$element->isTransferDraft()) {
+            return self::renderStaticFieldHtml($element);
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
         $view = Craft::$app->getView();
         $inventoryLocationOptions = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocationsAsList(false);
         $isHtmxRequest = Craft::$app->getRequest()->getHeaders()->has('HX-Request');
+
+        $allLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+        $defaultFirstLocation = $allLocations->first();
+        $defaultSecondLocation = $allLocations->skip(1)->first();
 
         Craft::$app->getView()->registerAssetBundle(TransfersAsset::class);
 
         $namespacedId = $view->namespaceInputId('transfer-management');
 
         $html = Html::beginTag('div', [
-            'class' => ['transfer-management-main'],
+            'id' => $namespacedId,
             'hx' => [
                 'ext' => 'craft-cp',
+                'target' => '#' . $namespacedId,
+                'include' => '#' . $namespacedId,
+                'vals' => [
+                    'action' => 'commerce/transfers/render-management',
+                    'transferId' => $element->id,
+                ]
             ],
         ]);
 
@@ -91,84 +159,142 @@ class TransferManagementField extends BaseNativeField
             'label' => Craft::t('commerce', 'Origin'),
             'name' => 'originLocationId', // 'name' => 'fields[locations][originLocationId]
             'options' => $inventoryLocationOptions,
-            'value' => $element->originLocationId,
-            'containerAttributes' => [
-                'class' => ['flex-grow'],
-            ],
+            'errors' => $element->getErrors('originLocationId'),
+            'value' => $element->originLocationId ?? $defaultFirstLocation->id,
+            'inputAttributes' => [
+                'hx' => [
+                    'post' => '',
+                    'trigger' => 'change'
+                ]
+            ]
         ];
 
         $destinationLocationSelectFieldConfig = [
             'label' => Craft::t('commerce', 'Destination'),
             'name' => 'destinationLocationId',
+            'errors' => $element->getErrors('destinationLocationId'),
             'options' => $inventoryLocationOptions,
-            'value' => $element->destinationLocationId,
-            'containerAttributes' => [
-                'class' => ['flex-grow'],
-            ],
+            'value' => $element->destinationLocationId ?? $defaultSecondLocation->id,
+            'inputAttributes' => [
+                'hx' => [
+                    'post' => '',
+                    'trigger' => 'change'
+                ]
+            ]
         ];
 
-        $destinationLocationSelectField = Cp::selectFieldHtml($destinationLocationSelectFieldConfig);
-        $originLocationSelectField = Cp::selectFieldHtml($originLocationSelectFieldConfig);
+        $destinationLocationSelectField = Html::tag('div', Cp::selectFieldHtml($destinationLocationSelectFieldConfig), ['class' => 'flex-grow']);
+        $originLocationSelectField = Html::tag('div', Cp::selectFieldHtml($originLocationSelectFieldConfig), ['class' => 'flex-grow']);
 
         $html .= Html::tag('div', $originLocationSelectField . $destinationLocationSelectField, ['class' => 'flex']);
 
-        $cols = self::getTransferDetailColumns($element);
-        $rows = collect($element->getDetails())->mapWithKeys(function (TransferDetail $detail) {
-            return [
-                $detail->id => [
-                    'id' => $detail->id,
-                    'inventoryItemId' => $detail->inventoryItemId,
-                    'quantity' => $detail->quantity,
-                ]
-            ];
-        })->all();
+        $tableRows = '';
+        $loop = 1;
 
-        $detailsTable = Cp::editableTableFieldHtml([
-            'allowAdd' => false,
-            'allowReorder' => false,
-            'allowDelete' => $element->transferStatus == TransferStatusType::DRAFT,
-            'name' => 'details',
-            'cols' => $cols,
-            'rows' => $rows,
-        ]);
+        foreach ($element->getDetails() as $detail) {
+            $key = $detail->uid ?? StringHelper::UUID();
+            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $tableRows .= Html::tag('tr',
+                Html::hiddenInput('details[' . $key . '][id]', $detail->id) .
+                Html::hiddenInput('details[' . $key . '][uid]', $detail->uid) .
+                Html::hiddenInput('details[' . $key . '][inventoryItemId]', $detail->inventoryItemId) .
+                Html::tag('td', ($purchasable ? Cp::chipHtml($purchasable, ['showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]) : Html::tag('span', $detail->inventoryItemDescription))) .
+                Html::tag('td', Html::input('number', 'details[' . $key . '][quantity]', $detail->quantity, ['class' => 'text fullwidth'])) .
+                Html::tag('td', Html::a('', '#', [
+                    'hx' => [
+                        'post' => '',
+                        'trigger' => 'click',
+                        'vals' => [
+                            'removeInventoryItemUid' => $key,
+                        ]
+                    ],
+                    'class' => 'delete icon',
+                    'title' => Craft::t('app', 'Delete'),
+                    'aria-label' => Craft::t('app', 'Delete'),
+                    'role' => 'button',
+                ]), ['class' => 'thin'])
+            );
+        };
 
-        $button = Html::buttonInput(Craft::t('commerce', 'Add an item'), [
-            'class' => 'btn dashed add icon',
-            'hx-target' => '.transfer-management-main',
-            'hx-vals' => Json::encode([
-                'action' => 'commerce/transfers/render-management',
-                'addRow' => true,
-                'transferId' => $element->id,
-            ]),
-            'hx-post' => '',
-            'hx-trigger' => 'click',
-        ]);
+        // sum row
+        $tableRows .= Html::tag('tr',
+            Html::tag('td') .
+            Html::tag('td', $element->sumDetailsQuanity() . ' ' . Craft::t('commerce', 'Total'), ['class' => 'right']) .
+            Html::tag('td',)
+        );
 
-        $html .= Cp::fieldHtml($detailsTable , [
+        $table = Html::tag('table',
+            Html::tag('thead',
+                Html::tag('tr',
+                    Html::tag('th', 'Inventory Item') .
+                    Html::tag('th', 'Quantity', ['style' => "width: 20%;"]) .
+                    Html::tag('th', '')
+                )
+            ) .
+            Html::tag('tbody', $tableRows)
+            , ['class' => 'data fullwidth']
+        );
+
+        $html .= Cp::fieldHtml($table, [
             'label' => Craft::t('commerce', 'Transfer Items'),
         ]);
 
-        $html .= $button;
+        if ($element->originLocationId) {
+            $sourceLocation = Plugin::getInstance()->getInventoryLocations()->getInventoryLocationById($element->originLocationId);
+        } else {
+            $sourceLocation = $defaultFirstLocation;
+        }
+
+        $inventoryLevels = Plugin::getInstance()->getInventory()->getInventoryLocationLevels($sourceLocation)->sortByDesc([
+            fn(InventoryLevel $level) => $level->onHandTotal
+        ]);
+        $inventoryItemOptions = [];
+
+
+        /** @var InventoryLevel $level */
+        foreach ($inventoryLevels as $level) {
+            $inventoryItemOptions[] = [
+                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' on hand' : Craft::t('commerce', 'None on hand')) . ')',
+                'value' => $level->getInventoryItem()->id,
+                'disabled' => !($level->onHandTotal > 0),
+            ];
+        }
+
+        Craft::$app->getView()->startJsBuffer();
+
+        $addToItems = Html::tag('div',
+
+            Cp::selectizeHtml([
+                'name' => 'newInventoryItemId',
+                'options' => $inventoryItemOptions,
+                'value' => '',
+                'placeholder' => Craft::t('commerce', 'Select an item'),
+            ]) .
+
+            Html::button(Craft::t('commerce', 'Add an item'), [
+                'class' => 'btn secondary',
+                'hx' => [
+                    'post' => '',
+                    'target' => '#' . $namespacedId,
+                    'trigger' => 'click',
+                    'vals' => [
+                        'addItem' => true,
+                    ]
+                ]
+            ])
+            , ['class' => 'flex']);
+
+        $html .= $addToItems;
+        $fieldJs = (string)$view->clearJsBuffer(false);
+
+        if ($fieldJs) {
+            if ($isHtmxRequest) {
+                $html .= html::tag('script', $fieldJs, ['type' => 'text/javascript']);
+            } else {
+                $view->registerJs($fieldJs);
+            }
+        }
 
         return $html . Html::endTag('div');
-    }
-
-    public static function getTransferDetailColumns(Transfer $transfer): array
-    {
-        $cols = [];
-
-        $cols[] = [
-            'type' => 'singleline',
-            'label' => Craft::t('commerce', 'Item'),
-            'name' => 'inventoryItemId',
-            'static' => true,
-        ];
-        $cols[] = [
-            'type' => 'singleline',
-            'label' => Craft::t('commerce', 'Quantity'),
-            'name' => 'quantity',
-        ];
-
-        return $cols;
     }
 }

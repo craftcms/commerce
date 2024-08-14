@@ -9,12 +9,23 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
+use craft\commerce\collections\InventoryMovementCollection;
+use craft\commerce\collections\UpdateInventoryLevelCollection;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Transfer;
+use craft\commerce\enums\InventoryTransactionType;
+use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\TransferStatusType;
 use craft\commerce\fieldlayoutelements\TransferManagementField;
+use craft\commerce\helpers\Cp;
+use craft\commerce\models\inventory\InventoryManualMovement;
+use craft\commerce\models\inventory\InventoryTransferMovement;
+use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\TransferDetail;
 use craft\commerce\Plugin;
 use craft\commerce\services\Transfers;
+use craft\helpers\Db;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use yii\web\ForbiddenHttpException;
@@ -160,12 +171,62 @@ class TransfersController extends BaseStoreManagementController
      */
     public function actionReceiveTransfer(): Response
     {
-        return $this->asSuccess(Craft::t('commerce', 'TODO'));
-    }
+        $details = $this->request->getParam('details', []);
+        $transferId = $this->request->getRequiredParam('transferId');
+        /** @var Transfer $transfer */
+        $transfer = Transfer::find()->id($transferId)->one();
 
-    public function actionItemsTable(): Response
-    {
+        $inventoryMovementCollection = new InventoryMovementCollection();
+        $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
 
+        foreach ($details as $uid => $detail) {
+            $transferDetails = $transfer->getDetails();
+            foreach ($transferDetails as $transferDetail) {
+
+                if ($acceptedAmount = $details[$transferDetail->uid]['accept']) {
+                    // Update the total accepted
+                    $transferDetail->quantityAccepted += $acceptedAmount;
+
+                    $inventoryAcceptedMovement = new InventoryTransferMovement();
+                    $inventoryAcceptedMovement->quantity = $acceptedAmount;
+                    $inventoryAcceptedMovement->transferId = $transfer->id;
+                    $inventoryAcceptedMovement->inventoryItem = $transferDetail->getInventoryItem();
+                    $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
+                    $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
+                    $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                    $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
+
+                    $inventoryMovementCollection->push($inventoryAcceptedMovement);
+                }
+
+                if ($rejectedAmount = $details[$transferDetail->uid]['reject']) {
+                    // Update the total rejected
+                    $transferDetail->quantityRejected += $rejectedAmount;
+
+                    $inventoryRejectedMovement = new UpdateInventoryLevel();
+                    $inventoryRejectedMovement->quantity = $rejectedAmount;
+                    $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
+                    $inventoryRejectedMovement->inventoryItem = $transferDetail->getInventoryItem();
+                    $inventoryRejectedMovement->transferId = $transfer->id;
+                    $inventoryRejectedMovement->inventoryLocation = $transfer->getDestinationLocation();
+                    $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
+
+                    $inventoryUpdateCollection->push($inventoryRejectedMovement);
+                }
+            }
+            $transfer->setDetails($transferDetails);
+
+            try {
+                Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection);
+                Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
+                Craft::$app->getElements()->saveElement($transfer, false);
+            } catch (\Throwable $e) {
+                Craft::error('Failed to save transfer details: ' . $e->getMessage(), __METHOD__);
+                return $this->asFailure(Craft::t('commerce', 'Failed to receive transfer: {error}', ['error' => $e->getMessage()]));
+            }
+        }
+
+        return $this->asSuccess('Updated');
     }
 
     /**
@@ -173,27 +234,118 @@ class TransfersController extends BaseStoreManagementController
      */
     public function actionReceiveTransferModal(): Response
     {
-        $params = [
-        ];
+        $transferId = $this->request->getRequiredParam('transferId');
+        /** @var Transfer $transfer */
+        $transfer = Transfer::find()->id($transferId)->one();
+
+        if (!$transfer) {
+            return $this->asCpModal()
+                ->contentHtml('Cant find transfer');
+        }
+
+        $html = Html::beginTag('div', [
+            'hx' => [
+                'action' => 'commerce/transfers/receive-transfer-modal-content',
+            ],
+        ]);
+
+        $html .= Html::tag('h2', Craft::t('commerce', 'Receive Transfer'));
+
+        $html .= Html::hiddenInput('transferId', $transferId);
+
+        // TODO: Allow shortcut to receive and reject all
+        // $html .= Html::a(Craft::t('commerce', 'Accept All Unreceived'), '#');
+        // $html .= Html::a(Craft::t('commerce', 'Reject All Unreceived'), '#');
+
+        $tableRows = '';
+        foreach ($transfer->getDetails() as $detail) {
+            $key = $detail->uid;
+            $purchasable = $detail->getInventoryItem()?->getPurchasable();
+            $label = $purchasable ? \craft\helpers\Cp::elementChipHtml($purchasable) : $detail->getInventoryItem()->title;
+            $tableRows .= Html::beginTag('tr');
+            $tableRows .= Html::tag('td', $label);
+            $tableRows .= Html::tag('td', $detail->quantityAccepted);
+            $tableRows .= Html::tag('td',
+                Html::input('number', 'details[' . $key . '][accept]', '', ['class' => 'text fullwidth'])
+            );
+            $tableRows .= Html::tag('td', $detail->quantityRejected);
+            $tableRows .= Html::tag('td',
+                Html::input('number', 'details[' . $key . '][reject]', '', ['class' => 'text fullwidth'])
+            );
+        }
+
+        $html .= Html::tag('table',
+            Html::tag('thead',
+                Html::tag('tr',
+                    Html::tag('th', Craft::t('commerce', 'Item')) .
+                    Html::tag('th', Craft::t('commerce', 'Accepted')) .
+                    Html::tag('th', Craft::t('commerce', 'Accept')) .
+                    Html::tag('th', Craft::t('commerce', 'Rejected')) .
+                    Html::tag('th', Craft::t('commerce', 'Reject'))
+                )
+            ) .
+            $tableRows,
+            ['class' => 'data fullwidth']);
+
+        $html .= Html::endTag('div');
 
         return $this->asCpModal()
             ->action('commerce/transfers/receive-transfer')
-            ->contentTemplate('commerce/transfers/_receiveTransferModal', $params);
+            ->submitButtonLabel(Craft::t('commerce', 'Update'))
+//            ->additionalButtonsHtml($acceptAllUnreceivedButton)
+            ->contentHtml($html);
+    }
+
+    /**
+     * @return string
+     */
+    public function actionReceiveTransferModalContent(): string
+    {
+
+        return Html::tag('div', 'fresh content');
     }
 
     public function actionRenderManagement(): string
     {
         $transferId = $this->request->getRequiredParam('transferId');
-        $transfer = Transfer::find()->id($transferId)->drafts()->one();
 
-        $details = $this->request->getRequiredParam('details');
+        /** @var Transfer $transfer */
+        $transfer = Transfer::find()->id($transferId)->drafts(null)->one();
 
-        $transfer->setDetails($details);
+        // We will only change the transfer if it is a draft.
+        if ($transfer && $transfer->isTransferDraft()) {
 
-        if($addRow = $this->request->getRequiredParam('addRow'))
-        {
-            $detail = new TransferDetail();
-            $transfer->addDetails($detail);
+            $allLocations = Plugin::getInstance()->getInventoryLocations()->getAllInventoryLocations();
+            $defaultFirstLocationId = $allLocations->first()->id;
+            $defaultSecondLocationId = $allLocations->skip(1)->first()->id;
+
+            $originLocationId = (int)$this->request->getParam('originLocationId', $defaultFirstLocationId);
+            $destinationLocationId = (int)$this->request->getParam('destinationLocationId', $defaultSecondLocationId);
+
+            $transfer->originLocationId = $originLocationId;
+            $transfer->destinationLocationId = $destinationLocationId;
+
+            $details = $this->request->getParam('details', []);
+            $transfer->setDetails($details);
+
+            $details = $this->request->getParam('details', []);
+
+            if ($this->request->getParam('removeInventoryItemUid')) {
+                $details = array_filter($details, function($detail) {
+                    return $detail['uid'] !== $this->request->getParam('removeInventoryItemUid');
+                });
+            }
+            $transfer->setDetails($details);
+
+            $addItem = $this->request->getParam('addItem', false);
+            $addInventoryItemId = $this->request->getParam('newInventoryItemId', null);
+            if ($addItem && $addInventoryItemId) {
+                $transfer->addDetail(new TransferDetail([
+                    'uid' => StringHelper::UUID(),
+                    'inventoryItemId' => $addInventoryItemId,
+                    'quantity' => 1,
+                ]));
+            }
         }
 
         return TransferManagementField::renderFieldHtml($transfer);

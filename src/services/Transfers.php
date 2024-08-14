@@ -121,6 +121,7 @@ class Transfers extends Component
                 'quantity',
                 'quantityAccepted',
                 'quantityRejected',
+                'uid',
             ])
             ->from([Table::TRANSFERDETAILS]);
     }

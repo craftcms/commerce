@@ -27,6 +27,8 @@ class TransferDetail extends Model
 
     public int $quantityRejected = 0;
 
+    public string $uid;
+
     private ?Transfer $_transfer;
 
     /**
@@ -39,6 +41,16 @@ class TransferDetail extends Model
         if ($this->transferId) {
             $this->_transfer = Transfer::findOne($this->transferId);
         }
+
+        if($this->inventoryItemId) {
+            $inventoryItem = Plugin::getInstance()->getInventory()->getInventoryItemById($this->inventoryItemId);
+            $this->inventoryItemDescription = $inventoryItem->getSku();
+        }
+    }
+
+    public function getReceived(): int
+    {
+        return $this->quantityAccepted + $this->quantityRejected;
     }
 
     /**
