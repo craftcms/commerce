@@ -14,7 +14,7 @@
 
 {% endif %}
 
-{% if craft.commerce.inventoryLocations.getAllInventoryLocations()|length > 1 and false %} {# TODO: Remove false to work on transfers #}
+{% if craft.commerce.inventoryLocations.getAllInventoryLocations()|length > 1 %}
 {% set navItems = navItems|merge({
     'management': { heading: "Management"|t('commerce')},
     'transfers': { title: "Transfers"|t('commerce'), url: url('commerce/inventory/transfers')},

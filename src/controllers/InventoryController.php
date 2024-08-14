@@ -505,7 +505,6 @@ JS, [
             $resultingInventoryLevels[] = Plugin::getInstance()->getInventory()->getInventoryLevel($updateInventoryLevel->inventoryItem, $updateInventoryLevel->inventoryLocation);
         }
 
-
         return $this->asSuccess(Craft::t('commerce', 'Inventory updated.'),[
             'updatedItems' => collect($resultingInventoryLevels)->toArray(),
         ]);

@@ -13,7 +13,7 @@ use craft\commerce\models\InventoryLocation;
  *
  * @since 5.0
  */
-class UpdateInventoryLevel extends Model
+class UpdateInventoryLevelInTransfer extends Model
 {
     /**
      * The type is the set of InventoryTransactionType values, plus the `onHand` type.
@@ -57,7 +57,7 @@ class UpdateInventoryLevel extends Model
         return array_merge(parent::defineRules(), [
             [['updateAction', 'quantity', 'inventoryLocationId', 'inventoryId', 'type'], 'required'],
             [['note'], 'string'],
-            [['type'], 'in', 'range' => [...InventoryTransactionType::allowedManualAdjustmentTypes(), 'onHand']],
+            [['type'], 'in', 'range' => [...InventoryTransactionType::incoming(), 'onHand']],
             [['updateAction'], 'in', 'range' => InventoryUpdateQuantityType::values()],
         ]);
     }

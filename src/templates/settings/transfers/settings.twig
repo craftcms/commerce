@@ -1,0 +1,19 @@
+{% requireAdmin %}
+
+{% extends "commerce/_layouts/settings" %}
+{% set selectedItem = 'transfers' %}
+
+{% set fullPageForm = true %}
+
+{% block content %}
+    <h2>{{ "Transfer Fields"|t('commerce') }}</h2>
+
+    <input type="hidden" name="action" value="commerce/transfers/save-settings">
+    {{ redirectInput('commerce/settings/transfers') }}
+    {{ csrfInput() }}
+
+    {% include "_includes/fieldlayoutdesigner" with {
+        fieldLayout: craft.app.fields.getLayoutByType('craft\\commerce\\elements\\Transfer')
+    } only %}
+
+{% endblock %}

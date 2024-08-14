@@ -50,6 +50,22 @@ class InventoryLocations extends Component
     }
 
     /**
+     * Returns all inventory locations as a list.
+     *
+     * @param bool $withTrashed
+     * @return array All locations as key value list
+     * @throws DeprecationException
+     * @throws InvalidConfigException
+     * @since 5.1.0
+     */
+    public function getAllInventoryLocationsAsList(bool $withTrashed = false): array
+    {
+        return $this->getAllInventoryLocations($withTrashed)->mapWithKeys(function(InventoryLocation $location) {
+            return [$location->id => $location->name];
+        })->toArray();
+    }
+
+    /**
      * Returns an inventory location by its ID.
      *
      * @param int $id

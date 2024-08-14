@@ -16,6 +16,7 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\HasStoreInterface;
+use craft\commerce\base\Purchasable;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\base\StoreTrait;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
@@ -65,6 +66,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Illuminate\Support\Collection;
 use Money\Teller;
 use ReflectionClass;
 use ReflectionMethod;
@@ -1878,6 +1880,18 @@ class Order extends Element implements HasStoreInterface
     }
 
     /**
+     * Returns any line item with that purchasable
+     *
+     * @param Purchasable $purchasable
+     * @return Collection
+     */
+    public function lineItemsByPurchasable(Purchasable $purchasable): Collection
+    {
+        return collect($this->getLineItems())
+            ->filter(fn(LineItem $lineItem) => $lineItem->purchasableId == $purchasable->getId());
+    }
+
+    /**
      * Gets the recalculation mode of the order
      */
     public function getRecalculationMode(): string
@@ -1903,6 +1917,9 @@ class Order extends Element implements HasStoreInterface
         if (!$this->id) {
             throw new InvalidCallException('Do not recalculate an order that has not been saved');
         }
+
+        // create a new before relcalculate event
+
 
         if ($this->hasErrors()) {
             Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);

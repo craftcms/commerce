@@ -69,7 +69,7 @@ abstract class Table
     public const STORES = '{{%commerce_stores}}';
     public const STORESETTINGS = '{{%commerce_storesettings}}'; // Previously stores table
     public const TRANSFERS = '{{%commerce_transfers}}';
-    public const TRANSFERS_INVENTORYITEMS = '{{%commerce_transfers_inventoryitems}}';
+    public const TRANSFERDETAILS = '{{%commerce_transferdetails}}';
     public const INVENTORYITEMS = '{{%commerce_inventoryitems}}';
     public const INVENTORYLOCATIONS = '{{%commerce_inventorylocations}}';
     public const INVENTORYLOCATIONS_STORES = '{{%commerce_inventorylocations_stores}}';

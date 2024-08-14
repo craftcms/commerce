@@ -96,6 +96,8 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
             }
         }
 
+        $this->_address->title = $this->name;
+
         return $this->_address;
     }
 
