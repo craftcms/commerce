@@ -11,7 +11,37 @@
             <order-block class="order-flex order-box-sizing">
                 <div class="w-1/4">
                     <!-- Description -->
-                    <order-title>
+                    <div
+                        v-if="
+                            editing &&
+                            editMode &&
+                            lineItem.type &&
+                            lineItem.type.value === lineItemTypes.Custom.value
+                        "
+                    >
+                        <field
+                            :label="
+                                $options.filters.t('Description', 'commerce')
+                            "
+                            v-slot:default="slotProps"
+                        >
+                            <input
+                                :id="slotProps.id"
+                                type="text"
+                                class="text"
+                                size="10"
+                                v-model="description"
+                                :class="{
+                                    error: getErrors(
+                                        'lineItems.' +
+                                            lineItemKey +
+                                            '.description'
+                                    ).length,
+                                }"
+                            />
+                        </field>
+                    </div>
+                    <order-title v-else>
                         <a
                             :href="lineItem.purchasableCpEditUrl"
                             v-if="lineItem.purchasableCpEditUrl"
@@ -23,8 +53,46 @@
                         </span>
                     </order-title>
                     <!-- SKU -->
-                    <div>
-                        <code class="extralight">{{ lineItem.sku }}</code>
+                    <div
+                        :class="{
+                            'mt-s':
+                                editing &&
+                                editMode &&
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value,
+                        }"
+                    >
+                        <template
+                            v-if="
+                                editing &&
+                                editMode &&
+                                lineItem.type &&
+                                lineItem.type.value ===
+                                    lineItemTypes.Custom.value
+                            "
+                        >
+                            <field
+                                :label="$options.filters.t('SKU', 'commerce')"
+                                v-slot:default="slotProps"
+                            >
+                                <input
+                                    :id="slotProps.id"
+                                    type="text"
+                                    class="text"
+                                    size="4"
+                                    v-model="sku"
+                                    :class="{
+                                        error: getErrors(
+                                            'lineItems.' + lineItemKey + '.sku'
+                                        ).length,
+                                    }"
+                                />
+                            </field>
+                        </template>
+                        <code class="extralight" v-else>{{
+                            lineItem.sku
+                        }}</code>
                     </div>
 
                     <!-- Status -->
@@ -73,7 +141,9 @@
                                         v-if="
                                             editing &&
                                             editMode &&
-                                            recalculationMode === 'none'
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
                                         "
                                     >
                                         <field
@@ -114,7 +184,9 @@
                                         v-if="
                                             editing &&
                                             editMode &&
-                                            recalculationMode === 'none'
+                                            (recalculationMode === 'none' ||
+                                                lineItem.type.value ===
+                                                    lineItemTypes.Custom.value)
                                         "
                                     >
                                         <div>
@@ -203,6 +275,95 @@
                     </div>
 
                     <div>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'hasFreeShipping'"
+                                :label="
+                                    $options.filters.t(
+                                        'Has Free Shipping',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isShippable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Shippable',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isPromotable'"
+                                :label="
+                                    $options.filters.t(
+                                        'Is Promotable',
+                                        'commerce'
+                                    )
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
+                        <order-block
+                            class="order-flex"
+                            v-if="
+                                lineItem.type.value ===
+                                lineItemTypes.Custom.value
+                            "
+                        >
+                            <line-item-property
+                                :editing="editing && editMode"
+                                :line-item="lineItem"
+                                :attribute="'isTaxable'"
+                                :label="
+                                    $options.filters.t('Is Taxable', 'commerce')
+                                "
+                                :classes="{'order-flex': true}"
+                                @updateLineItem="
+                                    $emit('updateLineItem', $event)
+                                "
+                            />
+                        </order-block>
                         <line-item-adjustments
                             :order-id="orderId"
                             :line-item="lineItem"
@@ -305,6 +466,7 @@
     import LineItemOptions from './LineItemOptions';
     import LineItemNotes from './LineItemNotes';
     import LineItemAdjustments from './LineItemAdjustments';
+    import LineItemProperty from './LineItemProperty.vue';
     import Snapshot from './Snapshot';
 
     export default {
@@ -314,6 +476,7 @@
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
+            LineItemProperty,
             Snapshot,
         },
 
@@ -369,11 +532,34 @@
                 'canEdit',
                 'getErrors',
                 'hasLineItemErrors',
+                'lineItemTypes',
                 'orderId',
                 'shippingCategories',
                 'taxCategories',
                 'totalCommittedStock',
             ]),
+
+            description: {
+                get() {
+                    return this.lineItem.description;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.description = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
+
+            sku: {
+                get() {
+                    return this.lineItem.sku;
+                },
+                set: debounce(function (val) {
+                    const lineItem = this.lineItem;
+                    lineItem.sku = val;
+                    this.$emit('updateLineItem', lineItem);
+                }, 1000),
+            },
 
             promotionalPrice: {
                 get() {

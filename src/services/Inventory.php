@@ -16,6 +16,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
+use craft\commerce\enums\LineItemType;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
@@ -616,6 +617,11 @@ class Inventory extends Component
         $allInventoryLevels = [];
         $qtyLineItem = [];
         foreach ($order->getLineItems() as $lineItem) {
+            if ($lineItem->type === LineItemType::Custom) {
+                // Skip custom line items
+                continue;
+            }
+
             $purchasable = $lineItem->getPurchasable();
             // Don't reduce stock of unlimited items.
             if ($purchasable->inventoryTracked) {

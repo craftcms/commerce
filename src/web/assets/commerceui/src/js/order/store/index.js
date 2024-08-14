@@ -84,8 +84,16 @@ export default new Vuex.Store({
       return window.orderEdit.taxCategories;
     },
 
+    defaultTaxCategoryId() {
+      return window.orderEdit.defaultTaxCategoryId;
+    },
+
     shippingCategories() {
       return window.orderEdit.shippingCategories;
+    },
+
+    defaultShippingCategoryId() {
+      return window.orderEdit.defaultShippingCategoryId;
     },
 
     statesByCountryId() {
@@ -159,6 +167,10 @@ export default new Vuex.Store({
 
     lineItemStatuses() {
       return window.orderEdit.lineItemStatuses;
+    },
+
+    lineItemTypes() {
+      return window.orderEdit.lineItemTypes;
     },
 
     shippingMethods(state) {
