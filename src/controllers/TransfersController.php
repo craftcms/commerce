@@ -35,6 +35,19 @@ use yii\web\Response;
  */
 class TransfersController extends BaseStoreManagementController
 {
+
+    /**
+     * @return void
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\web\ForbiddenHttpException
+     */
+    public function init(): void
+    {
+        parent::init();
+
+        $this->requirePermission('commerce-manageInventoryTransfers');
+    }
+
     /**
      * @return Response
      */
