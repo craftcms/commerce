@@ -55,6 +55,7 @@ class ProductTypeSite extends Model
 
     /**
      * @var bool Enabled by default
+     * @since 5.1.0
      */
     public bool $enabledByDefault = true;
 

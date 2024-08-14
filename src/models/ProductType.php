@@ -96,7 +96,7 @@ class ProductType extends Model
 
     /**
      * @var string|null Variant title translation key format
-     * @since 5.1
+     * @since 5.1.0
      */
     public ?string $variantTitleTranslationKeyFormat = null;
 
@@ -119,7 +119,7 @@ class ProductType extends Model
 
     /**
      * @var string|null Product title translation key format
-     * @since 5.1
+     * @since 5.1.0
      */
     public ?string $productTitleTranslationKeyFormat = null;
 
