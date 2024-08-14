@@ -48,15 +48,44 @@
           errors: catalogPricingRule.getErrors('dateTo'),
       }) }}
 
-      {% set purchasableConditionInput %}
-        {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
+      <hr>
+
+      {% set productConditionInput %}
+        {{ catalogPricingRule.productCondition.getBuilderHtml()|raw }}
       {% endset %}
 
       {{ forms.field({
-        id: 'purchasableCondition',
-        label: 'Match Purchasable'|t('commerce'),
-        errors: catalogPricingRule.getErrors('purchasableCondition')
-      }, purchasableConditionInput) }}
+        id: 'productCondition',
+        label: 'Match Product'|t('commerce'),
+        errors: catalogPricingRule.getErrors('productCondition')
+      }, productConditionInput) }}
+
+      {% set variantConditionInput %}
+        {{ catalogPricingRule.variantCondition.getBuilderHtml()|raw }}
+      {% endset %}
+
+      {{ forms.field({
+        id: 'variantCondition',
+        label: 'Match Variant'|t('commerce'),
+        errors: catalogPricingRule.getErrors('variantCondition')
+      }, variantConditionInput) }}
+
+      <a class="fieldtoggle {% if catalogPricingRule.purchasableCondition.getConditionRules()|length > 0 %}expanded{% endif %}"
+         data-target="cpr-purchasable-condition">{{ 'Advanced'|t('commerce') }}</a>
+      <div id="cpr-purchasable-condition"
+        class="{% if catalogPricingRule.purchasableCondition.getConditionRules()|length < 1 %}hidden{% endif %}">
+          {% set purchasableConditionInput %}
+            {{ catalogPricingRule.purchasableCondition.getBuilderHtml()|raw }}
+          {% endset %}
+
+          {{ forms.field({
+            id: 'purchasableCondition',
+            label: 'Match Purchasable'|t('commerce'),
+            errors: catalogPricingRule.getErrors('purchasableCondition')
+          }, purchasableConditionInput) }}
+      </div>
+
+      <hr>
 
       {% set customerConditionInput %}
         {{ catalogPricingRule.customerCondition.getBuilderHtml()|raw }}

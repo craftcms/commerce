@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\conditions\products\CatalogPricingRuleProductCondition;
 use craft\commerce\elements\conditions\purchasables\CatalogPricingRulePurchasableCondition;
 use craft\commerce\elements\conditions\purchasables\PurchasableConditionRule;
+use craft\commerce\elements\conditions\variants\CatalogPricingRuleVariantCondition;
 use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\CatalogPricingRule;
 use craft\commerce\Plugin;
@@ -215,6 +217,26 @@ class CatalogPricingRulesController extends BaseStoreManagementController
             }
             $catalogPricingRule->applyAmount = (float)$applyAmount * -1;
         }
+
+        // Set product conditions
+        $productCondition = $this->request->getBodyParam('productCondition');
+        if ($productCondition === null) {
+            $productCondition = Craft::$app->getConditions()->createCondition([
+                'class' => CatalogPricingRuleProductCondition::class,
+            ]);
+        }
+
+        $catalogPricingRule->setProductCondition($productCondition);
+
+        // Set product conditions
+        $variantCondition = $this->request->getBodyParam('variantCondition');
+        if ($variantCondition === null) {
+            $variantCondition = Craft::$app->getConditions()->createCondition([
+                'class' => CatalogPricingRuleVariantCondition::class,
+            ]);
+        }
+
+        $catalogPricingRule->setVariantCondition($variantCondition);
 
         // Set purchasable conditions
         $purchasableCondition = $this->request->getBodyParam('purchasableCondition');

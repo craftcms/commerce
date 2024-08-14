@@ -84,6 +84,8 @@ class Install extends Migration
             'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
             'applyAmount' => $this->decimal(14, 4)->notNull(),
             'applyPriceType' => $this->enum('applyPriceType', [CatalogPricingRule::APPLY_PRICE_TYPE_PRICE, CatalogPricingRule::APPLY_PRICE_TYPE_PROMOTIONAL_PRICE])->notNull(),
+            'productCondition' => $this->text(),
+            'variantCondition' => $this->text(),
             'purchasableCondition' => $this->text(),
             'customerCondition' => $this->text(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),

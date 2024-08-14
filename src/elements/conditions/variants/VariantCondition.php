@@ -2,6 +2,7 @@
 
 namespace craft\commerce\elements\conditions\variants;
 
+use craft\commerce\elements\Variant;
 use craft\elements\conditions\ElementCondition;
 
 /**

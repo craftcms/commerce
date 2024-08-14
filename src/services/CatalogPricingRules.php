@@ -259,6 +259,8 @@ class CatalogPricingRules extends Component
         $record->metadata = $catalogPricingRule->getMetadata();
 
         $record->customerCondition = $catalogPricingRule->getCustomerCondition()->getConfig();
+        $record->productCondition = $catalogPricingRule->getProductCondition()->getConfig();
+        $record->variantCondition = $catalogPricingRule->getVariantCondition()->getConfig();
         $record->purchasableCondition = $catalogPricingRule->getPurchasableCondition()->getConfig();
 
         $db = Craft::$app->getDb();
@@ -339,8 +341,10 @@ class CatalogPricingRules extends Component
                 'id',
                 'isPromotionalPrice',
                 'name',
+                'productCondition',
                 'purchasableCondition',
                 'storeId',
+                'variantCondition',
             ])
             ->from(Table::CATALOG_PRICING_RULES);
     }
@@ -363,7 +367,9 @@ class CatalogPricingRules extends Component
     {
         return collect($rows)->map(function($row) {
             $row['customerCondition'] = $row['customerCondition'] ?? '';
+            $row['productCondition'] = $row['productCondition'] ?? '';
             $row['purchasableCondition'] = $row['purchasableCondition'] ?? '';
+            $row['variantCondition'] = $row['variantCondition'] ?? '';
 
             return Craft::createObject(CatalogPricingRule::class, ['config' => ['attributes' => $row]]);
         })->keyBy('id');
