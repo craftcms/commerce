@@ -35,6 +35,7 @@ use craft\elements\db\EagerLoadPlan;
 use craft\elements\User;
 use craft\gql\types\DateTime;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\Db;
 use craft\helpers\ElementHelper;
 use craft\helpers\Html;
@@ -430,6 +431,22 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         return $fieldLayout;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function metadata(): array
+    {
+        $metadata = parent::metadata();
+
+        $product = $this->getOwner();
+
+        if ($product)  {
+            $metadata[Craft::t('commerce', 'Product')] = Cp::elementChipHtml($product, ['showActionMenu' => true]);
+        }
+
+        return $metadata;
     }
 
     /**
