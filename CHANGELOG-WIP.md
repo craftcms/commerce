@@ -2,6 +2,7 @@
 
 ## Unreleased 5.1
 
+
 ### Administration
 - Added a new “Manage subscription plans” permission.
 - Added a new “Manage donation settings” permission.
@@ -13,3 +14,4 @@
 
 ### Extensibility
 - Added `craft\commerce\models\ProductType::getSiteIds()`.
+- Removed `craft\commerce\fieldlayoutelements\UserCommerceField`.
