@@ -264,12 +264,15 @@ class InventoryController extends Controller
         $time = microtime(true);
         foreach ($inventoryTableData as $key => &$inventoryLevel) {
             $id = $inventoryLevel['inventoryItemId'];
-            /** @var Purchasable $purchasable */
+            /** @var ?Purchasable $purchasable */
             $purchasable = \Craft::$app->getElements()->getElementById($inventoryLevel['purchasableId']);
             $inventoryItemDomId = sprintf("edit-$id-link-%s", mt_rand());
             if ($purchasable) {
                 $inventoryLevel['purchasable'] = Cp::chipHtml($purchasable, ['labelHtml' => $purchasable->getDescription(), 'showActionMenu' => !$purchasable->getIsDraft() && $purchasable->canSave($currentUser)]);
                 $inventoryLevel['sku'] = Html::tag('span', Html::a($purchasable->getSkuAsText(), "#", ['id' => "$inventoryItemDomId", 'class' => 'code']));
+            } else {
+                $inventoryLevel['purchasable'] = '';
+                $inventoryLevel['sku'] = '';
             }
             $inventoryLevel['id'] = $id;
 
