@@ -43,17 +43,17 @@ abstract class Stat implements StatInterface, HasStoreInterface
      */
     public function __construct(string $dateRange = null, mixed $startDate = null, mixed $endDate = null, ?int $storeId = null)
     {
+        $user = Craft::$app->getUser()->getIdentity();
+        if ($user) {
+            $this->weekStartDay = $user->getPreference('weekStartDay') ?? $this->weekStartDay;
+        }
+
         $this->dateRange = $dateRange ?? $this->dateRange;
         if ($this->dateRange && $this->dateRange != self::DATE_RANGE_CUSTOM) {
             $this->_setDates();
         } else {
             $this->setStartDate($startDate);
             $this->setEndDate($endDate);
-        }
-
-        $user = Craft::$app->getUser()->getIdentity();
-        if ($user) {
-            $this->weekStartDay = $user->getPreference('weekStartDay') ?? $this->weekStartDay;
         }
 
         $this->storeId = $storeId ?? $this->storeId;
