@@ -35,7 +35,6 @@ use yii\web\Response;
  */
 class TransfersController extends BaseStoreManagementController
 {
-
     /**
      * @return void
      * @throws \yii\base\InvalidConfigException

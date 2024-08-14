@@ -8,6 +8,7 @@
 - Added a new “Manage donation settings” permission.
 - Added a new “Manage store general setting” permission.
 - Added a new “Manage payment currencies” permission.
+- - Added a new “Manage inventory transfers” permission.
 
 ### Extensibility
 
@@ -19,8 +20,8 @@
 - Added `craft\commerce\fieldlayoutelements\TransferManagementField`.
 - Added `craft\commerce\models\TransferDetail`.
 - Added `craft\commerce\record\TransferDetail`.
-- Added `craft\commerce\services\Transfers`.
 - Added `craft\commerce\services\InventoryLocations::getAllInventoryLocationsAsList`
+- Added `craft\commerce\services\Transfers`.
 
 ### System
 - Craft Commerce now requires Craft CMS 5.3 or later.

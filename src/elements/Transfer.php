@@ -344,7 +344,7 @@ class Transfer extends Element
     {
         return [
             'dateCreated',
-            'received'
+            'received',
         ];
     }
 
