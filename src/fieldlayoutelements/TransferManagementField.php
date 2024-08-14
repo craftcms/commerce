@@ -120,7 +120,7 @@ class TransferManagementField extends BaseNativeField
     public static function renderFieldHtml(Transfer $element): string
     {
         // Only draft is editable
-        if (!$element->isTransferDraft()) {
+        if (!$element->getIsDraft()) {
             return self::renderStaticFieldHtml($element);
         }
 
@@ -249,7 +249,7 @@ class TransferManagementField extends BaseNativeField
         /** @var InventoryLevel $level */
         foreach ($inventoryLevels as $level) {
             $inventoryItemOptions[] = [
-                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' .Craft::t('commerce','on hand') : Craft::t('commerce', 'None on hand')) . ')',
+                'label' => $level->getInventoryItem()->getSku() . ' (' . ($level->onHandTotal ? $level->onHandTotal . ' ' . Craft::t('commerce','on hand') : Craft::t('commerce', 'None on hand')) . ')',
                 'value' => $level->getInventoryItem()->id,
                 'disabled' => !($level->onHandTotal > 0),
             ];

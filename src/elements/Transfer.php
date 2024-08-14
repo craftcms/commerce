@@ -4,14 +4,12 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
-use craft\commerce\collections\InventoryMovementCollection;
 use craft\commerce\collections\UpdateInventoryLevelCollection;
 use craft\commerce\elements\conditions\transfers\TransferCondition;
 use craft\commerce\elements\db\TransferQuery;
 use craft\commerce\enums\InventoryTransactionType;
 use craft\commerce\enums\InventoryUpdateQuantityType;
 use craft\commerce\enums\TransferStatusType;
-use craft\commerce\models\inventory\UpdateInventoryLevel;
 use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryLocation;
 use craft\commerce\models\TransferDetail;
@@ -160,6 +158,11 @@ class Transfer extends Element
      */
     public function updateTransferStatus(): void
     {
+        // only pending can being partial or received.
+        if ($this->isTransferDraft()) {
+            return;
+        }
+
         if (!$this->isAllReceived() && $this->getTotalReceived() > 0) {
             $this->setTransferStatus(TransferStatusType::PARTIAL);
         } else {
@@ -624,6 +627,8 @@ JS, [
         ]);
 
         if (!$this->isTransferDraft()) {
+
+            /** @var Response|CpScreenResponseBehavior $response */
             $response->additionalButtonsHtml(Html::a(
                 Craft::t('commerce', 'Receive Inventory'),
                 '#',
@@ -633,7 +638,7 @@ JS, [
                 ]
             ));
         }
-
+        
         /** @var Response|CpScreenResponseBehavior $response */
         $response->crumbs([
             [
@@ -771,7 +776,7 @@ JS, [
                         'transferId' => $this->id,
                         'inventoryLocation' => $this->getDestinationLocation(),
                         'quantity' => $detail->quantity,
-                        'note' => Craft::t('commerce', 'Incoming transfer from Transfer ID: ') . $this->id
+                        'note' => Craft::t('commerce', 'Incoming transfer from Transfer ID: ') . $this->id,
                     ]);
                     $inventoryUpdateCollection->push($inventoryUpdate1);
 
@@ -782,7 +787,7 @@ JS, [
                         'transferId' => $this->id,
                         'inventoryLocation' => $this->getOriginLocation(),
                         'quantity' => $detail->quantity * -1,
-                        'note' => Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id
+                        'note' => Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id,
                     ]);
                     $inventoryUpdateCollection->push($inventoryUpdate2);
                 }

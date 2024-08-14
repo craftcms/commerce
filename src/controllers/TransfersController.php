@@ -207,7 +207,6 @@ class TransfersController extends BaseStoreManagementController
                 $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
 
                 $inventoryUpdateCollection->push($inventoryRejectedMovement);
-
             }
         }
 
