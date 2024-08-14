@@ -126,6 +126,7 @@ class CustomerAddressBehavior extends Behavior
                 return false;
             }
 
+            /** @var User|CustomerBehavior|null $user */
             $this->_isPrimaryBilling = $this->owner->id === $user->getPrimaryBillingAddressId();
         }
 
@@ -158,6 +159,7 @@ class CustomerAddressBehavior extends Behavior
                 return false;
             }
 
+            /** @var User|CustomerBehavior|null $user */
             $this->_isPrimaryShipping = $this->owner->id === $user->getPrimaryShippingAddressId();
         }
 
