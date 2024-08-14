@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where the `commerce/upgrade` command wasn’t labelling order addresses correctly. ([#3599](https://github.com/craftcms/commerce/pull/3599))
+
 ## 4.6.5 - 2024-07-18
 
 - Fixed a bug where SCA payment sources prevented subscriptions from starting. ([#3590](https://github.com/craftcms/commerce/pull/3590))
