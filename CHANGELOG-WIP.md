@@ -4,6 +4,7 @@
 
 ### Store Management
 - It’s now possible to create custom line items. ([#2301](https://github.com/craftcms/commerce/discussions/2301), [#2233](https://github.com/craftcms/commerce/discussions/2233), [#2345](https://github.com/craftcms/commerce/discussions/2345))
+- It’s now possible to manage transfers between inventory locations.
 - Catalog pricing rules now support flexible product and variant matching, based on product and variant conditions. ([#3544](https://github.com/craftcms/commerce/issues/3544))
 - Products now support propagation methods. ([#3537](https://github.com/craftcms/commerce/discussions/3537), [#3296](https://github.com/craftcms/commerce/discussions/3296), [#3372](https://github.com/craftcms/commerce/discussions/3372), [#2375](https://github.com/craftcms/commerce/discussions/2375))
 - Products and Variants now support title translations. ([#3462](https://github.com/craftcms/commerce/issues/3462), [#2466](https://github.com/craftcms/commerce/discussions/2466))
