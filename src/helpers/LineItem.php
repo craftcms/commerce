@@ -44,7 +44,6 @@ class LineItem
      */
     public static function generateCustomLineItemHash(string $description, string $sku, float $price, ?int $shippingCategoryId = null, ?int $taxCategoryId = null, bool $hasFreeShipping = false, bool $isPromotable = false, bool $isShippable = false, bool $isTaxable = false): string
     {
-        $customLineItem = compact('description', 'price', 'sku');
         $customLineItem = [
             'description' => $description,
             'price' => $price,

@@ -612,7 +612,7 @@ class Inventory extends Component
         foreach ($order->getLineItems() as $lineItem) {
             if ($lineItem->type === LineItemType::Custom) {
                 // Skip custom line items
-                return;
+                continue;
             }
 
             $purchasable = $lineItem->getPurchasable();
