@@ -1,5 +1,7 @@
 # Release Notes for Craft Commerce
 
+## 5.0.16 - 2024-08-14
+
 - It’s now possible to duplicate variants.
 - It’s now possible to search for orders by shipping and billing address. ([#3603](https://github.com/craftcms/commerce/pull/3603))
 - Fixed a bug where it wasn’t possible to remove the last email from an order status configuration. ([#3621](https://github.com/craftcms/commerce/issues/3621))
