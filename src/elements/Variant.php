@@ -345,6 +345,18 @@ class Variant extends Purchasable implements NestedElementInterface
 
     /**
      * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        if (parent::canDuplicate($user)) {
+            return true;
+        }
+
+        return $this->canSave($user);
+    }
+
+    /**
+     * @inheritdoc
      * @throws InvalidConfigException
      */
     public function getIsAvailable(): bool
@@ -866,6 +878,8 @@ class Variant extends Purchasable implements NestedElementInterface
      */
     public function afterSave(bool $isNew): void
     {
+        $ownerId = $this->getOwnerId();
+
         if (!$this->propagating) {
             if (!$isNew) {
                 $record = VariantRecord::findOne($this->id);
@@ -889,26 +903,6 @@ class Variant extends Purchasable implements NestedElementInterface
             $record->dateCreated = $this->dateCreated;
 
             $record->save(false);
-
-            $ownerId = $this->getOwnerId();
-
-            if ($this->isDefault && $ownerId) {
-                $defaultData = [
-                    'defaultVariantId' => $this->id,
-                    'defaultSku' => $this->sku,
-                    'defaultPrice' => $this->getBasePrice(),
-                    'defaultHeight' => $this->height,
-                    'defaultLength' => $this->length,
-                    'defaultWidth' => $this->width,
-                    'defaultWeight' => $this->weight,
-                ];
-                DB::update(Table::PRODUCTS, $defaultData, [
-                    // Update the default variant data for the product and any other product that use this variant as their default
-                    'or',
-                    ['id' => $ownerId],
-                    ['defaultVariantId' => $this->id],
-                ]);
-            }
 
             if ($ownerId && $this->saveOwnership) {
                 if (!isset($this->sortOrder) && (!$isNew || $this->duplicateOf)) {
@@ -965,6 +959,24 @@ class Variant extends Purchasable implements NestedElementInterface
         }
 
         parent::afterSave($isNew);
+
+        if (!$this->propagating && $this->isDefault && $ownerId && $this->duplicateOf === null) {
+            $defaultData = [
+                'defaultVariantId' => $this->id,
+                'defaultSku' => $this->getSkuAsText(),
+                'defaultPrice' => $this->getBasePrice(),
+                'defaultHeight' => $this->height,
+                'defaultLength' => $this->length,
+                'defaultWidth' => $this->width,
+                'defaultWeight' => $this->weight,
+            ];
+            DB::update(Table::PRODUCTS, $defaultData, [
+                // Update the default variant data for the product and any other product that use this variant as their default
+                'or',
+                ['id' => $ownerId],
+                ['defaultVariantId' => $this->id],
+            ]);
+        }
     }
 
     /**
