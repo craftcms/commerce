@@ -14,7 +14,6 @@
 - Added a new “Manage inventory transfers” permission.
 
 ### Development
-- Added the `commerceCustomLineItem()` Twig function.
 
 ### System
 - Craft Commerce now requires Craft CMS 5.2 or later.
@@ -29,7 +28,6 @@
 - Added `craft\commerce\enums\LineItemType`.
 - Added `craft\commerce\enums\TransferStatusType`.
 - Added `craft\commerce\fieldlayoutelements\TransferManagementField`.
-- Added `craft\commerce\helpers\LineItem::generateCustomLineItemHash()`.
 - Added `craft\commerce\models\CatalogPricingRule::getProductCondition()`.
 - Added `craft\commerce\models\CatalogPricingRule::getVariantCondition()`.
 - Added `craft\commerce\models\CatalogPricingRule::setProductCondition()`.
