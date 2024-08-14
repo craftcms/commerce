@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\Field;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
@@ -15,6 +16,7 @@ use craft\commerce\elements\Variant;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
+use craft\enums\PropagationMethod;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -86,6 +88,19 @@ class ProductType extends Model
     public string $variantTitleFormat = '{product.title}';
 
     /**
+     * @var string Variant title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $variantTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Variant title translation key format
+     * @since 5.1
+     */
+    public ?string $variantTitleTranslationKeyFormat = null;
+
+    /**
      * @var bool Has product title field?
      */
     public bool $hasProductTitleField = true;
@@ -94,6 +109,19 @@ class ProductType extends Model
      * @var string Product title format
      */
     public string $productTitleFormat = '';
+
+    /**
+     * @var string Product title translation method
+     * @phpstan-var Field::TRANSLATION_METHOD_NONE|Field::TRANSLATION_METHOD_SITE|Field::TRANSLATION_METHOD_SITE_GROUP|Field::TRANSLATION_METHOD_LANGUAGE|Field::TRANSLATION_METHOD_CUSTOM
+     * @since 5.1.0
+     */
+    public string $productTitleTranslationMethod = Field::TRANSLATION_METHOD_SITE;
+
+    /**
+     * @var string|null Product title translation key format
+     * @since 5.1
+     */
+    public ?string $productTitleTranslationKeyFormat = null;
 
     /**
      * @var string|null SKU format
@@ -141,6 +169,21 @@ class ProductType extends Model
     private ?array $_siteSettings = null;
 
     /**
+     * @var PropagationMethod Propagation method
+     *
+     * This will be set to one of the following:
+     *
+     *  - [[PropagationMethod::None]] – Only save products in the site they were created in
+     *  - [[PropagationMethod::SiteGroup]] – Save  products to other sites in the same site group
+     *  - [[PropagationMethod::Language]] – Save products to other sites with the same language
+     *  - [[PropagationMethod::Custom]] – Save products to other sites based on a custom [[$propagationKeyFormat|propagation key format]]
+     *  - [[PropagationMethod::All]] – Save products to all sites supported by the owner element
+     *
+     * @since 5.1.0
+     */
+    public PropagationMethod $propagationMethod = PropagationMethod::All;
+
+    /**
      * @return null|string
      */
     public function __toString()
@@ -178,6 +221,7 @@ class ProductType extends Model
             [['maxVariants'], 'integer', 'min' => 1],
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
+            ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
         ];
     }
 
@@ -189,6 +233,17 @@ class ProductType extends Model
     public function getCpEditVariantUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id . '/variant');
+    }
+
+    /**
+     * Returns the site IDs that are enabled for the product type.
+     *
+     * @return int[]
+     * @since 5.1.0
+     */
+    public function getSiteIds(): array
+    {
+        return array_keys($this->getSiteSettings());
     }
 
     /**

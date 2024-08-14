@@ -21,6 +21,7 @@ use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
+use craft\enums\PropagationMethod;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
 use craft\events\SiteEvent;
@@ -312,8 +313,9 @@ class ProductTypes extends Component
      */
     public function getProductTypeSites(int $productTypeId): array
     {
+        $db = Craft::$app->getDb();
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
-            $rows = (new Query())
+            $query = (new Query())
                 ->select([
                     'hasUrls',
                     'id',
@@ -323,8 +325,13 @@ class ProductTypes extends Component
                     'uriFormat',
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
-                ->where(['productTypeId' => $productTypeId])
-                ->all();
+                ->where(['productTypeId' => $productTypeId]);
+
+            if ($db->columnExists(Table::PRODUCTTYPES_SITES, 'enabledByDefault')) {
+                $query->addSelect('enabledByDefault');
+            }
+
+            $rows = $query->all();
 
             $this->_siteSettingsByProductId[$productTypeId] = [];
 
@@ -390,10 +397,16 @@ class ProductTypes extends Component
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'variantTitleFormat' => $productType->variantTitleFormat,
+            'variantTitleTranslationMethod' => $productType->variantTitleTranslationMethod,
+            'variantTitleTranslationKeyFormat' => $productType->variantTitleTranslationKeyFormat,
 
             // Prouduct title field
             'hasProductTitleField' => $productType->hasProductTitleField,
             'productTitleFormat' => $productType->productTitleFormat,
+            'productTitleTranslationMethod' => $productType->productTitleTranslationMethod,
+            'productTitleTranslationKeyFormat' => $productType->productTitleTranslationKeyFormat,
+
+            'propagationMethod' => $productType->propagationMethod->value,
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
@@ -423,17 +436,11 @@ class ProductTypes extends Component
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
 
-        // Make sure they're all there
-        foreach (Craft::$app->getSites()->getAllSiteIds() as $siteId) {
-            if (!isset($allSiteSettings[$siteId])) {
-                throw new Exception('Tried to save a product type that is missing site settings');
-            }
-        }
-
         foreach ($allSiteSettings as $siteId => $settings) {
             $siteUid = Db::uidById(CraftTable::SITES, $siteId);
             $configData['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
+                'enabledByDefault' => $settings['enabledByDefault'],
                 'uriFormat' => $settings['uriFormat'],
                 'template' => $settings['template'],
             ];
@@ -480,6 +487,19 @@ class ProductTypes extends Component
             $productTypeRecord->handle = $data['handle'];
             $productTypeRecord->enableVersioning = $data['enableVersioning'] ?? false;
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
+
+            $productTypeRecord->productTitleTranslationMethod = $data['productTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->productTitleTranslationKeyFormat = $data['productTitleTranslationKeyFormat'] ?? '';
+
+            $productTypeRecord->propagationMethod = $data['propagationMethod'] ?? PropagationMethod::All->value;
+
+            // Resave products if propagation method has changed
+            if ($productTypeRecord->propagationMethod != $productTypeRecord->getOldAttribute('propagationMethod')) {
+                $shouldResaveProducts = true;
+            }
+
+            $productTypeRecord->variantTitleTranslationMethod = $data['variantTitleTranslationMethod'] ?? 'site';
+            $productTypeRecord->variantTitleTranslationKeyFormat = $data['variantTitleTranslationKeyFormat'] ?? '';
 
             // Variant title fields
             $hasVariantTitleField = $data['hasVariantTitleField'];
@@ -577,6 +597,8 @@ class ProductTypes extends Component
                     $siteSettingsRecord->siteId = $siteId;
                 }
 
+                $siteSettingsRecord->enabledByDefault = (bool)($siteSettings['enabledByDefault'] ?? true);
+
                 if ($siteSettingsRecord->hasUrls = $siteSettings['hasUrls']) {
                     $siteSettingsRecord->uriFormat = $siteSettings['uriFormat'];
                     $siteSettingsRecord->template = $siteSettings['template'];
@@ -609,6 +631,7 @@ class ProductTypes extends Component
                     $siteUid = array_search($siteId, $siteIdMap, false);
                     if (!in_array($siteUid, $affectedSiteUids, false)) {
                         $siteSettingsRecord->delete();
+                        $shouldResaveProducts = true;
                     }
                 }
             }
@@ -972,6 +995,26 @@ class ProductTypes extends Component
 
         if ($db->columnExists(Table::PRODUCTTYPES, 'enableVersioning')) {
             $query->addSelect('productTypes.enableVersioning');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationMethod')) {
+            $query->addSelect('productTypes.productTitleTranslationMethod');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'productTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.productTitleTranslationKeyFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationMethod')) {
+            $query->addSelect('productTypes.variantTitleTranslationMethod');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'variantTitleTranslationKeyFormat')) {
+            $query->addSelect('productTypes.variantTitleTranslationKeyFormat');
+        }
+
+        if ($db->columnExists(Table::PRODUCTTYPES, 'propagationMethod')) {
+            $query->addSelect('productTypes.propagationMethod');
         }
 
         return $query;
