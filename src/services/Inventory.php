@@ -344,18 +344,23 @@ class Inventory extends Component
             $type = InventoryTransactionType::AVAILABLE->value;
         }
 
+        $data = [
+            'quantity' => $quantityQuery,
+            'type' => $type,
+            'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
+            'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
+            'note' => $updateInventoryLevel->note,
+            'movementHash' => $this->getMovementHash(),
+            'dateCreated' => Db::prepareDateForDb(new \DateTime()),
+            'userId' => Craft::$app->getUser()->getIdentity()?->id,
+        ];
+
+        if ($updateInventoryLevel instanceof UpdateInventoryLevelInTransfer) {
+            $data['transfer'] = $updateInventoryLevel->transferId;
+        }
+
         Craft::$app->db->createCommand()
-            ->insert($tableName, [
-                'quantity' => $quantityQuery,
-                'type' => $type,
-                'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
-                'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
-                'note' => $updateInventoryLevel->note,
-                'transfer' => $updateInventoryLevel->transferId,
-                'movementHash' => $this->getMovementHash(),
-                'dateCreated' => Db::prepareDateForDb(new \DateTime()),
-                'userId' => Craft::$app->getUser()->getIdentity()?->id,
-            ])->execute();
+            ->insert($tableName, $data)->execute();
 
         return true;
     }

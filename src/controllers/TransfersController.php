@@ -175,53 +175,54 @@ class TransfersController extends BaseStoreManagementController
         $inventoryMovementCollection = new InventoryMovementCollection();
         $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
 
-        foreach ($details as $uid => $detail) {
-            $transferDetails = $transfer->getDetails();
-            foreach ($transferDetails as $transferDetail) {
-                if ($acceptedAmount = $details[$transferDetail->uid]['accept']) {
-                    // Update the total accepted
-                    $transferDetail->quantityAccepted += $acceptedAmount;
+        $transferDetails = $transfer->getDetails();
 
-                    $inventoryAcceptedMovement = new InventoryTransferMovement();
-                    $inventoryAcceptedMovement->quantity = $acceptedAmount;
-                    $inventoryAcceptedMovement->transferId = $transfer->id;
-                    $inventoryAcceptedMovement->inventoryItem = $transferDetail->getInventoryItem();
-                    $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
-                    $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
-                    $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
-                    $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
+        foreach ($transferDetails as $detail) {
+            if ($acceptedAmount = $details[$detail->uid]['accept']) {
+                // Update the total accepted
+                $detail->quantityAccepted += $acceptedAmount;
 
-                    $inventoryMovementCollection->push($inventoryAcceptedMovement);
-                }
+                $inventoryAcceptedMovement = new InventoryTransferMovement();
+                $inventoryAcceptedMovement->quantity = $acceptedAmount;
+                $inventoryAcceptedMovement->transferId = $transfer->id;
+                $inventoryAcceptedMovement->inventoryItem = $detail->getInventoryItem();
+                $inventoryAcceptedMovement->toInventoryLocation = $transfer->getDestinationLocation();
+                $inventoryAcceptedMovement->fromInventoryLocation = $transfer->getDestinationLocation(); // we are moving from incoming to available
+                $inventoryAcceptedMovement->toInventoryTransactionType = InventoryTransactionType::AVAILABLE;
+                $inventoryAcceptedMovement->fromInventoryTransactionType = InventoryTransactionType::INCOMING;
 
-                if ($rejectedAmount = $details[$transferDetail->uid]['reject']) {
-                    // Update the total rejected
-                    $transferDetail->quantityRejected += $rejectedAmount;
-
-                    $inventoryRejectedMovement = new UpdateInventoryLevel();
-                    $inventoryRejectedMovement->quantity = $rejectedAmount;
-                    $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
-                    $inventoryRejectedMovement->inventoryItem = $transferDetail->getInventoryItem();
-                    $inventoryRejectedMovement->transferId = $transfer->id;
-                    $inventoryRejectedMovement->inventoryLocation = $transfer->getDestinationLocation();
-                    $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
-
-                    $inventoryUpdateCollection->push($inventoryRejectedMovement);
-                }
+                $inventoryMovementCollection->push($inventoryAcceptedMovement);
             }
-            $transfer->setDetails($transferDetails);
 
-            try {
-                Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection);
-                Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
-                Craft::$app->getElements()->saveElement($transfer, false);
-            } catch (\Throwable $e) {
-                Craft::error('Failed to save transfer details: ' . $e->getMessage(), __METHOD__);
-                return $this->asFailure(Craft::t('commerce', 'Failed to receive transfer: {error}', ['error' => $e->getMessage()]));
+            if ($rejectedAmount = $details[$detail->uid]['reject']) {
+                // Update the total rejected
+                $detail->quantityRejected += $rejectedAmount;
+
+                $inventoryRejectedMovement = new UpdateInventoryLevel();
+                $inventoryRejectedMovement->quantity = $rejectedAmount;
+                $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
+                $inventoryRejectedMovement->inventoryItem = $detail->getInventoryItem();
+                $inventoryRejectedMovement->transferId = $transfer->id;
+                $inventoryRejectedMovement->inventoryLocation = $transfer->getDestinationLocation();
+                $inventoryRejectedMovement->type = InventoryTransactionType::INCOMING->value;
+
+                $inventoryUpdateCollection->push($inventoryRejectedMovement);
+
             }
         }
 
-        return $this->asSuccess('Updated');
+        $transfer->setDetails($transferDetails);
+
+        try {
+            Plugin::getInstance()->getInventory()->executeInventoryMovements($inventoryMovementCollection);
+            Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
+            Craft::$app->getElements()->saveElement($transfer, false);
+        } catch (\Throwable $e) {
+            Craft::error('Failed to save transfer details: ' . $e->getMessage(), __METHOD__);
+            return $this->asFailure(Craft::t('commerce', 'Failed to receive transfer: {error}', ['error' => $e->getMessage()]));
+        }
+
+        return $this->asSuccess(Craft::t('commerce', 'Updated'));
     }
 
     /**

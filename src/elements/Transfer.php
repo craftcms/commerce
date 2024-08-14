@@ -154,6 +154,20 @@ class Transfer extends Element
     }
 
     /**
+     * Updates the status to partial or received if all items have been received.
+     *
+     * @return void
+     */
+    public function updateTransferStatus(): void
+    {
+        if (!$this->isAllReceived() && $this->getTotalReceived() > 0) {
+            $this->setTransferStatus(TransferStatusType::PARTIAL);
+        } else {
+            $this->setTransferStatus(TransferStatusType::RECEIVED);
+        }
+    }
+
+    /**
      * @param TransferStatusType|string $status
      * @return void
      */
@@ -750,54 +764,69 @@ JS, [
             if ($this->getTransferStatus() === TransferStatusType::PENDING && $originalTransferStatus == TransferStatusType::DRAFT->value) {
                 $inventoryUpdateCollection = new UpdateInventoryLevelCollection();
                 foreach ($this->getDetails() as $detail) {
-                    $inventoryUpdate = new UpdateInventoryLevelInTransfer([
+                    $inventoryUpdate1 = new UpdateInventoryLevelInTransfer([
                         'type' => InventoryTransactionType::INCOMING->value,
                         'updateAction' => InventoryUpdateQuantityType::ADJUST,
                         'inventoryItem' => $detail->getInventoryItem(),
+                        'transferId' => $this->id,
                         'inventoryLocation' => $this->getDestinationLocation(),
                         'quantity' => $detail->quantity,
-                        'note' => Craft::t('commerce', 'Incoming transfer: ') . $this->id
+                        'note' => Craft::t('commerce', 'Incoming transfer from Transfer ID: ') . $this->id
                     ]);
-                    $inventoryUpdateCollection->push($inventoryUpdate);
+                    $inventoryUpdateCollection->push($inventoryUpdate1);
+
+                    $inventoryUpdate2 = new UpdateInventoryLevelInTransfer([
+                        'type' => 'onHand',
+                        'updateAction' => InventoryUpdateQuantityType::ADJUST,
+                        'inventoryItem' => $detail->getInventoryItem(),
+                        'transferId' => $this->id,
+                        'inventoryLocation' => $this->getOriginLocation(),
+                        'quantity' => $detail->quantity * -1,
+                        'note' => Craft::t('commerce', 'Outgoing transfer from Transfer ID: ') . $this->id
+                    ]);
+                    $inventoryUpdateCollection->push($inventoryUpdate2);
                 }
 
                 Plugin::getInstance()->getInventory()->executeUpdateInventoryLevels($inventoryUpdateCollection);
             }
 
-            if ($this->getTransferStatus() === TransferStatusType::DRAFT) {
-                $existingDetailIds = (new Query())
-                    ->select('id')
-                    ->from('{{%commerce_transferdetails}}')
-                    ->where(['transferId' => $this->id])
-                    ->column();
+            $existingDetailIds = (new Query())
+                ->select('id')
+                ->from('{{%commerce_transferdetails}}')
+                ->where(['transferId' => $this->id])
+                ->column();
 
-                $currentDetailIds = [];
+            $currentDetailIds = [];
 
-                foreach ($this->getDetails() as $detail) {
-                    if ($detail->id) {
-                        $detailRecord = TransferDetailRecord::findOne($detail->id);
-                    } else {
-                        $detailRecord = new TransferDetailRecord();
-                    }
-                    $detailRecord->transferId = $this->id;
-                    $detailRecord->inventoryItemId = $detail->inventoryItemId;
-                    $inventoryItem = $detail->inventoryItemId ? Plugin::getInstance()->getInventory()->getInventoryItemById($detail->inventoryItemId) : null;
-                    $detailRecord->inventoryItemDescription = $inventoryItem?->sku ?? '';
-                    $detailRecord->quantity = $detail->quantity;
-                    $detailRecord->quantityAccepted = $detail->quantityAccepted;
-                    $detailRecord->quantityRejected = $detail->quantityRejected;
-
-                    $detailRecord->save();
-                    $detail->id = $detailRecord->id;
-
-                    $currentDetailIds[] = $detailRecord->id;
+            foreach ($this->getDetails() as $detail) {
+                if ($detail->id) {
+                    $detailRecord = TransferDetailRecord::findOne($detail->id);
+                } else {
+                    $detailRecord = new TransferDetailRecord();
                 }
+                $detailRecord->transferId = $this->id;
+                $detailRecord->inventoryItemId = $detail->inventoryItemId;
+                $inventoryItem = $detail->inventoryItemId ? Plugin::getInstance()->getInventory()->getInventoryItemById($detail->inventoryItemId) : null;
+                $detailRecord->inventoryItemDescription = $inventoryItem?->sku ?? '';
+                $detailRecord->quantity = $detail->quantity;
+                $detailRecord->quantityAccepted = $detail->quantityAccepted;
+                $detailRecord->quantityRejected = $detail->quantityRejected;
 
-                $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
-                if (!empty($deletedDetailIds)) {
-                    TransferDetailRecord::deleteAll(['id' => $deletedDetailIds]);
-                }
+                $detailRecord->save();
+                $detail->id = $detailRecord->id;
+
+                $currentDetailIds[] = $detailRecord->id;
             }
+
+            $deletedDetailIds = array_diff($existingDetailIds, $currentDetailIds);
+            if (!empty($deletedDetailIds)) {
+                TransferDetailRecord::deleteAll(['id' => $deletedDetailIds]);
+            }
+
+            $this->updateTransferStatus();
+            $transferRecord->transferStatus = $this->getTransferStatus()->value;
+
+            $transferRecord->save(false);
         }
 
         parent::afterSave($isNew);
@@ -865,6 +894,20 @@ JS, [
     public function getTotalReceived(): int
     {
         return $this->getTotalAccepted() + $this->getTotalRejected();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllReceived(): bool
+    {
+        foreach ($this->getDetails() as $detail) {
+            if ($detail->getReceived() < $detail->quantity) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
