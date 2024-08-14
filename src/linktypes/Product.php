@@ -48,4 +48,5 @@ class Product extends BaseElementLinkType
         }
 
         return $sources;
-    }}
+    }
+}
