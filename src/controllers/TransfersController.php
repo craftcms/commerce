@@ -212,7 +212,7 @@ class TransfersController extends BaseStoreManagementController
                 $detail->quantityRejected += $rejectedAmount;
 
                 $inventoryRejectedMovement = new UpdateInventoryLevel();
-                $inventoryRejectedMovement->quantity = $rejectedAmount;
+                $inventoryRejectedMovement->quantity = $rejectedAmount * -1;
                 $inventoryRejectedMovement->updateAction = InventoryUpdateQuantityType::ADJUST;
                 $inventoryRejectedMovement->inventoryItem = $detail->getInventoryItem();
                 $inventoryRejectedMovement->transferId = $transfer->id;

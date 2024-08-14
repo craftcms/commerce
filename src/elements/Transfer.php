@@ -323,6 +323,9 @@ class Transfer extends Element
         ];
     }
 
+    /**
+     * @inheritDoc
+     */
     protected static function defineTableAttributes(): array
     {
         return [
@@ -330,14 +333,36 @@ class Transfer extends Element
             'uid' => ['label' => Craft::t('app', 'UID')],
             'dateCreated' => ['label' => Craft::t('app', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('app', 'Date Updated')],
+            'received' => ['label' => Craft::t('commerce', 'Received')],
         ];
     }
 
+    /**
+     * @inheritDoc
+     */
     protected static function defineDefaultTableAttributes(string $source): array
     {
         return [
             'dateCreated',
+            'received'
         ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function attributeHtml(string $attribute): string
+    {
+        switch ($attribute) {
+            case 'received':
+            {
+                return $this->getTotalReceived() . '/' . $this->getTotalQuantity();
+            }
+            default:
+            {
+                return parent::attributeHtml($attribute);
+            }
+        }
     }
 
     /**

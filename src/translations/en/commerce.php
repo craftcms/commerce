@@ -27,6 +27,7 @@ return [
     'Failed to receive transfer: {error}' => 'Failed to receive transfer: {error}',
     'Inventory Transfers' => 'Inventory Transfers',
     'on hand' => 'on hand',
+    'Received' => 'Received',
 
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',
