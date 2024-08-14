@@ -4,7 +4,6 @@
 
 ### Store Management
 - It’s now possible to create custom line items.
-- Added the `commerceCustomLineItem()` Twig function.
 - Catalog pricing rules now support flexible product and variant matching, based on an product and variant conditions.
 - Products now support propagation methods. ([#3537](https://github.com/craftcms/commerce/discussions/3537), [#3296](https://github.com/craftcms/commerce/discussions/3296), [#3372](https://github.com/craftcms/commerce/discussions/3372), [#2375](https://github.com/craftcms/commerce/discussions/2375))
 - Products and Variants now support title translations. ([#2466](https://github.com/craftcms/commerce/discussions/2466))
@@ -14,6 +13,7 @@
 - Added a new “Manage payment currencies” permission.
 
 ### Development
+- Added the `commerceCustomLineItem()` Twig function.
 
 ### System
 - Craft Commerce now requires Craft CMS 5.2 or later.
