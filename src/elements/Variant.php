@@ -442,7 +442,7 @@ class Variant extends Purchasable implements NestedElementInterface
 
         $product = $this->getOwner();
 
-        if ($product)  {
+        if ($product) {
             $metadata[Craft::t('commerce', 'Product')] = Cp::elementChipHtml($product, ['showActionMenu' => true]);
         }
 
