@@ -31,7 +31,7 @@ use yii\web\Response;
  * Class Transfers Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 5.0
+ * @since 5.1.0
  */
 class TransfersController extends BaseStoreManagementController
 {
