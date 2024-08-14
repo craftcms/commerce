@@ -221,6 +221,7 @@ class ProductType extends Model
             [['maxVariants'], 'integer', 'min' => 1],
             ['fieldLayout', 'validateFieldLayout'],
             ['variantFieldLayout', 'validateVariantFieldLayout'],
+            ['siteSettings', 'required', 'message' => Craft::t('commerce','At least one site must be enabled for the product type.')],
         ];
     }
 
