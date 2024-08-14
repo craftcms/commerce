@@ -991,14 +991,15 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->archiveTableIfExists(Table::TRANSFERS_INVENTORYITEMS);
-        $this->createTable(Table::TRANSFERS_INVENTORYITEMS, [
+        $this->archiveTableIfExists(Table::TRANSFERDETAILS);
+        $this->createTable(Table::TRANSFERDETAILS, [
             'id' => $this->primaryKey(),
             'transferId' => $this->integer()->notNull(),
-            'inventoryItemId' => $this->integer()->notNull(),
+            'inventoryItemId' => $this->integer(),
+            'inventoryItemDescription' => $this->string()->notNull(),
             'quantity' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
+            'quantityAccepted' => $this->integer()->notNull(),
+            'quantityRejected' => $this->integer()->notNull(),
             'uid' => $this->uid(),
         ]);
 
@@ -1154,8 +1155,8 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'hash', false);
         $this->createIndex(null, Table::TRANSFERS, 'destinationLocationId', false);
         $this->createIndex(null, Table::TRANSFERS, 'originLocationId', false);
-        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'inventoryItemId', false);
-        $this->createIndex(null, Table::TRANSFERS_INVENTORYITEMS, 'transferId', false);
+        $this->createIndex(null, Table::TRANSFERDETAILS, 'transferId', false);
+        $this->createIndex(null, Table::TRANSFERDETAILS, 'inventoryItemId', false);
         $this->createIndex(null, Table::VARIANTS, 'primaryOwnerId', false);
     }
 
@@ -1270,8 +1271,9 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['inventoryItemId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::TRANSFERS_INVENTORYITEMS, ['transferId'], Table::INVENTORYITEMS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERS, 'id', CraftTable::ELEMENTS, 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERDETAILS, 'transferId', Table::TRANSFERS, 'id', 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSFERDETAILS, 'inventoryItemId', Table::INVENTORYITEMS, 'id', 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['primaryOwnerId'], Table::PRODUCTS, ['id'], 'CASCADE');
     }

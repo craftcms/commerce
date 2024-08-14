@@ -77,7 +77,7 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
      */
     public function getUiLabel(): string
     {
-        return $this->name;
+        return Craft::t('site',$this->name);
     }
 
     /**
@@ -95,6 +95,8 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
                 $this->_address->countryCode = 'US';
             }
         }
+
+        $this->_address->title = $this->name;
 
         return $this->_address;
     }
@@ -140,6 +142,14 @@ class InventoryLocation extends Model implements Chippable, CpEditable, Actionab
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/inventory-locations/' . $this->id);
+    }
+
+    /**
+     * @return string
+     */
+    public function getCpManageInventoryUrl(): string
+    {
+        return UrlHelper::cpUrl('commerce/inventory/levels/' . $this->handle);
     }
 
     /**

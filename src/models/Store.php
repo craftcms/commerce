@@ -775,7 +775,7 @@ class Store extends Model
     public function getInventoryLocationsOptions(): array
     {
         return Plugin::getInstance()->getInventoryLocations()->getInventoryLocations($this->id)->map(function($location) {
-            return ['value' => $location->id, 'label' => $location->name];
+            return ['value' => $location->id, 'label' => $location->getUiLabel()];
         })->toArray();
     }
 }

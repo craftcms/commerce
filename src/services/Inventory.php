@@ -20,6 +20,7 @@ use craft\commerce\enums\LineItemType;
 use craft\commerce\models\inventory\InventoryCommittedMovement;
 use craft\commerce\models\inventory\InventoryManualMovement;
 use craft\commerce\models\inventory\UpdateInventoryLevel;
+use craft\commerce\models\inventory\UpdateInventoryLevelInTransfer;
 use craft\commerce\models\InventoryFulfillmentLevel;
 use craft\commerce\models\InventoryItem;
 use craft\commerce\models\InventoryLevel;
@@ -316,10 +317,10 @@ class Inventory extends Component
     }
 
     /**
-     * @param UpdateInventoryLevel $updateInventoryLevel
+     * @param UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel
      * @return bool
      */
-    private function _setInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
+    private function _setInventoryLevel(UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel): bool
     {
         $tableName = Table::INVENTORYTRANSACTIONS;
 
@@ -344,26 +345,32 @@ class Inventory extends Component
             $type = InventoryTransactionType::AVAILABLE->value;
         }
 
+        $data = [
+            'quantity' => $quantityQuery,
+            'type' => $type,
+            'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
+            'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
+            'note' => $updateInventoryLevel->note,
+            'movementHash' => $this->getMovementHash(),
+            'dateCreated' => Db::prepareDateForDb(new \DateTime()),
+            'userId' => Craft::$app->getUser()->getIdentity()?->id,
+        ];
+
+        if ($updateInventoryLevel instanceof UpdateInventoryLevelInTransfer) {
+            $data['transfer'] = $updateInventoryLevel->transferId;
+        }
+
         Craft::$app->db->createCommand()
-            ->insert($tableName, [
-                'quantity' => $quantityQuery,
-                'type' => $type,
-                'inventoryItemId' => $updateInventoryLevel->inventoryItem->id,
-                'inventoryLocationId' => $updateInventoryLevel->inventoryLocation->id,
-                'note' => $updateInventoryLevel->note,
-                'movementHash' => $this->getMovementHash(),
-                'dateCreated' => Db::prepareDateForDb(new \DateTime()),
-                'userId' => Craft::$app->getUser()->getIdentity()?->id,
-            ])->execute();
+            ->insert($tableName, $data)->execute();
 
         return true;
     }
 
     /**
-     * @param UpdateInventoryLevel $updateInventoryLevel
+     * @param UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel
      * @return bool
      */
-    private function _adjustInventoryLevel(UpdateInventoryLevel $updateInventoryLevel): bool
+    private function _adjustInventoryLevel(UpdateInventoryLevel|UpdateInventoryLevelInTransfer $updateInventoryLevel): bool
     {
         $tableName = Table::INVENTORYTRANSACTIONS;
 

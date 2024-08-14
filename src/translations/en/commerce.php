@@ -6,6 +6,28 @@
  */
 
 return [
+    'Save draft' => 'Save draft',
+    'Mark as Pending' => 'Mark as Pending',
+    'Add an inventory item' => 'Add an inventory item',
+    'Select purchasables to transfer' => 'Select purchasables to transfer',
+    'Transfer Details' => 'Transfer Details',
+    'Transfer Management' => 'Transfer Management',
+    'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.' => 'Are you sure you want to mark this transfer as pending? This will show as incoming at the destination.',
+    'Transfer marked as pending.' => 'Transfer marked as pending.',
+    'Couldn’t mark transfer as pending.' => 'Couldn’t mark transfer as pending.',
+    'Remove item' => 'Remove item',
+    'None on hand' => 'None on hand',
+    'Transfer must have at least one item.' => 'Transfer must have at least one item.',
+    'Accept' => 'Accept',
+    'Reject' => 'Reject',
+    'item' => 'Item',
+    'Receive Transfer' => 'Receive Transfer',
+    'Accept all unreceived' => 'Accept all unreceived',
+    'Reject All Unreceived' => 'Reject All Unreceived',
+    'Failed to receive transfer: {error}' => 'Failed to receive transfer: {error}',
+    'Inventory Transfers' => 'Inventory Transfers',
+    'on hand' => 'on hand',
+    'Received' => 'Received',
     'Of the enabled sites above, which sites should products in this product type be saved to?' => 'Of the enabled sites above, which sites should products in this product type be saved to?',
     'Only save product to the site they were created in' => 'Only save product to the site they were created in',
     'Save product to other sites in the same site group' => 'Save product to other sites in the same site group',
@@ -14,7 +36,8 @@ return [
     'Let each product choose which sites it should be saved to' => 'Let each product choose which sites it should be saved to',
 'Choose which sites this product type should be available in, and configure the site-specific settings.' => 'Choose which sites this product type should be available in, and configure the site-specific settings.',
     'At least one site must be enabled for the product type.' => 'At least one site must be enabled for the product type.',
-
+    '{from} to {to}' => '{from} to {to}',
+    'Destination' => 'Destination',
 
     '(new price)' => '(new price)',
     '(of original price)' => '(of original price)',

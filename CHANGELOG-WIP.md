@@ -11,6 +11,7 @@
 - Added a new “Manage donation settings” permission.
 - Added a new “Manage store general setting” permission.
 - Added a new “Manage payment currencies” permission.
+- Added a new “Manage inventory transfers” permission.
 
 ### Development
 - Added the `commerceCustomLineItem()` Twig function.
@@ -49,6 +50,17 @@
 - Added `craft\commerce\records\ProductType::$productTitleTranslationKeyFormat`.
 - Added `craft\commerce\records\ProductType::$productTitleTranslationMethod`.
 - Added `craft\commerce\records\ProductType::$propagationMethod`.
+- Removed `craft\commerce\fieldlayoutelements\UserCommerceField`.
+- Added `\craft\commerce\controllers\TransfersController`.
+- Added `craft\commerce\elements\Transfer`.
+- Added `craft\commerce\elements\conditions\transfers\TransferCondition`.
+- Added `craft\commerce\elements\db\TransferQuery`.
+- Added `craft\commerce\enums\TransferStatusType`.
+- Added `craft\commerce\fieldlayoutelements\TransferManagementField`.
+- Added `craft\commerce\models\TransferDetail`.
+- Added `craft\commerce\record\TransferDetail`.
+- Added `craft\commerce\services\InventoryLocations::getAllInventoryLocationsAsList`
+- Added `craft\commerce\services\Transfers`.
 - Added `craft\commerce\records\ProductType::$variantTitleTranslationKeyFormat`.
 - Added `craft\commerce\records\ProductType::$variantTitleTranslationMethod`.
 - Added `craft\commerce\services\LineItems::create()`.
@@ -56,5 +68,3 @@
 - Deprecated `craft\commerce\models\LineItem::populateFromPurchasable()`. Use `populate()` instead.
 - Deprecated `craft\commerce\models\LineItem::refreshFromPurchasable()`. Use `refresh()` instead.
 - Deprecated `craft\commerce\services\LineItems::createLineItem()`. Use `create()` instead.
-- Removed `craft\commerce\fieldlayoutelements\UserCommerceField`.
-- Removed `craft\commerce\fieldlayoutelements\UserCommerceField`.
