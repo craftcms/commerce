@@ -8,6 +8,7 @@
 - Fixed a PHP error that occurred when using a non-Craft queue driver. ([#3619](https://github.com/craftcms/commerce/pull/3619))
 - Fixed a bug where the week start day could be incorrect for stat widgets. ([#3620](https://github.com/craftcms/commerce/pull/3620))
 - Fixed a bug where variants weren't being duplicated when duplicating a product. ([#924](https://github.com/craftcms/commerce/issues/924))
+- It’s now possible to search order by shipping and billing addresses. ([#3603](https://github.com/craftcms/commerce/pull/3603))
 
 ## 5.0.15 - 2024-07-31
 
