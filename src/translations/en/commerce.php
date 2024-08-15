@@ -631,7 +631,6 @@ return [
     'Manage subscription' => 'Manage subscription',
     'Manage subscriptions' => 'Manage subscriptions',
     'Manage taxes' => 'Manage taxes',
-    'Manage transfer' => 'Manage transfer',
     'Manage' => 'Manage',
     'Mark as Pending' => 'Mark as Pending',
     'Mark as completed' => 'Mark as completed',
