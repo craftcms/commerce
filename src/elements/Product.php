@@ -930,7 +930,7 @@ class Product extends Element
             $this->_variants = self::createVariantQuery($this)->status(null)->collect();
         }
 
-        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || $variant->enabled);
+        return $this->_variants->filter(fn(Variant $variant) => $includeDisabled || $variant->getEnabledForSite());
     }
 
     /**
