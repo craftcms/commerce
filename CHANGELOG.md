@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
+
 ## 5.0.16 - 2024-08-14
 
 - It’s now possible to duplicate variants.
