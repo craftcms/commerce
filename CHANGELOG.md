@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.1.0-beta.2 - 2024-08-16
 
 - Fixed a bug where it wasn’t possible to select shipping and tax categories for custom line items on the Edit Order page.
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
