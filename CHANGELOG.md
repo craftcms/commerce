@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
+- Fixed a bug where `craft\commerce\elements\Product::getVariants()` wasn’t respecting variants’ site statuses.
+
 ## 5.1.0-beta.1 - 2024-08-14
 
 ### Store Management
@@ -68,6 +73,11 @@
 
 ### System
 - Craft Commerce now requires Craft CMS 5.2 or later.
+
+## 5.0.16.1 - 2024-08-16
+
+- Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
+- Fixed a bug where `craft\commerce\elements\Product::getVariants()` wasn’t respecting variants’ site statuses.
 
 ## 5.0.16 - 2024-08-14
 

@@ -9,6 +9,7 @@ namespace craft\commerce\base;
 
 use Craft;
 use craft\base\Element;
+use craft\base\NestedElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\StoreNotFoundException;
@@ -918,8 +919,16 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $purchasableId = $this->getCanonicalId();
         if (!$this->propagating) {
-            if ($this->duplicateOf !== null) {
-                $this->sku = \craft\commerce\helpers\Purchasable::tempSku() . '-' . $this->getSku();
+            $isOwnerDraftApplying = false;
+
+            // If this is a nested element, check if the owner is a draft and is being applied
+            if ($this instanceof NestedElementInterface) {
+                $owner = $this->getOwner();
+                $isOwnerDraftApplying = $owner && $owner->getIsCanonical() && $owner->duplicateOf !== null && $owner->duplicateOf->getIsDraft();
+            }
+
+            if ($this->duplicateOf !== null && !$isOwnerDraftApplying) {
+                $this->sku = PurchasableHelper::tempSku() . '-' . $this->getSku();
                 // Nullify inventory item so a new one is created
                 $this->inventoryItemId = null;
             }

@@ -23,7 +23,7 @@
 {% for method in shippingMethods %}
 	{% set tableData = tableData|merge([{
         id: method.id,
-        title: method.getName()|t('site')|e,
+        title: method.getName()|t('site'),
         status: method.getIsEnabled(),
         url: method.getCpEditUrl(),
         handle: method.handle,
