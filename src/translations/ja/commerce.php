@@ -752,7 +752,7 @@ return [
     'No transactions exist.' => '取引がありません。',
     'No user authenticated.' => '認証済みのユーザーがいません。',
     'No' => 'いいえ',
-    'None on hand' => 'None on hand',
+    'None on hand' => '在庫なし',
     'None' => 'なし',
     'Not a valid address type' => '有効な住所タイプではありません',
     'Not a valid credit card number.' => '有効なクレジットカード番号ではありません。',
