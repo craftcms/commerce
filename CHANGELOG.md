@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed a bug where it wasn’t possible to select shipping and tax categories for custom line items on the Edit Order page.
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
 - Fixed a bug where `craft\commerce\elements\Product::getVariants()` wasn’t respecting variants’ site statuses.
 
