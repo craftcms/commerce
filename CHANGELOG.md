@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 5.0.16.1 - 2024-08-16
 
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
 - Fixed a bug where `craft\commerce\elements\Product::getVariants()` wasn’t respecting variants’ site statuses.
