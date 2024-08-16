@@ -927,7 +927,7 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
                 $isOwnerDraftApplying = $owner && $owner->getIsCanonical() && $owner->duplicateOf !== null && $owner->duplicateOf->getIsDraft();
             }
 
-            if ($this->duplicateOf !== null && !$isOwnerDraftApplying) {
+            if ($this->duplicateOf !== null && !$this->getIsRevision() && !$isOwnerDraftApplying) {
                 $this->sku = PurchasableHelper::tempSku() . '-' . $this->getSku();
                 // Nullify inventory item so a new one is created
                 $this->inventoryItemId = null;

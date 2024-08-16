@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed a bug where variants’ `sku` values could be cleared out when saving a product revision.
+
 ## 5.0.16.1 - 2024-08-16
 
 - Fixed a bug where variants’ `sku` values could be cleared out when saving a product.
