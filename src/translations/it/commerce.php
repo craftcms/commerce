@@ -1204,7 +1204,7 @@ return [
     'Transfer Status' => 'Stato di trasferimento',
     'Transfer fields saved.' => 'Campi di trasferimento salvati.',
     'Transfer must have at least one item.' => 'Il trasferimento deve avere almeno una voce.',
-    'Transfer' => 'Trasferisci',
+    'Transfer' => 'Trasferimento',
     'Transfers' => 'Trasferimenti',
     'Trial days credited' => 'Giorni di prova concessi',
     'Trial expiration' => 'Scadenza prova',
