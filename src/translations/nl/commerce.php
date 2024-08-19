@@ -1347,7 +1347,7 @@ return [
     '{count} Unfulfilled Orders' => '{count} onvervulde bestellingen',
     '{description} is no longer available.' => '{description} is niet meer beschikbaar.',
     '{description} only has {stock} in stock.' => '{description} heeft maar {stock} op voorraad.',
-    '{from} to {to}' => '{from} tot {to}',
+    '{from} to {to}' => '{from} naar {to}',
     '{name} (Primary)' => '{name} (primair)',
     '{name} (Trashed)' => '{name} (verwijderd)',
     '{name} catalog price' => 'Catalogusprijs {name}',
