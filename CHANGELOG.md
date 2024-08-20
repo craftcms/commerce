@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed a bug where variants’ `promotionalPrices` weren’t showing as currency values on variant indexes.
+- Fixed a PHP error that could occur when sending an order email. ([#3596](https://github.com/craftcms/commerce/issues/3596))
 
 ## 5.0.16.2 - 2024-08-16
 
