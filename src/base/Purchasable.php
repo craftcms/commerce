@@ -300,22 +300,22 @@ abstract class Purchasable extends Element implements PurchasableInterface, HasS
     {
         $length = ArrayHelper::remove($values, 'length');
         if ($length !== null) {
-            $this->length  = $length ? (float)Localization::normalizeNumber($length) : null;
+            $this->length = $length ? (float)Localization::normalizeNumber($length) : null;
         }
 
         $width = ArrayHelper::remove($values, 'width');
         if ($width !== null) {
-            $this->width  = $width ? (float)Localization::normalizeNumber($width) : null;
+            $this->width = $width ? (float)Localization::normalizeNumber($width) : null;
         }
 
         $height = ArrayHelper::remove($values, 'height');
         if ($height !== null) {
-            $this->height  = $height ? (float)Localization::normalizeNumber($height) : null;
+            $this->height = $height ? (float)Localization::normalizeNumber($height) : null;
         }
 
         $weight = ArrayHelper::remove($values, 'weight');
         if ($weight !== null) {
-            $this->weight  = $weight ? (float)Localization::normalizeNumber($weight) : null;
+            $this->weight = $weight ? (float)Localization::normalizeNumber($weight) : null;
         }
 
         $this->setAttributes($values);
