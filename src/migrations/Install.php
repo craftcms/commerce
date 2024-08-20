@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\models\ProductType;
 use craft\commerce\models\SiteStore;
 use craft\commerce\models\Store;
 use craft\commerce\Plugin;
@@ -606,6 +607,8 @@ class Install extends Migration
         $this->archiveTableIfExists(Table::PRODUCTTYPES);
         $this->createTable(Table::PRODUCTTYPES, [
             'id' => $this->primaryKey(),
+            'type' => $this->enum('type', [ProductType::TYPE_CHANNEL, ProductType::TYPE_STRUCTURE])->notNull()->defaultValue('channel'),
+            'defaultPlacement' => $this->enum('defaultPlacement', [ProductType::DEFAULT_PLACEMENT_BEGINNING, ProductType::DEFAULT_PLACEMENT_END])->defaultValue('end')->notNull(),
             'fieldLayoutId' => $this->integer(),
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),

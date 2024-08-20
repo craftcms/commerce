@@ -46,6 +46,16 @@ use yii\base\InvalidConfigException;
  */
 class ProductType extends Model
 {
+    /** @since 5.2.0 */
+    public const TYPE_CHANNEL = 'channel';
+    /** @since 5.2.0 */
+    public const TYPE_STRUCTURE = 'structure';
+
+    /** @since 5.2.0 */
+    public const DEFAULT_PLACEMENT_BEGINNING = 'beginning';
+    /** @since 5.2.0 */
+    public const DEFAULT_PLACEMENT_END = 'end';
+    
     /**
      * @var int|null ID
      */
@@ -513,5 +523,16 @@ class ProductType extends Model
         $fields[] = 'siteSettings';
 
         return $fields;
+    }
+
+    /**
+     * Returns the section’s config.
+     *
+     * @return array
+     * @since 3.5.0
+     */
+    public function getConfig(): array
+    {
+
     }
 }
